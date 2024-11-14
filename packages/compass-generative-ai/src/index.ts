@@ -4,6 +4,7 @@ import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { activatePlugin } from './store/atlas-ai-store';
 import { AtlasAiPlugin } from './components';
 import { atlasAiServiceLocator } from './provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CompassGenerativeAIPlugin = registerHadronPlugin(
   {
@@ -14,6 +15,7 @@ export const CompassGenerativeAIPlugin = registerHadronPlugin(
   {
     atlasAuthService: atlasAuthServiceLocator,
     atlasAiService: atlasAiServiceLocator,
+    preferences: preferencesLocator,
   }
 );
 

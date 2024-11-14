@@ -270,6 +270,9 @@ const CompassWeb = ({
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
       enableGenAIFeatures: true,
+      enableGenAIFeaturesAtlasProject: false,
+      enableGenAISampleDocumentPassingOnAtlasProject: false,
+      enableGenAIFeaturesAtlasOrg: false,
       enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {

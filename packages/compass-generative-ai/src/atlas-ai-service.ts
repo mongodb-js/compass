@@ -12,7 +12,6 @@ import { EJSON } from 'bson';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
-import { throwIfNotOk } from '../../atlas-service/src/util';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -452,7 +451,7 @@ export class AtlasAiService {
       {
         method: 'POST',
         body: JSON.stringify({
-          isEnabled: true,
+          value: true,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -460,7 +459,6 @@ export class AtlasAiService {
         },
       }
     );
-    await throwIfNotOk(res);
     await this.preferences.savePreferences({
       optInDataExplorerGenAIFeatures: true,
     });

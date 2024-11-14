@@ -4,6 +4,7 @@ import {
   Body,
   Link,
   MarketingModal,
+  SpinLoader,
   css,
   spacing,
   useDarkMode,
@@ -64,7 +65,22 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       }
       open={isOptInModalVisible}
       onClose={onOptInModalClose}
-      buttonText="Opt In to Generative AI Features"
+      // @ts-expect-error leafygreen only allows strings, but we need to pass
+      // icons
+      buttonText={
+        <>
+          &nbsp;Opt in to Atlas to enable
+          {isOptInInProgress && (
+            <>
+              &nbsp;
+              <SpinLoader
+                // Marketing modal button is always bright, spin loader in dark mode gets lost
+                darkMode={false}
+              ></SpinLoader>
+            </>
+          )}
+        </>
+      }
       onButtonClick={() => {
         // We can't control buttons in marketing modal, so instead we just do
         // nothing when button is clicked and sign in is in progress
@@ -88,7 +104,7 @@ export default connect(
   (state: AtlasOptInState) => {
     return {
       isOptInModalVisible: state.optInReducer.isModalOpen,
-      isOptInInProgress: state.state === 'in-progress',
+      isOptInInProgress: state.optInReducer.state === 'in-progress',
     };
   },
   { onOptInModalClose: closeOptInModal, onOptInClick: optIn }

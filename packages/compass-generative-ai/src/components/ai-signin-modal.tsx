@@ -103,7 +103,7 @@ export default connect(
   (state: AtlasSignInState) => {
     return {
       isSignInModalVisible: state.signInReducer.isModalOpen,
-      isSignInInProgress: state.state === 'in-progress',
+      isSignInInProgress: state.signInReducer.state === 'in-progress',
     };
   },
   { onSignInModalClose: closeSignInModal, onSignInClick: signIn }

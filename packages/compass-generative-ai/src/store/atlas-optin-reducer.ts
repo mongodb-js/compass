@@ -115,7 +115,7 @@ export function getAttempt(id?: number | null): AttemptState {
   const attemptState = AttemptStateMap.get(id);
   if (!attemptState) {
     throw new Error(
-      'Trying to get the state for a non-existing sign in attempt'
+      'Trying to get the state for a non-existing opt in attempt'
     );
   }
   return attemptState;
@@ -297,7 +297,7 @@ export const closeOptInModal = (
 
 export const cancelOptIn = (reason?: any): GenAIAtlasOptInThunkAction<void> => {
   return (dispatch, getState) => {
-    // Can't cancel sign in after the flow was finished indicated by current
+    // Can't cancel opt in after the flow was finished indicated by current
     // attempt id being set to null.
     if (getState().attemptId === null) {
       return;

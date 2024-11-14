@@ -19,8 +19,8 @@ export function getStore() {
   return store;
 }
 const reducer = combineReducers({
-  signInReducer,
-  optInReducer,
+  signIn: signInReducer,
+  optIn: optInReducer,
 });
 
 export type CompassGenerativeAIExtraArgs = {
