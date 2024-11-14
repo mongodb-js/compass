@@ -664,10 +664,30 @@ describe('CompassMenu', function () {
           label: 'Test Meta',
           accelerator: 'Meta+Ctrl+T',
         },
+        {
+          label: 'Test CmdOrCtrl',
+          accelerator: 'CmdOrCtrl+Q',
+        },
+        {
+          label: 'Test Command',
+          accelerator: 'Command+H',
+        },
+        {
+          label: 'Test Command+Shift',
+          accelerator: 'Command+Shift+H',
+        },
+        {
+          label: 'Test Atl+CmdOrCtrl',
+          accelerator: 'Alt+CmdOrCtrl+S',
+        },
+        {
+          label: 'Test Shift+CmdOrCtrl',
+          accelerator: 'Shift+CmdOrCtrl+S',
+        },
       ]);
       const menuWillClose = once(menu, 'menu-will-close');
       menu.popup({
-        window: new BrowserWindow({ show: false, width: 100, height: 100 }),
+        window: new BrowserWindow({ show: false }),
       });
       menu.closePopup();
       await menuWillClose;
