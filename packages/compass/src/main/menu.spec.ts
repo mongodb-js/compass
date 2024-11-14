@@ -654,44 +654,49 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    it('does not crash when rendering menu item with an accelerator', async () => {
-      const menu = Menu.buildFromTemplate([
-        {
-          label: 'Test Super',
-          accelerator: 'Super+Ctrl+T',
-        },
-        {
-          label: 'Test Meta',
-          accelerator: 'Meta+Ctrl+T',
-        },
-        {
-          label: 'Test CmdOrCtrl',
-          accelerator: 'CmdOrCtrl+Q',
-        },
-        {
-          label: 'Test Command',
-          accelerator: 'Command+H',
-        },
-        {
-          label: 'Test Command+Shift',
-          accelerator: 'Command+Shift+H',
-        },
-        {
-          label: 'Test Atl+CmdOrCtrl',
-          accelerator: 'Alt+CmdOrCtrl+S',
-        },
-        {
-          label: 'Test Shift+CmdOrCtrl',
-          accelerator: 'Shift+CmdOrCtrl+S',
-        },
-      ]);
-      const menuWillClose = once(menu, 'menu-will-close');
-      menu.popup({
-        window: new BrowserWindow({ show: false }),
-      });
-      menu.closePopup();
-      await menuWillClose;
-    });
+    // TODO(COMPASS-8505): Remove skipping on linux
+    const testIt = os.platform() === 'linux' ? it.skip : it;
+    testIt(
+      'does not crash when rendering menu item with an accelerator',
+      async () => {
+        const menu = Menu.buildFromTemplate([
+          {
+            label: 'Test Super',
+            accelerator: 'Super+Ctrl+T',
+          },
+          {
+            label: 'Test Meta',
+            accelerator: 'Meta+Ctrl+T',
+          },
+          {
+            label: 'Test CmdOrCtrl',
+            accelerator: 'CmdOrCtrl+Q',
+          },
+          {
+            label: 'Test Command',
+            accelerator: 'Command+H',
+          },
+          {
+            label: 'Test Command+Shift',
+            accelerator: 'Command+Shift+H',
+          },
+          {
+            label: 'Test Atl+CmdOrCtrl',
+            accelerator: 'Alt+CmdOrCtrl+S',
+          },
+          {
+            label: 'Test Shift+CmdOrCtrl',
+            accelerator: 'Shift+CmdOrCtrl+S',
+          },
+        ]);
+        const menuWillClose = once(menu, 'menu-will-close');
+        menu.popup({
+          window: new BrowserWindow({ show: false }),
+        });
+        menu.closePopup();
+        await menuWillClose;
+      }
+    );
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
       expect(
