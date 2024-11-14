@@ -168,13 +168,15 @@ export async function createNumbersStringCollection(
   );
 }
 
-export async function createGeospatialCollection(): Promise<void> {
+export async function createGeospatialCollection(
+  name = 'geospatial'
+): Promise<void> {
   await Promise.all(
     test_dbs.map(async (db) => {
       const lon = () => Math.random() * 360 - 180;
       const lat = () => Math.random() * 180 - 90;
 
-      await db.collection('geospatial').insertMany(
+      await db.collection(name).insertMany(
         [...Array(1000).keys()].map(() => ({
           location: { type: 'Point', coordinates: [lon(), lat()] },
         }))

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Nov 08 2024.
+This document was automatically generated on Thu Nov 14 2024.
 
 ## List of dependencies
 
@@ -207,7 +207,7 @@ Package|Version|License
 **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**|0.0.9|MIT
 **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**|1.0.5|MIT
 **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**|3.1.8|MIT
-**[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**|7.0.3|MIT
+**[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**|7.0.5|MIT
 **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**|4.3.0|MIT
 **[d3-flextree](#d4848a862048d0f4733db2a8631b802f3b5f86f2d4a1efb77fc8b8cf9a06bf73)**|2.1.2|WTFPL
 **[d3-hierarchy](#e718643319205524a77c56ca75dcbf37e3975cc5e187760d1eef01cdd94a7d74)**|1.1.9|BSD-3-Clause
@@ -238,7 +238,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b)**|32.2.2|MIT
+**[electron](#45d9d716eba09c27895fc97918c48d7e8fd605bb2c2a291edd07aa512ebee800)**|32.2.3|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -17415,8 +17415,8 @@ License files:
       
 
 
-<a id="67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff"></a>
-### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.3)
+<a id="18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d"></a>
+### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.5)
 License tags: MIT
 
 License files:
@@ -18732,8 +18732,8 @@ License files:
       
 
 
-<a id="ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 32.2.2)
+<a id="45d9d716eba09c27895fc97918c48d7e8fd605bb2c2a291edd07aa512ebee800"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.2.3)
 License tags: MIT
 
 License files:

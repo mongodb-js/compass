@@ -73,6 +73,9 @@ function createStore({
   hasShardKey = () => false,
   failsOnShardingRequest = () => false,
   failsOnShardZoneRequest = () => false,
+  failsToFetchClusterDetails = () => false,
+  failsToFetchDeploymentStatus = () => false,
+  failsToFetchShardKey = () => false,
   authenticatedFetchStub,
 }:
   | {
@@ -81,6 +84,9 @@ function createStore({
       hasShardKey?: () => boolean | AtlasShardKey;
       failsOnShardingRequest?: () => boolean;
       failsOnShardZoneRequest?: () => boolean;
+      failsToFetchClusterDetails?: () => boolean;
+      failsToFetchDeploymentStatus?: () => boolean;
+      failsToFetchShardKey?: () => boolean;
       authenticatedFetchStub?: never;
     }
   | {
@@ -89,6 +95,9 @@ function createStore({
       hasShardKey?: () => boolean | ShardKey;
       failsOnShardingRequest?: never;
       failsOnShardZoneRequest?: () => never;
+      failsToFetchClusterDetails?: never;
+      failsToFetchDeploymentStatus?: never;
+      failsToFetchShardKey?: () => boolean;
       authenticatedFetchStub?: () => void;
     } = {}): GlobalWritesStore {
   const atlasService = {
@@ -98,6 +107,9 @@ function createStore({
       }
 
       if (uri.includes('/clusters/')) {
+        if (failsToFetchClusterDetails()) {
+          return Promise.reject(new Error('Failed to fetch cluster details'));
+        }
         return createAuthFetchResponse({
           ...clusterDetails,
           geoSharding: {
@@ -108,6 +120,9 @@ function createStore({
       }
 
       if (uri.includes('/deploymentStatus/')) {
+        if (failsToFetchDeploymentStatus()) {
+          return Promise.reject(new Error('Failed to fetch deployment status'));
+        }
         return createAuthFetchResponse({
           automationStatus: {
             processes: hasShardingError() ? [failedShardingProcess] : [],
@@ -130,6 +145,10 @@ function createStore({
     }),
     automationAgentAwait: (_meta: unknown, type: string) => {
       if (type === 'getShardKey') {
+        if (failsToFetchShardKey()) {
+          return Promise.reject(new Error('Failed to fetch shardKey'));
+        }
+
         const shardKey = hasShardKey();
         return {
           response:
@@ -188,6 +207,35 @@ describe('GlobalWritesStore Store', function () {
   });
 
   context('scenarios', function () {
+    context('initial load fail', function () {
+      it('fails to fetch cluster details', async function () {
+        const store = createStore({
+          failsToFetchClusterDetails: () => true,
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('LOADING_ERROR');
+        });
+      });
+
+      it('fails to fetch shard key', async function () {
+        const store = createStore({
+          failsToFetchShardKey: () => true,
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('LOADING_ERROR');
+        });
+      });
+
+      it('fails to fetch deployment status', async function () {
+        const store = createStore({
+          failsToFetchDeploymentStatus: () => true,
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('LOADING_ERROR');
+        });
+      });
+    });
+
     it('not managed -> sharding -> valid shard key', async function () {
       let mockShardKey = false;
       let mockManagedNamespace = false;
@@ -288,6 +336,52 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+      });
+    });
+
+    context('pulling fail', function () {
+      it('sharding -> error (failed to fetch shard key)', async function () {
+        let mockFailure = false;
+        // initial state === sharding
+        clock = sinon.useFakeTimers({
+          shouldAdvanceTime: true,
+        });
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          failsToFetchShardKey: Sinon.fake(() => mockFailure),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARDING');
+        });
+
+        // sharding ends with a request failure
+        mockFailure = true;
+        clock.tick(POLLING_INTERVAL);
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('LOADING_ERROR');
+        });
+      });
+
+      it('sharding -> error (failed to fetch deployment status)', async function () {
+        let mockFailure = false;
+        // initial state === sharding
+        clock = sinon.useFakeTimers({
+          shouldAdvanceTime: true,
+        });
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          failsToFetchDeploymentStatus: Sinon.fake(() => mockFailure),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARDING');
+        });
+
+        // sharding ends with a request failure
+        mockFailure = true;
+        clock.tick(POLLING_INTERVAL);
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('LOADING_ERROR');
+        });
       });
     });
 

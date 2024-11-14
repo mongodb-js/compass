@@ -8,7 +8,6 @@ import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
 import { useDarkMode } from '../hooks/use-theme';
 import { useHotkeys } from '../hooks/use-hotkeys';
-import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
 
@@ -162,7 +161,7 @@ function InteractivePopover({
 
   useHotkeys('Escape', onClose, { enabled: open }, [onClose]);
 
-  const closeButtonId = useId('close-button-id');
+  const closeButtonId = 'close-button-id';
 
   return trigger({
     onClick: onClickTrigger,

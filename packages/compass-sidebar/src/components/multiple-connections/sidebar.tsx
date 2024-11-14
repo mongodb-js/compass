@@ -25,8 +25,10 @@ import ConnectionsNavigation from './connections-navigation';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
+import type { ConnectionsFilter } from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
+
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type MappedCsfleModalProps = {
@@ -99,8 +101,9 @@ export function MultipleConnectionSidebar({
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
   >(undefined);
-  const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
-    useState<RegExp | null>(null);
+  const [connectionsFilter, setConnectionsFilter] = useState<ConnectionsFilter>(
+    { regex: null, excludeInactive: false }
+  );
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
@@ -137,12 +140,6 @@ export function MultipleConnectionSidebar({
       }
     )?.connectionInfo;
   };
-
-  const onActiveConnectionFilterChange = useCallback(
-    (filterRegex: RegExp | null) =>
-      setActiveConnectionsFilterRegex(filterRegex),
-    [setActiveConnectionsFilterRegex]
-  );
 
   const onOpenConnectionInfo = useCallback((connectionId: string) => {
     return setConnectionInfoModalConnectionId(connectionId);
@@ -203,8 +200,8 @@ export function MultipleConnectionSidebar({
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
-          filterRegex={activeConnectionsFilterRegex}
-          onFilterChange={onActiveConnectionFilterChange}
+          filter={connectionsFilter}
+          onFilterChange={setConnectionsFilter}
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);
           }}

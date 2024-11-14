@@ -790,6 +790,16 @@ type NewConnectionEvent = ConnectionScoped<{
      * The type of connected topology.
      */
     topology_type: string;
+
+    /**
+     * The number of active connections.
+     */
+    num_active_connections: number;
+
+    /**
+     * The number of inactive connections.
+     */
+    num_inactive_connections: number;
   } & ExtraConnectionData;
 }>;
 

@@ -16,6 +16,7 @@ import ShardKeyInvalid from './states/shard-key-invalid';
 import ShardKeyMismatch from './states/shard-key-mismatch';
 import ShardingError from './states/sharding-error';
 import IncompleteShardingSetup from './states/incomplete-sharding-setup';
+import LoadingError from './states/loading-error';
 
 const containerStyles = css({
   display: 'flex',
@@ -90,20 +91,24 @@ function ShardingStateView({
     return <IncompleteShardingSetup />;
   }
 
+  if (shardingStatus === ShardingStatuses.LOADING_ERROR) {
+    return <LoadingError />;
+  }
+
   return null;
 }
 
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   if (shardingStatus === ShardingStatuses.NOT_READY) {
     return (
-      <div className={loaderStyles}>
+      <div className={loaderStyles} data-status={shardingStatus.toLowerCase()}>
         <SpinLoaderWithLabel progressText="Loading …" />
       </div>
     );
   }
 
   return (
-    <WorkspaceContainer>
+    <WorkspaceContainer data-status={shardingStatus.toLowerCase()}>
       <ConfirmationModalArea>
         <div className={containerStyles}>
           <ShardingStateView shardingStatus={shardingStatus} />

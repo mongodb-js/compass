@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Fri, Nov 8, 2024 at 06:57 PM
+Generated on Thu, Nov 14, 2024 at 04:23 PM
 
 ## Table of Contents
 
@@ -854,6 +854,10 @@ This event is fired when user successfully connects to a new server/cluster.
   - The OS family of the connected server.
 - **topology_type** (required): `string`
   - The type of connected topology.
+- **num_active_connections** (required): `number`
+  - The number of active connections.
+- **num_inactive_connections** (required): `number`
+  - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`

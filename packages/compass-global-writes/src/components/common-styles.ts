@@ -17,3 +17,8 @@ export const containerStyles = css({
   marginBottom: spacing[400],
   textAlign: 'justify',
 });
+
+export const bannerBtnStyles = css({
+  float: 'right',
+  height: `${spacing[600]}px`,
+});

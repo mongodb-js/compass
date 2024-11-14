@@ -357,6 +357,33 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Remove')).to.be.visible;
         });
 
+        it('should render the only connected connections when toggled', async () => {
+          await renderAndWaitForNavigationTree();
+
+          const favoriteConnectionId = savedFavoriteConnection.id;
+          const recentConnectionId = savedRecentConnection.id;
+
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+
+          userEvent.click(screen.getByLabelText('Filter connections'));
+
+          userEvent.click(
+            screen.getByLabelText('Show only active connections')
+          );
+
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.null;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
+
+          await connectAndNotifyInstanceManager(savedFavoriteConnection);
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
+
+          await connectAndNotifyInstanceManager(savedRecentConnection);
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+        });
+
         context('and performing actions', function () {
           beforeEach(async function () {
             await renderAndWaitForNavigationTree({
@@ -460,18 +487,15 @@ describe('Multiple Connections Sidebar Component', function () {
             expect(connectionsStoreActions.disconnect).to.have.been.called;
           });
 
-          it('should connect when the user tries to expand an inactive connection', async function () {
+          it('should not connect when the user tries to expand an inactive connection', function () {
             const connectionItem = screen.getByTestId(savedRecentConnection.id);
 
             userEvent.click(
               within(connectionItem).getByLabelText('Caret Right Icon')
             );
-
-            await waitFor(() => {
-              expect(connectionsStoreActions.connect).to.be.calledWith(
-                savedRecentConnection
-              );
-            });
+            expect(connectionsStoreActions.connect).to.not.be.calledWith(
+              savedRecentConnection
+            );
           });
 
           it('should open edit connection modal when clicked on edit connection action', function () {
