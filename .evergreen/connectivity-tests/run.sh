@@ -6,6 +6,8 @@ set -e
 MONOREPO_ROOT_DIR="$(cd $(dirname "$0")/../..; pwd)"
 cd $MONOREPO_ROOT_DIR
 
+echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+
 echo "building connectivity tests image from ${PWD}"
 docker build -t devtools-connectivity-tests --build-arg "NODE_JS_VERSION=$NODE_JS_VERSION" -f "./.evergreen/connectivity-tests/Dockerfile" .
 echo "connectivity tests image built"
