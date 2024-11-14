@@ -71,7 +71,6 @@ export default function ConnectionsFilterPopover({
     <InteractivePopover
       open={open}
       setOpen={setOpen}
-      blurTriggerOnClose
       containerClassName={containerStyles}
       hideCloseButton
       trigger={({ onClick, children, ref }) => (

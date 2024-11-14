@@ -60,7 +60,6 @@ type InteractivePopoverProps = {
   containedElements?: string[];
   containerClassName?: string;
   closeButtonClassName?: string;
-  blurTriggerOnClose?: boolean;
 } & Pick<
   React.ComponentProps<typeof Popover>,
   'align' | 'justify' | 'spacing' | 'popoverZIndex'
@@ -81,7 +80,6 @@ function InteractivePopover({
   popoverZIndex,
   containerClassName,
   closeButtonClassName,
-  blurTriggerOnClose = false,
 }: InteractivePopoverProps): React.ReactElement {
   const darkMode = useDarkMode();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -93,13 +91,9 @@ function InteractivePopover({
 
     // Return focus to the trigger when the popover is hidden.
     setTimeout(() => {
-      if (blurTriggerOnClose) {
-        triggerRef.current?.blur();
-      } else {
-        triggerRef.current?.focus();
-      }
+      triggerRef.current?.focus();
     });
-  }, [setOpen, blurTriggerOnClose]);
+  }, [setOpen]);
 
   const onClickTrigger = useCallback(
     (event) => {
