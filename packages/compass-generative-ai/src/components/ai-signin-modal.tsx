@@ -102,8 +102,8 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
 export default connect(
   (state: AtlasSignInState) => {
     return {
-      isSignInModalVisible: state.signInReducer.isModalOpen,
-      isSignInInProgress: state.signInReducer.state === 'in-progress',
+      isSignInModalVisible: state.signIn.isModalOpen,
+      isSignInInProgress: state.signIn.state === 'in-progress',
     };
   },
   { onSignInModalClose: closeSignInModal, onSignInClick: signIn }

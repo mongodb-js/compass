@@ -103,8 +103,8 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
 export default connect(
   (state: AtlasOptInState) => {
     return {
-      isOptInModalVisible: state.optInReducer.isModalOpen,
-      isOptInInProgress: state.optInReducer.state === 'in-progress',
+      isOptInModalVisible: state.optIn.isModalOpen,
+      isOptInInProgress: state.optIn.state === 'in-progress',
     };
   },
   { onOptInModalClose: closeOptInModal, onOptInClick: optIn }
