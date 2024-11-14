@@ -1,20 +1,19 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-
-import {
-  signIn,
-  cancelSignIn,
-  attemptId,
-  AttemptStateMap,
-  signIntoAtlasWithModalPrompt,
-  closeSignInModal,
-  atlasServiceSignedIn,
-} from './atlas-signin-reducer';
 import { configureStore } from './atlas-ai-store';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import {
+  atlasAiServiceOptedIn,
+  attemptId,
+  AttemptStateMap,
+  cancelOptIn,
+  closeOptInModal,
+  optIn,
+  optIntoGenAIWithModalPrompt,
+} from './atlas-optin-reducer';
 
-describe('atlasSignInReducer', function () {
+describe('atlasOptInReducer', function () {
   const sandbox = Sinon.createSandbox();
   let mockPreferences: PreferencesAccess;
 
@@ -26,10 +25,10 @@ describe('atlasSignInReducer', function () {
     sandbox.reset();
   });
 
-  describe('signIn', function () {
+  describe('optIn', function () {
     it('should check authenticated state and set state to success if already authenticated', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        optIn: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -38,15 +37,15 @@ describe('atlasSignInReducer', function () {
       });
 
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      void store.dispatch(atlasServiceSignedIn());
-      await store.dispatch(signIn());
-      expect(mockAtlasService.signIn).not.to.have.been.called;
+      void store.dispatch(atlasAiServiceOptedIn());
+      await store.dispatch(optIn());
+      expect(mockAtlasService.optIn).not.to.have.been.called;
       expect(store.getState()).to.have.nested.property('state', 'success');
     });
 
-    it('should start sign in, and set state to success', async function () {
+    it('should start opt in, and set state to success', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        optIn: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -55,15 +54,15 @@ describe('atlasSignInReducer', function () {
       });
 
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
-      await store.dispatch(signIn());
-      expect(mockAtlasService.signIn).to.have.been.calledOnce;
+      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      await store.dispatch(optIn());
+      expect(mockAtlasService.optIn).to.have.been.calledOnce;
       expect(store.getState()).to.have.nested.property('state', 'success');
     });
 
-    it('should fail sign in if sign in failed', async function () {
+    it('should fail opt in if opt in failed', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().rejects(new Error('Pineapples!')),
+        optIn: sandbox.stub().rejects(new Error('Pineapples!')),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -71,31 +70,31 @@ describe('atlasSignInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
-      const signInPromise = store.dispatch(signIn());
+      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      const optInPromise = store.dispatch(optIn());
       // Avoid unhandled rejections.
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
-      await signInPromise;
-      expect(mockAtlasService.signIn).to.have.been.calledOnce;
+      await optInPromise;
+      expect(mockAtlasService.optIn).to.have.been.calledOnce;
       expect(store.getState()).to.have.nested.property('state', 'error');
     });
   });
 
-  describe('cancelSignIn', function () {
-    it('should do nothing if no sign in is in progress', function () {
+  describe('cancelOptIn', function () {
+    it('should do nothing if no opt in is in progress', function () {
       const store = configureStore({
         atlasAuthService: {} as any,
         atlasAiService: {} as any,
         preferences: mockPreferences,
       });
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      store.dispatch(cancelSignIn());
+      store.dispatch(cancelOptIn());
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
-    it('should cancel sign in if sign in is in progress', async function () {
+    it('should cancel opt in if opt in is in progress', async function () {
       const mockAtlasService = {
-        signIn: sandbox
+        optIn: sandbox
           .stub()
           .callsFake(({ signal }: { signal: AbortSignal }) => {
             return new Promise((resolve, reject) => {
@@ -111,20 +110,20 @@ describe('atlasSignInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
+      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
 
       await Promise.all([
-        store.dispatch(signIn()),
-        store.dispatch(cancelSignIn()),
+        store.dispatch(optIn()),
+        store.dispatch(cancelOptIn()),
       ]);
       expect(store.getState()).to.have.nested.property('state', 'canceled');
     });
   });
 
-  describe('signIntoAtlasWithModalPrompt', function () {
-    it('should resolve when user finishes sign in with prompt flow', async function () {
+  describe('optIntoAtlasWithModalPrompt', function () {
+    it('should resolve when user finishes opt in with prompt flow', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        optIn: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -132,16 +131,16 @@ describe('atlasSignInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
-      await store.dispatch(signIn());
-      await signInPromise;
+      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      await store.dispatch(optIn());
+      await optInPromise;
 
       expect(store.getState()).to.have.property('state', 'success');
     });
 
-    it('should reject if sign in flow fails', async function () {
+    it('should reject if opt in flow fails', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().rejects(new Error('Whoops!')),
+        optIn: sandbox.stub().rejects(new Error('Whoops!')),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -149,12 +148,12 @@ describe('atlasSignInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
-      await store.dispatch(signIn());
+      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      await store.dispatch(optIn());
 
       try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
+        await optInPromise;
+        throw new Error('Expected optInPromise to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'Whoops!');
       }
@@ -164,7 +163,7 @@ describe('atlasSignInReducer', function () {
 
     it('should reject if user dismissed the modal', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        optIn: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -172,12 +171,12 @@ describe('atlasSignInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
-      store.dispatch(closeSignInModal(new Error('This operation was aborted')));
+      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      store.dispatch(closeOptInModal(new Error('This operation was aborted')));
 
       try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
+        await optInPromise;
+        throw new Error('Expected optInPromise to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'This operation was aborted');
       }
@@ -187,7 +186,7 @@ describe('atlasSignInReducer', function () {
 
     it('should reject if provided signal was aborted', async function () {
       const mockAtlasService = {
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        optIn: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -196,14 +195,14 @@ describe('atlasSignInReducer', function () {
       });
 
       const c = new AbortController();
-      const signInPromise = store.dispatch(
-        signIntoAtlasWithModalPrompt({ signal: c.signal })
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ signal: c.signal })
       );
       c.abort(new Error('Aborted from outside'));
 
       try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
+        await optInPromise;
+        throw new Error('Expected optInPromise to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
