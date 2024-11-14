@@ -57,7 +57,7 @@ describe('use-sort', function () {
     expect(
       screen
         .getByRole('button', {
-          name: /title/i,
+          name: 'Sort by',
         })
         .getAttribute('aria-disabled')
     ).to.equal('true');
@@ -70,7 +70,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {
@@ -111,7 +111,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {
@@ -141,7 +141,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {
