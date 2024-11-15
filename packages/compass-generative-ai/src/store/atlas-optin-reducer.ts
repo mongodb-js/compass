@@ -199,7 +199,7 @@ const startAttempt = (
   fn: () => void
 ): GenAIAtlasOptInThunkAction<AttemptState> => {
   return (dispatch, getState) => {
-    if (getState().attemptId) {
+    if (getState().optIn.attemptId) {
       throw new Error(
         "Can't start opt in with prompt while another opt in attempt is in progress"
       );
@@ -230,7 +230,7 @@ export const optIntoGenAIWithModalPrompt = ({
 > => {
   return (dispatch, getState, { preferences }) => {
     // Nothing to do if we already opted in.
-    const { state } = getState();
+    const { state } = getState().optIn;
     if (
       state === 'optin-success' ||
       preferences.getPreferences().optInDataExplorerGenAIFeatures
@@ -251,7 +251,10 @@ export const optIntoGenAIWithModalPrompt = ({
 
 export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAiService }) => {
-    const { attemptId } = getState();
+    if (['in-progress', 'optin-success'].includes(getState().optIn.state)) {
+      return;
+    }
+    const { attemptId } = getState().optIn;
     if (attemptId === null) {
       return;
     }
@@ -259,15 +262,14 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
       controller: { signal },
       resolve,
       reject,
-    } = getAttempt(getState().attemptId);
+    } = getAttempt(getState().optIn.attemptId);
     dispatch({
       type: AtlasOptInActions.Start,
     });
 
     try {
       throwIfAborted(signal);
-      console.log(atlasAiService);
-      await atlasAiService.optIn.optIntoGenAIFeaturesAtlas();
+      await atlasAiService.optIntoGenAIFeaturesAtlas();
       dispatch(atlasAiServiceOptedIn());
       resolve();
     } catch (err) {
@@ -300,10 +302,10 @@ export const cancelOptIn = (reason?: any): GenAIAtlasOptInThunkAction<void> => {
   return (dispatch, getState) => {
     // Can't cancel opt in after the flow was finished indicated by current
     // attempt id being set to null.
-    if (getState().attemptId === null) {
+    if (getState().optIn.attemptId === null) {
       return;
     }
-    const attempt = getAttempt(getState().attemptId);
+    const attempt = getAttempt(getState().optIn.attemptId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
     dispatch({ type: AtlasOptInActions.Cancel });

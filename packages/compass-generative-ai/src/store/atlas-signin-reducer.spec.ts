@@ -227,7 +227,6 @@ describe('atlasSignInReducer', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
-      expect(store.getState()).to.include('signIn');
       expect(store.getState().signIn).to.have.property('state', 'canceled');
     });
   });

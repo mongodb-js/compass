@@ -227,7 +227,7 @@ const startAttempt = (
   fn: () => void
 ): GenAIAtlasSignInThunkAction<AttemptState> => {
   return (dispatch, getState) => {
-    if (getState().attemptId) {
+    if (getState().signIn.attemptId) {
       throw new Error(
         "Can't start sign in with prompt while another sign in attempt is in progress"
       );
@@ -257,7 +257,7 @@ export const signIntoAtlasWithModalPrompt = ({
 > => {
   return (dispatch, getState) => {
     // Nothing to do if we already signed in.
-    const { state } = getState();
+    const { state } = getState().signIn;
     if (state === 'success') {
       return Promise.resolve();
     }
@@ -275,10 +275,10 @@ export const signIntoAtlasWithModalPrompt = ({
 
 export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
-    if (['in-progress', 'authenticated'].includes(getState().state)) {
+    if (['in-progress', 'authenticated'].includes(getState().signIn.state)) {
       return;
     }
-    const { attemptId } = getState();
+    const { attemptId } = getState().signIn;
     if (attemptId === null) {
       return;
     }
@@ -286,7 +286,7 @@ export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
       controller: { signal },
       resolve,
       reject,
-    } = getAttempt(getState().attemptId);
+    } = getAttempt(getState().signIn.attemptId);
     dispatch({
       type: AtlasSignInActions.Start,
     });
@@ -332,10 +332,10 @@ export const cancelSignIn = (
   return (dispatch, getState) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null.
-    if (getState().attemptId === null) {
+    if (getState().signIn.attemptId === null) {
       return;
     }
-    const attempt = getAttempt(getState().attemptId);
+    const attempt = getAttempt(getState().signIn.attemptId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
     dispatch({ type: AtlasSignInActions.Cancel });
