@@ -15,6 +15,11 @@ cleanup() {
   echo "Stopping and removing container..."
   docker stop $CONTAINER_NAME || true
   docker rm -f $CONTAINER_NAME || true
+
+  if [ -n "$DOCKERHUB_PASSWORD" ]; then
+    echo "Logging out of docker"
+    docker logout
+  fi
 }
 
 trap cleanup EXIT

@@ -78,6 +78,11 @@ if [ "$HAS_DOCKER" = true ]; then
     $DOCKER_COMPOSE -f test-envs/docker/ssh/docker-compose.yaml down -v --remove-orphans
     $DOCKER_COMPOSE -f test-envs/docker/tls/docker-compose.yaml down -v --remove-orphans
     $DOCKER_COMPOSE -f test-envs/docker/kerberos/docker-compose.yaml down -v --remove-orphans
+
+    if [ -n "$DOCKERHUB_PASSWORD" ]; then
+      echo "Logging out of docker"
+      docker logout
+    fi
   }
 
   trap "__stop_all_docker_containers" EXIT
