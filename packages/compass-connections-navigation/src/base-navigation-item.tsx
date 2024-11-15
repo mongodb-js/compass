@@ -114,7 +114,11 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
       <div className={cx('item-wrapper', itemWrapperStyles)} style={style}>
         {isExpandVisible && (
           <ExpandButton
-            onClick={toggleExpand}
+            onClick={(event) => {
+              // Prevent the click from propagating to the `TreeItem`, triggering the default action
+              event.stopPropagation();
+              toggleExpand();
+            }}
             isExpanded={isExpanded}
             disabled={isExpandDisabled}
           ></ExpandButton>
