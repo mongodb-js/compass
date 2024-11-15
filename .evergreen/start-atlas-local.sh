@@ -19,7 +19,7 @@ cleanup() {
 
 trap cleanup EXIT
 
-if [ -z "$DOCKERHUB_PASSWORD" ]; then
+if [ -n "$DOCKERHUB_PASSWORD" ]; then
   echo "Logging in to docker"
   echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
 fi
