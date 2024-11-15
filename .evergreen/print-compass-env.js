@@ -74,7 +74,7 @@ function printCompassEnv() {
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
   }
 
-  pathsToPrepend(`${originalPWD}/.evergreen/docker-config/bin`);
+  pathsToPrepend.unshift(`${originalPWD}/.evergreen/docker-config/bin`);
 
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
