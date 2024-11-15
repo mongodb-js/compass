@@ -19,6 +19,9 @@ cleanup() {
 
 trap cleanup EXIT
 
+echo "Logging in to docker"
+echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+
 # Image name with version
 IMAGE_NAME="mongodb/mongodb-atlas-local:$ATLAS_LOCAL_VERSION"
 echo docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$IMAGE_NAME"
