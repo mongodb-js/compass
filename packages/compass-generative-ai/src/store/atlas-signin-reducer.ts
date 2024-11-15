@@ -227,6 +227,7 @@ const startAttempt = (
   fn: () => void
 ): GenAIAtlasSignInThunkAction<AttemptState> => {
   return (dispatch, getState) => {
+    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (getState().signIn.attemptId) {
       throw new Error(
         "Can't start sign in with prompt while another sign in attempt is in progress"
@@ -257,6 +258,7 @@ export const signIntoAtlasWithModalPrompt = ({
 > => {
   return (dispatch, getState) => {
     // Nothing to do if we already signed in.
+    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     const { state } = getState().signIn;
     if (state === 'success') {
       return Promise.resolve();
@@ -275,9 +277,11 @@ export const signIntoAtlasWithModalPrompt = ({
 
 export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
+    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (['in-progress', 'authenticated'].includes(getState().signIn.state)) {
       return;
     }
+    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     const { attemptId } = getState().signIn;
     if (attemptId === null) {
       return;
@@ -286,6 +290,7 @@ export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
       controller: { signal },
       resolve,
       reject,
+      // @ts-expect-error reducers were combined so these methods are nested one layer lower
     } = getAttempt(getState().signIn.attemptId);
     dispatch({
       type: AtlasSignInActions.Start,
@@ -331,10 +336,11 @@ export const cancelSignIn = (
 ): GenAIAtlasSignInThunkAction<void> => {
   return (dispatch, getState) => {
     // Can't cancel sign in after the flow was finished indicated by current
-    // attempt id being set to null.
+    // attempt id being set to null
+    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (getState().signIn.attemptId === null) {
       return;
-    }
+    } // @ts-expect-error reducers were combined so these methods are nested one layer lower
     const attempt = getAttempt(getState().signIn.attemptId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
