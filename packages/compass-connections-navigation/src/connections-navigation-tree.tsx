@@ -233,7 +233,25 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onItemExpand={onItemExpand}
             getItemActions={getItemActionsAndConfig}
             getItemKey={(item) => item.id}
-            renderItem={NavigationItem}
+            renderItem={({
+              item,
+              isActive,
+              isFocused,
+              onItemAction,
+              onItemExpand,
+              getItemActions,
+            }) => {
+              return (
+                <NavigationItem
+                  item={item}
+                  isActive={isActive}
+                  isFocused={isFocused}
+                  getItemActions={getItemActions}
+                  onItemExpand={onItemExpand}
+                  onItemAction={onItemAction}
+                />
+              );
+            }}
           />
         )}
       </AutoSizer>
