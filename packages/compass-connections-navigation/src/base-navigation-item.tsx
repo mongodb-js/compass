@@ -120,6 +120,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
               onExpand(!isExpanded);
             }}
             isExpanded={isExpanded}
+            disabled={isExpandDisabled}
           ></ExpandButton>
         )}
         <div className={labelAndIconWrapperStyles}>
