@@ -36,11 +36,17 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       void store.dispatch(atlasAiServiceOptedIn());
       await store.dispatch(optIn());
       expect(mockAtlasService.optIn).not.to.have.been.called;
-      expect(store.getState()).to.have.nested.property('state', 'success');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'success'
+      );
     });
 
     it('should start opt in, and set state to success', async function () {
@@ -53,11 +59,17 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
       await store.dispatch(optIn());
       expect(mockAtlasService.optIn).to.have.been.calledOnce;
-      expect(store.getState()).to.have.nested.property('state', 'success');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'success'
+      );
     });
 
     it('should fail opt in if opt in failed', async function () {
@@ -76,7 +88,7 @@ describe('atlasOptInReducer', function () {
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
       await optInPromise;
       expect(mockAtlasService.optIn).to.have.been.calledOnce;
-      expect(store.getState()).to.have.nested.property('state', 'error');
+      expect(store.getState().optIn).to.have.nested.property('state', 'error');
     });
   });
 
@@ -87,9 +99,15 @@ describe('atlasOptInReducer', function () {
         atlasAiService: {} as any,
         preferences: mockPreferences,
       });
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       store.dispatch(cancelOptIn());
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
     });
 
     it('should cancel opt in if opt in is in progress', async function () {
@@ -116,7 +134,10 @@ describe('atlasOptInReducer', function () {
         store.dispatch(optIn()),
         store.dispatch(cancelOptIn()),
       ]);
-      expect(store.getState()).to.have.nested.property('state', 'canceled');
+      expect(store.getState().optIn).to.have.nested.property(
+        'state',
+        'canceled'
+      );
     });
   });
 
@@ -135,7 +156,7 @@ describe('atlasOptInReducer', function () {
       await store.dispatch(optIn());
       await optInPromise;
 
-      expect(store.getState()).to.have.property('state', 'success');
+      expect(store.getState().optIn).to.have.property('state', 'success');
     });
 
     it('should reject if opt in flow fails', async function () {
@@ -158,7 +179,7 @@ describe('atlasOptInReducer', function () {
         expect(err).to.have.property('message', 'Whoops!');
       }
 
-      expect(store.getState()).to.have.property('state', 'error');
+      expect(store.getState().optIn).to.have.property('state', 'error');
     });
 
     it('should reject if user dismissed the modal', async function () {
@@ -181,7 +202,7 @@ describe('atlasOptInReducer', function () {
         expect(err).to.have.property('message', 'This operation was aborted');
       }
 
-      expect(store.getState()).to.have.property('state', 'canceled');
+      expect(store.getState().optIn).to.have.property('state', 'canceled');
     });
 
     it('should reject if provided signal was aborted', async function () {
@@ -207,7 +228,7 @@ describe('atlasOptInReducer', function () {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
 
-      expect(store.getState()).to.have.property('state', 'canceled');
+      expect(store.getState().optIn).to.have.property('state', 'canceled');
     });
   });
 });
