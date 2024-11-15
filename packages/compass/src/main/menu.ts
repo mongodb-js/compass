@@ -523,7 +523,7 @@ class WindowMenuState {
 function removeAcceleratorFromMenu(
   menu?: MenuItemConstructorOptions[]
 ): MenuItemConstructorOptions[] {
-  if (!menu || !Array.isArray(menu)) {
+  if (!Array.isArray(menu)) {
     return [];
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

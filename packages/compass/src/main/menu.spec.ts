@@ -1,4 +1,4 @@
-import EventEmitter, { once } from 'events';
+import EventEmitter from 'events';
 import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
@@ -654,49 +654,22 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    // TODO(COMPASS-8505): Remove skipping on linux
-    const testIt = os.platform() === 'linux' ? it.skip : it;
-    testIt(
-      'does not crash when rendering menu item with an accelerator',
-      async () => {
-        const menu = Menu.buildFromTemplate([
-          {
-            label: 'Test Super',
-            accelerator: 'Super+Ctrl+T',
-          },
-          {
-            label: 'Test Meta',
-            accelerator: 'Meta+Ctrl+T',
-          },
-          {
-            label: 'Test CmdOrCtrl',
-            accelerator: 'CmdOrCtrl+Q',
-          },
-          {
-            label: 'Test Command',
-            accelerator: 'Command+H',
-          },
-          {
-            label: 'Test Command+Shift',
-            accelerator: 'Command+Shift+H',
-          },
-          {
-            label: 'Test Atl+CmdOrCtrl',
-            accelerator: 'Alt+CmdOrCtrl+S',
-          },
-          {
-            label: 'Test Shift+CmdOrCtrl',
-            accelerator: 'Shift+CmdOrCtrl+S',
-          },
-        ]);
-        const menuWillClose = once(menu, 'menu-will-close');
-        menu.popup({
-          window: new BrowserWindow({ show: false }),
-        });
+    it('does not crash when rendering menu item with an accelerator', () => {
+      const window = new BrowserWindow({ show: false });
+      const template = CompassMenu.getTemplate(window.id);
+
+      // As the root menu items do not have accelerators, we test
+      // against each item's submenu.
+      for (const item of template) {
+        // for TS. compass menu has submenus
+        if (!Array.isArray(item.submenu)) {
+          continue;
+        }
+        const menu = Menu.buildFromTemplate(item.submenu);
+        menu.popup({ window });
         menu.closePopup();
-        await menuWillClose;
       }
-    );
+    });
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
       expect(
