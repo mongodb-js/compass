@@ -28,7 +28,7 @@ type NavigationBaseItemProps = {
     actions: NavigationItemActions;
     onAction: (action: Actions) => void;
   };
-  onExpand: (toggle: boolean) => void;
+  toggleExpand: () => void;
 };
 
 const menuStyles = css({
@@ -98,7 +98,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   isExpanded,
   isFocused,
   hasDefaultAction,
-  onExpand,
+  toggleExpand,
   children,
 }) => {
   const [hoverProps, isHovered] = useHoverState();
@@ -114,11 +114,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
       <div className={cx('item-wrapper', itemWrapperStyles)} style={style}>
         {isExpandVisible && (
           <ExpandButton
-            onClick={(evt) => {
-              if (isExpandDisabled) return;
-              evt.stopPropagation();
-              onExpand(!isExpanded);
-            }}
+            onClick={toggleExpand}
             isExpanded={isExpanded}
             disabled={isExpandDisabled}
           ></ExpandButton>
