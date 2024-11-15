@@ -266,7 +266,8 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
 
     try {
       throwIfAborted(signal);
-      await atlasAiService.optIntoGenAIFeaturesAtlas();
+      console.log(atlasAiService);
+      await atlasAiService.optIn.optIntoGenAIFeaturesAtlas();
       dispatch(atlasAiServiceOptedIn());
       resolve();
     } catch (err) {

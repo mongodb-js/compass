@@ -41,11 +41,12 @@ describe('atlasOptInReducer', function () {
         'initial'
       );
       void store.dispatch(atlasAiServiceOptedIn());
+      console.log(store.getState());
       await store.dispatch(optIn());
       expect(mockAtlasService.optIn).not.to.have.been.called;
       expect(store.getState().optIn).to.have.nested.property(
         'state',
-        'success'
+        'optin-success'
       );
     });
 
@@ -68,7 +69,7 @@ describe('atlasOptInReducer', function () {
       expect(mockAtlasService.optIn).to.have.been.calledOnce;
       expect(store.getState().optIn).to.have.nested.property(
         'state',
-        'success'
+        'optin-success'
       );
     });
 
@@ -156,7 +157,7 @@ describe('atlasOptInReducer', function () {
       await store.dispatch(optIn());
       await optInPromise;
 
-      expect(store.getState().optIn).to.have.property('state', 'success');
+      expect(store.getState().optIn).to.have.property('state', 'optin-success');
     });
 
     it('should reject if opt in flow fails', async function () {
