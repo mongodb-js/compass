@@ -15,19 +15,9 @@ cleanup() {
   echo "Stopping and removing container..."
   docker stop $CONTAINER_NAME || true
   docker rm -f $CONTAINER_NAME || true
-
-  if [ -n "$DOCKERHUB_PASSWORD" ]; then
-    echo "Logging out of docker"
-    docker logout
-  fi
 }
 
 trap cleanup EXIT
-
-if [ -n "$DOCKERHUB_PASSWORD" ]; then
-  echo "Logging in to docker"
-  echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
-fi
 
 # Image name with version
 IMAGE_NAME="mongodb/mongodb-atlas-local:$ATLAS_LOCAL_VERSION"

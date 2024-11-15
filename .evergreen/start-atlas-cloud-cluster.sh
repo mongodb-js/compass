@@ -85,19 +85,9 @@ cleanup() {
   fi
   echo "Deleting Atlas db user \`$ATLAS_TEST_DB_USERNAME\`..."
   atlascli dbusers delete $ATLAS_TEST_DB_USERNAME --force
-
-  if [ -n "$DOCKERHUB_PASSWORD" ]; then
-    echo "Logging out of docker"
-    docker logout
-  fi
 }
 
 trap cleanup EXIT
-
-if [ -n "$DOCKERHUB_PASSWORD" ]; then
-  echo "Logging in to docker"
-  echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
-fi
 
 echo "Allowing access from current ip..."
 atlascli accessList create \
