@@ -4,25 +4,18 @@ import {
   BannerVariant,
   Body,
   Button,
-  css,
   Link,
-  spacing,
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { cancelSharding, type RootState } from '../../store/reducer';
 import {
-  cancelSharding,
-  type RootState,
-  ShardingStatuses,
-} from '../../store/reducer';
-import { containerStyles, bannerStyles } from '../common-styles';
+  containerStyles,
+  bannerStyles,
+  bannerBtnStyles,
+} from '../common-styles';
 
 const nbsp = '\u00a0';
-
-const btnStyles = css({
-  float: 'right',
-  height: spacing[600],
-});
 
 interface ShardingStateProps {
   isCancellingSharding: boolean;
@@ -39,7 +32,7 @@ export function ShardingState({
         <strong>Sharding your collection …</strong>
         {nbsp}this should not take too long.
         <Button
-          className={btnStyles}
+          className={bannerBtnStyles}
           data-testid="cancel-sharding-btn"
           onClick={onCancelSharding}
           isLoading={isCancellingSharding}
@@ -65,7 +58,7 @@ export function ShardingState({
 
 export default connect(
   (state: RootState) => ({
-    isCancellingSharding: state.status === ShardingStatuses.CANCELLING_SHARDING,
+    isCancellingSharding: state.userActionInProgress === 'cancelSharding',
   }),
   {
     onCancelSharding: cancelSharding,

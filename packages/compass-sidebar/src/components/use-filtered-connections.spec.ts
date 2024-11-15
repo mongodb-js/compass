@@ -137,7 +137,7 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: null,
+          filter: { regex: null, excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -152,7 +152,7 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: null,
+          filter: { regex: null, excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -167,12 +167,42 @@ describe('useFilteredConnections', function () {
       });
     });
 
+    context('excluding inactive connections', function () {
+      it('should match only connected collections items', function () {
+        const { result, rerender } = renderHookWithContext(
+          useFilteredConnections,
+          {
+            initialProps: {
+              connections: mockSidebarConnections,
+              filter: { regex: null, excludeInactive: true },
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+            },
+          }
+        );
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+          sidebarConnections[1],
+        ]);
+
+        rerender({
+          connections: mockSidebarConnections,
+          filter: { regex: null, excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+
+        expect(result.current.filtered).to.be.undefined;
+      });
+    });
+
     context('and a connection is toggled', function () {
       it('should return the appropriate connection expanded state for the toggled connection', async function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: null,
+            filter: { regex: null, excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -203,7 +233,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: null,
+            filter: { regex: null, excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -255,7 +285,7 @@ describe('useFilteredConnections', function () {
           const { result } = renderHookWithContext(useFilteredConnections, {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: null,
+              filter: { regex: null, excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -291,7 +321,7 @@ describe('useFilteredConnections', function () {
           const { result } = renderHookWithContext(useFilteredConnections, {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: null,
+              filter: { regex: null, excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -337,7 +367,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: null,
+            filter: { regex: null, excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -370,7 +400,7 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: null,
+              filter: { regex: null, excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -404,7 +434,7 @@ describe('useFilteredConnections', function () {
         ];
         rerender({
           connections: newConnections,
-          filterRegex: null,
+          filter: { regex: null, excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -420,7 +450,7 @@ describe('useFilteredConnections', function () {
         // now pretend again that connection2 is connected
         rerender({
           connections: mockSidebarConnections,
-          filterRegex: null,
+          filter: { regex: null, excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -442,7 +472,10 @@ describe('useFilteredConnections', function () {
         {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('_connection', 'i'), // match everything basically
+            filter: {
+              regex: new RegExp('_connection', 'i'), // match everything basically
+              excludeInactive: false,
+            },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -457,7 +490,10 @@ describe('useFilteredConnections', function () {
 
       rerender({
         connections: mockSidebarConnections,
-        filterRegex: new RegExp('disconnected_connection', 'i'), // match disconnected one
+        filter: {
+          regex: new RegExp('disconnected_connection', 'i'), // match disconnected one
+          excludeInactive: false,
+        },
         fetchAllCollections: fetchAllCollectionsStub,
         onDatabaseExpand: onDatabaseExpandStub,
       });
@@ -472,7 +508,10 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('db_ready_1_1', 'i'), // match first database basically
+          filter: {
+            regex: new RegExp('db_ready_1_1', 'i'), // match first database basically
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -512,7 +551,10 @@ describe('useFilteredConnections', function () {
               ],
             } as SidebarConnectedConnection,
           ],
-          filterRegex: new RegExp('Matching', 'i'), // this matches connection as well as database
+          filter: {
+            regex: new RegExp('Matching', 'i'), // this matches connection as well as database
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -529,7 +571,10 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('coll_ready_2_1', 'i'), // match second db's collection
+          filter: {
+            regex: new RegExp('coll_ready_2_1', 'i'), // match second db's collection
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -557,7 +602,10 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('ready_2_1', 'i'), // this matches 1 database and 1 collection
+          filter: {
+            regex: new RegExp('ready_2_1', 'i'), // this matches 1 database and 1 collection
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -575,7 +623,10 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('coll_ready_1_1', 'i'),
+          filter: {
+            regex: new RegExp('coll_ready_1_1', 'i'),
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -592,6 +643,44 @@ describe('useFilteredConnections', function () {
       });
     });
 
+    context('excluding inactive connections', function () {
+      it('should match only connected collections items', function () {
+        const { result, rerender } = renderHookWithContext(
+          useFilteredConnections,
+          {
+            initialProps: {
+              connections: mockSidebarConnections,
+              filter: {
+                regex: new RegExp('connection_1'),
+                excludeInactive: true,
+              },
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+            },
+          }
+        );
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+        ]);
+
+        rerender({
+          connections: mockSidebarConnections,
+          filter: {
+            regex: new RegExp('connection_1'),
+            excludeInactive: false,
+          },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+          sidebarConnections[2],
+        ]);
+      });
+    });
+
     context('and items are already collapsed', function () {
       it('should expand the items temporarily', async function () {
         const { result, rerender } = renderHookWithContext(
@@ -599,7 +688,10 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: null,
+              filter: {
+                regex: null as RegExp | null,
+                excludeInactive: false,
+              },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -617,7 +709,10 @@ describe('useFilteredConnections', function () {
 
         rerender({
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('coll_ready_1_1', 'i'),
+          filter: {
+            regex: new RegExp('coll_ready_1_1', 'i'),
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -640,7 +735,10 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: new RegExp('coll_ready_1_1', 'i'),
+              filter: {
+                regex: new RegExp('coll_ready_1_1', 'i') as RegExp | null,
+                excludeInactive: false,
+              },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -658,7 +756,10 @@ describe('useFilteredConnections', function () {
 
         rerender({
           connections: mockSidebarConnections,
-          filterRegex: null,
+          filter: {
+            regex: null,
+            excludeInactive: false,
+          },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -679,7 +780,10 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('coll_ready_1_1', 'i'),
+            filter: {
+              regex: new RegExp('coll_ready_1_1', 'i'),
+              excludeInactive: false,
+            },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -711,7 +815,10 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('coll_ready_1_1', 'i'),
+            filter: {
+              regex: new RegExp('coll_ready_1_1', 'i'),
+              excludeInactive: false,
+            },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -749,7 +856,10 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('coll_ready_1_1', 'i'),
+            filter: {
+              regex: new RegExp('coll_ready_1_1', 'i'),
+              excludeInactive: false,
+            },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
