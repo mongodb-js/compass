@@ -18,6 +18,8 @@ echo "IS_WINDOWS: $IS_WINDOWS"
 echo "IS_RHEL: $IS_RHEL"
 echo "IS_UBUNTU: $IS_UBUNTU"
 
+echo "DOCKER_CONFIG: $DOCKER_CONFIG"
+
 SCRIPTDIR="$(cd $(dirname "$0"); pwd)"
 
 if [ -n "$IS_WINDOWS" ]; then
