@@ -19,8 +19,10 @@ cleanup() {
 
 trap cleanup EXIT
 
-echo "Logging in to docker"
-echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+if [ -z "$DOCKERHUB_PASSWORD" ]; then
+  echo "Logging in to docker"
+  echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+fi
 
 # Image name with version
 IMAGE_NAME="mongodb/mongodb-atlas-local:$ATLAS_LOCAL_VERSION"

@@ -33,8 +33,10 @@ if [ "$HAS_DOCKER" = true ]; then
   docker version
   $DOCKER_COMPOSE version
 
-  echo "Logging in to docker"
-  echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+  if [ -z "$DOCKERHUB_PASSWORD" ]; then
+    echo "Logging in to docker"
+    echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+  fi
 
   echo "Starting test environments"
 
