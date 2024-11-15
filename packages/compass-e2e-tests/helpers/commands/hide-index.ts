@@ -11,21 +11,11 @@ export async function hideIndex(
   await indexComponent.waitForDisplayed();
 
   await browser.hover(indexComponentSelector);
-  await browser.clickVisible(
-    `${indexComponentSelector} ${Selectors.HideIndexButton}`
+  await browser.clickConfirmationAction(
+    `${indexComponentSelector} ${Selectors.HideIndexButton}`,
+    undefined,
+    screenshotName
   );
-
-  const hideModal = await browser.$(Selectors.ConfirmationModal);
-  await hideModal.waitForDisplayed();
-
-  if (screenshotName) {
-    await browser.screenshot(screenshotName);
-  }
-
-  await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-
-  await hideModal.waitForDisplayed({ reverse: true });
-
   const hiddenBadge = await browser.$(Selectors.HiddenIndexBadge(indexName));
   await hiddenBadge.waitForDisplayed();
 }

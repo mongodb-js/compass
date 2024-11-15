@@ -185,6 +185,7 @@ export async function connectByName(
   connectionName: string,
   options: ConnectionResultOptions = {}
 ) {
+  await browser.hover(Selectors.sidebarConnection(connectionName));
   await browser.clickVisible(Selectors.sidebarConnectionButton(connectionName));
   await browser.waitForConnectionResult(connectionName, options);
 }

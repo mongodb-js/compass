@@ -6,13 +6,13 @@ export default function NavigationItemsFilter({
   ariaLabel = 'Search',
   title = 'Search',
   onFilterChange,
-  searchInputClassName,
+  className,
 }: {
   placeholder?: string;
   ariaLabel?: string;
   title?: string;
-  searchInputClassName?: string;
   onFilterChange(regex: RegExp | null): void;
+  className?: string;
 }): React.ReactElement {
   const onChange = useCallback(
     (event) => {
@@ -37,7 +37,7 @@ export default function NavigationItemsFilter({
   }, []);
 
   return (
-    <form noValidate onSubmit={onSubmit}>
+    <form noValidate className={className} onSubmit={onSubmit}>
       <TextInput
         data-testid="sidebar-filter-input"
         placeholder={placeholder}
@@ -45,7 +45,6 @@ export default function NavigationItemsFilter({
         aria-label={ariaLabel}
         title={title}
         onChange={onChange}
-        className={searchInputClassName}
       />
     </form>
   );
