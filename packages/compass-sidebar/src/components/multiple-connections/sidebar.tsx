@@ -5,7 +5,6 @@ import {
   useConnections,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
-import { useConnectionFormPreferences } from '@mongodb-js/compass-connections';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   ResizableSidebar,
@@ -15,7 +14,6 @@ import {
   HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
-import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
@@ -27,7 +25,6 @@ import CSFLEConnectionModal, {
 } from '../csfle-connection-modal';
 import type { ConnectionsFilter } from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -107,27 +104,17 @@ export function MultipleConnectionSidebar({
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
-  const formPreferences = useConnectionFormPreferences();
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
-    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,
-    cancelEditConnection,
     removeConnection,
     duplicateConnection,
-    saveEditedConnection,
     toggleConnectionFavoritedStatus,
     showNonGenuineMongoDBWarningModal,
-    state: {
-      editingConnectionInfo,
-      isEditingNewConnection,
-      isEditingConnectionInfoModalOpen,
-      connectionErrors,
-    },
   } = useConnections();
 
   const findActiveConnection = (id: string) => {
@@ -175,16 +162,6 @@ export function MultipleConnectionSidebar({
       }
     },
     [csfleModalConnectionId, onConnectionCsfleModeChanged]
-  );
-
-  const globalAppRegistry = useGlobalAppRegistry();
-  const openSettingsModal = useCallback(
-    (tab?: string) => globalAppRegistry.emit('open-compass-settings', tab),
-    [globalAppRegistry]
-  );
-
-  const disableEditingConnectedConnection = !!findActiveConnection(
-    editingConnectionInfo.id
   );
 
   return (

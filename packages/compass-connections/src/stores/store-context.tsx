@@ -14,6 +14,7 @@ import type {
   configureStore,
   ConnectionId,
   ConnectionState,
+  ConnectionsStore,
 } from './connections-store-redux';
 import {
   cancelEditConnection,
@@ -33,20 +34,12 @@ import {
   importConnections,
   refreshConnections,
 } from './connections-store-redux';
-import type { Store } from 'redux';
 import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from 'hadron-app-registry';
 import { isEqual } from 'lodash';
-
-type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
-  infer S,
-  infer A
-> & { dispatch: infer D }
-  ? { state: S; actions: A; dispatch: D }
-  : never;
 
 export const ConnectionsStoreContext = React.createContext<
   ReactReduxContextValue<ConnectionsStore['state']>

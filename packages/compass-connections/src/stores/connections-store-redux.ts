@@ -1,4 +1,4 @@
-import type { Reducer, AnyAction, Action } from 'redux';
+import type { Store, Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
@@ -2178,3 +2178,10 @@ export function configureStore(
     applyMiddleware(thunk.withExtraArgument(thunkArg))
   );
 }
+
+export type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
+  infer S,
+  infer A
+> & { dispatch: infer D }
+  ? { state: S; actions: A; dispatch: D }
+  : never;

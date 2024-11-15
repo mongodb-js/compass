@@ -23,6 +23,7 @@ export { useConnectionFormPreferences } from './hooks/use-connection-form-prefer
 import ConnectionModal from './components/connection-modal';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports } from './utils/connection-supports';
 
@@ -37,10 +38,11 @@ const ConnectionsComponent: React.FunctionComponent<{
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
+  const formPreferences = useConnectionFormPreferences();
   return (
     <ConnectionActionsProvider>
       {children}
-      <ConnectionModal />
+      <ConnectionModal {...formPreferences} />
     </ConnectionActionsProvider>
   );
 };
