@@ -116,7 +116,7 @@ export const GlobalWritesTabTitle = connect(
       ShardingStatuses.LOADING_ERROR,
       ShardingStatuses.SHARDING_ERROR,
       ShardingStatuses.SHARD_KEY_MISMATCH,
-      ShardingStatuses.INVALID_SHARD_KEY,
+      ShardingStatuses.SHARD_KEY_INVALID,
     ];
     const okStatuses = [
       ShardingStatuses.NOT_READY,
