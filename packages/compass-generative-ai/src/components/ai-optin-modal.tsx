@@ -10,11 +10,8 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { AISignInImageBanner } from './ai-signin-banner-image';
-import {
-  closeOptInModal,
-  optIn,
-  type AtlasOptInState,
-} from '../store/atlas-optin-reducer';
+import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
+import type { RootState } from '../store/atlas-ai-store';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -101,11 +98,9 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
 };
 
 export default connect(
-  (state: AtlasOptInState) => {
+  (state: RootState) => {
     return {
-      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isOptInModalVisible: state.optIn.isModalOpen,
-      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isOptInInProgress: state.optIn.state === 'in-progress',
     };
   },
