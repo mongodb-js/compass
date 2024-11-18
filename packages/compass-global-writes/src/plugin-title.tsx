@@ -73,7 +73,7 @@ export const PluginTitle = ({
   showError: boolean;
   showWarning: boolean;
 }) => {
-  const darkMode = useDarkMode();
+  const darkMode = !!useDarkMode();
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
       Global Writes{' '}
