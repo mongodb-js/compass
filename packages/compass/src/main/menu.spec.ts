@@ -3,6 +3,7 @@ import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import os from 'os';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
@@ -457,7 +458,8 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    ['linux', 'win32'].forEach((platform) => {
+    // TODO(COMPASS-8505): Add `linux` back to this list
+    ['win32'].forEach((platform) => {
       // TODO(COMPASS-7906): remove
       it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
         sinon.stub(process, 'platform').value(platform);
@@ -588,6 +590,87 @@ describe('CompassMenu', function () {
       });
     });
 
+    // TODO(COMPASS-8505): Remove this test
+    it('should generate a menu template for linux', async function () {
+      await App.preferences.savePreferences({
+        enableMultipleConnectionSystem: true,
+      });
+      sinon.stub(process, 'platform').value('linux');
+
+      expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
+        {
+          label: '&Connections',
+          submenu: [
+            { label: '&Import Saved Connections' },
+            { label: '&Export Saved Connections' },
+            { type: 'separator' },
+            { label: 'E&xit' },
+          ],
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { label: 'Undo', role: 'undo' },
+            { label: 'Redo', role: 'redo' },
+            { type: 'separator' },
+            { label: 'Cut', role: 'cut' },
+            { label: 'Copy', role: 'copy' },
+            { label: 'Paste', role: 'paste' },
+            {
+              label: 'Select All',
+              role: 'selectAll',
+            },
+            { type: 'separator' },
+            { label: 'Find' },
+            { type: 'separator' },
+            { label: '&Settings' },
+          ],
+        },
+        {
+          label: '&View',
+          submenu: [
+            { label: '&Reload' },
+            { label: '&Reload Data' },
+            { type: 'separator' },
+            { label: 'Actual Size' },
+            { label: 'Zoom In' },
+            { label: 'Zoom Out' },
+          ],
+        },
+        {
+          label: '&Help',
+          submenu: [
+            { label: `&Online ${app.getName()} Help` },
+            { label: '&License' },
+            { label: `&View Source Code on GitHub` },
+            { label: `&Suggest a Feature` },
+            { label: `&Report a Bug` },
+            { label: '&Open Log File' },
+            { type: 'separator' },
+            { label: `&About ${app.getName()}` },
+            { label: 'Check for updates…' },
+          ],
+        },
+      ]);
+    });
+
+    it('does not crash when rendering menu item with an accelerator', () => {
+      const window = new BrowserWindow({ show: false });
+      const template = CompassMenu.getTemplate(window.id);
+
+      // As the root menu items do not have accelerators, we test
+      // against each item's submenu.
+      for (const item of template) {
+        // for TS. compass menu has submenus
+        if (!Array.isArray(item.submenu)) {
+          continue;
+        }
+        const menu = Menu.buildFromTemplate(item.submenu);
+        menu.popup({ window });
+        menu.closePopup();
+      }
+    });
+
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
       expect(
         CompassMenu.getTemplate(0).find((item) => item.label === '&Collection')
@@ -612,7 +695,12 @@ describe('CompassMenu', function () {
         label: '&Collection',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
+            // TODO(COMPASS-8505): Add `accelerator` back to this
+            ...(os.platform() === 'linux'
+              ? {}
+              : {
+                  accelerator: 'Alt+CmdOrCtrl+S',
+                }),
             label: '&Share Schema as JSON',
           },
           {
@@ -646,7 +734,12 @@ describe('CompassMenu', function () {
         label: '&Collection',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
+            // TODO(COMPASS-8505): Add `accelerator` back to this
+            ...(os.platform() === 'linux'
+              ? {}
+              : {
+                  accelerator: 'Alt+CmdOrCtrl+S',
+                }),
             label: '&Share Schema as JSON',
           },
           {
@@ -670,7 +763,12 @@ describe('CompassMenu', function () {
       expect(
         menu.find((item: any) => item.label === '&Toggle DevTools')
       ).to.deep.eq({
-        accelerator: 'Alt+CmdOrCtrl+I',
+        // TODO(COMPASS-8505): Add `accelerator` back to this
+        ...(os.platform() === 'linux'
+          ? {}
+          : {
+              accelerator: 'Alt+CmdOrCtrl+I',
+            }),
         label: '&Toggle DevTools',
       });
     });
