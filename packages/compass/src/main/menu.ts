@@ -8,7 +8,6 @@ import {
 } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import createDebug from 'debug';
 import type { THEMES } from 'compass-preferences-model';
@@ -520,24 +519,6 @@ class WindowMenuState {
   updateManagerState: UpdateManagerState = 'idle';
 }
 
-function removeAcceleratorFromMenu(
-  menu?: MenuItemConstructorOptions[]
-): MenuItemConstructorOptions[] {
-  if (!Array.isArray(menu)) {
-    return [];
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return menu.map(({ accelerator, ...item }) => {
-    if (!item.submenu || !Array.isArray(item.submenu)) {
-      return item;
-    }
-    return {
-      ...item,
-      submenu: removeAcceleratorFromMenu(item.submenu),
-    };
-  });
-}
-
 class CompassMenu {
   private constructor() {
     // marking constructor as private to disallow usage
@@ -711,12 +692,7 @@ class CompassMenu {
     if (process.platform === 'darwin') {
       return darwinMenu(menuState, this.app);
     }
-    const menu = nonDarwinMenu(menuState, this.app);
-    // TODO(COMPASS-8505): Remove this check once accelerator issue is resolve for linux.
-    if (os.platform() === 'linux') {
-      return removeAcceleratorFromMenu(menu);
-    }
-    return menu;
+    return nonDarwinMenu(menuState, this.app);
   }
 
   private static refreshMenu = () => {
