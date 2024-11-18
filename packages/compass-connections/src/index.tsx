@@ -77,7 +77,10 @@ export const ConnectFnProvider: React.FunctionComponent<{
 };
 
 export default function CompassConnections(
-  props: Omit<React.ComponentProps<typeof ConnectionsComponent>, 'connectFn'>
+  props: Omit<
+    React.ComponentProps<typeof CompassConnectionsPlugin>,
+    'connectFn'
+  >
 ) {
   const connectFn = useContext(ConnectFnContext);
   return (

@@ -29,6 +29,7 @@ const ConnectionsComponent: React.FunctionComponent<{
   preloadStorageConnectionInfos?: ConnectionInfo[];
   editingConnectionInfoId?: ConnectionId;
 }> = ({ editingConnectionInfoId, children }) => {
+  console.log({ editingConnectionInfoId });
   const formPreferences = useConnectionFormPreferences();
   return (
     <ConnectionActionsProvider>
