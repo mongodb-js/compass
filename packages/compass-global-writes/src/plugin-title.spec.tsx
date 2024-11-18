@@ -9,13 +9,14 @@ describe('PluginTitle', function () {
     expect(screen.getByLabelText('warning')).to.be.visible;
   });
 
-  it('Renders a warning when showWarning', function () {
+  it("Renders an 'important' warning when showWarning", function () {
     render(<PluginTitle showError={false} showWarning={true} />);
-    expect(screen.getByLabelText('warning')).to.be.visible;
+    expect(screen.getByLabelText('important')).to.be.visible;
   });
 
   it('Does not render a warning', function () {
     render(<PluginTitle showError={false} showWarning={false} />);
     expect(screen.queryByLabelText('warning')).not.to.exist;
+    expect(screen.queryByLabelText('important')).not.to.exist;
   });
 });
