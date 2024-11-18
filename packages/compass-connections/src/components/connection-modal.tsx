@@ -1,5 +1,6 @@
+import React from 'react';
 import { connect as reduxConnect } from '../stores/store-context';
-import ConnectionFormModal from '@mongodb-js/connection-form';
+import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import {
   connect,
@@ -14,6 +15,26 @@ import type {
   ConnectionState,
 } from '../stores/connections-store-redux';
 
+type ConnectionModalProps = Omit<
+  React.ComponentProps<typeof ConnectionFormModal>,
+  'initialConnectionInfo'
+> & { initialConnectionInfo?: ConnectionInfo };
+
+const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
+  initialConnectionInfo,
+  ...props
+}: ConnectionModalProps) => {
+  if (!initialConnectionInfo) {
+    return null;
+  }
+  return (
+    <ConnectionFormModal
+      initialConnectionInfo={initialConnectionInfo}
+      {...props}
+    />
+  );
+};
+
 function shouldDisableConnectionEditing(connection: ConnectionState): boolean {
   return connection.status === 'connected';
 }
@@ -26,16 +47,19 @@ function mapState({
 }: {
   isEditingNewConnection: boolean;
   isEditingConnectionInfoModalOpen: boolean;
-  editingConnectionInfoId: ConnectionId;
+  editingConnectionInfoId?: ConnectionId;
   connections: {
     byId: Record<ConnectionId, ConnectionState>;
   };
 }) {
-  const editingConnection = connections.byId[editingConnectionInfoId];
-  const editingConnectionInfo = editingConnection.info;
+  const editingConnection = editingConnectionInfoId
+    ? connections.byId[editingConnectionInfoId]
+    : undefined;
+  const editingConnectionInfo = editingConnection?.info;
 
-  const disableEditingConnectedConnection =
-    shouldDisableConnectionEditing(editingConnection);
+  const disableEditingConnectedConnection = editingConnection
+    ? shouldDisableConnectionEditing(editingConnection)
+    : false;
 
   return {
     isOpen: isEditingConnectionInfoModalOpen,
@@ -65,7 +89,7 @@ function mergeProps(
     saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => any;
     saveAndConnect: (connectionInfo: ConnectionInfo) => any;
   }
-) {
+): ConnectionModalProps {
   const {
     isOpen,
     initialConnectionInfo,
@@ -89,18 +113,20 @@ function mergeProps(
     connectionErrorMessage,
     disableEditingConnectedConnection,
 
-    onDisconnectClicked: () => disconnect(editingConnectionInfoId),
+    onDisconnectClicked: () =>
+      editingConnectionInfoId && disconnect(editingConnectionInfoId),
     setOpen: (newOpen: boolean) => {
       // This is how leafygreen propagates `X` button click
       if (newOpen === false) {
-        cancelEditConnection(editingConnectionInfoId);
+        editingConnectionInfoId &&
+          cancelEditConnection(editingConnectionInfoId);
       }
     },
     openSettingsModal: () => {
       // TODO: this has to emit on the global app registry somehow
     },
     onCancel: () => {
-      cancelEditConnection(editingConnectionInfoId);
+      editingConnectionInfoId && cancelEditConnection(editingConnectionInfoId);
     },
     onSaveClicked: (connectionInfo: ConnectionInfo) => {
       return saveEditedConnectionInfo(connectionInfo);
@@ -119,8 +145,4 @@ function mergeProps(
   };
 }
 
-export default reduxConnect(
-  mapState,
-  mapDispatch,
-  mergeProps
-)(ConnectionFormModal);
+export default reduxConnect(mapState, mapDispatch, mergeProps)(ConnectionModal);

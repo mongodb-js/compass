@@ -4,6 +4,15 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { ConnectionFormProps } from './connection-form';
 import ConnectionForm from './connection-form';
 
+type ConnectionFormModalProps = {
+  isOpen: boolean;
+  setOpen: (open: boolean) => void | Dispatch<SetStateAction<boolean>>;
+  onCancel: () => void; // when using
+} & Omit<
+  ConnectionFormProps,
+  'showFooterBorder' | 'showHelperCardsInForm' | 'onAdvancedOptionsToggle'
+>;
+
 const modalStyles = css({
   '& > div': {
     height: '100%',
@@ -33,14 +42,7 @@ export default function ConnectionFormModal({
   isOpen,
   setOpen,
   ...rest
-}: {
-  isOpen: boolean;
-  setOpen: (open: boolean) => void | Dispatch<SetStateAction<boolean>>;
-  onCancel: () => void; // when using
-} & Omit<
-  ConnectionFormProps,
-  'showFooterBorder' | 'showHelperCardsInForm' | 'onAdvancedOptionsToggle'
->): React.ReactElement {
+}: ConnectionFormModalProps): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   return (

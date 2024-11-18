@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
-  useConnections,
+  useConnectionActions,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
@@ -113,9 +113,9 @@ export function MultipleConnectionSidebar({
     editConnection,
     removeConnection,
     duplicateConnection,
-    toggleConnectionFavoritedStatus,
+    toggleFavoritedConnectionStatus,
     showNonGenuineMongoDBWarningModal,
-  } = useConnections();
+  } = useConnectionActions();
 
   const findActiveConnection = (id: string) => {
     return connectionsWithStatus.find(
@@ -194,7 +194,7 @@ export function MultipleConnectionSidebar({
           }}
           onCopyConnectionString={onCopyConnectionString}
           onToggleFavoriteConnectionInfo={(connectionInfo) => {
-            void toggleConnectionFavoritedStatus(connectionInfo.id);
+            void toggleFavoritedConnectionStatus(connectionInfo.id);
           }}
           onOpenConnectionInfo={onOpenConnectionInfo}
           onDisconnect={(id) => {

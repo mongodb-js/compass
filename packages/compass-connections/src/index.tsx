@@ -1,27 +1,55 @@
+import { preferencesLocator } from 'compass-preferences-model/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
+import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import React, { useContext, useRef } from 'react';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import ConnectionModal from './components/connection-modal';
+export { default as SingleConnectionForm } from './components/legacy-connections';
+export { LegacyConnectionsModal } from './components/legacy-connections-modal';
+import { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 import {
   autoconnectCheck,
   configureStore,
   loadConnections,
 } from './stores/connections-store-redux';
-import React, { useContext, useRef } from 'react';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
-import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
-import { ConnectionsStoreContext } from './stores/store-context';
-export { default as SingleConnectionForm } from './components/legacy-connections';
-export { LegacyConnectionsModal } from './components/legacy-connections-modal';
-export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
-import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import {
+  ConnectionsStoreContext,
+  ConnectionActionsProvider,
+} from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports } from './utils/connection-supports';
-import ConnectionsPlugin from './plugin';
+
+const ConnectionsComponent: React.FunctionComponent<{
+  appName: string;
+  onExtraConnectionDataRequest: (
+    connectionInfo: ConnectionInfo
+  ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
+  onAutoconnectInfoRequest?: (
+    connectionStorage: ConnectionStorage
+  ) => Promise<ConnectionInfo | undefined>;
+  connectFn?: typeof devtoolsConnect | undefined;
+  preloadStorageConnectionInfos?: ConnectionInfo[];
+}> = ({ children }) => {
+  const formPreferences = useConnectionFormPreferences();
+  return (
+    <ConnectionActionsProvider>
+      {children}
+      <ConnectionModal {...formPreferences} />
+    </ConnectionActionsProvider>
+  );
+};
 
 const CompassConnectionsPlugin = registerHadronPlugin(
   {
     name: 'CompassConnections',
-    component: ConnectionsPlugin,
+    component: ConnectionsComponent,
     activate(
       initialProps,
       { logger, preferences, connectionStorage, track },
