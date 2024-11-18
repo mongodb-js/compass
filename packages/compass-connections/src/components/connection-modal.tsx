@@ -23,7 +23,7 @@ type ConnectionModalProps = Omit<
 const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
   initialConnectionInfo,
   ...props
-}: ConnectionModalProps) => {
+}) => {
   if (!initialConnectionInfo) {
     return null;
   }
