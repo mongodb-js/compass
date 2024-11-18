@@ -69,7 +69,7 @@ export default function ConnectionsFilterPopover({
 
   // Manually handling the tooltip state instead of supplying a trigger
   // we do this to avoid the tooltip from rendering when the popover is open
-  // and when the IconButton regains focus as the
+  // and when the IconButton regains focus as the popover is closed.
   const [isTooltipOpen, setTooltipOpen] = useState(false);
   const handleButtonMouseEnter = useCallback(
     () => setTooltipOpen(true),

@@ -1,5 +1,11 @@
 import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, Menu, app, dialog, shell } from 'electron';
+import {
+  BrowserWindow,
+  Menu,
+  app as electronApp,
+  dialog,
+  shell,
+} from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
@@ -34,11 +40,11 @@ function quitItem(
     accelerator: 'CmdOrCtrl+Q',
     click() {
       !compassApp.preferences.getPreferences().enableShowDialogOnQuit
-        ? app.quit()
+        ? electronApp.quit()
         : void dialog
             .showMessageBox({
               type: 'warning',
-              title: `Quit ${app.getName()}`,
+              title: `Quit ${electronApp.getName()}`,
               icon: COMPASS_ICON,
               message: 'Are you sure you want to quit?',
               buttons: ['Quit', 'Cancel'],
@@ -50,7 +56,7 @@ function quitItem(
                   void compassApp.preferences.savePreferences({
                     enableShowDialogOnQuit: false,
                   });
-                app.quit();
+                electronApp.quit();
               }
             });
     },
@@ -96,10 +102,10 @@ function darwinCompassSubMenu(
   compassApp: typeof CompassApplication
 ): MenuItemConstructorOptions {
   return {
-    label: app.getName(),
+    label: electronApp.getName(),
     submenu: [
       {
-        label: `About ${app.getName()}`,
+        label: `About ${electronApp.getName()}`,
         role: 'about',
       },
       updateSubmenu(windowState, compassApp),
@@ -239,14 +245,14 @@ function editSubMenu(): MenuItemConstructorOptions {
 
 function nonDarwinAboutItem(): MenuItemConstructorOptions {
   return {
-    label: `&About ${app.getName()}`,
+    label: `&About ${electronApp.getName()}`,
     click() {
       void dialog.showMessageBox({
         type: 'info',
-        title: 'About ' + app.getName(),
+        title: 'About ' + electronApp.getName(),
         icon: COMPASS_ICON,
-        message: app.getName(),
-        detail: 'Version ' + app.getVersion(),
+        message: electronApp.getName(),
+        detail: 'Version ' + electronApp.getVersion(),
         buttons: ['OK'],
       });
     },
@@ -255,7 +261,7 @@ function nonDarwinAboutItem(): MenuItemConstructorOptions {
 
 function helpWindowItem(): MenuItemConstructorOptions {
   return {
-    label: `&Online ${app.getName()} Help`,
+    label: `&Online ${electronApp.getName()} Help`,
     accelerator: 'F1',
     click() {
       void shell.openExternal(COMPASS_HELP);
@@ -299,7 +305,7 @@ function license(): MenuItemConstructorOptions {
     label: '&License',
     click() {
       void import('../../LICENSE').then(({ default: LICENSE }) => {
-        const licenseTemp = path.join(app.getPath('temp'), 'License');
+        const licenseTemp = path.join(electronApp.getPath('temp'), 'License');
         fs.writeFile(licenseTemp, LICENSE, (err) => {
           if (!err) {
             void shell.openPath(licenseTemp);
@@ -618,9 +624,9 @@ class CompassMenu {
   }
 
   private static async setupDockMenu() {
-    await app.whenReady();
+    await electronApp.whenReady();
     if (process.platform === 'darwin') {
-      app.dock.setMenu(
+      electronApp.dock.setMenu(
         Menu.buildFromTemplate([
           {
             label: 'New Window',
