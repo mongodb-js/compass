@@ -3,7 +3,6 @@ import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import os from 'os';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';

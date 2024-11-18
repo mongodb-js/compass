@@ -8,7 +8,6 @@ import {
 } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import createDebug from 'debug';
 import type { THEMES } from 'compass-preferences-model';
