@@ -1,4 +1,4 @@
-import { connect as reduxConnect } from 'react-redux';
+import { connect as reduxConnect } from '../stores/store-context';
 import ConnectionFormModal from '@mongodb-js/connection-form';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import {
@@ -21,30 +21,29 @@ function shouldDisableConnectionEditing(connection: ConnectionState): boolean {
 function mapState({
   isEditingNewConnection,
   isEditingConnectionInfoModalOpen,
-  editingConnectionInfo,
-  connectionErrors,
+  editingConnectionInfoId,
   connections,
 }: {
   isEditingNewConnection: boolean;
   isEditingConnectionInfoModalOpen: boolean;
-  editingConnectionInfo: ConnectionInfo;
-  connectionErrors: Record<string, Error | null>;
+  editingConnectionInfoId: ConnectionId;
   connections: {
     byId: Record<ConnectionId, ConnectionState>;
   };
 }) {
-  const disableEditingConnectedConnection = shouldDisableConnectionEditing(
-    connections.byId[editingConnectionInfo.id]
-  );
+  const editingConnection = connections.byId[editingConnectionInfoId];
+  const editingConnectionInfo = editingConnection.info;
+
+  const disableEditingConnectedConnection =
+    shouldDisableConnectionEditing(editingConnection);
 
   return {
     isOpen: isEditingConnectionInfoModalOpen,
     initialConnectionInfo: editingConnectionInfo,
-    connectionErrorMessage: connectionErrors[editingConnectionInfo.id]?.message,
+    connectionErrorMessage: editingConnection?.error?.message,
     disableEditingConnectedConnection,
-    editingConnectionInfo,
+    editingConnectionInfoId,
     isEditingNewConnection,
-    connections,
   };
 }
 
@@ -72,7 +71,7 @@ function mergeProps(
     initialConnectionInfo,
     connectionErrorMessage,
     disableEditingConnectedConnection,
-    editingConnectionInfo,
+    editingConnectionInfoId,
     isEditingNewConnection,
   } = stateProps;
 
@@ -90,18 +89,18 @@ function mergeProps(
     connectionErrorMessage,
     disableEditingConnectedConnection,
 
-    onDisconnectClicked: () => disconnect(editingConnectionInfo.id),
+    onDisconnectClicked: () => disconnect(editingConnectionInfoId),
     setOpen: (newOpen: boolean) => {
       // This is how leafygreen propagates `X` button click
       if (newOpen === false) {
-        cancelEditConnection(editingConnectionInfo.id);
+        cancelEditConnection(editingConnectionInfoId);
       }
     },
     openSettingsModal: () => {
       // TODO: this has to emit on the global app registry somehow
     },
     onCancel: () => {
-      cancelEditConnection(editingConnectionInfo.id);
+      cancelEditConnection(editingConnectionInfoId);
     },
     onSaveClicked: (connectionInfo: ConnectionInfo) => {
       return saveEditedConnectionInfo(connectionInfo);
