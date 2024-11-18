@@ -110,24 +110,22 @@ export const PluginTitle = ({
   );
 };
 
-export const GlobalWritesTabTitle = connect(
-  ({ managedNamespace, status }: RootState) => {
-    const errorStatuses = [
-      ShardingStatuses.LOADING_ERROR,
-      ShardingStatuses.SHARDING_ERROR,
-      ShardingStatuses.SHARD_KEY_MISMATCH,
-      ShardingStatuses.SHARD_KEY_INVALID,
-    ];
-    const okStatuses = [
-      ShardingStatuses.NOT_READY,
-      ShardingStatuses.SHARD_KEY_CORRECT,
-    ];
-    const showError = errorStatuses.includes(status);
-    const showWarning = !showError && !okStatuses.includes(status);
+export const GlobalWritesTabTitle = connect(({ status }: RootState) => {
+  const errorStatuses = [
+    ShardingStatuses.LOADING_ERROR,
+    ShardingStatuses.SHARDING_ERROR,
+    ShardingStatuses.SHARD_KEY_MISMATCH,
+    ShardingStatuses.SHARD_KEY_INVALID,
+  ];
+  const okStatuses = [
+    ShardingStatuses.NOT_READY,
+    ShardingStatuses.SHARD_KEY_CORRECT,
+  ];
+  const showError = errorStatuses.includes(status);
+  const showWarning = !showError && !okStatuses.includes(status);
 
-    return {
-      showError,
-      showWarning,
-    };
-  }
-)(PluginTitle);
+  return {
+    showError,
+    showWarning,
+  };
+})(PluginTitle);
