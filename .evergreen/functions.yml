@@ -690,6 +690,8 @@ functions:
           MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
           MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
           MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
+          # TODO: remove when issues with docker are resolved
+          DOCKER_REGISTRY: artifactory.corp.mongodb.com/dockerhub
         script: |
           set -e
           # Load environment variables

@@ -32,6 +32,7 @@ import {
 } from '../modules/collection-stats';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -60,6 +61,7 @@ export type IndexesPluginServices = {
   collection: Collection;
   track: TrackFunction;
   atlasService: AtlasService;
+  preferences: PreferencesAccess;
 };
 
 export type IndexesPluginOptions = {
@@ -85,6 +87,7 @@ export function activateIndexesPlugin(
     dataService,
     collection: collectionModel,
     atlasService,
+    preferences,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -119,6 +122,7 @@ export function activateIndexesPlugin(
           connectionInfoRef
         ),
         pollingIntervalRef,
+        preferences,
       })
     )
   );

@@ -2,6 +2,7 @@
 
 RUN_ID="$(date +"%s")-$(git rev-parse --short HEAD)"
 DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds -v '+2H')"
+DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 # This script helps to automatically provision Atlas cluster for running the e2e
 # tests against. In CI this will always create a new cluster and delete it when
@@ -39,8 +40,8 @@ DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds
 #     MCLI_ORG_ID           Org ID
 #     MCLI_PROJECT_ID       Project ID
 #
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME         Cloud user you created
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD         Cloud user password
+#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME  Cloud user you created
+#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD  Cloud user password
 #
 # - Source the script followed by running the tests to make sure that some
 #   variables exported from this script are available for the test env:
@@ -68,7 +69,7 @@ function atlascli() {
     -e MCLI_ORG_ID \
     -e MCLI_PROJECT_ID \
     -e MCLI_OPS_MANAGER_URL \
-    mongodb/atlas atlas $@
+    "$DOCKER_REGISTRY/mongodb/atlas" atlas $@
 }
 
 cleanup() {

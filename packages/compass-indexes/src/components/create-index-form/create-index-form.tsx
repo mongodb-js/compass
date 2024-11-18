@@ -10,6 +10,7 @@ import {
   useConnectionInfo,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[4]}px 0 ${spacing[5]}px 0`,
@@ -43,10 +44,13 @@ function CreateIndexForm({
   onRemoveFieldClick,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
+  const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
   const supportsRollingIndexes = useConnectionSupports(
     connectionId,
     'rollingIndexCreation'
   );
+  const showRollingIndexOption =
+    rollingIndexesFeatureEnabled && supportsRollingIndexes;
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -95,7 +99,7 @@ function CreateIndexForm({
             <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
           )}
           <CheckboxInput name="sparse"></CheckboxInput>
-          {supportsRollingIndexes && (
+          {showRollingIndexOption && (
             <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
           )}
         </div>
