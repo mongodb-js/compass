@@ -29,6 +29,8 @@ export type ItemAction<Action extends string> = {
   disabledDescription?: string;
   tooltip?: string;
   actionButtonClassName?: string;
+  /** How to show the item when not collapsed into the menu */
+  expandedPresentation?: 'icon' | 'button';
 };
 
 export type ItemSeparator = { separator: true };
@@ -343,26 +345,42 @@ export function ItemActionGroup<Action extends string>({
           tooltip,
           tooltipProps,
           actionButtonClassName,
+          expandedPresentation = 'icon',
         } = menuItem;
-        const button = (
-          <ItemActionButton
-            key={action}
-            glyph={icon}
-            label={label}
-            title={!tooltip ? label : undefined}
-            size={iconSize}
-            data-action={action}
-            data-testid={actionTestId<Action>(dataTestId, action)}
-            onClick={onClick}
-            className={cx(
-              actionGroupButtonStyle,
-              iconClassName,
-              actionButtonClassName
-            )}
-            style={iconStyle}
-            disabled={isDisabled}
-          />
-        );
+        const button =
+          expandedPresentation === 'icon' ? (
+            <ItemActionButton
+              key={action}
+              glyph={icon}
+              label={label}
+              title={!tooltip ? label : undefined}
+              size={iconSize}
+              data-action={action}
+              data-testid={actionTestId<Action>(dataTestId, action)}
+              onClick={onClick}
+              className={cx(
+                actionGroupButtonStyle,
+                iconClassName,
+                actionButtonClassName
+              )}
+              style={iconStyle}
+              disabled={isDisabled}
+            />
+          ) : (
+            <Button
+              key={action}
+              title={!tooltip ? label : undefined}
+              size={iconSize}
+              data-action={action}
+              data-testid={actionTestId<Action>(dataTestId, action)}
+              onClick={onClick}
+              className={actionButtonClassName}
+              style={iconStyle}
+              disabled={isDisabled}
+            >
+              {label}
+            </Button>
+          );
 
         if (tooltip) {
           return (

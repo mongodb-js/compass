@@ -5,7 +5,7 @@ import { type ItemSeparator } from '@mongodb-js/compass-components';
 
 export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
-export const notConnectedConnectionItemActions = ({
+export const commonConnectionItemActions = ({
   connectionInfo,
 }: {
   connectionInfo: ConnectionInfo;
@@ -81,7 +81,7 @@ export const connectedConnectionItemActions = ({
   isShellEnabled: boolean;
 }): NavigationItemActions => {
   const isAtlas = !!connectionInfo.atlasMetadata;
-  const connectionManagementActions = notConnectedConnectionItemActions({
+  const connectionManagementActions = commonConnectionItemActions({
     connectionInfo,
   });
   const actions: (ItemAction<Actions> | ItemSeparator | null)[] = [
@@ -133,6 +133,23 @@ export const connectedConnectionItemActions = ({
   return actions.filter((action): action is Exclude<typeof action, null> => {
     return !!action;
   });
+};
+
+export const notConnectedConnectionItemActions = ({
+  connectionInfo,
+}: {
+  connectionInfo: ConnectionInfo;
+}): NavigationItemActions => {
+  const commonActions = commonConnectionItemActions({ connectionInfo });
+  return [
+    {
+      action: 'connection-connect',
+      label: 'Connect',
+      icon: 'Connect',
+      expandedPresentation: 'button',
+    },
+    ...commonActions,
+  ];
 };
 
 export const databaseItemActions = ({

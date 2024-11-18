@@ -2,6 +2,14 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { WorkspaceTabSelectorOptions } from '../selectors';
 
+type CollectionWorkspaceSubTab =
+  | 'Documents'
+  | 'Aggregations'
+  | 'Schema'
+  | 'Indexes'
+  | 'Validation'
+  | 'GlobalWrites';
+
 async function navigateToCollection(
   browser: CompassBrowser,
   connectionName: string,
@@ -50,12 +58,8 @@ export async function navigateToCollectionTab(
   connectionName: string,
   dbName: string,
   collectionName: string,
-  tabName:
-    | 'Documents'
-    | 'Aggregations'
-    | 'Schema'
-    | 'Indexes'
-    | 'Validation' = 'Documents',
+  tabName: CollectionWorkspaceSubTab = 'Documents',
+
   closeExistingTabs = true
 ): Promise<void> {
   await navigateToCollection(
@@ -83,12 +87,7 @@ export async function navigateToCollectionTab(
 
 export async function navigateWithinCurrentCollectionTabs(
   browser: CompassBrowser,
-  tabName:
-    | 'Documents'
-    | 'Aggregations'
-    | 'Schema'
-    | 'Indexes'
-    | 'Validation' = 'Documents'
+  tabName: CollectionWorkspaceSubTab = 'Documents'
 ): Promise<void> {
   const tab = browser.$(Selectors.collectionSubTab(tabName));
   const selectedTab = browser.$(Selectors.collectionSubTab(tabName, true));
@@ -108,13 +107,7 @@ async function waitUntilActiveCollectionTab(
   connectionName: string,
   dbName: string,
   collectionName: string,
-  tabName:
-    | 'Documents'
-    | 'Aggregations'
-    | 'Schema'
-    | 'Indexes'
-    | 'Validation'
-    | null = null
+  tabName: CollectionWorkspaceSubTab | null = null
 ) {
   const options: WorkspaceTabSelectorOptions = {
     type: 'Collection',
@@ -132,12 +125,7 @@ async function waitUntilActiveCollectionTab(
 
 export async function waitUntilActiveCollectionSubTab(
   browser: CompassBrowser,
-  tabName:
-    | 'Documents'
-    | 'Aggregations'
-    | 'Schema'
-    | 'Indexes'
-    | 'Validation' = 'Documents'
+  tabName: CollectionWorkspaceSubTab = 'Documents'
 ) {
   await browser.$(Selectors.collectionSubTab(tabName, true)).waitForDisplayed();
 }

@@ -42,7 +42,10 @@ import {
   fetchAllCollections,
   type Database,
 } from '../../modules/databases';
-import { useFilteredConnections } from '../use-filtered-connections';
+import {
+  type ConnectionsFilter,
+  useFilteredConnections,
+} from '../use-filtered-connections';
 import NavigationItemsFilter from '../navigation-items-filter';
 import {
   type ConnectionImportExportAction,
@@ -80,11 +83,6 @@ const connectionCountStyles = css({
   marginLeft: spacing[100],
 });
 
-const searchStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-});
-
 const noDeploymentStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
@@ -111,8 +109,10 @@ type ConnectionListTitleActions =
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
-  filterRegex: RegExp | null;
-  onFilterChange(regex: RegExp | null): void;
+  filter: ConnectionsFilter;
+  onFilterChange(
+    updater: (filter: ConnectionsFilter) => ConnectionsFilter
+  ): void;
   onConnect(info: ConnectionInfo): void;
   onNewConnection(): void;
   onEditConnection(info: ConnectionInfo): void;
@@ -153,7 +153,7 @@ type ConnectionsNavigationProps = ConnectionsNavigationComponentProps &
 const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   connectionsWithStatus,
   activeWorkspace,
-  filterRegex,
+  filter,
   instances,
   databases,
   isPerformanceTabSupported,
@@ -254,7 +254,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     onDatabaseToggle,
   } = useFilteredConnections({
     connections,
-    filterRegex,
+    filter,
     fetchAllCollections,
     onDatabaseExpand,
   });
@@ -503,8 +503,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length > 0 && (
         <>
           <NavigationItemsFilter
-            searchInputClassName={searchStyles}
             placeholder="Search connections"
+            filter={filter}
             onFilterChange={onFilterChange}
           />
           <ConnectionsNavigationTree
