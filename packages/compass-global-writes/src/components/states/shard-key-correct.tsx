@@ -65,7 +65,7 @@ export function ShardKeyCorrect({
         <Button
           data-testid="unmanage-collection-button"
           onClick={onUnmanageNamespace}
-          variant={ButtonVariant.Basic}
+          variant={ButtonVariant.Default}
           isLoading={isUnmanagingNamespace}
           loadingIndicator={<SpinLoader />}
         >
