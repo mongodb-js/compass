@@ -245,19 +245,19 @@ buildvariants:
       - name: publish-dev-release-info
       - name: create_static_analysis_report
 
-  - name: connectivity-tests
-    display_name: Connectivity Tests
-    run_on: ubuntu2004-large
-    tasks:
-      - name: test-connectivity
+  # - name: connectivity-tests
+  #   display_name: Connectivity Tests
+  #   run_on: ubuntu2004-large
+  #   tasks:
+  #     - name: test-connectivity
 
-  - name: e2e-coverage
-    display_name: E2E Coverage
-    run_on: ubuntu2004-large
-    tasks:
-    <% for(const group of E2E_TEST_GROUPS) { %>
-    - name: e2e-coverage-<%= group.number %>
-    <% } %>
+  # - name: e2e-coverage
+  #   display_name: E2E Coverage
+  #   run_on: ubuntu2004-large
+  #   tasks:
+  #   <% for(const group of E2E_TEST_GROUPS) { %>
+  #   - name: e2e-coverage-<%= group.number %>
+  #   <% } %>
 
   - name: csfle-tests
     display_name: CSFLE Tests
@@ -275,11 +275,11 @@ buildvariants:
     <% } %>
     <% } %>
 
-  - name: test-web-sandbox-atlas-cloud
-    display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2004-large
-    tasks:
-      - name: test-web-sandbox-atlas-cloud
+  # - name: test-web-sandbox-atlas-cloud
+  #   display_name: Test Web Sandbox (w/ Atlas Cloud login)
+  #   run_on: ubuntu2004-large
+  #   tasks:
+  #     - name: test-web-sandbox-atlas-cloud
 
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
