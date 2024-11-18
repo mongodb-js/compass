@@ -457,7 +457,7 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    ['linux', 'win32'].forEach((platform) => {
+    ['win32', 'linux'].forEach((platform) => {
       // TODO(COMPASS-7906): remove
       it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
         sinon.stub(process, 'platform').value(platform);
@@ -586,6 +586,23 @@ describe('CompassMenu', function () {
           },
         ]);
       });
+    });
+
+    it('does not crash when rendering menu item with an accelerator', () => {
+      const window = new BrowserWindow({ show: false });
+      const template = CompassMenu.getTemplate(window.id);
+
+      // As the root menu items do not have accelerators, we test
+      // against each item's submenu.
+      for (const item of template) {
+        // for TS. compass menu has submenus
+        if (!Array.isArray(item.submenu)) {
+          continue;
+        }
+        const menu = Menu.buildFromTemplate(item.submenu);
+        menu.popup({ window });
+        menu.closePopup();
+      }
     });
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {

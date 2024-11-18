@@ -31,7 +31,7 @@
     "coverage-report": "npm run coverage-merge && nyc report"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.7.0",
+    "@electron/rebuild": "^3.7.1",
     "@mongodb-js/compass-test-server": "^0.1.22",
     "@mongodb-js/connection-info": "^0.9.3",
     "@mongodb-js/eslint-config-compass": "^1.1.7",
@@ -51,8 +51,8 @@
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^32.2.3",
-    "electron-to-chromium": "^1.5.55",
+    "electron": "^32.2.5",
+    "electron-to-chromium": "^1.5.62",
     "eslint": "^7.25.0",
     "glob": "^10.2.5",
     "hadron-build": "^25.5.14",
