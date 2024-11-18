@@ -3,7 +3,6 @@ import AISignInModal from './ai-signin-modal';
 import AIOptInModal from './ai-optin-modal';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
-
 export const AtlasAiPlugin = () => {
   return (
     <ConfirmationModalArea>
