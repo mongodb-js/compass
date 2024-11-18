@@ -2,6 +2,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+import type { RootState } from './atlas-ai-store';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -32,7 +33,7 @@ export type AtlasSignInState = {
 export type GenAIAtlasSignInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
+> = ThunkAction<R, RootState, { atlasAuthService: AtlasAuthService }, A>;
 
 export const enum AtlasSignInActions {
   OpenSignInModal = 'compass-generative-ai/atlas-signin/OpenSignInModal',
@@ -227,7 +228,6 @@ const startAttempt = (
   fn: () => void
 ): GenAIAtlasSignInThunkAction<AttemptState> => {
   return (dispatch, getState) => {
-    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (getState().signIn.attemptId) {
       throw new Error(
         "Can't start sign in with prompt while another sign in attempt is in progress"
@@ -258,7 +258,6 @@ export const signIntoAtlasWithModalPrompt = ({
 > => {
   return (dispatch, getState) => {
     // Nothing to do if we already signed in.
-    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     const { state } = getState().signIn;
     if (state === 'success') {
       return Promise.resolve();
@@ -277,11 +276,9 @@ export const signIntoAtlasWithModalPrompt = ({
 
 export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
-    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (['in-progress', 'authenticated'].includes(getState().signIn.state)) {
       return;
     }
-    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     const { attemptId } = getState().signIn;
     if (attemptId === null) {
       return;
@@ -290,7 +287,6 @@ export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
       controller: { signal },
       resolve,
       reject,
-      // @ts-expect-error reducers were combined so these methods are nested one layer lower
     } = getAttempt(getState().signIn.attemptId);
     dispatch({
       type: AtlasSignInActions.Start,
@@ -337,10 +333,9 @@ export const cancelSignIn = (
   return (dispatch, getState) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null
-    // @ts-expect-error reducers were combined so these methods are nested one layer lower
     if (getState().signIn.attemptId === null) {
       return;
-    } // @ts-expect-error reducers were combined so these methods are nested one layer lower
+    }
     const attempt = getAttempt(getState().signIn.attemptId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);

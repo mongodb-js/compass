@@ -276,7 +276,7 @@ const CompassWeb = ({
       enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: true,
+        GEN_AI_COMPASS: false,
       },
       maximumNumberOfActiveConnections: 10,
       trackUsageStatistics: true,
@@ -371,8 +371,8 @@ const CompassWeb = ({
                               }
                               onOpenConnectViaModal={onOpenConnectViaModal}
                             ></CompassWorkspace>
-                            <CompassGenerativeAIPlugin />
                           </WithConnectionsStore>
+                          <CompassGenerativeAIPlugin />
                         </FieldStorePlugin>
                       </CompassInstanceStorePlugin>
                     </CompassConnections>

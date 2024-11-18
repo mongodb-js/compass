@@ -23,6 +23,8 @@ const reducer = combineReducers({
   optIn: optInReducer,
 });
 
+export type RootState = ReturnType<typeof reducer>;
+
 export type CompassGenerativeAIExtraArgs = {
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
