@@ -105,7 +105,7 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           )}
         </>
       }
-      submitDisabled={isOrgAiEnabled}
+      submitDisabled={!isOrgAiEnabled}
       onConfirm={() => {
         if (isOptInInProgress) {
           return;
