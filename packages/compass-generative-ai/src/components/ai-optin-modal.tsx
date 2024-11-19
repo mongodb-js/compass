@@ -96,7 +96,7 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       // @ts-expect-error leafygreen only allows strings, but we need to pass icons
       buttonText={
         <>
-          &nbsp;Opt in to Atlas to enable
+          &nbsp;Use Natural Language
           {isOptInInProgress && (
             <>
               &nbsp;
@@ -129,7 +129,7 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           this setting in the{' '}
           <Link href={PROJECT_SETTINGS_LINK} target="_blank">
             AI features
-          </Link>{' '}
+          </Link>
           section.
         </Banner>
         <div className={disclaimer}>
