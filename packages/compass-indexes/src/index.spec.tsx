@@ -60,6 +60,11 @@ describe('CompassIndexesPlugin', function () {
           instanceSize: 'VERY BIG',
           metricsType: 'replicaSet',
         } as any,
+      },
+      {
+        preferences: {
+          enableRollingIndexes: true,
+        },
       }
     );
   }

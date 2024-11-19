@@ -2,6 +2,7 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   autoconnectCheck,
   configureStore,
+  disconnect,
   loadConnections,
 } from './stores/connections-store-redux';
 import React, { useContext, useRef } from 'react';
@@ -46,7 +47,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
     activate(
       initialProps,
       { logger, preferences, connectionStorage, track },
-      helpers
+      { addCleanup, cleanup }
     ) {
       const store = configureStore(initialProps.preloadStorageConnectionInfos, {
         logger,
@@ -67,9 +68,16 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         }
       });
 
+      // Stop all connections on disconnect
+      addCleanup(() => {
+        for (const connectionId of store.getState().connections.ids) {
+          store.dispatch(disconnect(connectionId));
+        }
+      });
+
       return {
         store,
-        deactivate: helpers.cleanup,
+        deactivate: cleanup,
         context: ConnectionsStoreContext,
       };
     },

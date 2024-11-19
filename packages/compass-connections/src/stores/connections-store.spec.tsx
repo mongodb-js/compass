@@ -470,6 +470,8 @@ describe('useConnections', function () {
           preferences: defaultPreferences,
         });
 
+      await connectionsStore.actions.connect(mockConnections[0]);
+
       result.current.removeConnection(mockConnections[0].id);
 
       await waitFor(() => {

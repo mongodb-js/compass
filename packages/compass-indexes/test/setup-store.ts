@@ -160,6 +160,13 @@ export const setupStore = (
       collection: createMockCollection(),
       connectionInfoRef,
       atlasService,
+      preferences: {
+        getPreferences() {
+          return {
+            enableRollingIndexes: true,
+          };
+        },
+      } as any,
       ...services,
     },
     createActivateHelpers()
