@@ -15,13 +15,6 @@ describe('Compass GlobalWrites Plugin', function () {
     expect(screen.getByTestId('shard-collection-button')).to.exist;
   });
 
-  it('renders plugin in SUBMITTING_FOR_SHARDING state', async function () {
-    await renderWithStore(
-      <GlobalWrites shardingStatus={'SUBMITTING_FOR_SHARDING'} />
-    );
-    expect(screen.getByTestId('shard-collection-button')).to.exist;
-  });
-
   it('renders plugin in SHARDING state', async function () {
     await renderWithStore(<GlobalWrites shardingStatus={'SHARDING'} />);
     expect(screen.getByText(/sharding your collection/i)).to.exist;

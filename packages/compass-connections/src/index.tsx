@@ -16,6 +16,7 @@ export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 import {
   autoconnectCheck,
   configureStore,
+  disconnect,
   loadConnections,
 } from './stores/connections-store-redux';
 import {
@@ -51,7 +52,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
     activate(
       initialProps,
       { logger, preferences, connectionStorage, track, globalAppRegistry },
-      helpers
+      { addCleanup, cleanup }
     ) {
       const store = configureStore(initialProps.preloadStorageConnectionInfos, {
         logger,
@@ -73,9 +74,16 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         }
       });
 
+      // Stop all connections on disconnect
+      addCleanup(() => {
+        for (const connectionId of store.getState().connections.ids) {
+          store.dispatch(disconnect(connectionId));
+        }
+      });
+
       return {
         store,
-        deactivate: helpers.cleanup,
+        deactivate: cleanup,
         context: ConnectionsStoreContext,
       };
     },
