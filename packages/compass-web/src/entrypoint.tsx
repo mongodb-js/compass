@@ -372,8 +372,8 @@ const CompassWeb = ({
                               onOpenConnectViaModal={onOpenConnectViaModal}
                             ></CompassWorkspace>
                           </WithConnectionsStore>
-                          <CompassGenerativeAIPlugin />
                         </FieldStorePlugin>
+                        <CompassGenerativeAIPlugin projectId={projectId} />
                       </CompassInstanceStorePlugin>
                     </CompassConnections>
                   </AtlasCloudConnectionStorageProvider>

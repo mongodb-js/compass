@@ -4,7 +4,7 @@ import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { RootState } from './atlas-ai-store';
-import { isAction } from './util';
+import { isAction } from '../utils/util';
 
 type AttemptState = {
   id: number;
