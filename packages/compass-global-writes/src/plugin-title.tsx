@@ -23,19 +23,19 @@ const warningIconStyles = css({
 });
 
 const warningIconStylesLight = css({
-  color: palette.yellow.dark2,
-});
-
-const warningIconStylesDark = css({
-  color: palette.yellow.base,
-});
-
-const importantIconStylesLight = css({
   color: palette.red.dark2,
 });
 
-const importantIconStylesDark = css({
+const warningIconStylesDark = css({
   color: palette.red.base,
+});
+
+const importantIconStylesLight = css({
+  color: palette.yellow.dark2,
+});
+
+const importantIconStylesDark = css({
+  color: palette.yellow.base,
 });
 
 const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
