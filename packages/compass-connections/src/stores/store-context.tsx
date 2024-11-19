@@ -15,7 +15,6 @@ import type {
   ConnectionId,
   ConnectionState,
 } from './connections-store-redux';
-import type { Store } from 'redux';
 import {
   cancelEditConnection,
   connect as connectionsConnect,
@@ -34,6 +33,7 @@ import {
   importConnections,
   refreshConnections,
 } from './connections-store-redux';
+import type { Store } from 'redux';
 import {
   getConnectionTitle,
   type ConnectionInfo,
