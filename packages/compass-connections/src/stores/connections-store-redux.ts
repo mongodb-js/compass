@@ -1,3 +1,4 @@
+import type AppRegistry from 'hadron-app-registry';
 import type { Store, Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -185,6 +186,7 @@ type ThunkExtraArg = {
     connectionInfo: ConnectionInfo
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
 };
 
 export type ConnectionsThunkAction<
@@ -2154,6 +2156,14 @@ export const importConnections = (
     if (error) {
       throw error;
     }
+  };
+};
+
+export const openSettingsModal = (
+  tab?: string
+): ConnectionsThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('open-compass-settings', tab);
   };
 };
 

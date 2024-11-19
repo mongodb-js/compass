@@ -8,32 +8,15 @@ import {
   cancelEditConnection,
   saveEditedConnectionInfo,
   saveAndConnect,
+  openSettingsModal,
 } from '../stores/connections-store-redux';
+
+import { useConnectionFormPreferences } from '../hooks/use-connection-form-preferences';
 
 import type {
   ConnectionId,
   ConnectionState,
 } from '../stores/connections-store-redux';
-
-type ConnectionModalProps = Omit<
-  React.ComponentProps<typeof ConnectionFormModal>,
-  'initialConnectionInfo'
-> & { initialConnectionInfo?: ConnectionInfo };
-
-const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
-  initialConnectionInfo,
-  ...props
-}) => {
-  if (!initialConnectionInfo) {
-    return null;
-  }
-  return (
-    <ConnectionFormModal
-      initialConnectionInfo={initialConnectionInfo}
-      {...props}
-    />
-  );
-};
 
 function shouldDisableConnectionEditing(connection: ConnectionState): boolean {
   return connection.status === 'connected';
@@ -77,72 +60,85 @@ const mapDispatch = {
   cancelEditConnection,
   saveEditedConnectionInfo,
   saveAndConnect,
+  openSettingsModal,
 };
 
-function mergeProps(
-  stateProps: ReturnType<typeof mapState>,
-  dispatchProps: {
-    // TODO: surely there's a way of inferring these types?
-    connect: (connectionInfo: ConnectionInfo) => any;
-    disconnect: (id: string) => void;
-    cancelEditConnection: (id: string) => void;
-    saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => any;
-    saveAndConnect: (connectionInfo: ConnectionInfo) => any;
-  }
-): ConnectionModalProps {
-  const {
-    isOpen,
-    initialConnectionInfo,
-    connectionErrorMessage,
-    disableEditingConnectedConnection,
-    editingConnectionInfoId,
-    isEditingNewConnection,
-  } = stateProps;
+// TODO: surely there's a way of inferring these types?
+type DispatchProps = {
+  connect: (connectionInfo: ConnectionInfo) => any;
+  disconnect: (id: string) => void;
+  cancelEditConnection: (id: string) => void;
+  saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => any;
+  saveAndConnect: (connectionInfo: ConnectionInfo) => any;
+  openSettingsModal: (tab?: string) => any;
+};
+
+type ConnectionModalProps = ReturnType<typeof mapState> & DispatchProps;
+
+const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
+  // pulling initialConnectionInfo out of props to help TypeScript know that it
+  // is not undefined by the time we render ConnectionFormModal
+  initialConnectionInfo,
+  // pulling editingConnectionInfoId and isEditingNewConnection out of props
+  // because they aren't known to ConnectionFormModal and only get used here.
+  editingConnectionInfoId,
+  isEditingNewConnection,
+  ...props
+}) => {
+  const formPreferences = useConnectionFormPreferences();
 
   const {
+    disableEditingConnectedConnection,
     connect,
     disconnect,
-    saveAndConnect,
-    saveEditedConnectionInfo,
     cancelEditConnection,
-  } = dispatchProps;
+    saveEditedConnectionInfo,
+    saveAndConnect,
+  } = props;
 
-  return {
-    isOpen,
-    initialConnectionInfo,
-    connectionErrorMessage,
-    disableEditingConnectedConnection,
+  if (!(editingConnectionInfoId && initialConnectionInfo)) {
+    return null;
+  }
 
-    onDisconnectClicked: () =>
-      editingConnectionInfoId && disconnect(editingConnectionInfoId),
-    setOpen: (newOpen: boolean) => {
-      // This is how leafygreen propagates `X` button click
-      if (newOpen === false) {
-        editingConnectionInfoId &&
+  return (
+    <ConnectionFormModal
+      initialConnectionInfo={initialConnectionInfo}
+      {...props}
+      {...formPreferences}
+      onDisconnectClicked={() => disconnect(editingConnectionInfoId)}
+      setOpen={(newOpen) => {
+        // This is how leafygreen propagates `X` button click
+        if (newOpen === false) {
           cancelEditConnection(editingConnectionInfoId);
+        }
+      }}
+      onCancel={() => {
+        cancelEditConnection(editingConnectionInfoId);
+      }}
+      onSaveClicked={(connectionInfo) => {
+        return saveEditedConnectionInfo(connectionInfo);
+      }}
+      onConnectClicked={
+        isEditingNewConnection || disableEditingConnectedConnection
+          ? undefined
+          : (connectionInfo) => {
+              void connect(connectionInfo);
+            }
       }
-    },
-    openSettingsModal: () => {
-      // TODO: this has to emit on the global app registry somehow
-    },
-    onCancel: () => {
-      editingConnectionInfoId && cancelEditConnection(editingConnectionInfoId);
-    },
-    onSaveClicked: (connectionInfo: ConnectionInfo) => {
-      return saveEditedConnectionInfo(connectionInfo);
-    },
-    onConnectClicked:
-      isEditingNewConnection || disableEditingConnectedConnection
-        ? undefined
-        : (connectionInfo: ConnectionInfo) => {
-            void connect(connectionInfo);
-          },
-    onSaveAndConnectClicked: disableEditingConnectedConnection
-      ? undefined
-      : (connectionInfo: ConnectionInfo) => {
-          void saveAndConnect(connectionInfo);
-        },
-  };
-}
+      onSaveAndConnectClicked={
+        disableEditingConnectedConnection
+          ? undefined
+          : (connectionInfo) => {
+              void saveAndConnect(connectionInfo);
+            }
+      }
+    />
+  );
+};
 
-export default reduxConnect(mapState, mapDispatch, mergeProps)(ConnectionModal);
+export const ConnectedConnectionModal = reduxConnect(
+  mapState,
+  mapDispatch
+)(ConnectionModal);
+
+export default ConnectedConnectionModal;

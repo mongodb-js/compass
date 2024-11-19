@@ -10,10 +10,9 @@ import type {
 } from '@mongodb-js/connection-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
-import ConnectionModal from './components/connection-modal';
+import { ConnectedConnectionModal } from './components/connection-modal';
 export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
-import { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 import {
   autoconnectCheck,
   configureStore,
@@ -37,11 +36,10 @@ const ConnectionsComponent: React.FunctionComponent<{
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
-  const formPreferences = useConnectionFormPreferences();
   return (
     <ConnectionActionsProvider>
       {children}
-      <ConnectionModal {...formPreferences} />
+      <ConnectedConnectionModal />
     </ConnectionActionsProvider>
   );
 };
@@ -52,7 +50,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
     component: ConnectionsComponent,
     activate(
       initialProps,
-      { logger, preferences, connectionStorage, track },
+      { logger, preferences, connectionStorage, track, globalAppRegistry },
       helpers
     ) {
       const store = configureStore(initialProps.preloadStorageConnectionInfos, {
@@ -63,6 +61,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         getExtraConnectionData: initialProps.onExtraConnectionDataRequest,
         appName: initialProps.appName,
         connectFn: initialProps.connectFn,
+        globalAppRegistry,
       });
 
       setTimeout(() => {
