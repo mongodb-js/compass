@@ -78,7 +78,6 @@ const globalDarkThemeStyles = css({
 export type HomeProps = {
   appName: string;
   showWelcomeModal?: boolean;
-  createFileInputBackend: () => FileInputBackend;
   onDisconnect: () => void;
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
@@ -120,7 +119,6 @@ const shellContainerStyles = css({
 function Home({
   appName,
   showWelcomeModal = false,
-  createFileInputBackend,
   onDisconnect,
   showCollectionSubMenu,
   hideCollectionSubMenu,
@@ -178,55 +176,48 @@ function Home({
   );
 
   return (
-    <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-      <ConnectionImportExportProvider>
-        <CompassInstanceStorePlugin>
-          <FieldStorePlugin>
-            <div data-testid="home" className={verticalSplitStyles}>
-              {multiConnectionsEnabled && (
-                <AppRegistryProvider scopeName="Multiple Connections">
-                  <Workspace
-                    appName={appName}
-                    onActiveWorkspaceTabChange={onWorkspaceChange}
-                  />
-                </AppRegistryProvider>
-              )}
-              {!multiConnectionsEnabled &&
-                (isConnected ? (
-                  <AppRegistryProvider scopeName="Single Connection">
-                    <ConnectionInfoProvider
-                      connectionInfoId={connectionInfo.id}
-                    >
-                      <Workspace
-                        appName={appName}
-                        onActiveWorkspaceTabChange={onWorkspaceChange}
-                      />
-                      <div className={shellContainerStyles}>
-                        <CompassShellPlugin />
-                      </div>
-                    </ConnectionInfoProvider>
-                  </AppRegistryProvider>
-                ) : (
-                  <div className={homePageStyles}>
-                    <SingleConnectionFormWithConnectionImportExport
-                      appRegistry={appRegistry}
+    <ConnectionImportExportProvider>
+      <CompassInstanceStorePlugin>
+        <FieldStorePlugin>
+          <div data-testid="home" className={verticalSplitStyles}>
+            {multiConnectionsEnabled && (
+              <AppRegistryProvider scopeName="Multiple Connections">
+                <Workspace
+                  appName={appName}
+                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                />
+              </AppRegistryProvider>
+            )}
+            {!multiConnectionsEnabled &&
+              (isConnected ? (
+                <AppRegistryProvider scopeName="Single Connection">
+                  <ConnectionInfoProvider connectionInfoId={connectionInfo.id}>
+                    <Workspace
+                      appName={appName}
+                      onActiveWorkspaceTabChange={onWorkspaceChange}
                     />
-                  </div>
-                ))}
-            </div>
-            <WelcomeModal
-              isOpen={isWelcomeOpen}
-              closeModal={closeWelcomeModal}
-            />
-            <CompassSettingsPlugin></CompassSettingsPlugin>
-            <CompassFindInPagePlugin></CompassFindInPagePlugin>
-            <AtlasAuthPlugin></AtlasAuthPlugin>
-            <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
-            <LegacyConnectionsModal />
-          </FieldStorePlugin>
-        </CompassInstanceStorePlugin>
-      </ConnectionImportExportProvider>
-    </FileInputBackendProvider>
+                    <div className={shellContainerStyles}>
+                      <CompassShellPlugin />
+                    </div>
+                  </ConnectionInfoProvider>
+                </AppRegistryProvider>
+              ) : (
+                <div className={homePageStyles}>
+                  <SingleConnectionFormWithConnectionImportExport
+                    appRegistry={appRegistry}
+                  />
+                </div>
+              ))}
+          </div>
+          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <CompassSettingsPlugin></CompassSettingsPlugin>
+          <CompassFindInPagePlugin></CompassFindInPagePlugin>
+          <AtlasAuthPlugin></AtlasAuthPlugin>
+          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+          <LegacyConnectionsModal />
+        </FieldStorePlugin>
+      </CompassInstanceStorePlugin>
+    </ConnectionImportExportProvider>
   );
 }
 
@@ -236,22 +227,26 @@ type HomeWithConnectionsProps = HomeProps &
     'onAutoconnectInfoRequest'
   > & {
     connectionStorage: ConnectionStorage;
+    createFileInputBackend: () => FileInputBackend;
   };
 
 function HomeWithConnections({
   onAutoconnectInfoRequest,
   connectionStorage,
+  createFileInputBackend,
   ...props
 }: HomeWithConnectionsProps) {
   return (
     <ConnectionStorageProvider value={connectionStorage}>
-      <CompassConnections
-        appName={props.appName}
-        onExtraConnectionDataRequest={getExtraConnectionData}
-        onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-      >
-        <Home {...props}></Home>
-      </CompassConnections>
+      <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
+        <CompassConnections
+          appName={props.appName}
+          onExtraConnectionDataRequest={getExtraConnectionData}
+          onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+        >
+          <Home {...props}></Home>
+        </CompassConnections>
+      </FileInputBackendProvider>
     </ConnectionStorageProvider>
   );
 }
