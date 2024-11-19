@@ -76,6 +76,7 @@ const App = () => {
             atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
             enableCreatingNewConnections: !isAtlas,
             enableGlobalWrites: isAtlas,
+            enableRollingIndexes: isAtlas,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}

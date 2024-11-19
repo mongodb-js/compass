@@ -369,7 +369,13 @@ const fetchIndexes = (
   return async (
     dispatch,
     getState,
-    { dataService, collection, connectionInfoRef, rollingIndexesService }
+    {
+      dataService,
+      collection,
+      connectionInfoRef,
+      rollingIndexesService,
+      preferences,
+    }
   ) => {
     const {
       isReadonlyView,
@@ -387,16 +393,21 @@ const fetchIndexes = (
       return;
     }
 
-    const isRollingIndexesSupported = connectionSupports(
+    const clusterSupportsRollingIndexes = connectionSupports(
       connectionInfoRef.current,
       'rollingIndexCreation'
     );
+    const rollingIndexesEnabled =
+      !!preferences.getPreferences().enableRollingIndexes;
+
+    const shouldFetchRollingIndexes =
+      clusterSupportsRollingIndexes && rollingIndexesEnabled;
 
     try {
       dispatch(fetchIndexesStarted(reason));
       const promises = [
         dataService.indexes(namespace),
-        isRollingIndexesSupported
+        shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
           : undefined,
       ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];

@@ -20,6 +20,7 @@ export type FeatureFlags = {
   enableRenameCollectionModal: boolean;
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
+  enableRollingIndexes: boolean;
 };
 
 export const featureFlags: Required<{
@@ -82,6 +83,13 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables support for explicit proxy configuration.',
       long: 'Allows users to specify proxy configuration for the entire Compass application.',
+    },
+  },
+
+  enableRollingIndexes: {
+    stage: 'development',
+    description: {
+      short: 'Enable creating indexes with the rolling build in Atlas Cloud',
     },
   },
 };

@@ -18,6 +18,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
@@ -36,6 +37,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin(
     track: telemetryLocator,
     collection: collectionModelLocator,
     atlasService: atlasServiceLocator,
+    preferences: preferencesLocator,
   }
 );
 
