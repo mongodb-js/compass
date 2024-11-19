@@ -333,8 +333,9 @@ class Target {
     /**
      * Remove `.` from version tags for NUGET version
      */
+    const safeChannel = _.escapeRegExp(this.channel);
     const nuggetVersion = this.version.replace(
-      new RegExp(`-${this.channel}\\.(\\d+)`),
+      new RegExp(`-${safeChannel}\\.(\\d+)`),
       `-${this.channel}$1`
     );
 
