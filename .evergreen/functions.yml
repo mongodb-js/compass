@@ -78,6 +78,8 @@ variables:
     GARASIGN_PASSWORD: ${garasign_password}
     ARTIFACTORY_USERNAME: ${artifactory_username}
     ARTIFACTORY_PASSWORD: ${artifactory_password}
+    DOCKERHUB_USERNAME: ${dockerhub_username}
+    DOCKERHUB_PASSWORD: ${dockerhub_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:

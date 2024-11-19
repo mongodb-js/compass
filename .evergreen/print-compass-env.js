@@ -74,6 +74,8 @@ function printCompassEnv() {
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
   }
 
+  pathsToPrepend.unshift(`${originalPWD}/.evergreen/docker-config/bin`);
+
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
@@ -113,6 +115,8 @@ function printCompassEnv() {
 
   // https://jira.mongodb.org/browse/NODE-6320
   printVar('GYP_DEFINES', `kerberos_use_rtld=${process.platform === 'linux'}`);
+
+  printVar('DOCKER_CONFIG', `${originalPWD}/.evergreen/docker-config`);
 }
 
 printCompassEnv();
