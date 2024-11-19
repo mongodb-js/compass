@@ -8,18 +8,13 @@ import {
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import {
-  cancelSharding,
-  type RootState,
-  ShardingStatuses,
-} from '../../store/reducer';
+import { cancelSharding, type RootState } from '../../store/reducer';
 import CreateShardKeyForm from '../create-shard-key-form';
-import { containerStyles, bannerStyles } from '../common-styles';
-
-const btnStyles = css({
-  float: 'right',
-  height: spacing[600],
-});
+import {
+  containerStyles,
+  bannerStyles,
+  bannerBtnStyles,
+} from '../common-styles';
 
 const errorStyles = css({
   marginTop: spacing[200],
@@ -47,7 +42,7 @@ export function ShardingError({
         make any necessary changes to your collection, and try again.
         <div className={errorStyles}>{shardingError}</div>
         <Button
-          className={btnStyles}
+          className={bannerBtnStyles}
           data-testid="cancel-sharding-btn"
           disabled={isCancellingSharding || isSubmittingForSharding}
           isLoading={isCancellingSharding}
@@ -69,10 +64,9 @@ export default connect(
     }
     return {
       shardingError: state.shardingError,
-      isCancellingSharding:
-        state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR,
+      isCancellingSharding: state.userActionInProgress === 'cancelSharding',
       isSubmittingForSharding:
-        state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+        state.userActionInProgress === 'submitForSharding',
     };
   },
   {

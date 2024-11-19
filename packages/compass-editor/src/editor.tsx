@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useImperativeHandle,
   useRef,
   useState,
@@ -50,7 +49,6 @@ import {
   snippetCompletion,
   startCompletion,
 } from '@codemirror/autocomplete';
-import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -74,7 +72,9 @@ import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 
 import { prettify as _prettify } from './prettify';
-import { ActionButton, FormatIcon } from './actions';
+import type { Action } from './action-button';
+import { ActionsContainer } from './actions-container';
+import type { EditorRef } from './types';
 
 // TODO(COMPASS-8453): Re-enable this once the linked tickets are resolved
 // https://github.com/codemirror/dev/issues/1458
@@ -696,19 +696,6 @@ function useCodemirrorExtensionCompartment<T>(
   }, value);
   return initialExtensionRef.current;
 }
-
-export type EditorRef = {
-  foldAll: () => boolean;
-  unfoldAll: () => boolean;
-  copyAll: () => boolean;
-  prettify: () => boolean;
-  applySnippet: (template: string) => boolean;
-  focus: () => boolean;
-  cursorDocEnd: () => boolean;
-  startCompletion: () => boolean;
-  readonly editorContents: string | null;
-  readonly editor: EditorView | null;
-};
 
 const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   {
@@ -1402,23 +1389,16 @@ const multilineEditorContainerWithActionsStyle = css({
   minHeight: spacing[5] - 2,
 });
 
+const multilineEditorContainerWithExpandStyle = css({
+  ['& .cm-gutters']: {
+    // Offset to prevent the "expand" button from overlapping with fold / unfold icons
+    paddingLeft: spacing[500],
+  },
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
-
-const actionsContainerStyle = css({
-  position: 'absolute',
-  top: spacing[1],
-  right: spacing[2],
-  display: 'none',
-  gap: spacing[2],
-});
-
-export type Action = {
-  icon: IconGlyph;
-  label: string;
-  action: (editor: EditorView) => boolean | void;
-};
 
 type MultilineEditorProps = EditorProps & {
   customActions?: Action[];
@@ -1426,6 +1406,8 @@ type MultilineEditorProps = EditorProps & {
   formattable?: boolean;
   editorClassName?: string;
   actionsClassName?: string;
+  onExpand?: () => void;
+  expanded?: boolean;
 };
 
 const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
@@ -1438,8 +1420,10 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onExpand,
+      expanded,
       ...props
-    },
+    }: MultilineEditorProps,
     ref
   ) {
     const darkMode = useDarkMode(_darkMode);
@@ -1485,50 +1469,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       []
     );
 
-    const actions = useMemo(() => {
-      return [
-        copyable && (
-          <ActionButton
-            key="Copy"
-            label="Copy"
-            icon="Copy"
-            onClick={() => {
-              return editorRef.current?.copyAll() ?? false;
-            }}
-          ></ActionButton>
-        ),
-        formattable && (
-          <ActionButton
-            key="Format"
-            label="Format"
-            icon={
-              <FormatIcon
-                size={/* leafygreen small */ 14}
-                role="presentation"
-              ></FormatIcon>
-            }
-            onClick={() => {
-              return editorRef.current?.prettify() ?? false;
-            }}
-          ></ActionButton>
-        ),
-        ...(customActions ?? []).map((action) => {
-          return (
-            <ActionButton
-              key={action.label}
-              icon={action.icon}
-              label={action.label}
-              onClick={() => {
-                if (!editorRef.current?.editor) {
-                  return false;
-                }
-                return action.action(editorRef.current.editor);
-              }}
-            ></ActionButton>
-          );
-        }),
-      ];
-    }, [copyable, formattable, customActions]);
+    const hasCustomActions = customActions && customActions.length > 0;
+    const hasActions = copyable || formattable || hasCustomActions;
 
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
@@ -1537,7 +1479,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         className={cx(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
-          !!actions.length && multilineEditorContainerWithActionsStyle,
+          hasActions && multilineEditorContainerWithActionsStyle,
+          onExpand && multilineEditorContainerWithExpandStyle,
           className
         )}
         // We want folks to be able to click into the container element
@@ -1559,16 +1502,16 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           minLines={10}
           {...props}
         ></BaseEditor>
-        {actions.length > 0 && (
-          <div
-            className={cx(
-              'multiline-editor-actions',
-              actionsContainerStyle,
-              actionsClassName
-            )}
-          >
-            {actions}
-          </div>
+        {hasActions && (
+          <ActionsContainer
+            onExpand={onExpand}
+            expanded={expanded}
+            copyable={copyable}
+            formattable={formattable}
+            editorRef={editorRef}
+            className={actionsClassName}
+            customActions={customActions}
+          />
         )}
       </div>
     );

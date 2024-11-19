@@ -301,11 +301,9 @@ describe('My Queries tab', function () {
         await openMenuForQueryItem(browser, newFavoriteQueryName);
 
         // delete it
-        await browser.clickVisible(Selectors.SavedItemMenuItemDelete);
-        const deleteModal = await browser.$(Selectors.ConfirmationModal);
-        await deleteModal.waitForDisplayed();
-        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await renameModal.waitForDisplayed({ reverse: true });
+        await browser.clickConfirmationAction(
+          Selectors.SavedItemMenuItemDelete
+        );
       });
 
       it('opens a saved aggregation', async function () {

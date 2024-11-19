@@ -17,6 +17,7 @@ type NavigationBaseItemProps = {
   isExpandDisabled: boolean;
   isExpanded: boolean;
   isFocused: boolean;
+  hasDefaultAction: boolean;
   icon: React.ReactNode;
   style: React.CSSProperties;
 
@@ -37,7 +38,6 @@ const menuStyles = css({
 });
 
 const itemContainerStyles = css({
-  cursor: 'pointer',
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
   '&[data-is-active="true"] .item-wrapper': {
@@ -51,6 +51,10 @@ const itemContainerStyles = css({
   svg: {
     flexShrink: 0,
   },
+});
+
+const itemContainerWithActionStyles = css({
+  cursor: 'pointer',
 });
 
 const itemWrapperStyles = css({
@@ -93,6 +97,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   isExpandDisabled,
   isExpanded,
   isFocused,
+  hasDefaultAction,
   onExpand,
   children,
 }) => {
@@ -100,7 +105,9 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   return (
     <div
       data-testid="base-navigation-item"
-      className={itemContainerStyles}
+      className={cx(itemContainerStyles, {
+        [itemContainerWithActionStyles]: hasDefaultAction,
+      })}
       {...hoverProps}
       {...dataAttributes}
     >

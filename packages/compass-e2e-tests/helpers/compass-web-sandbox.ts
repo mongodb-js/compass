@@ -132,7 +132,44 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
 
   debug('Waiting for the auth to finish ...');
 
-  const res = await authenticatePromise;
+  let authenticatedPromiseSettled = false;
+
+  // Atlas Cloud will periodically remind user to enable MFA (which we can't
+  // enable in e2e CI environment), so to account for that, in parallel to
+  // waiting for auth to finish, we'll wait for the MFA screen to show up and
+  // skip it if it appears
+  const [, settledRes] = await Promise.allSettled([
+    (async () => {
+      const remindMeLaterButton = 'button*=Remind me later';
+
+      await electronProxyRemote.waitUntil(
+        async () => {
+          return (
+            authenticatedPromiseSettled ||
+            (await electronProxyRemote.$(remindMeLaterButton).isDisplayed())
+          );
+        },
+        // Takes awhile for the redirect to land on this reminder page when it
+        // happens, so no need to bombard the browser with displayed checks
+        { interval: 2000 }
+      );
+
+      if (authenticatedPromiseSettled) {
+        return;
+      }
+
+      await electronProxyRemote.$(remindMeLaterButton).click();
+    })(),
+    authenticatePromise.finally(() => {
+      authenticatedPromiseSettled = true;
+    }),
+  ]);
+
+  if (settledRes.status === 'rejected') {
+    throw settledRes.reason;
+  }
+
+  const res = settledRes.value;
 
   if (res.ok === false || !(await res.json()).projectId) {
     throw new Error(

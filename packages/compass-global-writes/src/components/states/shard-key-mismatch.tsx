@@ -2,26 +2,23 @@ import {
   Banner,
   BannerVariant,
   Button,
-  spacing,
-  css,
   ButtonVariant,
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
 import {
-  ShardingStatuses,
   unmanageNamespace,
   type RootState,
   type ShardKey,
 } from '../../store/reducer';
 import { connect } from 'react-redux';
 import type { ManagedNamespace } from '../../services/atlas-global-writes-service';
-import { containerStyles, bannerStyles } from '../common-styles';
-
-const unmanageBtnStyles = css({
-  marginTop: spacing[100],
-});
+import {
+  containerStyles,
+  bannerStyles,
+  bannerBtnStyles,
+} from '../common-styles';
 
 const getRequestedShardKey = (
   managedNamespace: ManagedNamespace
@@ -71,7 +68,7 @@ export function ShardKeyMismatch({
             variant={ButtonVariant.Default}
             isLoading={isUnmanagingNamespace}
             loadingIndicator={<SpinLoader />}
-            className={unmanageBtnStyles}
+            className={bannerBtnStyles}
           >
             Unmanage collection
           </Button>
@@ -104,8 +101,7 @@ export default connect(
       shardKey: state.shardKey,
       requestedShardKey:
         state.managedNamespace && getRequestedShardKey(state.managedNamespace),
-      isUnmanagingNamespace:
-        state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
+      isUnmanagingNamespace: state.userActionInProgress === 'unmanageNamespace',
     };
   },
   {

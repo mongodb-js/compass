@@ -11,8 +11,8 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { AISignInImageBanner } from './ai-signin-banner-image';
-import type { AtlasSignInState } from '../store/atlas-signin-reducer';
-import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';
+import type { AtlasSignInState } from '../../store/atlas-signin-reducer';
+import { closeSignInModal, signIn } from '../../store/atlas-signin-reducer';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 

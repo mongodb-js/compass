@@ -8,9 +8,8 @@ import {
 import { type ShardZoneData } from '../../store/reducer';
 import Sinon from 'sinon';
 import { renderWithStore } from '../../../tests/create-store';
-import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
-describe('Compass GlobalWrites Plugin', function () {
+describe('ShardKeyCorrect', function () {
   const shardZones: ShardZoneData[] = [
     {
       zoneId: '45893084',
@@ -76,30 +75,6 @@ describe('Compass GlobalWrites Plugin', function () {
     expect(onUnmanageNamespace).not.to.have.been.called;
   });
 
-  it('Provides link to Edit Configuration', async function () {
-    const connectionInfo = {
-      id: 'testConnection',
-      connectionOptions: {
-        connectionString: 'mongodb://test',
-      },
-      atlasMetadata: {
-        projectId: 'project1',
-        clusterName: 'myCluster',
-      } as ConnectionInfo['atlasMetadata'],
-    };
-    await renderWithProps(undefined, {
-      connectionInfo,
-    });
-
-    const link = await screen.findByRole('link', {
-      name: /Edit Configuration/,
-    });
-    const expectedHref = `/v2/${connectionInfo.atlasMetadata?.projectId}#/clusters/edit/${connectionInfo.atlasMetadata?.clusterName}`;
-
-    expect(link).to.be.visible;
-    expect(link).to.have.attribute('href', expectedHref);
-  });
-
   it('Describes the shardKey', async function () {
     await renderWithProps();
 
@@ -117,23 +92,10 @@ describe('Compass GlobalWrites Plugin', function () {
     expect(list.textContent).to.contain(`"location", "secondary"`);
   });
 
-  it('Contains sample codes', async function () {
+  it('Includes code examples', async function () {
     await renderWithProps();
 
-    const findingDocumentsSample = await screen.findByTestId(
-      'sample-finding-documents'
-    );
-    expect(findingDocumentsSample).to.be.visible;
-    expect(findingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].find({"location": "US-NY", "secondary": "<id_value>"})`
-    );
-
-    const insertingDocumentsSample = await screen.findByTestId(
-      'sample-inserting-documents'
-    );
-    expect(insertingDocumentsSample).to.be.visible;
-    expect(insertingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].insertOne({"location": "US-NY", "secondary": "<id_value>",...<other fields>})`
-    );
+    const example = await screen.findByText(/Example commands/);
+    expect(example).to.be.visible;
   });
 });

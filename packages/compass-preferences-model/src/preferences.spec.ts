@@ -132,6 +132,7 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      enableGenAIFeatures: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -163,7 +164,6 @@ describe('Preferences class', function () {
       enableDevTools: 'set-global',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
-      enableGenAIFeatures: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
@@ -185,6 +185,7 @@ describe('Preferences class', function () {
 
     expect(states).to.deep.equal({
       readOnly: 'set-global',
+      enableGenAIFeatures: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -227,8 +228,8 @@ describe('Preferences class', function () {
       },
       {
         networkTraffic: false,
-        enableGenAIFeatures: false,
         enableMaps: false,
+        enableGenAIFeatures: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
         autoUpdates: false,
@@ -250,6 +251,7 @@ describe('Preferences class', function () {
       },
       hardcoded: {
         networkTraffic: false,
+        enableGenAIFeatures: false,
       },
     });
     const result = preferences.getPreferences();
@@ -294,6 +296,7 @@ describe('Preferences class', function () {
 
     expect(mainPreferencesStates).to.deep.equal({
       trackUsageStatistics: 'set-global',
+      enableGenAIFeatures: 'derived',
       enableMaps: 'set-cli',
       ...expectedReleasedFeatureFlagsStates,
     });
@@ -301,6 +304,7 @@ describe('Preferences class', function () {
     const sandboxPreferencesStates = sandbox.getPreferenceStates();
     expect(sandboxPreferencesStates).to.deep.equal({
       enableDevTools: 'derived',
+      enableGenAIFeatures: 'derived',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'derived',

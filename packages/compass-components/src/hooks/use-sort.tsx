@@ -43,7 +43,7 @@ export function useSortControls<T extends string>(
   items: readonly { name: T; label: string }[],
   options?: SortOptions
 ): [React.ReactElement, SortState<Unwrap<typeof items>['name']>] {
-  const labelId = useId('Sort by');
+  const labelId = 'sort-by';
   const controlId = useId();
 
   const [sortState, dispatch] = useReducer(

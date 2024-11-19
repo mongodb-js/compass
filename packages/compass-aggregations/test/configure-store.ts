@@ -3,30 +3,11 @@ import type {
   ConfigureStoreOptions,
 } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
-
-export class MockAtlasAuthService extends AtlasAuthService {
-  isAuthenticated() {
-    return Promise.resolve(true);
-  }
-  async getUserInfo() {
-    return Promise.resolve({} as any);
-  }
-  async signIn() {
-    return Promise.resolve({} as any);
-  }
-  async signOut() {
-    return Promise.resolve();
-  }
-  getAuthHeaders() {
-    return Promise.resolve({});
-  }
-}
 
 export class MockAtlasAiService {
   async getAggregationFromUserInput() {
@@ -35,6 +16,9 @@ export class MockAtlasAiService {
   async getQueryFromUserInput() {
     return Promise.resolve({});
   }
+  async ensureAiFeatureAccess() {
+    return Promise.resolve();
+  }
 }
 
 function getMockedPluginArgs(
@@ -42,11 +26,9 @@ function getMockedPluginArgs(
   dataService: Partial<DataService> = mockDataService(),
   services: Partial<AggregationsPluginServices> = {}
 ) {
-  const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
   return [
     CompassAggregationsPlugin.provider.withMockServices({
-      atlasAuthService,
       atlasAiService,
       collection: {
         toJSON: () => ({}),

@@ -19,6 +19,23 @@ function normalizePath(path?: string) {
   return encodeURI(path);
 }
 
+function getCSRFHeaders() {
+  return {
+    'X-CSRF-Token':
+      document
+        .querySelector('meta[name="csrf-token" i]')
+        ?.getAttribute('content') ?? '',
+    'X-CSRF-Time':
+      document
+        .querySelector('meta[name="csrf-time" i]')
+        ?.getAttribute('content') ?? '',
+  };
+}
+
+function shouldAddCSRFHeaders(method = 'get') {
+  return !/^(get|head|options|trace)$/.test(method.toLowerCase());
+}
+
 export class AtlasService {
   private config: AtlasServiceConfig;
   constructor(
@@ -29,12 +46,8 @@ export class AtlasService {
   ) {
     this.config = getAtlasConfig(preferences);
   }
-  adminApiEndpoint(path?: string, requestId?: string): string {
-    const uri = `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
-    const query = requestId
-      ? `?request_id=${encodeURIComponent(requestId)}`
-      : '';
-    return `${uri}${query}`;
+  adminApiEndpoint(path?: string): string {
+    return `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
   }
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
@@ -64,6 +77,7 @@ export class AtlasService {
         ...init,
         headers: {
           ...this.options?.defaultHeaders,
+          ...(shouldAddCSRFHeaders(init?.method) && getCSRFHeaders()),
           ...init?.headers,
         },
       });

@@ -550,7 +550,7 @@ type AggregationCopiedEvent = {
   name: 'Aggregation Copied';
   payload: {
     /**
-     * A unique id for the aggregation object being deleted.
+     * A unique id for the aggregation object being copied.
      */
     id: string;
 
@@ -790,6 +790,16 @@ type NewConnectionEvent = ConnectionScoped<{
      * The type of connected topology.
      */
     topology_type: string;
+
+    /**
+     * The number of active connections.
+     */
+    num_active_connections: number;
+
+    /**
+     * The number of inactive connections.
+     */
+    num_inactive_connections: number;
   } & ExtraConnectionData;
 }>;
 
@@ -1929,6 +1939,36 @@ type SchemaAnalyzedEvent = ConnectionScoped<{
 }>;
 
 /**
+ * This event is fired when user shares the schema.
+ *
+ * @category Schema
+ */
+type SchemaExportedEvent = ConnectionScoped<{
+  name: 'Schema Exported';
+  payload: {
+    /**
+     * Indicates whether the schema was analyzed before sharing.
+     */
+    has_schema: boolean;
+
+    /**
+     * The number of fields at the top level.
+     */
+    schema_width: number;
+
+    /**
+     * The number of nested levels.
+     */
+    schema_depth: number;
+
+    /**
+     * Indicates whether the schema contains geospatial data.
+     */
+    geo_data: boolean;
+  };
+}>;
+
+/**
  * This event is fired when a user clicks to show the details of an operation.
  *
  * @category Performance Tab
@@ -2641,6 +2681,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalyzedEvent
+  | SchemaExportedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent

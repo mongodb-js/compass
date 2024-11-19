@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Tue, Oct 29, 2024 at 05:29 PM
+Generated on Mon, Nov 18, 2024 at 04:28 PM
 
 ## Table of Contents
 
@@ -148,6 +148,7 @@ Generated on Tue, Oct 29, 2024 at 05:29 PM
 
 ### Schema
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
+- [Schema Exported](#event--SchemaExportedEvent)
 
 ### Schema Validation
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
@@ -243,7 +244,7 @@ This event is fired when user copied the pipeline to clipboard.
 **Properties**:
 
 - **id** (required): `string`
-  - A unique id for the aggregation object being deleted.
+  - A unique id for the aggregation object being copied.
 - **screen** (required): `"my-queries"`
   - The screen from which the aggregation has been copied.
 
@@ -853,6 +854,10 @@ This event is fired when user successfully connects to a new server/cluster.
   - The OS family of the connected server.
 - **topology_type** (required): `string`
   - The type of connected topology.
+- **num_active_connections** (required): `number`
+  - The number of active connections.
+- **num_inactive_connections** (required): `number`
+  - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
@@ -1798,6 +1803,25 @@ This event is fired when user analyzes the schema.
   - Indicates whether the schema contains geospatial data.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaExportedEvent"></a>
+
+### Schema Exported
+
+This event is fired when user shares the schema.
+
+**Properties**:
+
+- **has_schema** (required): `boolean`
+  - Indicates whether the schema was analyzed before sharing.
+- **schema_width** (required): `number`
+  - The number of fields at the top level.
+- **schema_depth** (required): `number`
+  - The number of nested levels.
+- **geo_data** (required): `boolean`
+  - Indicates whether the schema contains geospatial data.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 

@@ -21,7 +21,6 @@ import {
 import {
   createShardKey,
   type RootState,
-  ShardingStatuses,
   type CreateShardKeyData,
 } from '../store/reducer';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -190,6 +189,7 @@ export function CreateShardKeyForm({
             </Label>
             <ComboboxWithCustomOption
               id="second-shard-key"
+              data-testid="second-shard-key"
               aria-label="Second shard key field"
               placeholder="Second shard key field"
               size="default"
@@ -237,6 +237,7 @@ export function CreateShardKeyForm({
             </Radio>
             <Radio
               id="unique-index"
+              data-testid="unique-index"
               value="unique-index"
               checked={selectedAdvancedOption === 'unique-index'}
             >
@@ -255,6 +256,7 @@ export function CreateShardKeyForm({
             </Radio>
             <Radio
               id="hashed-index"
+              data-testid="hashed-index"
               value="hashed-index"
               checked={selectedAdvancedOption === 'hashed-index'}
             >
@@ -317,19 +319,11 @@ export function CreateShardKeyForm({
 }
 
 export default connect(
-  (state: RootState) => {
-    return {
-      namespace: state.namespace,
-      isSubmittingForSharding: [
-        ShardingStatuses.SUBMITTING_FOR_SHARDING,
-        ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
-      ].includes(state.status),
-      isCancellingSharding: [
-        ShardingStatuses.CANCELLING_SHARDING,
-        ShardingStatuses.CANCELLING_SHARDING_ERROR,
-      ].includes(state.status),
-    };
-  },
+  (state: RootState) => ({
+    namespace: state.namespace,
+    isSubmittingForSharding: state.userActionInProgress === 'submitForSharding',
+    isCancellingSharding: state.userActionInProgress === 'cancelSharding',
+  }),
   {
     onCreateShardKey: createShardKey,
   }
