@@ -57,7 +57,6 @@
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.28.0",
     "@mongodb-js/compass-telemetry": "^1.2.3",
     "@mongodb-js/compass-workspaces": "^0.28.0",
-    "@mongodb-js/connection-form": "^1.44.0",
     "@mongodb-js/connection-info": "^0.9.3",
     "compass-preferences-model": "^2.30.0",
     "hadron-app-registry": "^9.2.7",
