@@ -23,7 +23,7 @@ type OptInModalProps = {
   isOptInInProgress: boolean;
   onOptInModalClose: () => void;
   onOptInClick: () => void;
-  projectId: string;
+  projectId: string | undefined;
 };
 
 const titleStyles = css({
@@ -71,7 +71,7 @@ const getButtonText = (isOptInInProgress: boolean) => {
   );
 };
 
-const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
+export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInModalVisible,
   isOptInInProgress,
   onOptInModalClose,
@@ -79,8 +79,9 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   projectId,
 }) => {
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
-  const PROJECT_SETTINGS_LINK =
-    window.location.origin + '/v2/' + projectId + '#/settings/groupSettings';
+  const PROJECT_SETTINGS_LINK = projectId
+    ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
+    : null;
 
   const onConfirmClick = () => {
     if (isOptInInProgress) {
@@ -116,9 +117,13 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
             ? 'AI features are enabled for project users with data access.'
             : 'AI features are disabled for project users.'}{' '}
           Project Owners can change this setting in the{' '}
-          <Link href={PROJECT_SETTINGS_LINK} target="_blank">
-            AI features
-          </Link>
+          {PROJECT_SETTINGS_LINK !== null ? (
+            <Link href={PROJECT_SETTINGS_LINK} target="_blank">
+              AI features
+            </Link>
+          ) : (
+            'AI features '
+          )}
           section.
         </Banner>
         <div className={disclaimerStyles}>
