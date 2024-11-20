@@ -16,7 +16,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnections } from '@mongodb-js/compass-connections/provider';
+import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const sectionContainerStyles = css({
@@ -218,7 +218,7 @@ function WelcomeImage() {
 }
 
 export default function WelcomeTab() {
-  const { createNewConnection } = useConnections();
+  const { createNewConnection } = useConnectionActions();
   const enableCreatingNewConnections = usePreference(
     'enableCreatingNewConnections'
   );
