@@ -1,3 +1,4 @@
+import type AppRegistry from 'hadron-app-registry';
 import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -185,6 +186,7 @@ type ThunkExtraArg = {
     connectionInfo: ConnectionInfo
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
 };
 
 export type ConnectionsThunkAction<
@@ -1423,6 +1425,10 @@ function getCurrentConnectionInfo(
   return state.connections.byId[connectionId]?.info;
 }
 
+function getCurrentConnectionStatus(state: State, connectionId: ConnectionId) {
+  return state.connections.byId[connectionId]?.status;
+}
+
 /**
  * Returns the number of active connections. We count in-progress connections
  * as "active" to make sure that the maximum connection allowed check takes
@@ -1967,15 +1973,21 @@ const cleanupConnection = (
       'Initiating disconnect attempt'
     );
 
+    const currentStatus = getCurrentConnectionStatus(getState(), connectionId);
+
     // We specifically want to track Disconnected even when it's not really
     // triggered by user at all, so we put it in the cleanup function that is
     // called every time you disconnect, or remove a connection, or all of them,
-    // or close the app
-    track(
-      'Connection Disconnected',
-      {},
-      getCurrentConnectionInfo(getState(), connectionId)
-    );
+    // or close the app. Only track when connection is either connected or
+    // connecting, we might be calling this on something that was never
+    // connected
+    if (currentStatus === 'connected' || currentStatus === 'connecting') {
+      track(
+        'Connection Disconnected',
+        {},
+        getCurrentConnectionInfo(getState(), connectionId)
+      );
+    }
 
     const { closeConnectionStatusToast } = getNotificationTriggers(
       preferences.getPreferences().enableMultipleConnectionSystem
@@ -2154,6 +2166,14 @@ export const importConnections = (
     if (error) {
       throw error;
     }
+  };
+};
+
+export const openSettingsModal = (
+  tab?: string
+): ConnectionsThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('open-compass-settings', tab);
   };
 };
 
