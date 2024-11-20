@@ -63,17 +63,20 @@ const mapDispatch = {
   openSettingsModal,
 };
 
-// TODO: surely there's a way of inferring these types?
-type DispatchProps = {
-  connect: (connectionInfo: ConnectionInfo) => any;
+type ConnectionModalProps = {
+  isOpen: boolean;
+  initialConnectionInfo?: ConnectionInfo;
+  connectionErrorMessage?: string;
+  disableEditingConnectedConnection: boolean;
+  editingConnectionInfoId?: ConnectionId;
+  isEditingNewConnection: boolean;
+  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   disconnect: (id: string) => void;
   cancelEditConnection: (id: string) => void;
-  saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => any;
-  saveAndConnect: (connectionInfo: ConnectionInfo) => any;
-  openSettingsModal: (tab?: string) => any;
+  saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => Promise<void>;
+  saveAndConnect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  openSettingsModal: (tab?: string) => void;
 };
-
-type ConnectionModalProps = ReturnType<typeof mapState> & DispatchProps;
 
 const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
   // pulling initialConnectionInfo out of props to help TypeScript know that it
