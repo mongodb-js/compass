@@ -11,7 +11,7 @@ import {
   H3,
   palette,
 } from '@mongodb-js/compass-components';
-import { AISignInImageBanner } from './ai-signin-banner-image';
+import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -45,37 +45,31 @@ const bodyStyles = css({
   textAlign: 'center',
 });
 
-const disclaimer = css({
+const disclaimerStyles = css({
   color: palette.gray.dark1,
   marginTop: spacing[400],
   marginLeft: spacing[800],
   marginRight: spacing[800],
 });
 
-const banner = css({
+const bannerStyles = css({
   padding: spacing[400],
   marginTop: spacing[400],
   textAlign: 'left',
 });
-
-const featureStatusBannerVariant = (pIsOrgAiEnabled: boolean) => {
-  switch (true) {
-    case pIsOrgAiEnabled:
-      return 'info';
-    default:
-      return 'warning';
-  }
+const getButtonText = (isOptInInProgress: boolean) => {
+  return (
+    <>
+      &nbsp;Use Natural Language
+      {isOptInInProgress && (
+        <>
+          &nbsp;
+          <SpinLoader darkMode={true}></SpinLoader>
+        </>
+      )}
+    </>
+  );
 };
-
-function getFeatureStatusBannerText(pIsOrgAiEnabled: boolean) {
-  switch (true) {
-    case pIsOrgAiEnabled:
-      return 'AI features are enabled for project users with data access.';
-
-    default:
-      return 'AI features are disabled for project users.';
-  }
-}
 
 const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInModalVisible,
@@ -84,55 +78,50 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   onOptInClick,
   projectId,
 }) => {
-  const isOrgAiEnabled = usePreference('enableGenAIFeaturesAtlasProject');
+  const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
   const PROJECT_SETTINGS_LINK =
     window.location.origin + '/v2/' + projectId + '#/settings/groupSettings';
 
+  const onConfirmClick = () => {
+    if (isOptInInProgress) {
+      return;
+    }
+    onOptInClick();
+  };
   return (
     <ConfirmationModal
       open={isOptInModalVisible}
-      onClose={onOptInModalClose}
       title=""
-      // @ts-expect-error leafygreen only allows strings, but we need to pass icons
-      buttonText={
-        <>
-          &nbsp;Use Natural Language
-          {isOptInInProgress && (
-            <>
-              &nbsp;
-              <SpinLoader darkMode={true}></SpinLoader>
-            </>
-          )}
-        </>
-      }
-      submitDisabled={!isOrgAiEnabled}
-      onConfirm={() => {
-        if (isOptInInProgress) {
-          return;
-        }
-        onOptInClick();
+      confirmButtonProps={{
+        children: getButtonText(isOptInInProgress),
+        disabled: !isProjectAIEnabled,
+        onClick: onConfirmClick,
       }}
-      onCancel={onOptInModalClose}
+      cancelButtonProps={{
+        onClick: onOptInModalClose,
+      }}
     >
       <Body className={bodyStyles}>
-        <AISignInImageBanner></AISignInImageBanner>
+        <AiImageBanner></AiImageBanner>
         <H3 className={titleStyles}>
           Use natural language to generate queries and pipelines
         </H3>
         Atlas users can now quickly create queries and aggregations with
         MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today.
         <Banner
-          variant={featureStatusBannerVariant(isOrgAiEnabled)}
-          className={banner}
+          variant={isProjectAIEnabled ? 'info' : 'warning'}
+          className={bannerStyles}
         >
-          {getFeatureStatusBannerText(isOrgAiEnabled)} Project Owners can change
-          this setting in the{' '}
+          {isProjectAIEnabled
+            ? 'AI features are enabled for project users with data access.'
+            : 'AI features are disabled for project users.'}{' '}
+          Project Owners can change this setting in the{' '}
           <Link href={PROJECT_SETTINGS_LINK} target="_blank">
             AI features
           </Link>
           section.
         </Banner>
-        <div className={disclaimer}>
+        <div className={disclaimerStyles}>
           This is a feature powered by generative AI, and may give inaccurate
           responses. Please see our{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">

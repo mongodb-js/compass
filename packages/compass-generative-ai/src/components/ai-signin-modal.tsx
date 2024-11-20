@@ -10,7 +10,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { AISignInImageBanner } from './ai-signin-banner-image';
+import { AiImageBanner } from './ai-image-banner';
 import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
 
@@ -30,7 +30,7 @@ const titleStyles = css({
   alignItems: 'center',
 });
 
-const disclaimer = css({
+const disclaimerStyles = css({
   padding: `0 ${spacing[900]}px`,
 });
 
@@ -46,7 +46,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
     <MarketingModal
       darkMode={darkMode}
       disclaimer={
-        <div className={disclaimer}>
+        <div className={disclaimerStyles}>
           This is a feature powered by generative AI, and may give inaccurate
           responses. Please see our{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
@@ -55,7 +55,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
           for more information.
         </div>
       }
-      graphic={<AISignInImageBanner></AISignInImageBanner>}
+      graphic={<AiImageBanner></AiImageBanner>}
       title={
         <div className={titleStyles}>
           Use natural language to generate queries and pipelines

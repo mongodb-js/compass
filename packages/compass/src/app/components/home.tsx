@@ -221,7 +221,13 @@ function Home({
             <CompassSettingsPlugin></CompassSettingsPlugin>
             <CompassFindInPagePlugin></CompassFindInPagePlugin>
             <AtlasAuthPlugin></AtlasAuthPlugin>
-            <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+            <CompassGenerativeAIPlugin
+              projectId={
+                connectionInfo && connectionInfo.atlasMetadata
+                  ? connectionInfo?.atlasMetadata?.projectId
+                  : ''
+              }
+            ></CompassGenerativeAIPlugin>
             <LegacyConnectionsModal />
           </FieldStorePlugin>
         </CompassInstanceStorePlugin>
