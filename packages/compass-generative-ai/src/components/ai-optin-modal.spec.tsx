@@ -36,9 +36,6 @@ describe('AIOptInModal Component', function () {
     ).to.exist;
   });
   it('should show the cancel button', function () {
-    void mockPreferences.savePreferences({
-      enableGenAIFeaturesAtlasProject: true,
-    });
     render(
       <PreferencesProvider value={mockPreferences}>
         <AIOptInModal
@@ -56,8 +53,8 @@ describe('AIOptInModal Component', function () {
     expect(button).to.not.match('disabled');
   });
 
-  it('should show the opt in button enabled when project AI setting is enabled', function () {
-    void mockPreferences.savePreferences({
+  it('should show the opt in button enabled when project AI setting is enabled', async function () {
+    await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: true,
     });
     render(
@@ -77,8 +74,8 @@ describe('AIOptInModal Component', function () {
     expect(button?.getAttribute('aria-disabled')).to.equal('false');
   });
 
-  it('should disable the opt in button if project AI setting is disabled ', function () {
-    void mockPreferences.savePreferences({
+  it('should disable the opt in button if project AI setting is disabled ', async function () {
+    await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: false,
     });
     render(
