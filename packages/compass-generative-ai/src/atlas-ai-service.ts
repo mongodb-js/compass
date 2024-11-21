@@ -442,7 +442,7 @@ export class AtlasAiService {
     );
   }
 
-  // optIn function w post request to set the user preference to true
+  // Performs a post request to atlas to set the user opt in preference to true.
   async optIntoGenAIFeaturesAtlas() {
     await this.atlasService.authenticatedFetch(
       this.atlasService.cloudEndpoint(
