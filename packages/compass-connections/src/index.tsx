@@ -11,7 +11,6 @@ import type {
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 import { ConnectedConnectionModal } from './components/connection-modal';
-export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 import {
   autoconnectCheck,
@@ -34,6 +33,7 @@ const ConnectionsComponent: React.FunctionComponent<{
   onAutoconnectInfoRequest?: (
     connectionStorage: ConnectionStorage
   ) => Promise<ConnectionInfo | undefined>;
+  allowAutoconnectInfoReconnect?: boolean;
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
@@ -69,7 +69,10 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         void store.dispatch(loadConnections());
         if (initialProps.onAutoconnectInfoRequest) {
           void store.dispatch(
-            autoconnectCheck(initialProps.onAutoconnectInfoRequest)
+            autoconnectCheck(
+              initialProps.onAutoconnectInfoRequest,
+              initialProps.allowAutoconnectInfoReconnect
+            )
           );
         }
       });
