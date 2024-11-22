@@ -2,13 +2,8 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import type { RootState } from './atlas-ai-store';
+import { isAction } from '../utils/util';
 
 type AttemptState = {
   id: number;
@@ -32,7 +27,7 @@ export type AtlasSignInState = {
 export type GenAIAtlasSignInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
+> = ThunkAction<R, RootState, { atlasAuthService: AtlasAuthService }, A>;
 
 export const enum AtlasSignInActions {
   OpenSignInModal = 'compass-generative-ai/atlas-signin/OpenSignInModal',
@@ -43,7 +38,7 @@ export const enum AtlasSignInActions {
   Success = 'compass-generative-ai/atlas-signin/AtlasSignInSuccess',
   Error = 'compass-generative-ai/atlas-signin/AtlasSignInError',
   Cancel = 'compass-generative-ai/atlas-signin/AtlasSignInCancel',
-  TokenRefreshFailed = 'compass-generative-ai/atlas-signin/TokenRefreshFailed',
+  SignInTokenRefreshFailed = 'compass-generative-ai/atlas-signin/SignInTokenRefreshFailed',
   SignedOut = 'compass-generative-ai/atlas-signin/SignedOut',
 }
 
@@ -79,7 +74,7 @@ export type AtlasSignInErrorAction = {
 };
 
 export type AtlasSignInTokenRefreshFailedAction = {
-  type: AtlasSignInActions.TokenRefreshFailed;
+  type: AtlasSignInActions.SignInTokenRefreshFailed;
 };
 
 export type AtlasSignInSignedOutAction = {
@@ -129,7 +124,7 @@ export function getAttempt(id?: number | null): AttemptState {
   return attemptState;
 }
 
-const reducer: Reducer<AtlasSignInState, Action> = (
+const signInReducer: Reducer<AtlasSignInState, Action> = (
   state = { ...INITIAL_STATE },
   action
 ) => {
@@ -201,7 +196,7 @@ const reducer: Reducer<AtlasSignInState, Action> = (
   if (
     isAction<AtlasSignInTokenRefreshFailedAction>(
       action,
-      AtlasSignInActions.TokenRefreshFailed
+      AtlasSignInActions.SignInTokenRefreshFailed
     )
   ) {
     // Only reset state on refresh failed when we are currently successfully
@@ -227,7 +222,7 @@ const startAttempt = (
   fn: () => void
 ): GenAIAtlasSignInThunkAction<AttemptState> => {
   return (dispatch, getState) => {
-    if (getState().attemptId) {
+    if (getState().signIn.attemptId) {
       throw new Error(
         "Can't start sign in with prompt while another sign in attempt is in progress"
       );
@@ -257,7 +252,7 @@ export const signIntoAtlasWithModalPrompt = ({
 > => {
   return (dispatch, getState) => {
     // Nothing to do if we already signed in.
-    const { state } = getState();
+    const { state } = getState().signIn;
     if (state === 'success') {
       return Promise.resolve();
     }
@@ -275,10 +270,10 @@ export const signIntoAtlasWithModalPrompt = ({
 
 export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
-    if (['in-progress', 'authenticated'].includes(getState().state)) {
+    if (['in-progress', 'authenticated'].includes(getState().signIn.state)) {
       return;
     }
-    const { attemptId } = getState();
+    const { attemptId } = getState().signIn;
     if (attemptId === null) {
       return;
     }
@@ -286,7 +281,7 @@ export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
       controller: { signal },
       resolve,
       reject,
-    } = getAttempt(getState().attemptId);
+    } = getAttempt(getState().signIn.attemptId);
     dispatch({
       type: AtlasSignInActions.Start,
     });
@@ -331,19 +326,19 @@ export const cancelSignIn = (
 ): GenAIAtlasSignInThunkAction<void> => {
   return (dispatch, getState) => {
     // Can't cancel sign in after the flow was finished indicated by current
-    // attempt id being set to null.
-    if (getState().attemptId === null) {
+    // attempt id being set to null
+    if (getState().signIn.attemptId === null) {
       return;
     }
-    const attempt = getAttempt(getState().attemptId);
+    const attempt = getAttempt(getState().signIn.attemptId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
     dispatch({ type: AtlasSignInActions.Cancel });
   };
 };
 
-export const atlasServiceTokenRefreshFailed = () => ({
-  type: AtlasSignInActions.TokenRefreshFailed,
+export const atlasServiceSignInTokenRefreshFailed = () => ({
+  type: AtlasSignInActions.SignInTokenRefreshFailed,
 });
 
 export const atlasServiceSignedOut = () => ({
@@ -354,4 +349,4 @@ export const atlasServiceSignedIn = () => ({
   type: AtlasSignInActions.Success,
 });
 
-export default reducer;
+export default signInReducer;
