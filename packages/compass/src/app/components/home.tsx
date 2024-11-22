@@ -118,9 +118,7 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
-          <CompassGenerativeAIPlugin
-            projectId={undefined}
-          ></CompassGenerativeAIPlugin>
+          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
           <LegacyConnectionsModal />
         </FieldStorePlugin>
       </CompassInstanceStorePlugin>

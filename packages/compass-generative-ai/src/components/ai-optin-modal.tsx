@@ -23,7 +23,7 @@ type OptInModalProps = {
   isOptInInProgress: boolean;
   onOptInModalClose: () => void;
   onOptInClick: () => void;
-  projectId: string | undefined;
+  projectId?: string;
 };
 
 const titleStyles = css({
