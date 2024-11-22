@@ -178,12 +178,3 @@ export async function getWindowAutoConnectPreferences(
     shouldAutoConnect: true,
   };
 }
-
-export function onCompassDisconnect(
-  bw: Pick<BrowserWindow, 'id'> | undefined | null
-): void {
-  if (!bw) {
-    return;
-  }
-  browserWindowStates.set(bw.id, { disconnected: true });
-}

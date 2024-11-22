@@ -1,13 +1,7 @@
 import { createServiceLocator } from 'hadron-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
 import type { DataService } from 'mongodb-data-service';
-import {
-  useConnectionActions,
-  useConnectionForId,
-  useConnectionIds,
-  useConnections,
-} from './stores/store-context';
-import { useConnections as useConnectionsStore } from './stores/connections-store';
+import { useConnections } from './stores/store-context';
 
 export type { DataService };
 export { useConnectionsWithStatus } from './hooks/use-connections-with-status';
@@ -97,7 +91,6 @@ export {
   connectionsLocator,
 } from './stores/store-context';
 
-export { useConnectionsStore as useConnections };
 export { useConnectionSupports } from './hooks/use-connection-supports';
 
 const ConnectionStatus = {
@@ -116,36 +109,3 @@ const ConnectionStatus = {
 } as const;
 
 export { ConnectionStatus };
-
-/**
- * @deprecated compatibility for single connection mode: in single connection
- * mode the first "connected" connection is the current application connection
- */
-export function useSingleConnectionModeConnectionInfoStatus() {
-  const [connectionId = '-1'] = useConnectionIds((connection) => {
-    return (
-      connection.status === 'connected' ||
-      connection.status === 'connecting' ||
-      connection.status === 'failed'
-    );
-  });
-  const connectionState = useConnectionForId(connectionId);
-  const { disconnect } = useConnectionActions();
-  return connectionState && connectionState.status === 'connected'
-    ? {
-        isConnected: true as const,
-        connectionInfo: connectionState.info,
-        connectionError: null,
-        disconnect: () => {
-          disconnect(connectionState.info.id);
-          return undefined;
-        },
-      }
-    : {
-        isConnected: false as const,
-        connectionInfo: connectionState?.info ?? null,
-        connectionError:
-          connectionState?.status === 'failed' ? connectionState.error : null,
-        disconnect: () => undefined,
-      };
-}
