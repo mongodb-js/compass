@@ -78,10 +78,6 @@ export default function Workspace({
     [appName, getConnectionInfoById, onActiveWorkspaceTabChange]
   );
 
-  useEffect(() => {
-    updateTitle(appName);
-  }, [appName]);
-
   return (
     <WorkspacesProvider
       value={[

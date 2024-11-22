@@ -148,7 +148,7 @@ function HomeWithConnections({
           appName={props.appName}
           onExtraConnectionDataRequest={getExtraConnectionData}
           onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-          allowAutoconnectInfoReconnect={false}
+          doNotReconnectDisconnectedAutoconnectInfo
         >
           <Home {...props}></Home>
         </CompassConnections>

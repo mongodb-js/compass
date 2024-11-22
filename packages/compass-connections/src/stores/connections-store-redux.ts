@@ -1403,7 +1403,7 @@ export const autoconnectCheck = (
   getAutoconnectInfo: (
     connectionStorage: ConnectionStorage
   ) => Promise<ConnectionInfo | undefined>,
-  allowAutoconnectInfoReconnect = true
+  doNotReconnectDisconnectedAutoconnectInfo = false
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
@@ -1421,16 +1421,17 @@ export const autoconnectCheck = (
       );
       const connectionInfo = await getAutoconnectInfo(connectionStorage);
       if (
-        allowAutoconnectInfoReconnect ||
-        getSessionConnectionStatus(connectionInfo?.id) !== 'disconnected'
+        doNotReconnectDisconnectedAutoconnectInfo &&
+        getSessionConnectionStatus(connectionInfo?.id) === 'disconnected'
       ) {
-        dispatch({
-          type: ActionTypes.ConnectionAutoconnectCheck,
-          connectionInfo: connectionInfo,
-        });
-        if (connectionInfo) {
-          void dispatch(connect(connectionInfo));
-        }
+        return;
+      }
+      dispatch({
+        type: ActionTypes.ConnectionAutoconnectCheck,
+        connectionInfo: connectionInfo,
+      });
+      if (connectionInfo) {
+        void dispatch(connect(connectionInfo));
       }
     } catch (err) {
       dispatch(connectionAttemptError(null, err));
