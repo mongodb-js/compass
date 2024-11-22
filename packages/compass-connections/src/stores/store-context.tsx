@@ -326,20 +326,6 @@ export function useConnectionInfoRefForId(connectionId: ConnectionId): {
   return ref;
 }
 
-/**
- * @deprecated exposed for compat with old connections store interface, should
- * never be used anywhere else
- */
-export function useConnectionsState() {
-  return useSelector((state) => state, {
-    // These warnings are very noisy. We know this selector is bad, but there is
-    // no way to reimplement old connections store without it and we're going to
-    // remove it soon anyway
-    stabilityCheck: 'never',
-    noopCheck: 'never',
-  });
-}
-
 export function useConnectionsColorList(): {
   id: ConnectionId;
   color: string | undefined;

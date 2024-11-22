@@ -43,6 +43,39 @@ export type ConnectionsEventMap = {
   ) => void;
 };
 
+/**
+ * Returns status of the autoconnect connection preserved for the duration of
+ * the session. If connection was ever disconnected, this value will be used to
+ * not connect again
+ */
+export function getSessionConnectionStatus(connectionId = '-1') {
+  try {
+    return window.sessionStorage.getItem(`CONNECTION_STATUS:${connectionId}`);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Allows to store connection status for the duration of the current session
+ * (while the browser tab / window exists). Useful to preserve
+ * connection state between page reloads. Currently only used by Compass desktop
+ * to prevent autoconnecting to trigger on hard page refresh.
+ */
+export function setSessionConnectionStatus(
+  connectionId: string,
+  status: 'disconnected'
+) {
+  try {
+    return window.sessionStorage.setItem(
+      `CONNECTION_STATUS:${connectionId}`,
+      status
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface ConnectionsEventEmitter {
   emit<K extends keyof ConnectionsEventMap>(
     this: void,
@@ -1369,7 +1402,8 @@ const connectionAttemptError = (
 export const autoconnectCheck = (
   getAutoconnectInfo: (
     connectionStorage: ConnectionStorage
-  ) => Promise<ConnectionInfo | undefined>
+  ) => Promise<ConnectionInfo | undefined>,
+  doNotReconnectDisconnectedAutoconnectInfo = false
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
@@ -1386,6 +1420,12 @@ export const autoconnectCheck = (
         'Performing automatic connection attempt'
       );
       const connectionInfo = await getAutoconnectInfo(connectionStorage);
+      if (
+        doNotReconnectDisconnectedAutoconnectInfo &&
+        getSessionConnectionStatus(connectionInfo?.id) === 'disconnected'
+      ) {
+        return;
+      }
       dispatch({
         type: ActionTypes.ConnectionAutoconnectCheck,
         connectionInfo: connectionInfo,
@@ -2029,9 +2069,10 @@ export const disconnect = (
 ): ConnectionsThunkAction<void> => {
   return (dispatch, getState, { logger: { debug } }) => {
     debug('closing connection with connectionId', connectionId);
-
+    if (getState().connections.byId[connectionId]?.isAutoconnectInfo) {
+      setSessionConnectionStatus(connectionId, 'disconnected');
+    }
     dispatch(cleanupConnection(connectionId));
-
     dispatch({ type: ActionTypes.Disconnect, connectionId });
   };
 };

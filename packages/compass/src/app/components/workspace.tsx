@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
@@ -77,10 +77,6 @@ export default function Workspace({
     },
     [appName, getConnectionInfoById, onActiveWorkspaceTabChange]
   );
-
-  useEffect(() => {
-    updateTitle(appName);
-  }, [appName]);
 
   return (
     <WorkspacesProvider

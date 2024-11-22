@@ -11,7 +11,6 @@ import type {
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 import { ConnectedConnectionModal } from './components/connection-modal';
-export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 import {
   autoconnectCheck,
@@ -27,14 +26,42 @@ export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports } from './utils/connection-supports';
 
 const ConnectionsComponent: React.FunctionComponent<{
+  /**
+   * Application name, will be passed to the driver during connection
+   */
   appName: string;
+  /**
+   * Callback prop that should resolve with any extra connection information to
+   * be added to the connection tracking
+   */
   onExtraConnectionDataRequest: (
     connectionInfo: ConnectionInfo
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
+  /**
+   * Callback prop that might optionally resolve with the connectionInfo object
+   * to be automatically connected to as soon as plugin is activated.
+   * ConnectionStorage argument can be used to pick connectionInfo from the list
+   * of existing connections
+   */
   onAutoconnectInfoRequest?: (
     connectionStorage: ConnectionStorage
   ) => Promise<ConnectionInfo | undefined>;
+  /**
+   * By default any connection returned by `onAutoconnectInfoRequest` will be
+   * automatically connected. This property can be used to disable "reconnect"
+   * if connection with the matching id was explicitly disconnected by the user
+   * in the UI before in the same session. Currently this is only behavior of
+   * Compass desktop.
+   */
+  doNotReconnectDisconnectedAutoconnectInfo?: boolean;
+  /**
+   * Can be used to override default connection function
+   */
   connectFn?: typeof devtoolsConnect | undefined;
+  /**
+   * Can be used to provide preloaded connections instead of triggering loading
+   * connections on plugin activate
+   */
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
   return (
@@ -69,7 +96,10 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         void store.dispatch(loadConnections());
         if (initialProps.onAutoconnectInfoRequest) {
           void store.dispatch(
-            autoconnectCheck(initialProps.onAutoconnectInfoRequest)
+            autoconnectCheck(
+              initialProps.onAutoconnectInfoRequest,
+              initialProps.doNotReconnectDisconnectedAutoconnectInfo
+            )
           );
         }
       });
