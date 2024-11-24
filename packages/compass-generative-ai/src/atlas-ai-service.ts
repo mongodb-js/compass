@@ -10,7 +10,8 @@ import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
-import { getStore } from './store/atlas-signin-store';
+import { getStore } from './store/atlas-ai-store';
+import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -329,6 +330,10 @@ export class AtlasAiService {
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
     // When the ai feature is attempted to be opened we make sure
     // the user is signed into Atlas and opted in.
+
+    if (this.apiURLPreset === 'cloud') {
+      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+    }
     return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
   }
 
@@ -435,6 +440,26 @@ export class AtlasAiService {
       },
       validateAIQueryResponse
     );
+  }
+
+  // Performs a post request to atlas to set the user opt in preference to true.
+  async optIntoGenAIFeaturesAtlas() {
+    await this.atlasService.authenticatedFetch(
+      this.atlasService.cloudEndpoint(
+        '/settings/optInDataExplorerGenAIFeatures'
+      ),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: new URLSearchParams([['value', 'true']]),
+      }
+    );
+    await this.preferences.savePreferences({
+      optInDataExplorerGenAIFeatures: true,
+    });
   }
 
   private validateAIFeatureEnablementResponse(

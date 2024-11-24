@@ -78,6 +78,8 @@ variables:
     GARASIGN_PASSWORD: ${garasign_password}
     ARTIFACTORY_USERNAME: ${artifactory_username}
     ARTIFACTORY_PASSWORD: ${artifactory_password}
+    DOCKERHUB_USERNAME: ${dockerhub_username}
+    DOCKERHUB_PASSWORD: ${dockerhub_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -982,16 +984,7 @@ functions:
 
           echo
 
-          # Runs for all the commits on main, including nightly builds:
-          if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
-            export JIRA_BASE_URL="https://jira.mongodb.org"
-            export JIRA_PROJECT="COMPASS"
-            export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
-
-            npm run create-vulnerability-tickets
-          else
-            cat .sbom/vulnerability-report.md
-          fi
+          cat .sbom/vulnerability-report.md
 
           echo
 

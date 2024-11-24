@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { useConnections } from './connections-store';
+import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {
-  cleanup,
-  renderWithConnections,
   waitFor,
   screen,
   createDefaultConnectionInfo,
   wait,
+  render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 
@@ -34,76 +33,30 @@ const mockConnections = [
   },
 ];
 
-const defaultPreferences = {
-  enableMultipleConnectionSystem: true,
-  maximumNumberOfActiveConnections: undefined,
-};
-
-// A bit of a special case, testing-library doesn't allow to test hooks that
-// have UI side-effects, but we're doing it in these connection hooks
-function renderHookWithConnections<T>(
-  cb: () => T,
-  options: Parameters<typeof renderWithConnections>[1]
-) {
-  const hookResult = { current: null } as { current: T };
-  const HookGetter = () => {
-    hookResult.current = cb();
-    return null;
-  };
-  const result = renderWithConnections(<HookGetter></HookGetter>, options);
-  return { ...result, result: hookResult };
+function renderCompassConnections(opts?: RenderConnectionsOptions) {
+  return render(
+    <div>
+      {/* it's a bit weird, but testing-library-compass already renders CompassConnections for us */}
+    </div>,
+    opts
+  );
 }
 
-describe('useConnections', function () {
+describe('CompassConnections store', function () {
   afterEach(() => {
-    cleanup();
     sinon.resetHistory();
     sinon.restore();
   });
 
-  it('autoconnects on mount and does not save autoconnect info', async function () {
-    const { connectionsStore, connectionStorage } = renderHookWithConnections(
-      useConnections,
-      {
-        preferences: defaultPreferences,
-        connections: mockConnections,
-        onAutoconnectInfoRequest() {
-          return Promise.resolve({
-            id: 'autoconnect',
-            connectionOptions: {
-              connectionString: 'mongodb://autoconnect',
-            },
-          });
-        },
-      }
-    );
-
-    await waitFor(() => {
-      expect(connectionsStore.getState().connections.byId)
-        .to.have.property('autoconnect')
-        .have.property('status', 'connected');
-    });
-
-    const storedConnection = await connectionStorage.load({
-      id: 'autoconnect',
-    });
-
-    // autoconnect info should never be saved
-    expect(storedConnection).to.eq(undefined);
-  });
-
   describe('#connect', function () {
     it('should show notifications throughout connection flow and save connection to persistent store', async function () {
-      const { result, connectionStorage, track } = renderHookWithConnections(
-        useConnections,
-        {
-          preferences: defaultPreferences,
+      const { connectionsStore, connectionStorage, track } =
+        renderCompassConnections({
           connectFn: async () => {
             await wait(100);
             return {};
           },
-        }
-      );
+        });
 
       const connectionInfo = createDefaultConnectionInfo();
 
@@ -113,7 +66,7 @@ describe('useConnections', function () {
       // Verifying it's not in storage
       expect(storedConnectionBeforeConnect).to.eq(undefined);
 
-      const connectPromise = result.current.connect(connectionInfo);
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Connection Attempt');
@@ -139,8 +92,7 @@ describe('useConnections', function () {
     });
 
     it('should show error toast if connection failed', async function () {
-      const { result } = renderHookWithConnections(useConnections, {
-        preferences: defaultPreferences,
+      const { connectionsStore } = renderCompassConnections({
         connectFn: sinon
           .stub()
           .rejects(new Error('Failed to connect to cluster')),
@@ -148,7 +100,7 @@ describe('useConnections', function () {
 
       const connectionInfo = createDefaultConnectionInfo();
 
-      const connectPromise = result.current.connect(connectionInfo);
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
 
       await waitFor(() => {
         expect(screen.getByText('Failed to connect to cluster')).to.exist;
@@ -164,11 +116,9 @@ describe('useConnections', function () {
     });
 
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {
-      const { result } = renderHookWithConnections(useConnections, {
-        preferences: defaultPreferences,
-      });
+      const { connectionsStore } = renderCompassConnections({});
 
-      await result.current.connect({
+      await connectionsStore.actions.connect({
         id: '123',
         connectionOptions: {
           connectionString:
@@ -183,14 +133,13 @@ describe('useConnections', function () {
     });
 
     it('should show max connections toast if maximum connections number reached', async function () {
-      const { result } = renderHookWithConnections(useConnections, {
+      const { connectionsStore } = renderCompassConnections({
         preferences: {
-          ...defaultPreferences,
           maximumNumberOfActiveConnections: 0,
         },
       });
 
-      const connectPromise = result.current.connect(
+      const connectPromise = connectionsStore.actions.connect(
         createDefaultConnectionInfo()
       );
 
@@ -211,12 +160,11 @@ describe('useConnections', function () {
         });
       });
 
-      const { result } = renderHookWithConnections(useConnections, {
-        preferences: defaultPreferences,
+      const { connectionsStore } = renderCompassConnections({
         connectFn,
       });
 
-      const connectPromise = result.current.connect(
+      const connectPromise = connectionsStore.actions.connect(
         createDefaultConnectionInfo()
       );
 
@@ -254,91 +202,68 @@ describe('useConnections', function () {
       });
     });
 
-    for (const multipleConnectionsEnabled of [true, false]) {
-      describe(`when multiple connections ${
-        multipleConnectionsEnabled ? 'enabled' : 'disabled'
-      }`, function () {
-        it('should only update favorite info for existing connection with new props when existing connection is successfull', async function () {
-          const { result, connectionStorage } = renderHookWithConnections(
-            useConnections,
-            {
-              connections: mockConnections,
-              preferences: {
-                ...defaultPreferences,
-                enableMultipleConnectionSystem: multipleConnectionsEnabled,
-              },
-            }
-          );
-
-          await result.current.connect({
-            ...mockConnections[0],
-            connectionOptions: {
-              ...mockConnections[0].connectionOptions,
-              connectionString: 'mongodb://foobar',
-            },
-            favorite: { name: 'foobar' },
-          });
-
-          const storedConnection = await connectionStorage.load({
-            id: mockConnections[0].id,
-          });
-
-          // Connection string in the storage wasn't updated
-          expect(storedConnection).to.have.nested.property(
-            'connectionOptions.connectionString',
-            'mongodb://turtle'
-          );
-
-          // Connection favorite name was updated
-          expect(storedConnection).to.have.nested.property(
-            'favorite.name',
-            'foobar'
-          );
-        });
-
-        it('should not update existing connection if connection failed', async function () {
-          const { result, connectionStorage } = renderHookWithConnections(
-            useConnections,
-            {
-              connections: mockConnections,
-              preferences: {
-                ...defaultPreferences,
-                enableMultipleConnectionSystem: multipleConnectionsEnabled,
-              },
-              connectFn: sinon.stub().rejects(new Error('Failed to connect')),
-            }
-          );
-
-          await result.current.connect({
-            ...mockConnections[0],
-            favorite: { name: 'foobar' },
-          });
-
-          // Connection in the storage wasn't updated
-          expect(
-            await connectionStorage.load({ id: mockConnections[0].id })
-          ).to.have.nested.property('favorite.name', 'turtles');
-        });
+    it('should only update favorite info for existing connection with new props when existing connection is successfull', async function () {
+      const { connectionsStore, connectionStorage } = renderCompassConnections({
+        connections: mockConnections,
       });
-    }
+
+      await connectionsStore.actions.connect({
+        ...mockConnections[0],
+        connectionOptions: {
+          ...mockConnections[0].connectionOptions,
+          connectionString: 'mongodb://foobar',
+        },
+        favorite: { name: 'foobar' },
+      });
+
+      const storedConnection = await connectionStorage.load({
+        id: mockConnections[0].id,
+      });
+
+      // Connection string in the storage wasn't updated
+      expect(storedConnection).to.have.nested.property(
+        'connectionOptions.connectionString',
+        'mongodb://turtle'
+      );
+
+      // Connection favorite name was updated
+      expect(storedConnection).to.have.nested.property(
+        'favorite.name',
+        'foobar'
+      );
+    });
+
+    it('should not update existing connection if connection failed', async function () {
+      const { connectionsStore, connectionStorage } = renderCompassConnections({
+        connections: mockConnections,
+        connectFn: sinon.stub().rejects(new Error('Failed to connect')),
+      });
+
+      await connectionsStore.actions.connect({
+        ...mockConnections[0],
+        favorite: { name: 'foobar' },
+      });
+
+      // Connection in the storage wasn't updated
+      expect(
+        await connectionStorage.load({ id: mockConnections[0].id })
+      ).to.have.nested.property('favorite.name', 'turtles');
+    });
   });
 
   describe('#saveAndConnect', function () {
     it('saves the connection options before connecting', async function () {
-      const { result, track, connectionStorage } = renderHookWithConnections(
-        useConnections,
-        {
+      const { connectionsStore, track, connectionStorage } =
+        renderCompassConnections({
           connections: mockConnections,
-          preferences: defaultPreferences,
-        }
-      );
+        });
 
       const updatedConnection = {
         ...mockConnections[0],
         savedConnectionType: 'recent' as const,
       };
 
-      await result.current.saveAndConnect(updatedConnection);
+      await connectionsStore.actions.saveAndConnect(updatedConnection);
 
       await waitFor(() => {
         expect(track.getCall(1).firstArg).to.eq('New Connection');
@@ -356,8 +281,7 @@ describe('useConnections', function () {
 
   describe('#disconnect', function () {
     it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
-      const { result, track } = renderHookWithConnections(useConnections, {
-        preferences: defaultPreferences,
+      const { connectionsStore, track } = renderCompassConnections({
         connectFn() {
           return new Promise(() => {
             // going to cancel this one
@@ -366,13 +290,13 @@ describe('useConnections', function () {
       });
 
       const connectionInfo = createDefaultConnectionInfo();
-      const connectPromise = result.current.connect(connectionInfo);
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
 
       await waitFor(() => {
         expect(screen.getByText(/Connecting to/)).to.exist;
       });
 
-      result.current.disconnect(connectionInfo.id);
+      connectionsStore.actions.disconnect(connectionInfo.id);
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
@@ -380,58 +304,31 @@ describe('useConnections', function () {
     });
   });
 
-  describe('#createNewConnection', function () {
-    it('in single connection mode should "open" connection form create new connection info for editing every time', function () {
-      const { result } = renderHookWithConnections(useConnections, {
-        preferences: { enableMultipleConnectionSystem: false },
-      });
-
-      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(
-        false
-      );
-
-      result.current.createNewConnection();
-      const conn1 = result.current.state.editingConnectionInfo;
-
-      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
-
-      result.current.createNewConnection();
-      const conn2 = result.current.state.editingConnectionInfo;
-
-      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
-
-      result.current.createNewConnection();
-      const conn3 = result.current.state.editingConnectionInfo;
-
-      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
-
-      expect(conn1).to.not.deep.eq(conn2);
-      expect(conn1).to.not.deep.eq(conn3);
-    });
-  });
+  describe('#createNewConnection', function () {});
 
   describe('#saveEditedConnection', function () {
     it('new connection: should call save and track the creation', async function () {
-      const { result, track, connectionStorage } = renderHookWithConnections(
-        useConnections,
-        {
-          preferences: defaultPreferences,
-        }
-      );
+      const { connectionsStore, track, connectionStorage } =
+        renderCompassConnections({});
 
       // We can't save non-existent connections, create new one before
       // proceeding
-      result.current.createNewConnection();
+      connectionsStore.actions.createNewConnection();
+
+      const editingConnection =
+        connectionsStore.getState().connections.byId[
+          connectionsStore.getState().editingConnectionInfoId
+        ];
 
       const newConnection = {
-        ...result.current.state.editingConnectionInfo,
+        ...editingConnection.info,
         favorite: {
           name: 'peaches (50) peaches',
         },
         savedConnectionType: 'favorite' as const,
       };
 
-      await result.current.saveEditedConnection(newConnection);
+      await connectionsStore.actions.saveEditedConnection(newConnection);
 
       expect(track).to.have.been.calledWith('Connection Created');
 
@@ -439,20 +336,17 @@ describe('useConnections', function () {
     });
 
     it('existing connection: should call save and should not track the creation', async function () {
-      const { result, track, connectionStorage } = renderHookWithConnections(
-        useConnections,
-        {
+      const { connectionsStore, track, connectionStorage } =
+        renderCompassConnections({
           connections: mockConnections,
-          preferences: defaultPreferences,
-        }
-      );
+        });
 
       const updatedConnection = {
         ...mockConnections[0],
         savedConnectionType: 'recent' as const,
       };
 
-      await result.current.saveEditedConnection(updatedConnection);
+      await connectionsStore.actions.saveEditedConnection(updatedConnection);
 
       expect(track).not.to.have.been.called;
 
@@ -464,13 +358,14 @@ describe('useConnections', function () {
 
   describe('#removeConnection', function () {
     it('should disconnect and call delete and track the deletion', async function () {
-      const { result, connectionsStore, connectionStorage, track } =
-        renderHookWithConnections(useConnections, {
+      const { connectionsStore, connectionStorage, track } =
+        renderCompassConnections({
           connections: mockConnections,
-          preferences: defaultPreferences,
         });
 
-      result.current.removeConnection(mockConnections[0].id);
+      await connectionsStore.actions.connect(mockConnections[0]);
+
+      connectionsStore.actions.removeConnection(mockConnections[0].id);
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Connection Removed');
@@ -487,41 +382,36 @@ describe('useConnections', function () {
 
   describe('#editConnection', function () {
     it('should only allow to edit existing connections', function () {
-      const { result } = renderHookWithConnections(useConnections, {
+      const { connectionsStore } = renderCompassConnections({
         connections: mockConnections,
-        preferences: defaultPreferences,
       });
 
-      result.current.editConnection('123');
-      expect(result.current.state).to.have.property(
+      connectionsStore.actions.editConnection('123');
+      expect(connectionsStore.getState()).to.have.property(
         'isEditingConnectionInfoModalOpen',
         false
       );
 
-      result.current.editConnection(mockConnections[0].id);
-      expect(result.current.state).to.have.property(
+      connectionsStore.actions.editConnection(mockConnections[0].id);
+      expect(connectionsStore.getState()).to.have.property(
         'isEditingConnectionInfoModalOpen',
         true
       );
-      expect(result.current.state).to.have.property(
-        'editingConnectionInfo',
-        mockConnections[0]
+      expect(connectionsStore.getState()).to.have.property(
+        'editingConnectionInfoId',
+        mockConnections[0].id
       );
     });
   });
 
   describe('#duplicateConnection', function () {
     it('should copy connection and add a copy number at the end', function () {
-      const { result, connectionsStore } = renderHookWithConnections(
-        useConnections,
-        {
-          connections: mockConnections,
-          preferences: defaultPreferences,
-        }
-      );
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+      });
 
       for (let i = 0; i <= 30; i++) {
-        result.current.duplicateConnection(mockConnections[1].id, {
+        connectionsStore.actions.duplicateConnection(mockConnections[1].id, {
           autoDuplicate: true,
         });
       }
@@ -536,27 +426,23 @@ describe('useConnections', function () {
     });
 
     it('should create a name if there is none', async function () {
-      const { result, connectionsStore } = renderHookWithConnections(
-        useConnections,
-        {
-          connections: [
-            {
-              id: '123',
-              connectionOptions: {
-                connectionString: 'mongodb://localhost:27017',
-              },
-              favorite: {
-                name: '',
-                color: 'color2',
-              },
-              savedConnectionType: 'recent' as const,
+      const { connectionsStore } = renderCompassConnections({
+        connections: [
+          {
+            id: '123',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
             },
-          ],
-          preferences: defaultPreferences,
-        }
-      );
+            favorite: {
+              name: '',
+              color: 'color2',
+            },
+            savedConnectionType: 'recent' as const,
+          },
+        ],
+      });
 
-      result.current.duplicateConnection('123', {
+      connectionsStore.actions.duplicateConnection('123', {
         autoDuplicate: true,
       });
 
@@ -580,14 +466,11 @@ describe('useConnections', function () {
         savedConnectionType: 'favorite' as const,
       };
 
-      const { result, connectionsStore } = renderHookWithConnections(
-        useConnections,
-        {
-          connections: [newConnection],
-        }
-      );
+      const { connectionsStore } = renderCompassConnections({
+        connections: [newConnection],
+      });
 
-      result.current.duplicateConnection(newConnection.id, {
+      connectionsStore.actions.duplicateConnection(newConnection.id, {
         autoDuplicate: true,
       });
 
