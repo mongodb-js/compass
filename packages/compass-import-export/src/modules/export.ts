@@ -133,14 +133,14 @@ type OpenExportAction = {
 export const openExport = (
   exportOptions: Omit<OpenExportAction, 'type'>
 ): ExportThunkAction<void, OpenExportAction> => {
-  return (dispatch, _getState, { track, connectionRepository }) => {
+  return (dispatch, _getState, { track, connections }) => {
     track(
       'Export Opened',
       {
         type: exportOptions.aggregation ? 'aggregation' : 'query',
         origin: exportOptions.origin,
       },
-      connectionRepository.getConnectionInfoById(exportOptions.connectionId)
+      connections.getConnectionById(exportOptions.connectionId)?.info
     );
     dispatch({
       type: ExportActionTypes.OpenExport,
@@ -288,7 +288,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
   return async (
     dispatch,
     getState,
-    { connectionsManager, logger: { log, mongoLogId } }
+    { connections, logger: { log, mongoLogId } }
   ) => {
     dispatch({
       type: ExportActionTypes.SelectFieldsToExport,
@@ -312,8 +312,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
         throw new Error('ConnectionId not provided');
       }
 
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       gatherFieldsResult = await gatherFieldsFromQuery({
         ns: namespace,
@@ -368,13 +367,7 @@ export const runExport = ({
   return async (
     dispatch,
     getState,
-    {
-      connectionsManager,
-      connectionRepository,
-      preferences,
-      track,
-      logger: { log, mongoLogId },
-    }
+    { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
     let outputWriteStream: fs.WriteStream;
     try {
@@ -475,8 +468,7 @@ export const runExport = ({
         throw new Error('ConnectionId not provided');
       }
 
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       const baseExportOptions = {
         ns: namespace,
@@ -573,7 +565,7 @@ export const runExport = ({
         stopped: aborted,
         duration: Date.now() - startTime,
       },
-      connectionRepository.getConnectionInfoById(connectionId)
+      connections.getConnectionById(connectionId)?.info
     );
 
     if (!exportSucceeded) {

@@ -9,7 +9,7 @@ import CreateViewModal from './components/create-view-modal';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
-  connectionsManagerLocator,
+  connectionsLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -27,7 +27,6 @@ import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provide
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
-import { connectionRepositoryAccessLocator } from '@mongodb-js/compass-connections/provider';
 import { AggregationsTabTitle } from './plugin-title';
 
 const CompassAggregationsHadronPlugin = registerHadronPlugin(
@@ -71,8 +70,7 @@ export const CreateViewPlugin = registerHadronPlugin(
     activate: activateCreateViewPlugin,
   },
   {
-    connectionsManager: connectionsManagerLocator,
-    connectionRepository: connectionRepositoryAccessLocator,
+    connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-CREATE-VIEW-UI'),
     track: telemetryLocator,
     workspaces: workspacesServiceLocator,

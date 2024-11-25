@@ -56,7 +56,7 @@ describe('SidebarStore [Store]', function () {
     ({ deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        connectionsManager: {
+        connections: {
           getDataServiceForConnection() {
             return {
               getConnectionOptions() {

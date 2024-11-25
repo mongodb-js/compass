@@ -78,7 +78,7 @@ export const setupInstance =
     connectionId: ConnectionInfo['id'],
     instance: MongoDBInstance
   ): SidebarThunkAction<void, RootAction> =>
-  (dispatch, getState, { connectionsManager, logger: { log, mongoLogId } }) => {
+  (dispatch, getState, { connections, logger: { log, mongoLogId } }) => {
     const { instance: instanceList } = getState();
 
     if (instanceList[connectionId]) {
@@ -181,8 +181,7 @@ export const setupInstance =
     instance.on('change:collections._id', onDatabasesChange);
     instance.on('change:collections.status', onDatabasesChange);
 
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
+    const dataService = connections.getDataServiceForConnection(connectionId);
 
     const connectionOptions = dataService.getConnectionOptions();
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status

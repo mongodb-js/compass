@@ -7,23 +7,23 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 
 type NS = ReturnType<typeof toNS>;
 
 type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
-  connectionsManager: ConnectionsManager;
+  connections: ConnectionsService;
   logger: Logger;
   track: TrackFunction;
 };
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, connectionsManager, track }: DropNamespaceServices,
+  { globalAppRegistry, connections, track }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   const onDropNamespace = async (
@@ -70,7 +70,7 @@ export function activatePlugin(
       try {
         const method = isCollection ? 'dropCollection' : 'dropDatabase';
         const dataService =
-          connectionsManager.getDataServiceForConnection(connectionId);
+          connections.getDataServiceForConnection(connectionId);
 
         await dataService[method](ns);
         globalAppRegistry.emit(

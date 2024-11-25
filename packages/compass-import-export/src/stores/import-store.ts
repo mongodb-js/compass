@@ -11,10 +11,7 @@ import {
 } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type {
-  ConnectionRepositoryAccess,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
@@ -23,8 +20,7 @@ export type ImportPluginServices = {
   workspaces: WorkspacesService;
   logger: Logger;
   track: TrackFunction;
-  connectionsManager: ConnectionsManager;
-  connectionRepository: ConnectionRepositoryAccess;
+  connections: ConnectionsService;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -60,8 +56,7 @@ export function activatePlugin(
   _: unknown,
   {
     globalAppRegistry,
-    connectionsManager,
-    connectionRepository,
+    connections,
     workspaces,
     logger,
     track,
@@ -73,8 +68,7 @@ export function activatePlugin(
     workspaces,
     logger,
     track,
-    connectionsManager,
-    connectionRepository,
+    connections,
   });
 
   addCleanup(() => {
@@ -96,7 +90,7 @@ export function activatePlugin(
     }
   );
 
-  on(connectionsManager, 'disconnected', function (connectionId: string) {
+  on(connections, 'disconnected', function (connectionId: string) {
     store.dispatch(connectionDisconnected(connectionId));
   });
 
