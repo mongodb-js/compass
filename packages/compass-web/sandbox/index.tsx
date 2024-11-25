@@ -1,6 +1,11 @@
 import React, { useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { resetGlobalCSS, css, Body } from '@mongodb-js/compass-components';
+import {
+  resetGlobalCSS,
+  css,
+  Body,
+  SpinLoaderWithLabel,
+} from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProviver } from '../src/connection-storage';
 import { sandboxLogger } from './sandbox-logger';
@@ -8,6 +13,7 @@ import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
+import { useAtlasPreferences } from './sandbox-atlas-preferences';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -32,6 +38,10 @@ const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
   const { projectId, csrfToken, csrfTime } = projectParams ?? {};
+  const { status: preferencesStatus, preferences: atlasPreferences } =
+    useAtlasPreferences({
+      projectId,
+    });
 
   const atlasServiceSandboxBackendVariant =
     process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
@@ -51,6 +61,10 @@ const App = () => {
   }
 
   const isAtlas = status === 'signed-in';
+
+  if (isAtlas && preferencesStatus === 'loading') {
+    return <SpinLoaderWithLabel progressText="Loading Atlas preferences" />;
+  }
 
   return (
     <SandboxConnectionStorageProviver
@@ -77,6 +91,14 @@ const App = () => {
             enableCreatingNewConnections: !isAtlas,
             enableGlobalWrites: isAtlas,
             enableRollingIndexes: isAtlas,
+            enableGenAIFeaturesAtlasProject:
+              !!atlasPreferences?.enableGenAIFeaturesAtlasProject,
+            enableGenAISampleDocumentPassingOnAtlasProject:
+              !!atlasPreferences?.enableGenAISampleDocumentPassingOnAtlasProject,
+            enableGenAIFeaturesAtlasOrg:
+              !!atlasPreferences?.enableGenAIFeaturesAtlasOrg,
+            optInDataExplorerGenAIFeatures:
+              !!atlasPreferences?.optInDataExplorerGenAIFeatures,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}

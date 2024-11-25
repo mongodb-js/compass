@@ -1,8 +1,6 @@
 import { expect } from 'chai';
 
 import type { CompassBrowser } from '../../helpers/compass-browser';
-import { startTelemetryServer } from '../../helpers/telemetry';
-import type { Telemetry } from '../../helpers/telemetry';
 import {
   init,
   cleanup,
@@ -14,24 +12,19 @@ import * as Selectors from '../../helpers/selectors';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
 
-describe('Collection ai query', function () {
+describe.only('Collection ai query', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  let telemetry: Telemetry;
 
-  before(async function () {
+  before(function () {
     if (!isTestingAtlasCloudSandbox()) {
       this.skip();
     }
-
-    telemetry = await startTelemetryServer();
-    compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
-    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
-    process.env.COMPASS_WEB_GEN_AI_ENABLEMENT = 'true';
+    // TODO: Setup the settings to enable the feature.
+    // await fetch()
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -45,10 +38,6 @@ describe('Collection ai query', function () {
       'numbers',
       'Documents'
     );
-  });
-
-  after(async function () {
-    await telemetry.stop();
   });
 
   afterEach(async function () {

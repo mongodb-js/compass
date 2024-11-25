@@ -194,6 +194,9 @@ module.exports = (env, args) => {
           'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
             process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
           ),
+          'process.env.COMPASS_WEB_GEN_AI_ENABLEMENT': JSON.stringify(
+            process.env.COMPASS_WEB_GEN_AI_ENABLEMENT ?? 'false'
+          ),
         }),
       ],
     });
