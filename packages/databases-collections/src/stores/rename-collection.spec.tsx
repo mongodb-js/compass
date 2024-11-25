@@ -13,7 +13,7 @@ import {
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();
   let appRegistry: RenderWithConnectionsResult['globalAppRegistry'];
-  const connectionsManager = {};
+  const connections = {};
   const instanceModel = {
     databases: {
       get: function () {
@@ -36,7 +36,7 @@ describe('RenameCollectionPlugin', function () {
   };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({
-      connectionsManager: connectionsManager as any,
+      connections: connections as any,
       instancesManager: instancesManager as any,
       queryStorage: favoriteQueries as any,
       pipelineStorage: pipelineStorage as any,
