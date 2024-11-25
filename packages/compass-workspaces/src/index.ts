@@ -24,9 +24,9 @@ import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/p
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
 import {
-  connectionsManagerLocator,
-  type ConnectionsManager,
+  connectionsLocator,
   type ConnectionInfo,
+  type ConnectionsService,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -39,7 +39,7 @@ import {
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
   instancesManager: MongoDBInstancesManager;
-  connectionsManager: ConnectionsManager;
+  connections: ConnectionsService;
   logger: Logger;
 };
 
@@ -74,7 +74,7 @@ export function activateWorkspacePlugin(
   {
     globalAppRegistry,
     instancesManager,
-    connectionsManager,
+    connections,
     logger,
   }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
@@ -82,7 +82,7 @@ export function activateWorkspacePlugin(
   const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
     instancesManager,
-    connectionsManager,
+    connections,
     logger,
   });
 
@@ -120,7 +120,7 @@ export function activateWorkspacePlugin(
   );
 
   on(
-    connectionsManager,
+    connections,
     'disconnected',
     function (connectionId: ConnectionInfo['id']) {
       store.dispatch(connectionDisconnected(connectionId));
@@ -197,7 +197,7 @@ const WorkspacesPlugin = registerHadronPlugin(
   },
   {
     instancesManager: mongoDBInstancesManagerLocator,
-    connectionsManager: connectionsManagerLocator,
+    connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
   }
 );

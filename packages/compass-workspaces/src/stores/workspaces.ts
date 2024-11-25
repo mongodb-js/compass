@@ -658,7 +658,7 @@ const fetchCollectionInfo = (
   return async (
     dispatch,
     getState,
-    { connectionsManager, instancesManager, logger }
+    { connections, instancesManager, logger }
   ) => {
     if (getState().collectionInfo[workspaceOptions.namespace]) {
       return;
@@ -667,7 +667,7 @@ const fetchCollectionInfo = (
     const { database, collection } = toNS(workspaceOptions.namespace);
 
     try {
-      const dataService = connectionsManager.getDataServiceForConnection(
+      const dataService = connections.getDataServiceForConnection(
         workspaceOptions.connectionId
       );
 

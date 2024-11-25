@@ -34,8 +34,8 @@ describe('create collection module', function () {
         () => INITIAL_STATE,
         {
           track: createNoopTrack(),
-          connectionRepository: {
-            getConnectionInfoById: () => ({ id: 'TEST' }),
+          connections: {
+            getConnectionById: () => ({ info: { id: 'TEST' } }),
           },
         } as any
       );
@@ -61,8 +61,8 @@ describe('create collection module', function () {
         () => INITIAL_STATE,
         {
           track: createNoopTrack(),
-          connectionRepository: {
-            getConnectionInfoById: () => ({ id: 'TEST' }),
+          connections: {
+            getConnectionById: () => ({ info: { id: 'TEST' } }),
           },
         } as any
       );

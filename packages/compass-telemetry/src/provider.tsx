@@ -52,6 +52,10 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
+/**
+ * @deprecated instead of using HOC, refactor class component to functional
+ * component
+ */
 function withTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {

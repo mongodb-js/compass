@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   type ConnectionStorage,
   useConnectionStorageContext,
@@ -15,9 +15,8 @@ import type {
 } from './common';
 import {
   useConnectionActions,
-  useConnectionRepository,
+  useConnectionsList,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;
@@ -103,22 +102,10 @@ export function useImportConnections({
   onChangeConnectionList: (connectionInfos: ConnectionShortInfo[]) => void;
   state: ImportConnectionsState;
 } {
-  const multipleConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-  const { favoriteConnections, nonFavoriteConnections } =
-    useConnectionRepository();
+  const existingConnections = useConnectionsList((conn) => {
+    return !conn.isBeingCreated && !conn.isAutoconnectInfo;
+  });
   const { importConnections } = useConnectionActions();
-  const existingConnections = useMemo(() => {
-    // in case of multiple connections all the connections are saved (that used
-    // to be favorites in the single connection world) so we need to account for
-    // all the saved connections
-    if (multipleConnectionsEnabled) {
-      return [...favoriteConnections, ...nonFavoriteConnections];
-    } else {
-      return favoriteConnections;
-    }
-  }, [multipleConnectionsEnabled, favoriteConnections, nonFavoriteConnections]);
   const connectionStorage = useConnectionStorageContext();
   const deserializeConnectionsImpl =
     connectionStorage.deserializeConnections?.bind(connectionStorage);
@@ -140,7 +127,7 @@ export function useImportConnections({
   }, [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
 
-  const existingConnectionIds = existingConnections.map(({ id }) => id);
+  const existingConnectionIds = existingConnections.map(({ info }) => info.id);
   useEffect(() => {
     // If `existingConnections` changes, update the list of connections that are
     // displayed in our table.
