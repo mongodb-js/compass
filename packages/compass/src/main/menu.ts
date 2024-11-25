@@ -144,30 +144,11 @@ function newWindowItem(
   };
 }
 
-function disconnectItem(): MenuItemConstructorOptions {
-  return {
-    label: '&Disconnect',
-    click() {
-      ipcMain?.broadcastFocused('app:disconnect');
-    },
-  };
-}
-
 function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const { enableMultipleConnectionSystem: isMultiConnectionsEnabled } =
-    app.preferences.getPreferences();
-
-  const singleConnectionItems: MenuTemplate = [
-    newWindowItem(app),
-    disconnectItem(),
-    separator(),
-  ];
-
   const subMenu: MenuTemplate = [
-    ...(!isMultiConnectionsEnabled ? singleConnectionItems : []),
     {
       label: '&Import Saved Connections',
       click() {

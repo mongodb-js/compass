@@ -1,3 +1,4 @@
+import type AppRegistry from 'hadron-app-registry';
 import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -41,6 +42,39 @@ export type ConnectionsEventMap = {
     connectionInfo: ConnectionInfo
   ) => void;
 };
+
+/**
+ * Returns status of the autoconnect connection preserved for the duration of
+ * the session. If connection was ever disconnected, this value will be used to
+ * not connect again
+ */
+export function getSessionConnectionStatus(connectionId = '-1') {
+  try {
+    return window.sessionStorage.getItem(`CONNECTION_STATUS:${connectionId}`);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Allows to store connection status for the duration of the current session
+ * (while the browser tab / window exists). Useful to preserve
+ * connection state between page reloads. Currently only used by Compass desktop
+ * to prevent autoconnecting to trigger on hard page refresh.
+ */
+export function setSessionConnectionStatus(
+  connectionId: string,
+  status: 'disconnected'
+) {
+  try {
+    return window.sessionStorage.setItem(
+      `CONNECTION_STATUS:${connectionId}`,
+      status
+    );
+  } catch {
+    return false;
+  }
+}
 
 export interface ConnectionsEventEmitter {
   emit<K extends keyof ConnectionsEventMap>(
@@ -185,6 +219,7 @@ type ThunkExtraArg = {
     connectionInfo: ConnectionInfo
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
 };
 
 export type ConnectionsThunkAction<
@@ -1367,7 +1402,8 @@ const connectionAttemptError = (
 export const autoconnectCheck = (
   getAutoconnectInfo: (
     connectionStorage: ConnectionStorage
-  ) => Promise<ConnectionInfo | undefined>
+  ) => Promise<ConnectionInfo | undefined>,
+  doNotReconnectDisconnectedAutoconnectInfo = false
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
@@ -1384,6 +1420,12 @@ export const autoconnectCheck = (
         'Performing automatic connection attempt'
       );
       const connectionInfo = await getAutoconnectInfo(connectionStorage);
+      if (
+        doNotReconnectDisconnectedAutoconnectInfo &&
+        getSessionConnectionStatus(connectionInfo?.id) === 'disconnected'
+      ) {
+        return;
+      }
       dispatch({
         type: ActionTypes.ConnectionAutoconnectCheck,
         connectionInfo: connectionInfo,
@@ -1421,6 +1463,10 @@ function getCurrentConnectionInfo(
   connectionId: ConnectionId
 ): ConnectionInfo | undefined {
   return state.connections.byId[connectionId]?.info;
+}
+
+function getCurrentConnectionStatus(state: State, connectionId: ConnectionId) {
+  return state.connections.byId[connectionId]?.status;
 }
 
 /**
@@ -1967,15 +2013,21 @@ const cleanupConnection = (
       'Initiating disconnect attempt'
     );
 
+    const currentStatus = getCurrentConnectionStatus(getState(), connectionId);
+
     // We specifically want to track Disconnected even when it's not really
     // triggered by user at all, so we put it in the cleanup function that is
     // called every time you disconnect, or remove a connection, or all of them,
-    // or close the app
-    track(
-      'Connection Disconnected',
-      {},
-      getCurrentConnectionInfo(getState(), connectionId)
-    );
+    // or close the app. Only track when connection is either connected or
+    // connecting, we might be calling this on something that was never
+    // connected
+    if (currentStatus === 'connected' || currentStatus === 'connecting') {
+      track(
+        'Connection Disconnected',
+        {},
+        getCurrentConnectionInfo(getState(), connectionId)
+      );
+    }
 
     const { closeConnectionStatusToast } = getNotificationTriggers(
       preferences.getPreferences().enableMultipleConnectionSystem
@@ -2017,9 +2069,10 @@ export const disconnect = (
 ): ConnectionsThunkAction<void> => {
   return (dispatch, getState, { logger: { debug } }) => {
     debug('closing connection with connectionId', connectionId);
-
+    if (getState().connections.byId[connectionId]?.isAutoconnectInfo) {
+      setSessionConnectionStatus(connectionId, 'disconnected');
+    }
     dispatch(cleanupConnection(connectionId));
-
     dispatch({ type: ActionTypes.Disconnect, connectionId });
   };
 };
@@ -2154,6 +2207,14 @@ export const importConnections = (
     if (error) {
       throw error;
     }
+  };
+};
+
+export const openSettingsModal = (
+  tab?: string
+): ConnectionsThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('open-compass-settings', tab);
   };
 };
 
