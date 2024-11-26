@@ -15,7 +15,11 @@ import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
-import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
+import {
+  CompassComponentsProvider,
+  css,
+  usePersistedState,
+} from '@mongodb-js/compass-components';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -262,6 +266,9 @@ const CompassWeb = ({
     onLog,
     onDebug,
   });
+  const [telemetryAnonymousId] = usePersistedState('telemetryAnonymousId', () =>
+    new UUID().toString()
+  );
 
   const preferencesAccess = useRef(
     new CompassWebPreferencesAccess({
@@ -285,7 +292,7 @@ const CompassWeb = ({
       enableCreatingNewConnections: false,
       enableGlobalWrites: false,
       optInDataExplorerGenAIFeatures: false,
-      telemetryAnonymousId: new UUID().toString(),
+      telemetryAnonymousId,
       ...initialPreferences,
     })
   );
