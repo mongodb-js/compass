@@ -28,7 +28,7 @@ function buildChartsUrl(
   const { database, collection } = toNS(namespace);
   const url = new URL(`/charts/${groupId}`, window.location.origin);
   url.searchParams.set('sourceType', 'cluster');
-  url.searchParams.set('instanceName', clusterName);
+  url.searchParams.set('name', clusterName);
   url.searchParams.set('database', database);
   url.searchParams.set('collection', collection);
   return url.toString();
