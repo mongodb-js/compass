@@ -265,7 +265,10 @@ export class AtlasAiService {
     const urlConfig = aiURLConfig[this.apiURLPreset][urlId];
     const urlPath =
       typeof urlConfig === 'function'
-        ? urlConfig(this.preferences.getPreferencesUser().id)
+        ? urlConfig(
+            this.preferences.getPreferences().telemetryAtlasUserId ??
+              new UUID().toString()
+          )
         : urlConfig;
 
     return this.atlasService.adminApiEndpoint(urlPath);
