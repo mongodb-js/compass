@@ -23,8 +23,11 @@ export function useAtlasPreferences({
     null
   );
 
+  const overrideGenAIEnablement =
+    process.env.COMPASS_WEB_GEN_AI_ENABLEMENT === 'true';
+
   useEffect(() => {
-    if (!projectId) {
+    if (!projectId || overrideGenAIEnablement) {
       return;
     }
 
@@ -53,10 +56,8 @@ export function useAtlasPreferences({
     };
 
     void fetchPreferences();
-  }, [projectId]);
+  }, [projectId, overrideGenAIEnablement]);
 
-  const overrideGenAIEnablement =
-    process.env.COMPASS_WEB_GEN_AI_ENABLEMENT === 'true';
   if (overrideGenAIEnablement) {
     return {
       status: 'loaded',
