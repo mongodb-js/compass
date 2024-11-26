@@ -60,7 +60,7 @@ jobs:
       - name: Update AUTHORS
         run: |
           npm run update-authors
-          git add AUTHORS \*/AUTHORS
+          git add AUTHORS
 
       - name: Update THIRD-PARTY-NOTICES.md
         run: |
