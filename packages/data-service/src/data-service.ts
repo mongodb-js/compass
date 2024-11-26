@@ -1083,49 +1083,52 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll
-        .aggregate([
-          { $collStats: { storageStats: {} } },
-          {
-            $group: {
-              _id: null,
-              capped: { $first: '$storageStats.capped' },
-              count: { $sum: '$storageStats.count' },
-              size: { $sum: { $toDouble: '$storageStats.size' } },
-              storageSize: {
-                $sum: { $toDouble: '$storageStats.storageSize' },
-              },
-              totalIndexSize: {
-                $sum: { $toDouble: '$storageStats.totalIndexSize' },
-              },
-              freeStorageSize: {
-                $sum: { $toDouble: '$storageStats.freeStorageSize' },
-              },
-              unscaledCollSize: {
-                $sum: {
-                  $multiply: [
-                    { $toDouble: '$storageStats.avgObjSize' },
-                    { $toDouble: '$storageStats.count' },
-                  ],
+        .aggregate(
+          [
+            { $collStats: { storageStats: {} } },
+            {
+              $group: {
+                _id: null,
+                capped: { $first: '$storageStats.capped' },
+                count: { $sum: '$storageStats.count' },
+                size: { $sum: { $toDouble: '$storageStats.size' } },
+                storageSize: {
+                  $sum: { $toDouble: '$storageStats.storageSize' },
                 },
-              },
-              nindexes: { $max: '$storageStats.nindexes' },
-            },
-          },
-          {
-            $addFields: {
-              // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-              avgObjSize: {
-                $cond: {
-                  if: { $ne: ['$count', 0] },
-                  then: {
-                    $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                totalIndexSize: {
+                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
+                },
+                freeStorageSize: {
+                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
+                },
+                unscaledCollSize: {
+                  $sum: {
+                    $multiply: [
+                      { $toDouble: '$storageStats.avgObjSize' },
+                      { $toDouble: '$storageStats.count' },
+                    ],
                   },
-                  else: 0,
+                },
+                nindexes: { $max: '$storageStats.nindexes' },
+              },
+            },
+            {
+              $addFields: {
+                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+                avgObjSize: {
+                  $cond: {
+                    if: { $ne: ['$count', 0] },
+                    then: {
+                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                    },
+                    else: 0,
+                  },
                 },
               },
             },
-          },
-        ])
+          ],
+          { enableUtf8Validation: false }
+        )
         .toArray();
 
       if (!collStats || collStats[0] === undefined) {
@@ -1226,7 +1229,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const cursor = this._database(databaseName, 'CRUD').listCollections(
         filter,
-        { nameOnly }
+        { nameOnly, enableUtf8Validation: false }
       );
       // Iterate instead of using .toArray() so we can emit
       // collection info update events as they come in.

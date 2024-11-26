@@ -334,7 +334,7 @@ export const runCommand: RunCommand = (
 
   return db.command(
     { ...spec },
-    { readPreference, ...options }
+    { readPreference, enableUtf8Validation: false, ...options }
     // It's pretty hard to convince TypeScript that we are doing the right thing
     // here due to how vague the driver types are hence the `any` assertion
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
