@@ -16,7 +16,7 @@ jobs:
       HADRON_DISTRIBUTION: compass
     steps:
       - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@ni/github-app-action
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
