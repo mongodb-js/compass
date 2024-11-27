@@ -115,6 +115,14 @@ npm run create-workspace [workspace name]
 
 This will do all the initial workspace bootstrapping for you, ensuring that your package has all the standard configs set up and ready, and all the npm scripts aligned with other packages in the monorepo, which is important to get the most out of all the provided helpers in this repository (like `npm run check-changed` commands or to make sure that your tests will not immediately fail in CI because of the test timeout being too small)
 
+## Using Github Actions
+
+Github actions offers an easy way to create workflows that run various automated checks. While our main CI system is Evergreen, we have a number of auxiliary workflows configured to run using github actions. While adding new workflows or updating existing ones, it's important that we follow [the security hardening guidelines](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) by Github. Those can change over time, so be sure to periodically review them to make sure we're not using insecure workflows. Some notable highlights to pay special attention to are:
+1. Avoid using tag or branch refs for untrusted 3rd party actions. Those can easily be recreated by malicious actors and introduce supply chain attacks. As a rule of thumb, first party actions are considered actions by MongoDB, Github, Microsoft, or the primary maintainer of a particular ecosystem - e.g. Amazon for AWS. When using a 3rd party action, always use the full git commit sha as the ref to checkout.
+2. Be extra vigilant when using user-supplied data, such as branch name or PR title in scripts as that opens up the possibility of script injection attacks. Instead, prefer to use js actions to achieve the same result or sanitize the input before using it in a script.
+3. Never commit secrets in the workflow file directly - instead use github secrets to store them securely at the repo/org level.
+4. Avoid using repo-level secrets that grant access to deployment/publishing resources. Instead prefer to store these as environment secrets and ensure the correct environments protections are in place.
+
 ## Caveats
 
 ### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
