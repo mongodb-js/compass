@@ -10,24 +10,22 @@ jobs:
     name: Bump packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@ni/github-app-action
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
 
-          # this is important so git log can pick up on
-          # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
-
-      - name: Setup git
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.16.0
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |
@@ -40,21 +38,20 @@ jobs:
 
       - name: Bump packages
         env:
-          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump package versions'
-          SKIP_BUMP_PACKAGES: 'mongodb-compass'
+          LAST_BUMP_COMMIT_MESSAGE: "chore(release): bump package versions"
+          SKIP_BUMP_PACKAGES: "mongodb-compass"
         run: |
           npm run bump-packages
           git add .
           git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
 
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
-          commit-message: 'chore(release): bump package versions'
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore(release): bump package versions"
           branch: ci/bump-packages
-          title: 'chore(release): bump package versions'
+          title: "chore(release): bump package versions"
           labels: no-title-validation
           body: |
             - Bump package versions

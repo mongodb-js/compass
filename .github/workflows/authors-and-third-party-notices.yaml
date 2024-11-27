@@ -16,17 +16,11 @@ jobs:
       HADRON_DISTRIBUTION: compass
     steps:
       - name: Create Github App Token
-        uses: actions/create-github-app-token@v1
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@ni/github-app-action
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
-
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/checkout@v4
         with:
@@ -37,11 +31,6 @@ jobs:
           # the whole history to generate the list of AUTHORS
           fetch-depth: "0"
           token: ${{ steps.app-token.outputs.token }}
-
-      - name: Set up Git
-        run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
 
       - uses: actions/setup-node@v4
         with:

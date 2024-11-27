@@ -97,7 +97,7 @@ In particular each change to the `main` branch is analyzed to calculate a new ve
 
 Merging that PR will trigger another CI job that will publish to NPM any package which version is not yet present on the registry.
 
-The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/bump-monorepo-packages for details.
+The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/monorepo-tools for details.
 
 ## Add / Update / Remove Dependencies in Packages
 
