@@ -58,25 +58,17 @@ type CompassShellProps = {
   onHistoryChange: (history: string[]) => void;
   initialEvaluate?: string | string[];
   initialInput?: string;
+  isOperationInProgress: boolean;
+  onOperationStarted: () => void;
+  onOperationEnd: () => void;
 };
 
-function useInitialEval(initialEvaluate?: string | string[]) {
-  const [initialEvalApplied, setInitialEvalApplied] = useTabState(
-    'initialEvalApplied',
-    false
-  );
-  useEffect(() => {
-    setInitialEvalApplied(true);
-  }, [setInitialEvalApplied]);
-  return initialEvalApplied ? undefined : initialEvaluate;
-}
-
 const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
-  { initialEvaluate: _initialEvaluate, ...props },
+  { ...props },
   ref
 ) {
   const shellRef = useRef<ShellType | null>(null);
-  const initialEvaluate = useInitialEval(_initialEvaluate);
+
   const mergeRef = useCallback(
     (shell: ShellType | null) => {
       shellRef.current = shell;
@@ -93,26 +85,55 @@ const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
       shellRef.current?.focusEditor();
     });
   }, []);
-  return (
-    <_Shell
-      ref={mergeRef}
-      initialEvaluate={initialEvaluate}
-      {...props}
-    ></_Shell>
-  );
+
+  return <_Shell ref={mergeRef} {...props}></_Shell>;
 });
+
+function useInitialEval(initialEvaluate?: string | string[]) {
+  const [initialEvalApplied, setInitialEvalApplied] = useTabState(
+    'initialEvalApplied',
+    false
+  );
+  useEffect(() => {
+    setInitialEvalApplied(true);
+  }, [setInitialEvalApplied]);
+  return initialEvalApplied ? undefined : initialEvaluate;
+}
+
+const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
+  return (
+    Array.isArray(initialEvaluate) ? initialEvaluate : [initialEvaluate]
+  ).filter((line) => {
+    // Filter out empty lines if passed by accident
+    return !!line;
+  });
+};
+
+const isInitialEvaluateEmpty = (
+  initialEvaluate?: string | string[] | undefined
+) => {
+  return (
+    !initialEvaluate || normalizeInitialEvaluate(initialEvaluate).length === 0
+  );
+};
 
 const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
   onHistoryChange,
-  initialEvaluate,
+  initialEvaluate: _initialEvaluate,
   initialInput,
 }) => {
+  const initialEvaluate = useInitialEval(_initialEvaluate);
+
+  const [isOperationInProgress, setIsOperationInProgress] = useTabState(
+    'isOperationInProgress',
+    !isInitialEvaluateEmpty(initialEvaluate)
+  );
+
   const enableShell = usePreference('enableShell');
   const shellRef: ShellRef = useRef(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
-  const [isOperationInProgress, setIsOperationInProgress] = useState(false);
   const [shellOutput, setShellOutput] = useTabState<
     readonly ShellOutputEntry[]
   >('shellOutput', []);
@@ -148,13 +169,13 @@ const CompassShell: React.FC<CompassShellProps> = ({
     [setShellOutput]
   );
 
-  const notifyOperationStarted = useCallback(() => {
+  const onOperationStarted = useCallback(() => {
     setIsOperationInProgress(true);
-  }, []);
+  }, [setIsOperationInProgress]);
 
-  const notifyOperationEnd = useCallback(() => {
+  const onOperationEnd = useCallback(() => {
     setIsOperationInProgress(false);
-  }, []);
+  }, [setIsOperationInProgress]);
 
   const canRenderShell = enableShell && initialHistory && runtime;
 
@@ -212,8 +233,9 @@ const CompassShell: React.FC<CompassShellProps> = ({
             onHistoryChanged={(history) => {
               onHistoryChange([...history]);
             }}
-            onOperationStarted={notifyOperationStarted}
-            onOperationEnd={notifyOperationEnd}
+            onOperationStarted={onOperationStarted}
+            onOperationEnd={onOperationEnd}
+            isOperationInProgress={isOperationInProgress}
             maxOutputLength={1000}
             maxHistoryLength={1000}
           />
