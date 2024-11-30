@@ -18,6 +18,7 @@ import {
   useConnectionInfoRef,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -119,13 +120,17 @@ function WithErrorBoundary({
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
   const connectionInfoRef = useConnectionInfoRef();
+  const isGlobalWritesEnabled = usePreference('enableGlobalWrites');
   const isGlobalWritesSupported =
     useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
     !props.isReadonly &&
     !toNS(props.namespace).specialish;
   return pluginTabs
     .filter((x) => {
-      if (x.name === 'GlobalWrites' && !isGlobalWritesSupported) {
+      if (
+        x.name === 'GlobalWrites' &&
+        (!isGlobalWritesEnabled || !isGlobalWritesSupported)
+      ) {
         return false;
       }
       return true;
