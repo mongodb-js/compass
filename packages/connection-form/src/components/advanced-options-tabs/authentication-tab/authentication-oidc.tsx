@@ -183,7 +183,7 @@ function AuthenticationOIDC({
                   <Description>
                     Include a random nonce as part of the auth code request to
                     prevent replay attacks. This should only be disabled in
-                    cases where the OIDC provider doesn't support it as the
+                    cases where the OIDC provider doesn&apos;t support it as the
                     nonce is an important security component.
                   </Description>
                 </>
