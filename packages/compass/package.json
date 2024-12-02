@@ -256,7 +256,7 @@
     "local-links": "^1.4.0",
     "make-fetch-happen": "^10.2.1",
     "marky": "^1.2.1",
-    "mongodb": "^6.9.0",
+    "mongodb": "^6.11.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-cloud-info": "^2.1.2",
     "mongodb-connection-string-url": "^3.0.1",
