@@ -92,6 +92,9 @@ const mockConnections: ConnectionInfo[] = [
       instanceSize: 'M10',
       clusterType: 'SHARDED',
       clusterUniqueId: 'clusterUniqueId',
+      geoSharding: {
+        selfManagedSharding: false,
+      },
     },
   },
   {
@@ -109,6 +112,26 @@ const mockConnections: ConnectionInfo[] = [
       instanceSize: 'M30',
       clusterType: 'GEOSHARDED',
       clusterUniqueId: 'clusterUniqueId',
+    },
+  },
+  {
+    id: 'dedicated-geo-sharded-self-managed',
+    connectionOptions: {
+      connectionString: 'mongodb://foo',
+    },
+    atlasMetadata: {
+      orgId: 'orgId',
+      projectId: 'projectId',
+      clusterName: 'clusterName',
+      regionalBaseUrl: 'https://example.com',
+      metricsId: 'metricsId',
+      metricsType: 'cluster',
+      instanceSize: 'M30',
+      clusterType: 'GEOSHARDED',
+      clusterUniqueId: 'clusterUniqueId',
+      geoSharding: {
+        selfManagedSharding: true,
+      },
     },
   },
 ];
@@ -194,6 +217,15 @@ describe('connectionSupports', function () {
           'globalWrites'
         )
       ).to.be.true;
+    });
+
+    it('should return false if the cluster type is geosharded but self managed', function () {
+      expect(
+        connectionSupports(
+          connectionInfoById('dedicated-geo-sharded-self-managed'),
+          'globalWrites'
+        )
+      ).to.be.false;
     });
   });
 });
