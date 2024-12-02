@@ -167,14 +167,11 @@ function AuthenticationOIDC({
               onChange={({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
-                if (checked) {
-                  return handleFieldChanged(
-                    'skipNonceInAuthCodeRequest',
-                    undefined
-                  );
-                }
-
-                return handleFieldChanged('skipNonceInAuthCodeRequest', true);
+                // The value of the checkbox is inverse of the value of the oidc option.
+                return handleFieldChanged(
+                  'skipNonceInAuthCodeRequest',
+                  checked ? undefined : true
+                );
               }}
               data-testid="oidc-send-nonce-in-auth-code-request"
               id="oidc-send-nonce-in-auth-code-request"
