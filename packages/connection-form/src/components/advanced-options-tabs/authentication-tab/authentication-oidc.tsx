@@ -162,6 +162,39 @@ function AuthenticationOIDC({
             />
           </FormFieldContainer>
 
+          <FormFieldContainer>
+            <Checkbox
+              onChange={({
+                target: { checked },
+              }: React.ChangeEvent<HTMLInputElement>) => {
+                if (checked) {
+                  return handleFieldChanged(
+                    'skipNonceInAuthCodeRequest',
+                    undefined
+                  );
+                }
+
+                return handleFieldChanged('skipNonceInAuthCodeRequest', true);
+              }}
+              data-testid="oidc-send-nonce-in-auth-code-request"
+              id="oidc-send-nonce-in-auth-code-request"
+              label={
+                <>
+                  <Label htmlFor="oidc-send-nonce-in-auth-code-request">
+                    Send a nonce in the Auth Code Request
+                  </Label>
+                  <Description>
+                    Include a random nonce as part of the auth code request to
+                    prevent replay attacks. This should only be disabled in
+                    cases where the OIDC provider doesn't support it as the
+                    nonce is an important security component.
+                  </Description>
+                </>
+              }
+              checked={!connectionOptions.oidc?.skipNonceInAuthCodeRequest}
+            />
+          </FormFieldContainer>
+
           {showProxySettings && (
             <FormFieldContainer>
               <Checkbox

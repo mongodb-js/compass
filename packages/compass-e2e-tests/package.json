@@ -35,7 +35,7 @@
     "@mongodb-js/compass-test-server": "^0.1.23",
     "@mongodb-js/connection-info": "^0.9.5",
     "@mongodb-js/eslint-config-compass": "^1.1.8",
-    "@mongodb-js/oidc-mock-provider": "^0.9.3",
+    "@mongodb-js/oidc-mock-provider": "^0.10.2",
     "@mongodb-js/prettier-config-compass": "^1.0.3",
     "@mongodb-js/tsconfig-compass": "^1.0.6",
     "@types/chai-as-promised": "^7.1.4",
