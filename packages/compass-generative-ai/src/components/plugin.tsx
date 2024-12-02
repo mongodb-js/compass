@@ -3,11 +3,17 @@ import AISignInModal from './ai-signin-modal';
 import AIOptInModal from './ai-optin-modal';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
-export const AtlasAiPlugin: React.FunctionComponent = () => {
+export interface AtlasAiPluginProps {
+  projectId?: string;
+}
+
+export const AtlasAiPlugin: React.FunctionComponent<AtlasAiPluginProps> = ({
+  projectId,
+}) => {
   return (
     <ConfirmationModalArea>
       <AISignInModal></AISignInModal>
-      <AIOptInModal></AIOptInModal>
+      <AIOptInModal projectId={projectId}></AIOptInModal>
     </ConfirmationModalArea>
   );
 };

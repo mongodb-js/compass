@@ -9,6 +9,7 @@ import optInReducer from './atlas-optin-reducer';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { AtlasAiPluginProps } from '../components/plugin';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
 export let store: CompassGenerativeAIServiceStore;
@@ -27,7 +28,7 @@ const reducer = combineReducers({
 export type RootState = ReturnType<typeof reducer>;
 
 export function activatePlugin(
-  _: Record<string, never>,
+  _initialProps: AtlasAiPluginProps,
   services: CompassGenerativeAIExtraArgs,
   { cleanup }: ActivateHelpers
 ) {

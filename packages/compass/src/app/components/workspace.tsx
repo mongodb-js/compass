@@ -40,7 +40,6 @@ import { usePreference } from 'compass-preferences-model/provider';
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
-import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 
 export default function Workspace({
   appName,
@@ -120,7 +119,6 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
-              <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
             </>
           )}
         ></WorkspacesPlugin>

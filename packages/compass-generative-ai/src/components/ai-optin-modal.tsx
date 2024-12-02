@@ -11,12 +11,10 @@ import {
   H3,
   palette,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -25,6 +23,7 @@ type OptInModalProps = {
   isOptInInProgress: boolean;
   onOptInModalClose: () => void;
   onOptInClick: () => void;
+  projectId?: string;
 };
 
 const titleStyles = css({
@@ -77,15 +76,11 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInInProgress,
   onOptInModalClose,
   onOptInClick,
+  projectId,
 }) => {
-  const connectionInfo = useConnectionInfo();
-  const { atlasMetadata } = connectionInfo;
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
-  const PROJECT_SETTINGS_LINK = atlasMetadata?.projectId
-    ? window.location.origin +
-      '/v2/' +
-      atlasMetadata.projectId +
-      '#/settings/groupSettings'
+  const PROJECT_SETTINGS_LINK = projectId
+    ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
     : null;
 
   const onConfirmClick = () => {
