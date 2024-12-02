@@ -308,7 +308,7 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
   };
 };
 
-export const signInWithoutPrompt = ({
+export const performSignInAttempt = ({
   signal,
 }: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
   Promise<AtlasUserInfo>
@@ -348,7 +348,10 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       if (await atlasAuthService.isAuthenticated({ signal })) {
         userInfo = await atlasAuthService.getUserInfo({ signal });
       } else {
-        userInfo = await atlasAuthService.signIn({ signal });
+        userInfo = await atlasAuthService.signIn({
+          mainProcessSignIn: true,
+          signal,
+        });
       }
       openToast('atlas-sign-in-success', {
         variant: 'success',

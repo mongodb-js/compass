@@ -206,6 +206,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
                 </>
               );
             }}
@@ -373,7 +374,6 @@ const CompassWeb = ({
                             ></CompassWorkspace>
                           </WithConnectionsStore>
                         </FieldStorePlugin>
-                        <CompassGenerativeAIPlugin projectId={projectId} />
                       </CompassInstanceStorePlugin>
                     </CompassConnections>
                   </AtlasCloudConnectionStorageProvider>
