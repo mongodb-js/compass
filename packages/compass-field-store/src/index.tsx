@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './stores/store';
-import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
+import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
 const FieldStoreComponent: React.FunctionComponent = ({ children }) => {
@@ -18,7 +18,7 @@ const FieldStorePlugin = registerHadronPlugin(
     activate: activatePlugin,
   },
   {
-    connectionsManager: connectionsManagerLocator,
+    connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-FIELDS-STORE'),
   }
 );

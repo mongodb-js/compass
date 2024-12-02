@@ -1,8 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
-import {
-  type ConnectionsManager,
-  type ConnectionRepositoryAccess,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import {} from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { Action, AnyAction } from 'redux';
@@ -27,8 +25,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
-  connectionsManager: ConnectionsManager;
-  connectionRepository: ConnectionRepositoryAccess;
+  connections: ConnectionsService;
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;
@@ -57,7 +54,7 @@ export function activatePlugin(
   services: CreateNamespaceServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { instancesManager, connectionsManager, globalAppRegistry } = services;
+  const { instancesManager, connections, globalAppRegistry } = services;
   const store = configureStore(services);
   const onInstanceProvided = (
     connectionId: string,
@@ -86,8 +83,7 @@ export function activatePlugin(
   };
 
   const onDataServiceProvided = (connectionId: string) => {
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
+    const dataService = connections.getDataServiceForConnection(connectionId);
     store.dispatch(
       kmsProvidersRetrieved(connectionId, dataService.configuredKMSProviders())
     );
@@ -106,7 +102,8 @@ export function activatePlugin(
     MongoDBInstancesManagerEvents.InstanceCreated,
     onInstanceProvided
   );
-  on(connectionsManager, 'connected', onDataServiceProvided);
+
+  on(connections, 'connected', onDataServiceProvided);
 
   on(
     globalAppRegistry,

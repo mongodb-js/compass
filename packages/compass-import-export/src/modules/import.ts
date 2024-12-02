@@ -190,8 +190,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     dispatch,
     getState,
     {
-      connectionsManager,
-      connectionRepository,
+      connections,
       globalAppRegistry: appRegistry,
       workspaces,
       track,
@@ -315,8 +314,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         throw new Error('ConnectionId not provided');
       }
 
-      dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      dataService = connections.getDataServiceForConnection(connectionId);
 
       if (fileType === 'csv') {
         result = await importCSV({
@@ -363,7 +361,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           aborted: abortSignal.aborted,
           ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
         },
-        connectionRepository.getConnectionInfoById(connectionId)
+        connections.getConnectionById(connectionId)?.info
       );
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
@@ -397,7 +395,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         aborted: result.aborted,
         ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
       },
-      connectionRepository.getConnectionInfoById(connectionId)
+      connections.getConnectionById(connectionId)?.info
     );
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
@@ -414,7 +412,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
               {
                 errorCount: numErrors,
               },
-              connectionRepository.getConnectionInfoById(connectionId)
+              connections.getConnectionById(connectionId)?.info
             );
             void openFile(errorLogFilePath);
           }
@@ -877,7 +875,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState, { track, connectionRepository }) => {
+  return (dispatch, getState, { track, connections }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({
@@ -887,10 +885,8 @@ export const openImport = ({
     }
     track(
       'Import Opened',
-      {
-        origin,
-      },
-      connectionRepository.getConnectionInfoById(connectionId)
+      { origin },
+      connections.getConnectionById(connectionId)?.info
     );
     dispatch({ type: OPEN, namespace, connectionId });
   };

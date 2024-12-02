@@ -1,28 +1,11 @@
 import { createServiceLocator } from 'hadron-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
 import type { DataService } from 'mongodb-data-service';
-import { useConnections } from './stores/store-context';
+import { getDataServiceForConnection } from './stores/connections-store-redux';
 
 export type { DataService };
 export { useConnectionsWithStatus } from './hooks/use-connections-with-status';
 export { useActiveConnections } from './hooks/use-active-connections';
-
-export type ConnectionsManager = Pick<
-  ReturnType<typeof useConnections>,
-  | 'getDataServiceForConnection'
-  | 'getConnectionById'
-  | 'on'
-  | 'off'
-  | 'removeListener'
->;
-
-/**
- * @deprecated use `connectionsLocator` instead
- */
-export const connectionsManagerLocator = createServiceLocator(
-  useConnections,
-  'connectionsManagerLocator'
-);
 
 export type DataServiceLocator<
   K extends keyof DataService = keyof DataService,
@@ -40,13 +23,12 @@ export const dataServiceLocator = createServiceLocator(
     L extends keyof DataService = K
   >(): Pick<DataService, K> & Partial<Pick<DataService, L>> {
     const connectionInfo = useConnectionInfo();
-    const connectionsManager = connectionsManagerLocator();
     if (!connectionInfo) {
       throw new Error(
         'ConnectionInfo for an active connection not available in context. Did you forget to setup ConnectionInfoProvider'
       );
     }
-    return connectionsManager.getDataServiceForConnection(connectionInfo.id);
+    return getDataServiceForConnection(connectionInfo.id);
   }
 );
 
@@ -71,25 +53,18 @@ export {
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
 
-export type {
-  ConnectionRepository,
-  ConnectionRepositoryAccess,
-} from './hooks/use-connection-repository';
-
-export {
-  withConnectionRepository,
-  useConnectionRepository,
-  connectionRepositoryAccessLocator,
-} from './hooks/use-connection-repository';
-
 export {
   useConnectionActions,
   useConnectionForId,
   useConnectionIds,
   useConnectionInfoForId,
   useConnectionInfoRefForId,
+  useConnectionsList,
+  useConnectionsListRef,
   connectionsLocator,
 } from './stores/store-context';
+
+export type { ConnectionsService } from './stores/store-context';
 
 export { useConnectionSupports } from './hooks/use-connection-supports';
 

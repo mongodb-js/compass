@@ -5,10 +5,8 @@ export const setConnectionIsCSFLEEnabled = (
   connectionId: ConnectionInfo['id'],
   enable: boolean
 ): SidebarThunkAction<void, never> => {
-  return (_dispatch, _getState, { globalAppRegistry, connectionsManager }) => {
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
-
+  return (_dispatch, _getState, { globalAppRegistry, connections }) => {
+    const dataService = connections.getDataServiceForConnection(connectionId);
     dataService.setCSFLEEnabled(enable);
     queueMicrotask(() => {
       globalAppRegistry?.emit('refresh-data');
