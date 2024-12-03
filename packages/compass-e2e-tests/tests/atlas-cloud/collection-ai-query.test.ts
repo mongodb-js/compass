@@ -12,7 +12,7 @@ import * as Selectors from '../../helpers/selectors';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
 
-describe.only('Collection ai query', function () {
+describe('Collection ai query', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -23,8 +23,8 @@ describe.only('Collection ai query', function () {
   });
 
   beforeEach(async function () {
-    // TODO: Setup the settings to enable the feature.
-    // await fetch()
+    // Skip the feature opt in modal flow as it would make the tests dependent on the user.
+    process.env.COMPASS_E2E_SKIP_ATLAS_OPT_IN = 'true';
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -41,6 +41,8 @@ describe.only('Collection ai query', function () {
   });
 
   afterEach(async function () {
+    delete process.env.COMPASS_E2E_SKIP_ATLAS_OPT_IN;
+
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });

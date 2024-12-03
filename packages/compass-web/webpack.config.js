@@ -197,6 +197,9 @@ module.exports = (env, args) => {
           'process.env.COMPASS_WEB_GEN_AI_ENABLEMENT': JSON.stringify(
             process.env.COMPASS_WEB_GEN_AI_ENABLEMENT ?? 'false'
           ),
+          'process.env.COMPASS_E2E_SKIP_ATLAS_OPT_IN': JSON.stringify(
+            process.env.COMPASS_E2E_SKIP_ATLAS_OPT_IN ?? 'false'
+          ),
         }),
       ],
     });
