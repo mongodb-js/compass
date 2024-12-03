@@ -516,6 +516,8 @@ tasks:
       - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
+    # These tests are expensive (literally) and shouldn't be running on PRs
+    patchable: false
     commands:
       - func: prepare
       - func: install
