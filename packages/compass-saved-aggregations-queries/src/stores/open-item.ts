@@ -296,13 +296,12 @@ const connectionInfoToStateConnections = (
 
 const loadDatabasesForConnection =
   (connectionId: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, _getState, { connectionsManager, instancesManager }) => {
+  async (dispatch, _getState, { connections, instancesManager }) => {
     dispatch({ type: ActionTypes.LoadDatabases });
     try {
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       await instance.fetchDatabases({ dataService });
       dispatch({
@@ -426,9 +425,8 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { track, workspaces, connectionsManager }) => {
-    const connectionInfo =
-      connectionsManager.getConnectionById(connection)?.info;
+  (_dispatch, _getState, { track, workspaces, connections }) => {
+    const connectionInfo = connections.getConnectionById(connection)?.info;
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -463,7 +461,7 @@ export const openSavedItem =
   async (
     dispatch,
     getState,
-    { instancesManager, connectionsManager, logger: { log, mongoLogId } }
+    { instancesManager, connections, logger: { log, mongoLogId } }
   ) => {
     const {
       savedItems: { items },
@@ -486,7 +484,7 @@ export const openSavedItem =
     const connectionsWithNamespace: ConnectionInfo[] = [];
     for (const connectionInfo of activeConnections) {
       try {
-        const dataService = connectionsManager.getDataServiceForConnection(
+        const dataService = connections.getDataServiceForConnection(
           connectionInfo.id
         );
         const instance = instancesManager.getMongoDBInstanceForConnection(
@@ -592,7 +590,7 @@ export const openSelectedItem =
 
 export const databaseSelected =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { instancesManager, connectionsManager }) => {
+  async (dispatch, getState, { instancesManager, connections }) => {
     const {
       openItem: { selectedDatabase, selectedConnection },
     } = getState();
@@ -610,7 +608,7 @@ export const databaseSelected =
       }
 
       const dataService =
-        connectionsManager.getDataServiceForConnection(selectedConnection);
+        connections.getDataServiceForConnection(selectedConnection);
       const instance =
         instancesManager.getMongoDBInstanceForConnection(selectedConnection);
 

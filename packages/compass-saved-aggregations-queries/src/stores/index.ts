@@ -6,7 +6,7 @@ import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -19,7 +19,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type MyQueriesServices = {
-  connectionsManager: ConnectionsManager;
+  connections: ConnectionsService;
   instancesManager: MongoDBInstancesManager;
   preferencesAccess: PreferencesAccess;
   globalAppRegistry: AppRegistry;
@@ -32,7 +32,7 @@ type MyQueriesServices = {
 
 export function configureStore({
   globalAppRegistry,
-  connectionsManager,
+  connections,
   instancesManager,
   preferencesAccess,
   logger,
@@ -50,7 +50,7 @@ export function configureStore({
     applyMiddleware(
       thunk.withExtraArgument({
         globalAppRegistry,
-        connectionsManager,
+        connections,
         instancesManager,
         preferencesAccess,
         logger,

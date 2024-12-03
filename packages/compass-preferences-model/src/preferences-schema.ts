@@ -88,7 +88,6 @@ export type InternalUserPreferences = {
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
   userCreatedAt: number;
-  enableGlobalWrites: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -875,15 +874,6 @@ export const storedUserPreferencesProps: Required<{
         'Enables creating new connection (accessing connection editing form) in Compass UI',
     },
     validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-
-  enableGlobalWrites: {
-    ui: false,
-    cli: false,
-    global: false,
-    description: null,
-    validator: z.boolean().default(false),
     type: 'boolean',
   },
   enableGenAIFeaturesAtlasProject: {

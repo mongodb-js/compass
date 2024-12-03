@@ -202,13 +202,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      connectionsManager,
-      connectionRepository,
-      track,
-      workspaces,
-    }
+    { globalAppRegistry, connections, track, workspaces }
   ) => {
     const {
       name: viewName,
@@ -222,8 +216,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
     dispatch(clearError());
 
     try {
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       dispatch(toggleIsRunning(true));
       await dataService.createView(
@@ -236,7 +229,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       track(
         'Aggregation Saved As View',
         { num_stages: viewPipeline.length },
-        connectionRepository.getConnectionInfoById(connectionId)
+        connections.getConnectionById(connectionId)?.info
       );
       globalAppRegistry.emit('view-created', ns, {
         connectionId,

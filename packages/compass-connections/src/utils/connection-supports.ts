@@ -30,7 +30,10 @@ function supportsGlobalWrites(connectionInfo: ConnectionInfo) {
     return false;
   }
 
-  return atlasMetadata.clusterType === 'GEOSHARDED';
+  return (
+    atlasMetadata.clusterType === 'GEOSHARDED' &&
+    !atlasMetadata.geoSharding?.selfManagedSharding
+  );
 }
 
 export function connectionSupports(
