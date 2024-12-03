@@ -21,13 +21,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
       'optInDataExplorerGenAIFeatures' in _attributes
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
-    } else if (
-      Object.keys(_attributes).length === 1 &&
-      'cloudFeatureRolloutAccess' in _attributes
-    ) {
-      return Promise.resolve(this._preferences.savePreferences(_attributes));
     }
-
     return Promise.resolve(this._preferences.getPreferences());
   }
 

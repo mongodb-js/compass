@@ -82,6 +82,4 @@ describe('Collection ai query', function () {
       expect(modifiedResult.i).to.be.equal('51');
     });
   });
-
-  // TODO: Test for when the org setting is disabled.
 });
