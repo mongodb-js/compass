@@ -103,10 +103,6 @@ function hideCollectionSubMenu() {
   void ipcRenderer?.call('window:hide-collection-submenu');
 }
 
-function notifyMainProcessOfDisconnect() {
-  void ipcRenderer?.call('compass:disconnected');
-}
-
 function showSettingsModal(tab?: SettingsTabId) {
   globalAppRegistry?.emit('open-compass-settings', tab);
 }
@@ -247,7 +243,6 @@ const Application = View.extend({
             remote,
             webUtils
           )}
-          onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import type {
   MapStateToProps,
   ReactReduxContextValue,
@@ -169,24 +169,49 @@ export function useConnectionActions() {
   return actions;
 }
 
-export function useConnections() {
-  const store = useStore();
+export function useConnectionsListRef(): {
+  getConnectionById(
+    this: void,
+    connectionId: string
+  ): (ConnectionState & { title: string }) | undefined;
+  current: readonly (ConnectionState & { title: string })[];
+} {
+  const storeRef = useRef(useStore());
+  const [ref] = useState(() => {
+    return {
+      getConnectionById(connectionId: string) {
+        const conn = storeRef.current.getState().connections.byId[connectionId];
+        if (conn) {
+          return { ...conn, title: getConnectionTitle(conn.info) };
+        }
+        return undefined;
+      },
+      get current() {
+        return Object.values(storeRef.current.getState().connections.byId).map(
+          (conn) => {
+            return { ...conn, title: getConnectionTitle(conn.info) };
+          }
+        );
+      },
+    };
+  });
+  return ref;
+}
+
+function useConnections() {
   const actions = useConnectionActions();
-  const getConnectionById = useCallback(
-    (connectionId: string): ConnectionState | undefined => {
-      return store.getState().connections.byId[connectionId];
-    },
-    [store]
-  );
-  return {
+  const connectionsListRef = useConnectionsListRef();
+  return useRef({
     ...actions,
-    getConnectionById,
+    ...connectionsListRef,
     getDataServiceForConnection,
     on: connectionsEventEmitter.on,
     off: connectionsEventEmitter.off,
     removeListener: connectionsEventEmitter.removeListener,
-  };
+  }).current;
 }
+
+export type ConnectionsService = ReturnType<typeof useConnections>;
 
 export const connectionsLocator = createServiceLocator(
   useConnections,
@@ -324,20 +349,6 @@ export function useConnectionInfoRefForId(connectionId: ConnectionId): {
     };
   });
   return ref;
-}
-
-/**
- * @deprecated exposed for compat with old connections store interface, should
- * never be used anywhere else
- */
-export function useConnectionsState() {
-  return useSelector((state) => state, {
-    // These warnings are very noisy. We know this selector is bad, but there is
-    // no way to reimplement old connections store without it and we're going to
-    // remove it soon anyway
-    stabilityCheck: 'never',
-    noopCheck: 'never',
-  });
 }
 
 export function useConnectionsColorList(): {

@@ -1,11 +1,13 @@
 import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionsService,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
-import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { MongoDBInstancesManager } from '../instances-manager';
 
 function serversArray(
@@ -40,10 +42,10 @@ function getTopologyDescription(
 export function createInstancesStore(
   {
     globalAppRegistry,
-    connectionsManager,
+    connections,
     logger: { log, mongoLogId },
   }: {
-    connectionsManager: ConnectionsManager;
+    connections: ConnectionsService;
     logger: Logger;
     globalAppRegistry: AppRegistry;
   },
@@ -60,8 +62,7 @@ export function createInstancesStore(
       }
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
       // It is possible to get here before the databases finished loading. We have
       // to wait for the databases, otherwise it will load all the collections for
       // 0 databases.
@@ -99,8 +100,7 @@ export function createInstancesStore(
       }
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
       isFirstRun = instance.status === 'initial';
       await instance.refresh({ dataService, ...refreshOptions });
     } catch (err: any) {
@@ -148,8 +148,7 @@ export function createInstancesStore(
       }
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
       await instance.fetchDatabases({ dataService, force: true });
       await Promise.allSettled(
         instance.databases.map((db) =>
@@ -179,8 +178,7 @@ export function createInstancesStore(
       }
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
       const { database } = toNS(ns);
       const db = instance.databases.get(database);
       const coll = db?.collections.get(ns);
@@ -215,8 +213,7 @@ export function createInstancesStore(
       }
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
       const { database } = toNS(namespace);
       const db =
         instance.databases.get(database) ??
@@ -258,7 +255,7 @@ export function createInstancesStore(
     }
   };
 
-  on(connectionsManager, 'disconnected', function (connectionInfoId: string) {
+  on(connections, 'disconnected', function (connectionInfoId: string) {
     try {
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionInfoId);
@@ -277,9 +274,9 @@ export function createInstancesStore(
     instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
   });
 
-  on(connectionsManager, 'connected', function (instanceConnectionId: string) {
+  on(connections, 'connected', function (instanceConnectionId: string) {
     const dataService =
-      connectionsManager.getDataServiceForConnection(instanceConnectionId);
+      connections.getDataServiceForConnection(instanceConnectionId);
     const connectionString = dataService.getConnectionString();
     const firstHost = connectionString.hosts[0] || '';
     const [hostname, port] = firstHost.split(':');
@@ -337,7 +334,7 @@ export function createInstancesStore(
         const instance =
           instancesManager.getMongoDBInstanceForConnection(connectionId);
         const dataService =
-          connectionsManager.getDataServiceForConnection(connectionId);
+          connections.getDataServiceForConnection(connectionId);
         void instance.databases
           .get(databaseId)
           ?.fetchCollections({ dataService });
@@ -431,7 +428,7 @@ export function createInstancesStore(
         const instance =
           instancesManager.getMongoDBInstanceForConnection(connectionId);
         const dataService =
-          connectionsManager.getDataServiceForConnection(connectionId);
+          connections.getDataServiceForConnection(connectionId);
         const { database } = toNS(namespace);
         const db = instance.databases.get(database);
         const coll = db?.collections.get(namespace, '_id');
@@ -541,7 +538,7 @@ export function createInstancesStore(
         const instance =
           instancesManager.getMongoDBInstanceForConnection(connectionId);
         const dataService =
-          connectionsManager.getDataServiceForConnection(connectionId);
+          connections.getDataServiceForConnection(connectionId);
         const { database } = toNS(namespace);
         void instance.databases
           .get(database)

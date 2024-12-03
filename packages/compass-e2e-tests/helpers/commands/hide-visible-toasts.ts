@@ -32,10 +32,10 @@ export async function hideAllVisibleToasts(
       return;
     }
 
-    const toastTestId = await _toast.getAttribute('data-testid');
-    const toastSelector = `[data-testid=${toastTestId}]`;
-
     try {
+      const toastTestId = await _toast.getAttribute('data-testid');
+      const toastSelector = `[data-testid=${toastTestId}]`;
+
       await browser.hover(Selectors.LGToastContainer);
       const isToastVisible = await browser.$(toastSelector).isDisplayed();
       if (!isToastVisible) {
@@ -50,10 +50,11 @@ export async function hideAllVisibleToasts(
       await browser
         .$(toastSelector)
         .waitForExist({ ...waitOptions, reverse: true });
+
+      debug('done closing', toastTestId);
     } catch (err) {
       // if the toast disappears by itself in the meantime, that's fine
       debug('ignoring', err);
     }
-    debug('done closing', toastTestId);
   }
 }

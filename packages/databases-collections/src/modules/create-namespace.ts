@@ -365,14 +365,7 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      connectionsManager,
-      connectionRepository,
-      logger: { debug },
-      track,
-      workspaces,
-    }
+    { globalAppRegistry, connections, logger: { debug }, track, workspaces }
   ) => {
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
@@ -389,7 +382,7 @@ export const createNamespace = (
 
     try {
       dispatch(toggleIsRunning(true));
-      const ds = connectionsManager.getDataServiceForConnection(connectionId);
+      const ds = connections.getDataServiceForConnection(connectionId);
 
       const options = await handleFLE2Options(ds, data.options);
 
@@ -404,8 +397,7 @@ export const createNamespace = (
         expires: !!data.options.expireAfterSeconds,
       };
 
-      const connectionInfo =
-        connectionRepository.getConnectionInfoById(connectionId);
+      const connectionInfo = connections.getConnectionById(connectionId)?.info;
 
       track(`${kind} Created`, trackEvent, connectionInfo);
 

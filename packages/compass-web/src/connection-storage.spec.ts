@@ -68,6 +68,9 @@ describe('buildConnectionInfoFromClusterDescription', function () {
         dataProcessingRegion: {
           regionalUrl: 'https://example.com',
         },
+        geoSharding: {
+          selfManagedSharding: true,
+        },
         replicationSpecList: [
           {
             regionConfigs: [
@@ -162,6 +165,10 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           instanceSize: expectedInstanceSize,
           regionalBaseUrl: 'https://example.com',
           clusterType: clusterDescription.clusterType,
+          geoSharding: {
+            selfManagedSharding:
+              clusterDescription.geoSharding?.selfManagedSharding,
+          },
         });
     });
   }

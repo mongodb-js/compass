@@ -10,10 +10,17 @@ import {
   closeSignInModal,
   atlasServiceSignedIn,
 } from './atlas-signin-reducer';
-import { configureStore } from './atlas-signin-store';
+import { configureStore } from './atlas-ai-store';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();
+  let mockPreferences: PreferencesAccess;
+
+  beforeEach(async function () {
+    mockPreferences = await createSandboxFromDefaultPreferences();
+  });
 
   afterEach(function () {
     sandbox.reset();
@@ -26,13 +33,21 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       void store.dispatch(atlasServiceSignedIn());
       await store.dispatch(signIn());
       expect(mockAtlasService.signIn).not.to.have.been.called;
-      expect(store.getState()).to.have.nested.property('state', 'success');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'success'
+      );
     });
 
     it('should start sign in, and set state to success', async function () {
@@ -41,13 +56,21 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
       await store.dispatch(signIn());
       expect(mockAtlasService.signIn).to.have.been.calledOnce;
-      expect(store.getState()).to.have.nested.property('state', 'success');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'success'
+      );
     });
 
     it('should fail sign in if sign in failed', async function () {
@@ -56,15 +79,16 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
-
       void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
       const signInPromise = store.dispatch(signIn());
       // Avoid unhandled rejections.
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
       await signInPromise;
       expect(mockAtlasService.signIn).to.have.been.calledOnce;
-      expect(store.getState()).to.have.nested.property('state', 'error');
+      expect(store.getState().signIn).to.have.nested.property('state', 'error');
     });
   });
 
@@ -72,10 +96,18 @@ describe('atlasSignInReducer', function () {
     it('should do nothing if no sign in is in progress', function () {
       const store = configureStore({
         atlasAuthService: {} as any,
+        atlasAiService: {} as any,
+        preferences: mockPreferences,
       });
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
       store.dispatch(cancelSignIn());
-      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'initial'
+      );
     });
 
     it('should cancel sign in if sign in is in progress', async function () {
@@ -92,6 +124,8 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
       void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
@@ -100,7 +134,10 @@ describe('atlasSignInReducer', function () {
         store.dispatch(signIn()),
         store.dispatch(cancelSignIn()),
       ]);
-      expect(store.getState()).to.have.nested.property('state', 'canceled');
+      expect(store.getState().signIn).to.have.nested.property(
+        'state',
+        'canceled'
+      );
     });
   });
 
@@ -111,13 +148,15 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
       await store.dispatch(signIn());
       await signInPromise;
 
-      expect(store.getState()).to.have.property('state', 'success');
+      expect(store.getState().signIn).to.have.property('state', 'success');
     });
 
     it('should reject if sign in flow fails', async function () {
@@ -126,6 +165,8 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
@@ -138,7 +179,7 @@ describe('atlasSignInReducer', function () {
         expect(err).to.have.property('message', 'Whoops!');
       }
 
-      expect(store.getState()).to.have.property('state', 'error');
+      expect(store.getState().signIn).to.have.property('state', 'error');
     });
 
     it('should reject if user dismissed the modal', async function () {
@@ -147,6 +188,8 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
@@ -159,7 +202,7 @@ describe('atlasSignInReducer', function () {
         expect(err).to.have.property('message', 'This operation was aborted');
       }
 
-      expect(store.getState()).to.have.property('state', 'canceled');
+      expect(store.getState().signIn).to.have.property('state', 'canceled');
     });
 
     it('should reject if provided signal was aborted', async function () {
@@ -168,6 +211,8 @@ describe('atlasSignInReducer', function () {
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        atlasAiService: mockAtlasService as any,
+        preferences: mockPreferences,
       });
 
       const c = new AbortController();
@@ -182,8 +227,7 @@ describe('atlasSignInReducer', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
-
-      expect(store.getState()).to.have.property('state', 'canceled');
+      expect(store.getState().signIn).to.have.property('state', 'canceled');
     });
   });
 });

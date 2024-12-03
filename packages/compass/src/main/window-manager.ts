@@ -19,7 +19,6 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
   getWindowAutoConnectPreferences,
-  onCompassDisconnect,
   registerMongoDbUrlForBrowserWindow,
 } from './auto-connect';
 
@@ -260,10 +259,6 @@ class CompassWindowManager {
       },
       'compass:log'(_evt, meta) {
         ipcMain?.broadcast('compass:log', meta);
-      },
-      'compass:disconnected': (evt) => {
-        const bw = BrowserWindow.fromWebContents(evt.sender);
-        return onCompassDisconnect(bw);
       },
       'compass:get-window-auto-connect-preferences': (evt) => {
         const bw = BrowserWindow.fromWebContents(evt.sender);

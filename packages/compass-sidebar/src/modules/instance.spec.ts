@@ -4,7 +4,6 @@ import { spy, stub, type SinonSpy, type SinonStub } from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { setupInstance } from './instance';
 import type { RootState } from '.';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
@@ -13,7 +12,7 @@ describe('sidebar instance', function () {
   const instance = createInstance();
   let instanceOnSpy: SinonSpy;
   const globalAppRegistry = {} as any as AppRegistry;
-  const connectionsManager = {
+  const connectionsService = {
     getDataServiceForConnection() {
       return {
         getConnectionOptions() {
@@ -27,7 +26,7 @@ describe('sidebar instance', function () {
         },
       } as unknown as DataService;
     },
-  } as any as ConnectionsManager;
+  } as any;
   let instancesManager: MongoDBInstancesManager;
   let logger: Logger;
   let listMongoDBInstancesStub: SinonStub;
@@ -71,7 +70,7 @@ describe('sidebar instance', function () {
           } as any as RootState),
         {
           globalAppRegistry,
-          connectionsManager,
+          connections: connectionsService,
           instancesManager,
           logger,
         }

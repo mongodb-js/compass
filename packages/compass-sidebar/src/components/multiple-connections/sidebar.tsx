@@ -2,10 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
-  useConnections,
+  useConnectionActions,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
-import { useConnectionFormPreferences } from '@mongodb-js/compass-connections';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   ResizableSidebar,
@@ -15,7 +14,6 @@ import {
   HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
-import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
@@ -27,7 +25,6 @@ import CSFLEConnectionModal, {
 } from '../csfle-connection-modal';
 import type { ConnectionsFilter } from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -107,28 +104,18 @@ export function MultipleConnectionSidebar({
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
-  const formPreferences = useConnectionFormPreferences();
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
-    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,
-    cancelEditConnection,
     removeConnection,
     duplicateConnection,
-    saveEditedConnection,
-    toggleConnectionFavoritedStatus,
+    toggleFavoritedConnectionStatus,
     showNonGenuineMongoDBWarningModal,
-    state: {
-      editingConnectionInfo,
-      isEditingNewConnection,
-      isEditingConnectionInfoModalOpen,
-      connectionErrors,
-    },
-  } = useConnections();
+  } = useConnectionActions();
 
   const findActiveConnection = (id: string) => {
     return connectionsWithStatus.find(
@@ -177,16 +164,6 @@ export function MultipleConnectionSidebar({
     [csfleModalConnectionId, onConnectionCsfleModeChanged]
   );
 
-  const globalAppRegistry = useGlobalAppRegistry();
-  const openSettingsModal = useCallback(
-    (tab?: string) => globalAppRegistry.emit('open-compass-settings', tab),
-    [globalAppRegistry]
-  );
-
-  const disableEditingConnectedConnection = !!findActiveConnection(
-    editingConnectionInfo.id
-  );
-
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -217,7 +194,7 @@ export function MultipleConnectionSidebar({
           }}
           onCopyConnectionString={onCopyConnectionString}
           onToggleFavoriteConnectionInfo={(connectionInfo) => {
-            void toggleConnectionFavoritedStatus(connectionInfo.id);
+            void toggleFavoritedConnectionStatus(connectionInfo.id);
           }}
           onOpenConnectionInfo={onOpenConnectionInfo}
           onDisconnect={(id) => {
@@ -229,47 +206,6 @@ export function MultipleConnectionSidebar({
           }}
           onOpenConnectViaModal={onOpenConnectViaModal}
         />
-        {editingConnectionInfo && (
-          <ConnectionFormModal
-            disableEditingConnectedConnection={
-              disableEditingConnectedConnection
-            }
-            onDisconnectClicked={() => disconnect(editingConnectionInfo.id)}
-            isOpen={isEditingConnectionInfoModalOpen}
-            setOpen={(newOpen) => {
-              // This is how leafygreen propagates `X` button click
-              if (newOpen === false) {
-                cancelEditConnection(editingConnectionInfo.id);
-              }
-            }}
-            initialConnectionInfo={editingConnectionInfo}
-            connectionErrorMessage={
-              connectionErrors[editingConnectionInfo.id]?.message
-            }
-            openSettingsModal={openSettingsModal}
-            {...formPreferences}
-            onCancel={() => {
-              cancelEditConnection(editingConnectionInfo.id);
-            }}
-            onSaveClicked={(connectionInfo) => {
-              return saveEditedConnection(connectionInfo);
-            }}
-            onConnectClicked={
-              isEditingNewConnection || disableEditingConnectedConnection
-                ? undefined
-                : (connectionInfo) => {
-                    void connect(connectionInfo);
-                  }
-            }
-            onSaveAndConnectClicked={
-              disableEditingConnectedConnection
-                ? undefined
-                : (connectionInfo) => {
-                    void saveAndConnect(connectionInfo);
-                  }
-            }
-          />
-        )}
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}
           onClose={onCloseCsfleModal}

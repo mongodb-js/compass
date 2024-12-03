@@ -39,9 +39,9 @@ import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   ConnectionInfoProvider,
   useTabConnectionTheme,
-  useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 
 type Tooltip = [string, string][];
 
@@ -156,7 +156,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
-  const { getConnectionTitleById } = useConnectionRepository();
+  const { getConnectionById } = useConnectionsListRef();
   const multipleConnectionsEnabled = usePreference(
     'enableMultipleConnectionSystem'
   );
@@ -179,7 +179,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             iconGlyph: 'CurlyBraces',
           } as const;
         case 'Shell': {
-          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionName =
+            getConnectionById(tab.connectionId)?.title || '';
           const tooltip: Tooltip = [];
           if (connectionName) {
             tooltip.push(['mongosh', connectionName || '']);
@@ -197,7 +198,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           } as const;
         }
         case 'Databases': {
-          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionName =
+            getConnectionById(tab.connectionId)?.title || '';
           return {
             id: tab.id,
             connectionName,
@@ -209,7 +211,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           } as const;
         }
         case 'Performance': {
-          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionName =
+            getConnectionById(tab.connectionId)?.title || '';
           return {
             id: tab.id,
             connectionName,
@@ -223,7 +226,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           } as const;
         }
         case 'Collections': {
-          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionName =
+            getConnectionById(tab.connectionId)?.title || '';
           const database = tab.namespace;
           return {
             id: tab.id,
@@ -243,7 +247,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           const { database, collection, ns } = toNS(tab.namespace);
           const info = collectionInfo[ns] ?? {};
           const { isTimeSeries, isReadonly, sourceName } = info;
-          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionName =
+            getConnectionById(tab.connectionId)?.title || '';
           const collectionType = isTimeSeries
             ? 'timeseries'
             : isReadonly
@@ -285,7 +290,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     tabs,
     collectionInfo,
     getThemeOf,
-    getConnectionTitleById,
+    getConnectionById,
     multipleConnectionsEnabled,
   ]);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
@@ -36,10 +36,10 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 
 export default function Workspace({
   appName,
@@ -54,7 +54,7 @@ export default function Workspace({
     'enableMultipleConnectionSystem'
   );
 
-  const { getConnectionInfoById } = useConnectionRepository();
+  const { getConnectionById } = useConnectionsListRef();
 
   const onWorkspaceTabChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo: CollectionTabInfo | null) => {
@@ -66,7 +66,7 @@ export default function Workspace({
           : undefined;
       const connectionInfo =
         ws && ws.type !== 'My Queries' && ws.type !== 'Welcome'
-          ? getConnectionInfoById(ws.connectionId)
+          ? getConnectionById(ws.connectionId)?.info
           : undefined;
       updateTitle(
         appName,
@@ -75,12 +75,8 @@ export default function Workspace({
         namespace
       );
     },
-    [appName, getConnectionInfoById, onActiveWorkspaceTabChange]
+    [appName, getConnectionById, onActiveWorkspaceTabChange]
   );
-
-  useEffect(() => {
-    updateTitle(appName);
-  }, [appName]);
 
   return (
     <WorkspacesProvider

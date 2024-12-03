@@ -37,6 +37,10 @@ type ClusterDescription = {
   state: string;
   deploymentItemName: string;
   replicationSpecList?: ReplicationSpec[];
+  isPaused?: boolean;
+  geoSharding?: {
+    selfManagedSharding?: boolean;
+  };
 };
 
 export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
@@ -204,6 +208,9 @@ export function buildConnectionInfoFromClusterDescription(
       ...getMetricsIdAndType(description, deploymentItem),
       instanceSize: getInstanceSize(description),
       clusterType: description.clusterType,
+      geoSharding: {
+        selfManagedSharding: description.geoSharding?.selfManagedSharding,
+      },
     },
   };
 }
@@ -250,7 +257,7 @@ class AtlasCloudConnectionStorage
                 // account in the UI for a special state of a deployment as
                 // clusters can become inactive during their runtime and it's
                 // valuable UI info to display
-                return !!description.srvAddress;
+                return !description.isPaused && !!description.srvAddress;
               })
               .map(async (description) => {
                 // Even though nds/clusters will list serverless clusters, to get

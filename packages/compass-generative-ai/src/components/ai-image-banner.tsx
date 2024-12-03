@@ -7,7 +7,7 @@ const bannerStyles = css({
   height: 263,
 });
 
-export const AISignInImageBanner = () => {
+export const AiImageBanner = () => {
   return (
     <svg
       className={bannerStyles}

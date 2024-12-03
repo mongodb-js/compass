@@ -8,22 +8,17 @@ import {
   getScrollbarStyles,
   palette,
   resetGlobalCSS,
-  useEffectOnChange,
 } from '@mongodb-js/compass-components';
 import CompassConnections, {
-  SingleConnectionForm,
   LegacyConnectionsModal,
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
-import * as hadronIpc from 'hadron-ipc';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
-import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
-import type AppRegistry from 'hadron-app-registry';
-import { useSingleConnectionModeConnectionInfoStatus } from '@mongodb-js/compass-connections/provider';
-import React, { useCallback, useEffect, useState } from 'react';
+import { AppRegistryProvider } from 'hadron-app-registry';
+import React, { useCallback, useState } from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
@@ -35,25 +30,10 @@ import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import {
-  ConnectionImportExportProvider,
-  useOpenConnectionImportExportModal,
-} from '@mongodb-js/compass-connection-import-export';
-import { usePreference } from 'compass-preferences-model/provider';
+import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
-import { CompassShellPlugin } from '@mongodb-js/compass-shell';
 
 resetGlobalCSS();
-
-const homePageStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'stretch',
-  flex: 1,
-  overflow: 'auto',
-  height: '100%',
-});
 
 const homeContainerStyles = css({
   height: '100vh',
@@ -78,31 +58,10 @@ const globalDarkThemeStyles = css({
 export type HomeProps = {
   appName: string;
   showWelcomeModal?: boolean;
-  createFileInputBackend: () => FileInputBackend;
-  onDisconnect: () => void;
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
   showSettings: (tab?: SettingsTabId) => void;
 };
-
-function SingleConnectionFormWithConnectionImportExport({
-  appRegistry,
-}: {
-  appRegistry: AppRegistry;
-}) {
-  const { supportsConnectionImportExport, openConnectionImportExportModal } =
-    useOpenConnectionImportExportModal({ context: 'connectionsList' });
-  return (
-    <SingleConnectionForm
-      appRegistry={appRegistry}
-      openConnectionImportExportModal={
-        supportsConnectionImportExport
-          ? openConnectionImportExportModal
-          : undefined
-      }
-    />
-  );
-}
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -113,36 +72,13 @@ const verticalSplitStyles = css({
   overflow: 'hidden',
 });
 
-const shellContainerStyles = css({
-  zIndex: 5,
-});
-
 function Home({
   appName,
   showWelcomeModal = false,
-  createFileInputBackend,
-  onDisconnect,
   showCollectionSubMenu,
   hideCollectionSubMenu,
   showSettings,
-}: Omit<HomeProps, 'connectionStorage'>): React.ReactElement | null {
-  const appRegistry = useLocalAppRegistry();
-  const { connectionInfo, isConnected, disconnect } =
-    useSingleConnectionModeConnectionInfoStatus();
-
-  useEffect(() => {
-    function onDisconnect() {
-      void disconnect();
-    }
-
-    hadronIpc.ipcRenderer?.on('app:disconnect', onDisconnect);
-
-    return () => {
-      // Clean up the ipc listener.
-      hadronIpc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
-    };
-  }, [disconnect]);
-
+}: HomeProps): React.ReactElement | null {
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
       if (ws?.type === 'Collection') {
@@ -153,13 +89,6 @@ function Home({
     },
     [showCollectionSubMenu, hideCollectionSubMenu]
   );
-
-  useEffectOnChange(() => {
-    if (!isConnected) {
-      hideCollectionSubMenu();
-      onDisconnect();
-    }
-  }, [isConnected, onDisconnect, hideCollectionSubMenu]);
 
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
@@ -173,66 +102,64 @@ function Home({
     [setIsWelcomeOpen, showSettings]
   );
 
-  const multiConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-
   return (
-    <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-      <ConnectionImportExportProvider>
-        <CompassInstanceStorePlugin>
-          <FieldStorePlugin>
-            <div data-testid="home" className={verticalSplitStyles}>
-              {multiConnectionsEnabled && (
-                <AppRegistryProvider scopeName="Multiple Connections">
-                  <Workspace
-                    appName={appName}
-                    onActiveWorkspaceTabChange={onWorkspaceChange}
-                  />
-                </AppRegistryProvider>
-              )}
-              {!multiConnectionsEnabled &&
-                (isConnected ? (
-                  <AppRegistryProvider scopeName="Single Connection">
-                    <ConnectionInfoProvider
-                      connectionInfoId={connectionInfo.id}
-                    >
-                      <Workspace
-                        appName={appName}
-                        onActiveWorkspaceTabChange={onWorkspaceChange}
-                      />
-                      <div className={shellContainerStyles}>
-                        <CompassShellPlugin />
-                      </div>
-                    </ConnectionInfoProvider>
-                  </AppRegistryProvider>
-                ) : (
-                  <div className={homePageStyles}>
-                    <SingleConnectionFormWithConnectionImportExport
-                      appRegistry={appRegistry}
-                    />
-                  </div>
-                ))}
-            </div>
-            <WelcomeModal
-              isOpen={isWelcomeOpen}
-              closeModal={closeWelcomeModal}
-            />
-            <CompassSettingsPlugin></CompassSettingsPlugin>
-            <CompassFindInPagePlugin></CompassFindInPagePlugin>
-            <AtlasAuthPlugin></AtlasAuthPlugin>
-            <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
-            <LegacyConnectionsModal />
-          </FieldStorePlugin>
-        </CompassInstanceStorePlugin>
-      </ConnectionImportExportProvider>
-    </FileInputBackendProvider>
+    <ConnectionImportExportProvider>
+      <CompassInstanceStorePlugin>
+        <FieldStorePlugin>
+          <div data-testid="home" className={verticalSplitStyles}>
+            <AppRegistryProvider scopeName="Multiple Connections">
+              <Workspace
+                appName={appName}
+                onActiveWorkspaceTabChange={onWorkspaceChange}
+              />
+            </AppRegistryProvider>
+          </div>
+          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <CompassSettingsPlugin></CompassSettingsPlugin>
+          <CompassFindInPagePlugin></CompassFindInPagePlugin>
+          <AtlasAuthPlugin></AtlasAuthPlugin>
+          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+          <LegacyConnectionsModal />
+        </FieldStorePlugin>
+      </CompassInstanceStorePlugin>
+    </ConnectionImportExportProvider>
   );
 }
 
-export function ThemedHome(
-  props: Omit<HomeProps, 'connectionStorage'>
-): ReturnType<typeof Home> {
+type HomeWithConnectionsProps = HomeProps &
+  Pick<
+    React.ComponentProps<typeof CompassConnections>,
+    'onAutoconnectInfoRequest'
+  > & {
+    connectionStorage: ConnectionStorage;
+    createFileInputBackend: () => FileInputBackend;
+  };
+
+function HomeWithConnections({
+  onAutoconnectInfoRequest,
+  connectionStorage,
+  createFileInputBackend,
+  ...props
+}: HomeWithConnectionsProps) {
+  return (
+    <ConnectionStorageProvider value={connectionStorage}>
+      <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
+        <CompassConnections
+          appName={props.appName}
+          onExtraConnectionDataRequest={getExtraConnectionData}
+          onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+          doNotReconnectDisconnectedAutoconnectInfo
+        >
+          <Home {...props}></Home>
+        </CompassConnections>
+      </FileInputBackendProvider>
+    </ConnectionStorageProvider>
+  );
+}
+
+export default function ThemedHome(
+  props: HomeWithConnectionsProps
+): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
   return (
     <CompassComponentsProvider
@@ -286,36 +213,12 @@ export function ThemedHome(
                 )}
                 data-theme={darkMode ? 'Dark' : 'Light'}
               >
-                <Home {...props}></Home>
+                <HomeWithConnections {...props}></HomeWithConnections>
               </div>
             </div>
           </Body>
         );
       }}
     </CompassComponentsProvider>
-  );
-}
-
-export default function HomeWithConnections({
-  onAutoconnectInfoRequest,
-  connectionStorage,
-  ...props
-}: HomeProps &
-  Pick<
-    React.ComponentProps<typeof CompassConnections>,
-    'onAutoconnectInfoRequest'
-  > & {
-    connectionStorage: ConnectionStorage;
-  }) {
-  return (
-    <ConnectionStorageProvider value={connectionStorage}>
-      <CompassConnections
-        appName={props.appName}
-        onExtraConnectionDataRequest={getExtraConnectionData}
-        onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-      >
-        <ThemedHome {...props}></ThemedHome>
-      </CompassConnections>
-    </ConnectionStorageProvider>
   );
 }
