@@ -1726,6 +1726,7 @@ tasks:
       - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
+    patchable: false
     commands:
       - func: prepare
       - func: install
