@@ -46,7 +46,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "bson": "^6.8.0",
+    "bson": "^6.10.1",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^7.2.4",
     "lodash": "^4.17.21"
