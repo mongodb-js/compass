@@ -332,6 +332,10 @@ export class AtlasAiService {
     // the user is signed into Atlas and opted in.
 
     if (this.apiURLPreset === 'cloud') {
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_OPT_IN === 'true') {
+        return;
+      }
+
       return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
     }
     return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
