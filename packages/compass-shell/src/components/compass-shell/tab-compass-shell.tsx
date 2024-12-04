@@ -235,7 +235,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
             }}
             onOperationStarted={onOperationStarted}
             onOperationEnd={onOperationEnd}
-            isOperationInProgress={isOperationInProgress}
+            initialIsOperationInProgress={isOperationInProgress}
             maxOutputLength={1000}
             maxHistoryLength={1000}
           />
