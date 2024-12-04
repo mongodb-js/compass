@@ -291,7 +291,6 @@ export const signIn = (): GenAIAtlasSignInThunkAction<Promise<void>> => {
 
       await atlasAuthService.signIn({
         signal,
-        promptType: 'none',
       });
       dispatch(atlasServiceSignedIn());
       resolve();

@@ -1,9 +1,9 @@
 import { ipcRenderer } from 'hadron-ipc';
 import type { CompassAuthService as AtlasServiceMain } from './main';
-import { signInWithoutPrompt } from './store/atlas-signin-reducer';
+import { performSignInAttempt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-signin-store';
 import { AtlasAuthService } from './atlas-auth-service';
-import type { ArgsWithSignal, SignInPrompt } from './atlas-auth-service';
+import type { ArgsWithSignal } from './atlas-auth-service';
 
 export class CompassAtlasAuthService extends AtlasAuthService {
   private _ipc = ipcRenderer?.createInvoke<
@@ -37,15 +37,14 @@ export class CompassAtlasAuthService extends AtlasAuthService {
     return this.ipc.signOut();
   }
   signIn({
-    promptType,
+    mainProcessSignIn,
     signal,
-  }: ArgsWithSignal<{ promptType?: SignInPrompt }> = {}) {
-    switch (promptType) {
-      case 'none':
-        return getStore().dispatch(signInWithoutPrompt({ signal }));
-      default:
-        return this.ipc.signIn({ signal });
+  }: ArgsWithSignal<{ mainProcessSignIn?: boolean }> = {}) {
+    if (mainProcessSignIn) {
+      return this.ipc.signIn({ signal });
     }
+
+    return getStore().dispatch(performSignInAttempt({ signal }));
   }
   getUserInfo(opts?: ArgsWithSignal) {
     return this.ipc.getUserInfo(opts);

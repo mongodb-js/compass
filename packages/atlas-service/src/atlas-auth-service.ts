@@ -4,7 +4,6 @@ import type { AtlasUserInfo } from './util';
 export type ArgsWithSignal<T = Record<string, unknown>> = T & {
   signal?: AbortSignal;
 };
-export type SignInPrompt = 'none';
 
 type AtlasAuthServiceEvents = {
   'signed-in': [];
@@ -19,7 +18,7 @@ type AtlasAuthEventListener<T extends AtlasAuthEventNames> = (
 
 export abstract class AtlasAuthService extends EventEmitter {
   abstract signIn(
-    opts?: ArgsWithSignal<{ promptType?: SignInPrompt }>
+    opts?: ArgsWithSignal<{ mainProcessSignIn?: boolean }>
   ): Promise<AtlasUserInfo>;
   abstract signOut(): Promise<void>;
   abstract isAuthenticated(opts?: ArgsWithSignal): Promise<boolean>;

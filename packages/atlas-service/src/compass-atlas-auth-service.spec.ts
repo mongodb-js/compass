@@ -43,7 +43,10 @@ describe('CompassAtlasAuthService', function () {
     const atlasAuthService = getAtlasAuthService({
       signIn: signInStub,
     });
-    await atlasAuthService.signIn({ signal: c.signal });
+    await atlasAuthService.signIn({
+      mainProcessSignIn: true,
+      signal: c.signal,
+    });
     expect(signInStub.calledOnce).to.be.true;
     expect(signInStub.firstCall.firstArg).to.deep.equal({ signal: c.signal });
   });
