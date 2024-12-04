@@ -15,11 +15,6 @@ const ATLAS_USER = {
   sub: '123',
 };
 
-const PREFERENCES_USER = {
-  id: '1234',
-  createdAt: new Date(),
-};
-
 const BASE_URL = 'http://example.com';
 
 const mockConnectionInfo: ConnectionInfo = {
@@ -68,7 +63,9 @@ describe('AtlasAiService', function () {
   beforeEach(async function () {
     sandbox = Sinon.createSandbox();
     preferences = await createSandboxFromDefaultPreferences();
-    preferences['getPreferencesUser'] = () => PREFERENCES_USER;
+    await preferences.savePreferences({
+      telemetryAtlasUserId: '1234',
+    });
   });
 
   afterEach(function () {

@@ -8,7 +8,7 @@ import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
-import { EJSON } from 'bson';
+import { EJSON, UUID } from 'bson';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
@@ -245,7 +245,8 @@ export class AtlasAiService {
       if (urlId === 'user-access') {
         return this.atlasService.cloudEndpoint(
           aiURLConfig[this.apiURLPreset][urlId](
-            this.preferences.getPreferencesUser().id
+            this.preferences.getPreferences().telemetryAtlasUserId ??
+              new UUID().toString()
           )
         );
       }
@@ -264,7 +265,10 @@ export class AtlasAiService {
     const urlConfig = aiURLConfig[this.apiURLPreset][urlId];
     const urlPath =
       typeof urlConfig === 'function'
-        ? urlConfig(this.preferences.getPreferencesUser().id)
+        ? urlConfig(
+            this.preferences.getPreferences().telemetryAtlasUserId ??
+              new UUID().toString()
+          )
         : urlConfig;
 
     return this.atlasService.adminApiEndpoint(urlPath);
