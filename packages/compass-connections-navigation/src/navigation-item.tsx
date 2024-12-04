@@ -242,6 +242,12 @@ export function NavigationItem({
     return actions;
   }, [item, isDarkMode]);
 
+  const toggleExpand = useCallback(() => {
+    if (item.type !== 'placeholder') {
+      onItemExpand(item, !item.isExpanded);
+    }
+  }, [onItemExpand, item]);
+
   return (
     <StyledNavigationItem item={item}>
       {item.type === 'placeholder' ? (
@@ -262,9 +268,7 @@ export function NavigationItem({
           isExpandDisabled={
             item.type === 'connection' && item.connectionStatus !== 'connected'
           }
-          onExpand={(isExpanded: boolean) => {
-            onItemExpand(item, isExpanded);
-          }}
+          toggleExpand={toggleExpand}
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
