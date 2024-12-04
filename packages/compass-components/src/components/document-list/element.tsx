@@ -92,6 +92,17 @@ function useHadronElement(el: HadronElementType) {
     [el, forceUpdate]
   );
 
+  const onElementReverted = useCallback(
+    (changedElement: HadronElementType) => {
+      if (el.uuid === changedElement.uuid) {
+        // When an element is reverted we check again if the key is a duplicate.
+        setIsDuplicateKey(el.isDuplicateKey(el.key));
+        forceUpdate();
+      }
+    },
+    [el, forceUpdate]
+  );
+
   useEffect(() => {
     if (prevEl && prevEl !== el) {
       forceUpdate();
@@ -101,7 +112,7 @@ function useHadronElement(el: HadronElementType) {
   useEffect(() => {
     el.on(ElementEvents.Converted, onElementChanged);
     el.on(ElementEvents.Edited, onElementChanged);
-    el.on(ElementEvents.Reverted, onElementChanged);
+    el.on(ElementEvents.Reverted, onElementReverted);
     el.on(ElementEvents.Invalid, onElementChanged);
     el.on(ElementEvents.Valid, onElementChanged);
     el.on(ElementEvents.Added, onElementAddedOrRemoved);
@@ -113,7 +124,7 @@ function useHadronElement(el: HadronElementType) {
     return () => {
       el.off(ElementEvents.Converted, onElementChanged);
       el.off(ElementEvents.Edited, onElementChanged);
-      el.off(ElementEvents.Reverted, onElementChanged);
+      el.off(ElementEvents.Reverted, onElementReverted);
       el.off(ElementEvents.Valid, onElementChanged);
       el.off(ElementEvents.Added, onElementAddedOrRemoved);
       el.off(ElementEvents.Removed, onElementAddedOrRemoved);
@@ -121,7 +132,7 @@ function useHadronElement(el: HadronElementType) {
       el.off(ElementEvents.Collapsed, onElementChanged);
       el.off(ElementEvents.VisibleElementsChanged, onElementChanged);
     };
-  }, [el, onElementChanged, onElementAddedOrRemoved]);
+  }, [el, onElementChanged, onElementAddedOrRemoved, onElementReverted]);
 
   const isValid = el.isCurrentTypeValid();
 
