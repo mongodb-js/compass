@@ -43,7 +43,7 @@
     "@types/puppeteer": "^5.4.4",
     "@types/yargs": "^17.0.33",
     "@wdio/types": "^8.32.2",
-    "bson": "^6.10.0",
+    "bson": "^6.10.1",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "clipboardy": "^2.3.0",

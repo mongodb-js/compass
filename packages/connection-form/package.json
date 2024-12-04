@@ -71,7 +71,7 @@
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
     "@types/sinon-chai": "^3.2.5",
-    "bson": "^6.10.0",
+    "bson": "^6.10.1",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",

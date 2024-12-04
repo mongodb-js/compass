@@ -55,7 +55,7 @@
     "@mongodb-js/compass-utils": "^0.6.16",
     "@mongodb-js/devtools-connect": "^3.3.3",
     "@mongodb-js/devtools-proxy-support": "^0.4.1",
-    "bson": "^6.10.0",
+    "bson": "^6.10.1",
     "lodash": "^4.17.21",
     "mongodb": "^6.11.0",
     "mongodb-build-info": "^1.7.2",
