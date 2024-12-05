@@ -183,6 +183,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             return {
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
+                connectionStatus: item.connectionStatus,
               }),
               config: {
                 collapseAfter: 1,
