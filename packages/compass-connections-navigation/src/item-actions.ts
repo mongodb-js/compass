@@ -3,6 +3,7 @@ import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
 import { type ItemSeparator } from '@mongodb-js/compass-components';
 import { type NotConnectedConnectionStatus } from './tree-data';
+import { ConnectButton } from './connect-button';
 
 export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
@@ -152,7 +153,7 @@ export const notConnectedConnectionItemActions = ({
         action: 'connection-connect',
         label: 'Connect',
         icon: 'Connect',
-        expandedPresentation: 'button',
+        expandedAs: ConnectButton,
       },
       ...commonActions,
     ];

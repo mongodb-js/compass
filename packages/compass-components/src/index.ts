@@ -45,6 +45,7 @@ import ResizableSidebar, {
 } from './components/resizeable-sidebar';
 import type {
   ItemAction,
+  ItemComponentProps,
   GroupedItemAction,
   MenuAction,
   ItemSeparator,
@@ -93,6 +94,7 @@ export { InfoModal } from './components/modals/info-modal';
 export type {
   FileInputBackend,
   ItemAction,
+  ItemComponentProps,
   GroupedItemAction,
   MenuAction,
   ItemSeparator,

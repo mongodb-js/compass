@@ -20,41 +20,55 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { WorkspaceContainer } from './workspace-container';
 
-export type ItemAction<Action extends string> = {
+type ItemBase<Action extends string> = {
   action: Action;
   label: string;
-  icon: keyof typeof glyphs | React.ReactElement;
+  icon?: React.ReactChild;
   variant?: 'default' | 'destructive';
   isDisabled?: boolean;
   disabledDescription?: string;
   tooltip?: string;
-  actionButtonClassName?: string;
-  /** How to show the item when not collapsed into the menu */
-  expandedPresentation?: 'icon' | 'button';
+  className?: string;
+  /**
+   * How to show the item when not collapsed into the menu.
+   * @default ItemActionButton
+   */
+  expandedAs?: React.ComponentType<ItemComponentProps<Action>>;
 };
+
+export type ItemComponentProps<Action extends string> = Omit<
+  ItemBase<Action>,
+  'expandedAs'
+> & {
+  // TODO: Rename to "size"
+  iconSize?: ItemActionButtonSize;
+  iconClassName?: string;
+  iconStyle?: React.CSSProperties;
+  'data-testid'?: string;
+  onClick(evt: React.MouseEvent<unknown>): void;
+};
+
+export type ItemAction<Action extends string> = {
+  icon: keyof typeof glyphs | React.ReactElement;
+} & ItemBase<Action>;
 
 export type ItemSeparator = { separator: true };
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
-  tooltip?: string;
   tooltipProps?: Parameters<typeof Tooltip>;
 };
 
 export type MenuAction<Action extends string> =
-  | {
-      action: Action;
-      label: string;
-      icon?: React.ReactChild;
-      variant?: 'default' | 'destructive';
-      isDisabled?: boolean;
-      disabledDescription?: string;
-    }
+  | ItemBase<Action>
   | ItemSeparator;
 
-function isSeparatorMenuAction<T extends string, MA extends MenuAction<T>>(
-  menuAction: MA | ItemSeparator
-): menuAction is ItemSeparator {
-  return (menuAction as any).separator;
+function isSeparatorMenuAction(value: unknown): value is ItemSeparator {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'separator' in value &&
+    value.separator === true
+  );
 }
 
 const ItemActionButtonSize = {
@@ -140,7 +154,7 @@ const ActionGlyph = ({
   return null;
 };
 
-const ItemActionButton = forwardRef<
+const SmallIconButton = forwardRef<
   HTMLButtonElement,
   {
     glyph: React.ReactChild;
@@ -149,7 +163,7 @@ const ItemActionButton = forwardRef<
     size: ItemActionButtonSize;
     onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
   } & Omit<React.HTMLProps<HTMLButtonElement>, 'size'>
->(function IconButtonSmall(
+>(function SmallIconButton(
   { glyph, size, label, onClick, children, title, className, ...rest },
   ref
 ) {
@@ -172,6 +186,36 @@ const ItemActionButton = forwardRef<
     </IconButton>
   );
 });
+
+export function ItemActionButton<Action extends string>({
+  action,
+  icon = <></>,
+  label,
+  tooltip,
+  iconSize = ItemActionButtonSize.Default,
+  onClick,
+  iconClassName,
+  className,
+  iconStyle,
+  isDisabled,
+  'data-testid': dataTestId,
+}: ItemComponentProps<Action>) {
+  return (
+    <SmallIconButton
+      key={action}
+      glyph={icon}
+      label={label}
+      title={!tooltip ? label : undefined}
+      size={iconSize}
+      data-action={action}
+      data-testid={dataTestId}
+      onClick={onClick}
+      className={cx(actionGroupButtonStyle, iconClassName, className)}
+      style={iconStyle}
+      disabled={isDisabled}
+    />
+  );
+}
 
 export function ItemActionMenu<Action extends string>({
   isVisible = true,
@@ -238,7 +282,7 @@ export function ItemActionMenu<Action extends string>({
           children: React.ReactNode;
         }) => {
           return (
-            <ItemActionButton
+            <SmallIconButton
               ref={menuTriggerRef}
               size={iconSize}
               glyph="Ellipsis"
@@ -255,7 +299,7 @@ export function ItemActionMenu<Action extends string>({
               style={iconStyle}
             >
               {children}
-            </ItemActionButton>
+            </SmallIconButton>
           );
         }}
       >
@@ -338,61 +382,34 @@ export function ItemActionGroup<Action extends string>({
         }
 
         const {
-          action,
-          icon,
-          label,
-          isDisabled,
+          expandedAs: ItemComponent = ItemActionButton,
           tooltip,
           tooltipProps,
-          actionButtonClassName,
-          expandedPresentation = 'icon',
+          ...itemProps
         } = menuItem;
-        const button =
-          expandedPresentation === 'icon' ? (
-            <ItemActionButton
-              key={action}
-              glyph={icon}
-              label={label}
-              title={!tooltip ? label : undefined}
-              size={iconSize}
-              data-action={action}
-              data-testid={actionTestId<Action>(dataTestId, action)}
-              onClick={onClick}
-              className={cx(
-                actionGroupButtonStyle,
-                iconClassName,
-                actionButtonClassName
-              )}
-              style={iconStyle}
-              disabled={isDisabled}
-            />
-          ) : (
-            <Button
-              key={action}
-              title={!tooltip ? label : undefined}
-              size={iconSize}
-              data-action={action}
-              data-testid={actionTestId<Action>(dataTestId, action)}
-              onClick={onClick}
-              className={actionButtonClassName}
-              style={iconStyle}
-              disabled={isDisabled}
-            >
-              {label}
-            </Button>
-          );
+
+        const item = (
+          <ItemComponent
+            {...itemProps}
+            iconSize={iconSize}
+            iconStyle={iconStyle}
+            iconClassName={iconClassName}
+            onClick={onClick}
+            data-testid={actionTestId<Action>(dataTestId, itemProps.action)}
+          />
+        );
 
         if (tooltip) {
           return (
             <Tooltip
-              key={action}
+              key={itemProps.action}
               {...tooltipProps}
               trigger={
                 <div
                   className={actionGroupButtonStyle}
                   style={{ display: 'inherit' }}
                 >
-                  {button}
+                  {item}
                 </div>
               }
             >
@@ -401,7 +418,7 @@ export function ItemActionGroup<Action extends string>({
           );
         }
 
-        return button;
+        return item;
       })}
     </div>
   );
