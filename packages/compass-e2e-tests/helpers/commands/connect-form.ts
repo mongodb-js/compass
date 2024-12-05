@@ -359,7 +359,7 @@ async function getFilename(
   selector: string
 ): Promise<string | null> {
   const text = await getText(browser, selector);
-  return text === 'Select a file...' ? null : text;
+  return text === 'Select a file…' ? null : text;
 }
 
 async function getValue(

@@ -38,7 +38,7 @@ describe('FileInput', function () {
     );
 
     const button = screen.getByTestId('file-input-button');
-    expect(button.textContent).to.equal('Select a file...');
+    expect(button.textContent).to.equal('Select a file…');
   });
 
   it('renders "Select a file..." if values is empty and multi is false', function () {
@@ -53,7 +53,7 @@ describe('FileInput', function () {
     );
 
     const button = screen.getByTestId('file-input-button');
-    expect(button.textContent).to.equal('Select a file...');
+    expect(button.textContent).to.equal('Select a file…');
   });
 
   it('renders "Select files..." if values is falsy and multi is true', function () {
@@ -68,7 +68,7 @@ describe('FileInput', function () {
     );
 
     const button = screen.getByTestId('file-input-button');
-    expect(button.textContent).to.equal('Select files...');
+    expect(button.textContent).to.equal('Select files…');
   });
 
   it('renders "a.png" if values is [a.png]', function () {
