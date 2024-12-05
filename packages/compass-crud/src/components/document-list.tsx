@@ -1,4 +1,11 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -276,6 +283,33 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
   };
 };
 
+/**
+ * Encapsulates the logic for expanding / collapsing all documents in the current view.
+ */
+const useAllDocumentsExpanded = (docs: Document[]) => {
+  const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (allDocumentsExpanded) {
+      for (const doc of docs) {
+        if (!doc.expanded) {
+          doc.expand();
+        }
+      }
+    } else {
+      for (const doc of docs) {
+        if (doc.expanded) {
+          doc.collapse();
+        }
+      }
+    }
+
+    setAllDocumentsExpanded(allDocumentsExpanded);
+  }, [docs, allDocumentsExpanded]);
+
+  return [allDocumentsExpanded, setAllDocumentsExpanded] as const;
+};
+
 const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   const {
     view,
@@ -320,6 +354,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const [allDocumentsExpanded, setAllDocumentsExpanded] =
+    useAllDocumentsExpanded(docs);
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -350,6 +387,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   const onDeleteButtonClicked = useCallback(() => {
     store.openBulkDeleteDialog();
   }, [store]);
+
+  const onExpandAllDocumentsButtonClicked = useCallback(() => {
+    setAllDocumentsExpanded((allDocumentsExpanded) => !allDocumentsExpanded);
+  }, [setAllDocumentsExpanded]);
 
   const onSaveUpdateQuery = useCallback(
     (name: string) => {
@@ -508,8 +549,15 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
         setCurrentViewInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
       }
       viewChanged(newView);
+      setAllDocumentsExpanded(false);
     },
-    [view, setCurrentViewInitialScrollTop, scrollRef, viewChanged]
+    [
+      view,
+      setCurrentViewInitialScrollTop,
+      scrollRef,
+      viewChanged,
+      setAllDocumentsExpanded,
+    ]
   );
 
   return (
@@ -533,6 +581,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onResetClicked={onResetClicked}
             onUpdateButtonClicked={onUpdateButtonClicked}
             onDeleteButtonClicked={onDeleteButtonClicked}
+            onExpandAllDocumentsButtonClicked={
+              onExpandAllDocumentsButtonClicked
+            }
             openExportFileDialog={openExportFileDialog}
             outdated={outdated}
             readonly={!isEditable}
@@ -552,6 +603,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             )}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
+            allDocumentsExpanded={allDocumentsExpanded}
           />
         }
       >
