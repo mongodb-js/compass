@@ -49,13 +49,13 @@ import type {
   GroupedItemAction,
   MenuAction,
   ItemSeparator,
-} from './components/item-action-controls';
+} from './components/actions/item-action-controls';
 import {
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
   DropdownMenuButton,
-} from './components/item-action-controls';
+} from './components/actions/item-action-controls';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';

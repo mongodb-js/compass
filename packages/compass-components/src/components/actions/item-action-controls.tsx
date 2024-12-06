@@ -13,12 +13,12 @@ import {
   MenuItem,
   MenuSeparator,
   Tooltip,
-} from './leafygreen';
+} from '../leafygreen';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { WorkspaceContainer } from './workspace-container';
+import { WorkspaceContainer } from '../workspace-container';
 
 type ItemBase<Action extends string> = {
   action: Action;
