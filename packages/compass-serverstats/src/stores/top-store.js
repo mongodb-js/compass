@@ -152,7 +152,7 @@ const TopStore = Reflux.createStore({
         }
         t2s[collname] = {
           loadPercentR: value.readLock.time,
-          loadPercentL: value.writeLock.time,
+          loadPercentW: value.writeLock.time,
           loadPercent: value.total.time,
         };
       }
@@ -171,15 +171,15 @@ const TopStore = Reflux.createStore({
         const t1 =
           collname in this.t1s
             ? this.t1s[collname]
-            : { loadPercent: 0, loadPercentR: 0, loadPercentL: 0 };
+            : { loadPercent: 0, loadPercentR: 0, loadPercentW: 0 };
         const t2 = t2s[collname];
 
         const tDelta = t2.loadPercent - t1.loadPercent;
 
-        const loadL =
+        const loadW =
           tDelta === 0
             ? 0
-            : round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
+            : round(((t2.loadPercentW - t1.loadPercentW) / tDelta) * 100, 0);
         const loadR =
           tDelta === 0
             ? 0
@@ -189,7 +189,7 @@ const TopStore = Reflux.createStore({
           collectionName: collname,
           loadPercent: round((tDelta * 100) / (cadence * numCores), 2), // System load.
           loadPercentR: loadR,
-          loadPercentL: loadL,
+          loadPercentW: loadW,
         });
       }
       this.t1s = t2s;
