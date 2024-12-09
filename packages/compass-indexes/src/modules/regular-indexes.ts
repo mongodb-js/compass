@@ -607,7 +607,8 @@ const failedIndexRemoved = (
 
 // Exporting this for test only to stub it and set
 // its value. This enables to test dropIndex action.
-export const showConfirmation = showConfirmationModal;
+export const showConfirmation: typeof showConfirmationModal =
+  showConfirmationModal;
 
 export const dropFailedIndex = (
   indexName: string
