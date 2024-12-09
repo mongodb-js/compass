@@ -1,11 +1,10 @@
-// As we are using this component to render icon in MenuItem,
-// and it does cloneElement on glyph, here we are accepting all the
-
 import React from 'react';
 
 import { Icon } from '../leafygreen';
 import type { ItemActionButtonSize } from './constants';
 
+// As we are using this component to render icon in MenuItem,
+// and it does cloneElement on glyph, here we are accepting all the
 // props that are passed during clone process.
 type IconProps = React.ComponentProps<typeof Icon>;
 type ActionGlyphProps = Omit<IconProps, 'size' | 'glyph'> & {
