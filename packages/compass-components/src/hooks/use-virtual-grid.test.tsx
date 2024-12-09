@@ -38,6 +38,7 @@ const TestGrid: React.FunctionComponent<{
             const idx = row * colCount + col;
             return (
               <div
+                key={idx}
                 role="cell"
                 data-vlist-item-idx={idx}
                 tabIndex={currentTabbable === idx ? 0 : -1}
