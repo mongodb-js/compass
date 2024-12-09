@@ -45,7 +45,6 @@ describe('Collection ai query', function () {
     clearRequests = _clearRequests;
     setMockAtlasServerResponse = _setMockAtlasServerResponse;
 
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE = endpoint;
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
@@ -73,7 +72,6 @@ describe('Collection ai query', function () {
 
     await stopMockAtlasServer();
 
-    delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE;
     delete process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN;
 
     await cleanup(compass);
