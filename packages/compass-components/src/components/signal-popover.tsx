@@ -524,7 +524,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
       `calc(14px + ${' insight'.length}ch)`;
 
   return (
-    <InteractivePopover
+    <InteractivePopover<HTMLButtonElement>
       className={cx(
         popoverStyles,
         // If trigger is not visible, we are in this weird state where trigger

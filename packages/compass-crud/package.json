@@ -87,7 +87,7 @@
     "@mongodb-js/shell-bson-parser": "^1.1.2",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
-    "bson": "^6.8.0",
+    "bson": "^6.10.1",
     "compass-preferences-model": "^2.31.1",
     "hadron-app-registry": "^9.2.8",
     "hadron-document": "^8.6.6",

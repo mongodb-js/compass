@@ -80,7 +80,6 @@ export const KeyEditor: React.FunctionComponent<{
         <Tooltip
           darkMode
           enabled={!valid}
-          usePortal={false}
           trigger={({
             className,
             // Having a tooltip connected to the input elements is not the most
@@ -223,7 +222,6 @@ export const ValueEditor: React.FunctionComponent<{
         <Tooltip
           darkMode
           enabled={!valid}
-          usePortal={false}
           trigger={({
             className,
             children,

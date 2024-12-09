@@ -331,7 +331,11 @@ describe('CompassAuthServiceMain', function () {
       } as any;
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
-      expect(getListenerCount(logger)).to.eq(30);
+
+      // We expect that the oidc plugin registers a number of listeners
+      // upon creation, which should get unregistered when we sign out.
+      expect(getListenerCount(logger)).to.be.greaterThan(0);
+
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
