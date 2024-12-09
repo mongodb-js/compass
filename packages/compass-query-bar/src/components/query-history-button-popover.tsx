@@ -73,7 +73,7 @@ const QueryHistoryButtonPopover = ({
   }, [setIsOpen]);
 
   return (
-    <InteractivePopover
+    <InteractivePopover<HTMLButtonElement>
       className={queryHistoryPopoverStyles}
       trigger={({ onClick, ref, children }) => (
         <>

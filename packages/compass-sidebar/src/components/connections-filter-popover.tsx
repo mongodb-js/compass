@@ -102,7 +102,7 @@ export default function ConnectionsFilterPopover({
               onMouseLeave={handleButtonMouseLeave}
               active={open}
               aria-label="Filter connections"
-              ref={ref as React.Ref<unknown>}
+              ref={ref}
             >
               <Icon glyph="Filter" />
               {isActivated && (

@@ -58,7 +58,7 @@
     "@mongodb-js/connection-form": "^1.45.1",
     "@mongodb-js/connection-info": "^0.9.5",
     "@mongodb-js/connection-storage": "^0.24.1",
-    "bson": "^6.8.0",
+    "bson": "^6.10.1",
     "compass-preferences-model": "^2.31.1",
     "hadron-app-registry": "^9.2.8",
     "lodash": "^4.17.21",

@@ -48,7 +48,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }} # TODO: replace with steps.app-token.outputs.token when it gets the PR permissions
+          token: ${{ steps.app-token.outputs.token }}
           commit-message: "chore(release): bump package versions"
           branch: ci/bump-packages
           title: "chore(release): bump package versions"

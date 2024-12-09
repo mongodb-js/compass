@@ -7,7 +7,7 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
-import { SandboxConnectionStorageProviver } from '../src/connection-storage';
+import { SandboxConnectionStorageProvider } from '../src/connection-storage';
 import { sandboxLogger } from './sandbox-logger';
 import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
@@ -67,7 +67,7 @@ const App = () => {
   }
 
   return (
-    <SandboxConnectionStorageProviver
+    <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
       extraConnectionOptions={
         isAtlas
@@ -92,20 +92,21 @@ const App = () => {
             enableGlobalWrites: isAtlas,
             enableRollingIndexes: isAtlas,
             enableGenAIFeaturesAtlasProject:
-              !!atlasPreferences?.enableGenAIFeaturesAtlasProject,
+              isAtlas && !!atlasPreferences?.enableGenAIFeaturesAtlasProject,
             enableGenAISampleDocumentPassingOnAtlasProject:
+              isAtlas &&
               !!atlasPreferences?.enableGenAISampleDocumentPassingOnAtlasProject,
             enableGenAIFeaturesAtlasOrg:
-              !!atlasPreferences?.enableGenAIFeaturesAtlasOrg,
+              isAtlas && !!atlasPreferences?.enableGenAIFeaturesAtlasOrg,
             optInDataExplorerGenAIFeatures:
-              !!atlasPreferences?.optInDataExplorerGenAIFeatures,
+              isAtlas && !!atlasPreferences?.optInDataExplorerGenAIFeatures,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}
           onLog={sandboxLogger.log}
         ></CompassWeb>
       </Body>
-    </SandboxConnectionStorageProviver>
+    </SandboxConnectionStorageProvider>
   );
 };
 

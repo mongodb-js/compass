@@ -77,7 +77,7 @@
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
     "@tanstack/table-core": "^8.14.0",
-    "bson": "^6.8.0",
+    "bson": "^6.10.1",
     "focus-trap-react": "^9.0.2",
     "hadron-document": "^8.6.6",
     "hadron-type-checker": "^7.2.4",

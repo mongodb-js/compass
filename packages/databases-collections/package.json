@@ -47,7 +47,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.3",
     "@mongodb-js/testing-library-compass": "^1.0.3",
     "@mongodb-js/tsconfig-compass": "^1.0.6",
-    "bson": "^6.8.0",
+    "bson": "^6.10.1",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "enzyme": "^3.11.0",
