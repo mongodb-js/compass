@@ -43,18 +43,20 @@ import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
+
 import type {
   ItemAction,
-  GroupedItemAction,
-  MenuAction,
+  ItemComponentProps,
   ItemSeparator,
-} from './components/item-action-controls';
-import {
-  ItemActionControls,
-  ItemActionGroup,
-  ItemActionMenu,
-  DropdownMenuButton,
-} from './components/item-action-controls';
+} from './components/actions/types';
+import type { GroupedItemAction } from './components/actions/item-action-group';
+import type { MenuAction } from './components/actions/item-action-menu';
+
+import { ItemActionControls } from './components/actions/item-action-controls';
+import { ItemActionGroup } from './components/actions/item-action-group';
+import { ItemActionMenu } from './components/actions/item-action-menu';
+import { DropdownMenuButton } from './components/actions/dropdown-menu-button';
+
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
@@ -93,6 +95,7 @@ export { InfoModal } from './components/modals/info-modal';
 export type {
   FileInputBackend,
   ItemAction,
+  ItemComponentProps,
   GroupedItemAction,
   MenuAction,
   ItemSeparator,
