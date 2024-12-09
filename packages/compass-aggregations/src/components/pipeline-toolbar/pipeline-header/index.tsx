@@ -71,7 +71,7 @@ const containedElements = [
 const SavedPipelinesButton: React.FunctionComponent = () => {
   const [isVisible, setIsVisible] = useState(false);
   return (
-    <InteractivePopover
+    <InteractivePopover<HTMLButtonElement>
       className={savedAggregationsPopoverStyles}
       // To prevent popover from closing when confirmation modal is shown
       containedElements={containedElements}

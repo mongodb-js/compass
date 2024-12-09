@@ -13,9 +13,6 @@ const expandButton = css({
   display: 'flex',
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
-  '&:hover': {
-    cursor: 'pointer',
-  },
   // we're sizing the icon down below but we still want the button to take up
   // 16px so that the grid lines up
   minWidth: spacing[400],
@@ -24,8 +21,12 @@ const expandButton = css({
   justifyContent: 'center',
 });
 
-const expanded = css({
+const expandedStyles = css({
   transform: 'rotate(90deg)',
+});
+
+const enabledStyles = css({
+  cursor: 'pointer',
 });
 
 export type VirtualListItemProps = {
@@ -35,7 +36,8 @@ export type VirtualListItemProps = {
 export const ExpandButton: React.FunctionComponent<{
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   isExpanded: boolean;
-}> = ({ onClick, isExpanded }) => {
+  disabled?: boolean;
+}> = ({ onClick, isExpanded, disabled = false }) => {
   return (
     <button
       type="button"
@@ -46,7 +48,11 @@ export const ExpandButton: React.FunctionComponent<{
       // using a mouse
       tabIndex={-1}
       onClick={onClick}
-      className={cx(buttonReset, expandButton, isExpanded && expanded)}
+      className={cx(buttonReset, expandButton, {
+        [expandedStyles]: isExpanded,
+        [enabledStyles]: !disabled,
+      })}
+      disabled={disabled}
     >
       <Icon width={14} height={14} glyph="CaretRight" size="small"></Icon>
     </button>

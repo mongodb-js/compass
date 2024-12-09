@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.30.0",
+  "version": "2.31.1",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -49,12 +49,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.4.10",
-    "@mongodb-js/compass-user-data": "^0.3.10",
+    "@mongodb-js/compass-logging": "^1.4.12",
+    "@mongodb-js/compass-user-data": "^0.3.12",
     "@mongodb-js/devtools-proxy-support": "^0.4.1",
-    "bson": "^6.8.0",
-    "hadron-app-registry": "^9.2.7",
-    "hadron-ipc": "^3.2.25",
+    "bson": "^6.10.1",
+    "hadron-app-registry": "^9.2.8",
+    "hadron-ipc": "^3.2.27",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
@@ -62,10 +62,10 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.1.7",
-    "@mongodb-js/mocha-config-compass": "^1.4.2",
-    "@mongodb-js/testing-library-compass": "^1.0.2",
-    "@mongodb-js/tsconfig-compass": "^1.0.5",
+    "@mongodb-js/eslint-config-compass": "^1.1.8",
+    "@mongodb-js/mocha-config-compass": "^1.4.3",
+    "@mongodb-js/testing-library-compass": "^1.0.3",
+    "@mongodb-js/tsconfig-compass": "^1.0.6",
     "@types/js-yaml": "^4.0.5",
     "@types/yargs-parser": "21.0.0",
     "chai": "^4.3.6",

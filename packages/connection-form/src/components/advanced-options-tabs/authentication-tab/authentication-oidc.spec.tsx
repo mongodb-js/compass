@@ -5,6 +5,7 @@ import {
   screen,
   fireEvent,
   waitFor,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -150,6 +151,28 @@ describe('Authentication OIDC Connection Form', function () {
         oidc: {},
       });
     });
+
+    for (let i = 1; i < 3; i++) {
+      it(`handles the 'Send a nonce in the Auth Code Request' checkbox clicked ${i} time(s)`, async function () {
+        for (let j = 0; j < i; j++) {
+          userEvent.click(
+            screen.getByText('Send a nonce in the Auth Code Request')
+          );
+        }
+
+        await expectToConnectWith({
+          connectionString:
+            'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
+          // The default value is checked, which means we should NOT skip the nonce.
+          oidc:
+            i % 2 === 0
+              ? {}
+              : {
+                  skipNonceInAuthCodeRequest: true,
+                },
+        });
+      });
+    }
 
     it('handles the Consider Target Endpoint Trusted checkbox', async function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
