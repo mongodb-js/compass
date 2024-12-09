@@ -20,6 +20,7 @@ import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
+import ExpandAllDocumentsButton from './expand-all-documents-button';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
@@ -107,6 +108,7 @@ export type CrudToolbarProps = {
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
   onDeleteButtonClicked: () => void;
+  onExpandAllDocumentsButtonClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
   page: number;
@@ -120,6 +122,7 @@ export type CrudToolbarProps = {
   querySkip?: number;
   docsPerPage: number;
   updateMaxDocumentsPerPage: (docsPerPage: number) => void;
+  allDocumentsExpanded: boolean;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -137,6 +140,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onResetClicked,
   onUpdateButtonClicked,
   onDeleteButtonClicked,
+  onExpandAllDocumentsButtonClicked,
   openExportFileDialog,
   outdated,
   page,
@@ -150,6 +154,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   querySkip,
   docsPerPage,
   updateMaxDocumentsPerPage,
+  allDocumentsExpanded,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -231,6 +236,12 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               disabledTooltip="Remove limit and skip in your query to perform a delete"
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
+          )}
+          {(activeDocumentView === 'List' || activeDocumentView === 'JSON') && (
+            <ExpandAllDocumentsButton
+              allDocumentsExpanded={allDocumentsExpanded}
+              onClick={onExpandAllDocumentsButtonClicked}
+            ></ExpandAllDocumentsButton>
           )}
         </div>
         <div className={toolbarRightActionStyles}>
