@@ -57,6 +57,12 @@ module.exports = (_env, args) => {
     },
   };
 
+  const snapshot = {
+    unmanagedPaths: [
+      path.resolve('..', '..', 'node_modules', '@mongosh', 'browser-repl'),
+    ],
+  };
+
   // Having runtime outside of entries means less rebuilding when dependencies
   // change (default is runtime is part of the entry and the whole entry needs
   // a rebuild when dependency tree changes)
@@ -121,6 +127,7 @@ module.exports = (_env, args) => {
   return [
     merge(mainConfig, {
       cache,
+      snapshot,
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
@@ -137,6 +144,7 @@ module.exports = (_env, args) => {
     }),
     merge(rendererConfig, {
       cache,
+      snapshot,
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
