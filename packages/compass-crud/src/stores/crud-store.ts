@@ -1896,7 +1896,7 @@ class CrudStoreImpl
         affected !== 1 ? 's' : ''
       }`,
       description: `This action can not be undone. This will permanently delete ${
-        affected || 0
+        affected ?? 'an unknown number of'
       } document${affected !== 1 ? 's' : ''}.`,
       variant: 'danger',
     });
