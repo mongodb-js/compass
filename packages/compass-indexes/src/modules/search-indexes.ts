@@ -653,7 +653,8 @@ export const pollSearchIndexes = (): IndexesThunkAction<
 
 // Exporting this for test only to stub it and set
 // its value. This enables to test dropSearchIndex action.
-export const showConfirmation = showConfirmationModal;
+export const showConfirmation: typeof showConfirmationModal =
+  showConfirmationModal;
 
 export const dropSearchIndex = (
   name: string
