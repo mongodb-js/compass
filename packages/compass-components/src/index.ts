@@ -176,7 +176,6 @@ export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
-export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
 export {
   useConfirmationModal,
   ConfirmationModalVariant,
