@@ -14,7 +14,7 @@
     "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1432x840x24\" -- ts-node index.ts",
     "test-ci": "npm run test",
     "posttest-ci": "npm run coverage-report",
-    "test-packaged": "npm run test -- -- --test-packaged-app",
+    "test-packaged": "npm run test -- --test-packaged-app",
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "start-server-1": "mongodb-runner start --id=e2e-1 --topology=replset --secondaries=0 -- --port 27091",
