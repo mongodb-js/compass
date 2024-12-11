@@ -18,7 +18,7 @@ export async function waitForAriaDisabled(
       return (await element.getAttribute('aria-disabled')) === expectedValue;
     },
     {
-      timeoutMsg: `Expected ${selector} to have attribute "aria-disabled" equal to "${expectedValue}"`,
+      timeoutMsg: `Expected element to have attribute "aria-disabled" equal to "${expectedValue}"`,
     }
   );
 }
