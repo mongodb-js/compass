@@ -322,7 +322,7 @@ describe('Connection string', function () {
     });
 
     // check the error
-    const toastTitle = browser.$(Selectors.LGToastTitle).getText();
+    const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
     expect(toastTitle).to.equal('Authentication failed.');
 
     const errorMessage = await browser

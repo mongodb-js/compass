@@ -97,7 +97,7 @@ export async function scrollToVirtualItem(
 
   await browser.waitUntil(async () => {
     await browser.pause(100);
-    const targetElement = browser.$(targetSelector);
+    const targetElement = await browser.$(targetSelector);
     if (await targetElement.isExisting()) {
       await targetElement.waitForDisplayed();
       await targetElement.scrollIntoView();
