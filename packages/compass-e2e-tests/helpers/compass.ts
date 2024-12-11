@@ -747,6 +747,9 @@ export async function startBrowser(
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
+
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
     },
     ...webdriverOptions,
     ...wdioOptions,
