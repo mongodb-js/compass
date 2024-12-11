@@ -1,17 +1,9 @@
 import React from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
+import { cx } from '@leafygreen-ui/emotion';
 
 import { ItemActionButtonSize } from './constants';
 import type { ItemComponentProps } from './types';
 import { SmallIconButton } from './small-icon-button';
-
-// TODO: Move to a parent component - or a flex gap
-const buttonStyle = css({
-  '&:not(:first-child)': {
-    marginLeft: spacing[100],
-  },
-});
 
 export function ItemActionButton<Action extends string>({
   action,
@@ -36,7 +28,7 @@ export function ItemActionButton<Action extends string>({
       data-action={action}
       data-testid={dataTestId}
       onClick={onClick}
-      className={cx(buttonStyle, iconClassName, className)}
+      className={cx(iconClassName, className)}
       style={iconStyle}
       disabled={isDisabled}
     />
