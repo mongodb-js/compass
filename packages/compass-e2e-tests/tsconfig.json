@@ -1,7 +1,4 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
-  "compilerOptions": {
-    // https://webdriver.io/docs/typescript/#framework-setup
-    //"types": ["node", "@wdio/globals/types"]
-  }
+  "compilerOptions": {}
 }
