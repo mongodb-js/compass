@@ -922,7 +922,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="option"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -931,40 +931,46 @@ export const stagePreview = (stageIndex: number): string => {
   return `[data-testid="stage-preview-${stageIndex}"]`;
 };
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-preview-toolbar-tooltip"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="stage-preview-empty"]`;
 };
 export const stageCollapseButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Collapse"]`;
 };
 export const stageExpandButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Expand"]`;
 };
 export const stageFocusModeButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="focus-mode-button"]`;
 };
 export const stagePickerComboboxInput = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
 export const stagePickerListBox = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="listbox"]`;
 };
 export const stageValueEditor = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] .cm-content`;
+  return `${StageCardAtIndex(stageIndex)} .cm-content`;
 };
 export const stageContent = (stageIndex: number): string => {
   return stageValueEditor(stageIndex);
 };
 export const stageAdd = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="add-after-stage"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="add-after-stage"]`;
 };
 export const stageToggle = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
+  return `${StageCardAtIndex(stageIndex)} #toggle-stage-button`;
 };
 export const stageMoreOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-option-menu-button"]`;
 };
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
@@ -990,10 +996,14 @@ export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-con
 export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
 
 export const stageEditorErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-error-message"]`;
 };
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-syntax-error"]`;
 };
 
 export const aggregationPipelineModeToggle = (
