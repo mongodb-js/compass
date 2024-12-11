@@ -20,8 +20,6 @@ import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { WithStatusMarker } from './with-status-marker';
 import type { Actions } from './constants';
 
-type NavigationActions = 'open-non-genuine-mongodb-modal' | 'open-csfle-modal';
-
 const nonGenuineBtnStyles = css({
   color: palette.yellow.dark2,
   background: palette.yellow.light3,
@@ -214,7 +212,7 @@ export function NavigationItem({
       return [];
     }
 
-    const actions: ItemAction<NavigationActions>[] = [];
+    const actions: ItemAction<Actions>[] = [];
     if (!item.isGenuineMongoDB) {
       actions.push({
         action: 'open-non-genuine-mongodb-modal',
@@ -272,14 +270,14 @@ export function NavigationItem({
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls<NavigationActions>
+            <ItemActionControls
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}
               // these are static buttons that we want visible always on the
               // sidebar, not as menu item but as action group
               collapseAfter={connectionStaticActions.length}
-            ></ItemActionControls>
+            />
           )}
         </NavigationBaseItem>
       )}

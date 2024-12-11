@@ -20,7 +20,7 @@ describe('item action controls components', function () {
           actions={[]}
           onAction={() => {}}
           data-testid="test-actions"
-        ></ItemActionControls>
+        />
       );
 
       expect(screen.queryByTestId('test-actions')).to.not.exist;
@@ -32,7 +32,7 @@ describe('item action controls components', function () {
           actions={[{ action: 'copy', label: 'Copy', icon: 'Copy' }]}
           onAction={() => {}}
           data-testid="test-actions"
-        ></ItemActionControls>
+        />
       );
 
       expect(screen.getByTestId('test-actions')).to.exist;
@@ -47,7 +47,7 @@ describe('item action controls components', function () {
           onAction={() => {}}
           data-testid="test-actions"
           collapseToMenuThreshold={1}
-        ></ItemActionControls>
+        />
       );
 
       const trigger = screen.getByTestId('test-actions-show-actions');
@@ -69,7 +69,7 @@ describe('item action controls components', function () {
           onAction={onAction}
           data-testid="test-actions"
           collapseToMenuThreshold={3}
-        ></ItemActionControls>
+        />
       );
 
       expect(onAction).not.to.be.called;
@@ -90,7 +90,7 @@ describe('item action controls components', function () {
           onAction={onAction}
           data-testid="test-actions"
           collapseToMenuThreshold={1}
-        ></ItemActionControls>
+        />
       );
 
       expect(onAction).not.to.be.called;
@@ -112,7 +112,7 @@ describe('item action controls components', function () {
           onAction={() => {}}
           data-testid="test-actions"
           collapseAfter={1}
-        ></ItemActionControls>
+        />
       );
 
       expect(screen.queryByTestId('test-actions-connect-action')).to.exist;
@@ -146,7 +146,7 @@ describe('item action controls components', function () {
           onAction={() => {}}
           data-testid="test-actions"
           collapseAfter={1}
-        ></ItemActionControls>
+        />
       );
 
       const actionButton = screen.getByTestId('test-actions-connect-action');

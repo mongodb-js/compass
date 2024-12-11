@@ -5,7 +5,7 @@ import { ItemActionButtonSize } from './constants';
 import type { ItemComponentProps } from './types';
 import { SmallIconButton } from './small-icon-button';
 
-export function ItemActionButton<Action extends string>({
+export function ItemActionButton({
   action,
   icon = <></>,
   label,
@@ -17,7 +17,7 @@ export function ItemActionButton<Action extends string>({
   iconStyle,
   isDisabled,
   'data-testid': dataTestId,
-}: ItemComponentProps<Action>) {
+}: ItemComponentProps) {
   return (
     <SmallIconButton
       key={action}
