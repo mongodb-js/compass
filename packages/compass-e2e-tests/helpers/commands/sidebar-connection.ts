@@ -134,7 +134,7 @@ export async function hasConnectionMenuItem(
     // Hover over an arbitrary other element to ensure that the second hover will
     // actually be a fresh one. This otherwise breaks if this function is called
     // twice in a row.
-    await browser.hover(`*:not(${selector}, ${selector} *)`);
+    await browser.hover(Selectors.Multiple.ConnectionsTitle);
 
     await browser.hover(selector);
     return false;
