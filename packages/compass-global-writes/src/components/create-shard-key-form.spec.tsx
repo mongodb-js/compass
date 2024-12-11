@@ -44,10 +44,11 @@ describe('CreateShardKeyForm', function () {
     });
 
     it('renders location form field as disabled', function () {
-      expect(screen.getByLabelText('First shard key field')).to.have.attribute(
-        'aria-disabled',
-        'true'
-      );
+      expect(
+        screen.getByRole('textbox', {
+          name: /first shard key field/i,
+        })
+      ).to.have.attribute('aria-disabled', 'true');
     });
 
     it('does not allow user to submit when no second shard key is selected', function () {

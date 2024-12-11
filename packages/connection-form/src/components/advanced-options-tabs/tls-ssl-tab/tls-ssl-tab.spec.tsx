@@ -326,7 +326,7 @@ describe('SchemaInput', function () {
 
     it('should render all of the checkboxes disabled', function () {
       const checkboxes: HTMLInputElement[] = screen.getAllByRole('checkbox');
-      expect(checkboxes.find((checkbox) => !checkbox.disabled)).to.equal(
+      expect(checkboxes.find((checkbox) => !checkbox.ariaDisabled)).to.equal(
         undefined
       );
     });

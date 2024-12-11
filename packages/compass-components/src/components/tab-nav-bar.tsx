@@ -81,6 +81,9 @@ function TabNavBar({
                 key={`tab-${idx}`}
                 data-testid={`${name}-tab-button`}
                 name={title}
+                // LG uses this prop to check if multiple tabs have same text and
+                // if so, it console.errors.
+                data-text={name}
               />
             );
           })}
