@@ -8,7 +8,7 @@ export async function selectOption(
   optionText: string
 ): Promise<void> {
   // click the field's button
-  const selectButton = await browser.$(selector);
+  const selectButton = browser.$(selector);
   await selectButton.waitForDisplayed();
   await selectButton.click();
 
@@ -16,13 +16,11 @@ export async function selectOption(
     'aria-controls'
   );
   // wait for the list to pop up
-  const selectList = await browser.$(
-    `[id="${controlledMenuId}"][role="listbox"]`
-  );
+  const selectList = browser.$(`[id="${controlledMenuId}"][role="listbox"]`);
   await selectList.waitForDisplayed();
 
   // click the option
-  const optionSpan = await selectList.$(`span=${optionText}`);
+  const optionSpan = selectList.$(`span=${optionText}`);
   await optionSpan.scrollIntoView();
   await optionSpan.click();
 

@@ -66,17 +66,17 @@ describe('Bulk Delete', function () {
 
     // Make sure the query is shown in the modal.
     expect(
-      await browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
+      browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
     ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
-    expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
+    expect(browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
     );
 
-    expect(
-      await browser.$(Selectors.BulkDeleteModalDeleteButton).getText()
-    ).to.equal('Delete 1 document');
+    expect(browser.$(Selectors.BulkDeleteModalDeleteButton).getText()).to.equal(
+      'Delete 1 document'
+    );
 
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
@@ -117,7 +117,7 @@ describe('Bulk Delete', function () {
 
     // the document is deleted
     expect(
-      await browser.$(Selectors.DocumentListActionBarMessage).getText()
+      browser.$(Selectors.DocumentListActionBarMessage).getText()
     ).to.equal('0 – 0 of 0');
   });
 
@@ -130,13 +130,13 @@ describe('Bulk Delete', function () {
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
     // Check that it will update the expected number of documents
-    expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
+    expect(browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
     );
 
-    expect(
-      await browser.$(Selectors.BulkDeleteModalDeleteButton).getText()
-    ).to.equal('Delete 1 document');
+    expect(browser.$(Selectors.BulkDeleteModalDeleteButton).getText()).to.equal(
+      'Delete 1 document'
+    );
 
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
@@ -153,7 +153,7 @@ describe('Bulk Delete', function () {
 
     // the document is not deleted
     expect(
-      await browser.$(Selectors.DocumentListActionBarMessage).getText()
+      browser.$(Selectors.DocumentListActionBarMessage).getText()
     ).to.equal('1 – 1 of 1');
   });
 

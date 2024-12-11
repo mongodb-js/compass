@@ -9,7 +9,7 @@ export async function clickConfirmationAction(
 ) {
   await browser.clickVisible(actionButtonSelector);
 
-  const confirmationModal = await browser.$(Selectors.ConfirmationModal);
+  const confirmationModal = browser.$(Selectors.ConfirmationModal);
   await confirmationModal.waitForDisplayed();
 
   if (confirmationText) {

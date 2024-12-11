@@ -5,7 +5,7 @@ export async function closeConnectModal(
   browser: CompassBrowser
 ): Promise<void> {
   await browser.clickVisible(Selectors.CancelConnectionButton);
-  const connectionModalContentElement = await browser.$(
+  const connectionModalContentElement = browser.$(
     Selectors.ConnectionStatusModalContent
   );
   await connectionModalContentElement.waitForExist({

@@ -8,11 +8,9 @@ import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import type { RemoteOptions } from 'webdriverio';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import type { ConsoleMessageType } from 'puppeteer';
 import { run as packageCompass } from 'hadron-build/commands/release';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -118,7 +116,7 @@ interface Coverage {
 
 interface RenderLogEntry {
   timestamp: string;
-  type: ConsoleMessageType;
+  type: any;
   text: string;
   args: unknown;
 }
@@ -178,7 +176,7 @@ export class Compass {
     // TS infers the type of `message` correctly here, which would conflict with
     // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
     // leave out an explicit type annotation.
-    page.on('console', (message) => {
+    page.on('console', (message: any) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();
@@ -552,7 +550,8 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'warn' as const, // info is super verbose right now
+    //logLevel: 'warn' as const, // info is super verbose right now
+    logLevel: 'debug' as const,
     outputDir: webdriverLogPath,
   };
 
@@ -639,13 +638,17 @@ async function startCompassElectron(
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {
-      browserName: 'chromium',
+      browserName: 'chrome',
       browserVersion: ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
+      'wdio:enforceWebDriverClassic': true,
+    },
+    'wdio:chromedriverOptions': {
+      // TODO: enable logging
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -659,6 +662,7 @@ async function startCompassElectron(
   try {
     browser = (await remote(options)) as CompassBrowser;
   } catch (err) {
+    console.error(err);
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
     });
@@ -736,7 +740,9 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const options: RemoteOptions = {
+  // webdriverio removed RemoteOptions. It is now
+  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
+  const options = {
     capabilities: {
       browserName: context.browserName,
       ...(context.browserVersion && {

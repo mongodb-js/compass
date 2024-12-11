@@ -5,13 +5,13 @@ export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<string | undefined> {
-  const connections = await browser.$$(
-    Selectors.sidebarConnection(connectionName)
-  );
+  const connections = browser.$$(Selectors.sidebarConnection(connectionName));
 
-  if (connections.length !== 1) {
+  const numConnections = await connections.length;
+
+  if (numConnections !== 1) {
     throw new Error(
-      `Found ${connections.length} connections named ${connectionName}.`
+      `Found ${numConnections} connections named ${connectionName}.`
     );
   }
 

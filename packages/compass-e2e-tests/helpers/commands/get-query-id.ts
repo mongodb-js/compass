@@ -6,12 +6,12 @@ export async function getQueryId(
   tabName: string
 ): Promise<string | undefined> {
   const queryBarSelector = Selectors.queryBar(tabName);
-  const queryBarSelectorElement = await browser.$(queryBarSelector);
+  const queryBarSelectorElement = browser.$(queryBarSelector);
   return queryBarSelectorElement.getAttribute('data-result-id');
 }
 
 export async function getApplyId(browser: CompassBrowser, tabName: string) {
   const queryBarSelector = Selectors.queryBar(tabName);
-  const queryBarSelectorElement = await browser.$(queryBarSelector);
+  const queryBarSelectorElement = browser.$(queryBarSelector);
   return queryBarSelectorElement.getAttribute('data-apply-id');
 }
