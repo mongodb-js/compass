@@ -117,7 +117,7 @@ export function DropdownMenuButton<Action extends string>({
           <MenuItem
             active={activeAction === action}
             key={action}
-            data-testid={actionTestId<Action>(dataTestId, action)}
+            data-testid={actionTestId(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
             glyph={<ActionGlyph glyph={icon} size={iconSize} />}

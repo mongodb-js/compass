@@ -141,7 +141,7 @@ export function ItemActionMenu<Action extends string>({
           return (
             <MenuItem
               key={action}
-              data-testid={actionTestId<Action>(dataTestId, action)}
+              data-testid={actionTestId(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
