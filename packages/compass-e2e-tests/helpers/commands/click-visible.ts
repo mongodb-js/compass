@@ -9,7 +9,7 @@ interface ClickOptions {
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
+  selector: string | ChainablePromiseElement,
   options?: ClickOptions
 ): Promise<void> {
   const waitOptions = { timeout: options?.timeout };

@@ -7,7 +7,7 @@ export async function hideIndex(
   screenshotName?: string
 ) {
   const indexComponentSelector = Selectors.indexComponent(indexName);
-  const indexComponent = await browser.$(indexComponentSelector);
+  const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
   await browser.hover(indexComponentSelector);
@@ -16,6 +16,6 @@ export async function hideIndex(
     undefined,
     screenshotName
   );
-  const hiddenBadge = await browser.$(Selectors.HiddenIndexBadge(indexName));
+  const hiddenBadge = browser.$(Selectors.HiddenIndexBadge(indexName));
   await hiddenBadge.waitForDisplayed();
 }

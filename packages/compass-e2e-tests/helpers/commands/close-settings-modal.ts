@@ -8,7 +8,7 @@ export async function closeSettingsModal(
     return;
   }
 
-  const settingsModalElement = await browser.$(Selectors.SettingsModal);
+  const settingsModalElement = browser.$(Selectors.SettingsModal);
 
   await settingsModalElement.waitForDisplayed();
 

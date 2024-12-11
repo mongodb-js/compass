@@ -37,19 +37,19 @@ class RenameCollectionModal {
   }
 
   async isVisible() {
-    const modal = await this.browser.$(Selectors.RenameCollectionModal);
+    const modal = this.browser.$(Selectors.RenameCollectionModal);
     await modal.waitForDisplayed();
   }
 
   async isNotVisible() {
-    const modal = await this.browser.$(Selectors.RenameCollectionModal);
+    const modal = this.browser.$(Selectors.RenameCollectionModal);
     return modal.waitForDisplayed({
       reverse: true,
     });
   }
 
   async enterNewCollectionName(newCollectionName: string) {
-    const input = await this.browser.$(Selectors.RenameCollectionModalInput);
+    const input = this.browser.$(Selectors.RenameCollectionModalInput);
     await input.clearValue();
     await input.addValue(newCollectionName);
   }

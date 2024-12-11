@@ -65,7 +65,7 @@ async function createSearchIndex(
     Selectors.createIndexDropdownAction('search-indexes')
   );
 
-  const modal = await browser.$(Selectors.SearchIndexModal);
+  const modal = browser.$(Selectors.SearchIndexModal);
   await modal.waitForDisplayed();
 
   await browser.setValueVisible(Selectors.SearchIndexName, indexName);
@@ -84,13 +84,13 @@ async function updateSearchIndex(
   indexDefinition: string
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed();
 
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexEditButton(indexName));
 
-  const modal = await browser.$(Selectors.SearchIndexModal);
+  const modal = browser.$(Selectors.SearchIndexModal);
   await modal.waitForDisplayed();
 
   await browser.setCodemirrorEditorValue(
@@ -104,7 +104,7 @@ async function updateSearchIndex(
 
 async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed();
 
   await browser.hover(indexRowSelector);
@@ -126,7 +126,7 @@ async function verifyIndexDetails(
   details: string
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
@@ -234,7 +234,7 @@ describe('Search Indexes', function () {
       (name === 'Atlas Free Cluster'
         ? it.skip
         : it)('renders search indexes tab disabled', async function () {
-        const searchTab = await browser.$(
+        const searchTab = browser.$(
           Selectors.indexesSegmentedTab('search-indexes')
         );
         const isTabClickable = await searchTab.isClickable();
@@ -322,7 +322,7 @@ describe('Search Indexes', function () {
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
-        const indexRow = await browser.$(indexRowSelector);
+        const indexRow = browser.$(indexRowSelector);
         await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
 
         await browser.hover(indexRowSelector);
