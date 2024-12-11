@@ -1579,7 +1579,7 @@ describe('Collection aggregations tab', function () {
           0,
           Selectors.StagePreviewDocsCollapse
         );
-        const numCollapsedHadronElements = browser.$$(
+        const numCollapsedHadronElements = await browser.$$(
           `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
             Selectors.HadronDocumentElement
           }`
