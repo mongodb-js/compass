@@ -66,7 +66,7 @@ describe('Bulk Delete', function () {
 
     // Make sure the query is shown in the modal.
     expect(
-      browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
+      await browser.$(Selectors.BulkDeleteModalReadonlyFilter).getText()
     ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
@@ -117,7 +117,7 @@ describe('Bulk Delete', function () {
 
     // the document is deleted
     expect(
-      browser.$(Selectors.DocumentListActionBarMessage).getText()
+      await browser.$(Selectors.DocumentListActionBarMessage).getText()
     ).to.equal('0 – 0 of 0');
   });
 
@@ -153,7 +153,7 @@ describe('Bulk Delete', function () {
 
     // the document is not deleted
     expect(
-      browser.$(Selectors.DocumentListActionBarMessage).getText()
+      await browser.$(Selectors.DocumentListActionBarMessage).getText()
     ).to.equal('1 – 1 of 1');
   });
 

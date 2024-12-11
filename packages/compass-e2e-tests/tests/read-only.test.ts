@@ -329,7 +329,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
 
     expect(
-      browser.$(Selectors.UpdateValidationButton).isExisting()
+      await browser.$(Selectors.UpdateValidationButton).isExisting()
     ).to.be.equal(true);
     expect(
       await browser
@@ -364,7 +364,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         .getAttribute('aria-disabled')
     ).to.equal('true');
     expect(
-      browser.$(Selectors.UpdateValidationButton).isExisting()
+      await browser.$(Selectors.UpdateValidationButton).isExisting()
     ).to.be.equal(false);
   });
 });
