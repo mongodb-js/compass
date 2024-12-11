@@ -116,7 +116,7 @@ interface Coverage {
 
 interface RenderLogEntry {
   timestamp: string;
-  type: any;
+  type: string;
   text: string;
   args: unknown;
 }
@@ -173,10 +173,7 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    // TS infers the type of `message` correctly here, which would conflict with
-    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
-    // leave out an explicit type annotation.
-    page.on('console', (message: any) => {
+    page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();
