@@ -29,9 +29,23 @@ const comboboxStyles = css({
     '& > div': {
       minHeight: inputHeight,
     },
-    '& input': {
-      height: inputHeight - 2,
-    },
+  },
+});
+
+// width of options popover
+const comboxboxOptionsWidth = 500;
+// left position of options popover wrt input. this aligns it with the start of input
+const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
+const comboboxPortalStyles = css({
+  position: 'fixed',
+  top: 0,
+  // -4px to count for the input focus outline.
+  left: `${comboboxOptionsLeft - 4}px`,
+  zIndex: 1,
+  width: '400px',
+  '> div': {
+    width: comboxboxOptionsWidth,
+    whiteSpace: 'normal',
   },
 });
 
@@ -61,32 +75,35 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+  const portalRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
-    <Combobox
-      value={selectedStage}
-      disabled={isDisabled}
-      aria-label="Select a stage operator"
-      onChange={onStageOperatorSelected}
-      size="default"
-      clearable={false}
-      data-testid="stage-operator-combobox"
-      className={comboboxStyles}
-      // Used for testing to access the popover for a stage
-      popoverClassName={`mongodb-compass-stage-operator-combobox-${index}`}
-    >
-      {stages.map((stage, index) => (
-        <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          displayName={stage.name}
-          description={
-            (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
-          }
-        />
-      ))}
-    </Combobox>
+    <React.Fragment>
+      <div className={comboboxPortalStyles} ref={portalRef} />
+      <Combobox
+        value={selectedStage}
+        disabled={isDisabled}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="default"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+        portalContainer={portalRef.current}
+        usePortal
+      >
+        {stages.map((stage, index) => (
+          <ComboboxOption
+            data-testid={`combobox-option-stage-${stage.name}`}
+            key={`combobox-option-stage-${index}`}
+            value={stage.name}
+            description={
+              (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
+            }
+          />
+        ))}
+      </Combobox>
+    </React.Fragment>
   );
 };
 
