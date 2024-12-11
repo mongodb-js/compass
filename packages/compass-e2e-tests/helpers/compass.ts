@@ -550,8 +550,7 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    //logLevel: 'warn' as const, // info is super verbose right now
-    logLevel: 'debug' as const,
+    logLevel: 'warn' as const, // info is super verbose right now
     outputDir: webdriverLogPath,
   };
 
@@ -638,17 +637,18 @@ async function startCompassElectron(
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {
-      browserName: 'chrome',
+      browserName: 'chromium',
       browserVersion: ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
       'wdio:enforceWebDriverClassic': true,
     },
     'wdio:chromedriverOptions': {
-      // TODO: enable logging
+      // TODO: enable logging so we don't have to debug things blindly
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -662,7 +662,6 @@ async function startCompassElectron(
   try {
     browser = (await remote(options)) as CompassBrowser;
   } catch (err) {
-    console.error(err);
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
     });
