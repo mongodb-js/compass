@@ -43,10 +43,14 @@ export function ItemActionGroup<Action extends string>({
   isVisible = true,
   'data-testid': dataTestId,
 }: ItemActionGroupProps<Action>) {
-  const onClick = useCallback(
+  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
-      onAction(evt.currentTarget.dataset.action);
+      const actionName = evt.currentTarget.dataset.action;
+      if (typeof actionName !== 'string') {
+        throw new Error('Expected element to have a "data-action" attribute');
+      }
+      onAction(actionName as Action);
     },
     [onAction]
   );
