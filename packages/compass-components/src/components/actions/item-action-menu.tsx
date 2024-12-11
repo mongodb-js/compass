@@ -61,7 +61,7 @@ export function ItemActionMenu<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick = useCallback(
+  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
@@ -69,7 +69,11 @@ export function ItemActionMenu<Action extends string>({
         // Workaround for https://jira.mongodb.org/browse/PD-1674
         menuTriggerRef.current?.focus();
       }
-      onAction(evt.currentTarget.dataset.action);
+      const actionName = evt.currentTarget.dataset.action;
+      if (typeof actionName !== 'string') {
+        throw new Error('Expected element to have a "data-action" attribute');
+      }
+      onAction(actionName as Action);
     },
     [onAction]
   );
