@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   useOnTabReplace,
   useTabState,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   Banner,
   Link,
@@ -17,7 +18,7 @@ import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';
 import { usePreference } from 'compass-preferences-model/provider';
-import { Shell as _Shell } from '@mongosh/browser-repl';
+import { Shell } from '@mongosh/browser-repl';
 import type { RootState } from '../../stores/store';
 import { selectRuntimeById, saveHistory } from '../../stores/store';
 
@@ -44,13 +45,9 @@ const compassShellContainerStyles = css({
   borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
-type ShellProps = React.ComponentProps<typeof _Shell>;
+type ShellProps = React.ComponentProps<typeof Shell>;
 
-type ShellRef = Extract<Required<ShellProps>['ref'], { current: any }>;
-
-type ShellType = ShellRef['current'];
-
-type ShellOutputEntry = Required<ShellProps>['initialOutput'][number];
+type ShellOutputEntry = Required<ShellProps>['output'][number];
 
 type CompassShellProps = {
   runtime: WorkerRuntime | null;
@@ -58,6 +55,9 @@ type CompassShellProps = {
   onHistoryChange: (history: string[]) => void;
   initialEvaluate?: string | string[];
   initialInput?: string;
+  isOperationInProgress: boolean;
+  onOperationStarted: () => void;
+  onOperationEnd: () => void;
 };
 
 function useInitialEval(initialEvaluate?: string | string[]) {
@@ -71,51 +71,44 @@ function useInitialEval(initialEvaluate?: string | string[]) {
   return initialEvalApplied ? undefined : initialEvaluate;
 }
 
-const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
-  { initialEvaluate: _initialEvaluate, ...props },
-  ref
-) {
-  const shellRef = useRef<ShellType | null>(null);
-  const initialEvaluate = useInitialEval(_initialEvaluate);
-  const mergeRef = useCallback(
-    (shell: ShellType | null) => {
-      shellRef.current = shell;
-      if (typeof ref === 'function') {
-        ref(shell);
-      } else if (ref) {
-        ref.current = shell;
-      }
-    },
-    [ref]
-  );
-  useEffect(() => {
-    return rafraf(() => {
-      shellRef.current?.focusEditor();
-    });
-  }, []);
+const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
   return (
-    <_Shell
-      ref={mergeRef}
-      initialEvaluate={initialEvaluate}
-      {...props}
-    ></_Shell>
-  );
-});
+    Array.isArray(initialEvaluate) ? initialEvaluate : [initialEvaluate]
+  ).filter((line) => {
+    // Filter out empty lines if passed by accident
+    return !!line;
+  });
+};
 
-const CompassShell: React.FC<CompassShellProps> = ({
+const isInitialEvaluateEmpty = (
+  initialEvaluate?: string | string[] | undefined
+) => {
+  return (
+    !initialEvaluate || normalizeInitialEvaluate(initialEvaluate).length === 0
+  );
+};
+
+export const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
   onHistoryChange,
-  initialEvaluate,
+  initialEvaluate: _initialEvaluate,
   initialInput,
 }) => {
+  const initialEvaluate = useInitialEval(_initialEvaluate);
+
+  const [isOperationInProgress, setIsOperationInProgress] = useTabState(
+    'isOperationInProgress',
+    !isInitialEvaluateEmpty(initialEvaluate)
+  );
+
   const enableShell = usePreference('enableShell');
-  const shellRef: ShellRef = useRef(null);
+  const [editor, setEditor] = useState<EditorRef | null>(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
-  const [isOperationInProgress, setIsOperationInProgress] = useState(false);
-  const [shellOutput, setShellOutput] = useTabState<
-    readonly ShellOutputEntry[]
-  >('shellOutput', []);
+  const [shellOutput, setShellOutput] = useTabState<ShellOutputEntry[]>(
+    'shellOutput',
+    []
+  );
   const [shellInput, setShellInput] = useTabState(
     'shellInput',
     initialInput ?? ''
@@ -136,27 +129,26 @@ const CompassShell: React.FC<CompassShellProps> = ({
   }, []);
 
   const focusEditor = useCallback(() => {
-    if (shellRef.current && window.getSelection()?.type !== 'Range') {
-      shellRef.current.focusEditor();
+    if (editor && window.getSelection()?.type !== 'Range') {
+      editor.focus();
     }
-  }, []);
+  }, [editor]);
 
-  const updateShellOutput = useCallback(
-    (output: readonly ShellOutputEntry[]) => {
-      setShellOutput(output);
-    },
-    [setShellOutput]
-  );
-
-  const notifyOperationStarted = useCallback(() => {
+  const onOperationStarted = useCallback(() => {
     setIsOperationInProgress(true);
-  }, []);
+  }, [setIsOperationInProgress]);
 
-  const notifyOperationEnd = useCallback(() => {
+  const onOperationEnd = useCallback(() => {
     setIsOperationInProgress(false);
-  }, []);
+  }, [setIsOperationInProgress]);
 
   const canRenderShell = enableShell && initialHistory && runtime;
+
+  useEffect(() => {
+    return rafraf(() => {
+      editor?.focus();
+    });
+  }, [editor]);
 
   if (!enableShell) {
     return (
@@ -201,21 +193,20 @@ const CompassShell: React.FC<CompassShellProps> = ({
           className={compassShellContainerStyles}
         >
           <Shell
-            ref={shellRef}
             runtime={runtime}
-            initialEvaluate={initialEvaluate}
-            initialInput={shellInput}
-            onInputChanged={setShellInput}
-            initialOutput={shellOutput}
-            onOutputChanged={updateShellOutput}
-            initialHistory={initialHistory}
-            onHistoryChanged={(history) => {
-              onHistoryChange([...history]);
-            }}
-            onOperationStarted={notifyOperationStarted}
-            onOperationEnd={notifyOperationEnd}
             maxOutputLength={1000}
             maxHistoryLength={1000}
+            initialEvaluate={initialEvaluate}
+            inputText={shellInput}
+            onInputChanged={setShellInput}
+            output={shellOutput}
+            onOutputChanged={setShellOutput}
+            history={initialHistory}
+            onHistoryChanged={onHistoryChange}
+            onOperationStarted={onOperationStarted}
+            onOperationEnd={onOperationEnd}
+            isOperationInProgress={isOperationInProgress}
+            onEditorChanged={setEditor}
           />
         </div>
       </div>
