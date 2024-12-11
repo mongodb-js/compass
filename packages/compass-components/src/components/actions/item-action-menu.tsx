@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
 import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { Menu, MenuItem, MenuSeparator } from '../leafygreen';
@@ -29,13 +28,6 @@ const containerStyle = css({
   marginLeft: 'auto',
   alignItems: 'center',
   display: 'flex',
-});
-
-// TODO: Move to a parent component - or a flex gap
-const buttonStyle = css({
-  '&:not(:first-child)': {
-    marginLeft: spacing[100],
-  },
 });
 
 export type ItemActionMenuProps<Action extends string> = {
@@ -120,7 +112,7 @@ export function ItemActionMenu<Action extends string>({
                 evt.stopPropagation();
                 onClick && onClick(evt);
               }}
-              className={cx(buttonStyle, iconClassName)}
+              className={iconClassName}
               style={iconStyle}
             >
               {children}

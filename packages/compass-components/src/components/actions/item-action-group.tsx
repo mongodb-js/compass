@@ -19,13 +19,7 @@ const containerStyle = css({
   marginLeft: 'auto',
   alignItems: 'center',
   display: 'flex',
-});
-
-// TODO: Move to a parent component - or a flex gap
-const actionGroupButtonStyle = css({
-  '&:not(:first-child)': {
-    marginLeft: spacing[100],
-  },
+  gap: spacing[100],
 });
 
 export type ItemActionGroupProps<Action extends string> = {
@@ -94,14 +88,9 @@ export function ItemActionGroup<Action extends string>({
             <Tooltip
               key={itemProps.action}
               {...tooltipProps}
-              trigger={
-                <div
-                  className={actionGroupButtonStyle}
-                  style={{ display: 'inherit' }}
-                >
-                  {item}
-                </div>
-              }
+              // Wrapping the item in a div, because the `trigger` must accept and render `children`
+              // See docs for the prop for more information
+              trigger={<div style={{ display: 'inherit' }}>{item}</div>}
             >
               {tooltip}
             </Tooltip>
