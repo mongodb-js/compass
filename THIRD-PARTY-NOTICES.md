@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Dec 10 2024.
+This document was automatically generated on Wed Dec 11 2024.
 
 ## List of dependencies
 
@@ -148,7 +148,7 @@ Package|Version|License
 **[acorn](#4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d)**|8.8.2|MIT
 **[ag-grid-community](#f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e)**|20.2.0|MIT
 **[ag-grid-react](#266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5)**|20.2.0|MIT
-**[agent-base](#f2315537cada74050b82aaa21dcd7136d001ad9b9442d6ce952030fd890ad26b)**|7.1.1|MIT
+**[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**|7.1.3|MIT
 **[ampersand-class-extend](#fa70ccae815f704b05515401eb173b69fec304f2fc4d70d8cefafecb7582c960)**|1.0.2|MIT
 **[ampersand-class-extend](#e80e071b7daf67567df2ed06a0912550d865bb42f740c56f3ee13e4c9ada947b)**|2.0.0|MIT
 **[ampersand-collection-view](#394cdda776a31044177827f7d787e79a65210fbf3e6d2619e2f40709248eaaed)**|1.4.0|MIT
@@ -300,7 +300,7 @@ Package|Version|License
 **[hoist-non-react-statics](#48f3f00d384ea079099b9b701c304b7e276313a616f8ad0084f41ea563f876af)**|3.3.2|BSD-3-Clause
 **[http-errors](#63ffbc6de129d4a36e73df25da1f31ee2a7da3b1060e1b5b3c2b5cad89ca04c7)**|2.0.0|MIT
 **[http-proxy-agent](#bd2b92f8eb0b68f6d255c316d3cd8c9aff9984e8bcb584d47613c422de726405)**|7.0.2|MIT
-**[https-proxy-agent](#8a149a0a84183adc7ec4c2ca491a2aced0803a8c5fdae6e99879bcb4720837e1)**|7.0.5|MIT
+**[https-proxy-agent](#b6aac91220cd7856e313022f6bc340440996660bbcd315ce14638d6daa8a33c6)**|7.0.6|MIT
 **[human-signals](#49d0a41c5a505634282f30fd5bf8876d5c9fd885fc242bcf16c71d3b4c4e2da5)**|2.1.0|Apache-2.0
 **[human-signals](#62680fd7715b22b948ad9771bc3f0de13d753f68f6478afdda970d4393faa754)**|4.3.1|Apache-2.0
 **[iconv-lite](#7d9ca5eb7c6d1a6f1b3b2db04e94ca19cc04caa10d923fca7d7942d47aa505fe)**|0.4.24|MIT
@@ -464,7 +464,7 @@ Package|Version|License
 **[open](#6c66626cf6e18f59c76bef1f4ed0c2b541e68592d65325d4fb83a659e3078981)**|9.1.0|MIT
 **[openid-client](#c82c34e27f6c51e0de2fb589ea284d855a5a24d3c475c51b22186cfdbbcb9152)**|5.7.1|MIT
 **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**|1.2.1|MIT
-**[pac-proxy-agent](#0c860d23706396c87370b49399bd004f0a3552427d65a829b16274a966c51304)**|7.0.2|MIT
+**[pac-proxy-agent](#751f2ba44d5fbf79ece4fea4bc03df4f4b3cb4470a1495adda33a28db3dd6d1f)**|7.1.0|MIT
 **[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**|7.0.1|MIT
 **[papaparse](#a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684)**|5.3.2|MIT
 **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**|1.3.3|MIT
@@ -526,7 +526,7 @@ Package|Version|License
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
-**[socks-proxy-agent](#e192db394689e9e76e333aebe6a6958554ba85f63c4b2959bd6732f76ce1ed0d)**|8.0.4|MIT
+**[socks-proxy-agent](#d2c38f45ca9652d91bdddab43eb515b26566789904dee10e0c32517705184cec)**|8.0.5|MIT
 **[socks](#0248dada9537f6f43ee753036902a8c3d06323744469309fdc207cd0b14f70e9)**|2.8.3|MIT
 **[sort-keys-length](#af13db706339ff49fba434ce0fbda036b99f3dc30e66a530b64374afd5a1eec1)**|1.0.1|MIT
 **[sort-keys](#714faeb378f5373d2aa5f80825d02c9f7ab2cacb699db02c84e675d193a6bfa8)**|1.1.2|MIT
@@ -593,7 +593,7 @@ Package|Version|License
 **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
 **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
 **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**|21.1.1|ISC
-**[zod](#7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566)**|3.22.3|MIT
+**[zod](#750b81338b71d5e78ed66a065d072d2ab6b12e6aed146a736200bc63fc4f721b)**|3.23.8|MIT
 
 ## Package details
 
@@ -15747,8 +15747,8 @@ License files:
       
 
 
-<a id="f2315537cada74050b82aaa21dcd7136d001ad9b9442d6ce952030fd890ad26b"></a>
-### [agent-base](https://www.npmjs.com/package/agent-base) (version 7.1.1)
+<a id="10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb"></a>
+### [agent-base](https://www.npmjs.com/package/agent-base) (version 7.1.3)
 License tags: MIT
 
 License files:
@@ -20652,8 +20652,8 @@ License files:
       
 
 
-<a id="8a149a0a84183adc7ec4c2ca491a2aced0803a8c5fdae6e99879bcb4720837e1"></a>
-### [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) (version 7.0.5)
+<a id="b6aac91220cd7856e313022f6bc340440996660bbcd315ce14638d6daa8a33c6"></a>
+### [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) (version 7.0.6)
 License tags: MIT
 
 License files:
@@ -28031,8 +28031,8 @@ License files:
       
 
 
-<a id="0c860d23706396c87370b49399bd004f0a3552427d65a829b16274a966c51304"></a>
-### [pac-proxy-agent](https://www.npmjs.com/package/pac-proxy-agent) (version 7.0.2)
+<a id="751f2ba44d5fbf79ece4fea4bc03df4f4b3cb4470a1495adda33a28db3dd6d1f"></a>
+### [pac-proxy-agent](https://www.npmjs.com/package/pac-proxy-agent) (version 7.1.0)
 License tags: MIT
 
 License files:
@@ -35989,8 +35989,8 @@ License files:
       
 
 
-<a id="e192db394689e9e76e333aebe6a6958554ba85f63c4b2959bd6732f76ce1ed0d"></a>
-### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 8.0.4)
+<a id="d2c38f45ca9652d91bdddab43eb515b26566789904dee10e0c32517705184cec"></a>
+### [socks-proxy-agent](https://www.npmjs.com/package/socks-proxy-agent) (version 8.0.5)
 License tags: MIT
 
 License files:
@@ -38523,8 +38523,8 @@ License files:
       
 
 
-<a id="7e37bb8a0a232b053778166963faee52e7d1a9cfca82f4501d65e94f11d1c566"></a>
-### [zod](https://www.npmjs.com/package/zod) (version 3.22.3)
+<a id="750b81338b71d5e78ed66a065d072d2ab6b12e6aed146a736200bc63fc4f721b"></a>
+### [zod](https://www.npmjs.com/package/zod) (version 3.23.8)
 License tags: MIT
 
 License files:
