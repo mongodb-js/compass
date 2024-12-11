@@ -33,7 +33,7 @@ export type ItemActionControlsProps<Action extends string> = {
   'data-testid'?: string;
 };
 
-export function ItemActionControls<Action extends string>({
+export function ItemActionControls<Action extends string = string>({
   isVisible = true,
   actions,
   onAction,

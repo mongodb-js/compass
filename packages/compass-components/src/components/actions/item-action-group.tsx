@@ -83,7 +83,7 @@ export function ItemActionGroup<Action extends string>({
             iconStyle={iconStyle}
             iconClassName={iconClassName}
             onClick={onClick}
-            data-testid={actionTestId<Action>(dataTestId, itemProps.action)}
+            data-testid={actionTestId(dataTestId, itemProps.action)}
           />
         );
 
