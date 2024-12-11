@@ -304,8 +304,10 @@ describe('Collection import', function () {
 
     // confirm
     // this selector is very brittle, so just make sure it works
-    expect(browser.$(Selectors.InsertConfirm).isDisplayed()).to.be.true;
-    expect(browser.$(Selectors.InsertConfirm).getText()).to.equal('Insert');
+    expect(await browser.$(Selectors.InsertConfirm).isDisplayed()).to.be.true;
+    expect(await browser.$(Selectors.InsertConfirm).getText()).to.equal(
+      'Insert'
+    );
     await browser.$(Selectors.InsertConfirm).waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
 

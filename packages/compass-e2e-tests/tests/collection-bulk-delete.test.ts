@@ -70,13 +70,13 @@ describe('Bulk Delete', function () {
     ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
-    expect(browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
+    expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
     );
 
-    expect(browser.$(Selectors.BulkDeleteModalDeleteButton).getText()).to.equal(
-      'Delete 1 document'
-    );
+    expect(
+      await browser.$(Selectors.BulkDeleteModalDeleteButton).getText()
+    ).to.equal('Delete 1 document');
 
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);
@@ -130,13 +130,13 @@ describe('Bulk Delete', function () {
     await browser.$(Selectors.BulkDeleteModal).waitForDisplayed();
 
     // Check that it will update the expected number of documents
-    expect(browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
+    expect(await browser.$(Selectors.BulkDeleteModalTitle).getText()).to.equal(
       'Delete 1 document'
     );
 
-    expect(browser.$(Selectors.BulkDeleteModalDeleteButton).getText()).to.equal(
-      'Delete 1 document'
-    );
+    expect(
+      await browser.$(Selectors.BulkDeleteModalDeleteButton).getText()
+    ).to.equal('Delete 1 document');
 
     // Press delete
     await browser.clickVisible(Selectors.BulkDeleteModalDeleteButton);

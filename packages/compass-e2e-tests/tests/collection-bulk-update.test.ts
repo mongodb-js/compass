@@ -67,17 +67,17 @@ describe('Bulk Update', () => {
     });
 
     // Make sure the query is shown in the modal.
-    expect(browser.$(Selectors.BulkUpdateReadonlyFilter).getText()).to.equal(
-      '{ i: 5 }'
-    );
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.equal('{ i: 5 }');
 
     // Check that it will update the expected number of documents
-    expect(browser.$(Selectors.BulkUpdateTitle).getText()).to.equal(
+    expect(await browser.$(Selectors.BulkUpdateTitle).getText()).to.equal(
       'Update 1 document'
     );
-    expect(browser.$(Selectors.BulkUpdateUpdateButton).getText()).to.equal(
-      'Update 1 document'
-    );
+    expect(
+      await browser.$(Selectors.BulkUpdateUpdateButton).getText()
+    ).to.equal('Update 1 document');
 
     // Check that the modal starts with the default update text
     expect(
@@ -217,9 +217,9 @@ describe('Bulk Update', () => {
     await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
 
     // Make sure the query is shown in the modal.
-    expect(browser.$(Selectors.BulkUpdateReadonlyFilter).getText()).to.match(
-      /{\s+i:\s+{\s+\$gt:\s+5\s+}\s+}/
-    );
+    expect(
+      await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
+    ).to.match(/{\s+i:\s+{\s+\$gt:\s+5\s+}\s+}/);
 
     // Check that the modal starts with the expected update text
     expect(

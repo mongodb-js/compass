@@ -104,9 +104,9 @@ describe('Connection form', function () {
 
     delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
-    expect(browser.$(Selectors.ConnectionFormStringInput).getValue()).to.equal(
-      connectionString
-    );
+    expect(
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for multiple hosts', async function () {
@@ -140,9 +140,9 @@ describe('Connection form', function () {
 
     delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
-    expect(browser.$(Selectors.ConnectionFormStringInput).getValue()).to.equal(
-      connectionString
-    );
+    expect(
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for mongodb+srv scheme', async function () {
@@ -176,9 +176,9 @@ describe('Connection form', function () {
 
     delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
-    expect(browser.$(Selectors.ConnectionFormStringInput).getValue()).to.equal(
-      connectionString
-    );
+    expect(
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for username/password authentication', async function () {
@@ -310,9 +310,9 @@ describe('Connection form', function () {
 
     delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
-    expect(browser.$(Selectors.ConnectionFormStringInput).getValue()).to.equal(
-      connectionString
-    );
+    expect(
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for LDAP authentication', async function () {
@@ -477,9 +477,9 @@ describe('Connection form', function () {
 
     delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
-    expect(browser.$(Selectors.ConnectionFormStringInput).getValue()).to.equal(
-      connectionString
-    );
+    expect(
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
+    ).to.equal(connectionString);
   });
 
   it('does not update the URI for SSH tunnel with password authentication', async function () {
