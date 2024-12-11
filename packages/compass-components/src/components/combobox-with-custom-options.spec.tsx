@@ -21,7 +21,6 @@ const renderCombobox = (
       renderOption={(o, i) => {
         return <ComboboxOption key={i} value={o.value} />;
       }}
-      onChange={() => {}}
       {...props}
     />
   );

@@ -71,7 +71,7 @@ function TabNavBar({
           data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
-          setSelected={onTabClicked}
+          setSelected={(x) => onTabClicked(x as number)}
           selected={activeTabIndex}
         >
           {tabs.map(({ name, title }, idx) => {

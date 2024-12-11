@@ -72,8 +72,6 @@ export const StageOperatorSelect = ({
       clearable={false}
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
-      // Used for testing to access the popover for a stage
-      popoverClassName={`mongodb-compass-stage-operator-combobox-${index}`}
     >
       {stages.map((stage, index) => (
         <ComboboxOption
