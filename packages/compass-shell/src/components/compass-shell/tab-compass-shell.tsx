@@ -55,9 +55,6 @@ type CompassShellProps = {
   onHistoryChange: (history: string[]) => void;
   initialEvaluate?: string | string[];
   initialInput?: string;
-  isOperationInProgress: boolean;
-  onOperationStarted: () => void;
-  onOperationEnd: () => void;
 };
 
 function useInitialEval(initialEvaluate?: string | string[]) {
