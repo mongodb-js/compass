@@ -279,8 +279,6 @@ if ('then' in parsedArgs && typeof parsedArgs.then === 'function') {
 export const context = parsedArgs as CommonParsedArgs &
   Partial<DesktopParsedArgs & WebParsedArgs>;
 
-debug('context:', context);
-
 export function isTestingDesktop(ctx = context): ctx is DesktopParsedArgs {
   return testEnv === 'desktop';
 }
