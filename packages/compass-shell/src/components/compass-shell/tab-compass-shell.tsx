@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   useOnTabReplace,
   useTabState,
@@ -68,23 +68,6 @@ function useInitialEval(initialEvaluate?: string | string[]) {
   return initialEvalApplied ? undefined : initialEvaluate;
 }
 
-const normalizeInitialEvaluate = (initialEvaluate: string | string[]) => {
-  return (
-    Array.isArray(initialEvaluate) ? initialEvaluate : [initialEvaluate]
-  ).filter((line) => {
-    // Filter out empty lines if passed by accident
-    return !!line;
-  });
-};
-
-const isInitialEvaluateEmpty = (
-  initialEvaluate?: string | string[] | undefined
-) => {
-  return (
-    !initialEvaluate || normalizeInitialEvaluate(initialEvaluate).length === 0
-  );
-};
-
 export const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
@@ -92,15 +75,14 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   initialEvaluate: _initialEvaluate,
   initialInput,
 }) => {
+  const editorRef = useRef<EditorRef>(null);
   const initialEvaluate = useInitialEval(_initialEvaluate);
-
   const [isOperationInProgress, setIsOperationInProgress] = useTabState(
     'isOperationInProgress',
-    !isInitialEvaluateEmpty(initialEvaluate)
+    false
   );
 
   const enableShell = usePreference('enableShell');
-  const [editor, setEditor] = useState<EditorRef | null>(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [shellOutput, setShellOutput] = useTabState<ShellOutputEntry[]>(
     'shellOutput',
@@ -126,10 +108,10 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   }, []);
 
   const focusEditor = useCallback(() => {
-    if (editor && window.getSelection()?.type !== 'Range') {
-      editor.focus();
+    if (editorRef.current && window.getSelection()?.type !== 'Range') {
+      editorRef.current.focus();
     }
-  }, [editor]);
+  }, []);
 
   const onOperationStarted = useCallback(() => {
     setIsOperationInProgress(true);
@@ -143,9 +125,9 @@ export const CompassShell: React.FC<CompassShellProps> = ({
 
   useEffect(() => {
     return rafraf(() => {
-      editor?.focus();
+      editorRef.current?.focus();
     });
-  }, [editor]);
+  }, []);
 
   if (!enableShell) {
     return (
@@ -203,7 +185,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
             onOperationStarted={onOperationStarted}
             onOperationEnd={onOperationEnd}
             isOperationInProgress={isOperationInProgress}
-            onEditorChanged={setEditor}
+            ref={editorRef}
           />
         </div>
       </div>
