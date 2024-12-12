@@ -79,6 +79,7 @@ export function ItemActionGroup<Action extends string>({
 
         const item = (
           <ItemComponent
+            key={itemProps.action}
             {...itemProps}
             iconSize={iconSize}
             iconStyle={iconStyle}
