@@ -50,17 +50,17 @@ describe('Collection schema tab', function () {
     );
     await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-    const element = await browser.$(Selectors.SchemaFieldList);
+    const element = browser.$(Selectors.SchemaFieldList);
     await element.waitForDisplayed();
-    const analysisMessageElement = await browser.$(Selectors.AnalysisMessage);
+    const analysisMessageElement = browser.$(Selectors.AnalysisMessage);
     const message = await analysisMessageElement.getText();
     // message contains non-breaking spaces
     expect(message.replace(/\s/g, ' ')).to.equal(
       'This report is based on a sample of 1000 documents.'
     );
 
-    const fields = await browser.$$(Selectors.SchemaField);
-    expect(fields).to.have.lengthOf(3);
+    const numFields = await browser.$$(Selectors.SchemaField).length;
+    expect(numFields).to.equal(3);
 
     const fieldNames = await browser
       .$$(Selectors.SchemaFieldName)
@@ -86,7 +86,7 @@ describe('Collection schema tab', function () {
       );
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-      const element = await browser.$(Selectors.SchemaFieldList);
+      const element = browser.$(Selectors.SchemaFieldList);
       await element.waitForDisplayed();
 
       const fieldNames = (

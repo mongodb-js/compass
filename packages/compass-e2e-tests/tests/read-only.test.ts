@@ -55,7 +55,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       )
     ).to.be.equal(false);
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -90,13 +90,13 @@ describe('readOnly: true / Read-Only Edition', function () {
     const dbName = 'test'; // existing db
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-    const dbElement = await browser.$(
+    const dbElement = browser.$(
       Selectors.sidebarDatabase(connectionId, dbName)
     );
     await dbElement.waitForDisplayed();
     await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
 
-    let sidebarCreateCollectionButton = await browser.$(
+    let sidebarCreateCollectionButton = browser.$(
       Selectors.CreateCollectionButton
     );
     let isSidebarCreateCollectionButtonExisting =
@@ -104,7 +104,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -114,9 +114,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    sidebarCreateCollectionButton = await browser.$(
-      Selectors.CreateCollectionButton
-    );
+    sidebarCreateCollectionButton = browser.$(Selectors.CreateCollectionButton);
     isSidebarCreateCollectionButtonExisting =
       await sidebarCreateCollectionButton.isExisting();
     expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
@@ -130,7 +128,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Databases'
     );
 
-    let instanceCreateDatabaseButton = await browser.$(
+    let instanceCreateDatabaseButton = browser.$(
       Selectors.InstanceCreateDatabaseButton
     );
     let isInstanceCreateDatabaseButtonExisting =
@@ -138,7 +136,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -148,7 +146,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    instanceCreateDatabaseButton = await browser.$(
+    instanceCreateDatabaseButton = browser.$(
       Selectors.InstanceCreateDatabaseButton
     );
     isInstanceCreateDatabaseButtonExisting =
@@ -165,7 +163,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       'test'
     );
 
-    let databaseCreateCollectionButton = await browser.$(
+    let databaseCreateCollectionButton = browser.$(
       Selectors.DatabaseCreateCollectionButton
     );
     let isDatabaseCreateCollectionButtonExisting =
@@ -173,7 +171,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -183,7 +181,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    databaseCreateCollectionButton = await browser.$(
+    databaseCreateCollectionButton = browser.$(
       Selectors.DatabaseCreateCollectionButton
     );
     isDatabaseCreateCollectionButtonExisting =
@@ -202,12 +200,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Documents'
     );
 
-    let addDataButton = await browser.$(Selectors.AddDataButton);
+    let addDataButton = browser.$(Selectors.AddDataButton);
     let isAddDataButtonExisting = await addDataButton.isExisting();
     expect(isAddDataButtonExisting).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -217,7 +215,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    addDataButton = await browser.$(Selectors.AddDataButton);
+    addDataButton = browser.$(Selectors.AddDataButton);
     isAddDataButtonExisting = await addDataButton.isExisting();
     expect(isAddDataButtonExisting).to.be.equal(false);
   });
@@ -238,8 +236,8 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
 
     // sanity check to make sure there's only one
-    const stageContainers = await browser.$$(Selectors.StageCard);
-    expect(stageContainers).to.have.lengthOf(1);
+    const numStageContainers = await browser.$$(Selectors.StageCard).length;
+    expect(numStageContainers).to.equal(1);
 
     let options = await browser.getStageOperators(0);
 
@@ -247,13 +245,13 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(options).to.include('$out');
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
 
     await browser.waitUntil(async () => {
       await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      const featuresSettingsContent = await browser.$(
+      const featuresSettingsContent = browser.$(
         Selectors.GeneralSettingsContent
       );
       const isFeaturesSettingsContentExisting =
@@ -287,12 +285,12 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Indexes'
     );
 
-    let createIndexButton = await browser.$(Selectors.CreateIndexButton);
+    let createIndexButton = browser.$(Selectors.CreateIndexButton);
     let isCreateIndexButtonExisting = await createIndexButton.isExisting();
     expect(isCreateIndexButtonExisting).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -302,11 +300,11 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    createIndexButton = await browser.$(Selectors.CreateIndexButton);
+    createIndexButton = browser.$(Selectors.CreateIndexButton);
     isCreateIndexButtonExisting = await createIndexButton.isExisting();
     expect(isCreateIndexButtonExisting).to.be.equal(false);
 
-    const indexList = await browser.$(Selectors.IndexList);
+    const indexList = browser.$(Selectors.IndexList);
     const isIndexListExisting = await indexList.isExisting();
     expect(isIndexListExisting).to.be.equal(true);
   });
@@ -322,7 +320,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Validation'
     );
     await browser.clickVisible(Selectors.AddRuleButton);
-    const element = await browser.$(Selectors.ValidationEditor);
+    const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
     await browser.setCodemirrorEditorValue(
@@ -345,7 +343,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     ).to.equal('false');
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 

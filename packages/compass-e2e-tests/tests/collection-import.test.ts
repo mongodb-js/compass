@@ -25,7 +25,7 @@ const { expect } = chai;
 async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   // open the import modal
   await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+  const insertDocumentOption = browser.$(Selectors.ImportFileOption);
   await insertDocumentOption.waitForDisplayed();
   await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -33,7 +33,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
   // Wait for the modal to appear.
-  const importModal = await browser.$(Selectors.ImportModal);
+  const importModal = browser.$(Selectors.ImportModal);
   await importModal.waitForDisplayed();
 
   // Confirm import.
@@ -43,7 +43,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await importModal.waitForDisplayed({ reverse: true });
 
   // Wait for the done toast to appear and close it.
-  const toastElement = await browser.$(Selectors.ImportToast);
+  const toastElement = browser.$(Selectors.ImportToast);
   await toastElement.waitForDisplayed();
   await browser
     .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -62,12 +62,12 @@ async function selectFieldType(
     Selectors.importPreviewFieldHeaderSelect(fieldName)
   );
 
-  const fieldTypeSelectMenu = await browser.$(
+  const fieldTypeSelectMenu = browser.$(
     Selectors.importPreviewFieldHeaderSelectMenu(fieldName)
   );
   await fieldTypeSelectMenu.waitForDisplayed();
 
-  const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
+  const fieldTypeSelectSpan = fieldTypeSelectMenu.$(`span=${fieldType}`);
   await fieldTypeSelectSpan.waitForDisplayed();
   await fieldTypeSelectSpan.scrollIntoView();
   await browser.pause(1000);
@@ -81,10 +81,10 @@ async function selectFieldType(
 }
 
 async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
-  const checkboxElement = await browser.$(
+  const checkboxElement = browser.$(
     Selectors.importPreviewFieldHeaderCheckbox(fieldName)
   );
-  const checkboxLabel = await checkboxElement.parentElement();
+  const checkboxLabel = checkboxElement.parentElement();
   await checkboxLabel.waitForDisplayed();
   await checkboxLabel.scrollIntoView();
   expect(await checkboxElement.isSelected()).to.be.true;
@@ -152,14 +152,12 @@ describe('Collection import', function () {
 
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(
-      Selectors.InsertDocumentOption
-    );
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = await browser.$(Selectors.InsertDialog);
+    const insertDialog = browser.$(Selectors.InsertDialog);
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
@@ -169,7 +167,7 @@ describe('Collection import', function () {
     );
 
     // confirm
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
     // this selector is very brittle, so just make sure it works
     expect(await insertConfirm.isDisplayed()).to.be.true;
     expect(await insertConfirm.getText()).to.equal('Insert');
@@ -180,9 +178,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed({ reverse: true });
 
     // make sure the documents appear in the collection
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
       return text === '1 – 1 of 1';
@@ -217,14 +213,12 @@ describe('Collection import', function () {
 
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(
-      Selectors.InsertDocumentOption
-    );
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = await browser.$(Selectors.InsertDialog);
+    const insertDialog = browser.$(Selectors.InsertDialog);
     await insertDialog.waitForDisplayed();
 
     // pick list view
@@ -254,7 +248,7 @@ describe('Collection import', function () {
     );
 
     // confirm
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
     // this selector is very brittle, so just make sure it works
     expect(await insertConfirm.isDisplayed()).to.be.true;
     expect(await insertConfirm.getText()).to.equal('Insert');
@@ -265,9 +259,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed({ reverse: true });
 
     // make sure the documents appear in the collection
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
       return text === '1 – 1 of 1';
@@ -299,14 +291,12 @@ describe('Collection import', function () {
 
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(
-      Selectors.InsertDocumentOption
-    );
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = await browser.$(Selectors.InsertDialog);
+    const insertDialog = browser.$(Selectors.InsertDialog);
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
@@ -325,9 +315,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed({ reverse: true });
 
     // make sure the documents appear in the collection
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
       return text === '1 – 25 of 1000';
@@ -356,26 +344,24 @@ describe('Collection import', function () {
 
     // browse to the "Insert to Collection" modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(
-      Selectors.InsertDocumentOption
-    );
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.InsertDocumentOption);
 
     // wait for the modal to appear
-    const insertDialog = await browser.$(Selectors.InsertDialog);
+    const insertDialog = browser.$(Selectors.InsertDialog);
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // make sure that there's an error and that the insert button is disabled
-    const errorElement = await browser.$(Selectors.InsertDialogErrorMessage);
+    const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
     await errorElement.waitForDisplayed();
     expect(await errorElement.getText()).to.equal(
       'Insert not permitted while document contains errors.'
     );
-    const insertButton = await browser.$(Selectors.InsertConfirm);
+    const insertButton = browser.$(Selectors.InsertConfirm);
     await browser.waitForAriaDisabled(insertButton, true);
 
     // cancel and wait for the modal to go away
@@ -395,9 +381,7 @@ describe('Collection import', function () {
 
     await importJSONFile(browser, jsonPath);
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 25 of 16116');
 
@@ -445,9 +429,7 @@ describe('Collection import', function () {
 
     await importJSONFile(browser, jsonPath);
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
@@ -496,14 +478,14 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
     // Select the file.
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // Confirm import.
@@ -513,7 +495,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     const errorText = await toastElement.getText();
     expect(errorText).to.include('Failed to import with the following error');
@@ -539,7 +521,7 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -550,7 +532,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // wait for it to finish analyzing
@@ -591,7 +573,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -601,9 +583,7 @@ describe('Collection import', function () {
     );
     await toastElement.waitForDisplayed({ reverse: true });
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 25 of 16116');
 
@@ -670,7 +650,7 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -681,7 +661,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // wait for it to finish analyzing
@@ -791,7 +771,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -801,9 +781,7 @@ describe('Collection import', function () {
     );
     await toastElement.waitForDisplayed({ reverse: true });
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 3 of 3');
 
@@ -832,7 +810,7 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -840,11 +818,11 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // it now autodetects the delimiter
-    const importDelimiterSelectButton = await browser.$(
+    const importDelimiterSelectButton = browser.$(
       Selectors.ImportDelimiterSelect
     );
     expect(await importDelimiterSelectButton.getText()).to.equal('Semicolon');
@@ -877,7 +855,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -887,9 +865,7 @@ describe('Collection import', function () {
     );
     await toastElement.waitForDisplayed({ reverse: true });
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
@@ -924,7 +900,7 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -932,7 +908,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // wait for it to finish analyzing
@@ -951,7 +927,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser.waitUntil(async function () {
       const toastText = await toastElement.getText();
@@ -983,7 +959,7 @@ describe('Collection import', function () {
 
     // open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -991,11 +967,11 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // wait for the modal to appear
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // it now autodetects the delimiter correctly
-    const importDelimiterSelectButton = await browser.$(
+    const importDelimiterSelectButton = browser.$(
       Selectors.ImportDelimiterSelect
     );
     expect(await importDelimiterSelectButton.getText()).to.equal('Semicolon');
@@ -1003,11 +979,9 @@ describe('Collection import', function () {
     // but let's break it anyway
     await importDelimiterSelectButton.waitForDisplayed();
     await importDelimiterSelectButton.click();
-    const importDelimiterSelectMenu = await browser.$(
-      Selectors.ImportDelimiterMenu
-    );
+    const importDelimiterSelectMenu = browser.$(Selectors.ImportDelimiterMenu);
     await importDelimiterSelectMenu.waitForDisplayed();
-    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=Comma');
+    const delimiterSelectSpan = importDelimiterSelectMenu.$('span=Comma');
     await delimiterSelectSpan.waitForDisplayed();
     await delimiterSelectSpan.click();
 
@@ -1027,7 +1001,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -1037,9 +1011,7 @@ describe('Collection import', function () {
     );
     await toastElement.waitForDisplayed({ reverse: true });
 
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
+    const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
@@ -1076,7 +1048,7 @@ describe('Collection import', function () {
 
     // Open the import modal
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -1084,14 +1056,14 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // wait for the modal to appear
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // Click the stop on errors checkbox.
-    const stopOnErrorsCheckbox = await browser.$(
+    const stopOnErrorsCheckbox = browser.$(
       Selectors.ImportStopOnErrorsCheckbox
     );
-    const stopOnErrorsLabel = await stopOnErrorsCheckbox.parentElement();
+    const stopOnErrorsLabel = stopOnErrorsCheckbox.parentElement();
     await stopOnErrorsLabel.click();
 
     // Confirm import.
@@ -1101,7 +1073,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     const toastText = await toastElement.getText();
     expect(toastText).to.include('Failed to import with the following error:');
@@ -1132,7 +1104,7 @@ describe('Collection import', function () {
 
     // Open the import modal.
     await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    const insertDocumentOption = browser.$(Selectors.ImportFileOption);
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -1140,7 +1112,7 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
+    const importModal = browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
     // Confirm import.
@@ -1150,7 +1122,7 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear.
-    const toastElement = await browser.$(Selectors.ImportToast);
+    const toastElement = browser.$(Selectors.ImportToast);
     await toastElement.waitForDisplayed();
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
@@ -1201,7 +1173,7 @@ describe('Collection import', function () {
 
       // Open the import modal.
       await browser.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      const insertDocumentOption = browser.$(Selectors.ImportFileOption);
       await insertDocumentOption.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -1209,7 +1181,7 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
       // Wait for the modal to appear.
-      const importModal = await browser.$(Selectors.ImportModal);
+      const importModal = browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
 
       // Wait for the import button to become available because detect can take
@@ -1220,13 +1192,13 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const toastElement = await browser.$(Selectors.ImportToast);
+      const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
       await browser.clickVisible(Selectors.ImportToast);
 
-      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      const importAbortButton = browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportToastAbort);
 
@@ -1245,9 +1217,7 @@ describe('Collection import', function () {
       }
 
       // Check at least one and fewer than 16116 documents were imported.
-      const messageElement = await browser.$(
-        Selectors.DocumentListActionBarMessage
-      );
+      const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
       const documentsText = await messageElement.getText();
       expect(documentsText).to.not.equal('1 – 20 of 16116');
       expect(documentsText).to.not.include('16116');
@@ -1277,7 +1247,7 @@ describe('Collection import', function () {
 
       // Open the import modal.
       await browser.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      const insertDocumentOption = browser.$(Selectors.ImportFileOption);
       await insertDocumentOption.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -1285,20 +1255,20 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
       // Wait for the modal to appear.
-      const importModal = await browser.$(Selectors.ImportModal);
+      const importModal = browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const toastElement = await browser.$(Selectors.ImportToast);
+      const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
       // Click the toast element. This focuses the toast, and clicking the cancel
       // button isn't consistent without it.
       await browser.clickVisible(Selectors.ImportToast);
 
-      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      const importAbortButton = browser.$(Selectors.ImportToastAbort);
       await importAbortButton.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportToastAbort);
 
@@ -1317,9 +1287,7 @@ describe('Collection import', function () {
       }
 
       // Check at least one and fewer than 16116 documents were imported.
-      const messageElement = await browser.$(
-        Selectors.DocumentListActionBarMessage
-      );
+      const messageElement = browser.$(Selectors.DocumentListActionBarMessage);
       const documentsText = await messageElement.getText();
       expect(documentsText).to.not.equal('1 – 20 of 16116');
       expect(documentsText).to.not.include('16116');
@@ -1344,7 +1312,7 @@ describe('Collection import', function () {
 
       // Open the import modal.
       await browser.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      const insertDocumentOption = browser.$(Selectors.ImportFileOption);
       await insertDocumentOption.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportFileOption);
 
@@ -1352,7 +1320,7 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
       // Wait for the modal to appear.
-      const importModal = await browser.$(Selectors.ImportModal);
+      const importModal = browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
 
       // Confirm import.
@@ -1367,7 +1335,7 @@ describe('Collection import', function () {
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
 
-      const toastElement = await browser.$(Selectors.ImportToast);
+      const toastElement = browser.$(Selectors.ImportToast);
       // Check it displays that the import was aborted.
       const toastText = await toastElement.getText();
       try {

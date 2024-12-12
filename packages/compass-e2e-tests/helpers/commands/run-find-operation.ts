@@ -79,14 +79,12 @@ async function isOptionsExpanded(browser: CompassBrowser, tabName: string) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
-  const element = await browser.$(
-    Selectors.queryBarOptionInputProject(tabName)
-  );
+  const element = browser.$(Selectors.queryBarOptionInputProject(tabName));
   return element.isDisplayed();
 }
 
 async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
-  const queryBarOptionInputProjectElement = await browser.$(
+  const queryBarOptionInputProjectElement = browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed({
@@ -96,9 +94,7 @@ async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
 
 async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
   // click reset if it is enabled to get us back to the empty state
-  const resetButton = await browser.$(
-    Selectors.queryBarResetFilterButton(tabName)
-  );
+  const resetButton = browser.$(Selectors.queryBarResetFilterButton(tabName));
   await resetButton.waitForDisplayed();
 
   if (await resetButton.isEnabled()) {
@@ -140,7 +136,7 @@ async function collapseOptions(browser: CompassBrowser, tabName: string) {
 }
 
 async function waitUntilExpanded(browser: CompassBrowser, tabName: string) {
-  const queryBarOptionInputProjectElement = await browser.$(
+  const queryBarOptionInputProjectElement = browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed();

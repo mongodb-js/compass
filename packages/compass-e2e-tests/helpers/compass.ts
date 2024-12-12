@@ -8,11 +8,9 @@ import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import type { RemoteOptions } from 'webdriverio';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import type { ConsoleMessageType } from 'puppeteer';
 import { run as packageCompass } from 'hadron-build/commands/release';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -118,7 +116,7 @@ interface Coverage {
 
 interface RenderLogEntry {
   timestamp: string;
-  type: ConsoleMessageType;
+  type: string;
   text: string;
   args: unknown;
 }
@@ -175,9 +173,6 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    // TS infers the type of `message` correctly here, which would conflict with
-    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
-    // leave out an explicit type annotation.
     page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
@@ -646,6 +641,11 @@ async function startCompassElectron(
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
+    },
+    'wdio:chromedriverOptions': {
+      // TODO: enable logging so we don't have to debug things blindly
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -736,12 +736,17 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const options: RemoteOptions = {
+  // webdriverio removed RemoteOptions. It is now
+  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
+  const options = {
     capabilities: {
       browserName: context.browserName,
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
+
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
     },
     ...webdriverOptions,
     ...wdioOptions,

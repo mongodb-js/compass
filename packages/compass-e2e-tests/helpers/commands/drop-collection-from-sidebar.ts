@@ -22,6 +22,6 @@ export async function dropCollectionFromSidebar(
     databaseName,
     collectionName
   );
-  const collectionElement = await browser.$(collectionSelector);
+  const collectionElement = browser.$(collectionSelector);
   await collectionElement.waitForExist({ reverse: true });
 }

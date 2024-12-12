@@ -39,7 +39,7 @@ async function navigateToCollection(
     Selectors.SidebarFilterInput,
     `^(${dbName}|${collectionName})$`
   );
-  const collectionElement = await browser.$(collectionSelector);
+  const collectionElement = browser.$(collectionSelector);
 
   await collectionElement.waitForDisplayed();
 
