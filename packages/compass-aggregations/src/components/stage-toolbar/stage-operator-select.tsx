@@ -17,14 +17,18 @@ import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 
-const inputWidth = spacing[7] * 2;
+const inputWidth = spacing[1400] * 3;
+const inputHeight = spacing[600] - 2; // match other xs controls
+// width of options popover
+const comboxboxOptionsWidth = spacing[1200] * 10;
+// left position of options popover wrt input. this aligns it with the start of input
+const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
-const inputHeight = spacing[4] - 2; // match other xs controls
 const comboboxStyles = css({
   width: inputWidth,
   '& [role="combobox"]': {
     padding: 0,
-    paddingLeft: spacing[1],
+    paddingLeft: spacing[100],
     height: inputHeight,
     '& > div': {
       minHeight: inputHeight,
@@ -32,17 +36,12 @@ const comboboxStyles = css({
   },
 });
 
-// width of options popover
-const comboxboxOptionsWidth = 500;
-// left position of options popover wrt input. this aligns it with the start of input
-const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 const comboboxPortalStyles = css({
   position: 'fixed',
   top: 0,
   // -4px to count for the input focus outline.
   left: `${comboboxOptionsLeft - 4}px`,
   zIndex: 1,
-  width: '400px',
   '> div': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
