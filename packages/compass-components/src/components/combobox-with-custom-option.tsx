@@ -2,12 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Combobox } from './leafygreen';
 import type { ComboboxProps } from '@leafygreen-ui/combobox';
 
-type SelectValueType<T extends boolean> = NonNullable<
-  ComboboxProps<T>['value']
->;
-type OnChangeType<T extends boolean> = NonNullable<
-  ComboboxProps<T>['onChange']
->;
+type SelectValueType<T extends boolean> = Required<ComboboxProps<T>>['value'];
+type OnChangeType<T extends boolean> = Required<ComboboxProps<T>>['onChange'];
 type ComboboxWithCustomOptionProps<T extends boolean, K> = ComboboxProps<T> & {
   options: K[];
   renderOption: (option: K, index: number, isCustom: boolean) => JSX.Element;
