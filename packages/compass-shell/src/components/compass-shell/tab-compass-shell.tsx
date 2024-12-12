@@ -57,14 +57,20 @@ type CompassShellProps = {
   initialInput?: string;
 };
 
-function useInitialEval(initialEvaluate?: string | string[]) {
+function useInitialEval(
+  initialEvaluate: string | string[] | undefined,
+  isRender: boolean
+) {
   const [initialEvalApplied, setInitialEvalApplied] = useTabState(
     'initialEvalApplied',
     false
   );
   useEffect(() => {
-    setInitialEvalApplied(true);
-  }, [setInitialEvalApplied]);
+    // as soon as we render the first time, set it to true
+    if (isRender && !initialEvalApplied) {
+      setInitialEvalApplied(true);
+    }
+  }, [initialEvalApplied, setInitialEvalApplied, isRender]);
   return initialEvalApplied ? undefined : initialEvaluate;
 }
 
@@ -75,14 +81,19 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   initialEvaluate: _initialEvaluate,
   initialInput,
 }) => {
+  const enableShell = usePreference('enableShell');
+  const canRenderShell = !!(enableShell && initialHistory && runtime);
+
+  // initialEvaluate will only be set on the first render
+  const initialEvaluate = useInitialEval(_initialEvaluate, canRenderShell);
+
   const editorRef = useRef<EditorRef>(null);
-  const initialEvaluate = useInitialEval(_initialEvaluate);
+
   const [isOperationInProgress, setIsOperationInProgress] = useTabState(
     'isOperationInProgress',
     false
   );
 
-  const enableShell = usePreference('enableShell');
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [shellOutput, setShellOutput] = useTabState<ShellOutputEntry[]>(
     'shellOutput',
@@ -121,13 +132,13 @@ export const CompassShell: React.FC<CompassShellProps> = ({
     setIsOperationInProgress(false);
   }, [setIsOperationInProgress]);
 
-  const canRenderShell = enableShell && initialHistory && runtime;
-
   useEffect(() => {
-    return rafraf(() => {
-      editorRef.current?.focus();
-    });
-  }, []);
+    if (canRenderShell) {
+      return rafraf(() => {
+        editorRef.current?.focus();
+      });
+    }
+  }, [canRenderShell]);
 
   if (!enableShell) {
     return (
