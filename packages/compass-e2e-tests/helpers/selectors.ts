@@ -191,7 +191,7 @@ export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
 };
 export const advancedOptionsTabPanel = (tabName: string): string => {
-  return `[role="tabpanel"][aria-label="${tabName}"]`;
+  return `[role="tabpanel"] [aria-label="${tabName}"]`;
 };
 export const connectionFormSchemeRadio = (value: string): string => {
   return `#connection-scheme-radio-box-group input[value="${value}"]`;

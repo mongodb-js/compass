@@ -6,7 +6,7 @@ import * as workspacesSlice from './workspaces';
 import { _bulkTabsClose } from './workspaces';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionInfo } from '../../../connection-info/dist';
-import type { WorkspaceTab } from '../../dist';
+import type { WorkspaceTab } from '../stores/workspaces';
 import { setTabDestroyHandler } from '../components/workspace-close-handler';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 
