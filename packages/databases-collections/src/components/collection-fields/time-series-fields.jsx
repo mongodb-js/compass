@@ -113,7 +113,6 @@ function TimeSeriesFields({
           placeholder="Select a value [optional]"
           description={GRANULARITY_DESCRIPTION}
           onChange={(val) => onChangeField('timeSeries.granularity', val)}
-          renderMode="inline"
           allowDeselect={true}
           value={granularity}
           disabled={!!(bucketMaxSpanSeconds || bucketRoundingSeconds)}

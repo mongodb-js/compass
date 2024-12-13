@@ -165,10 +165,6 @@ const CardActions: React.FunctionComponent<{
       isVisible={isVisible}
       actions={actions}
       onAction={onMenuItemClick}
-      // NB: Focus should be preserved inside the card while interactions are
-      // happening inside the card DOM tree, otherwise we will have troubles
-      // tracking card focus for the virtual grid keyboard navigation
-      renderMode="inline"
     ></ItemActionMenu>
   );
 };

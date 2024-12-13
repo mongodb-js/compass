@@ -312,7 +312,6 @@ class AddFieldButton extends React.Component<
 
     return (
       <Menu
-        renderMode="inline"
         align="bottom"
         justify="start"
         trigger={({
