@@ -43,7 +43,7 @@ describe('Collection ai query', function () {
 
   after(async function () {
     if (!isTestingAtlasCloudSandbox()) {
-      this.skip();
+      return;
     }
 
     await stopPreferencesServer();
