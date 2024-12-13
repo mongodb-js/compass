@@ -32,39 +32,6 @@ export function useAtlasPreferences({
     }
 
     const fetchPreferences = async () => {
-      // console.log('111');
-      // if (
-      //   process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== undefined &&
-      //   process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false'
-      // ) {
-      //   console.log('22222');
-
-      //   try {
-      //     // When we're running e2e tests and want to customize these preferences on the fly
-      //     // we make a request to the server to override the preferences.
-      //     const {
-      //       enableGenAIFeaturesAtlasProject,
-      //       enableGenAISampleDocumentPassingOnAtlasProject,
-      //       enableGenAIFeaturesAtlasOrg,
-      //       optInDataExplorerGenAIFeatures,
-      //     } = await fetch(
-      //       `http://localhost:${process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT}`
-      //     ).then((res) => res.json());
-      //     console.log('4444');
-
-      //     setAtlasPreferences({
-      //       enableGenAIFeaturesAtlasProject,
-      //       enableGenAISampleDocumentPassingOnAtlasProject,
-      //       enableGenAIFeaturesAtlasOrg,
-      //       optInDataExplorerGenAIFeatures,
-      //     });
-      //     return;
-      //   } catch (e) {
-      //     /** no-op when the server isn't up. */        console.log('77777');
-
-      //   }
-      // }
-
       const {
         appUser: { isOptedIntoDataExplorerGenAIFeatures },
         currentOrganization: { genAIFeaturesEnabled },
