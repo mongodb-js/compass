@@ -77,6 +77,39 @@ describe('atlasOptInReducer', function () {
       );
     });
 
+    describe('when already opted in, and the project setting is set to false', function () {
+      beforeEach(async function () {
+        await mockPreferences.savePreferences({
+          enableGenAIFeaturesAtlasProject: false,
+          optInDataExplorerGenAIFeatures: true,
+        });
+      });
+
+      it('should start the opt in flow', async function () {
+        const mockAtlasAiService = {
+          optIntoGenAIFeaturesAtlas: sandbox.stub().resolves({ sub: '1234' }),
+        };
+        const store = configureStore({
+          atlasAuthService: {} as any,
+          atlasAiService: mockAtlasAiService as any,
+          preferences: mockPreferences,
+        });
+
+        expect(store.getState().optIn).to.have.nested.property(
+          'state',
+          'initial'
+        );
+        void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+        await store.dispatch(optIn());
+        expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
+          .calledOnce;
+        expect(store.getState().optIn).to.have.nested.property(
+          'state',
+          'optin-success'
+        );
+      });
+    });
+
     it('should fail opt in if opt in failed', async function () {
       const mockAtlasAiService = {
         optIntoGenAIFeaturesAtlas: sandbox
