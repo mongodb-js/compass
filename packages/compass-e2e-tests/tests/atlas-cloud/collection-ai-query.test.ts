@@ -17,7 +17,7 @@ import {
 } from '../../helpers/atlas-ai-preferences-override';
 import type { PreferencesServerResponse } from '../../helpers/atlas-ai-preferences-override';
 
-describe.only('Collection ai query', function () {
+describe('Collection ai query', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let setPreferencesResponse: (response: PreferencesServerResponse) => void;
@@ -36,21 +36,6 @@ describe.only('Collection ai query', function () {
     setPreferencesResponse = _setPreferencesResponse;
   });
 
-  beforeEach(async function () {
-    compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
-    await browser.setupDefaultConnections();
-
-    await createNumbersCollection();
-    await browser.connectToDefaults();
-    await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
-      'test',
-      'numbers',
-      'Documents'
-    );
-  });
-
   afterEach(async function () {
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
@@ -65,9 +50,21 @@ describe.only('Collection ai query', function () {
   });
 
   describe('when the feature is enabled', function () {
-    beforeEach(function () {
-      // TODO: maybe wrong type
-      setPreferencesResponse(enabledPreferencesResponse.response);
+    beforeEach(async function () {
+      setPreferencesResponse(enabledPreferencesResponse);
+
+      compass = await init(this.test?.fullTitle());
+      browser = compass.browser;
+      await browser.setupDefaultConnections();
+
+      await createNumbersCollection();
+      await browser.connectToDefaults();
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Documents'
+      );
     });
 
     it('should update the query bar with a generated query', async function () {
@@ -106,17 +103,26 @@ describe.only('Collection ai query', function () {
   });
 
   describe('when the org feature is disabled', function () {
-    beforeEach(function () {
-      // TODO: maybe wrong type
+    beforeEach(async function () {
       setPreferencesResponse({
-        status: 200,
-        body: {
-          enableGenAIFeaturesAtlasProject: true,
-          enableGenAISampleDocumentPassingOnAtlasProject: true,
-          enableGenAIFeaturesAtlasOrg: false,
-          optInDataExplorerGenAIFeatures: true,
-        },
+        enableGenAIFeaturesAtlasProject: true,
+        enableGenAISampleDocumentPassingOnAtlasProject: true,
+        enableGenAIFeaturesAtlasOrg: false,
+        optInDataExplorerGenAIFeatures: true,
       });
+
+      compass = await init(this.test?.fullTitle());
+      browser = compass.browser;
+      await browser.setupDefaultConnections();
+
+      await createNumbersCollection();
+      await browser.connectToDefaults();
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Documents'
+      );
     });
 
     it('should not show the gen ai intro button', async function () {

@@ -9,7 +9,10 @@ import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import fs from 'fs';
 import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
-import { E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT } from './atlas-ai-preferences-override';
+import {
+  E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT,
+  startPreferencesOverrideServer,
+} from './atlas-ai-preferences-override';
 
 const debug = Debug('compass-e2e-tests:context');
 
@@ -345,8 +348,10 @@ process.env.HADRON_DISTRIBUTION ??= context.hadronDistribution;
 process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
   context.atlasCloudSandboxCloudConfig ?? 'dev';
 
-process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT =
-  E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT;
+if (isTestingAtlasCloudSandbox(context)) {
+  process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT =
+    E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT;
+}
 
 const testServerVersion =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;

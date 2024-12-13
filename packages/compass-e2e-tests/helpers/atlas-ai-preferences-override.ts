@@ -6,40 +6,39 @@ export const E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT =
   (process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT ??= '8081');
 
 export type PreferencesServerResponse = {
-  status: number;
-  body: {
-    enableGenAIFeaturesAtlasProject: boolean;
-    enableGenAISampleDocumentPassingOnAtlasProject: boolean;
-    enableGenAIFeaturesAtlasOrg: boolean;
-    optInDataExplorerGenAIFeatures: boolean;
-  };
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+  enableGenAIFeaturesAtlasOrg: boolean;
+  optInDataExplorerGenAIFeatures: boolean;
 };
+
+function preferencesResponse(
+  res: http.ServerResponse,
+  response: PreferencesServerResponse
+) {
+  // Get request to hello service.
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(JSON.stringify(response));
+}
 
 export const enabledPreferencesResponse = {
-  response: {
-    status: 200,
-    body: {
-      enableGenAIFeaturesAtlasProject: true,
-      enableGenAISampleDocumentPassingOnAtlasProject: true,
-      enableGenAIFeaturesAtlasOrg: true,
-      optInDataExplorerGenAIFeatures: true,
-    },
-  },
+  enableGenAIFeaturesAtlasProject: true,
+  enableGenAISampleDocumentPassingOnAtlasProject: true,
+  enableGenAIFeaturesAtlasOrg: true,
+  optInDataExplorerGenAIFeatures: true,
 };
 
-export async function startPreferencesOverrideServer({
-  response,
-}: {
-  response: PreferencesServerResponse;
-} = enabledPreferencesResponse): Promise<{
+export async function startPreferencesOverrideServer(
+  response: PreferencesServerResponse = enabledPreferencesResponse
+): Promise<{
   setPreferencesResponse: (response: PreferencesServerResponse) => void;
   endpoint: string;
   server: http.Server;
   stop: () => Promise<void>;
 }> {
   const server = http
-    .createServer(() => {
-      return response;
+    .createServer((req, res) => {
+      return preferencesResponse(res, response);
     })
     .listen(Number(E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT));
   await once(server, 'listening');

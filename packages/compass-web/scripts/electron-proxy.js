@@ -429,6 +429,32 @@ expressProxy.use('/projectId', async (req, res) => {
   res.end();
 });
 
+if (
+  process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== undefined &&
+  process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false'
+) {
+  expressProxy.use('/e2e-test-atlas-preferences-override', async (req, res) => {
+    if (req.method !== 'GET') {
+      res.statusCode = 400;
+      res.end();
+      return;
+    }
+
+    try {
+      const preferencesRes = await electronFetch(
+        `http://localhost:${process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT}`
+      ).then((res) => res.json());
+
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify(preferencesRes));
+    } catch (err) {
+      res.statusCode = 500;
+      res.send(err.stack ?? err.message);
+    }
+    res.end();
+  });
+}
+
 expressProxy.use('/create-cluster', async (req, res) => {
   if (req.method !== 'GET') {
     res.statusCode = 400;
