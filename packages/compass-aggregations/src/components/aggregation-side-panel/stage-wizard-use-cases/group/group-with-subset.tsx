@@ -339,7 +339,7 @@ export const GroupWithSubset = ({
             className={selectStyles}
             allowDeselect={false}
             aria-label="Select direction"
-            usePortal={false}
+            renderMode="inline"
             value={formData.sortDirection}
             onChange={(value: string) =>
               onChangeValue('sortDirection', value as SortDirection)

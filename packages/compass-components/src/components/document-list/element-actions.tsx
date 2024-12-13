@@ -115,7 +115,7 @@ export const AddFieldActions: React.FunctionComponent<{
     <Menu
       open={isOpen}
       setOpen={setIsOpen}
-      usePortal={false}
+      renderMode="inline"
       popoverZIndex={999999}
       align="bottom"
       justify="start"

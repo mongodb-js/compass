@@ -70,7 +70,7 @@ function CollationFields({ collation, changeCollationOption }) {
           onChange={(val) =>
             changeCollationOption(element.field, getCollationValue(val))
           }
-          usePortal={false}
+          renderMode="inline"
           size={SelectSize.Small}
           allowDeselect={false}
           value={

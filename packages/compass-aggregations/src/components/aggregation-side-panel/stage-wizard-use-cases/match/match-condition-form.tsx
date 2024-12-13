@@ -168,7 +168,7 @@ const MatchConditionForm = ({
           allowDeselect={false}
           placeholder={LABELS.operatorSelect}
           aria-label={LABELS.operatorSelect}
-          usePortal={true}
+          renderMode="portal"
           value={condition.operator}
           onChange={handleOperatorChange}
         >
@@ -197,7 +197,7 @@ const MatchConditionForm = ({
           allowDeselect={false}
           placeholder={LABELS.typeSelect}
           aria-label={LABELS.typeSelect}
-          usePortal={true}
+          renderMode="portal"
           value={condition.bsonType}
           onChange={handleBsonTypeChange}
         >

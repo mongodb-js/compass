@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { ItemActionMenu } from './item-action-menu';
 import { ItemActionButtonSize } from './constants';
@@ -34,7 +35,7 @@ export type ItemActionControlsProps<Action extends string> = {
   collapseAfter?: number;
   // When using `collapseAfter`, this option is not used.
   collapseToMenuThreshold?: number;
-  usePortal?: boolean;
+  renderMode?: RenderMode;
   'data-testid'?: string;
 };
 
@@ -47,7 +48,7 @@ export function ItemActionControls<Action extends string>({
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
-  usePortal,
+  renderMode,
   collapseAfter = 0,
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
@@ -75,9 +76,9 @@ export function ItemActionControls<Action extends string>({
   const sharedMenuProps = useMemo(
     () => ({
       menuClassName,
-      usePortal,
+      renderMode,
     }),
-    [menuClassName, usePortal]
+    [menuClassName, renderMode]
   );
   if (actions.length === 0) {
     return null;

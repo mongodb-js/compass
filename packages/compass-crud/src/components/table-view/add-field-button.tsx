@@ -312,7 +312,7 @@ class AddFieldButton extends React.Component<
 
     return (
       <Menu
-        usePortal={false}
+        renderMode="inline"
         align="bottom"
         justify="start"
         trigger={({

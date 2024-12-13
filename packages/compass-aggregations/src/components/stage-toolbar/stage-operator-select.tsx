@@ -89,7 +89,7 @@ export const StageOperatorSelect = ({
         data-testid="stage-operator-combobox"
         className={comboboxStyles}
         portalContainer={portalRef.current}
-        usePortal
+        renderMode="portal"
       >
         {stages.map((stage, index) => (
           <ComboboxOption
