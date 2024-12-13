@@ -53,7 +53,7 @@ describe('Shell', function () {
     await browser.openShell(DEFAULT_CONNECTION_NAME_1);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
-    const infoModalElement = await browser.$(Selectors.ShellInfoModal);
+    const infoModalElement = browser.$(Selectors.ShellInfoModal);
     await infoModalElement.waitForDisplayed();
 
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
@@ -73,7 +73,7 @@ describe('Shell', function () {
     ).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 

@@ -41,6 +41,7 @@ const TestGrid: React.FunctionComponent<{
                 role="cell"
                 data-vlist-item-idx={idx}
                 tabIndex={currentTabbable === idx ? 0 : -1}
+                key={`${row}-${col}`}
               >
                 {row + 1}-{col + 1}
               </div>

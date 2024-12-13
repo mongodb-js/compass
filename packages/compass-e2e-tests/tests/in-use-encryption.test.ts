@@ -250,7 +250,7 @@ describe('CSFLE / QE', function () {
           databaseName
         );
 
-        const collectionListFLE2BadgeElement = await browser.$(
+        const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge
         );
         const collectionListFLE2BadgeElementText =
@@ -266,7 +266,7 @@ describe('CSFLE / QE', function () {
           'Documents'
         );
 
-        const collectionHeaderLE2BadgeElement = await browser.$(
+        const collectionHeaderLE2BadgeElement = browser.$(
           Selectors.CollectionHeaderFLE2Badge
         );
         const collectionHeaderLE2BadgeElementText =
@@ -395,10 +395,10 @@ describe('CSFLE / QE', function () {
           'grid'
         );
 
-        const collectionCard = await browser.$(selector);
+        const collectionCard = browser.$(selector);
         await collectionCard.waitForDisplayed();
 
-        const collectionListFLE2BadgeElement = await browser.$(
+        const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge
         );
         const collectionListFLE2BadgeElementText =
@@ -414,7 +414,7 @@ describe('CSFLE / QE', function () {
           'Documents'
         );
 
-        const collectionHeaderLE2BadgeElement = await browser.$(
+        const collectionHeaderLE2BadgeElement = browser.$(
           Selectors.CollectionHeaderFLE2Badge
         );
         const collectionHeaderLE2BadgeElementText =
@@ -440,14 +440,12 @@ describe('CSFLE / QE', function () {
 
         // browse to the "Insert to Collection" modal
         await browser.clickVisible(Selectors.AddDataButton);
-        const insertDocumentOption = await browser.$(
-          Selectors.InsertDocumentOption
-        );
+        const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
         await insertDocumentOption.waitForDisplayed();
         await browser.clickVisible(Selectors.InsertDocumentOption);
 
         // wait for the modal to appear
-        const insertDialog = await browser.$(Selectors.InsertDialog);
+        const insertDialog = browser.$(Selectors.InsertDialog);
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
@@ -456,7 +454,7 @@ describe('CSFLE / QE', function () {
           '{ "phoneNumber": "30303030", "name": "Person X" }'
         );
 
-        const insertCSFLEHasKnownSchemaMsg = await browser.$(
+        const insertCSFLEHasKnownSchemaMsg = browser.$(
           Selectors.insertCSFLEHasKnownSchemaMsg
         );
         const insertCSFLEHasKnownSchemaMsgText =
@@ -464,7 +462,7 @@ describe('CSFLE / QE', function () {
         expect(insertCSFLEHasKnownSchemaMsgText).to.include('phoneNumber');
 
         // confirm
-        const insertConfirm = await browser.$(Selectors.InsertConfirm);
+        const insertConfirm = browser.$(Selectors.InsertConfirm);
         await insertConfirm.waitForEnabled();
         await browser.clickVisible(Selectors.InsertConfirm);
 
@@ -500,9 +498,9 @@ describe('CSFLE / QE', function () {
           collectionName,
           'Documents'
         );
-        const document = await browser.$(Selectors.DocumentListEntry);
+        const document = browser.$(Selectors.DocumentListEntry);
 
-        const documentPhoneNumberDecryptedIcon = await document.$(
+        const documentPhoneNumberDecryptedIcon = document.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isDocumentPhoneNumberDecryptedIconExisting =
@@ -553,8 +551,8 @@ describe('CSFLE / QE', function () {
           const result = await browser.getFirstListDocument();
           expect(result[field]).to.be.equal(toString(oldValueJS));
 
-          const document = await browser.$(Selectors.DocumentListEntry);
-          const value = await document.$(
+          const document = browser.$(Selectors.DocumentListEntry);
+          const value = document.$(
             `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentClickableValue}`
           );
           await value.doubleClick();
@@ -567,10 +565,10 @@ describe('CSFLE / QE', function () {
             typeof newValueJS === 'string' ? newValueJS : toString(newValueJS)
           );
 
-          const footer = await document.$(Selectors.DocumentFooterMessage);
+          const footer = document.$(Selectors.DocumentFooterMessage);
           expect(await footer.getText()).to.equal('Document modified.');
 
-          const button = await document.$(Selectors.UpdateDocumentButton);
+          const button = document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
             // Prompt failure is required here and so the timeout should be
@@ -621,7 +619,7 @@ describe('CSFLE / QE', function () {
         );
         await browser.clickVisible(Selectors.SelectJSONView);
 
-        const document = await browser.$(Selectors.DocumentJSONEntry);
+        const document = browser.$(Selectors.DocumentJSONEntry);
         await document.waitForDisplayed();
 
         const json = await browser.getCodemirrorEditorText(
@@ -643,10 +641,10 @@ describe('CSFLE / QE', function () {
           newjson
         );
 
-        const footer = await document.$(Selectors.DocumentFooterMessage);
+        const footer = document.$(Selectors.DocumentFooterMessage);
         expect(await footer.getText()).to.equal('Document modified.');
 
-        const button = await document.$(Selectors.UpdateDocumentButton);
+        const button = document.$(Selectors.UpdateDocumentButton);
         await button.click();
         await footer.waitForDisplayed({ reverse: true });
 
@@ -690,12 +688,12 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Person Z' }");
 
-        const originalDocument = await browser.$(Selectors.DocumentListEntry);
-        const originalValue = await originalDocument.$(
+        const originalDocument = browser.$(Selectors.DocumentListEntry);
+        const originalValue = originalDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
         );
         await originalValue.doubleClick();
-        const originalDocumentPhoneNumberEditor = await originalDocument.$(
+        const originalDocumentPhoneNumberEditor = originalDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isOriginalDocumentPhoneNumberEditorExisting =
@@ -704,12 +702,12 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'La La' }");
 
-        const copiedDocument = await browser.$(Selectors.DocumentListEntry);
-        const copiedValue = await copiedDocument.$(
+        const copiedDocument = browser.$(Selectors.DocumentListEntry);
+        const copiedValue = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
         );
         await copiedValue.doubleClick();
-        const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
+        const copiedDocumentPhoneNumberEditor = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isCopiedDocumentPhoneNumberEditorExisting =
@@ -722,7 +720,7 @@ describe('CSFLE / QE', function () {
           await copiedDocumentFaxNumberEditor.isExisting();
         expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
 
-        const copiedDocumentFaxNumberDecryptedIcon = await copiedDocument.$(
+        const copiedDocumentFaxNumberDecryptedIcon = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isCopiedDocumentFaxNumberDecryptedIconExisting =
@@ -733,10 +731,10 @@ describe('CSFLE / QE', function () {
 
         await browser.setValueVisible(copiedDocumentFaxNumberEditor, '0');
 
-        const button = await copiedDocument.$(Selectors.UpdateDocumentButton);
+        const button = copiedDocument.$(Selectors.UpdateDocumentButton);
         await button.click();
 
-        const footer = await copiedDocument.$(Selectors.DocumentFooterMessage);
+        const footer = copiedDocument.$(Selectors.DocumentFooterMessage);
         expect(await footer.getText()).to.equal(
           'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
         );
@@ -773,14 +771,14 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Second' }");
 
-        const document = await browser.$(Selectors.DocumentListEntry);
+        const document = browser.$(Selectors.DocumentListEntry);
         await document.waitForDisplayed();
 
         await browser.hover(Selectors.DocumentListEntry);
         await browser.clickVisible(Selectors.CloneDocumentButton);
 
         // wait for the modal to appear
-        const insertDialog = await browser.$(Selectors.InsertDialog);
+        const insertDialog = browser.$(Selectors.InsertDialog);
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
@@ -789,7 +787,7 @@ describe('CSFLE / QE', function () {
           '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
         );
 
-        const incompleteSchemaForClonedDocMsg = await browser.$(
+        const incompleteSchemaForClonedDocMsg = browser.$(
           Selectors.incompleteSchemaForClonedDocMsg
         );
         const incompleteSchemaForClonedDocMsgText =
@@ -797,7 +795,7 @@ describe('CSFLE / QE', function () {
         expect(incompleteSchemaForClonedDocMsgText).to.include('phoneNumber');
 
         // confirm
-        const insertConfirm = await browser.$(Selectors.InsertConfirm);
+        const insertConfirm = browser.$(Selectors.InsertConfirm);
         await insertConfirm.waitForEnabled();
         await browser.clickVisible(Selectors.InsertConfirm);
 
@@ -817,9 +815,9 @@ describe('CSFLE / QE', function () {
           name: '"Third"',
         });
 
-        const clonedDocument = await browser.$(Selectors.DocumentListEntry);
+        const clonedDocument = browser.$(Selectors.DocumentListEntry);
 
-        const clonedDocumentPhoneNumberDecryptedIcon = await clonedDocument.$(
+        const clonedDocumentPhoneNumberDecryptedIcon = clonedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isClonedDocumentPhoneNumberDecryptedIconExisting =
@@ -828,7 +826,7 @@ describe('CSFLE / QE', function () {
           true
         );
 
-        const clonedDocumentFaxNumberDecryptedIcon = await clonedDocument.$(
+        const clonedDocumentFaxNumberDecryptedIcon = clonedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isClonedDocumentFaxNumberDecryptedIconExisting =

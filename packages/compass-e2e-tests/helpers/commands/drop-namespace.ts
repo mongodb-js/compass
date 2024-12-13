@@ -5,13 +5,13 @@ export async function dropNamespace(
   browser: CompassBrowser,
   collectionName: string
 ): Promise<void> {
-  const dropModalElement = await browser.$(Selectors.DropNamespaceModal);
+  const dropModalElement = browser.$(Selectors.DropNamespaceModal);
   await dropModalElement.waitForDisplayed();
   await browser.setValueVisible(
     Selectors.DropNamespaceConfirmNameInput,
     collectionName
   );
-  const confirmButton = await browser.$(Selectors.DropNamespaceDropButton);
+  const confirmButton = browser.$(Selectors.DropNamespaceDropButton);
   await confirmButton.waitForEnabled();
 
   await confirmButton.click();

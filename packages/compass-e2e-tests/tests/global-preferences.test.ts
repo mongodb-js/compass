@@ -17,10 +17,10 @@ async function getCheckboxAndBannerState(
   setting: string
 ) {
   const settingSelector = `${Selectors.SettingsModal} [data-testid="setting-${setting}"]`;
-  const checkbox = await browser.$(`${settingSelector} input[type="checkbox"]`);
+  const checkbox = browser.$(`${settingSelector} input[type="checkbox"]`);
   const disabled = await checkbox.getAttribute('disabled');
   const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
-  const banner = await browser.$(
+  const banner = browser.$(
     `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"], ${settingSelector} [data-testid="derived-banner"]`
   );
   const bannerText = (await banner.isExisting())
@@ -204,7 +204,7 @@ describe('Global preferences', function () {
       // TODO(COMPASS-8071): This just passes for multiple connections because
       // the shell section is never there.
       {
-        const shellSection = await browser.$(Selectors.ShellSection);
+        const shellSection = browser.$(Selectors.ShellSection);
         const isShellSectionExisting = await shellSection.isExisting();
         expect(isShellSectionExisting).to.be.equal(false);
       }

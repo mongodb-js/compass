@@ -55,13 +55,13 @@ export async function closeWorkspaceTabs(
   autoConfirmTabClose = true
 ): Promise<void> {
   const countTabs = async () => {
-    return (await browser.$$(Selectors.workspaceTab())).length;
+    return await browser.$$(Selectors.workspaceTab()).length;
   };
 
   await browser.waitUntil(async () => {
     const numTabsStart = await countTabs();
     if (numTabsStart > 0) {
-      const currentActiveTab = await browser.$(
+      const currentActiveTab = browser.$(
         Selectors.workspaceTab({ active: true })
       );
 

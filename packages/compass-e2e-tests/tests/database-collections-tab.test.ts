@@ -71,7 +71,7 @@ describe('Database collections tab', function () {
   });
 
   it('contains a list of collections', async function () {
-    const collectionsGrid = await browser.$(Selectors.CollectionsGrid);
+    const collectionsGrid = browser.$(Selectors.CollectionsGrid);
     await collectionsGrid.waitForDisplayed();
 
     for (const collectionName of [
@@ -115,7 +115,7 @@ describe('Database collections tab', function () {
     ].map((selector) => Selectors.collectionSubTab(selector));
 
     for (const tabSelector of tabSelectors) {
-      const tabElement = await browser.$(tabSelector);
+      const tabElement = browser.$(tabSelector);
       await tabElement.waitForExist();
     }
   });
@@ -144,7 +144,7 @@ describe('Database collections tab', function () {
       'grid'
     );
 
-    const collectionCard = await browser.$(selector);
+    const collectionCard = browser.$(selector);
     await collectionCard.waitForDisplayed();
 
     await collectionCard.scrollIntoView(false);
@@ -152,7 +152,7 @@ describe('Database collections tab', function () {
     await browser.waitUntil(async () => {
       // open the drop collection modal from the collection card
       await browser.hover(`${selector} [title="${collectionName}"]`);
-      const el = await browser.$(Selectors.CollectionCardDrop);
+      const el = browser.$(Selectors.CollectionCardDrop);
       if (await el.isDisplayed()) {
         return true;
       }
@@ -201,7 +201,7 @@ describe('Database collections tab', function () {
       selector,
       'grid'
     );
-    const collectionCard = await browser.$(selector);
+    const collectionCard = browser.$(selector);
     await collectionCard.waitForDisplayed();
 
     // TODO: how do we make sure this is really a capped collection?
@@ -361,7 +361,7 @@ describe('Database collections tab', function () {
     const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
       Selectors.IndexFieldType
     }`;
-    const typeElement = await browser.$(typeElementSelector);
+    const typeElement = browser.$(typeElementSelector);
     await typeElement.waitForDisplayed();
     expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
@@ -392,7 +392,7 @@ describe('Database collections tab', function () {
       collSelector,
       'grid'
     );
-    const coll2Card = await browser.$(collSelector);
+    const coll2Card = browser.$(collSelector);
     await coll2Card.waitForDisplayed();
   });
 });

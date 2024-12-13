@@ -47,7 +47,7 @@ describe('Instance databases tab', function () {
   });
 
   it('contains a list of databases', async function () {
-    const dbTable = await browser.$(Selectors.DatabasesTable);
+    const dbTable = browser.$(Selectors.DatabasesTable);
     await dbTable.waitForDisplayed();
 
     const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
@@ -116,7 +116,7 @@ describe('Instance databases tab', function () {
       selector,
       'grid'
     );
-    const databaseCard = await browser.$(selector);
+    const databaseCard = browser.$(selector);
     await databaseCard.waitForDisplayed();
 
     await databaseCard.scrollIntoView(false);
@@ -124,7 +124,7 @@ describe('Instance databases tab', function () {
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
       await browser.hover(`${selector} [title="${dbName}"]`);
-      const el = await browser.$(Selectors.DatabaseCardDrop);
+      const el = browser.$(Selectors.DatabaseCardDrop);
       if (await el.isDisplayed()) {
         return true;
       }
@@ -169,8 +169,9 @@ describe('Instance databases tab', function () {
 
     // Wait for the page to finish loading as best as we can
     await browser.waitUntil(async () => {
-      const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
-      return placeholders.length === 0;
+      const numPlaceholders = await browser.$$(Selectors.DatabaseStatLoader)
+        .length;
+      return numPlaceholders === 0;
     });
 
     // Drop the database using the driver

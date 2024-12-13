@@ -8,7 +8,7 @@ const debug = Debug('compass-e2e-tests');
 async function isToastContainerVisible(
   browser: CompassBrowser
 ): Promise<boolean> {
-  const toastContainer = await browser.$(Selectors.LGToastContainer);
+  const toastContainer = browser.$(Selectors.LGToastContainer);
   return await toastContainer.isDisplayed();
 }
 
@@ -25,7 +25,7 @@ export async function hideAllVisibleToasts(
     return;
   }
 
-  const toasts = await browser.$(Selectors.LGToastContainer).$$('div');
+  const toasts = browser.$(Selectors.LGToastContainer).$$('div');
   for (const _toast of toasts) {
     // if they all went away at some point, just stop
     if (!(await isToastContainerVisible(browser))) {

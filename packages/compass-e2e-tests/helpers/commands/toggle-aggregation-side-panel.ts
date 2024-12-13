@@ -7,7 +7,7 @@ export async function toggleAggregationSidePanel(
   browser: CompassBrowser,
   desiredState?: AggregationPanelState
 ): Promise<void> {
-  const aggSidePanel = await browser.$(Selectors.AggregationSidePanel);
+  const aggSidePanel = browser.$(Selectors.AggregationSidePanel);
   const currentState: AggregationPanelState = (await aggSidePanel.isExisting())
     ? 'opened'
     : 'closed';
