@@ -11,7 +11,7 @@ import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-componen
 // and not the compass one, where we have full implementation of the LGGuideCue component.
 const LGGuideCue = withStackedComponentPopoverStyles(
   UnwrappedGuideCue as any
-) as typeof UnwrappedGuideCue;
+) as unknown as typeof UnwrappedGuideCue;
 
 const guideCueStyles = css({
   minWidth: spacing[7] * 4,

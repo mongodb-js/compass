@@ -16,7 +16,7 @@ import { withStackedComponentPopoverStyles } from '../../hooks/use-stacked-compo
 
 const LGGuideCue = withStackedComponentPopoverStyles(
   UnwrappedGuideCue as any
-) as typeof UnwrappedGuideCue;
+) as unknown as typeof UnwrappedGuideCue;
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
