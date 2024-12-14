@@ -17,8 +17,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   savePreferences(_attributes: Partial<UserPreferences>) {
     if (
       process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== undefined &&
-      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false' &&
-      Object.keys(_attributes).length === 4
+      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false'
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
     }

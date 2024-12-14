@@ -340,7 +340,7 @@ export class AtlasAiService {
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_300),
         'AtlasAIService',
-        `Fetched if the AI feature is enabled ${process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT}`,
+        'Fetched if the AI feature is enabled',
         {
           enabled: isAIFeatureEnabled,
           featureResponse,

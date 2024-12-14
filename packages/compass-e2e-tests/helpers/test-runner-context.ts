@@ -9,10 +9,7 @@ import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import fs from 'fs';
 import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
-import {
-  E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT,
-  startPreferencesOverrideServer,
-} from './atlas-ai-preferences-override';
+import { E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT } from './atlas-ai-preferences-override';
 
 const debug = Debug('compass-e2e-tests:context');
 
