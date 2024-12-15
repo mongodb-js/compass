@@ -117,17 +117,6 @@ export const OptionMenu = ({
           </div>
         </MenuItem>
       ))}
-      <MenuItem
-        onClick={() => {
-          onCollapse(index);
-          setMenuOpen(false);
-        }}
-      >
-        <div className={menuItemStyles}>
-          <Icon color={palette.gray.dark2} glyph="ChevronUp" size="small" />
-          Collapse documents
-        </div>
-      </MenuItem>
     </Menu>
   );
 };
