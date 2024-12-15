@@ -179,9 +179,9 @@ export const ConnectionFormInputSocksPassword =
 export const ConnectionFormReadPreferenceRadios =
   '#read-preferences input[type="radio"]';
 export const ConnectionFormInputReplicaset =
-  '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="replica-set"]';
 export const ConnectionFormInputDefaultDatabase =
-  '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="default-database"]';
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
