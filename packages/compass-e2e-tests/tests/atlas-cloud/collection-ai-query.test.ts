@@ -131,7 +131,7 @@ describe('Collection ai query', function () {
         .$(Selectors.queryBarOptionInputFilter('Documents'))
         .waitForDisplayed();
 
-      const aiIntroButton = await browser.$(Selectors.QueryBarAIEntryButton);
+      const aiIntroButton = browser.$(Selectors.QueryBarAIEntryButton);
       const isSidebarCreateCollectionButtonExisting =
         await aiIntroButton.isExisting();
       expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
