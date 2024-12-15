@@ -48,7 +48,7 @@ export function DropdownMenuButton<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick = useCallback(
+  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
@@ -56,7 +56,11 @@ export function DropdownMenuButton<Action extends string>({
         // Workaround for https://jira.mongodb.org/browse/PD-1674
         menuTriggerRef.current?.focus();
       }
-      onAction(evt.currentTarget.dataset.action);
+      const actionName = evt.currentTarget.dataset.action;
+      if (typeof actionName !== 'string') {
+        throw new Error('Expected element to have a "data-action" attribute');
+      }
+      onAction(actionName as Action);
     },
     [onAction]
   );
@@ -112,7 +116,7 @@ export function DropdownMenuButton<Action extends string>({
           <MenuItem
             active={activeAction === action}
             key={action}
-            data-testid={actionTestId<Action>(dataTestId, action)}
+            data-testid={actionTestId(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
             glyph={<ActionGlyph glyph={icon} size={iconSize} />}

@@ -6,7 +6,7 @@ import {
   ItemActionControls,
   cx,
 } from '@mongodb-js/compass-components';
-import { ROW_HEIGHT, type Actions } from './constants';
+import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
 import { type NavigationItemActions } from './item-actions';
 
@@ -128,13 +128,13 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
           <span title={name}>{name}</span>
         </div>
         <div className={actionControlsWrapperStyles}>
-          <ItemActionControls<Actions>
+          <ItemActionControls
             menuClassName={menuStyles}
             isVisible={isActive || isHovered || isFocused}
             data-testid="sidebar-navigation-item-actions"
             iconSize="xsmall"
             {...actionProps}
-          ></ItemActionControls>
+          />
           {children}
         </div>
       </div>

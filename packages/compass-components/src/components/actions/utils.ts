@@ -1,6 +1,3 @@
-export function actionTestId<Action extends string>(
-  dataTestId: string | undefined,
-  action: Action
-) {
+export function actionTestId(dataTestId: string | undefined, action: string) {
   return dataTestId ? `${dataTestId}-${action}-action` : undefined;
 }
