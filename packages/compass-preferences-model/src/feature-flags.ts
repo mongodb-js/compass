@@ -21,6 +21,7 @@ export type FeatureFlags = {
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
   enableRollingIndexes: boolean;
+  enableGlobalWrites: boolean;
 };
 
 export const featureFlags: Required<{
@@ -90,6 +91,13 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable creating indexes with the rolling build in Atlas Cloud',
+    },
+  },
+
+  enableGlobalWrites: {
+    stage: 'development',
+    description: {
+      short: 'Enable Global Writes tab in Atlas Cloud',
     },
   },
 };

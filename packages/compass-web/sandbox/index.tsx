@@ -2,7 +2,7 @@ import React, { useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { resetGlobalCSS, css, Body } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
-import { SandboxConnectionStorageProviver } from '../src/connection-storage';
+import { SandboxConnectionStorageProvider } from '../src/connection-storage';
 import { sandboxLogger } from './sandbox-logger';
 import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
@@ -41,6 +41,9 @@ const App = () => {
       ? 'web-sandbox-atlas-dev'
       : 'web-sandbox-atlas';
 
+  const overrideGenAIEnablement =
+    process.env.COMPASS_WEB_GEN_AI_ENABLEMENT === 'true';
+
   useLayoutEffect(() => {
     getMetaEl('csrf-token').setAttribute('content', csrfToken ?? '');
     getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
@@ -53,7 +56,7 @@ const App = () => {
   const isAtlas = status === 'signed-in';
 
   return (
-    <SandboxConnectionStorageProviver
+    <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
       extraConnectionOptions={
         isAtlas
@@ -77,13 +80,18 @@ const App = () => {
             enableCreatingNewConnections: !isAtlas,
             enableGlobalWrites: isAtlas,
             enableRollingIndexes: isAtlas,
+            enableGenAIFeaturesAtlasProject: isAtlas && overrideGenAIEnablement,
+            enableGenAISampleDocumentPassingOnAtlasProject:
+              isAtlas && overrideGenAIEnablement,
+            enableGenAIFeaturesAtlasOrg: isAtlas && overrideGenAIEnablement,
+            optInDataExplorerGenAIFeatures: isAtlas && overrideGenAIEnablement,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}
           onLog={sandboxLogger.log}
         ></CompassWeb>
       </Body>
-    </SandboxConnectionStorageProviver>
+    </SandboxConnectionStorageProvider>
   );
 };
 

@@ -178,9 +178,7 @@ describe('Collection ai query', function () {
       await browser.clickVisible(Selectors.QueryBarAIGenerateQueryButton);
 
       // Check that the error is shown.
-      const errorBanner = await browser.$(
-        Selectors.QueryBarAIErrorMessageBanner
-      );
+      const errorBanner = browser.$(Selectors.QueryBarAIErrorMessageBanner);
       await errorBanner.waitForDisplayed();
       expect(await errorBanner.getText()).to.equal(
         'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'

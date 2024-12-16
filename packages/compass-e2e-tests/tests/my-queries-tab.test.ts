@@ -24,12 +24,12 @@ async function openMenuForQueryItem(
 ) {
   const titleSelector = Selectors.myQueriesItem(favoriteQueryName);
 
-  const titleElement = await browser.$(titleSelector);
-  const parent = await titleElement.parentElement();
+  const titleElement = browser.$(titleSelector);
+  const parent = titleElement.parentElement();
 
   await browser.waitUntil(async () => {
     await browser.hover(titleSelector);
-    const button = await parent.$('button[title="Show actions"]');
+    const button = parent.$('button[title="Show actions"]');
     if (await button.isDisplayed()) {
       return true;
     }
@@ -39,7 +39,7 @@ async function openMenuForQueryItem(
     return false;
   });
 
-  const button = await parent.$('button[title="Show actions"]');
+  const button = parent.$('button[title="Show actions"]');
   await button.click();
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
@@ -81,11 +81,11 @@ async function saveQuery(
   await browser.clickVisible(Selectors.QueryBarHistoryButton);
 
   // Wait for the popover to show
-  const history = await browser.$(Selectors.QueryBarHistory);
+  const history = browser.$(Selectors.QueryBarHistory);
   await history.waitForDisplayed();
 
   // wait for the recent item to show.
-  const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+  const recentCard = browser.$(Selectors.QueryHistoryRecentItem);
   await recentCard.waitForDisplayed();
 
   // Save the ran query
@@ -128,12 +128,12 @@ async function saveAggregation(
   await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), stageText);
 
   await browser.clickVisible(Selectors.SavePipelineMenuButton);
-  const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+  const menuElement = browser.$(Selectors.SavePipelineMenuContent);
   await menuElement.waitForDisplayed();
   await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
 
   // wait for the modal to appear
-  const savePipelineModal = await browser.$(Selectors.SavePipelineModal);
+  const savePipelineModal = browser.$(Selectors.SavePipelineModal);
   await savePipelineModal.waitForDisplayed();
 
   // set aggregation name
@@ -144,9 +144,7 @@ async function saveAggregation(
   );
 
   // click save button
-  const createButton = await browser
-    .$(Selectors.SavePipelineModal)
-    .$('button=Save');
+  const createButton = browser.$(Selectors.SavePipelineModal).$('button=Save');
 
   await createButton.click();
 }
@@ -243,7 +241,7 @@ describe('My Queries tab', function () {
 
         // rename the query
         await browser.clickVisible(Selectors.SavedItemMenuItemRename);
-        const renameModal = await browser.$(Selectors.RenameSavedItemModal);
+        const renameModal = browser.$(Selectors.RenameSavedItemModal);
         await renameModal.waitForDisplayed();
 
         await browser.setValueVisible(
@@ -272,7 +270,7 @@ describe('My Queries tab', function () {
         );
 
         // the open item modal - select a new collection
-        const openModal = await browser.$(Selectors.OpenSavedItemModal);
+        const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
           `${Selectors.OpenSavedItemDatabaseField} button`,
@@ -399,7 +397,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new collection
-        const openModal = await browser.$(Selectors.OpenSavedItemModal);
+        const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
           `${Selectors.OpenSavedItemDatabaseField} button`,
@@ -420,8 +418,8 @@ describe('My Queries tab', function () {
         await browser.navigateToMyQueries();
 
         const [databaseNameElement, collectionNameElement] = [
-          await browser.$('span=test'),
-          await browser.$(`span=${newCollectionName}`),
+          browser.$('span=test'),
+          browser.$(`span=${newCollectionName}`),
         ];
 
         await databaseNameElement.waitForDisplayed();
@@ -510,7 +508,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const openModal = await browser.$(Selectors.OpenSavedItemModal);
+        const openModal = browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
           `${Selectors.OpenSavedItemConnectionField} button`,
@@ -572,7 +570,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const selectModal = await browser.$(Selectors.SelectConnectionModal);
+        const selectModal = browser.$(Selectors.SelectConnectionModal);
         await selectModal.waitForDisplayed();
 
         const connectionId = await browser.getConnectionIdByName(

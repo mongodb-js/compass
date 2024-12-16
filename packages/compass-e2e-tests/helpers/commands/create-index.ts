@@ -51,7 +51,7 @@ export async function createIndex(
   } else {
     await browser.clickVisible(Selectors.CreateIndexButton);
   }
-  const createModal = await browser.$(Selectors.CreateIndexModal);
+  const createModal = browser.$(Selectors.CreateIndexModal);
   await createModal.waitForDisplayed();
 
   // Select / type field name
@@ -62,12 +62,12 @@ export async function createIndex(
   await browser.keys(['Enter']);
 
   // Select field type
-  const fieldTypeSelect = await browser.$(
+  const fieldTypeSelect = browser.$(
     Selectors.createIndexModalFieldTypeSelectButton(createRowIndex)
   );
   await fieldTypeSelect.waitForDisplayed();
   await fieldTypeSelect.click();
-  const fieldTypeSelectMenu = await browser.$(
+  const fieldTypeSelectMenu = browser.$(
     Selectors.createIndexModalFieldTypeSelectMenu(createRowIndex)
   );
   await fieldTypeSelectMenu.waitForDisplayed();
@@ -119,7 +119,7 @@ export async function createIndex(
 
   // Assert that index does come in table
   const indexComponentSelector = Selectors.indexComponent(indexName);
-  const indexComponent = await browser.$(indexComponentSelector);
+  const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
   // Wait for index to get ready before proceeding

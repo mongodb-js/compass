@@ -664,7 +664,7 @@ describe('Connection form', function () {
     await browser.selectConnection(newFavoriteName);
 
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
-    const toggle = await browser.$(Selectors.EditConnectionStringToggle);
+    const toggle = browser.$(Selectors.EditConnectionStringToggle);
     expect(await toggle.getAttribute('aria-checked')).to.equal('true');
 
     // toggle the edit connection string toggle twice

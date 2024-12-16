@@ -2,6 +2,8 @@ import type { ItemAction } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
 import { type ItemSeparator } from '@mongodb-js/compass-components';
+import { type NotConnectedConnectionStatus } from './tree-data';
+import { ConnectButton } from './connect-button';
 
 export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
@@ -137,19 +139,25 @@ export const connectedConnectionItemActions = ({
 
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
+  connectionStatus,
 }: {
   connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
 }): NavigationItemActions => {
   const commonActions = commonConnectionItemActions({ connectionInfo });
-  return [
-    {
-      action: 'connection-connect',
-      label: 'Connect',
-      icon: 'Connect',
-      expandedPresentation: 'button',
-    },
-    ...commonActions,
-  ];
+  if (connectionStatus === 'connecting') {
+    return commonActions;
+  } else {
+    return [
+      {
+        action: 'connection-connect',
+        label: 'Connect',
+        icon: 'Connect',
+        expandedAs: ConnectButton,
+      },
+      ...commonActions,
+    ];
+  }
 };
 
 export const databaseItemActions = ({

@@ -287,7 +287,7 @@ describe('Automatically connecting from the command line', function () {
         currentWindow = allWindows.find((w) => w !== currentWindow) as string;
         await browser.switchToWindow(currentWindow);
         // the new window should open on the welcome tab
-        const currentActiveTab = await browser.$(
+        const currentActiveTab = browser.$(
           Selectors.workspaceTab({ active: true })
         );
         const type = await currentActiveTab.getAttribute('data-type');
@@ -295,14 +295,15 @@ describe('Automatically connecting from the command line', function () {
       });
 
       // no toasts to signify that anything is connecting
-      const toasts = await browser.$(Selectors.LGToastContainer).$$('div');
-      expect(toasts).to.have.lengthOf(0);
+      const numToasts = await browser.$(Selectors.LGToastContainer).$$('div')
+        .length;
+      expect(numToasts).to.equal(0);
 
       // no active connections
-      const connectionItems = await browser.$$(
+      const numConnectionItems = await browser.$$(
         Selectors.Multiple.ConnectedConnectionItems
-      );
-      expect(connectionItems).to.have.lengthOf(0);
+      ).length;
+      expect(numConnectionItems).to.equal(0);
     } finally {
       await cleanup(compass);
     }
@@ -334,10 +335,10 @@ describe('Automatically connecting from the command line', function () {
       browser = compass.browser;
 
       // there should be no connection items
-      const connectionItems = await browser.$$(
+      const numConnectionItems = await browser.$$(
         Selectors.Multiple.ConnectionItems
-      );
-      expect(connectionItems).to.have.lengthOf(0);
+      ).length;
+      expect(numConnectionItems).to.equal(0);
 
       await browser.$(Selectors.Multiple.NoDeploymentsText).waitForDisplayed();
       await browser

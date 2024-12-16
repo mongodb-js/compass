@@ -89,6 +89,11 @@ import {
   Description,
 } from '@leafygreen-ui/typography';
 import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-component';
+import {
+  Combobox as UnwrappedCombobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
@@ -115,6 +120,10 @@ const Popover = withStackedComponentPopoverStyles(
 const Menu = withStackedComponentPopoverStyles(
   UnwrappedMenu as any
 ) as typeof UnwrappedMenu;
+const Combobox = withStackedComponentPopoverStyles(
+  UnwrappedCombobox as any
+) as typeof UnwrappedCombobox;
+
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
@@ -177,4 +186,7 @@ export {
   useLeafyGreenTable,
   getFilteredRowModel,
   type LgTableRowType,
+  Combobox,
+  ComboboxGroup,
+  ComboboxOption,
 };

@@ -38,6 +38,9 @@ type ClusterDescription = {
   deploymentItemName: string;
   replicationSpecList?: ReplicationSpec[];
   isPaused?: boolean;
+  geoSharding?: {
+    selfManagedSharding?: boolean;
+  };
 };
 
 export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
@@ -205,6 +208,9 @@ export function buildConnectionInfoFromClusterDescription(
       ...getMetricsIdAndType(description, deploymentItem),
       instanceSize: getInstanceSize(description),
       clusterType: description.clusterType,
+      geoSharding: {
+        selfManagedSharding: description.geoSharding?.selfManagedSharding,
+      },
     },
   };
 }
@@ -311,7 +317,7 @@ const SandboxExtraConnectionOptionsContext = React.createContext<
  * non-Atlas deployment
  * @internal
  */
-export const SandboxConnectionStorageProviver = ({
+export const SandboxConnectionStorageProvider = ({
   value,
   extraConnectionOptions,
   children,

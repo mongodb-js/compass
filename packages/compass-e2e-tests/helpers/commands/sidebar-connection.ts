@@ -5,13 +5,13 @@ export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<string | undefined> {
-  const connections = await browser.$$(
-    Selectors.sidebarConnection(connectionName)
-  );
+  const connections = browser.$$(Selectors.sidebarConnection(connectionName));
 
-  if (connections.length !== 1) {
+  const numConnections = await connections.length;
+
+  if (numConnections !== 1) {
     throw new Error(
-      `Found ${connections.length} connections named ${connectionName}.`
+      `Found ${numConnections} connections named ${connectionName}.`
     );
   }
 
@@ -134,7 +134,7 @@ export async function hasConnectionMenuItem(
     // Hover over an arbitrary other element to ensure that the second hover will
     // actually be a fresh one. This otherwise breaks if this function is called
     // twice in a row.
-    await browser.hover(`*:not(${selector}, ${selector} *)`);
+    await browser.hover(Selectors.Multiple.ConnectionsTitle);
 
     await browser.hover(selector);
     return false;

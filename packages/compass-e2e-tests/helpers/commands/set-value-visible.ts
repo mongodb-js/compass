@@ -4,7 +4,7 @@ import type { ChainablePromiseElement } from 'webdriverio';
 
 export async function setValueVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
+  selector: string | ChainablePromiseElement,
   value: string
 ): Promise<void> {
   // The hardest thing in computer science? Reliably setting a text form field's

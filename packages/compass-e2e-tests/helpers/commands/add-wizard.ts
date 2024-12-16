@@ -9,8 +9,6 @@ export async function addWizard(
   await browser.toggleAggregationSidePanel('opened');
   await browser.clickVisible(Selectors.AggregationWizardUseCase(usecaseId));
 
-  const wizardCard = await browser.$(
-    Selectors.AggregationWizardCardAtIndex(index)
-  );
+  const wizardCard = browser.$(Selectors.AggregationWizardCardAtIndex(index));
   await wizardCard.waitForDisplayed();
 }

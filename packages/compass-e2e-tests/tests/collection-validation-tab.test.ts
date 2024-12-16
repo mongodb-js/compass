@@ -47,7 +47,7 @@ describe('Collection validation tab', function () {
 
   async function addValidation(validation: string) {
     await browser.clickVisible(Selectors.AddRuleButton);
-    const element = await browser.$(Selectors.ValidationEditor);
+    const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
     await browser.setValidation(validation);
@@ -58,11 +58,11 @@ describe('Collection validation tab', function () {
       await addValidation(PASSING_VALIDATOR);
 
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -82,11 +82,11 @@ describe('Collection validation tab', function () {
 
       // nothing passed, everything failed
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -107,11 +107,11 @@ describe('Collection validation tab', function () {
 
       // nothing failed, everything passed
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();

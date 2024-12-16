@@ -7,7 +7,7 @@ export async function dropIndex(
   screenshotName?: string
 ) {
   const indexComponentSelector = Selectors.indexComponent(indexName);
-  const indexComponent = await browser.$(indexComponentSelector);
+  const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
   await browser.hover(indexComponentSelector);
@@ -15,7 +15,7 @@ export async function dropIndex(
     `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
   );
 
-  const dropModal = await browser.$(Selectors.DropIndexModal);
+  const dropModal = browser.$(Selectors.DropIndexModal);
   await dropModal.waitForDisplayed();
 
   await browser.setValueVisible(

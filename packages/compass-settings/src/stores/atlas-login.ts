@@ -171,7 +171,6 @@ export const signIn = (): SettingsThunkAction<Promise<void>> => {
       });
       const userInfo = await atlasAuthService.signIn({
         signal,
-        promptType: 'none',
       });
       dispatch({ type: AtlasLoginSettingsActionTypes.SignInSuccess, userInfo });
     } catch (err) {

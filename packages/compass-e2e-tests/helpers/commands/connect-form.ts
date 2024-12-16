@@ -26,7 +26,7 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
 
   const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
-  const connectionTitle = await browser.$(connectionTitleSelector);
+  const connectionTitle = browser.$(connectionTitleSelector);
   await connectionTitle.waitUntil(async () => {
     return (await connectionTitle.getText()) === 'New Connection';
   });
@@ -305,9 +305,7 @@ export async function getConnectFormState(
     await browser.clickVisible(Selectors.ConnectionFormAdvancedToggle);
 
     await browser.waitUntil(async () => {
-      const advancedButton = await browser.$(
-        Selectors.ConnectionFormAdvancedToggle
-      );
+      const advancedButton = browser.$(Selectors.ConnectionFormAdvancedToggle);
       return (await advancedButton.getAttribute('aria-expanded')) === 'false';
     });
   }
@@ -319,8 +317,8 @@ async function getCheckedRadioValue(
   browser: CompassBrowser,
   selector: string
 ): Promise<string | null> {
-  const elements = await browser.$$(selector);
-  for (const element of elements) {
+  const elements = browser.$$(selector);
+  for await (const element of elements) {
     if (await element.isSelected()) {
       return element.getValue();
     }
@@ -333,7 +331,7 @@ async function getCheckboxValue(
   browser: CompassBrowser,
   selector: string
 ): Promise<boolean | null> {
-  const element = await browser.$(selector);
+  const element = browser.$(selector);
   if (!(await element.isExisting())) {
     return null; // as opposed to true for checked and false for not
   }
@@ -345,7 +343,7 @@ async function getText(
   browser: CompassBrowser,
   selector: string
 ): Promise<string | null> {
-  const element = await browser.$(selector);
+  const element = browser.$(selector);
   if (!(await element.isExisting())) {
     return null;
   }
@@ -359,14 +357,14 @@ async function getFilename(
   selector: string
 ): Promise<string | null> {
   const text = await getText(browser, selector);
-  return text === 'Select a file...' ? null : text;
+  return text === 'Select a file…' ? null : text;
 }
 
 async function getValue(
   browser: CompassBrowser,
   selector: string
 ): Promise<string | null> {
-  const element = await browser.$(selector);
+  const element = browser.$(selector);
   if (!(await element.isExisting())) {
     return null;
   }
@@ -880,8 +878,8 @@ export async function setConnectFormState(
         // for whatever reasons sometimes the first one or two come through as empty strings
         await browser.waitUntil(async () => {
           allText = [];
-          const options = await browser.$$('#select-key-menu [role="option"]');
-          for (const option of options) {
+          const options = browser.$$('#select-key-menu [role="option"]');
+          for await (const option of options) {
             const _text = await option.getText();
             const text = _text.trim();
             allText.push(text);
@@ -904,7 +902,7 @@ export async function setConnectFormState(
         ).to.be.true;
 
         // make sure the menu goes away once we clicked on the option
-        const menu = await browser.$('#select-key-menu');
+        const menu = browser.$('#select-key-menu');
         await menu.waitForExist({ reverse: true });
 
         // value

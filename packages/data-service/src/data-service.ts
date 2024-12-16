@@ -1083,49 +1083,52 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll
-        .aggregate([
-          { $collStats: { storageStats: {} } },
-          {
-            $group: {
-              _id: null,
-              capped: { $first: '$storageStats.capped' },
-              count: { $sum: '$storageStats.count' },
-              size: { $sum: { $toDouble: '$storageStats.size' } },
-              storageSize: {
-                $sum: { $toDouble: '$storageStats.storageSize' },
-              },
-              totalIndexSize: {
-                $sum: { $toDouble: '$storageStats.totalIndexSize' },
-              },
-              freeStorageSize: {
-                $sum: { $toDouble: '$storageStats.freeStorageSize' },
-              },
-              unscaledCollSize: {
-                $sum: {
-                  $multiply: [
-                    { $toDouble: '$storageStats.avgObjSize' },
-                    { $toDouble: '$storageStats.count' },
-                  ],
+        .aggregate(
+          [
+            { $collStats: { storageStats: {} } },
+            {
+              $group: {
+                _id: null,
+                capped: { $first: '$storageStats.capped' },
+                count: { $sum: '$storageStats.count' },
+                size: { $sum: { $toDouble: '$storageStats.size' } },
+                storageSize: {
+                  $sum: { $toDouble: '$storageStats.storageSize' },
                 },
-              },
-              nindexes: { $max: '$storageStats.nindexes' },
-            },
-          },
-          {
-            $addFields: {
-              // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-              avgObjSize: {
-                $cond: {
-                  if: { $ne: ['$count', 0] },
-                  then: {
-                    $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                totalIndexSize: {
+                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
+                },
+                freeStorageSize: {
+                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
+                },
+                unscaledCollSize: {
+                  $sum: {
+                    $multiply: [
+                      { $toDouble: '$storageStats.avgObjSize' },
+                      { $toDouble: '$storageStats.count' },
+                    ],
                   },
-                  else: 0,
+                },
+                nindexes: { $max: '$storageStats.nindexes' },
+              },
+            },
+            {
+              $addFields: {
+                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+                avgObjSize: {
+                  $cond: {
+                    if: { $ne: ['$count', 0] },
+                    then: {
+                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                    },
+                    else: 0,
+                  },
                 },
               },
             },
-          },
-        ])
+          ],
+          { enableUtf8Validation: false }
+        )
         .toArray();
 
       if (!collStats || collStats[0] === undefined) {
@@ -1165,7 +1168,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_031))
   async killOp(id: number, comment?: string): Promise<Document> {
     const db = this._database('admin', 'META');
-    return runCommand(db, { killOp: 1, id, comment });
+    return runCommand(
+      db,
+      { killOp: 1, id, comment },
+      { enableUtf8Validation: false }
+    );
   }
 
   isWritable(): boolean {
@@ -1183,10 +1190,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_100))
   private async _connectionStatus(): Promise<ConnectionStatusWithPrivileges> {
     const adminDb = this._database('admin', 'META');
-    return await runCommand(adminDb, {
-      connectionStatus: 1,
-      showPrivileges: true,
-    });
+    return await runCommand(
+      adminDb,
+      {
+        connectionStatus: 1,
+        showPrivileges: true,
+      },
+      { enableUtf8Validation: false }
+    );
   }
 
   private async _getPrivilegesOrFallback(
@@ -1341,12 +1352,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     const listDatabases = async () => {
       try {
-        const { databases } = await runCommand(adminDb, {
-          listDatabases: 1,
-          nameOnly,
-        } as {
-          listDatabases: 1;
-        });
+        const { databases } = await runCommand(
+          adminDb,
+          {
+            listDatabases: 1,
+            nameOnly,
+          } as {
+            listDatabases: 1;
+          },
+          { enableUtf8Validation: false }
+        );
         return databases;
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
@@ -2112,7 +2127,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async serverStatus(): Promise<Document> {
     const admin = this._database('admin', 'META');
-    return await runCommand(admin, { serverStatus: 1 });
+    return await runCommand(
+      admin,
+      { serverStatus: 1 },
+      { enableUtf8Validation: false }
+    );
   }
 
   @op(mongoLogId(1_001_000_062), (_, result) => {
@@ -2120,7 +2139,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async top(): Promise<{ totals: Record<string, unknown> }> {
     const adminDb = this._database('admin', 'META');
-    return await runCommand(adminDb, { top: 1 });
+    return await runCommand(
+      adminDb,
+      { top: 1 },
+      { enableUtf8Validation: false }
+    );
   }
 
   @op(
@@ -2457,7 +2480,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
     const db = this._database(name, 'META');
-    const stats = await runCommand(db, { dbStats: 1 });
+    const stats = await runCommand(
+      db,
+      { dbStats: 1 },
+      { enableUtf8Validation: false }
+    );
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
   }
