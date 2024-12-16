@@ -283,8 +283,7 @@ export const GroupWithSubset = ({
           <>
             <TextInput
               type="number"
-              // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
-              aria-labelledby=""
+              aria-label="Number of records"
               data-testid="number-of-records-input"
               placeholder="Number of records"
               className={recordInputStyles}
