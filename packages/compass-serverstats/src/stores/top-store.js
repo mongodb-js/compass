@@ -151,8 +151,8 @@ const TopStore = Reflux.createStore({
           debug('Error: top response from DB missing fields', value);
         }
         t2s[collname] = {
-          loadPercentR: value.readLock.time,
-          loadPercentL: value.writeLock.time,
+          loadPercentRead: value.readLock.time,
+          loadPercentWrite: value.writeLock.time,
           loadPercent: value.total.time,
         };
       }
@@ -171,25 +171,31 @@ const TopStore = Reflux.createStore({
         const t1 =
           collname in this.t1s
             ? this.t1s[collname]
-            : { loadPercent: 0, loadPercentR: 0, loadPercentL: 0 };
+            : { loadPercent: 0, loadPercentRead: 0, loadPercentWrite: 0 };
         const t2 = t2s[collname];
 
         const tDelta = t2.loadPercent - t1.loadPercent;
 
-        const loadL =
+        const loadWrite =
           tDelta === 0
             ? 0
-            : round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
-        const loadR =
+            : round(
+                ((t2.loadPercentWrite - t1.loadPercentWrite) / tDelta) * 100,
+                0
+              );
+        const loadRead =
           tDelta === 0
             ? 0
-            : round(((t2.loadPercentR - t1.loadPercentR) / tDelta) * 100, 0);
+            : round(
+                ((t2.loadPercentRead - t1.loadPercentRead) / tDelta) * 100,
+                0
+              );
 
         totals.push({
           collectionName: collname,
           loadPercent: round((tDelta * 100) / (cadence * numCores), 2), // System load.
-          loadPercentR: loadR,
-          loadPercentL: loadL,
+          loadPercentRead: loadRead,
+          loadPercentWrite: loadWrite,
         });
       }
       this.t1s = t2s;
