@@ -2,6 +2,9 @@
 import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { promises as fs } from 'fs';
+import { handler as writeBuildInfo } from 'hadron-build/commands/info';
+import { run as downloadPackages } from 'hadron-build/commands/download';
 
 const argv = yargs(hideBin(process.argv))
   .middleware((argv) => {
@@ -16,14 +19,29 @@ const argv = yargs(hideBin(process.argv))
     argv.isOSX = process.env.IS_OSX === 'true';
     argv.isRHEL = process.env.IS_RHEL === 'true';
     argv.isUbuntu = process.env.IS_UBUNTU === 'true';
+    if (process.arch) {
+      argv.arch = process.env.ARCH;
+    }
   })
   .scriptName('smoke-tests')
   .detectLocale(false)
   .version(false)
   .strict()
+  .option('arch', {
+    type: 'string',
+    choices: ['x64', 'arm64'],
+    default: () => {
+      process.arch;
+    },
+  })
   .option('skip-download', {
     type: 'boolean',
     description: "Don't download all assets before starting",
+  })
+  .option('extension', {
+    type: 'string',
+    description:
+      'If specified it will only run the smoke tests for the specified installer/package',
   })
   .check((argv) => {
     if (!argv.skipDownload) {
@@ -38,6 +56,10 @@ const argv = yargs(hideBin(process.argv))
       throw new Error(
         'Set at least one of IS_WINDOWS, IS_OSX, IS_UBUNTU, IS_RHEL'
       );
+    }
+
+    if (!argv.arch) {
+      throw new Error('Please provice ARCH (x64 or arm64)');
     }
 
     return true;
@@ -63,7 +85,84 @@ async function run() {
     // download
   }
 
-  //
+  // build-info
+  const infoArgs = {
+    format: 'json',
+    // TODO
+    dir: '',
+    version: '',
+    platform: '',
+    arch: '',
+    out: '',
+  };
+  writeBuildInfo(infoArgs);
+
+  // read the file
+  const buildInfo = JSON.parse(await fs.readFile(infoArgs.out, 'utf8'));
+
+  // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
+  const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
+
+  const filenames = filterPackages(buildInfo, {
+    isWindows,
+    isOSX,
+    isRHEL,
+    isUbuntu,
+    extension,
+  });
+
+  // loop through the remaining filenames and install each then run the tests
+  for (const filename of filenames) {
+  }
+}
+
+type PackageFilterConfig = Pick<
+  SmokeTestsContext,
+  'isWindows' | 'isOSX' | 'isRHEL' | 'isUbuntu' | 'extension'
+>;
+
+type WindowsBuildInfo = {
+  windows_setup_filename: string;
+  windows_msi_filename: string;
+  windows_zip_filename: string;
+  windows_nupkg_full_filename: string;
+};
+
+type OSXBuildInfo = {
+  osx_dmg_filename: string;
+  osx_zip_filename: string;
+};
+
+type UbuntuBuildInfo = {};
+
+type RHELBuildInfo = {};
+
+function buildInfoIsWindows(buildInfo: any): buildInfo is WindowsBuildInfo {}
+
+function buildInfoIsOSX(buildInfo: any): buildInfo is OSXBuildInfo {}
+
+function buildInfoIsUbuntu(buildInfo: any): buildInfo is UbuntuBuildInfo {}
+
+function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {}
+
+function filterPackages(buildInfo: any, config: PackageFilterConfig) {
+  if (config.isWindows) {
+    if (!buildInfoIsWindows(buildInfo)) {
+      throw new Error('missing windows package keys');
+    }
+  } else if (config.isOSX) {
+    if (!buildInfoIsOSX(buildInfo)) {
+      throw new Error('missing osx package keys');
+    }
+  } else if (config.isRHEL) {
+    if (!buildInfoIsOSX(buildInfo)) {
+      throw new Error('missing rhel package keys');
+    }
+  } else if (config.isUbuntu) {
+    if (!buildInfoIsOSX(buildInfo)) {
+      throw new Error('missing ubuntu package keys');
+    }
+  }
 }
 
 run()
@@ -74,60 +173,3 @@ run()
     console.error(err.stack);
     process.exit(1);
   });
-
-// for later (once we can test upgrading TO this version), which channel are we on? dev, beta or staging
-
-// params needed for downloading all the assets
-// EVERGREEN_BUCKET_NAME: mciuploads
-// EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
-// npm run --workspace mongodb-compass download
-
-// use build-info to get the info about the files
-// npm run --workspace mongodb-compass build-info
-
-// from print-compass-env.sh
-/*
-IS_WINDOWS
-IS_OSX
-IS_UBUNTU
-IS_RHEL
-*/
-
-/*
-// expansions are from apply-compass-target-expansion func
-// or npm run --workspace mongodb-compass build-info -- --format=yaml --flatten --out expansions.raw.yml
-// env vars have to be set from that output somehow
-WINDOWS_EXE_NAME: ${windows_setup_filename}
-WINDOWS_MSI_NAME: ${windows_msi_filename}
-WINDOWS_ZIP_NAME: ${windows_zip_filename}
-WINDOWS_NUPKG_NAME: ${windows_nupkg_full_filename}
-
-OSX_DMG_NAME: ${osx_dmg_filename}
-OSX_ZIP_NAME: ${osx_zip_filename}
-
-RHEL_RPM_NAME: ${linux_rpm_filename}
-RHEL_TAR_NAME: ${rhel_tar_filename}
-
-LINUX_DEB_NAME: ${linux_deb_filename}
-LINUX_TAR_NAME: ${linux_tar_filename}
-*/
-
-/*
-- &get-artifact-params
-aws_key: ${aws_key}
-aws_secret: ${aws_secret}
-bucket: mciuploads
-content_type: application/octet-stream
-
-
-// see get-all-artifacts
-
-EVERGREEN_BUCKET_NAME: mciuploads
-EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
-
-npm run --workspace mongodb-compass download
-
-// takes dir and version
-
-can also be used with generateVersionsForAssets to figure out the download links for beta/stable if we have the version
-*/
