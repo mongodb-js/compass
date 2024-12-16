@@ -227,8 +227,9 @@ export const optIntoGenAIWithModalPrompt = ({
     // Nothing to do if we already opted in.
     const { state } = getState().optIn;
     if (
-      state === 'optin-success' ||
-      preferences.getPreferences().optInDataExplorerGenAIFeatures
+      (state === 'optin-success' ||
+        preferences.getPreferences().optInDataExplorerGenAIFeatures) &&
+      preferences.getPreferences().enableGenAIFeaturesAtlasProject
     ) {
       return Promise.resolve();
     }

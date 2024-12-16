@@ -92,6 +92,7 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
           `--app=${COMPASS_WEB_SANDBOX_RUNNER_PATH}`,
         ],
       },
+      'wdio:enforceWebDriverClassic': true,
     },
     waitforTimeout,
   });
