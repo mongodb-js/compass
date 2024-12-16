@@ -47,33 +47,19 @@ export function ItemActionControls<Action extends string = string>({
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: ItemActionControlsProps<Action>) {
-  const sharedProps = useMemo(
-    () => ({
-      isVisible,
-      onAction,
-      className: cx('item-action-controls', className),
-      iconClassName,
-      iconStyle,
-      iconSize,
-      'data-testid': dataTestId,
-    }),
-    [
-      isVisible,
-      onAction,
-      className,
-      iconClassName,
-      iconStyle,
-      iconSize,
-      dataTestId,
-    ]
-  );
-  const sharedMenuProps = useMemo(
-    () => ({
-      menuClassName,
-      renderMode,
-    }),
-    [menuClassName, renderMode]
-  );
+  const sharedProps = {
+    isVisible,
+    onAction,
+    className: cx('item-action-controls', className),
+    iconClassName,
+    iconStyle,
+    iconSize,
+    'data-testid': dataTestId,
+  };
+  const sharedMenuProps = {
+    menuClassName,
+    renderMode,
+  };
 
   if (actions.length === 0) {
     return null;
