@@ -51,6 +51,7 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.32.1",
     "@mongodb-js/compass-connections": "^1.48.1",
+    "@mongodb-js/compass-editor": "^0.34.1",
     "@mongodb-js/compass-logging": "^1.4.12",
     "@mongodb-js/compass-telemetry": "^1.2.5",
     "@mongodb-js/compass-user-data": "^0.3.12",
@@ -83,7 +84,6 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
-    "sinon": "^9.2.3",
     "typescript": "^5.0.4"
   },
   "is_compass_plugin": true
