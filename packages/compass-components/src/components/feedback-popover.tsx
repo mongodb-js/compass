@@ -1,27 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { GuideCue as UnwrappedGuideCue } from '@leafygreen-ui/guide-cue';
+import { GuideCue, type GuideCueProps } from '@leafygreen-ui/guide-cue';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
 
 import { TextArea } from './leafygreen';
-import { withStackedComponentPopoverStyles } from '../hooks/use-stacked-component';
-
-// In this component, we are direclty using the LGGuideCue component from the leafygreen-ui package
-// and not the compass one, where we have full implementation of the LGGuideCue component.
-const LGGuideCue = withStackedComponentPopoverStyles(
-  UnwrappedGuideCue as any
-) as unknown as typeof UnwrappedGuideCue;
 
 const guideCueStyles = css({
   minWidth: spacing[7] * 4,
 });
 
-type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
-
 // Omit the props we are handling.
 export type FeedbackPopoverProps = Omit<
-  LGGuideCueProps,
+  GuideCueProps,
   'currentStep' | 'numberOfSteps' | 'children' | 'title'
 > & {
   onSubmitFeedback: (text: string) => void;
@@ -86,7 +77,7 @@ export const FeedbackPopover = ({
   );
 
   return (
-    <LGGuideCue
+    <GuideCue
       tooltipClassName={guideCueStyles}
       numberOfSteps={1}
       currentStep={1}
@@ -110,6 +101,6 @@ export const FeedbackPopover = ({
         }
         onKeyDown={onTextAreaKeyDown}
       />
-    </LGGuideCue>
+    </GuideCue>
   );
 };

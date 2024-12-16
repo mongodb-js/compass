@@ -7,16 +7,11 @@ import React, {
   useContext,
 } from 'react';
 import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
-import { GuideCue as UnwrappedGuideCue } from '@leafygreen-ui/guide-cue';
+import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
 import { css, cx } from '../..';
 import { rafraf } from '../../utils/rafraf';
-import { withStackedComponentPopoverStyles } from '../../hooks/use-stacked-component';
-
-const LGGuideCue = withStackedComponentPopoverStyles(
-  UnwrappedGuideCue as any
-) as unknown as typeof UnwrappedGuideCue;
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
