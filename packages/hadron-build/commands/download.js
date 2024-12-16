@@ -23,8 +23,7 @@ const builder = {
   },
 };
 
-const handler = function handler(argv) {
-  cli.argv = argv;
+const run = async function run (argv) {
   argv.version = argv.version.replace(/^v/, '');
 
   const assets = Target.getAssetsForVersion(argv.dir, argv.version);
@@ -43,12 +42,18 @@ const handler = function handler(argv) {
     cli.info(`${asset.name}: download from evg bucket complete`);
   });
 
-  Promise.all(downloads).catch(abortIfError);
-};
+  return Promise.all(downloads)
+}
+
+const handler = function handler(argv) {
+  cli.argv = argv;
+  run(argv).catch(abortIfError);
+}
 
 module.exports = {
   command,
   describe,
   builder,
+  run,
   handler,
 };
