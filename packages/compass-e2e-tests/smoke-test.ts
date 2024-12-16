@@ -81,8 +81,15 @@ async function run() {
 
   console.log(context);
 
+  // TODO: load version from either DEV_VERSION_IDENTIFIER if set or version in packages/compass/package.json
+
   if (!context.skipDownload) {
     // download
+    downloadPackages({
+      // TODO
+      dir: '',
+      version: '',
+    });
   }
 
   // build-info
@@ -113,6 +120,8 @@ async function run() {
 
   // loop through the remaining filenames and install each then run the tests
   for (const filename of filenames) {
+    console.log(filename);
+    // TODO(COMPASS-8533): extract or install filename and then test the Compass binary
   }
 }
 
@@ -121,48 +130,96 @@ type PackageFilterConfig = Pick<
   'isWindows' | 'isOSX' | 'isRHEL' | 'isUbuntu' | 'extension'
 >;
 
-type WindowsBuildInfo = {
-  windows_setup_filename: string;
-  windows_msi_filename: string;
-  windows_zip_filename: string;
-  windows_nupkg_full_filename: string;
-};
+// subsets of the hadron-build info result
 
-type OSXBuildInfo = {
-  osx_dmg_filename: string;
-  osx_zip_filename: string;
-};
+const windowsFilenameKeys = [
+  'windows_setup_filename',
+  'windows_msi_filename',
+  'windows_zip_filename',
+  'windows_nupkg_full_filename',
+] as const;
+type WindowsBuildInfo = Record<typeof windowsFilenameKeys[number], string>;
 
-type UbuntuBuildInfo = {};
+const osxFilenameKeys = ['osx_dmg_filename', 'osx_zip_filename'] as const;
+type OSXBuildInfo = Record<typeof osxFilenameKeys[number], string>;
 
-type RHELBuildInfo = {};
+const ubuntuFilenameKeys = [
+  'linux_deb_filename',
+  'linux_tar_filename',
+] as const;
+type UbuntuBuildInfo = Record<typeof ubuntuFilenameKeys[number], string>;
 
-function buildInfoIsWindows(buildInfo: any): buildInfo is WindowsBuildInfo {}
+const rhelFilenameKeys = ['linux_rpm_filename', 'rhel_tar_filename'] as const;
+type RHELBuildInfo = Record<typeof rhelFilenameKeys[number], string>;
 
-function buildInfoIsOSX(buildInfo: any): buildInfo is OSXBuildInfo {}
+function buildInfoIsWindows(buildInfo: any): buildInfo is WindowsBuildInfo {
+  for (const key of windowsFilenameKeys) {
+    if (!buildInfo[key]) {
+      return false;
+    }
+  }
+  return true;
+}
 
-function buildInfoIsUbuntu(buildInfo: any): buildInfo is UbuntuBuildInfo {}
+function buildInfoIsOSX(buildInfo: any): buildInfo is OSXBuildInfo {
+  for (const key of osxFilenameKeys) {
+    if (!buildInfo[key]) {
+      return false;
+    }
+  }
+  return true;
+}
 
-function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {}
+function buildInfoIsUbuntu(buildInfo: any): buildInfo is UbuntuBuildInfo {
+  for (const key of ubuntuFilenameKeys) {
+    if (!buildInfo[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {
+  for (const key of rhelFilenameKeys) {
+    if (!buildInfo[key]) {
+      return false;
+    }
+  }
+  return true;
+}
 
 function filterPackages(buildInfo: any, config: PackageFilterConfig) {
+  let filenames: string[] = [];
+
   if (config.isWindows) {
     if (!buildInfoIsWindows(buildInfo)) {
       throw new Error('missing windows package keys');
     }
+    filenames = windowsFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isOSX) {
     if (!buildInfoIsOSX(buildInfo)) {
       throw new Error('missing osx package keys');
     }
+    filenames = osxFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isRHEL) {
-    if (!buildInfoIsOSX(buildInfo)) {
+    if (!buildInfoIsRHEL(buildInfo)) {
       throw new Error('missing rhel package keys');
     }
+    filenames = rhelFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isUbuntu) {
-    if (!buildInfoIsOSX(buildInfo)) {
+    if (!buildInfoIsUbuntu(buildInfo)) {
       throw new Error('missing ubuntu package keys');
     }
+    filenames = ubuntuFilenameKeys.map((key) => buildInfo[key]);
   }
+
+  const extension = config.extension;
+
+  if (extension !== undefined) {
+    return filenames.filter((filename) => filename.endsWith(extension));
+  }
+
+  return filenames;
 }
 
 run()
