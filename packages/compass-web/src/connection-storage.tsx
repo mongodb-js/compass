@@ -285,7 +285,9 @@ class AtlasCloudConnectionStorage
 
     return clusterDescriptions.map((description) => {
       return buildConnectionInfoFromClusterDescription(
-        this.atlasService.driverProxyEndpoint(),
+        this.atlasService.driverProxyEndpoint(
+          `/clusterConnection/${this.projectId}`
+        ),
         this.orgId,
         this.projectId,
         description,

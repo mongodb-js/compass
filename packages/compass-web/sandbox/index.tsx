@@ -36,9 +36,10 @@ const App = () => {
   const atlasServiceSandboxBackendVariant =
     process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
       ? 'web-sandbox-atlas-local'
-      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'dev' ||
-        process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
+      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'dev'
       ? 'web-sandbox-atlas-dev'
+      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
+      ? 'web-sandbox-atlas-qa'
       : 'web-sandbox-atlas';
 
   const overrideGenAIEnablement =
