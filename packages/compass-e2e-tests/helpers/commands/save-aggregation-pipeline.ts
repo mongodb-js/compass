@@ -29,12 +29,12 @@ export async function saveAggregationPipeline(
   }
 
   await browser.clickVisible(Selectors.SavePipelineMenuButton);
-  const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+  const menuElement = browser.$(Selectors.SavePipelineMenuContent);
   await menuElement.waitForDisplayed();
   await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
 
   // wait for the modal to appear
-  const savePipelineModal = await browser.$(Selectors.SavePipelineModal);
+  const savePipelineModal = browser.$(Selectors.SavePipelineModal);
   await savePipelineModal.waitForDisplayed();
 
   // set aggregation name
@@ -44,9 +44,7 @@ export async function saveAggregationPipeline(
     aggregationName
   );
 
-  const createButton = await browser
-    .$(Selectors.SavePipelineModal)
-    .$('button=Save');
+  const createButton = browser.$(Selectors.SavePipelineModal).$('button=Save');
 
   await createButton.click();
 }

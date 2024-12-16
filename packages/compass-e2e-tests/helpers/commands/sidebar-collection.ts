@@ -30,7 +30,7 @@ export async function selectCollectionMenuItem(
     'tree'
   );
 
-  const collectionElement = await browser.$(collectionSelector);
+  const collectionElement = browser.$(collectionSelector);
   await collectionElement.waitForDisplayed();
 
   // hover over the collection
@@ -44,7 +44,7 @@ export async function selectCollectionMenuItem(
 
   const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
 
-  const actionButton = await browser.$(actionSelector);
+  const actionButton = browser.$(actionSelector);
 
   // click the action
   await browser.clickVisible(actionSelector);

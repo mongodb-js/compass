@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 
 import { ComboboxWithCustomOption } from './combobox-with-custom-option';
-import { ComboboxOption } from './combobox/ComboboxOption';
+import { ComboboxOption } from './leafygreen';
 
 const renderCombobox = (
   props: Partial<ComponentProps<typeof ComboboxWithCustomOption>> = {}

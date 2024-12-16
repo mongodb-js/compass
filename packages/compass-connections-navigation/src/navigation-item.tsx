@@ -20,6 +20,8 @@ import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { WithStatusMarker } from './with-status-marker';
 import type { Actions } from './constants';
 
+type NavigationActions = 'open-non-genuine-mongodb-modal' | 'open-csfle-modal';
+
 const nonGenuineBtnStyles = css({
   color: palette.yellow.dark2,
   background: palette.yellow.light3,
@@ -212,16 +214,14 @@ export function NavigationItem({
       return [];
     }
 
-    const actions: ItemAction<
-      'open-non-genuine-mongodb-modal' | 'open-csfle-modal'
-    >[] = [];
+    const actions: ItemAction<NavigationActions>[] = [];
     if (!item.isGenuineMongoDB) {
       actions.push({
         action: 'open-non-genuine-mongodb-modal',
         label: 'Non-Genuine MongoDB',
         tooltip: 'Non-Genuine MongoDB detected',
         icon: 'Warning',
-        actionButtonClassName: cx(nonGenuineBtnStyles, {
+        className: cx(nonGenuineBtnStyles, {
           [nonGenuineBtnStylesDarkMode]: isDarkMode,
         }),
       });
@@ -233,7 +233,7 @@ export function NavigationItem({
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
         icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
-        actionButtonClassName: cx(csfleBtnStyles, {
+        className: cx(csfleBtnStyles, {
           [csfleBtnStylesDarkMode]: isDarkMode,
         }),
       });
@@ -272,7 +272,7 @@ export function NavigationItem({
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls<Actions>
+            <ItemActionControls<NavigationActions>
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}

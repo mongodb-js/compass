@@ -336,7 +336,7 @@ describe('OIDC integration', function () {
     );
 
     await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
-    const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
+    const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
     expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
@@ -381,14 +381,12 @@ describe('OIDC integration', function () {
     );
 
     await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
-    const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
+    const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
     expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
     await browser.clickVisible(Selectors.confirmationModalCancelButton());
-    const errorBanner = await browser.$(
-      '[data-testid="toast-oidc-auth-failed"]'
-    );
+    const errorBanner = browser.$('[data-testid="toast-oidc-auth-failed"]');
     await errorBanner.waitForDisplayed();
     expect(await errorBanner.getText()).to.include(
       'Reauthentication declined by user'

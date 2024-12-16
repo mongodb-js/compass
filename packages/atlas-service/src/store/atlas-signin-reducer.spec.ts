@@ -5,7 +5,7 @@ import {
   cancelSignIn,
   attemptId,
   AttemptStateMap,
-  signInWithoutPrompt,
+  performSignInAttempt,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
@@ -174,7 +174,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      void store.dispatch(signInWithoutPrompt()).catch(() => {});
+      void store.dispatch(performSignInAttempt()).catch(() => {});
 
       await Promise.all([
         store.dispatch(signIn()),
@@ -184,7 +184,7 @@ describe('atlasSignInReducer', function () {
     });
   });
 
-  describe('signInWithoutPrompt', function () {
+  describe('performSignInAttempt', function () {
     it('should resolve when sign in flow finishes', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
@@ -195,7 +195,7 @@ describe('atlasSignInReducer', function () {
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
       });
-      await store.dispatch(signInWithoutPrompt());
+      await store.dispatch(performSignInAttempt());
       expect(store.getState()).to.have.property('state', 'success');
     });
 
@@ -210,8 +210,8 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
       try {
-        await store.dispatch(signInWithoutPrompt());
-        expect.fail('Expected signInWithoutPrompt action to throw');
+        await store.dispatch(performSignInAttempt());
+        expect.fail('Expected performSignInAttempt action to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'Sign in failed');
       }
@@ -237,7 +237,7 @@ describe('atlasSignInReducer', function () {
       });
       const c = new AbortController();
       const signInPromise = store.dispatch(
-        signInWithoutPrompt({ signal: c.signal })
+        performSignInAttempt({ signal: c.signal })
       );
       c.abort(new Error('Aborted from outside'));
       try {

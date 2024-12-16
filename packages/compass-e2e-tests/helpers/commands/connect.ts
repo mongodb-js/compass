@@ -19,7 +19,7 @@ export async function getConnectFormConnectionString(
   browser: CompassBrowser,
   shouldFocusInput = false
 ): Promise<string> {
-  const inputElem = await browser.$(Selectors.ConnectionFormStringInput);
+  const inputElem = browser.$(Selectors.ConnectionFormStringInput);
   await inputElem.waitForDisplayed();
   if (shouldFocusInput) {
     await browser.waitUntil(async () => {
@@ -168,7 +168,7 @@ export async function waitForConnectionResult(
     await browser
       .$(Selectors.ConnectionToastErrorText)
       .waitForDisplayed(waitOptions);
-    return await browser.$(Selectors.LGToastTitle).getText();
+    return browser.$(Selectors.LGToastTitle).getText();
   } else {
     const exhaustiveCheck: never = connectionStatus;
     throw new Error(`Unhandled connectionStatus case: ${exhaustiveCheck}`);

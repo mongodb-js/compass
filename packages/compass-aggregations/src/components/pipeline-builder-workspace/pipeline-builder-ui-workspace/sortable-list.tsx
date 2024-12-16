@@ -58,7 +58,7 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 1 : 0,
+    ...(isDragging ? { zIndex: 1 } : {}),
   };
 
   const sortableProps: SortableProps = {

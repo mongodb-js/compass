@@ -13,7 +13,7 @@ export async function openShell(
 
   // try and make sure the shell tab is active and ready
   await browser.waitUntil(async () => {
-    const currentActiveTab = await browser.$(
+    const currentActiveTab = browser.$(
       Selectors.workspaceTab({ active: true })
     );
     const activeType = await currentActiveTab.getAttribute('data-type');

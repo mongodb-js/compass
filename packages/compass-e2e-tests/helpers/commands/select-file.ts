@@ -16,7 +16,7 @@ export async function selectFile(
   }, fileSelector);
 
   // select the file
-  const fileInput = await browser.$(fileSelector);
+  const fileInput = browser.$(fileSelector);
   // NOTE: you can't setValue() on a file input anymore because it is
   // implemented as clearValue() followed by addValue() and for whatever reason
   // clearValue() doesn't work, especially not on a file input.

@@ -7,7 +7,7 @@ export const selectFocusModeStageOutputOption = async (
   option: 'expand' | 'collapse'
 ) => {
   await browser.clickVisible(Selectors.focusModeOutputOptionBtn(location));
-  const actionsMenu = await browser.$(Selectors.PipelineOutputOptionsMenu);
+  const actionsMenu = browser.$(Selectors.PipelineOutputOptionsMenu);
   await actionsMenu.waitForDisplayed();
 
   await browser.clickVisible(Selectors.PipelineOutputOption(option));

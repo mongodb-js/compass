@@ -10,14 +10,14 @@ export async function addDatabase(
   collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
 ): Promise<void> {
-  const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
+  const createModalElement = browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
   await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
     collectionName
   );
-  const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
+  const createButton = browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
 
   if (screenshotPath) {

@@ -160,18 +160,18 @@ async function assertCannotInsertData(
 
   // browse to the "Insert to Collection" modal
   await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = await browser.$(Selectors.InsertDocumentOption);
+  const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
   await insertDocumentOption.waitForDisplayed();
   await browser.clickVisible(Selectors.InsertDocumentOption);
 
   // wait for the modal to appear
-  const insertDialog = await browser.$(Selectors.InsertDialog);
+  const insertDialog = browser.$(Selectors.InsertDialog);
   await insertDialog.waitForDisplayed();
 
   // go with the default text which should just be a random new id and therefore valid
 
   // confirm
-  const insertConfirm = await browser.$(Selectors.InsertConfirm);
+  const insertConfirm = browser.$(Selectors.InsertConfirm);
   // this selector is very brittle, so just make sure it works
   expect(await insertConfirm.isDisplayed()).to.be.true;
   expect(await insertConfirm.getText()).to.equal('Insert');
@@ -179,7 +179,7 @@ async function assertCannotInsertData(
   await browser.clickVisible(Selectors.InsertConfirm);
 
   // make sure that there's an error and that the insert button is disabled
-  const errorElement = await browser.$(Selectors.InsertDialogErrorMessage);
+  const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
   await errorElement.waitForDisplayed();
   expect(await errorElement.getText()).to.contain(
     `not authorized on ${dbName} to execute command`
@@ -210,19 +210,19 @@ async function assertCannotCreateDb(
     false
   );
 
-  const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
+  const createModalElement = browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
   await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
     collectionName
   );
-  const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
+  const createButton = browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
   await createButton.click();
 
   // an error should appear
-  const errorElement = await browser.$(Selectors.CreateDatabaseErrorMessage);
+  const errorElement = browser.$(Selectors.CreateDatabaseErrorMessage);
   await errorElement.waitForDisplayed();
   expect(await errorElement.getText()).to.contain(
     `not authorized on ${dbName} to execute command`
@@ -244,14 +244,12 @@ async function assertCannotCreateCollection(
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-  const dbElement = await browser.$(
-    Selectors.sidebarDatabase(connectionId, dbName)
-  );
+  const dbElement = browser.$(Selectors.sidebarDatabase(connectionId, dbName));
   await dbElement.waitForDisplayed();
   await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
   await browser.clickVisible(Selectors.CreateCollectionButton);
 
-  const createModalElement = await browser.$(Selectors.CreateCollectionModal);
+  const createModalElement = browser.$(Selectors.CreateCollectionModal);
   await createModalElement.waitForDisplayed();
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
@@ -261,7 +259,7 @@ async function assertCannotCreateCollection(
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);
 
   // an error should appear
-  const errorElement = await browser.$(Selectors.CreateCollectionErrorMessage);
+  const errorElement = browser.$(Selectors.CreateCollectionErrorMessage);
   await errorElement.waitForDisplayed();
   expect(await errorElement.getText()).to.contain(
     `not authorized on ${dbName} to execute command`

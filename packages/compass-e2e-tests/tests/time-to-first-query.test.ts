@@ -53,7 +53,7 @@ describe('Time to first query', function () {
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
-    const documentElementValue = await browser.$(
+    const documentElementValue = browser.$(
       '[data-testid="document-list"] [data-testid="editable-document"] .element-value-is-int32'
     );
     const text = await documentElementValue.getText();
@@ -78,7 +78,7 @@ describe('Time to first query', function () {
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
-    const documentElementValue = await browser.$(
+    const documentElementValue = browser.$(
       '[data-testid="document-list"] [data-testid="editable-document"] .element-value-is-int32'
     );
     const text = await documentElementValue.getText();

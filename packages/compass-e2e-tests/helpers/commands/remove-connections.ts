@@ -29,8 +29,8 @@ export async function removeAllConnections(
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
   // bit, though.
-  const connectionItems = await browser.$$(Selectors.Multiple.ConnectionItems);
-  for (const connectionItem of connectionItems) {
+  const connectionItems = browser.$$(Selectors.Multiple.ConnectionItems);
+  for await (const connectionItem of connectionItems) {
     console.log(connectionItem);
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
