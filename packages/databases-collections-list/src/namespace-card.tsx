@@ -20,7 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type {
   BadgeVariant,
-  IconGlyph,
+  GlyphName,
   ItemAction,
   SignalPopover,
 } from '@mongodb-js/compass-components';
@@ -107,7 +107,7 @@ export type BadgeProp = {
   id: string;
   name: string;
   variant?: BadgeVariant;
-  icon?: IconGlyph;
+  icon?: GlyphName;
   hint?: React.ReactNode;
 };
 
