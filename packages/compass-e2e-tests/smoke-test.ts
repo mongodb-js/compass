@@ -1,67 +1,61 @@
 #!/usr/bin/env npx ts-node
-import yargs, { boolean } from 'yargs';
+import { createWriteStream, existsSync, promises as fs } from 'fs';
+import path from 'path';
+import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { promises as fs } from 'fs';
-import path from 'path';
+import https from 'https';
+import { pick } from 'lodash';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 const argv = yargs(hideBin(process.argv))
-  .middleware((argv) => {
-    if (process.env.EVERGREEN_BUCKET_NAME) {
-      argv.bucketName = process.env.EVERGREEN_BUCKET_NAME;
-    }
-    if (process.env.EVERGREEN_BUCKET_KEY_PREFIX) {
-      argv.bucketKeyPrefix = process.env.EVERGREEN_BUCKET_KEY_PREFIX;
-    }
-
-    // Dor dev versions we need this from evergreen. For beta or stable we get
-    // it from the package.json
-    if (process.env.DEV_VERSION_IDENTIFIER) {
-      argv.devVersion = process.env.DEV_VERSION_IDENTIFIER;
-    }
-
-    argv.isWindows = process.env.IS_WINDOWS === 'true';
-    argv.isOSX = process.env.IS_OSX === 'true';
-    argv.isRHEL = process.env.IS_RHEL === 'true';
-    argv.isUbuntu = process.env.IS_UBUNTU === 'true';
-    if (process.arch) {
-      argv.arch = process.env.ARCH;
-    }
-  })
   .scriptName('smoke-tests')
   .detectLocale(false)
   .version(false)
   .strict()
   .option('bucketName', {
     type: 'string',
+    default: () => process.env.EVERGREEN_BUCKET_NAME,
   })
   .option('bucketKeyPrefix', {
     type: 'string',
+    default: () => process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
   .option('devVersion', {
     type: 'string',
+    // For dev versions we need this from evergreen. For beta or stable (or by
+    // default, ie. when testing a locally packaged app) we get it from the
+    // package.json
+    default: () => process.env.DEV_VERSION_IDENTIFIER,
   })
   .option('isWindows', {
     type: 'boolean',
+    default: () => process.env.IS_WINDOWS === 'true',
   })
   .option('isOSX', {
     type: 'boolean',
+    default: () => process.env.IS_OSX === 'true',
   })
   .option('isRHEL', {
     type: 'boolean',
+    default: () => process.env.IS_RHEL === 'true',
   })
   .option('isUbuntu', {
     type: 'boolean',
+    default: () => process.env.IS_UBUNTU === 'true',
   })
   .option('arch', {
     type: 'string',
     choices: ['x64', 'arm64'],
+    demandOption: true,
     default: () => {
-      process.arch;
+      if (process.env.ARCH) {
+        return process.env.ARCH;
+      }
+      return process.arch;
     },
   })
-  .option('skip-download', {
+  .option('skipDownload', {
     type: 'boolean',
     description: "Don't download all assets before starting",
   })
@@ -85,10 +79,6 @@ const argv = yargs(hideBin(process.argv))
       );
     }
 
-    if (!argv.arch) {
-      throw new Error('Please provice ARCH (x64 or arm64)');
-    }
-
     return true;
   });
 
@@ -106,7 +96,21 @@ async function run() {
 
   const context = parsedArgs as SmokeTestsContext;
 
-  console.log('context', context);
+  console.log(
+    'context',
+    pick(context, [
+      'skipDownload',
+      'bucketName',
+      'bucketKeyPrefix',
+      'devVersion',
+      'isWindows',
+      'isOSX',
+      'isRHEL',
+      'isUbuntu',
+      'arch',
+      'extension',
+    ])
+  );
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
   // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
@@ -129,14 +133,12 @@ async function run() {
   };
   console.log('infoArgs', infoArgs);
   writeBuildInfo(infoArgs);
-
-  // read the file
   const buildInfo = JSON.parse(await fs.readFile(infoArgs.out, 'utf8'));
 
   // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
   const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
 
-  const filenames = filterPackages(buildInfo, {
+  const packages = getFilteredPackages(compassDir, buildInfo, {
     isWindows,
     isOSX,
     isRHEL,
@@ -144,28 +146,21 @@ async function run() {
     extension,
   });
 
-  const downloadArgs = {
-    dir: compassDir,
-    version,
-  };
-  console.log('downloadArgs', downloadArgs);
   if (context.skipDownload) {
-    // TODO: check that all the files are there
+    verifyPackagesExist(packages);
   } else {
-    // download
-    // TODO: one problem here is that right now it will download EVERY packaged
-    // app, so in effect it has to depend on every package task.
-    for (const filename of filenames) {
-      const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${filename}`;
-      console.log(url);
-    }
+    await Promise.all(
+      packages.map(async ({ name, filepath }) => {
+        await fs.mkdir(path.dirname(filepath), { recursive: true });
+        const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${name}`;
+        console.log(url);
+        return downloadFile(url, filepath);
+      })
+    );
+    verifyPackagesExist(packages);
   }
 
-  // loop through the remaining filenames and install each then run the tests
-  for (const filename of filenames) {
-    console.log(filename);
-    // TODO(COMPASS-8533): extract or install filename and then test the Compass binary
-  }
+  // TODO(COMPASS-8533): extract or install each package and then test the Compass binary
 }
 
 function platformFromContext(
@@ -249,38 +244,88 @@ function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {
   return true;
 }
 
-function filterPackages(buildInfo: any, config: PackageFilterConfig) {
-  let filenames: string[] = [];
+type Package = {
+  name: string;
+  filepath: string;
+};
+
+function getFilteredPackages(
+  compassDir: string,
+  buildInfo: any,
+  config: PackageFilterConfig
+): Package[] {
+  let names: string[] = [];
 
   if (config.isWindows) {
     if (!buildInfoIsWindows(buildInfo)) {
       throw new Error('missing windows package keys');
     }
-    filenames = windowsFilenameKeys.map((key) => buildInfo[key]);
+    names = windowsFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isOSX) {
     if (!buildInfoIsOSX(buildInfo)) {
       throw new Error('missing osx package keys');
     }
-    filenames = osxFilenameKeys.map((key) => buildInfo[key]);
+    names = osxFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isRHEL) {
     if (!buildInfoIsRHEL(buildInfo)) {
       throw new Error('missing rhel package keys');
     }
-    filenames = rhelFilenameKeys.map((key) => buildInfo[key]);
+    names = rhelFilenameKeys.map((key) => buildInfo[key]);
   } else if (config.isUbuntu) {
     if (!buildInfoIsUbuntu(buildInfo)) {
       throw new Error('missing ubuntu package keys');
     }
-    filenames = ubuntuFilenameKeys.map((key) => buildInfo[key]);
+    names = ubuntuFilenameKeys.map((key) => buildInfo[key]);
   }
 
   const extension = config.extension;
 
-  if (extension !== undefined) {
-    return filenames.filter((filename) => filename.endsWith(extension));
-  }
+  return names
+    .filter((name) => !extension || name.endsWith(extension))
+    .map((name) => {
+      return {
+        name,
+        filepath: path.join(compassDir, 'dist', name),
+      };
+    });
+}
 
-  return filenames;
+async function downloadFile(url: string, targetFile: string): Promise<void> {
+  return await new Promise((resolve, reject) => {
+    https
+      .get(url, (response) => {
+        const code = response.statusCode ?? 0;
+
+        if (code >= 400) {
+          return reject(new Error(response.statusMessage));
+        }
+
+        // handle redirects
+        if (code > 300 && code < 400 && !!response.headers.location) {
+          return resolve(downloadFile(response.headers.location, targetFile));
+        }
+
+        // save the file to disk
+        const fileWriter = createWriteStream(targetFile).on('finish', () => {
+          resolve();
+        });
+
+        response.pipe(fileWriter);
+      })
+      .on('error', (error: any) => {
+        reject(error);
+      });
+  });
+}
+
+function verifyPackagesExist(packages: Package[]): void {
+  for (const { filepath } of packages) {
+    if (!existsSync(filepath)) {
+      throw new Error(
+        `${filepath} does not exist. Did you forget to download or package?`
+      );
+    }
+  }
 }
 
 run()

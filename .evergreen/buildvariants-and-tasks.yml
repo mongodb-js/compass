@@ -76,6 +76,126 @@ buildvariants:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
+  - name: smoketest-ubuntu-compass
+    display_name: Smoketest Ubuntu (compass)
+    run_on: ubuntu1804-large
+    depends_on:
+      - name: package-compass
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-ubuntu-compass-isolated
+    display_name: Smoketest Ubuntu (compass-isolated)
+    run_on: ubuntu1804-large
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-ubuntu-compass-readonly
+    display_name: Smoketest Ubuntu (compass-readonly)
+    run_on: ubuntu1804-large
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass-readonly
+  - name: smoketest-windows-compass
+    display_name: Smoketest Windows (compass)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass
+        variant: package-windows
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-windows-compass-isolated
+    display_name: Smoketest Windows (compass-isolated)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-windows
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-windows-compass-readonly
+    display_name: Smoketest Windows (compass-readonly)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-windows
+    tasks:
+      - name: smoketest-compass-readonly
+  - name: smoketest-rhel-compass
+    display_name: Smoketest RHEL (compass)
+    run_on: rhel80-large
+    depends_on:
+      - name: package-compass
+        variant: package-rhel
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-rhel-compass-isolated
+    display_name: Smoketest RHEL (compass-isolated)
+    run_on: rhel80-large
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-rhel
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-rhel-compass-readonly
+    display_name: Smoketest RHEL (compass-readonly)
+    run_on: rhel80-large
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-rhel
+    tasks:
+      - name: smoketest-compass-readonly
+  - name: smoketest-macos-x64-compass
+    display_name: Smoketest MacOS Intel (compass)
+    run_on: macos-14
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-macos-x64-compass-isolated
+    display_name: Smoketest MacOS Intel (compass-isolated)
+    run_on: macos-14
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-macos-x64-compass-readonly
+    display_name: Smoketest MacOS Intel (compass-readonly)
+    run_on: macos-14
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass-readonly
+  - name: smoketest-macos-arm-compass
+    display_name: Smoketest MacOS Arm64 (compass)
+    run_on: macos-14-arm64
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-macos-arm-compass-isolated
+    display_name: Smoketest MacOS Arm64 (compass-isolated)
+    run_on: macos-14-arm64
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-macos-arm-compass-readonly
+    display_name: Smoketest MacOS Arm64 (compass-readonly)
+    run_on: macos-14-arm64
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass-readonly
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu1804-large
@@ -426,6 +546,21 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass
+  - name: smoketest-compass
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/compass-e2e-tests'
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: compass
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: package-compass-isolated
     tags:
       - required-for-publish
@@ -449,6 +584,21 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-isolated
+  - name: smoketest-compass-isolated
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/compass-e2e-tests'
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: compass-isolated
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: package-compass-readonly
     tags:
       - required-for-publish
@@ -472,6 +622,21 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
+  - name: smoketest-compass-readonly
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/compass-e2e-tests'
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: compass-readonly
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-1
     tags:
       - required-for-publish
