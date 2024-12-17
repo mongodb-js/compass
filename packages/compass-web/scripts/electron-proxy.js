@@ -368,17 +368,17 @@ const prepareSocket = function (socket, head) {
 
 /**
  * @param {http.IncomingMessage} res
- * @param {Record<string, string>} headerOverride
+ * @param {Record<string, string | false>} headerOverride
  */
-const createHeader = function (res, headerOverride = {}) {
+const createHeaderStringFromResponse = function (res, headerOverride = {}) {
   let header = `HTTP/${res.httpVersion} ${res.statusCode} ${res.statusMessage}\r\n`;
   for (let i = 0; i < res.rawHeaders.length; i += 2) {
-    const k = res.rawHeaders[i];
-    let v = res.rawHeaders[i + 1];
-    const override = headerOverride[k.toLowerCase()];
-    if (override) {
-      v = override;
-      delete headerOverride[k.toLowerCase()];
+    const k = res.rawHeaders[i].toLowerCase();
+    const override = headerOverride[k];
+    const v = override ?? res.rawHeaders[i + 1];
+    delete headerOverride[k];
+    if (!v) {
+      continue;
     }
     header += `${k}: ${v}\r\n`;
   }
@@ -395,21 +395,15 @@ const createHeader = function (res, headerOverride = {}) {
  */
 proxyServer.on('upgrade', async (req, socket, head) => {
   const isCCS = Boolean(req.url?.startsWith('/ccs'));
-  let websocketTarget;
+  const websocketTarget = isCCS
+    ? `https://cluster-connection.${CLOUD_HOST}${
+        req.url?.replace('/ccs', '') ?? ''
+      }`
+    : `http://localhost:${WEBSOCKET_PROXY_PORT}`;
+  const createRequest = websocketTarget.startsWith('https')
+    ? https.request
+    : http.request;
 
-  if (isCCS) {
-    websocketTarget = `wss://cluster-connection.${CLOUD_HOST}${
-      req.url?.replace('/ccs', '') ?? ''
-    }`;
-  } else {
-    websocketTarget = `ws://localhost:${WEBSOCKET_PROXY_PORT}`;
-  }
-
-  const targetWebsocketURL = new URL(websocketTarget);
-  const isSecure = targetWebsocketURL.protocol === 'wss:';
-  const createRequest = isSecure ? https.request : http.request;
-
-  targetWebsocketURL.protocol = isSecure ? 'https:' : 'http:';
   prepareSocket(socket, head);
 
   let extraHeaders = {};
@@ -420,7 +414,7 @@ proxyServer.on('upgrade', async (req, socket, head) => {
     );
   }
 
-  const proxyReq = createRequest(targetWebsocketURL.toString(), {
+  const proxyReq = createRequest(websocketTarget, {
     method: req.method,
     headers: { ...req.headers, ...extraHeaders },
   });
@@ -433,7 +427,7 @@ proxyServer.on('upgrade', async (req, socket, head) => {
   proxyReq.on('response', (proxyRes) => {
     // We only get response back if upgrade didn't happen, so stream back
     // whatever server responded (it's probably an error)
-    socket.write(createHeader(proxyRes));
+    socket.write(createHeaderStringFromResponse(proxyRes));
     proxyRes.pipe(socket);
   });
 
@@ -444,7 +438,13 @@ proxyServer.on('upgrade', async (req, socket, head) => {
       socket.end();
     });
     prepareSocket(proxySocket, proxyHead);
-    socket.write(createHeader(proxyRes));
+    socket.write(
+      createHeaderStringFromResponse(proxyRes, {
+        'access-control-allow-credentials': false,
+        'access-control-allow-origin': false,
+        'set-cookie': false,
+      })
+    );
     proxySocket.pipe(socket).pipe(proxySocket);
   });
 
