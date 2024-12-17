@@ -28,6 +28,7 @@ export type ItemComponentProps<Action extends string> = Omit<
   iconStyle?: React.CSSProperties;
   'data-testid'?: string;
   onClick(evt: React.MouseEvent<unknown>): void;
+  setHidable?(hidable: boolean): void;
 };
 
 export type ItemAction<Action extends string> = {
