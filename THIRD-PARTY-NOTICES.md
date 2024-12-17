@@ -6,19 +6,19 @@ This document was automatically generated on Tue Dec 17 2024.
 Package|Version|License
 -------|-------|-------
 **[@ampproject/remapping](#0dc8b6568eb743fd551ce2cf2f54be9d0f94b12167f7c34a997c864bcc7e128d)**|2.2.0|Apache-2.0
-**[@aws-sdk/client-cognito-identity](#2d2af8bfd0a0b7b6fa6d3b9e406af305818956440131d58c351babbf80c4faf0)**|3.709.0|Apache-2.0
-**[@aws-sdk/client-sso](#53a5c0a11d755f5e77365795248a46572d985e5ae691ef055805343e7fd5be69)**|3.709.0|Apache-2.0
-**[@aws-sdk/client-sts](#2437b1b48601ea6b8a55c64000de1dcc47071f6ff8968490c8ea552300da0a69)**|3.709.0|Apache-2.0
+**[@aws-sdk/client-cognito-identity](#14ae9137e48bab1700b37fd36d021bab3d0bcd5cbf134f17a44a84ffcc62751a)**|3.712.0|Apache-2.0
+**[@aws-sdk/client-sso](#9a2af4fb5c4fc80fd7aef08ef331a680a367ce0a50385fa4cb170378e64b9686)**|3.712.0|Apache-2.0
+**[@aws-sdk/client-sts](#5fd127db9dd813ebb70bc7780cbdf92644a53871158f350d742c4fe7c48c73bd)**|3.712.0|Apache-2.0
 **[@aws-sdk/core](#ab68c09bbf6d082f2283e2ce4b714375c03ed3b092720c2a48f3e3892a3fb816)**|3.709.0|Apache-2.0
-**[@aws-sdk/credential-provider-cognito-identity](#712e3ab722b920c072c6578737197f4fb7de63280a817e7821838196763bca77)**|3.709.0|Apache-2.0
+**[@aws-sdk/credential-provider-cognito-identity](#b60dc4382a3bde5da2f6a37cf82dfd8173f2db7bb3bd7ec4449812e49729723e)**|3.712.0|Apache-2.0
 **[@aws-sdk/credential-provider-env](#75122736247464768558a44d74d0ee2dab36bef691aea2c8dab063b2a7b90914)**|3.709.0|Apache-2.0
 **[@aws-sdk/credential-provider-http](#2024597f1e3b993ff7aa018113cb28ec767f90e710dee2a7a105891733f9367d)**|3.709.0|Apache-2.0
-**[@aws-sdk/credential-provider-ini](#cc0b105b697b8c8e2d26f8cca375cb4ddc5d076d1f7a44f23b4bd7d4d0623866)**|3.709.0|Apache-2.0
-**[@aws-sdk/credential-provider-node](#36ce3c7e5efa1721ae9471286de8d37799b971b6ba7bb4b236098f3eb7e9443b)**|3.709.0|Apache-2.0
+**[@aws-sdk/credential-provider-ini](#37e5d0dbcdbfece557af928a2b129e0f97a62b888ac303fa2dc7e191e0779bab)**|3.712.0|Apache-2.0
+**[@aws-sdk/credential-provider-node](#3c6a460fe564f84cf201cec001799175f1ede9475f4da280fd6808c4bd508651)**|3.712.0|Apache-2.0
 **[@aws-sdk/credential-provider-process](#bf41a6da655de91beac9e567defe6ac79741f1840f86b2755714b55862ff9fe1)**|3.709.0|Apache-2.0
-**[@aws-sdk/credential-provider-sso](#62dd3036018b57d3abcf49fbb90e75d7c2acd1f305b1f7b58b3db0337e6b773e)**|3.709.0|Apache-2.0
+**[@aws-sdk/credential-provider-sso](#65319ca06691d41adeb94490df3efc13cbeafc5a800d8956bec2bf3d430b61a5)**|3.712.0|Apache-2.0
 **[@aws-sdk/credential-provider-web-identity](#7ba6d1248e951e8029391302455b8d7f35742162ecabbd3191e86da0cfd71e12)**|3.709.0|Apache-2.0
-**[@aws-sdk/credential-providers](#4f0fff592c8d57d50a7a794790bac046becc0cd56c4e11e2b022bc272b86ffbc)**|3.709.0|Apache-2.0
+**[@aws-sdk/credential-providers](#72dee2fd99b106e4df74b6527e0d43f9adbeecfc392ed7a8ef49990b27278c7b)**|3.712.0|Apache-2.0
 **[@aws-sdk/middleware-host-header](#eceecfd9cc072e0e7a585d148c1435624ead361fb88d7486d9fe215494ee97ab)**|3.709.0|Apache-2.0
 **[@aws-sdk/middleware-logger](#7a2dfa96bae4922762ff81f07e80aaf6ffdfbbbd84ab00f09f2ca72176b581fe)**|3.709.0|Apache-2.0
 **[@aws-sdk/middleware-recursion-detection](#cc3018813a05bf86af5863923454eab12c22a9b6e5ad121e3fbb614fd3bfcc5b)**|3.709.0|Apache-2.0
@@ -26,7 +26,7 @@ Package|Version|License
 **[@aws-sdk/region-config-resolver](#2090436e1cd84d2a2bbe89c3fe413bc0ec94c8c470ef016c61ef70d56bbae8cd)**|3.709.0|Apache-2.0
 **[@aws-sdk/token-providers](#afd24c98b47feb8000b521e80cb8bbb8b2e822e6ffc2cb719b0a1878aac1db39)**|3.709.0|Apache-2.0
 **[@aws-sdk/util-endpoints](#6d48b8399ddb93807a51b0fda1429c048250a8465f9530f3a359a4a1e6bec6b1)**|3.709.0|Apache-2.0
-**[@aws-sdk/util-user-agent-node](#5b58ddb5dde12ed202e1bf0b5a27b2535653590e95355449d512523f175c7c10)**|3.709.0|Apache-2.0
+**[@aws-sdk/util-user-agent-node](#cbde656edc2476d555992f7c911e514f8d2f297efca7635b2f4a011ac680a7dc)**|3.712.0|Apache-2.0
 **[@babel/code-frame](#414cb15586d104447ca15cc1904c5779eb415e9079a4a3ca6a81ad96ba9ee4e1)**|7.24.7|MIT
 **[@babel/compat-data](#b4fe3477d50389378e6666362dee06b0abe468140f77f427b952059f193a7a38)**|7.25.2|MIT
 **[@babel/core](#cb1e750729bb20848944291eb3bd3ec445a032e1929fef18d6ee0a6ef3f04bcb)**|7.25.2|MIT
@@ -439,7 +439,7 @@ Package|Version|License
 **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**|1.4.2|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-query-parser](#871cbd55e42c522f9f44ee40a9a19b3edde2f543528582d5ac5f4bc60adeb336)**|4.2.3|Apache-2.0
-**[mongodb-redact](#f0766ec5011e3865ffb152537e7a24c89591d1ea5ee46777ca8f3e857a3e57d6)**|1.1.3|Apache-2.0
+**[mongodb-redact](#0fd174bab1efce1e51d0ae87fe1631216427190cc4c905cbe8cd3ac33d69ea3e)**|1.1.4|Apache-2.0
 **[mongodb-schema](#652dcef4a8a39849996a5f858fe48048e806fda4ce1aa0f757ada56bef011145)**|12.2.0|Apache-2.0
 **[mongodb](#cb726cf7a5329fc15d51574a4bc2e29682afe46afb788a94370b09643ab98a72)**|6.12.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -816,8 +816,8 @@ License files:
       
 
 
-<a id="2d2af8bfd0a0b7b6fa6d3b9e406af305818956440131d58c351babbf80c4faf0"></a>
-### [@aws-sdk/client-cognito-identity](https://www.npmjs.com/package/@aws-sdk/client-cognito-identity) (version 3.709.0)
+<a id="14ae9137e48bab1700b37fd36d021bab3d0bcd5cbf134f17a44a84ffcc62751a"></a>
+### [@aws-sdk/client-cognito-identity](https://www.npmjs.com/package/@aws-sdk/client-cognito-identity) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -1027,8 +1027,8 @@ License files:
       
 
 
-<a id="53a5c0a11d755f5e77365795248a46572d985e5ae691ef055805343e7fd5be69"></a>
-### [@aws-sdk/client-sso](https://www.npmjs.com/package/@aws-sdk/client-sso) (version 3.709.0)
+<a id="9a2af4fb5c4fc80fd7aef08ef331a680a367ce0a50385fa4cb170378e64b9686"></a>
+### [@aws-sdk/client-sso](https://www.npmjs.com/package/@aws-sdk/client-sso) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -1238,8 +1238,8 @@ License files:
       
 
 
-<a id="2437b1b48601ea6b8a55c64000de1dcc47071f6ff8968490c8ea552300da0a69"></a>
-### [@aws-sdk/client-sts](https://www.npmjs.com/package/@aws-sdk/client-sts) (version 3.709.0)
+<a id="5fd127db9dd813ebb70bc7780cbdf92644a53871158f350d742c4fe7c48c73bd"></a>
+### [@aws-sdk/client-sts](https://www.npmjs.com/package/@aws-sdk/client-sts) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -1454,8 +1454,8 @@ License files:
 License tags: Apache-2.0
 
 
-<a id="712e3ab722b920c072c6578737197f4fb7de63280a817e7821838196763bca77"></a>
-### [@aws-sdk/credential-provider-cognito-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-cognito-identity) (version 3.709.0)
+<a id="b60dc4382a3bde5da2f6a37cf82dfd8173f2db7bb3bd7ec4449812e49729723e"></a>
+### [@aws-sdk/credential-provider-cognito-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-cognito-identity) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -1880,8 +1880,8 @@ License files:
 License tags: Apache-2.0
 
 
-<a id="cc0b105b697b8c8e2d26f8cca375cb4ddc5d076d1f7a44f23b4bd7d4d0623866"></a>
-### [@aws-sdk/credential-provider-ini](https://www.npmjs.com/package/@aws-sdk/credential-provider-ini) (version 3.709.0)
+<a id="37e5d0dbcdbfece557af928a2b129e0f97a62b888ac303fa2dc7e191e0779bab"></a>
+### [@aws-sdk/credential-provider-ini](https://www.npmjs.com/package/@aws-sdk/credential-provider-ini) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -2090,8 +2090,8 @@ License files:
          limitations under the License.
 
 
-<a id="36ce3c7e5efa1721ae9471286de8d37799b971b6ba7bb4b236098f3eb7e9443b"></a>
-### [@aws-sdk/credential-provider-node](https://www.npmjs.com/package/@aws-sdk/credential-provider-node) (version 3.709.0)
+<a id="3c6a460fe564f84cf201cec001799175f1ede9475f4da280fd6808c4bd508651"></a>
+### [@aws-sdk/credential-provider-node](https://www.npmjs.com/package/@aws-sdk/credential-provider-node) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -2510,8 +2510,8 @@ License files:
          limitations under the License.
 
 
-<a id="62dd3036018b57d3abcf49fbb90e75d7c2acd1f305b1f7b58b3db0337e6b773e"></a>
-### [@aws-sdk/credential-provider-sso](https://www.npmjs.com/package/@aws-sdk/credential-provider-sso) (version 3.709.0)
+<a id="65319ca06691d41adeb94490df3efc13cbeafc5a800d8956bec2bf3d430b61a5"></a>
+### [@aws-sdk/credential-provider-sso](https://www.npmjs.com/package/@aws-sdk/credential-provider-sso) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -2930,8 +2930,8 @@ License files:
          limitations under the License.
 
 
-<a id="4f0fff592c8d57d50a7a794790bac046becc0cd56c4e11e2b022bc272b86ffbc"></a>
-### [@aws-sdk/credential-providers](https://www.npmjs.com/package/@aws-sdk/credential-providers) (version 3.709.0)
+<a id="72dee2fd99b106e4df74b6527e0d43f9adbeecfc392ed7a8ef49990b27278c7b"></a>
+### [@aws-sdk/credential-providers](https://www.npmjs.com/package/@aws-sdk/credential-providers) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -4613,8 +4613,8 @@ License files:
          limitations under the License.
 
 
-<a id="5b58ddb5dde12ed202e1bf0b5a27b2535653590e95355449d512523f175c7c10"></a>
-### [@aws-sdk/util-user-agent-node](https://www.npmjs.com/package/@aws-sdk/util-user-agent-node) (version 3.709.0)
+<a id="cbde656edc2476d555992f7c911e514f8d2f297efca7635b2f4a011ac680a7dc"></a>
+### [@aws-sdk/util-user-agent-node](https://www.npmjs.com/package/@aws-sdk/util-user-agent-node) (version 3.712.0)
 License tags: Apache-2.0
 
 License files:
@@ -26809,8 +26809,8 @@ License files:
       
 
 
-<a id="f0766ec5011e3865ffb152537e7a24c89591d1ea5ee46777ca8f3e857a3e57d6"></a>
-### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.3)
+<a id="0fd174bab1efce1e51d0ae87fe1631216427190cc4c905cbe8cd3ac33d69ea3e"></a>
+### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.4)
 License tags: Apache-2.0
 
 License files:
