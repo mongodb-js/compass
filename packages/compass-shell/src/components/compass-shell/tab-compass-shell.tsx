@@ -84,7 +84,8 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   const enableShell = usePreference('enableShell');
   const canRenderShell = !!(enableShell && initialHistory && runtime);
 
-  // initialEvaluate will only be set on the first render
+  // initialEvaluate will only be set on the first render of the browser-repl
+  // component
   const initialEvaluate = useInitialEval(_initialEvaluate, canRenderShell);
 
   const editorRef = useRef<EditorRef>(null);
