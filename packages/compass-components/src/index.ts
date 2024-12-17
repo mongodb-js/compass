@@ -68,6 +68,7 @@ export {
   Size as ButtonSize,
   Variant as ButtonVariant,
 } from '@leafygreen-ui/button';
+export { SplitButton } from '@leafygreen-ui/split-button';
 
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
