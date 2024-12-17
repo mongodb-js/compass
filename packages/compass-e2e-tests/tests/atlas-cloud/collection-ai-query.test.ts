@@ -12,7 +12,7 @@ import * as Selectors from '../../helpers/selectors';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
 
-describe.only('Collection ai query', function () {
+describe('Collection ai query', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
