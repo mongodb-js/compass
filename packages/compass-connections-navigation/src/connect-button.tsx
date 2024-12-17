@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Button,
+  css,
+  Icon,
+  MenuItem,
+  SplitButton,
   type ItemComponentProps,
 } from '@mongodb-js/compass-components';
 
-type ConnectButtonProps = ItemComponentProps<string>;
+const styles = css({
+  //  whiteSpace: 'nowrap',
+  //  width: 'auto',
+});
+
+type ConnectButtonProps = ItemComponentProps;
 
 export function ConnectButton({
+  setHideable,
   action,
   tooltip,
   label,
@@ -17,10 +26,20 @@ export function ConnectButton({
   className,
   'data-testid': testId,
 }: ConnectButtonProps) {
+  const [isOpen, setOpen] = useState(false);
+
+  // Opening the menu should keep it visible
+  useEffect(() => {
+    if (setHideable) {
+      setHideable(!isOpen);
+    }
+  }, [setHideable, isOpen]);
+
   return (
-    <Button
+    <SplitButton
       key={action}
       title={!tooltip ? label : undefined}
+      label={label}
       size={iconSize}
       data-action={action}
       data-testid={testId}
@@ -28,8 +47,24 @@ export function ConnectButton({
       className={className}
       style={iconStyle}
       disabled={isDisabled}
+      renderDarkMenu={false}
+      darkMode={false}
+      open={isOpen}
+      setOpen={setOpen}
+      menuItems={[
+        <MenuItem key="connect-here" glyph={<Icon glyph="Connect" />}>
+          Connect Here
+        </MenuItem>,
+        <MenuItem
+          key="connect-in-new-window"
+          className={styles}
+          glyph={<Icon glyph="OpenNewTab" />}
+        >
+          Connect in a New Window
+        </MenuItem>,
+      ]}
     >
       {label}
-    </Button>
+    </SplitButton>
   );
 }

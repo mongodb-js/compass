@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { RenderMode } from '@leafygreen-ui/popover';
@@ -47,8 +47,10 @@ export function ItemActionControls<Action extends string = string>({
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: ItemActionControlsProps<Action>) {
+  const [isHideable, setHideable] = useState(false);
+
   const sharedProps = {
-    isVisible,
+    setHideable,
     onAction,
     className: cx('item-action-controls', className),
     iconClassName,
@@ -61,7 +63,7 @@ export function ItemActionControls<Action extends string = string>({
     renderMode,
   };
 
-  if (actions.length === 0) {
+  if (actions.length === 0 || (isHideable && !isVisible)) {
     return null;
   }
 
