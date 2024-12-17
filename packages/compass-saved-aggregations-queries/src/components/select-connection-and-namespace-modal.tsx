@@ -57,7 +57,6 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
       value={selectedItem ?? ''}
       onChange={onChange}
       disabled={isLoading}
-      usePortal={false}
       className={selectStyles}
       data-testid={`${name}-select`}
     >
@@ -101,7 +100,6 @@ const ConnectionSelect = connect(mapConnectionState, {
       label="Connection"
       value={selectedItem ?? ''}
       onChange={onChange}
-      usePortal={false}
       className={selectStyles}
       dropdownWidthBasis="option"
       data-testid="connection-select"

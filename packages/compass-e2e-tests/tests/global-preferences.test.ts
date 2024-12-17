@@ -18,7 +18,7 @@ async function getCheckboxAndBannerState(
 ) {
   const settingSelector = `${Selectors.SettingsModal} [data-testid="setting-${setting}"]`;
   const checkbox = browser.$(`${settingSelector} input[type="checkbox"]`);
-  const disabled = await checkbox.getAttribute('disabled');
+  const disabled = await checkbox.getAttribute('aria-disabled');
   const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
   const banner = browser.$(
     `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"], ${settingSelector} [data-testid="derived-banner"]`
@@ -78,7 +78,7 @@ describe('Global preferences', function () {
           'trackUsageStatistics'
         );
         expect(value).to.equal('true');
-        expect(disabled).to.equal(null);
+        expect(disabled).to.equal('false');
         expect(bannerText).to.equal(null);
       }
     } finally {
@@ -109,7 +109,7 @@ describe('Global preferences', function () {
           'trackUsageStatistics'
         );
         expect(value).to.equal('true');
-        expect(disabled).to.equal(null);
+        expect(disabled).to.equal('false');
         expect(bannerText).to.equal(null);
       }
     } finally {
@@ -140,7 +140,7 @@ describe('Global preferences', function () {
           'trackUsageStatistics'
         );
         expect(value).to.equal('true');
-        expect(disabled).to.equal(null);
+        expect(disabled).to.equal('false');
         expect(bannerText).to.equal(null);
       }
     } finally {

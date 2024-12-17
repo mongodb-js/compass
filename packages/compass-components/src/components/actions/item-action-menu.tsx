@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { Menu, MenuItem, MenuSeparator } from '../leafygreen';
 
@@ -43,7 +44,7 @@ export type ItemActionMenuProps<Action extends string> = {
   // TODO: Merge className and menuClassName
   className?: string;
   menuClassName?: string;
-  usePortal?: boolean;
+  renderMode?: RenderMode;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
@@ -57,7 +58,7 @@ export function ItemActionMenu<Action extends string>({
   onAction,
   className,
   menuClassName,
-  usePortal,
+  renderMode,
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
@@ -96,7 +97,7 @@ export function ItemActionMenu<Action extends string>({
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
-        usePortal={usePortal}
+        renderMode={renderMode}
         data-testid={dataTestId}
         trigger={({
           onClick,

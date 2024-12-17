@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
+import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { Button, Icon, Menu, MenuItem, MenuSeparator } from '../leafygreen';
 import { WorkspaceContainer } from '../workspace-container';
@@ -20,7 +21,7 @@ const hiddenOnNarrowStyles = css({
 export type DropdownMenuButtonProps<Action extends string> = {
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
-  usePortal?: boolean;
+  renderMode?: RenderMode;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
   activeAction?: Action;
@@ -34,7 +35,7 @@ export function DropdownMenuButton<Action extends string>({
   isVisible = true,
   actions,
   onAction,
-  usePortal,
+  renderMode,
   activeAction,
   buttonText,
   buttonProps,
@@ -73,7 +74,7 @@ export function DropdownMenuButton<Action extends string>({
       setOpen={setIsMenuOpen}
       justify="start"
       refEl={menuTriggerRef}
-      usePortal={usePortal}
+      renderMode={renderMode}
       data-testid={dataTestId}
       trigger={({
         onClick,

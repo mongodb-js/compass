@@ -67,11 +67,17 @@ function TabNavBar({
           darkMode ? tabsContainerDarkStyles : tabsContainerLightStyles
         )}
       >
-        <Tabs
+        <Tabs<number>
           data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
-          setSelected={onTabClicked}
+          // https://jira.mongodb.org/browse/LG-4696 - i is a
+          // React.Dispatch<React.SetStateAction<number>> type
+          setSelected={(i) => {
+            if (typeof i === 'number') {
+              return onTabClicked(i);
+            }
+          }}
           selected={activeTabIndex}
         >
           {tabs.map(({ name, title }, idx) => {
