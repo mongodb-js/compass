@@ -1,5 +1,5 @@
 #!/usr/bin/env npx ts-node
-import yargs from 'yargs';
+import yargs, { boolean } from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { promises as fs } from 'fs';
@@ -18,7 +18,7 @@ const argv = yargs(hideBin(process.argv))
     // Dor dev versions we need this from evergreen. For beta or stable we get
     // it from the package.json
     if (process.env.DEV_VERSION_IDENTIFIER) {
-      argv.version = process.env.DEV_VERSION_IDENTIFIER;
+      argv.devVersion = process.env.DEV_VERSION_IDENTIFIER;
     }
 
     argv.isWindows = process.env.IS_WINDOWS === 'true';
@@ -33,6 +33,27 @@ const argv = yargs(hideBin(process.argv))
   .detectLocale(false)
   .version(false)
   .strict()
+  .option('bucketName', {
+    type: 'string',
+  })
+  .option('bucketKeyPrefix', {
+    type: 'string',
+  })
+  .option('devVersion', {
+    type: 'string',
+  })
+  .option('isWindows', {
+    type: 'boolean',
+  })
+  .option('isOSX', {
+    type: 'boolean',
+  })
+  .option('isRHEL', {
+    type: 'boolean',
+  })
+  .option('isUbuntu', {
+    type: 'boolean',
+  })
   .option('arch', {
     type: 'string',
     choices: ['x64', 'arm64'],
@@ -88,10 +109,12 @@ async function run() {
   console.log('context', context);
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
-  // TODO: load version from either DEV_VERSION_IDENTIFIER if set or version in packages/compass/package.json
-  const version = JSON.parse(
-    await fs.readFile(path.join(compassDir, 'package.json'), 'utf8')
-  ).version as string;
+  // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
+  const version = context.devVersion
+    ? context.devVersion
+    : (JSON.parse(
+        await fs.readFile(path.join(compassDir, 'package.json'), 'utf8')
+      ).version as string);
   const platform = platformFromContext(context);
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
