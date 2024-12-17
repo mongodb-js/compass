@@ -1,14 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import {
-  Menu,
-  MenuItem,
-  css,
-  IconButton,
-  Icon,
-  palette,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Menu, IconButton, Icon } from '@mongodb-js/compass-components';
 import {
   addStage,
   removeStage,
@@ -17,12 +9,7 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-
-const menuItemStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
-});
+import { OptionMenuItem } from './option-menu-item';
 
 export const OptionMenu = ({
   index,
@@ -38,51 +25,6 @@ export const OptionMenu = ({
   onCollapse: (stageIdx: number) => void;
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const menuItems = useMemo(() => {
-    return [
-      {
-        label: 'Add stage after',
-        onClick: () => {
-          onAddStageClick(index);
-          setMenuOpen(false);
-        },
-        icon: 'PlusWithCircle',
-      },
-      {
-        label: 'Add stage before',
-        onClick: () => {
-          onAddStageClick(index - 1);
-          setMenuOpen(false);
-        },
-        icon: 'PlusWithCircle',
-      },
-      {
-        label: 'Delete stage',
-        onClick: () => {
-          onDeleteStageClick(index);
-          setMenuOpen(false);
-        },
-        icon: 'Trash',
-      },
-      {
-        label: 'Expand documents',
-        onClick: () => {
-          onExpand(index);
-          setMenuOpen(false);
-        },
-        icon: 'ChevronDown',
-      },
-      {
-        label: 'Collapse documents',
-        onClick: () => {
-          onCollapse(index);
-          setMenuOpen(false);
-        },
-        icon: 'ChevronUp',
-      },
-    ];
-  }, [index, onAddStageClick, onDeleteStageClick, onExpand, onCollapse]);
 
   return (
     <Menu
@@ -105,18 +47,36 @@ export const OptionMenu = ({
         );
       }}
     >
-      {menuItems.map((item) => (
-        <MenuItem
-          key={item.label}
-          data-text={item.label}
-          onClick={item.onClick}
-        >
-          <div className={menuItemStyles}>
-            <Icon color={palette.gray.dark2} glyph={item.icon} size="small" />
-            {item.label}
-          </div>
-        </MenuItem>
-      ))}
+      <OptionMenuItem
+        label="Add stage after"
+        icon="PlusWithCircle"
+        onClick={() => onAddStageClick(index)}
+        setMenuOpen={setMenuOpen}
+      />
+      <OptionMenuItem
+        label="Add stage before"
+        icon="PlusWithCircle"
+        onClick={() => onAddStageClick(index - 1)}
+        setMenuOpen={setMenuOpen}
+      />
+      <OptionMenuItem
+        label="Delete stage"
+        icon="Trash"
+        onClick={() => onDeleteStageClick(index)}
+        setMenuOpen={setMenuOpen}
+      />
+      <OptionMenuItem
+        label="Expand documents"
+        icon="ChevronDown"
+        onClick={() => onExpand(index)}
+        setMenuOpen={setMenuOpen}
+      />
+      <OptionMenuItem
+        label="Collapse documents"
+        icon="ChevronUp"
+        onClick={() => onCollapse(index)}
+        setMenuOpen={setMenuOpen}
+      />
     </Menu>
   );
 };
