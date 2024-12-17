@@ -3,8 +3,8 @@ import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
-import { run as downloadPackages } from 'hadron-build/commands/download';
 
 const argv = yargs(hideBin(process.argv))
   .middleware((argv) => {
@@ -13,6 +13,12 @@ const argv = yargs(hideBin(process.argv))
     }
     if (process.env.EVERGREEN_BUCKET_KEY_PREFIX) {
       argv.bucketKeyPrefix = process.env.EVERGREEN_BUCKET_KEY_PREFIX;
+    }
+
+    // Dor dev versions we need this from evergreen. For beta or stable we get
+    // it from the package.json
+    if (process.env.DEV_VERSION_IDENTIFIER) {
+      argv.version = process.env.DEV_VERSION_IDENTIFIER;
     }
 
     argv.isWindows = process.env.IS_WINDOWS === 'true';
@@ -79,29 +85,26 @@ async function run() {
 
   const context = parsedArgs as SmokeTestsContext;
 
-  console.log(context);
+  console.log('context', context);
 
+  const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
   // TODO: load version from either DEV_VERSION_IDENTIFIER if set or version in packages/compass/package.json
-
-  if (!context.skipDownload) {
-    // download
-    downloadPackages({
-      // TODO
-      dir: '',
-      version: '',
-    });
-  }
+  const version = JSON.parse(
+    await fs.readFile(path.join(compassDir, 'package.json'), 'utf8')
+  ).version as string;
+  const platform = platformFromContext(context);
+  const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
   // build-info
   const infoArgs = {
     format: 'json',
-    // TODO
-    dir: '',
-    version: '',
-    platform: '',
-    arch: '',
-    out: '',
+    dir: compassDir,
+    version,
+    platform,
+    arch: context.arch,
+    out: outPath,
   };
+  console.log('infoArgs', infoArgs);
   writeBuildInfo(infoArgs);
 
   // read the file
@@ -118,11 +121,46 @@ async function run() {
     extension,
   });
 
+  const downloadArgs = {
+    dir: compassDir,
+    version,
+  };
+  console.log('downloadArgs', downloadArgs);
+  if (context.skipDownload) {
+    // TODO: check that all the files are there
+  } else {
+    // download
+    // TODO: one problem here is that right now it will download EVERY packaged
+    // app, so in effect it has to depend on every package task.
+    for (const filename of filenames) {
+      const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${filename}`;
+      console.log(url);
+    }
+  }
+
   // loop through the remaining filenames and install each then run the tests
   for (const filename of filenames) {
     console.log(filename);
     // TODO(COMPASS-8533): extract or install filename and then test the Compass binary
   }
+}
+
+function platformFromContext(
+  context: SmokeTestsContext
+): typeof process.platform {
+  if (context.isWindows) {
+    return 'win32';
+  }
+
+  if (context.isOSX) {
+    return 'darwin';
+  }
+
+  if (context.isRHEL || context.isUbuntu) {
+    return 'linux';
+  }
+
+  return process.platform;
 }
 
 type PackageFilterConfig = Pick<
