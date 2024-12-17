@@ -8,9 +8,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
 
-const styles = css({
-  //  whiteSpace: 'nowrap',
-  //  width: 'auto',
+const menuItemStyles = css({
+  width: 'max-content',
 });
 
 type ConnectButtonProps = ItemComponentProps<Actions>;
@@ -58,7 +57,7 @@ export function ConnectButton({
         </MenuItem>,
         <MenuItem
           key="connect-in-new-window"
-          className={styles}
+          className={menuItemStyles}
           glyph={<Icon glyph="OpenNewTab" />}
         >
           Connect in a New Window
