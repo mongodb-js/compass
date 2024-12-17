@@ -481,7 +481,7 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: '@mongodb-js/compass-e2e-tests'
+          scope: 'compass-e2e-tests'
       - func: smoketest-packaged-app
         vars:
           mongodb_version: latest-enterprise
