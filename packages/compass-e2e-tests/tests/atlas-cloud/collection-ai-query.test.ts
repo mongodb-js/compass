@@ -11,29 +11,15 @@ import type { Compass } from '../../helpers/compass';
 import * as Selectors from '../../helpers/selectors';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import { isTestingAtlasCloudSandbox } from '../../helpers/test-runner-context';
-import {
-  enabledPreferencesResponse,
-  startPreferencesOverrideServer,
-} from '../../helpers/atlas-ai-preferences-override';
-import type { PreferencesServerResponse } from '../../helpers/atlas-ai-preferences-override';
 
-describe('Collection ai query', function () {
+describe.only('Collection ai query', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  let setPreferencesResponse: (response: PreferencesServerResponse) => void;
-  let stopPreferencesServer: () => Promise<void>;
 
-  before(async function () {
+  before(function () {
     if (!isTestingAtlasCloudSandbox()) {
       this.skip();
     }
-
-    // Start a mock server to pass an ai response.
-    const { setPreferencesResponse: _setPreferencesResponse, stop } =
-      await startPreferencesOverrideServer();
-
-    stopPreferencesServer = stop;
-    setPreferencesResponse = _setPreferencesResponse;
   });
 
   afterEach(async function () {
@@ -41,18 +27,8 @@ describe('Collection ai query', function () {
     await cleanup(compass);
   });
 
-  after(async function () {
-    if (!isTestingAtlasCloudSandbox()) {
-      return;
-    }
-
-    await stopPreferencesServer();
-  });
-
   describe('when the feature is enabled', function () {
     beforeEach(async function () {
-      setPreferencesResponse(enabledPreferencesResponse);
-
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
       await browser.setupDefaultConnections();
@@ -64,6 +40,20 @@ describe('Collection ai query', function () {
         'test',
         'numbers',
         'Documents'
+      );
+
+      await browser.setFeatureCompassWeb(
+        'enableGenAIFeaturesAtlasProject',
+        true
+      );
+      await browser.setFeatureCompassWeb(
+        'enableGenAISampleDocumentPassingOnAtlasProject',
+        true
+      );
+      await browser.setFeatureCompassWeb('enableGenAIFeaturesAtlasOrg', true);
+      await browser.setFeatureCompassWeb(
+        'optInDataExplorerGenAIFeatures',
+        true
       );
     });
 
@@ -104,13 +94,6 @@ describe('Collection ai query', function () {
 
   describe('when the org feature is disabled', function () {
     beforeEach(async function () {
-      setPreferencesResponse({
-        enableGenAIFeaturesAtlasProject: true,
-        enableGenAISampleDocumentPassingOnAtlasProject: true,
-        enableGenAIFeaturesAtlasOrg: false,
-        optInDataExplorerGenAIFeatures: true,
-      });
-
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
       await browser.setupDefaultConnections();
@@ -122,6 +105,20 @@ describe('Collection ai query', function () {
         'test',
         'numbers',
         'Documents'
+      );
+
+      await browser.setFeatureCompassWeb(
+        'enableGenAIFeaturesAtlasProject',
+        true
+      );
+      await browser.setFeatureCompassWeb(
+        'enableGenAISampleDocumentPassingOnAtlasProject',
+        true
+      );
+      await browser.setFeatureCompassWeb('enableGenAIFeaturesAtlasOrg', true);
+      await browser.setFeatureCompassWeb(
+        'optInDataExplorerGenAIFeatures',
+        false
       );
     });
 

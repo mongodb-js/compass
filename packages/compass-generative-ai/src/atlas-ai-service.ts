@@ -298,39 +298,7 @@ export class AtlasAiService {
     return body;
   }
 
-  async _e2eTestOnlyOverrideAIFeaturePreferences() {
-    try {
-      // When we're running e2e tests and want to customize these preferences on the fly
-      // we make a request to the server to override the preferences.
-      const {
-        enableGenAIFeaturesAtlasProject,
-        enableGenAISampleDocumentPassingOnAtlasProject,
-        enableGenAIFeaturesAtlasOrg,
-        optInDataExplorerGenAIFeatures,
-      } = await fetch('e2e-test-atlas-preferences-override').then((res) =>
-        res.json()
-      );
-
-      await this.preferences.savePreferences({
-        enableGenAIFeaturesAtlasProject,
-        enableGenAISampleDocumentPassingOnAtlasProject,
-        enableGenAIFeaturesAtlasOrg,
-        optInDataExplorerGenAIFeatures,
-      });
-      return;
-    } catch (e) {
-      /** no-op when the server isn't up. */
-    }
-  }
-
   async setupAIAccess(): Promise<void> {
-    if (
-      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== undefined &&
-      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false'
-    ) {
-      await this._e2eTestOnlyOverrideAIFeaturePreferences();
-    }
-
     try {
       const featureResponse = await this.getAIFeatureEnablement();
 

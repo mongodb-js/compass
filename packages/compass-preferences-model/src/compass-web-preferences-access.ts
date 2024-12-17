@@ -12,16 +12,19 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
     });
+
+    if (process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING) {
+      // Useful for e2e test to override preferences.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).__compassWebE2ETestSavePreferences = async (
+        attributes: Partial<AllPreferences>
+      ) => {
+        await this._preferences.savePreferences(attributes);
+      };
+    }
   }
 
   savePreferences(_attributes: Partial<UserPreferences>) {
-    if (
-      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== undefined &&
-      process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT !== 'false'
-    ) {
-      return Promise.resolve(this._preferences.savePreferences(_attributes));
-    }
-
     // Only allow saving the optInDataExplorerGenAIFeatures preference.
     if (
       Object.keys(_attributes).length === 1 &&
@@ -61,17 +64,12 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     preferenceName: K,
     callback: (value: AllPreferences[K]) => void
   ) {
-    return (
-      this._preferences?.onPreferencesChanged?.(
-        (preferences: Partial<AllPreferences>) => {
-          if (Object.keys(preferences).includes(preferenceName)) {
-            return callback((preferences as AllPreferences)[preferenceName]);
-          }
+    return this._preferences.onPreferencesChanged(
+      (preferences: Partial<AllPreferences>) => {
+        if (Object.keys(preferences).includes(preferenceName)) {
+          return callback((preferences as AllPreferences)[preferenceName]);
         }
-      ) ??
-      (() => {
-        /* no fallback */
-      })
+      }
     );
   }
 

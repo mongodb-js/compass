@@ -262,8 +262,9 @@ const CompassWeb = ({
     onDebug,
   });
 
-  const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess({
+  const preferencesAccess = useRef<CompassWebPreferencesAccess | null>(null);
+  if (preferencesAccess.current === null) {
+    preferencesAccess.current = new CompassWebPreferencesAccess({
       maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
@@ -285,8 +286,8 @@ const CompassWeb = ({
       enableGlobalWrites: false,
       optInDataExplorerGenAIFeatures: false,
       ...initialPreferences,
-    })
-  );
+    });
+  }
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []

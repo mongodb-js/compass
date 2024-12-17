@@ -194,12 +194,9 @@ module.exports = (env, args) => {
           'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
             process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
           ),
-          'process.env.COMPASS_WEB_GEN_AI_ENABLEMENT': JSON.stringify(
-            process.env.COMPASS_WEB_GEN_AI_ENABLEMENT ?? 'false'
-          ),
-          'process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT':
+          'process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING':
             JSON.stringify(
-              process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT ?? 'false'
+              process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ?? 'false'
             ),
         }),
       ],

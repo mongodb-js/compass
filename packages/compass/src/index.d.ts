@@ -37,7 +37,6 @@ declare module 'process' {
         COMPASS_E2E_SKIP_ATLAS_SIGNIN?: string;
         COMPASS_OIDC_ISSUER_OVERRIDE?: string;
         COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE?: string;
-        COMPASS_WEB_GEN_AI_ENABLEMENT?: string;
       }
     }
   }

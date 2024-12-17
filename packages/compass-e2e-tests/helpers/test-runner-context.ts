@@ -9,7 +9,6 @@ import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import fs from 'fs';
 import { getAtlasCloudSandboxDefaultConnections } from './compass-web-sandbox';
-import { E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT } from './atlas-ai-preferences-override';
 
 const debug = Debug('compass-e2e-tests:context');
 
@@ -346,8 +345,7 @@ process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
   context.atlasCloudSandboxCloudConfig ?? 'dev';
 
 if (isTestingAtlasCloudSandbox(context)) {
-  process.env.E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT =
-    E2E_TEST_ATLAS_PREFERENCES_OVERRIDE_PORT;
+  process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ??= 'true';
 }
 
 const testServerVersion =
