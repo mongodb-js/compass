@@ -76,6 +76,14 @@ buildvariants:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
+  - name: smoketest-ubuntu-compass
+    display_name: Smoketest Ubuntu (compass)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu1804-large
@@ -472,6 +480,21 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
+  - name: smoketest-compass
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: compass
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-1
     tags:
       - required-for-publish

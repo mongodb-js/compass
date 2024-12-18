@@ -28,7 +28,8 @@
     "test-web": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test web",
     "test-web-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test web -- --disable-start-stop --bail",
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
-    "coverage-report": "npm run coverage-merge && nyc report"
+    "coverage-report": "npm run coverage-merge && nyc report",
+    "smoketest": "ts-node smoke-test.ts"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.1",
