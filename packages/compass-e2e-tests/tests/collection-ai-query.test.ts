@@ -45,7 +45,6 @@ describe('Collection ai query', function () {
     clearRequests = _clearRequests;
     setMockAtlasServerResponse = _setMockAtlasServerResponse;
 
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE = endpoint;
     process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
@@ -73,7 +72,6 @@ describe('Collection ai query', function () {
 
     await stopMockAtlasServer();
 
-    delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE;
     delete process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN;
 
     await cleanup(compass);
@@ -101,19 +99,16 @@ describe('Collection ai query', function () {
 
     it('makes request to the server and updates the query bar with the response', async function () {
       // Click the ai entry button.
-      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
+      await browser.clickVisible(Selectors.GenAIEntryButton);
 
       // Enter the ai prompt.
-      await browser.clickVisible(Selectors.QueryBarAITextInput);
+      await browser.clickVisible(Selectors.GenAITextInput);
 
       const testUserInput = 'find all documents where i is greater than 50';
-      await browser.setValueVisible(
-        Selectors.QueryBarAITextInput,
-        testUserInput
-      );
+      await browser.setValueVisible(Selectors.GenAITextInput, testUserInput);
 
       // Click generate.
-      await browser.clickVisible(Selectors.QueryBarAIGenerateQueryButton);
+      await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
 
       // Wait for the ipc events to succeed.
       await browser.waitUntil(async function () {
@@ -163,22 +158,19 @@ describe('Collection ai query', function () {
 
     it('the error is shown to the user', async function () {
       // Click the ai entry button.
-      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
+      await browser.clickVisible(Selectors.GenAIEntryButton);
 
       // Enter the ai prompt.
-      await browser.clickVisible(Selectors.QueryBarAITextInput);
+      await browser.clickVisible(Selectors.GenAITextInput);
 
       const testUserInput = 'find all documents where i is greater than 50';
-      await browser.setValueVisible(
-        Selectors.QueryBarAITextInput,
-        testUserInput
-      );
+      await browser.setValueVisible(Selectors.GenAITextInput, testUserInput);
 
       // Click generate.
-      await browser.clickVisible(Selectors.QueryBarAIGenerateQueryButton);
+      await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
 
       // Check that the error is shown.
-      const errorBanner = browser.$(Selectors.QueryBarAIErrorMessageBanner);
+      const errorBanner = browser.$(Selectors.GenAIErrorMessageBanner);
       await errorBanner.waitForDisplayed();
       expect(await errorBanner.getText()).to.equal(
         'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'

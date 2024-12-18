@@ -295,7 +295,7 @@ describe('Atlas Login', function () {
       // control over it
       await browser.clickVisible('span=Not now');
 
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
+      const aiInput = browser.$(Selectors.GenAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
@@ -328,7 +328,7 @@ describe('Atlas Login', function () {
       // control over it
       await browser.clickVisible('span=Not now');
 
-      const aiInput = browser.$(Selectors.QueryBarAITextInput);
+      const aiInput = browser.$(Selectors.GenAITextInput);
       expect(await aiInput.isExisting()).to.eq(false);
       expect(await generateQueryButton.isDisplayed()).to.eq(true);
     });
