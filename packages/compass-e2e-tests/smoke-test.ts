@@ -148,9 +148,7 @@ async function run() {
     extension,
   });
 
-  if (context.skipDownload) {
-    verifyPackagesExist(packages);
-  } else {
+  if (!context.skipDownload) {
     await Promise.all(
       packages.map(async ({ name, filepath }) => {
         await fs.mkdir(path.dirname(filepath), { recursive: true });
@@ -159,8 +157,9 @@ async function run() {
         return downloadFile(url, filepath);
       })
     );
-    verifyPackagesExist(packages);
   }
+
+  verifyPackagesExist(packages);
 
   // TODO(COMPASS-8533): extract or install each package and then test the Compass binary
 }
