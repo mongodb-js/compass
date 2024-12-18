@@ -48,12 +48,7 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     choices: ['x64', 'arm64'],
     demandOption: true,
-    default: () => {
-      if (process.env.ARCH) {
-        return process.env.ARCH;
-      }
-      return process.arch;
-    },
+    default: () => process.env.ARCH ?? process.arch,
   })
   .option('skipDownload', {
     type: 'boolean',
@@ -73,9 +68,16 @@ const argv = yargs(hideBin(process.argv))
       }
     }
 
-    if (!(argv.isWindows || argv.isOSX || argv.isUbuntu || argv.isRHEL)) {
+    // hadron-build info can only do one platform & arch at a time
+    const platformsCount = [
+      argv.isWindows,
+      argv.isOSX,
+      argv.isUbuntu,
+      argv.isRHEL,
+    ].filter((x) => x).length;
+    if (platformsCount !== 1) {
       throw new Error(
-        'Set at least one of IS_WINDOWS, IS_OSX, IS_UBUNTU, IS_RHEL'
+        'Set exactly one of IS_WINDOWS, IS_OSX, IS_UBUNTU, IS_RHEL to true'
       );
     }
 
