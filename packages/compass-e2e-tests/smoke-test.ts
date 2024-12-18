@@ -307,9 +307,13 @@ async function downloadFile(url: string, targetFile: string): Promise<void> {
         }
 
         // save the file to disk
-        const fileWriter = createWriteStream(targetFile).on('finish', () => {
-          resolve();
-        });
+        const fileWriter = createWriteStream(targetFile)
+          .on('finish', () => {
+            resolve();
+          })
+          .on('error', (error: any) => {
+            reject(error);
+          });
 
         response.pipe(fileWriter);
       })
