@@ -82,13 +82,13 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-macos-11-arm',
     display_name: 'MacOS arm64 11',
-    run_on: 'macos-1100-arm64-gui',
+    run_on: 'macos-11-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
     name: 'test-packaged-app-macos-11-x64',
     display_name: 'MacOS x64 11',
-    run_on: 'macos-1100-gui',
+    run_on: 'macos-11-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
   },

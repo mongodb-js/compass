@@ -180,7 +180,7 @@ buildvariants:
       - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-arm
     display_name: Test Packaged App MacOS arm64 11
-    run_on: macos-1100-arm64-gui
+    run_on: macos-11-arm64-gui
     patchable: true
     depends_on:
       - name: package-compass
@@ -191,7 +191,7 @@ buildvariants:
       - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
-    run_on: macos-1100-gui
+    run_on: macos-11-gui
     patchable: false
     depends_on:
       - name: package-compass
