@@ -5,6 +5,16 @@ import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 
+const editablePreferences: (keyof UserPreferences)[] = [
+  'optInDataExplorerGenAIFeatures',
+  'cloudFeatureRolloutAccess',
+
+  // Exposed for testing purposes.
+  'enableGenAISampleDocumentPassingOnAtlasProject',
+  'enableGenAIFeaturesAtlasOrg',
+  'enableGenAIFeaturesAtlasProject',
+];
+
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
@@ -12,28 +22,15 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
     });
-
-    if (process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING) {
-      // Useful for e2e test to override preferences.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).__compassWebE2ETestSavePreferences = async (
-        attributes: Partial<AllPreferences>
-      ) => {
-        await this._preferences.savePreferences(attributes);
-      };
-    }
   }
 
   savePreferences(_attributes: Partial<UserPreferences>) {
-    // Only allow saving the optInDataExplorerGenAIFeatures preference.
+    // Only allow runtime updating certain preferences.
     if (
       Object.keys(_attributes).length === 1 &&
-      'optInDataExplorerGenAIFeatures' in _attributes
-    ) {
-      return Promise.resolve(this._preferences.savePreferences(_attributes));
-    } else if (
-      Object.keys(_attributes).length === 1 &&
-      'cloudFeatureRolloutAccess' in _attributes
+      editablePreferences.includes(
+        Object.keys(_attributes)[0] as keyof UserPreferences
+      )
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
     }

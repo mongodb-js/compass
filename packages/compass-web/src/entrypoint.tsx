@@ -38,10 +38,7 @@ import {
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-import {
-  PreferencesProvider,
-  CompassWebPreferencesAccess,
-} from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
@@ -59,6 +56,7 @@ import type {
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { useCompassWebPreferences } from './preferences';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -262,32 +260,8 @@ const CompassWeb = ({
     onDebug,
   });
 
-  const preferencesAccess = useRef<CompassWebPreferencesAccess | null>(null);
-  if (preferencesAccess.current === null) {
-    preferencesAccess.current = new CompassWebPreferencesAccess({
-      maxTimeMS: 10_000,
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableImportExport: false,
-      enableGenAIFeatures: true,
-      enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassingOnAtlasProject: false,
-      enableGenAIFeaturesAtlasOrg: false,
-      enableMultipleConnectionSystem: true,
-      enablePerformanceAdvisorBanner: true,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
-      },
-      maximumNumberOfActiveConnections: 10,
-      trackUsageStatistics: true,
-      enableShell: false,
-      enableCreatingNewConnections: false,
-      enableGlobalWrites: false,
-      optInDataExplorerGenAIFeatures: false,
-      ...initialPreferences,
-    });
-  }
+  const preferencesAccess = useCompassWebPreferences(initialPreferences);
+
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
