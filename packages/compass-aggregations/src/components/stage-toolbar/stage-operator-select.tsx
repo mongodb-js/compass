@@ -17,21 +17,28 @@ import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 
-const inputWidth = spacing[7] * 2;
+const inputWidth = spacing[1400] * 3;
+const inputHeight = spacing[600] - 2; // match other xs controls
+// width of options popover
+const comboxboxOptionsWidth = spacing[1200] * 10;
+// left position of options popover wrt input. this aligns it with the start of input
+const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
-const inputHeight = spacing[4] - 2; // match other xs controls
 const comboboxStyles = css({
   width: inputWidth,
   '& [role="combobox"]': {
     padding: 0,
-    paddingLeft: spacing[1],
+    paddingLeft: spacing[100],
     height: inputHeight,
     '& > div': {
       minHeight: inputHeight,
     },
-    '& input': {
-      height: inputHeight - 2,
-    },
+  },
+  '> :popover-open': {
+    width: comboxboxOptionsWidth,
+    whiteSpace: 'normal',
+    // -4px to count for the input focus outline.
+    marginLeft: `${comboboxOptionsLeft - 4}px`,
   },
 });
 
@@ -61,7 +68,6 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
-
   return (
     <Combobox
       value={selectedStage}
@@ -72,15 +78,12 @@ export const StageOperatorSelect = ({
       clearable={false}
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
-      // Used for testing to access the popover for a stage
-      popoverClassName={`mongodb-compass-stage-operator-combobox-${index}`}
     >
       {stages.map((stage, index) => (
         <ComboboxOption
           data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
           value={stage.name}
-          displayName={stage.name}
           description={
             (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
           }

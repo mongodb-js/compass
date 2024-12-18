@@ -30,25 +30,36 @@ export function getActiveUser(
 export function isAIFeatureEnabled(
   preferences: Pick<
     AllPreferences,
-    'enableGenAIFeatures' | 'cloudFeatureRolloutAccess'
+    | 'enableGenAIFeatures'
+    | 'cloudFeatureRolloutAccess'
+    | 'enableGenAIFeaturesAtlasOrg'
   >
 ) {
   const {
     // a "kill switch" property from configuration file to be able to disable
     // feature in global config
     enableGenAIFeatures,
+    enableGenAIFeaturesAtlasOrg,
     // based on mms backend rollout response
     cloudFeatureRolloutAccess,
   } = preferences;
-  return enableGenAIFeatures && !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
+  return (
+    enableGenAIFeatures &&
+    enableGenAIFeaturesAtlasOrg &&
+    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
+  );
 }
 
 export function useIsAIFeatureEnabled() {
   const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIFeaturesAtlasOrg = usePreference(
+    'enableGenAIFeaturesAtlasOrg'
+  );
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,
+    enableGenAIFeaturesAtlasOrg,
     cloudFeatureRolloutAccess,
   });
 }

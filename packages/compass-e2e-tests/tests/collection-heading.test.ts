@@ -50,18 +50,18 @@ describe('Collection heading', function () {
     ].map((selector) => Selectors.collectionSubTab(selector));
 
     for (const tabSelector of tabSelectors) {
-      const tabElement = await browser.$(tabSelector);
+      const tabElement = browser.$(tabSelector);
       expect(await tabElement.isExisting()).to.be.true;
     }
   });
 
   it('contains the collection documents stats', async function () {
     const documentStatsSelector = Selectors.CollectionTabStats('documents');
-    const documentCountValueElement = await browser.$(documentStatsSelector);
+    const documentCountValueElement = browser.$(documentStatsSelector);
     expect(await documentCountValueElement.getText()).to.match(/1(\.0)?K/);
 
     await browser.hover(documentStatsSelector);
-    const statsTooltip = await browser.$(Selectors.CollectionStatsTooltip);
+    const statsTooltip = browser.$(Selectors.CollectionStatsTooltip);
     await statsTooltip.waitForDisplayed();
 
     const tooltipContents = await statsTooltip.getText();
@@ -73,11 +73,11 @@ describe('Collection heading', function () {
 
   it('contains the collection indexes stats', async function () {
     const indexStatsSelector = Selectors.CollectionTabStats('indexes');
-    const indexCountValueElement = await browser.$(indexStatsSelector);
+    const indexCountValueElement = browser.$(indexStatsSelector);
     expect(await indexCountValueElement.getText()).to.equal('1');
 
     await browser.hover(indexStatsSelector);
-    const statsTooltip = await browser.$(Selectors.CollectionStatsTooltip);
+    const statsTooltip = browser.$(Selectors.CollectionStatsTooltip);
     await statsTooltip.waitForDisplayed();
 
     const tooltipContents = await statsTooltip.getText();

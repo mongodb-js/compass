@@ -42,7 +42,7 @@ describe('Instance performance tab', function () {
   });
 
   it('loads up without issue', async function () {
-    const stats = await browser.$(Selectors.ServerStats);
+    const stats = browser.$(Selectors.ServerStats);
     await stats.waitForDisplayed();
   });
 });

@@ -4,7 +4,7 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
+  selector: string | ChainablePromiseElement,
   options?: { timeout?: number }
 ): Promise<void> {
   function getElement() {

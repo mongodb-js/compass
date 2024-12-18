@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { glyphs } from '@leafygreen-ui/icon';
+import type { GlyphName } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useDarkMode } from '../../hooks/use-theme';
@@ -180,8 +180,6 @@ const closeButtonStyles = css({
   marginRight: spacing[100],
 });
 
-type IconGlyph = Extract<keyof typeof glyphs, string>;
-
 type TabProps = {
   connectionName?: string;
   type: string;
@@ -190,7 +188,7 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph | 'Logo' | 'Server';
+  iconGlyph: GlyphName | 'Logo' | 'Server';
   tabContentId: string;
   tooltip?: [string, string][];
   tabTheme?: Partial<TabTheme>;

@@ -43,18 +43,20 @@ import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
+
 import type {
   ItemAction,
-  GroupedItemAction,
-  MenuAction,
+  ItemComponentProps,
   ItemSeparator,
-} from './components/item-action-controls';
-import {
-  ItemActionControls,
-  ItemActionGroup,
-  ItemActionMenu,
-  DropdownMenuButton,
-} from './components/item-action-controls';
+} from './components/actions/types';
+import type { GroupedItemAction } from './components/actions/item-action-group';
+import type { MenuAction } from './components/actions/item-action-menu';
+
+import { ItemActionControls } from './components/actions/item-action-controls';
+import { ItemActionGroup } from './components/actions/item-action-group';
+import { ItemActionMenu } from './components/actions/item-action-menu';
+import { DropdownMenuButton } from './components/actions/dropdown-menu-button';
+
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
@@ -93,6 +95,7 @@ export { InfoModal } from './components/modals/info-modal';
 export type {
   FileInputBackend,
   ItemAction,
+  ItemComponentProps,
   GroupedItemAction,
   MenuAction,
   ItemSeparator,
@@ -140,14 +143,13 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-import type { glyphs } from '@leafygreen-ui/icon';
+export type { GlyphName } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
   SignalHooksProvider,
 } from './components/signal-popover';
 export type { Signal } from './components/signal-popover';
-export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';
@@ -173,7 +175,6 @@ export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
-export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
 export {
   useConfirmationModal,
   ConfirmationModalVariant,

@@ -1,11 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Combobox } from './combobox';
-import type {
-  ComboboxProps,
-  onChangeType,
-  SelectValueType,
-} from './combobox/Combobox.types';
+import { Combobox } from './leafygreen';
+import type { ComboboxProps } from '@leafygreen-ui/combobox';
 
+type SelectValueType<T extends boolean> = Required<ComboboxProps<T>>['value'];
+type OnChangeType<T extends boolean> = Required<ComboboxProps<T>>['onChange'];
 type ComboboxWithCustomOptionProps<T extends boolean, K> = ComboboxProps<T> & {
   options: K[];
   renderOption: (option: K, index: number, isCustom: boolean) => JSX.Element;
@@ -36,7 +34,7 @@ export const ComboboxWithCustomOption = <
       );
     }
     return _opts;
-  }, [userOptions, customOptions, search]);
+  }, [userOptions, customOptions, search, renderOption]);
 
   const selectValueAndRunOnChange = (value: string[] | string | null) => {
     if (!onChange || !value) return;
@@ -47,13 +45,13 @@ export const ComboboxWithCustomOption = <
         .filter((value) => !userOptions.find((x) => x.value === value))
         .map((x) => ({ value: x })) as K[];
       setCustomOptions(customOptions);
-      (onChange as onChangeType<true>)(multiSelectValues);
+      (onChange as OnChangeType<true>)(multiSelectValues);
     } else {
       const selectValue = value as SelectValueType<false>;
       if (selectValue && !userOptions.find((x) => x.value === selectValue)) {
         setCustomOptions([{ value: selectValue } as K]);
       }
-      (onChange as onChangeType<false>)(selectValue);
+      (onChange as OnChangeType<false>)(selectValue);
     }
   };
 

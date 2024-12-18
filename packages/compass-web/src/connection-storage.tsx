@@ -317,7 +317,7 @@ const SandboxExtraConnectionOptionsContext = React.createContext<
  * non-Atlas deployment
  * @internal
  */
-export const SandboxConnectionStorageProviver = ({
+export const SandboxConnectionStorageProvider = ({
   value,
   extraConnectionOptions,
   children,

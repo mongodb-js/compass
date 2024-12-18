@@ -12,7 +12,7 @@ export async function exportToLanguage(
   language: string,
   options?: ExportToLanguageOptions
 ): Promise<string> {
-  const exportModal = await browser.$(Selectors.ExportToLanguageModal);
+  const exportModal = browser.$(Selectors.ExportToLanguageModal);
   await exportModal.waitForDisplayed();
 
   // pick the language
@@ -22,17 +22,17 @@ export async function exportToLanguage(
     return (await button.getAttribute('aria-expanded')) === 'true';
   });
 
-  const listBox = await browser.$(Selectors.ExportToLanguageLanguageListbox);
+  const listBox = browser.$(Selectors.ExportToLanguageLanguageListbox);
   await listBox.waitForDisplayed();
-  const languageElement = await listBox.$(`[value="${language}"]`);
+  const languageElement = listBox.$(`[value="${language}"]`);
   await languageElement.waitForDisplayed();
   await languageElement.click();
 
   if (options?.includeImportStatements === true) {
-    const importsCheckbox = await browser.$(
+    const importsCheckbox = browser.$(
       Selectors.ExportToLanguageImportsCheckbox
     );
-    const importsLabel = await importsCheckbox.parentElement();
+    const importsLabel = importsCheckbox.parentElement();
     if (!(await importsCheckbox.isSelected())) {
       await importsLabel.click();
     }
@@ -40,10 +40,8 @@ export async function exportToLanguage(
 
   // not C#
   if (options?.includeDriverSyntax === true) {
-    const driverCheckbox = await browser.$(
-      Selectors.ExportToLanguageDriverCheckbox
-    );
-    const driverLabel = await driverCheckbox.parentElement();
+    const driverCheckbox = browser.$(Selectors.ExportToLanguageDriverCheckbox);
+    const driverLabel = driverCheckbox.parentElement();
     if (!(await driverCheckbox.isSelected())) {
       await driverLabel.click();
     }
@@ -51,10 +49,10 @@ export async function exportToLanguage(
 
   // only Java, only when exporting from Documents tab
   if (options?.useBuilders === true) {
-    const buildersCheckbox = await browser.$(
+    const buildersCheckbox = browser.$(
       Selectors.ExportToLanguageBuildersCheckbox
     );
-    const buildersLabel = await buildersCheckbox.parentElement();
+    const buildersLabel = buildersCheckbox.parentElement();
     if (!(await buildersCheckbox.isSelected())) {
       await buildersLabel.click();
     }

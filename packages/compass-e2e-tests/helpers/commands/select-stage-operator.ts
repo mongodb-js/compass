@@ -18,19 +18,19 @@ export async function selectStageOperator(
 
   // the "select" should now blur and the ace textarea become focused
   await browser.waitUntil(async () => {
-    const inputElement = await browser.$(comboboxSelector);
+    const inputElement = browser.$(comboboxSelector);
     const isFocused = await inputElement.isFocused();
     return isFocused === false;
   });
 
-  const stageSelectorListBoxElement = await browser.$(
+  const stageSelectorListBoxElement = browser.$(
     Selectors.stagePickerListBox(index)
   );
 
   await stageSelectorListBoxElement.waitForDisplayed({ reverse: true });
 
   await browser.waitUntil(async () => {
-    const editorElement = await browser.$(editorSelector);
+    const editorElement = browser.$(editorSelector);
     const isFocused = await editorElement.isFocused();
     return isFocused === true;
   });

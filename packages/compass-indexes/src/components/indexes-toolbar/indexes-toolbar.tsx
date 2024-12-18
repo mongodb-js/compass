@@ -147,8 +147,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 {!isSearchIndexesSupported && (
                   <Tooltip
                     align="top"
-                    justify="middle"
+                    justify="end"
                     enabled={true}
+                    renderMode="portal"
                     trigger={
                       <SegmentedControlOption
                         data-testid="search-indexes-tab"

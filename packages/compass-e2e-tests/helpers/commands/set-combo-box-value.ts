@@ -7,7 +7,7 @@ export async function setComboBoxValue(
 ): Promise<void> {
   // Focus combobox
   await browser.clickVisible(comboboxInputSelector);
-  const inputElement = await browser.$(comboboxInputSelector);
+  const inputElement = browser.$(comboboxInputSelector);
   await browser.waitUntil(async () => {
     const isFocused = await inputElement.isFocused();
     if (isFocused === true) {
@@ -21,7 +21,7 @@ export async function setComboBoxValue(
   const controlledMenuId: string = await inputElement.getAttribute(
     'aria-controls'
   );
-  const comboboxListSelectorElement = await browser.$(
+  const comboboxListSelectorElement = browser.$(
     `[id="${controlledMenuId}"][role="listbox"]`
   );
   await comboboxListSelectorElement.waitForDisplayed();
