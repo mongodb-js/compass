@@ -90,9 +90,9 @@ describe('VirtualizedDocumentJsonView', function () {
         namespace="x.y"
         docs={bigDocuments}
         isEditable={true}
+        listRef={listRef}
         __TEST_OVERSCAN_COUNT={0}
         __TEST_LIST_HEIGHT={178}
-        __TEST_LIST_REF={listRef}
       />
     );
 
@@ -183,9 +183,9 @@ describe('VirtualizedDocumentJsonView', function () {
         namespace="x.y"
         docs={bigDocuments}
         isEditable={true}
+        listRef={listRef}
         __TEST_OVERSCAN_COUNT={0}
         __TEST_LIST_HEIGHT={178}
-        __TEST_LIST_REF={listRef}
       />
     );
 
