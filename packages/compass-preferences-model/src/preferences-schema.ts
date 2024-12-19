@@ -52,9 +52,11 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     atlasServiceBackendPreset:
       | 'atlas-local'
       | 'atlas-dev'
+      | 'atlas-qa'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
+      | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
     optInDataExplorerGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
@@ -669,6 +671,7 @@ export const storedUserPreferencesProps: Required<{
    * Chooses atlas service backend configuration from preset
    *  - atlas-local: local mms backend (http://localhost:8080)
    *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
    *  - atlas:       mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
@@ -680,11 +683,13 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum([
-        'atlas-dev',
         'atlas-local',
+        'atlas-dev',
+        'atlas-qa',
         'atlas',
-        'web-sandbox-atlas-dev',
         'web-sandbox-atlas-local',
+        'web-sandbox-atlas-dev',
+        'web-sandbox-atlas-qa',
         'web-sandbox-atlas',
       ])
       .default('atlas'),
