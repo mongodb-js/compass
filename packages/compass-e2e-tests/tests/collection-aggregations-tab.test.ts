@@ -19,6 +19,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import { Key } from 'webdriverio';
 import type { ChainablePromiseElement } from 'webdriverio';
+import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 
 const { expect } = chai;
 
@@ -81,14 +82,6 @@ async function waitForTab(browser: CompassBrowser, namespace: string) {
       timeoutMsg: `Expected \`${namespace}\` namespace tab to be visible`,
     }
   );
-}
-
-async function switchPipelineMode(
-  browser: CompassBrowser,
-  mode: 'as-text' | 'builder-ui'
-) {
-  await browser.clickVisible(Selectors.aggregationPipelineModeToggle(mode));
-  await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
 }
 
 async function deleteStage(

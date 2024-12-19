@@ -194,6 +194,10 @@ module.exports = (env, args) => {
           'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
             process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
           ),
+          'process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING':
+            JSON.stringify(
+              process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ?? 'false'
+            ),
         }),
       ],
     });

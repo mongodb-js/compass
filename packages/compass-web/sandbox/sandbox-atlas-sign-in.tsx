@@ -16,6 +16,10 @@ type ProjectParams = {
   projectId: string;
   csrfToken: string;
   csrfTime: string;
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+  enableGenAIFeaturesAtlasOrg: boolean;
+  optInDataExplorerGenAIFeatures: boolean;
 };
 
 type AtlasLoginReturnValue =
@@ -112,12 +116,32 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
           if (!projectId) {
             throw new Error('failed to get projectId');
           }
-          const { csrfToken, csrfTime } = await fetch(
-            `/cloud-mongodb-com/v2/${projectId}/params`
-          ).then((res) => {
-            return res.json();
+          const {
+            csrfToken,
+            csrfTime,
+            appUser: { isOptedIntoDataExplorerGenAIFeatures },
+            currentOrganization: { genAIFeaturesEnabled },
+            featureFlags: { groupEnabledFeatureFlags },
+          } = await fetch(`/cloud-mongodb-com/v2/${projectId}/params`).then(
+            (res) => {
+              return res.json();
+            }
+          );
+          setProjectParams({
+            projectId,
+            csrfToken,
+            csrfTime,
+            optInDataExplorerGenAIFeatures:
+              isOptedIntoDataExplorerGenAIFeatures,
+            enableGenAIFeaturesAtlasOrg: genAIFeaturesEnabled,
+            enableGenAISampleDocumentPassingOnAtlasProject:
+              groupEnabledFeatureFlags.includes(
+                'ENABLE_DATA_EXPLORER_GEN_AI_SAMPLE_DOCUMENT_PASSING'
+              ),
+            enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
+              'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
+            ),
           });
-          setProjectParams({ projectId, csrfToken, csrfTime });
           setStatus('signed-in');
           if (IS_CI) {
             return;
