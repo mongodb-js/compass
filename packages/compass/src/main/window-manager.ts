@@ -20,6 +20,7 @@ import type { CompassApplication } from './application';
 import {
   getWindowAutoConnectPreferences,
   registerMongoDbUrlForBrowserWindow,
+  registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
 const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
@@ -95,16 +96,19 @@ async function showWindowWhenReady(bw: BrowserWindow) {
  */
 function showConnectWindow(
   compassApp: typeof CompassApplication,
-  opts: Partial<
+  {
+    rendererUrl = DEFAULT_URL,
+    mongodbUrl,
+    connectionId,
+    ...opts
+  }: Partial<
     BrowserWindowConstructorOptions & {
       rendererUrl: string;
       mongodbUrl: string;
+      connectionId: string;
     }
   > = {}
 ): BrowserWindow {
-  const rendererUrl = opts.rendererUrl ?? DEFAULT_URL;
-  const mongodbUrl = opts.mongodbUrl;
-
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
     height: Number(DEFAULT_HEIGHT),
@@ -142,6 +146,9 @@ function showConnectWindow(
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (mongodbUrl) {
     registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
+  }
+  if (connectionId) {
+    registerConnectionIdForBrowserWindow(window, connectionId);
   }
   if (networkTraffic !== true) {
     // https://github.com/electron/electron/issues/22995
@@ -265,6 +272,8 @@ class CompassWindowManager {
         return getWindowAutoConnectPreferences(bw, compassApp.preferences);
       },
       'test:show-connect-window': () => showConnectWindow(compassApp),
+      'app:connect-in-new-window': (event, connectionId: string) =>
+        showConnectWindow(compassApp, { connectionId }),
     });
 
     ipcMain?.on('show-file', (evt, filename: string) => {
