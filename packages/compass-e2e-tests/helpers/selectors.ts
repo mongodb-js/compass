@@ -282,6 +282,8 @@ export const Single = {
 export const Multiple = {
   ConnectionsTitle: '[data-testid="connections-header"]',
   ConnectButton: '[data-action="connection-connect"]',
+  ConnectInNewWindowButton: '[data-action="connection-connect-in-new-window"]',
+  ConnectDropdownButton: '[aria-label="see more connection options"]',
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
   CreateDatabaseButton:
@@ -404,6 +406,14 @@ export const sidebarConnection = (connectionName: string): string => {
 
 export const sidebarConnectionButton = (connectionName: string): string => {
   return `${sidebarConnection(connectionName)} ${Multiple.ConnectButton}`;
+};
+
+export const sidebarConnectionDropdownButton = (
+  connectionName: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${
+    Multiple.ConnectDropdownButton
+  }`;
 };
 
 export const sidebarConnectionActionButton = (
