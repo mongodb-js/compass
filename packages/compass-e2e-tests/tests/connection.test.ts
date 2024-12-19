@@ -20,6 +20,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
+import { DEFAULT_CONNECTION_NAMES } from '../helpers/test-runner-context';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -639,6 +640,50 @@ describe('Connection string', function () {
       'new-collection'
     );
   });
+});
+
+describe('Connect in a new window', () => {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    compass = await init(this.test?.fullTitle(), {
+      firstRun: false,
+    });
+    browser = compass.browser;
+    await browser.setupDefaultConnections();
+  });
+
+  after(async function () {
+    await cleanup(compass);
+  });
+
+  it('can connect in new window', async function (this) {
+    skipForWeb(this, 'connecting in new window is not supported on web');
+    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionSelector = Selectors.sidebarConnection(connectionName);
+    await browser.hover(connectionSelector);
+
+    expect((await browser.getWindowHandles()).length).equals(1);
+
+    const connectionElement = browser.$(connectionSelector);
+    await browser.clickVisible(
+      connectionElement.$(Selectors.ConnectDropdownButton)
+    );
+    await browser.clickVisible(
+      connectionElement.$(Selectors.ConnectInNewWindowButton)
+    );
+
+    const windowsAfter = await browser.getWindowHandles();
+    expect(windowsAfter.length).equals(2);
+    const [, newWindowHandle] = windowsAfter;
+    await browser.switchToWindow(newWindowHandle);
+    await browser.waitForConnectionResult(connectionName, {
+      connectionStatus: 'success',
+    });
+  });
+
+  // TODO: Add a test for we to ensure the SplitButton isn't visible on Web
 });
 
 describe('Connection form', function () {
