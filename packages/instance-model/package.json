@@ -2,7 +2,7 @@
   "name": "mongodb-instance-model",
   "description": "MongoDB instance model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "12.24.9",
+  "version": "12.24.10",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -29,13 +29,13 @@
   },
   "dependencies": {
     "ampersand-model": "^8.0.1",
-    "mongodb-collection-model": "^5.23.9",
-    "mongodb-data-service": "^22.23.9",
-    "mongodb-database-model": "^2.23.9"
+    "mongodb-collection-model": "^5.23.10",
+    "mongodb-data-service": "^22.23.10",
+    "mongodb-database-model": "^2.23.10"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.1.8",
-    "@mongodb-js/prettier-config-compass": "^1.0.3",
+    "@mongodb-js/eslint-config-compass": "^1.1.9",
+    "@mongodb-js/prettier-config-compass": "^1.0.4",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
