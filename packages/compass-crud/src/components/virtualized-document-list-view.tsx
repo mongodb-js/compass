@@ -47,9 +47,9 @@ type VirtualizedDocumentListViewProps = {
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
+  listRef?: VirtualListRef;
   __TEST_OVERSCAN_COUNT?: number;
   __TEST_LIST_HEIGHT?: number;
-  __TEST_LIST_REF?: VirtualListRef;
 } & Pick<
   DocumentProps,
   | 'isTimeSeries'
@@ -74,9 +74,9 @@ const VirtualizedDocumentListView: React.FC<
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  listRef,
   __TEST_OVERSCAN_COUNT,
   __TEST_LIST_HEIGHT,
-  __TEST_LIST_REF,
 }) => {
   const docs = useMemo(() => {
     return _docs.map((_doc) => {
@@ -131,9 +131,9 @@ const VirtualizedDocumentListView: React.FC<
       listOuterContainerClassName={spacingStyles}
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
+      listRef={listRef}
       overScanCount={__TEST_OVERSCAN_COUNT}
       __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
-      __TEST_LIST_REF={__TEST_LIST_REF}
     ></VirtualList>
   );
 };

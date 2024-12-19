@@ -1,12 +1,13 @@
 import { isEqual } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type VariableSizeList } from 'react-window';
+import type { VirtualListProps } from '../components/virtual-list';
 
-export type VirtualListItemObserverParams<T> = {
+export type VirtualListItemObserverParams<T> = Pick<
+  VirtualListProps<T>,
+  'items' | 'rowGap' | 'estimateItemInitialHeight'
+> & {
   listRef: React.RefObject<VariableSizeList>;
-  items: T[];
-  rowGap?: number;
-  estimateItemInitialHeight(item: T): number;
 };
 
 export type ListItemObserver = {
@@ -103,7 +104,7 @@ export const useVirtualListItemObserver = <T>({
       // page changes) in which case we won't have their heights in our state
       // hence we fallback to estimating initial document heights.
       const itemHeight =
-        itemsHeights[idx] ?? estimateItemInitialHeight(items[idx]);
+        itemsHeights[idx] ?? estimateItemInitialHeight(items[idx], idx);
       if (rowGap !== undefined && idx !== items.length - 1) {
         return itemHeight + rowGap;
       }
