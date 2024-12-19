@@ -11,12 +11,14 @@ import Code, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
+export type { GlyphName } from '@leafygreen-ui/icon';
 import {
   AtlasNavGraphic,
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
@@ -30,6 +32,10 @@ import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
+export type {
+  InferredPolymorphicProps,
+  PolymorphicProps,
+} from '@leafygreen-ui/polymorphic';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
