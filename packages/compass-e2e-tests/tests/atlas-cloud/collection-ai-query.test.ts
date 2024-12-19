@@ -119,10 +119,10 @@ describe('Collection ai query', function () {
         // Click generate.
         await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
 
-        // Wait for the ipc events to succeed.
         await browser.waitUntil(async function () {
-          const textContent = browser.$(Selectors.AggregationAsTextEditor);
-          expect(await textContent.getText()).to.contain('$match');
+          const textEditor = browser.$(Selectors.AggregationAsTextEditor);
+          const textContent = await textEditor.getText();
+          return textContent.includes('$match');
         });
 
         // Run it and check that the correct documents are shown.
@@ -135,9 +135,12 @@ describe('Collection ai query', function () {
         await browser.clickVisible(
           Selectors.AggregationResultsJSONListSwitchButton
         );
-        const documents = await browser.getCodemirrorEditorTextAll(
+        const rawDocuments = await browser.getCodemirrorEditorTextAll(
           Selectors.DocumentJSONEntry
         );
+        const documents = rawDocuments.map((text) => {
+          return JSON.parse(text);
+        });
 
         expect(documents).to.have.lengthOf(1);
         expect(documents[0]).to.have.property('_id');
