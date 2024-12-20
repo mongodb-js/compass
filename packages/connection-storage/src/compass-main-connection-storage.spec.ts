@@ -1379,6 +1379,19 @@ describe('ConnectionStorage', function () {
       );
     });
 
+    it('should return autoConnectInfo when an existing connection id is provided', async function () {
+      const connectionInfo = getConnectionInfo({ lastUsed: new Date() });
+      await writeFakeConnection(tmpDir, { connectionInfo });
+      const info = await connectionStorage.getAutoConnectInfo({
+        shouldAutoConnect: true,
+        positionalArguments: [connectionInfo.id],
+      });
+      expect(info?.id).to.equal(connectionInfo.id);
+      expect(info?.connectionOptions).to.deep.equal(
+        connectionInfo.connectionOptions
+      );
+    });
+
     context('when autoConnectInfo is available', function () {
       beforeEach(async function () {
         await connectionStorage.getAutoConnectInfo({
