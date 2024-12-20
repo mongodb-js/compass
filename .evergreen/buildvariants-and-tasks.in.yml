@@ -80,18 +80,18 @@ const SMOKETEST_BUILD_VARIANTS = [
 //    run_on: 'rhel80-large',
 //    depends_on: 'package-rhel',
 //  },
-//  {
-//    name: 'smoketest-macos-x64',
-//    display_name: 'Smoketest MacOS Intel',
-//    run_on: 'macos-14',
-//    depends_on: 'package-macos-x64',
-//  },
-//  {
-//    name: 'smoketest-macos-arm',
-//    display_name: 'Smoketest MacOS Arm64',
-//    run_on: 'macos-14-arm64',
-//    depends_on: 'package-macos-arm',
-//  }
+  {
+    name: 'smoketest-macos-x64',
+    display_name: 'Smoketest MacOS Intel',
+    run_on: 'macos-14',
+    depends_on: 'package-macos-x64',
+  },
+  {
+    name: 'smoketest-macos-arm',
+    display_name: 'Smoketest MacOS Arm64',
+    run_on: 'macos-14-arm64',
+    depends_on: 'package-macos-arm',
+  }
 ];
 
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
