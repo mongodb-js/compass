@@ -182,7 +182,15 @@ async function run() {
 
     if (appInfo) {
       console.log('testing', appInfo.appPath);
-      await testInstalledApp(appInfo);
+      try {
+        await testInstalledApp(appInfo);
+      } finally {
+        try {
+          await execute('cat', [`${__dirname}/.log/webdriver/*`]);
+        } catch (err) {
+          /* ignore*/
+        }
+      }
     } else {
       console.log(`no app got installed for ${pkg.filename}`);
     }
@@ -365,8 +373,8 @@ function verifyPackagesExist(packages: Package[]): void {
   }
 }
 
-function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
-  return execute(
+async function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
+  await execute(
     'npm',
     [
       'run',
