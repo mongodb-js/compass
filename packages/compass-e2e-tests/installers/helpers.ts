@@ -7,6 +7,7 @@ export function execute(
   options?: SpawnOptions
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    console.log(command, ...args);
     const p = spawn(command, args, {
       stdio: 'inherit',
       ...options,
