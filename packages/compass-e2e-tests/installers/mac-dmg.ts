@@ -16,7 +16,7 @@ export async function installMacDMG(
   try {
     await execute(
       'cp',
-      ['-Rp', `/Volumes/${appName}/${appName}.app`, '/Applications'],
+      ['-Rp', `"/Volumes/${appName}/${appName}.app"`, '/Applications'],
       { shell: true }
     );
   } finally {
