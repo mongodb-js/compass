@@ -182,15 +182,7 @@ async function run() {
 
     if (appInfo) {
       console.log('testing', appInfo.appPath);
-      try {
-        await testInstalledApp(appInfo);
-      } finally {
-        try {
-          await execute('cat', [`${__dirname}/.log/webdriver/*`]);
-        } catch (err) {
-          /* ignore*/
-        }
-      }
+      await testInstalledApp(appInfo);
     } else {
       console.log(`no app got installed for ${pkg.filename}`);
     }
