@@ -14,13 +14,17 @@ export async function installMacDMG(
 
   await execute('hdiutil', ['attach', filepath]);
   try {
-    await execute('cp', [
-      '-Rp',
-      `/Volumes/${appName}/${appName}.app`,
-      '/Applications',
-    ]);
+    await execute(
+      'cp',
+      ['-Rp', `/Volumes/${appName}/${appName}.app`, '/Applications'],
+      { shell: true }
+    );
   } finally {
     await execute('hdiutil', ['detach', `/Volumes/${appName}`]);
+  }
+
+  if (!existsSync(`/Applications/${appName}.app/Contents/MacOS/${appName}`)) {
+    throw new Error('app not found');
   }
 
   return Promise.resolve({
