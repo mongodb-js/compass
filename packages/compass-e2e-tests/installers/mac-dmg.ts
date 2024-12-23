@@ -15,7 +15,7 @@ export async function installMacDMG(
   await execute('hdiutil', ['attach', filepath]);
   try {
     await execute('cp', [
-      '-r',
+      '-Rp',
       `/Volumes/${appName}/${appName}.app`,
       '/Applications',
     ]);
