@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
+import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { Button, Icon, Menu, MenuItem, MenuSeparator } from '../leafygreen';
 import { WorkspaceContainer } from '../workspace-container';
@@ -20,7 +21,7 @@ const hiddenOnNarrowStyles = css({
 export type DropdownMenuButtonProps<Action extends string> = {
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
-  usePortal?: boolean;
+  renderMode?: RenderMode;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
   activeAction?: Action;
@@ -34,7 +35,7 @@ export function DropdownMenuButton<Action extends string>({
   isVisible = true,
   actions,
   onAction,
-  usePortal,
+  renderMode,
   activeAction,
   buttonText,
   buttonProps,
@@ -48,7 +49,7 @@ export function DropdownMenuButton<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick = useCallback(
+  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
@@ -56,7 +57,11 @@ export function DropdownMenuButton<Action extends string>({
         // Workaround for https://jira.mongodb.org/browse/PD-1674
         menuTriggerRef.current?.focus();
       }
-      onAction(evt.currentTarget.dataset.action);
+      const actionName = evt.currentTarget.dataset.action;
+      if (typeof actionName !== 'string') {
+        throw new Error('Expected element to have a "data-action" attribute');
+      }
+      onAction(actionName as Action);
     },
     [onAction]
   );
@@ -73,7 +78,7 @@ export function DropdownMenuButton<Action extends string>({
       setOpen={setIsMenuOpen}
       justify="start"
       refEl={menuTriggerRef}
-      usePortal={usePortal}
+      renderMode={renderMode}
       data-testid={dataTestId}
       trigger={({
         onClick,
@@ -112,7 +117,7 @@ export function DropdownMenuButton<Action extends string>({
           <MenuItem
             active={activeAction === action}
             key={action}
-            data-testid={actionTestId<Action>(dataTestId, action)}
+            data-testid={actionTestId(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
             glyph={<ActionGlyph glyph={icon} size={iconSize} />}

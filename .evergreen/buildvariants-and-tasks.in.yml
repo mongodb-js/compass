@@ -60,6 +60,40 @@ const PACKAGE_BUILD_VARIANTS = [
   }
 ];
 
+const SMOKETEST_BUILD_VARIANTS = [
+  {
+    name: 'smoketest-ubuntu',
+    display_name: 'Smoketest Ubuntu',
+    run_on: 'ubuntu2004-large',
+    depends_on: 'package-ubuntu',
+  },
+  
+//  {
+//    name: 'smoketest-windows',
+//    display_name: 'Smoketest Windows',
+//    run_on: 'windows-vsCurrent-large',
+//    depends_on: 'package-windows',
+//  },
+//  {
+//    name: 'smoketest-rhel',
+//    display_name: 'Smoketest RHEL',
+//    run_on: 'rhel80-large',
+//    depends_on: 'package-rhel',
+//  },
+//  {
+//    name: 'smoketest-macos-x64',
+//    display_name: 'Smoketest MacOS Intel',
+//    run_on: 'macos-14',
+//    depends_on: 'package-macos-x64',
+//  },
+//  {
+//    name: 'smoketest-macos-arm',
+//    display_name: 'Smoketest MacOS Arm64',
+//    run_on: 'macos-14-arm64',
+//    depends_on: 'package-macos-arm',
+//  }
+];
+
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
@@ -82,13 +116,13 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-macos-11-arm',
     display_name: 'MacOS arm64 11',
-    run_on: 'macos-1100-arm64-gui',
+    run_on: 'macos-11-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
     name: 'test-packaged-app-macos-11-x64',
     display_name: 'MacOS x64 11',
-    run_on: 'macos-1100-gui',
+    run_on: 'macos-11-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
   },
@@ -178,6 +212,19 @@ buildvariants:
     <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
     - name: package-<%= distribution %>
     <% } %>
+<% } %>
+
+<% for (const buildVariant of SMOKETEST_BUILD_VARIANTS) { %>
+<% for (const distribution of ['compass']) { %>
+  - name: <%= buildVariant.name %>-<%= distribution %>
+    display_name: <%= buildVariant.display_name %> (<%= distribution %>)
+    run_on: <%= buildVariant.run_on %>
+    depends_on:
+      - name: package-<%= distribution %>
+        variant: <%= buildVariant.depends_on %>
+    tasks:
+    - name: smoketest-<%= distribution %>
+<% } %>
 <% } %>
 
   - name: test-eol-servers
@@ -424,6 +471,22 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: <%= distribution %>
+  <% } %>
+
+<% for (const distribution of ['compass']) { %>
+  - name: smoketest-<%= distribution %>
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: <%= distribution %>
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
 
 <% for (const serverVersion of SERVER_VERSIONS) { %>

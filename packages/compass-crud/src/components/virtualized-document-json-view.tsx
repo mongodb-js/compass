@@ -42,9 +42,9 @@ export type VirtualizedDocumentJsonViewProps = {
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
+  listRef?: VirtualListRef;
   __TEST_OVERSCAN_COUNT?: number;
   __TEST_LIST_HEIGHT?: number;
-  __TEST_LIST_REF?: VirtualListRef;
 } & Pick<
   JSONEditorProps,
   | 'isTimeSeries'
@@ -72,7 +72,7 @@ const VirtualizedDocumentJsonView: React.FC<
   openInsertDocumentDialog,
   __TEST_OVERSCAN_COUNT,
   __TEST_LIST_HEIGHT,
-  __TEST_LIST_REF,
+  listRef,
 }) => {
   const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
     (doc, docRef, docIndex) => {
@@ -120,8 +120,8 @@ const VirtualizedDocumentJsonView: React.FC<
       listOuterContainerClassName={spacingStyles}
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
+      listRef={listRef}
       __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
-      __TEST_LIST_REF={__TEST_LIST_REF}
     ></VirtualList>
   );
 };

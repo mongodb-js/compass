@@ -179,9 +179,9 @@ export const ConnectionFormInputSocksPassword =
 export const ConnectionFormReadPreferenceRadios =
   '#read-preferences input[type="radio"]';
 export const ConnectionFormInputReplicaset =
-  '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="replica-set"]';
 export const ConnectionFormInputDefaultDatabase =
-  '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="default-database"]';
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
@@ -191,7 +191,7 @@ export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
 };
 export const advancedOptionsTabPanel = (tabName: string): string => {
-  return `[role="tabpanel"][aria-label="${tabName}"]`;
+  return `[role="tabpanel"] [aria-label="${tabName}"]`;
 };
 export const connectionFormSchemeRadio = (value: string): string => {
   return `#connection-scheme-radio-box-group input[value="${value}"]`;
@@ -1239,12 +1239,11 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
-export const QueryBarAIEntryButton =
-  '[data-testid="open-ai-query-entry-button"]';
-export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
-export const QueryBarAIGenerateQueryButton =
-  '[data-testid="ai-generate-button"]';
-export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
+export const GenAITextInput = '[data-testid="ai-user-text-input"]';
+export const GenAIGenerateQueryButton = '[data-testid="ai-generate-button"]';
+export const GenAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIOpenButton = '[data-testid="open-gen-ai-button"]';
 
 // Workspace tabs
 export const WorkspaceTabsContainer =

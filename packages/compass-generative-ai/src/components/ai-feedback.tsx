@@ -174,6 +174,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
           setOpen={() => setChosenFeedbackOption('none')}
           onSubmitFeedback={_onSubmitFeedback}
           label="Provide Feedback"
+          tooltipJustify="end"
           placeholder={
             chosenFeedbackOption === 'positive'
               ? 'What do you like about the generated query?'

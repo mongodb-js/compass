@@ -4,20 +4,8 @@ import React from 'react';
 
 import {
   StackedComponentProvider,
-  withStackedComponentPopoverStyles,
   withStackedComponentStyles,
 } from './use-stacked-component';
-
-const ComponentWithPopoverZIndexProp = withStackedComponentPopoverStyles(
-  function ({ popoverZIndex }: { popoverZIndex?: number }) {
-    return (
-      <div
-        data-testid="stacked-zindexed-component"
-        style={{ zIndex: popoverZIndex }}
-      />
-    );
-  }
-);
 
 const ComponentWithStyleProp = withStackedComponentStyles(function ({
   style,
@@ -31,82 +19,40 @@ describe('use-stacked-component', function () {
   afterEach(cleanup);
 
   context('with no provider', function () {
-    context('popover z-index prop', function () {
-      it('renders component with default z-index', function () {
-        render(<ComponentWithPopoverZIndexProp />);
-        const component = screen.getByTestId('stacked-zindexed-component');
-        expect(component).to.exist;
-        expect(component.style).to.have.property('z-index', '');
-      });
-      it('renders component with z-index', function () {
-        render(<ComponentWithPopoverZIndexProp popoverZIndex={100} />);
-        const component = screen.getByTestId('stacked-zindexed-component');
-        expect(component).to.exist;
-        expect(component.style).to.have.property('z-index', '100');
-      });
+    it('renders component with no style', function () {
+      render(<ComponentWithStyleProp />);
+      const component = screen.getByTestId('stacked-classname-component');
+      expect(component).to.exist;
+      expect(component.style).to.have.property('z-index', '');
     });
-
-    context('style prop', function () {
-      it('renders component with no style', function () {
-        render(<ComponentWithStyleProp />);
-        const component = screen.getByTestId('stacked-classname-component');
-        expect(component).to.exist;
-        expect(component.style).to.have.property('z-index', '');
-      });
-      it('renders component with style', function () {
-        render(<ComponentWithStyleProp style={{ height: 100 }} />);
-        const component = screen.getByTestId('stacked-classname-component');
-        expect(component).to.exist;
-        expect(component.style).to.have.property('height', '100px');
-      });
+    it('renders component with style', function () {
+      render(<ComponentWithStyleProp style={{ height: 100 }} />);
+      const component = screen.getByTestId('stacked-classname-component');
+      expect(component).to.exist;
+      expect(component.style).to.have.property('height', '100px');
     });
   });
 
   context('with provider', function () {
-    context('popover z-index prop', function () {
-      it('renders component with z-index from context', function () {
-        render(
-          <StackedComponentProvider zIndex={100}>
-            <ComponentWithPopoverZIndexProp />
-          </StackedComponentProvider>
-        );
-        const component = screen.getByTestId('stacked-zindexed-component');
-        expect(component).to.exist;
-        expect(component.style.zIndex).to.equal('100');
-      });
-      it('renders component with z-index from the prop', function () {
-        render(
-          <StackedComponentProvider zIndex={100}>
-            <ComponentWithPopoverZIndexProp popoverZIndex={20} />
-          </StackedComponentProvider>
-        );
-        const component = screen.getByTestId('stacked-zindexed-component');
-        expect(component).to.exist;
-        expect(component.style.zIndex).to.equal('20');
-      });
+    it('renders component with no style', function () {
+      render(
+        <StackedComponentProvider zIndex={100}>
+          <ComponentWithStyleProp />
+        </StackedComponentProvider>
+      );
+      const component = screen.getByTestId('stacked-classname-component');
+      expect(component).to.exist;
+      expect(component.style.zIndex).to.equal('100');
     });
-
-    context('style prop', function () {
-      it('renders component with no style', function () {
-        render(
-          <StackedComponentProvider zIndex={100}>
-            <ComponentWithStyleProp />
-          </StackedComponentProvider>
-        );
-        const component = screen.getByTestId('stacked-classname-component');
-        expect(component).to.exist;
-        expect(component.style.zIndex).to.equal('100');
-      });
-      it('renders component with classname', function () {
-        render(
-          <StackedComponentProvider zIndex={100}>
-            <ComponentWithStyleProp style={{ zIndex: 20 }} />
-          </StackedComponentProvider>
-        );
-        const component = screen.getByTestId('stacked-classname-component');
-        expect(component).to.exist;
-        expect(component.style.zIndex).to.equal('20');
-      });
+    it('renders component with classname', function () {
+      render(
+        <StackedComponentProvider zIndex={100}>
+          <ComponentWithStyleProp style={{ zIndex: 20 }} />
+        </StackedComponentProvider>
+      );
+      const component = screen.getByTestId('stacked-classname-component');
+      expect(component).to.exist;
+      expect(component.style.zIndex).to.equal('20');
     });
   });
 });

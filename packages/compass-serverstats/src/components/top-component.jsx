@@ -130,8 +130,8 @@ class TopComponent extends React.Component {
   renderGraph() {
     const rows = this.state.data.map(function (row, i) {
       const styleLoad = { width: `${row.loadPercent}%` };
-      const styleLoadR = { width: `${row.loadPercentR}%` };
-      const styleLoadW = { width: `${row.loadPercentW}%` };
+      const styleLoadR = { width: `${row.loadPercentRead}%` };
+      const styleLoadW = { width: `${row.loadPercentWrite}%` };
 
       return (
         <li className="rt-lists__item" key={`list-item-${i}`}>
