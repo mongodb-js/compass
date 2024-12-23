@@ -1,19 +1,44 @@
-import type { SpawnSyncReturns } from 'child_process';
+import { spawn } from 'child_process';
+import type { SpawnOptions } from 'child_process';
 
-export function assertSpawnSyncResult(
-  result: SpawnSyncReturns<string>,
-  name: string
-) {
-  if (result.status === null) {
-    if (result.signal !== null) {
-      throw new Error(`${name} terminated due to signal ${result.signal}`);
-    }
-
-    // not supposed to be possible to get here, but just in case
-    throw new Error(`${name} terminated with no status or signal`);
-  }
-
-  if (result.status !== 0) {
-    throw new Error(`${name} failed with exit code ${result.status}`);
-  }
+export function execute(
+  command: string,
+  args: string[],
+  options?: SpawnOptions
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const p = spawn(command, args, {
+      stdio: 'inherit',
+      ...options,
+    });
+    p.on('error', (err: any) => {
+      reject(err);
+    });
+    p.on('close', (code: number | null, signal: NodeJS.Signals | null) => {
+      if (code !== null) {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(`${command} ${args.join(' ')} exited with code ${code}`)
+          );
+        }
+      } else {
+        if (signal !== null) {
+          reject(
+            new Error(
+              `${command} ${args.join(' ')} exited with signal ${signal}`
+            )
+          );
+        } else {
+          // shouldn't happen
+          reject(
+            new Error(
+              `${command} ${args.join(' ')} exited with no code or signal`
+            )
+          );
+        }
+      }
+    });
+  });
 }

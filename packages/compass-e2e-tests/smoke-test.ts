@@ -1,5 +1,4 @@
 #!/usr/bin/env npx ts-node
-import { spawnSync } from 'child_process';
 import { createWriteStream, existsSync, promises as fs } from 'fs';
 import path from 'path';
 import yargs from 'yargs';
@@ -10,7 +9,7 @@ import { pick } from 'lodash';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 import type { InstalledAppInfo, Package } from './installers/types';
 import { installMacDMG } from './installers/mac-dmg';
-import { assertSpawnSyncResult } from './installers/helpers';
+import { execute } from './installers/helpers';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
@@ -183,7 +182,7 @@ async function run() {
 
     if (appInfo) {
       console.log('testing', appInfo.appPath);
-      testInstalledApp(appInfo);
+      await testInstalledApp(appInfo);
     } else {
       console.log(`no app got installed for ${pkg.filename}`);
     }
@@ -366,8 +365,8 @@ function verifyPackagesExist(packages: Package[]): void {
   }
 }
 
-function testInstalledApp(appInfo: InstalledAppInfo) {
-  const result = spawnSync(
+function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
+  return execute(
     'npm',
     [
       'run',
@@ -379,8 +378,6 @@ function testInstalledApp(appInfo: InstalledAppInfo) {
       '--test-filter=time-to-first-query',
     ],
     {
-      encoding: 'utf8',
-      stdio: 'inherit',
       env: {
         ...process.env,
         COMPASS_APP_NAME: appInfo.appName,
@@ -388,8 +385,6 @@ function testInstalledApp(appInfo: InstalledAppInfo) {
       },
     }
   );
-
-  assertSpawnSyncResult(result, 'npm run test-packaged');
 }
 
 run()

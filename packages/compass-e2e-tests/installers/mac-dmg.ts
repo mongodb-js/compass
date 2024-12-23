@@ -1,19 +1,6 @@
 import { existsSync } from 'fs';
-import { assertSpawnSyncResult } from './helpers';
 import type { InstalledAppInfo, Package } from './types';
-import { spawnSync } from 'child_process';
-
-function exec(command: string, args: string[]) {
-  console.log(command, ...args);
-
-  assertSpawnSyncResult(
-    spawnSync(command, args, {
-      encoding: 'utf8',
-      stdio: 'inherit',
-    }),
-    `${command} ${args.join(' ')}`
-  );
-}
+import { execute } from './helpers';
 
 export async function installMacDMG(
   appName: string,
@@ -25,11 +12,15 @@ export async function installMacDMG(
     throw new Error(`${fullDestinationPath} already exists`);
   }
 
-  exec('hdiutil', ['attach', filepath]);
+  await execute('hdiutil', ['attach', filepath]);
   try {
-    exec('cp', ['-r', `/Volumes/${appName}/${appName}.app`, '/Applications']);
+    await execute('cp', [
+      '-r',
+      `/Volumes/${appName}/${appName}.app`,
+      '/Applications',
+    ]);
   } finally {
-    exec('hdiutil', ['detach', `/Volumes/${appName}`]);
+    await execute('hdiutil', ['detach', `/Volumes/${appName}`]);
   }
 
   return Promise.resolve({
