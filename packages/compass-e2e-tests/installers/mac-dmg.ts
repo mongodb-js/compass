@@ -36,17 +36,6 @@ export async function installMacDMG(
     '--version',
   ]);
 
-  // see if the GUI works
-  const logPath = path.resolve(__dirname, '..', '.log');
-  await fs.mkdir(logPath, { recursive: true });
-  const screenshotPath = path.resolve(
-    __dirname,
-    '..',
-    '.log',
-    'screenshot.png'
-  );
-  await execute(`screencapture`, [screenshotPath]);
-
   return Promise.resolve({
     appName,
     appPath: `/Applications/${appName}.app`,
