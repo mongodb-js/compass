@@ -1,5 +1,4 @@
-import path from 'path';
-import { existsSync, promises as fs } from 'fs';
+import { existsSync } from 'fs';
 import type { InstalledAppInfo, Package } from './types';
 import { execute } from './helpers';
 
