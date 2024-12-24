@@ -5,6 +5,16 @@ import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 
+const editablePreferences: (keyof UserPreferences)[] = [
+  'optInDataExplorerGenAIFeatures',
+  'cloudFeatureRolloutAccess',
+
+  // Exposed for testing purposes.
+  'enableGenAISampleDocumentPassingOnAtlasProject',
+  'enableGenAIFeaturesAtlasOrg',
+  'enableGenAIFeaturesAtlasProject',
+];
+
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
@@ -15,15 +25,12 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   }
 
   savePreferences(_attributes: Partial<UserPreferences>) {
-    // Only allow saving the optInDataExplorerGenAIFeatures preference.
+    // Only allow runtime updating certain preferences.
     if (
       Object.keys(_attributes).length === 1 &&
-      'optInDataExplorerGenAIFeatures' in _attributes
-    ) {
-      return Promise.resolve(this._preferences.savePreferences(_attributes));
-    } else if (
-      Object.keys(_attributes).length === 1 &&
-      'cloudFeatureRolloutAccess' in _attributes
+      editablePreferences.includes(
+        Object.keys(_attributes)[0] as keyof UserPreferences
+      )
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
     }
@@ -54,17 +61,12 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     preferenceName: K,
     callback: (value: AllPreferences[K]) => void
   ) {
-    return (
-      this._preferences?.onPreferencesChanged?.(
-        (preferences: Partial<AllPreferences>) => {
-          if (Object.keys(preferences).includes(preferenceName)) {
-            return callback((preferences as AllPreferences)[preferenceName]);
-          }
+    return this._preferences.onPreferencesChanged(
+      (preferences: Partial<AllPreferences>) => {
+        if (Object.keys(preferences).includes(preferenceName)) {
+          return callback((preferences as AllPreferences)[preferenceName]);
         }
-      ) ??
-      (() => {
-        /* no fallback */
-      })
+      }
     );
   }
 
