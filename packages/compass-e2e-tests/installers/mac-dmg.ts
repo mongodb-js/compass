@@ -35,6 +35,9 @@ export async function installMacDMG(
     '--version',
   ]);
 
+  // by my calculations this should crash
+  await execute(`/Applications/${appName}.app/Contents/MacOS/${appName}`, []);
+
   return Promise.resolve({
     appName,
     appPath: `/Applications/${appName}.app`,
