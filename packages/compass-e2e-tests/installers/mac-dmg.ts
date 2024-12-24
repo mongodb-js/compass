@@ -10,7 +10,10 @@ export async function installMacDMG(
   const fullDestinationPath = `/Applications/${appName}.app`;
 
   if (existsSync(fullDestinationPath)) {
-    throw new Error(`${fullDestinationPath} already exists`);
+    // Would ideally just throw here, but unfortunately in CI the mac
+    // environments aren't all clean so somewhere we have to remove it anyway.
+    console.log(`${fullDestinationPath} already exists. Removing.`);
+    await execute('rm', ['-rf', fullDestinationPath]);
   }
 
   await execute('hdiutil', ['attach', filepath]);
