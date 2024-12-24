@@ -643,9 +643,10 @@ async function startCompassElectron(
       },
       // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
       'wdio:enforceWebDriverClassic': true,
-    },
-    'wdio:chromedriverOptions': {
-      // TODO: enable logging so we don't have to debug things blindly
+      'wdio:chromedriverOptions': {
+        // enable logging so we don't have to debug things blindly
+        verbose: true,
+      },
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -657,7 +658,10 @@ async function startCompassElectron(
   let browser: CompassBrowser;
 
   try {
-    browser = (await remote(options)) as CompassBrowser;
+    // webdriverio's type is wrong for
+    // options.capabilities['wdio:chromedriverOptions'] and it doesn't allow
+    // verbose even though it does work
+    browser = (await remote(options as any)) as CompassBrowser;
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
