@@ -86,7 +86,7 @@ const aiEntryLightModeStyles = css(
 );
 
 function AIExperienceEntry({
-  'data-testid': dataTestId,
+  'data-testid': dataTestId = 'open-gen-ai-button',
   type,
   onClick,
 }: {
