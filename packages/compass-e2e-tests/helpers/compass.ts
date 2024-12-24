@@ -547,7 +547,7 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'warn' as const, // info is super verbose right now
+    logLevel: 'info' as const, // info is super verbose right now
     outputDir: webdriverLogPath,
   };
 
