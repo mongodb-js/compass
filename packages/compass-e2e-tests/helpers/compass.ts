@@ -601,7 +601,9 @@ async function startCompassElectron(
     // See https://www.electronjs.org/docs/latest/api/command-line-switches#--enable-loggingfile
     '--enable-logging=file',
     // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
-    `--log-file=${electronLogFile}`
+    `--log-file=${electronLogFile}`,
+    // See // https://chromium.googlesource.com/chromium/src/+/master/docs/chrome_os_logging.md
+    '--log-level=0'
   );
 
   if (opts.extraSpawnArgs) {
