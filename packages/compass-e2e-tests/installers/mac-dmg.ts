@@ -1,3 +1,4 @@
+import path from 'path';
 import { existsSync } from 'fs';
 import type { InstalledAppInfo, Package } from './types';
 import { execute } from './helpers';
@@ -30,6 +31,20 @@ export async function installMacDMG(
   await execute(`/Applications/${appName}.app/Contents/MacOS/${appName}`, [
     '--version',
   ]);
+
+  if (process.env.HOME) {
+    const settingsDir = path.resolve(
+      process.env.HOME,
+      'Library',
+      'Application Support',
+      appName
+    );
+
+    if (existsSync(settingsDir)) {
+      console.log(`${settingsDir} already exists. Removing.`);
+      await execute('rm', ['-rf', settingsDir]);
+    }
+  }
 
   return Promise.resolve({
     appName,
