@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
 import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { Menu, MenuItem, MenuSeparator } from '../leafygreen';
@@ -29,13 +28,6 @@ const containerStyle = css({
   marginLeft: 'auto',
   alignItems: 'center',
   display: 'flex',
-});
-
-// TODO: Move to a parent component - or a flex gap
-const buttonStyle = css({
-  '&:not(:first-child)': {
-    marginLeft: spacing[100],
-  },
 });
 
 export type ItemActionMenuProps<Action extends string> = {
@@ -70,7 +62,7 @@ export function ItemActionMenu<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick = useCallback(
+  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
@@ -78,7 +70,11 @@ export function ItemActionMenu<Action extends string>({
         // Workaround for https://jira.mongodb.org/browse/PD-1674
         menuTriggerRef.current?.focus();
       }
-      onAction(evt.currentTarget.dataset.action);
+      const actionName = evt.currentTarget.dataset.action;
+      if (typeof actionName !== 'string') {
+        throw new Error('Expected element to have a "data-action" attribute');
+      }
+      onAction(actionName as Action);
     },
     [onAction]
   );
@@ -120,7 +116,7 @@ export function ItemActionMenu<Action extends string>({
                 evt.stopPropagation();
                 onClick && onClick(evt);
               }}
-              className={cx(buttonStyle, iconClassName)}
+              className={iconClassName}
               style={iconStyle}
             >
               {children}
@@ -145,7 +141,7 @@ export function ItemActionMenu<Action extends string>({
           return (
             <MenuItem
               key={action}
-              data-testid={actionTestId<Action>(dataTestId, action)}
+              data-testid={actionTestId(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
