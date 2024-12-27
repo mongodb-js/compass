@@ -86,7 +86,7 @@ buildvariants:
       - name: smoketest-compass
   - name: smoketest-macos-x64-compass
     display_name: Smoketest MacOS Intel (compass)
-    run_on: macos-14
+    run_on: macos-14-gui
     depends_on:
       - name: package-compass
         variant: package-macos-x64
@@ -94,7 +94,7 @@ buildvariants:
       - name: smoketest-compass
   - name: smoketest-macos-arm-compass
     display_name: Smoketest MacOS Arm64 (compass)
-    run_on: macos-14-arm64
+    run_on: macos-14-arm64-gui
     depends_on:
       - name: package-compass
         variant: package-macos-arm

@@ -83,13 +83,13 @@ const SMOKETEST_BUILD_VARIANTS = [
   {
     name: 'smoketest-macos-x64',
     display_name: 'Smoketest MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-14-gui',
     depends_on: 'package-macos-x64',
   },
   {
     name: 'smoketest-macos-arm',
     display_name: 'Smoketest MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-14-arm64-gui',
     depends_on: 'package-macos-arm',
   }
 ];
