@@ -547,7 +547,7 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'warn' as const, // info is super verbose right now
+    logLevel: 'trace' as const,
     outputDir: webdriverLogPath,
   };
 
@@ -601,7 +601,9 @@ async function startCompassElectron(
     // See https://www.electronjs.org/docs/latest/api/command-line-switches#--enable-loggingfile
     '--enable-logging=file',
     // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
-    `--log-file=${electronLogFile}`
+    `--log-file=${electronLogFile}`,
+    // See https://chromium.googlesource.com/chromium/src/+/master/docs/chrome_os_logging.md
+    '--log-level=0'
   );
 
   if (opts.extraSpawnArgs) {
@@ -643,9 +645,13 @@ async function startCompassElectron(
       },
       // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
       'wdio:enforceWebDriverClassic': true,
-    },
-    'wdio:chromedriverOptions': {
-      // TODO: enable logging so we don't have to debug things blindly
+      'wdio:chromedriverOptions': {
+        // enable logging so we don't have to debug things blindly
+        // This goes in .log/webdriver/wdio-chromedriver-*.log. It is the
+        // chromedriver log and since this is verbose it also contains the
+        // stdout of the electron main process.
+        verbose: true,
+      },
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -657,7 +663,10 @@ async function startCompassElectron(
   let browser: CompassBrowser;
 
   try {
-    browser = (await remote(options)) as CompassBrowser;
+    // webdriverio's type is wrong for
+    // options.capabilities['wdio:chromedriverOptions'] and it doesn't allow
+    // verbose even though it does work
+    browser = (await remote(options as any)) as CompassBrowser;
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
