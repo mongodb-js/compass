@@ -29,6 +29,10 @@ process.title = app.getName();
 void main();
 
 async function main(): Promise<void> {
+  process.stdout.write('before first app.whenReady\n');
+  await app.whenReady();
+  process.stdout.write('after first app.whenReady\n');
+
   const globalPreferences = await parseAndValidateGlobalPreferences();
 
   // These are expected to go away at some point.

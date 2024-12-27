@@ -106,10 +106,6 @@ class CompassApplication {
       safeStorage.setUsePlainTextEncryption(true);
     }
 
-    process.stdout.write('before first app.whenReady\n');
-    await app.whenReady();
-    process.stdout.write('after first app.whenReady\n');
-
     process.stdout.write('before setupPreferencesAndUser\n');
     const { preferences } = await setupPreferencesAndUser(
       globalPreferences,
