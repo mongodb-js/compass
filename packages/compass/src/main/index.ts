@@ -51,6 +51,13 @@ async function main(): Promise<void> {
     ...globalPreferences.hardcoded,
   };
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');
+
+  process.stdout.write(
+    `combined preferences: ${JSON.stringify(
+      preferences
+    )}, preferenceParseErrorsString: ${preferenceParseErrorsString}\n`
+  );
+
   if (preferences.version) {
     process.stdout.write(`${app.getName()} ${app.getVersion()}\n`);
     return app.exit(0);
@@ -84,6 +91,8 @@ async function main(): Promise<void> {
     removeSecrets: !!preferences.protectConnectionStrings,
     trackingProps: { context: 'CLI' },
   };
+
+  process.stdout.write(`importing CompassApplication\n`);
 
   const { CompassApplication } = await import('./application');
 
@@ -124,6 +133,8 @@ async function main(): Promise<void> {
     });
   }
 
+  process.stdout.write(`Starting CompassApplication ${mode}\n`);
+
   try {
     await CompassApplication.init(mode, globalPreferences);
   } catch (e) {
@@ -137,6 +148,8 @@ async function main(): Promise<void> {
     await CompassApplication.runExitHandlers().finally(() => app.exit(1));
     return;
   }
+
+  process.stdout.write(`Done starting CompassApplication ${mode}\n`);
 
   if (mode === 'CLI') {
     let exitCode = 0;

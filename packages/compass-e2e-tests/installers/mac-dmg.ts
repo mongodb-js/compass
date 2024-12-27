@@ -48,13 +48,6 @@ export async function installMacDMG(
       console.log(`${settingsDir} already exists. Removing.`);
       await execute('rm', ['-rf', settingsDir]);
     }
-
-    const appSupportDir = path.resolve(
-      process.env.HOME,
-      'Library',
-      'Application Support'
-    );
-    await execute('ls', ['-la', appSupportDir]);
   }
 
   return Promise.resolve({
