@@ -138,6 +138,9 @@ async function main(): Promise<void> {
   try {
     await CompassApplication.init(mode, globalPreferences);
   } catch (e) {
+    process.stdout.write(
+      `Error during CompassApplication.init ${(e as any)?.message ?? ''}\n`
+    );
     if (mode === 'CLI') {
       process.stderr.write('Exiting due to try/catch:\n');
       // eslint-disable-next-line no-console

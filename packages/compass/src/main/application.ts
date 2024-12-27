@@ -106,29 +106,38 @@ class CompassApplication {
       safeStorage.setUsePlainTextEncryption(true);
     }
 
+    process.stdout.write('before setupPreferencesAndUser\n');
     const { preferences } = await setupPreferencesAndUser(
       globalPreferences,
       safeStorage
     );
+    process.stdout.write('after setupPreferencesAndUser\n');
     this.preferences = preferences;
     await this.setupLogging();
+    process.stdout.write('after setupLogging\n');
     await this.setupProxySupport(app, 'Application');
+    process.stdout.write('after setupProxySupport\n');
     // need to happen after setupPreferencesAndUser and setupProxySupport
     await this.setupTelemetry();
+    process.stdout.write('after setupTelemetry\n');
     await setupProtocolHandlers(
       process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install',
       this.preferences
     );
+    process.stdout.write('after setupProtocolHandlers\n');
 
     // needs to happen after setupProtocolHandlers
     if ((await import('electron-squirrel-startup')).default) {
       debug('electron-squirrel-startup event handled sucessfully\n');
       return;
     }
+    process.stdout.write('after electron-squirrel-startup\n');
 
     // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
     // https://github.com/electron/electron/issues/33640
     await app.whenReady();
+
+    process.stdout.write('after app.whenReady\n');
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
@@ -153,12 +162,14 @@ class CompassApplication {
         { message: (e as Error).message }
       );
     }
+    process.stdout.write('after connectionStorage.migrateToSafeStorage\n');
 
     if (mode === 'CLI') {
       return;
     }
 
     await this.setupCORSBypass();
+    process.stdout.write('after setupCORSBypass\n');
     void this.setupCompassAuthService();
     // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
     // toasts will obscure other things which we don't expect yet.
@@ -166,6 +177,7 @@ class CompassApplication {
       this.setupAutoUpdate();
     }
     await setupCSFLELibrary();
+    process.stdout.write('after setupCSFLELibrary\n');
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
