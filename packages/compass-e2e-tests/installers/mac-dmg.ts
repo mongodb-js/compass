@@ -26,6 +26,11 @@ export async function installMacDMG(
     await execute('hdiutil', ['detach', `/Volumes/${appName}`]);
   }
 
+  // see if the executable will run without being quarantined or similar
+  await execute(`/Applications/${appName}.app/Contents/MacOS/${appName}`, [
+    '--version',
+  ]);
+
   return Promise.resolve({
     appName,
     appPath: `/Applications/${appName}.app`,
