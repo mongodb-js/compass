@@ -106,6 +106,10 @@ class CompassApplication {
       safeStorage.setUsePlainTextEncryption(true);
     }
 
+    process.stdout.write('before first app.whenReady\n');
+    await app.whenReady();
+    process.stdout.write('after first app.whenReady\n');
+
     process.stdout.write('before setupPreferencesAndUser\n');
     const { preferences } = await setupPreferencesAndUser(
       globalPreferences,
@@ -194,7 +198,12 @@ class CompassApplication {
   }
 
   private static async setupCompassAuthService() {
-    await CompassAuthService.init(this.preferences, this.httpClient);
+    try {
+      await CompassAuthService.init(this.preferences, this.httpClient);
+    } catch (err: any) {
+      process.stdout.write('Got CompassAuthService.init error\n');
+      throw err;
+    }
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
@@ -310,14 +319,18 @@ class CompassApplication {
     logContext: string
   ): Promise<() => void> {
     const onChange = async (value: string) => {
+      process.stdout.write('setupProxySupport onChange\n');
       try {
         const proxyOptions = proxyPreferenceToProxyOptions(value);
         await app.whenReady();
+
+        process.stdout.write('after setupProxySupport app.whenReady\n');
 
         try {
           const electronProxyConfig =
             translateToElectronProxyConfig(proxyOptions);
           await target.setProxy(electronProxyConfig);
+          process.stdout.write('after setupProxySupport target.setProxy\n');
         } catch (err) {
           const headline = String(
             err && typeof err === 'object' && 'message' in err
@@ -335,6 +348,7 @@ class CompassApplication {
             }
           );
           await target.setProxy({});
+          process.stdout.write('after setupProxySupport target.setProxy({})\n');
         }
 
         const agent = createAgent(proxyOptions);
@@ -360,6 +374,9 @@ class CompassApplication {
                 : err
             ),
           }
+        );
+        process.stdout.write(
+          'after setupProxySupport  Unable to set proxy configuration\n'
         );
       }
     };
