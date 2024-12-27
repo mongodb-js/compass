@@ -602,7 +602,7 @@ async function startCompassElectron(
     '--enable-logging=file',
     // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
     `--log-file=${electronLogFile}`,
-    // See // https://chromium.googlesource.com/chromium/src/+/master/docs/chrome_os_logging.md
+    // See https://chromium.googlesource.com/chromium/src/+/master/docs/chrome_os_logging.md
     '--log-level=0'
   );
 
@@ -647,6 +647,9 @@ async function startCompassElectron(
       'wdio:enforceWebDriverClassic': true,
       'wdio:chromedriverOptions': {
         // enable logging so we don't have to debug things blindly
+        // This goes in .log/webdriver/wdio-chromedriver-*.log. It is the
+        // chromedriver log and since this is verbose it also contains the
+        // stdout of the electron main process.
         verbose: true,
       },
     },
