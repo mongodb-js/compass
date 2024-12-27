@@ -674,7 +674,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          npm run --workspace compass-e2e-tests smoketest
+          npm run --unsafe-perm --workspace compass-e2e-tests smoketest
 
   test-web-sandbox:
     - command: shell.exec
