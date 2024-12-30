@@ -7,6 +7,9 @@ import { hideBin } from 'yargs/helpers';
 import https from 'https';
 import { pick } from 'lodash';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
+import type { InstalledAppInfo, Package } from './installers/types';
+import { installMacDMG } from './installers/mac-dmg';
+import { execute } from './installers/helpers';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
@@ -137,6 +140,10 @@ async function run() {
   writeBuildInfo(infoArgs);
   const buildInfo = JSON.parse(await fs.readFile(infoArgs.out, 'utf8'));
 
+  if (!buildInfoIsCommon(buildInfo)) {
+    throw new Error('buildInfo is missing');
+  }
+
   // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
   const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
 
@@ -150,9 +157,9 @@ async function run() {
 
   if (!context.skipDownload) {
     await Promise.all(
-      packages.map(async ({ name, filepath }) => {
+      packages.map(async ({ filename, filepath }) => {
         await fs.mkdir(path.dirname(filepath), { recursive: true });
-        const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${name}`;
+        const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${filename}`;
         console.log(url);
         return downloadFile(url, filepath);
       })
@@ -162,6 +169,24 @@ async function run() {
   verifyPackagesExist(packages);
 
   // TODO(COMPASS-8533): extract or install each package and then test the Compass binary
+  for (const pkg of packages) {
+    let appInfo: InstalledAppInfo | undefined = undefined;
+
+    console.log('installing', pkg.filepath);
+
+    if (pkg.filename.endsWith('.dmg')) {
+      appInfo = await installMacDMG(buildInfo.productName, pkg);
+    }
+
+    // TODO: all the other installers go here
+
+    if (appInfo) {
+      console.log('testing', appInfo.appPath);
+      await testInstalledApp(appInfo);
+    } else {
+      console.log(`no app got installed for ${pkg.filename}`);
+    }
+  }
 }
 
 function platformFromContext(
@@ -188,6 +213,18 @@ type PackageFilterConfig = Pick<
 >;
 
 // subsets of the hadron-build info result
+
+const commonKeys = ['productName'];
+type CommonBuildInfo = Record<typeof commonKeys[number], string>;
+
+function buildInfoIsCommon(buildInfo: any): buildInfo is CommonBuildInfo {
+  for (const key of commonKeys) {
+    if (!buildInfo[key]) {
+      return false;
+    }
+  }
+  return true;
+}
 
 const windowsFilenameKeys = [
   'windows_setup_filename',
@@ -245,11 +282,6 @@ function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {
   return true;
 }
 
-type Package = {
-  name: string;
-  filepath: string;
-};
-
 function getFilteredPackages(
   compassDir: string,
   buildInfo: any,
@@ -282,11 +314,11 @@ function getFilteredPackages(
   const extension = config.extension;
 
   return names
-    .filter((name) => !extension || name.endsWith(extension))
-    .map((name) => {
+    .filter((filename) => !extension || filename.endsWith(extension))
+    .map((filename) => {
       return {
-        name,
-        filepath: path.join(compassDir, 'dist', name),
+        filename,
+        filepath: path.join(compassDir, 'dist', filename),
       };
     });
 }
@@ -331,6 +363,28 @@ function verifyPackagesExist(packages: Package[]): void {
       );
     }
   }
+}
+
+function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
+  return execute(
+    'npm',
+    [
+      'run',
+      '--unsafe-perm',
+      'test-packaged',
+      '--workspace',
+      'compass-e2e-tests',
+      '--',
+      '--test-filter=time-to-first-query',
+    ],
+    {
+      env: {
+        ...process.env,
+        COMPASS_APP_NAME: appInfo.appName,
+        COMPASS_APP_PATH: appInfo.appPath,
+      },
+    }
+  );
 }
 
 run()
