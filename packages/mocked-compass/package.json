@@ -101,7 +101,6 @@
     }
   },
   "scripts": {
-    "bootstrap": "npm run compile",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
