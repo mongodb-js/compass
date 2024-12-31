@@ -108,7 +108,6 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
-    "check-ci": "npm run check",
     "test": "mocha",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
