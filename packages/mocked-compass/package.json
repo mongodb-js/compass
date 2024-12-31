@@ -1,0 +1,149 @@
+{
+  "name": "@mongodb-js/mocked-compass",
+  "description": "A fake version of Compass far in the future for testing auto-update",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
+  "private": true,
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "99.0.0",
+  "main": "build/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "license": "SSPL",
+  "config": {
+    "hadron": {
+      "endpoint": "https://compass.mongodb.com",
+      "protocols": [
+        {
+          "name": "MongoDB Protocol",
+          "schemes": [
+            "mongodb"
+          ]
+        },
+        {
+          "name": "MongoDB+SRV Protocol",
+          "schemes": [
+            "mongodb+srv"
+          ]
+        }
+      ],
+      "distributions": {
+        "compass": {
+          "name": "mongodb-compass",
+          "productName": "MongoDB Compass",
+          "bundleId": "com.mongodb.compass",
+          "plugins-directory": ".mongodb/compass/plugins",
+          "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1"
+        },
+        "compass-readonly": {
+          "name": "mongodb-compass-readonly",
+          "productName": "MongoDB Compass Readonly",
+          "bundleId": "com.mongodb.compass.readonly",
+          "plugins-directory": ".mongodb/compass-readonly/plugins",
+          "upgradeCode": "2176EC1D-EF71-49D4-B3B4-9E15B289D79A",
+          "readonly": true
+        }
+      },
+      "build": {
+        "win32": {
+          "icon": {
+            "stable": "app-icons/win32/mongodb-compass-logo-stable.ico",
+            "beta": "app-icons/win32/mongodb-compass-logo-beta.ico",
+            "dev": "app-icons/win32/mongodb-compass-logo-dev.ico"
+          },
+          "favicon_url": "https://compass.mongodb.com/favicon.ico",
+          "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
+          "background": "app-icons/win32/background.jpg",
+          "banner": "app-icons/win32/banner.jpg"
+        },
+        "darwin": {
+          "icon": {
+            "stable": "app-icons/darwin/mongodb-compass-logo-stable.icns",
+            "beta": "app-icons/darwin/mongodb-compass-logo-beta.icns",
+            "dev": "app-icons/darwin/mongodb-compass-logo-dev.icns"
+          },
+          "dmg_background": "app-icons/darwin/background.png",
+          "app_category_type": "public.app-category.productivity"
+        },
+        "linux": {
+          "icon": {
+            "stable": "app-icons/linux/mongodb-compass-logo-stable.png",
+            "beta": "app-icons/linux/mongodb-compass-logo-beta.png",
+            "dev": "app-icons/linux/mongodb-compass-logo-dev.png"
+          },
+          "deb_section": "Databases",
+          "rpm_categories": [
+            "Office",
+            "Database",
+            "Building",
+            "Debugger",
+            "IDE",
+            "GUIDesigner",
+            "Profiling"
+          ]
+        }
+      },
+      "asar": {
+        "unpack": []
+      },
+      "rebuild": {
+        "onlyModules": []
+      },
+      "macosEntitlements": "./scripts/macos-entitlements.xml"
+    }
+  },
+  "scripts": {
+    "bootstrap": "npm run compile",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
+    "start": "HADRON_DISTRIBUTION=${HADRON_DISTRIBUTION:-compass} npm run webpack serve -- --mode development",
+    "webpack": "webpack-compass",
+    "compile": "npm run webpack -- --mode production",
+    "package-compass-nocompile": "hadron-build release",
+    "prepackage-compass": "npm run compile",
+    "package-compass": "npm run package-compass-nocompile",
+    "package-compass-debug": "DEBUG='hadron*,compass*' HADRON_SKIP_INSTALLER=true NO_ASAR=true npm run package-compass",
+    "upload": "hadron-build upload",
+    "download": "hadron-build download",
+    "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
+    "build-info": "hadron-build info"
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "^1.1.9",
+    "@mongodb-js/mocha-config-compass": "^1.4.4",
+    "@mongodb-js/prettier-config-compass": "^1.0.4",
+    "@mongodb-js/sbom-tools": "^0.7.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.7",
+    "@mongodb-js/webpack-config-compass": "^1.4.9",
+    "@types/mocha": "^9.0.0",
+    "@types/sinon-chai": "^3.2.5",
+    "depcheck": "^1.4.1",
+    "electron": "^32.2.7",
+    "eslint": "^7.25.0",
+    "hadron-build": "^25.5.17",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
+    "sinon": "^17.0.1",
+    "typescript": "^5.0.4"
+  }
+}
