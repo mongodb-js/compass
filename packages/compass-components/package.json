@@ -63,6 +63,7 @@
     "@leafygreen-ui/search-input": "^4.0.0",
     "@leafygreen-ui/segmented-control": "^9.0.0",
     "@leafygreen-ui/select": "^13.0.0",
+    "@leafygreen-ui/split-button": "../../../leafygreen-ui/packages/split-button/leafygreen-ui-split-button-v3.0.0.tgz",
     "@leafygreen-ui/table": "^12.7.0",
     "@leafygreen-ui/tabs": "^13.1.1",
     "@leafygreen-ui/text-area": "^9.1.2",

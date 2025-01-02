@@ -25,22 +25,28 @@ const containerStyle = css({
 export type ItemActionGroupProps<Action extends string> = {
   actions: (GroupedItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
+  isVisible?: boolean;
+  /**
+   * Called to signal to the parent if the component wants to prevent becoming hidden.
+   * Note: In the current implementation, this is called when a menu is opened.
+   */
+  setHidable?(hidable: boolean): void;
   className?: string;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
-  isVisible?: boolean;
   'data-testid'?: string;
 };
 
 export function ItemActionGroup<Action extends string>({
   actions,
   onAction,
+  isVisible = true,
+  setHidable,
   className,
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
-  isVisible = true,
   'data-testid': dataTestId,
 }: ItemActionGroupProps<Action>) {
   const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
@@ -55,9 +61,7 @@ export function ItemActionGroup<Action extends string>({
     [onAction]
   );
 
-  const shouldRender = isVisible && actions.length > 0;
-
-  if (!shouldRender) {
+  if (!isVisible || actions.length === 0) {
     return null;
   }
 
@@ -84,6 +88,7 @@ export function ItemActionGroup<Action extends string>({
             iconClassName={iconClassName}
             onClick={onClick}
             data-testid={actionTestId(dataTestId, itemProps.action)}
+            setHidable={setHidable}
           />
         );
 

@@ -15,6 +15,7 @@ export type Actions =
   | 'duplicate-connection'
   | 'remove-connection'
   | 'connection-connect'
+  | 'connection-connect-in-new-window'
   | 'connection-disconnect'
   | 'connection-performance-metrics'
   | 'open-connection-info'
