@@ -182,10 +182,6 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
     return electronProxyRemote;
   }
 
-  debug('Waiting for x509 cert to propagate to Atlas clusters ...');
-
-  await fetch(`${sandboxUrl}/x509`);
-
   return electronProxyRemote;
 }
 
