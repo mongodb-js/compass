@@ -42,8 +42,6 @@ const descriptionStyles = css({
 
 const actionLabelStyles = css({
   flex: 'none',
-  // To center-align against the title
-  marginTop: '-20px',
 });
 
 function ToastBodyWithAction({
