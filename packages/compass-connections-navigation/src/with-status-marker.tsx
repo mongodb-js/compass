@@ -106,8 +106,9 @@ const withStatusMarkerStyles = css({
 const withStatusMarkerMarkerStyles = css({
   position: 'absolute',
   display: 'flex',
-  right: `-${spacing[50]}px`,
-  bottom: `-${spacing[50]}px`,
+  // Shows the marker in the bottom right corner of the parent element
+  right: '0px',
+  bottom: '0px',
 });
 
 export function WithStatusMarker({
