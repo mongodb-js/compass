@@ -168,6 +168,8 @@ async function run() {
 
   verifyPackagesExist(packages);
 
+  await buildMockedCompass();
+
   // TODO(COMPASS-8533): extract or install each package and then test the Compass binary
   for (const pkg of packages) {
     let appInfo: InstalledAppInfo | undefined = undefined;
@@ -363,6 +365,16 @@ function verifyPackagesExist(packages: Package[]): void {
       );
     }
   }
+}
+
+function buildMockedCompass(): Promise<void> {
+  return execute('npm', [
+    'run',
+    '--unsafe-perm',
+    'package-compass',
+    '--workspace',
+    '@mongodb-js/mocked-compass',
+  ]);
 }
 
 function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {

@@ -1,0 +1,8 @@
+.nyc_output
+dist
+coverage
+build
+src/deps
+
+# Generated
+THIRD-PARTY-NOTICES.md
