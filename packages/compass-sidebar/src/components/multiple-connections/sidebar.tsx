@@ -183,9 +183,7 @@ export function MultipleConnectionSidebar({
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);
           }}
-          onConnectInNewWindow={(connectionInfo) => {
-            connectInNewWindow(connectionInfo);
-          }}
+          onConnectInNewWindow={connectInNewWindow}
           onNewConnection={createNewConnection}
           onEditConnection={(connectionInfo) => {
             editConnection(connectionInfo.id);
