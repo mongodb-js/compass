@@ -52,7 +52,9 @@ let runnerPromise: Promise<any> | undefined;
 async function main() {
   const e2eTestGroupsAmount = context.testGroups;
   const e2eTestGroup = context.testGroup;
-  const e2eTestFilter = context.testFilter;
+  const e2eTestFilter = context.testFilter.includes(',')
+    ? `{${context.testFilter}}`
+    : context.testFilter;
 
   const tests = (
     await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {

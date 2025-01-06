@@ -19,7 +19,6 @@ describe('Time to first query', function () {
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
     if (compass) {
-      // even though this is after (not afterEach) currentTest points to the last test
       await screenshotIfFailed(compass, this.currentTest);
       await cleanup(compass);
       compass = undefined;

@@ -116,7 +116,7 @@
     "start": "HADRON_DISTRIBUTION=${HADRON_DISTRIBUTION:-compass} npm run webpack serve -- --mode development",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
-    "package-compass-nocompile": "hadron-build release",
+    "package-compass-nocompile": "HADRON_APP_VERSION=99.0.0-dev DEV_VERSION_IDENTIFIER='' hadron-build release",
     "prepackage-compass": "npm run compile",
     "package-compass": "npm run package-compass-nocompile",
     "package-compass-debug": "DEBUG='hadron*,compass*' HADRON_SKIP_INSTALLER=true NO_ASAR=true npm run package-compass",

@@ -16,6 +16,14 @@ const argv = yargs(hideBin(process.argv))
   .detectLocale(false)
   .version(false)
   .strict()
+  .option('distribution', {
+    type: 'string',
+    default: () => process.env.HADRON_DISTRIBUTION,
+  })
+  .option('channel', {
+    type: 'string',
+    default: () => process.env.HADRON_CHANNEL,
+  })
   .option('bucketName', {
     type: 'string',
     default: () => process.env.EVERGREEN_BUCKET_NAME,
@@ -63,6 +71,12 @@ const argv = yargs(hideBin(process.argv))
       'If specified it will only run the smoke tests for the specified installer/package',
   })
   .check((argv) => {
+    if (!(argv.distribution && argv.channel)) {
+      throw new Error(
+        'HADRON_DISTRIBUTION and HADRON_CHANNEL are required for building the new mocked compass'
+      );
+    }
+
     if (!argv.skipDownload) {
       if (!(argv.bucketName && argv.bucketKeyPrefix)) {
         throw new Error(
@@ -387,7 +401,7 @@ function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
       '--workspace',
       'compass-e2e-tests',
       '--',
-      '--test-filter=time-to-first-query',
+      '--test-filter=auto-update',
     ],
     {
       env: {
