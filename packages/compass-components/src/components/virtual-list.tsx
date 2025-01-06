@@ -45,7 +45,7 @@ export type VirtualListProps<T> = {
    * after first render, starts monitoring the actual height but it is still
    * super useful to avoid a huge flicker during the initial rendering phase
    */
-  estimateItemInitialHeight(item: T): number;
+  estimateItemInitialHeight(item: T, index: number): number;
 
   /**
    * How many items to keep rendered outside of the visible viewport. Keeping
@@ -116,11 +116,9 @@ export type VirtualListProps<T> = {
   __TEST_LIST_HEIGHT?: number;
 
   /**
-   * WARNING: Use only when testing
-   *
    * Mutable Ref object to hold the reference to the VariableSizeList
    */
-  __TEST_LIST_REF?: VirtualListRef;
+  listRef?: VirtualListRef;
 };
 
 const flexContainerStyles = css({
@@ -147,12 +145,12 @@ export function VirtualList<T>({
   itemDataTestId,
   initialScrollTop,
   scrollableContainerRef,
+  listRef: _listRef,
   __TEST_LIST_WIDTH = 1024,
   __TEST_LIST_HEIGHT = 768,
-  __TEST_LIST_REF,
 }: VirtualListProps<T>) {
   const listRef = useRef<List | null>(null);
-  const inUseListRef = __TEST_LIST_REF ?? listRef;
+  const inUseListRef = _listRef ?? listRef;
   const { observer, estimatedItemSize, getItemSize } =
     useVirtualListItemObserver({
       listRef: inUseListRef,

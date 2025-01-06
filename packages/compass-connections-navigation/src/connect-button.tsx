@@ -3,8 +3,9 @@ import {
   Button,
   type ItemComponentProps,
 } from '@mongodb-js/compass-components';
+import type { Actions } from './constants';
 
-type ConnectButtonProps = ItemComponentProps<string>;
+type ConnectButtonProps = ItemComponentProps<Actions>;
 
 export function ConnectButton({
   action,

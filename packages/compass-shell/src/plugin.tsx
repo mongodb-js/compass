@@ -7,10 +7,8 @@ import type {
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import TabShell from './components/compass-shell/tab-compass-shell';
-import Shell from './components/compass-shell/compass-shell';
 import { applyMiddleware, createStore } from 'redux';
 import reducer, {
   createAndStoreRuntime,
@@ -29,13 +27,9 @@ type ShellPluginProps = {
 };
 
 export function ShellPlugin(props: ShellPluginProps) {
-  const multiConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-  const ShellComponent = multiConnectionsEnabled ? TabShell : Shell;
   return (
     <ThemeProvider theme={SHELL_THEME}>
-      <ShellComponent {...props} />
+      <TabShell {...props} />
     </ThemeProvider>
   );
 }

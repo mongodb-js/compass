@@ -11,7 +11,6 @@ type ConfirmationProperties = Partial<
   Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
 > & {
   buttonText?: React.ReactNode;
-  cancelButtonText?: React.ReactNode;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
@@ -176,7 +175,6 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
           className: confirmationProps.hideCancelButton
             ? hideButtonStyles
             : undefined,
-          children: confirmationProps.cancelButtonText ?? 'Cancel',
           onClick: handleCancel,
         }}
         requiredInputText={confirmationProps.requiredInputText ?? undefined}

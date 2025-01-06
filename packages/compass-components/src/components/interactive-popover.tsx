@@ -172,7 +172,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
         justify={justify ?? 'start'}
         active={open}
         adjustOnMutation
-        usePortal
+        renderMode="portal"
         spacing={spacing ?? 0}
         className={className}
         refEl={triggerRef}

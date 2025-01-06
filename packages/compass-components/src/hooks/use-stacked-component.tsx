@@ -31,9 +31,8 @@ type StackedComponentProps<T extends boolean> = T extends true
   : Record<string, never>;
 
 // TODO(LG-4109): This should be eventually supported by the LG design system
-const withBaseStyles = function <UsePopover extends boolean, ComponentProps>(
-  WrappedComponent: ComponentType<ComponentProps>,
-  usePopoverZIndex: UsePopover
+export const withStackedComponentStyles = function <ComponentProps>(
+  WrappedComponent: ComponentType<ComponentProps>
 ): ComponentType<ComponentProps> {
   const ComponentWithStackedStyles = (
     props: ComponentProps,
@@ -42,27 +41,15 @@ const withBaseStyles = function <UsePopover extends boolean, ComponentProps>(
     const context = useStackedComponent();
     const stackedElementProps = useMemo(() => {
       if (context?.zIndex) {
-        if (usePopoverZIndex) {
-          return {
-            popoverZIndex:
-              (props as StackedComponentProps<true>).popoverZIndex ??
-              context.zIndex,
-          };
-        } else {
-          return {
-            style: {
-              zIndex: context.zIndex,
-              ...(props as StackedComponentProps<false>).style,
-            },
-          };
-        }
+        return {
+          style: {
+            zIndex: context.zIndex,
+            ...(props as StackedComponentProps<false>).style,
+          },
+        };
       }
       return {};
-    }, [
-      context,
-      (props as StackedComponentProps<true>).popoverZIndex,
-      (props as StackedComponentProps<false>).style,
-    ]);
+    }, [context, props]);
 
     return <WrappedComponent ref={ref} {...props} {...stackedElementProps} />;
   };
@@ -74,20 +61,4 @@ const withBaseStyles = function <UsePopover extends boolean, ComponentProps>(
   return React.forwardRef(
     ComponentWithStackedStyles
   ) as typeof WrappedComponent;
-};
-
-export const withStackedComponentStyles = function <
-  ComponentProps extends { className?: string }
->(
-  WrappedComponent: ComponentType<ComponentProps>
-): ComponentType<ComponentProps> {
-  return withBaseStyles(WrappedComponent, false);
-};
-
-export const withStackedComponentPopoverStyles = function <
-  ComponentProps extends { popoverZIndex?: number }
->(
-  WrappedComponent: ComponentType<ComponentProps>
-): ComponentType<ComponentProps> {
-  return withBaseStyles(WrappedComponent, true);
 };

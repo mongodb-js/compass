@@ -143,14 +143,13 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-import type { glyphs } from '@leafygreen-ui/icon';
+export type { GlyphName } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
   SignalHooksProvider,
 } from './components/signal-popover';
 export type { Signal } from './components/signal-popover';
-export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';

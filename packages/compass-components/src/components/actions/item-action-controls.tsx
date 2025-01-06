@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import type { RenderMode } from '@leafygreen-ui/popover';
 
 import { ItemActionMenu } from './item-action-menu';
 import { ItemActionButtonSize } from './constants';
@@ -12,13 +13,7 @@ const actionControlsStyle = css({
   marginLeft: 'auto',
   alignItems: 'center',
   display: 'flex',
-});
-
-// Action buttons are rendered 4px apart from each other. With this we keep the
-// same spacing also when action buttons are rendered alongside action menu
-// (happens when collapseAfter prop is specified)
-const actionMenuWithActionControlsStyles = css({
-  marginLeft: spacing[100],
+  gap: spacing[100],
 });
 
 export type ItemActionControlsProps<Action extends string> = {
@@ -34,7 +29,7 @@ export type ItemActionControlsProps<Action extends string> = {
   collapseAfter?: number;
   // When using `collapseAfter`, this option is not used.
   collapseToMenuThreshold?: number;
-  usePortal?: boolean;
+  renderMode?: RenderMode;
   'data-testid'?: string;
 };
 
@@ -47,38 +42,25 @@ export function ItemActionControls<Action extends string>({
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
-  usePortal,
+  renderMode,
   collapseAfter = 0,
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: ItemActionControlsProps<Action>) {
-  const sharedProps = useMemo(
-    () => ({
-      isVisible,
-      onAction,
-      className: cx('item-action-controls', className),
-      iconClassName,
-      iconStyle,
-      iconSize,
-      'data-testid': dataTestId,
-    }),
-    [
-      isVisible,
-      onAction,
-      className,
-      iconClassName,
-      iconStyle,
-      iconSize,
-      dataTestId,
-    ]
-  );
-  const sharedMenuProps = useMemo(
-    () => ({
-      menuClassName,
-      usePortal,
-    }),
-    [menuClassName, usePortal]
-  );
+  const sharedProps = {
+    isVisible,
+    onAction,
+    className: cx('item-action-controls', className),
+    iconClassName,
+    iconStyle,
+    iconSize,
+    'data-testid': dataTestId,
+  };
+  const sharedMenuProps = {
+    menuClassName,
+    renderMode,
+  };
+
   if (actions.length === 0) {
     return null;
   }
@@ -89,19 +71,12 @@ export function ItemActionControls<Action extends string>({
     const collapsedActions = actions.slice(collapseAfter);
     return (
       <div className={actionControlsStyle}>
-        <ItemActionGroup
-          actions={visibleActions}
-          {...sharedProps}
-        ></ItemActionGroup>
+        <ItemActionGroup {...sharedProps} actions={visibleActions} />
         <ItemActionMenu
-          actions={collapsedActions}
           {...sharedProps}
           {...sharedMenuProps}
-          className={cx(
-            actionMenuWithActionControlsStyles,
-            sharedProps.className
-          )}
-        ></ItemActionMenu>
+          actions={collapsedActions}
+        />
       </div>
     );
   }
@@ -110,13 +85,9 @@ export function ItemActionControls<Action extends string>({
 
   if (shouldShowMenu) {
     return (
-      <ItemActionMenu
-        actions={actions}
-        {...sharedProps}
-        {...sharedMenuProps}
-      ></ItemActionMenu>
+      <ItemActionMenu actions={actions} {...sharedProps} {...sharedMenuProps} />
     );
   }
 
-  return <ItemActionGroup actions={actions} {...sharedProps}></ItemActionGroup>;
+  return <ItemActionGroup actions={actions} {...sharedProps} />;
 }

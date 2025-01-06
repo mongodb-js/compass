@@ -133,11 +133,11 @@ describe('WorkspacesPlugin', function () {
     userEvent.click(screen.getByRole('tab', { name: 'coll1' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: /coll3/i })).to.have.attribute(
         'aria-selected',
         'false'
       );
-      expect(screen.getByRole('tab', { name: 'coll1' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: /coll1/i })).to.have.attribute(
         'aria-selected',
         'true'
       );

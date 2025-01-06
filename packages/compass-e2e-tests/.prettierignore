@@ -3,3 +3,4 @@
 fixtures
 .nyc_output
 coverage
+hadron-build-info.json

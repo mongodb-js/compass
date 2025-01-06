@@ -34,17 +34,11 @@ const comboboxStyles = css({
       minHeight: inputHeight,
     },
   },
-});
-
-const comboboxPortalStyles = css({
-  position: 'fixed',
-  top: 0,
-  // -4px to count for the input focus outline.
-  left: `${comboboxOptionsLeft - 4}px`,
-  zIndex: 1,
-  '> div': {
+  '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
+    // -4px to count for the input focus outline.
+    marginLeft: `${comboboxOptionsLeft - 4}px`,
   },
 });
 
@@ -74,35 +68,28 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
-  const portalRef = React.useRef<HTMLDivElement | null>(null);
-
   return (
-    <React.Fragment>
-      <div className={comboboxPortalStyles} ref={portalRef} />
-      <Combobox
-        value={selectedStage}
-        disabled={isDisabled}
-        aria-label="Select a stage operator"
-        onChange={onStageOperatorSelected}
-        size="default"
-        clearable={false}
-        data-testid="stage-operator-combobox"
-        className={comboboxStyles}
-        portalContainer={portalRef.current}
-        usePortal
-      >
-        {stages.map((stage, index) => (
-          <ComboboxOption
-            data-testid={`combobox-option-stage-${stage.name}`}
-            key={`combobox-option-stage-${index}`}
-            value={stage.name}
-            description={
-              (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
-            }
-          />
-        ))}
-      </Combobox>
-    </React.Fragment>
+    <Combobox
+      value={selectedStage}
+      disabled={isDisabled}
+      aria-label="Select a stage operator"
+      onChange={onStageOperatorSelected}
+      size="default"
+      clearable={false}
+      data-testid="stage-operator-combobox"
+      className={comboboxStyles}
+    >
+      {stages.map((stage, index) => (
+        <ComboboxOption
+          data-testid={`combobox-option-stage-${stage.name}`}
+          key={`combobox-option-stage-${index}`}
+          value={stage.name}
+          description={
+            (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
+          }
+        />
+      ))}
+    </Combobox>
   );
 };
 
