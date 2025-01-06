@@ -298,6 +298,17 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         password,
       });
     } else {
+      // Assuming the positional argument refers to an existing connection id
+      if (positionalArguments.length === 1) {
+        // Attempt to load it and return if found
+        const possibleConnection = await this.load({
+          id: positionalArguments[0],
+        });
+        if (possibleConnection) {
+          return possibleConnection;
+        }
+      }
+      // Determine if this is a valid connection string or a connection ID
       const connectionString = getConnectionStringFromArgs(positionalArguments);
       if (!connectionString) {
         throw new Error('Could not find a connection string');

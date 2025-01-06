@@ -108,6 +108,7 @@ export function MultipleConnectionSidebar({
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
+    connectInNewWindow,
     disconnect,
     createNewConnection,
     editConnection,
@@ -182,6 +183,7 @@ export function MultipleConnectionSidebar({
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);
           }}
+          onConnectInNewWindow={connectInNewWindow}
           onNewConnection={createNewConnection}
           onEditConnection={(connectionInfo) => {
             editConnection(connectionInfo.id);

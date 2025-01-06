@@ -383,9 +383,6 @@ class CompassApplication {
     event: 'show-log-file-dialog',
     handler: () => void
   ): typeof CompassApplication;
-  // @ts-expect-error typescript is not happy with this overload even though it
-  //                  worked when it wasn't static and the implementation does
-  //                  match the overload declaration
   static on(
     event: 'new-window',
     handler: (bw: BrowserWindow) => void
@@ -402,9 +399,9 @@ class CompassApplication {
     event: 'menu-request-restart',
     handler: () => void
   ): typeof CompassApplication;
-  static on(
+  static on<Args extends unknown[]>(
     event: string,
-    handler: (...args: unknown[]) => void
+    handler: (...args: Args) => void
   ): typeof CompassApplication {
     this.emitter.on(event, handler);
     return this;
