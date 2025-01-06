@@ -20,7 +20,10 @@ import {
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
-import { DEFAULT_CONNECTION_NAMES } from '../helpers/test-runner-context';
+import {
+  DEFAULT_CONNECTION_NAMES,
+  isTestingWeb,
+} from '../helpers/test-runner-context';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -660,6 +663,7 @@ describe('Connect in a new window', () => {
 
   it('can connect in new window', async function (this) {
     skipForWeb(this, 'connecting in new window is not supported on web');
+
     const connectionName = DEFAULT_CONNECTION_NAMES[0];
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
@@ -683,7 +687,17 @@ describe('Connect in a new window', () => {
     });
   });
 
-  // TODO: Add a test for we to ensure the SplitButton isn't visible on Web
+  it('shows correct connect button', async function (this) {
+    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionSelector = Selectors.sidebarConnection(connectionName);
+    await browser.hover(connectionSelector);
+
+    const connectionElement = browser.$(connectionSelector);
+    await connectionElement.$(Selectors.ConnectButton).waitForDisplayed();
+    await connectionElement.$(Selectors.ConnectDropdownButton).waitForExist({
+      reverse: isTestingWeb(),
+    });
+  });
 });
 
 describe('Connection form', function () {
