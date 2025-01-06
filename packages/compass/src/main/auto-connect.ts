@@ -5,7 +5,7 @@ import { hasDisallowedConnectionStringOptions } from './validate-connection-stri
 import COMPASS_ICON from './icon';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { redactConnectionString } from 'mongodb-connection-string-url';
-import { UUID } from 'mongodb';
+import { UUID } from 'bson';
 const { log } = createLogger('COMPASS-AUTO-CONNECT-MAIN');
 
 export type AutoConnectPreferences = Partial<
