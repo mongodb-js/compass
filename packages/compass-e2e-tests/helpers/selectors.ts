@@ -283,7 +283,8 @@ export const Multiple = {
   ConnectionsTitle: '[data-testid="connections-header"]',
   ConnectButton: '[data-action="connection-connect"]',
   ConnectInNewWindowButton: '[data-action="connection-connect-in-new-window"]',
-  ConnectDropdownButton: '[aria-label="see more connection options"]',
+  ConnectDropdownButton:
+    '[data-testid="sidebar-navigation-item-actions-connection-connect-action"] + button',
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
   CreateDatabaseButton:

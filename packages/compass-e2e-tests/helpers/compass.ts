@@ -65,12 +65,12 @@ const packageCompassAsync = promisify(packageCompass);
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = isTestingWeb();
 
-/*
-A helper so we can easily find all the tests we're skipping in compass-web.
-Reason is there so you can fill it in and have it show up in search results
-in a scannable manner. It is not being output at present because the tests will
-be logged as pending anyway.
-*/
+/**
+ * A helper so we can easily find all the tests we're skipping in compass-web.
+ * Reason is there so you can fill it in and have it show up in search results
+ * in a scannable manner. It is not being output at present because the tests will
+ * be logged as pending anyway.
+ */
 export function skipForWeb(
   test: Mocha.Runnable | Mocha.Context,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
