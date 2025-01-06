@@ -65,6 +65,16 @@ const packageCompassAsync = promisify(packageCompass);
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = isTestingWeb();
 
+// Extending the WebdriverIO's types to allow a verbose option to the chromedriver
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace WebdriverIO {
+    interface ChromedriverOptions {
+      verbose?: boolean;
+    }
+  }
+}
+
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
 Reason is there so you can fill it in and have it show up in search results
@@ -663,10 +673,7 @@ async function startCompassElectron(
   let browser: CompassBrowser;
 
   try {
-    // webdriverio's type is wrong for
-    // options.capabilities['wdio:chromedriverOptions'] and it doesn't allow
-    // verbose even though it does work
-    browser = (await remote(options as any)) as CompassBrowser;
+    browser = (await remote(options)) as CompassBrowser;
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
