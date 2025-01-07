@@ -76,6 +76,7 @@ function AtlasHelpSection(): React.ReactElement {
         atlasContainerStyles,
         darkMode && atlasContainerDarkModeStyles
       )}
+      data-testid="welcome-tab-atlas-help-section"
     >
       <Subtitle className={titleStyles}>
         New to Compass and don&apos;t have a cluster?
