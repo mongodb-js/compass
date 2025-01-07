@@ -43,7 +43,6 @@ jobs:
 
       - name: Start Release
         env:
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           GH_TOKEN: ${{ github.token }}
         run: |
           node scripts/release.js ga \
