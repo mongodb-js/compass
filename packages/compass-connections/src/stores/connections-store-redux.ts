@@ -196,11 +196,7 @@ export type State = {
     }
   >;
 
-  // State related to connection editing form. Can't be null in single
-  // connection mode, so we always have a default connection set here even if
-  // nothing is being actively edited. Can be updated when single-connection
-  // mode is removed from the app
-  editingConnectionInfoId: ConnectionId;
+  editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
 
   // State related to connection favorite fields editing modal form (right now
@@ -487,23 +483,15 @@ export function createDefaultConnectionState(
   };
 }
 
-// For single connection mode we always have to start with the initial empty
-// connection in the state already. This can be removed when single connection
-// mode doesn't exist anymore
-const INITIAL_CONNECTION_STATE = createDefaultConnectionState();
-INITIAL_CONNECTION_STATE.isBeingCreated = true;
-
 const INITIAL_STATE: State = {
   connections: {
-    ids: [INITIAL_CONNECTION_STATE.info.id],
-    byId: {
-      [INITIAL_CONNECTION_STATE.info.id]: INITIAL_CONNECTION_STATE,
-    },
+    ids: [],
+    byId: {},
     status: 'initial',
     error: null,
   },
   oidcDeviceAuthInfo: {},
-  editingConnectionInfoId: INITIAL_CONNECTION_STATE.info.id,
+  editingConnectionInfoId: null,
   isEditingConnectionInfoModalOpen: false,
   editingConnectionFavoriteInfoId: null,
   isEditingConnectionFavoriteInfoModalOpen: false,
@@ -513,13 +501,9 @@ export function getInitialConnectionsStateForConnectionInfos(
   connectionInfos: ConnectionInfo[] = []
 ): State['connections'] {
   const byId = Object.fromEntries<ConnectionState>(
-    [
-      [INITIAL_CONNECTION_STATE.info.id, INITIAL_CONNECTION_STATE] as const,
-    ].concat(
-      connectionInfos.map((info) => {
-        return [info.id, createDefaultConnectionState(info)];
-      })
-    )
+    connectionInfos.map((info) => {
+      return [info.id, createDefaultConnectionState(info)];
+    })
   );
   return {
     byId,
