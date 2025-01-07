@@ -18,45 +18,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        # don't checkout a detatched HEAD
-        ref: ${{ github.head_ref }}
+      - uses: actions/checkout@v4
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
 
-        # this is important so git log has the whole history
-        fetch-depth: '0'
+          # this is important so git log has the whole history
+          fetch-depth: "0"
 
-    - name: Setup git
-      run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
-    - name: "Use Node.js 14"
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20.16.0
+      - name: "Use Node.js 20"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
 
-    - name: Install npm@10.2.4
-      run: npm install -g npm@10.2.4
+      - name: Install npm@10.2.4
+        run: npm install -g npm@10.2.4
 
-    - name: Install Dependencies
-      run: |
-        npm run bootstrap-ci
-      shell: bash
+      - name: Install Dependencies
+        run: |
+          npm run bootstrap-ci
+        shell: bash
 
-    - name: "Publish what is not already in NPM"
-      env:
-        NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
-      run: |
-        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-        npm config list
-        echo "Publishing packages as $(npm whoami)"
-        git update-index --assume-unchanged .npmrc
-        npm run publish-packages
+      - name: "Publish what is not already in NPM"
+        env:
+          NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+          npm config list
+          echo "Publishing packages as $(npm whoami)"
+          git update-index --assume-unchanged .npmrc
+          npm run publish-packages
 
-    - name: "Publish tags"
-      run: |
-        npx lerna list -a --json | \
-          jq -r '.[] | .name + "@" + .version' | \
-          xargs -i sh -c "git tag -a {} -m {} || true"
-        git push --follow-tags
+      - name: "Publish tags"
+        run: |
+          npx lerna list -a --json | \
+            jq -r '.[] | .name + "@" + .version' | \
+            xargs -i sh -c "git tag -a {} -m {} || true"
+          git push --follow-tags
