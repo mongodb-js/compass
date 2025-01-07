@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       releaseTicket:
-        description: 'releaseTicket (required): it must have a fixVersion which will be used as release version.'
+        description: "releaseTicket (required): it must have a fixVersion which will be used as release version."
         required: true
       mergeBranch:
         description: 'mergeBranch (optional, default="beta-releases"): the branch to merge from, useful to perform quick fixes or to skip beta.'
-        default: 'beta-releases'
+        default: "beta-releases"
         required: false
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     name: Start new GA release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup git
@@ -27,10 +27,10 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.16.0
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |
