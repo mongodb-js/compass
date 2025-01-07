@@ -31,10 +31,7 @@ function getCreateAtlasClusterUrl() {
 }
 
 export default function WebWelcomeTab() {
-  // TODO: Currently we always have at least one connection in the connections
-  // list (check connections-store-redux.ts#1103).
-  const numConnections = useConnectionIds().length - 1;
-
+  const numConnections = useConnectionIds().length;
   return (
     <div className={welcomeTabStyles}>
       <WelcomeTabImage />

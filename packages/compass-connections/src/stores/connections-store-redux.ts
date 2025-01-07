@@ -1078,7 +1078,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     }
 
     let connections = state.connections;
-    let editingConnectionInfoId = state.editingConnectionInfoId;
+    const editingConnectionInfoId = state.editingConnectionInfoId;
 
     // In cases where connection was never saved or used before, we remove it
     // from the connections state
@@ -1095,20 +1095,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         byId: newConnectionsById,
         ids: newIds,
       };
-
-      // Special case for single connection: after removing connection, we
-      // automatically create a new connection and will "select" it for editing.
-      // Can go away when single connection mode is removed
-      if (state.editingConnectionInfoId === action.connectionId) {
-        const newDefaultConnection = createDefaultConnectionState();
-        newDefaultConnection.isBeingCreated = true;
-        connections = mergeConnectionStateById(
-          connections,
-          newDefaultConnection.info.id,
-          newDefaultConnection
-        );
-        editingConnectionInfoId = newDefaultConnection.info.id;
-      }
     }
 
     return {
