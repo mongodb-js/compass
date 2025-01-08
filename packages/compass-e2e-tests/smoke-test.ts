@@ -1,6 +1,8 @@
 #!/usr/bin/env npx ts-node
-import { createWriteStream, existsSync, promises as fs } from 'fs';
-import path from 'path';
+import assert from 'node:assert/strict';
+import { createWriteStream, existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
+
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import https from 'https';
@@ -88,6 +90,23 @@ const argv = yargs(hideBin(process.argv))
 
 type SmokeTestsContext = ReturnType<typeof argv['parseSync']>;
 
+async function readJson<T extends object>(...segments: string[]): Promise<T> {
+  const result = JSON.parse(
+    await fs.readFile(path.join(...segments), 'utf8')
+  ) as unknown;
+  assert(typeof result === 'object' && result !== null, 'Expected an object');
+  return result as T;
+}
+
+async function readPackageVersion(packagePath: string) {
+  const pkg = await readJson(packagePath, 'package.json');
+  assert(
+    'version' in pkg && typeof pkg.version === 'string',
+    'Expected a package version'
+  );
+  return pkg.version;
+}
+
 async function run() {
   const parsedArgs = argv.parseSync();
 
@@ -111,11 +130,7 @@ async function run() {
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
   // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
-  const version = context.devVersion
-    ? context.devVersion
-    : (JSON.parse(
-        await fs.readFile(path.join(compassDir, 'package.json'), 'utf8')
-      ).version as string);
+  const version = context.devVersion ?? (await readPackageVersion(compassDir));
   const platform = platformFromContext(context);
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
@@ -130,7 +145,7 @@ async function run() {
   };
   console.log('infoArgs', infoArgs);
   writeBuildInfo(infoArgs);
-  const buildInfo = JSON.parse(await fs.readFile(infoArgs.out, 'utf8'));
+  const buildInfo = await readJson(infoArgs.out);
 
   if (!buildInfoIsCommon(buildInfo)) {
     throw new Error('buildInfo is missing');
