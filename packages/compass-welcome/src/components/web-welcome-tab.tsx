@@ -26,10 +26,6 @@ const contentBodyStyles = css({
   alignItems: 'flex-start',
 });
 
-function getCreateAtlasClusterUrl() {
-  return window.location.href.replace(/#.*$/, '#/clusters/starterTemplates');
-}
-
 export default function WebWelcomeTab() {
   const numConnections = useConnectionIds().length;
   return (
@@ -49,7 +45,7 @@ export default function WebWelcomeTab() {
                 as={Link}
                 data-testid="add-new-atlas-cluster-button"
                 variant={ButtonVariant.Primary}
-                href={getCreateAtlasClusterUrl()}
+                href={'#/clusters/starterTemplates'}
               >
                 Create a Cluster
               </Button>
