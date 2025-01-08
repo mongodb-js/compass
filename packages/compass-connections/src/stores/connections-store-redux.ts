@@ -969,28 +969,10 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     const newConnection = createDefaultConnectionState();
     newConnection.isBeingCreated = true;
 
-    let newConnectionsState = state.connections;
-
-    // Only relevant for single connections mode: if we're currently editing
-    // "new connection", clean it up from state before creating state for a new
-    // one
-    if (
-      state.editingConnectionInfoId &&
-      state.connections.byId[state.editingConnectionInfoId].isBeingCreated
-    ) {
-      newConnectionsState = {
-        ...newConnectionsState,
-        byId: {
-          ...newConnectionsState.byId,
-        },
-      };
-      delete newConnectionsState.byId[state.editingConnectionInfoId];
-    }
-
     return {
       ...state,
       connections: mergeConnectionStateById(
-        newConnectionsState,
+        state.connections,
         newConnection.info.id,
         newConnection
       ),
