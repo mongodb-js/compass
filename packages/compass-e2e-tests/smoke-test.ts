@@ -147,9 +147,7 @@ async function run() {
   writeBuildInfo(infoArgs);
   const buildInfo = await readJson(infoArgs.out);
 
-  if (!buildInfoIsCommon(buildInfo)) {
-    throw new Error('buildInfo is missing');
-  }
+  assertCommonBuildInfo(buildInfo);
 
   // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
   const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
@@ -224,13 +222,16 @@ type PackageFilterConfig = Pick<
 const commonKeys = ['productName'];
 type CommonBuildInfo = Record<typeof commonKeys[number], string>;
 
-function buildInfoIsCommon(buildInfo: any): buildInfo is CommonBuildInfo {
+function assertCommonBuildInfo(
+  buildInfo: unknown
+): asserts buildInfo is CommonBuildInfo {
+  assert(
+    typeof buildInfo === 'object' && buildInfo !== null,
+    'Expected buildInfo to be an object'
+  );
   for (const key of commonKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
+    assert(key in buildInfo, `Expected buildInfo to have '${key}'`);
   }
-  return true;
 }
 
 const windowsFilenameKeys = [
