@@ -2,7 +2,6 @@
 import { createWriteStream, existsSync, promises as fs } from 'fs';
 import path from 'path';
 import yargs from 'yargs';
-import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import https from 'https';
 import { pick } from 'lodash';
@@ -87,17 +86,10 @@ const argv = yargs(hideBin(process.argv))
     return true;
   });
 
-type BuilderCallbackParsedArgs<A extends (...args: any[]) => Argv<any>> =
-  ReturnType<ReturnType<A>['parseSync']>;
-
-type SmokeTestsContext = BuilderCallbackParsedArgs<typeof argv>;
+type SmokeTestsContext = ReturnType<typeof argv['parseSync']>;
 
 async function run() {
-  const parsedArgs = argv.parse();
-
-  if ('then' in parsedArgs && typeof parsedArgs.then === 'function') {
-    throw new Error('Async args parser is not allowed');
-  }
+  const parsedArgs = argv.parseSync();
 
   const context = parsedArgs as SmokeTestsContext;
 
