@@ -2,7 +2,7 @@ import { connectionSupports } from './connection-supports';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
 
-const mockConnections: ConnectionInfo[] = [
+const mockConnections = [
   {
     id: 'no-atlasMetadata',
     connectionOptions: {
@@ -134,9 +134,28 @@ const mockConnections: ConnectionInfo[] = [
       },
     },
   },
-];
+  {
+    id: 'flex-tier',
+    connectionOptions: {
+      connectionString: 'mongodb://flex',
+    },
+    atlasMetadata: {
+      orgId: 'orgId',
+      projectId: 'projectId',
+      clusterName: 'clusterName',
+      regionalBaseUrl: 'https://example.com',
+      metricsId: 'metricsId',
+      metricsType: 'replicaSet',
+      instanceSize: 'FLEX',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
+    },
+  },
+] as const;
 
-function connectionInfoById(connectionId: string): ConnectionInfo {
+function connectionInfoById(
+  connectionId: typeof mockConnections[number]['id']
+): ConnectionInfo {
   const connectionInfo = mockConnections.find(({ id }) => id === connectionId);
   if (!connectionInfo) {
     throw new Error(`No connection for id "${connectionId}"`);
@@ -177,6 +196,15 @@ describe('connectionSupports', function () {
       expect(
         connectionSupports(
           connectionInfoById('free-cluster'),
+          'rollingIndexCreation'
+        )
+      ).to.be.false;
+    });
+
+    it('should return false for flex tier clusters', function () {
+      expect(
+        connectionSupports(
+          connectionInfoById('flex-tier'),
           'rollingIndexCreation'
         )
       ).to.be.false;
