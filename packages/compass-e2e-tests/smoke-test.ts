@@ -17,40 +17,40 @@ const argv = yargs(hideBin(process.argv))
   .strict()
   .option('bucketName', {
     type: 'string',
-    default: () => process.env.EVERGREEN_BUCKET_NAME,
+    default: process.env.EVERGREEN_BUCKET_NAME,
   })
   .option('bucketKeyPrefix', {
     type: 'string',
-    default: () => process.env.EVERGREEN_BUCKET_KEY_PREFIX,
+    default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
   .option('devVersion', {
     type: 'string',
     // For dev versions we need this from evergreen. For beta or stable (or by
     // default, ie. when testing a locally packaged app) we get it from the
     // package.json
-    default: () => process.env.DEV_VERSION_IDENTIFIER,
+    default: process.env.DEV_VERSION_IDENTIFIER,
   })
   .option('isWindows', {
     type: 'boolean',
-    default: () => process.env.IS_WINDOWS === 'true',
+    default: process.env.IS_WINDOWS === 'true',
   })
   .option('isOSX', {
     type: 'boolean',
-    default: () => process.env.IS_OSX === 'true',
+    default: process.env.IS_OSX === 'true',
   })
   .option('isRHEL', {
     type: 'boolean',
-    default: () => process.env.IS_RHEL === 'true',
+    default: process.env.IS_RHEL === 'true',
   })
   .option('isUbuntu', {
     type: 'boolean',
-    default: () => process.env.IS_UBUNTU === 'true',
+    default: process.env.IS_UBUNTU === 'true',
   })
   .option('arch', {
     type: 'string',
     choices: ['x64', 'arm64'],
     demandOption: true,
-    default: () => process.env.ARCH ?? process.arch,
+    default: process.env.ARCH ?? process.arch,
   })
   .option('skipDownload', {
     type: 'boolean',
