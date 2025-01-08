@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "6.49.2",
+  "version": "6.49.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,12 +48,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.1.9",
-    "@mongodb-js/mocha-config-compass": "^1.4.4",
-    "@mongodb-js/my-queries-storage": "^0.20.2",
-    "@mongodb-js/prettier-config-compass": "^1.0.4",
-    "@mongodb-js/testing-library-compass": "^1.0.4",
-    "@mongodb-js/tsconfig-compass": "^1.0.7",
+    "@mongodb-js/eslint-config-compass": "^1.1.11",
+    "@mongodb-js/mocha-config-compass": "^1.4.6",
+    "@mongodb-js/my-queries-storage": "^0.20.4",
+    "@mongodb-js/prettier-config-compass": "^1.0.6",
+    "@mongodb-js/testing-library-compass": "^1.0.6",
+    "@mongodb-js/tsconfig-compass": "^1.0.9",
     "@types/chai": "^4.2.21",
     "@types/leaflet": "^1.9.8",
     "@types/leaflet-draw": "^1.0.11",
@@ -72,25 +72,25 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-collection": "^4.47.2",
-    "@mongodb-js/compass-components": "^1.32.2",
-    "@mongodb-js/compass-connections": "^1.48.2",
-    "@mongodb-js/compass-field-store": "^9.23.2",
-    "@mongodb-js/compass-logging": "^1.4.13",
-    "@mongodb-js/compass-telemetry": "^1.2.6",
-    "@mongodb-js/compass-query-bar": "^8.49.2",
-    "@mongodb-js/connection-storage": "^0.24.2",
+    "@mongodb-js/compass-collection": "^4.47.4",
+    "@mongodb-js/compass-components": "^1.32.4",
+    "@mongodb-js/compass-connections": "^1.48.4",
+    "@mongodb-js/compass-field-store": "^9.23.4",
+    "@mongodb-js/compass-logging": "^1.4.15",
+    "@mongodb-js/compass-telemetry": "^1.2.8",
+    "@mongodb-js/compass-query-bar": "^8.49.4",
+    "@mongodb-js/connection-storage": "^0.24.4",
     "bson": "^6.10.1",
-    "compass-preferences-model": "^2.31.2",
+    "compass-preferences-model": "^2.31.4",
     "d3": "^3.5.17",
-    "hadron-app-registry": "^9.2.9",
-    "hadron-document": "^8.6.7",
+    "hadron-app-registry": "^9.2.11",
+    "hadron-document": "^8.6.9",
     "leaflet": "^1.5.1",
     "leaflet-defaulticon-compatibility": "^0.1.1",
     "leaflet-draw": "^1.0.4",
     "lodash": "^4.17.21",
     "mongodb": "^6.12.0",
-    "mongodb-query-util": "^2.2.11",
+    "mongodb-query-util": "^2.2.13",
     "mongodb-schema": "^12.2.0",
     "numeral": "^1.5.6",
     "prop-types": "^15.7.2",
@@ -98,7 +98,7 @@
     "react-leaflet": "^2.4.0",
     "react-leaflet-draw": "^0.19.0",
     "reflux": "^0.4.1",
-    "@mongodb-js/reflux-state-mixin": "^1.0.9"
+    "@mongodb-js/reflux-state-mixin": "^1.0.11"
   },
   "is_compass_plugin": true
 }

@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps like Compass",
-  "version": "25.5.17",
+  "version": "25.5.19",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -57,7 +57,7 @@
     "zip-folder": "^1.0.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.1.9",
+    "@mongodb-js/eslint-config-compass": "^1.1.11",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",

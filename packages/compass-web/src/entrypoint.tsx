@@ -292,6 +292,37 @@ const CompassWeb = ({
           // Making sure that compass-web modals and tooltips are definitely not
           // hidden by Cloud UI sidebar and page header
           stackedElementsZIndex={10_000}
+          onNextGuideGue={(cue) => {
+            onTrackRef.current?.('Guide Cue Dismissed', {
+              groupId: cue.groupId,
+              cueId: cue.cueId,
+              step: cue.step,
+            });
+          }}
+          onNextGuideCueGroup={(cue) => {
+            if (cue.groupSteps !== cue.step) {
+              onTrackRef.current?.('Guide Cue Group Dismissed', {
+                groupId: cue.groupId,
+                cueId: cue.cueId,
+                step: cue.step,
+              });
+            }
+          }}
+          onSignalMount={(id) => {
+            onTrackRef.current?.('Signal Shown', { id });
+          }}
+          onSignalOpen={(id) => {
+            onTrackRef.current?.('Signal Opened', { id });
+          }}
+          onSignalPrimaryActionClick={(id) => {
+            onTrackRef.current?.('Signal Action Button Clicked', { id });
+          }}
+          onSignalLinkClick={(id) => {
+            onTrackRef.current?.('Signal Link Clicked', { id });
+          }}
+          onSignalClose={(id) => {
+            onTrackRef.current?.('Signal Closed', { id });
+          }}
           {...LINK_PROPS}
         >
           <PreferencesProvider value={preferencesAccess.current}>

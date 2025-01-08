@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       dryRun:
-        description: 'Run publish in dry-run mode (WARN: think twice when changing this value, this will override currently published manifest in download center!)'
+        description: "Run publish in dry-run mode (WARN: think twice when changing this value, this will override currently published manifest in download center!)"
         required: true
-        default: 'true'
+        default: "true"
   release:
     types: [published]
 
@@ -17,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.16.0
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |
@@ -36,7 +36,7 @@ jobs:
 
       - name: Upload updated download center manifest
         env:
-          DEBUG: 'hadron*,mongo*,compass*'
+          DEBUG: "hadron*,mongo*,compass*"
           DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${{ secrets.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID }}
           DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
