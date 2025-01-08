@@ -1,8 +1,9 @@
 #!/usr/bin/env npx ts-node
-import { createWriteStream, existsSync, promises as fs } from 'fs';
-import path from 'path';
+import assert from 'node:assert/strict';
+import { createWriteStream, existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
+
 import yargs from 'yargs';
-import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import https from 'https';
 import { pick } from 'lodash';
@@ -18,40 +19,40 @@ const argv = yargs(hideBin(process.argv))
   .strict()
   .option('bucketName', {
     type: 'string',
-    default: () => process.env.EVERGREEN_BUCKET_NAME,
+    default: process.env.EVERGREEN_BUCKET_NAME,
   })
   .option('bucketKeyPrefix', {
     type: 'string',
-    default: () => process.env.EVERGREEN_BUCKET_KEY_PREFIX,
+    default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
   .option('devVersion', {
     type: 'string',
     // For dev versions we need this from evergreen. For beta or stable (or by
     // default, ie. when testing a locally packaged app) we get it from the
     // package.json
-    default: () => process.env.DEV_VERSION_IDENTIFIER,
+    default: process.env.DEV_VERSION_IDENTIFIER,
   })
   .option('isWindows', {
     type: 'boolean',
-    default: () => process.env.IS_WINDOWS === 'true',
+    default: process.env.IS_WINDOWS === 'true',
   })
   .option('isOSX', {
     type: 'boolean',
-    default: () => process.env.IS_OSX === 'true',
+    default: process.env.IS_OSX === 'true',
   })
   .option('isRHEL', {
     type: 'boolean',
-    default: () => process.env.IS_RHEL === 'true',
+    default: process.env.IS_RHEL === 'true',
   })
   .option('isUbuntu', {
     type: 'boolean',
-    default: () => process.env.IS_UBUNTU === 'true',
+    default: process.env.IS_UBUNTU === 'true',
   })
   .option('arch', {
     type: 'string',
     choices: ['x64', 'arm64'],
     demandOption: true,
-    default: () => process.env.ARCH ?? process.arch,
+    default: process.env.ARCH ?? process.arch,
   })
   .option('skipDownload', {
     type: 'boolean',
@@ -87,17 +88,27 @@ const argv = yargs(hideBin(process.argv))
     return true;
   });
 
-type BuilderCallbackParsedArgs<A extends (...args: any[]) => Argv<any>> =
-  ReturnType<ReturnType<A>['parseSync']>;
+type SmokeTestsContext = ReturnType<typeof argv['parseSync']>;
 
-type SmokeTestsContext = BuilderCallbackParsedArgs<typeof argv>;
+async function readJson<T extends object>(...segments: string[]): Promise<T> {
+  const result = JSON.parse(
+    await fs.readFile(path.join(...segments), 'utf8')
+  ) as unknown;
+  assert(typeof result === 'object' && result !== null, 'Expected an object');
+  return result as T;
+}
+
+async function readPackageVersion(packagePath: string) {
+  const pkg = await readJson(packagePath, 'package.json');
+  assert(
+    'version' in pkg && typeof pkg.version === 'string',
+    'Expected a package version'
+  );
+  return pkg.version;
+}
 
 async function run() {
-  const parsedArgs = argv.parse();
-
-  if ('then' in parsedArgs && typeof parsedArgs.then === 'function') {
-    throw new Error('Async args parser is not allowed');
-  }
+  const parsedArgs = argv.parseSync();
 
   const context = parsedArgs as SmokeTestsContext;
 
@@ -119,11 +130,7 @@ async function run() {
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
   // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
-  const version = context.devVersion
-    ? context.devVersion
-    : (JSON.parse(
-        await fs.readFile(path.join(compassDir, 'package.json'), 'utf8')
-      ).version as string);
+  const version = context.devVersion ?? (await readPackageVersion(compassDir));
   const platform = platformFromContext(context);
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
@@ -138,11 +145,9 @@ async function run() {
   };
   console.log('infoArgs', infoArgs);
   writeBuildInfo(infoArgs);
-  const buildInfo = JSON.parse(await fs.readFile(infoArgs.out, 'utf8'));
+  const buildInfo = await readJson(infoArgs.out);
 
-  if (!buildInfoIsCommon(buildInfo)) {
-    throw new Error('buildInfo is missing');
-  }
+  assertCommonBuildInfo(buildInfo);
 
   // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
   const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
@@ -217,13 +222,16 @@ type PackageFilterConfig = Pick<
 const commonKeys = ['productName'];
 type CommonBuildInfo = Record<typeof commonKeys[number], string>;
 
-function buildInfoIsCommon(buildInfo: any): buildInfo is CommonBuildInfo {
+function assertCommonBuildInfo(
+  buildInfo: unknown
+): asserts buildInfo is CommonBuildInfo {
+  assert(
+    typeof buildInfo === 'object' && buildInfo !== null,
+    'Expected buildInfo to be an object'
+  );
   for (const key of commonKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
+    assert(key in buildInfo, `Expected buildInfo to have '${key}'`);
   }
-  return true;
 }
 
 const windowsFilenameKeys = [

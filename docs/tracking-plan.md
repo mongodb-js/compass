@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Tue, Jan 7, 2025 at 01:01 PM
+Generated on Wed, Jan 8, 2025 at 01:59 PM
 
 ## Table of Contents
 
@@ -130,7 +130,7 @@ Generated on Tue, Jan 7, 2025 at 01:01 PM
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
 - [Screen](#event--ScreenEvent)
-- [Secret Storage Not Available](#event--SecretStorageNotAvailable)
+- [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 
 ### Performance Tab
 - [CurrentOp showOperationDetails](#event--CurrentOpShowOperationDetailsEvent)
@@ -247,6 +247,7 @@ This event is fired when user copied the pipeline to clipboard.
   - A unique id for the aggregation object being copied.
 - **screen** (required): `"my-queries"`
   - The screen from which the aggregation has been copied.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AggregationDeletedEvent"></a>
 
@@ -262,6 +263,7 @@ This event is fired when user deletes a previously saved aggregation pipeline.
   - The type of editor view from which the aggregation has been deleted.
 - **screen** (optional): `"my_queries" | "aggregations" | undefined`
   - The screen from which the aggregation has been deleted.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -285,6 +287,7 @@ the even has been fired.
   - The edit action being performed for stage and focus mode.
 - **stage_name** (optional): `string | null | undefined`
   - The name of the stage edited.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -303,6 +306,7 @@ the even has been fired.
   - The type of editor view from which the aggregation has been executed.
 - **stage_operators** (required): `{}`
   - The names of the stages in the pipeline being executed.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -319,6 +323,7 @@ This event is fired when user runs the explain plan for an aggregation.
 the even has been fired.
 - **index_used** (required): `boolean`
   - Wether the explain reports that an index was used by the query.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -341,6 +346,7 @@ the even has been fired.
   - Indicates that the query was exported including driver syntax.
 - **with_builders** (optional): `boolean | undefined`
   - Indicates that the query was exported using builder syntax.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -355,6 +361,7 @@ This event is fired when user opens the export to language dialog.
 - **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -372,6 +379,7 @@ This event is fired when user opens a previously saved aggregation pipeline.
   - The type of editor view from which the aggregation is being opened.
 - **screen** (optional): `"my_queries" | "aggregations" | undefined`
   - The screen from which the aggregation is being opened.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -386,6 +394,7 @@ This event is fired when user saves aggregation pipeline as a view
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -404,6 +413,7 @@ This event is fired when user saves aggregation pipeline.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation is being saved.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -418,6 +428,7 @@ This event is fired when user clicks the aggregation side panel button.
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -431,6 +442,7 @@ This event is fired when an aggregation times out
 
 - **max_time_ms** (required): `number | null`
   - The max_time_ms setting of the aggregation timed out.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -446,6 +458,7 @@ This event is fired when user selects a use case from the aggregation panel.
   - Specifies if the use case was added via drag and drop.
 - **stage_name** (optional): `string | undefined`
   - The name of the stage added.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -460,6 +473,7 @@ the stage to their pipeline.
 
 - **stage_name** (required): `string | null`
   - The name of the stage the use case refers to.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -476,6 +490,7 @@ This event is fired when user changes editor type.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The new type of view that editor was changed to.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -493,6 +508,7 @@ the even has been fired.
 - **duration** (required): `number`
   - Time elapsed between the focus mode has been opened and then closed
 (in milliseconds).
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -507,6 +523,7 @@ This event is fired when user clicks to expand focus mode.
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -524,6 +541,7 @@ builder.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the view has been updated.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -540,6 +558,7 @@ This event is fired when user failed to sign in to their Atlas account.
 
 - **error** (required): `string`
   - The error message reported on sign in.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AtlasSignInSuccessEvent"></a>
 
@@ -551,6 +570,7 @@ This event is fired when user successfully signed in to their Atlas account
 
 - **auid** (required): `string`
   - The id of the atlas user who signed in.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AtlasSignOutEvent"></a>
 
@@ -562,6 +582,7 @@ This event is fired when user signed out from their Atlas account.
 
 - **auid** (required): `string`
   - The id of the atlas user who signed out.
+- **is_compass_web** (optional): `true | undefined`
 
 
 ## Auto-updates
@@ -580,6 +601,7 @@ This event is fired when the "Update available" popup is shown and the user acce
   - Indicates whether the update was initiated manually by the user.
 - **manual_download** (optional): `boolean | undefined`
   - Indicates whether the update was downloaded manually by the user.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AutoupdateDismissedEvent"></a>
 
@@ -591,6 +613,7 @@ This event is fired when the "Update available" popup is shown and the user reje
 
 - **update_version** (required): `string`
   - The version of the update that was dismissed.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ApplicationRestartAcceptedEvent"></a>
 
@@ -635,6 +658,7 @@ This event is fired when a user runs a bulk update operation.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -648,6 +672,7 @@ favorites.
 **Properties**:
 
 - **isUpdatePreviewSupported** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -661,6 +686,7 @@ This event is fired when a user opens the bulk update modal.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -678,6 +704,7 @@ TODO: https://jira.mongodb.org/browse/COMPASS-7334
 - **with_import_statements** (optional): `boolean | undefined`
 - **with_drivers_syntax** (optional): `boolean | undefined`
 - **with_builders** (optional): `boolean | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -703,6 +730,7 @@ TODO: https://jira.mongodb.org/browse/COMPASS-7334
 - **with_import_statements** (optional): `boolean | undefined`
 - **with_drivers_syntax** (optional): `boolean | undefined`
 - **with_builders** (optional): `boolean | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -729,6 +757,7 @@ This event is fired when users attempts to connect to a server/cluster.
   - Specifies if the connection is a favorite.
 - **is_new** (required): `boolean`
   - Specifies if the connection is a newly created connection.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -742,6 +771,7 @@ This event is fired when a new connection is saved.
 
 - **color** (optional): `string | undefined`
   - The favorite color for the connection created.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -761,6 +791,7 @@ This event is fired when connections export initiated from either UI or CLI.
 
 - **count** (required): `number`
   - Number of connections exported.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ConnectionFailedEvent"></a>
 
@@ -804,6 +835,7 @@ This event is fired when a connection attempt fails.
   - Specifies the number of Local KMS providers used.
 - **count_kms_azure** (optional): `number | undefined`
   - Specifies the number of Azure KMS providers used.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -817,6 +849,7 @@ This event is fired when connections import initiated from either UI or CLI.
 
 - **count** (required): `number`
   - Number of connections imported.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ConnectionRemovedEvent"></a>
 
@@ -888,6 +921,7 @@ This event is fired when user successfully connects to a new server/cluster.
   - Specifies the number of Local KMS providers used.
 - **count_kms_azure** (optional): `number | undefined`
   - Specifies the number of Azure KMS providers used.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -914,6 +948,7 @@ This event is fired when a collection is created.
   - Indicates whether the collection is encrypted using FLE2 (Field-Level Encryption 2).
 - **expires** (required): `boolean`
   - Indicates whether the collection has an expiration (TTL index).
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -937,6 +972,7 @@ This event is fired when a database is created.
   - Indicates whether the first collection in the database is encrypted using FLE2 (Field-Level Encryption 2).
 - **expires** (required): `boolean`
   - Indicates whether the first collection in the database has an expiration (TTL index).
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -952,6 +988,7 @@ This event is fired when the user changes the items view type between list and g
   - The type of view that the user switched to.
 - **item_type** (required): `"database" | "collection"`
   - The type of item being viewed, either 'collection' or 'database'.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -968,6 +1005,7 @@ This event is fired when user clones a document.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to clone the document.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -981,6 +1019,7 @@ This event is fired when user copies a document to the clipboard.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to copy the document.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -994,6 +1033,7 @@ This event is fired when user deletes a document.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to delete the document.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1009,6 +1049,7 @@ This event is fired when user inserts documents.
   - The view used to insert documents.
 - **multiple** (optional): `boolean | undefined`
   - Specifies if the user inserted multiple documents.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1022,6 +1063,7 @@ This event is fired when user updates a document
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to delete the document.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1040,6 +1082,7 @@ This event is fired when user explains a query.
   - Specifies if a filter was set.
 - **index_used** (required): `boolean`
   - Specifies if the explain reports that an index was used by the query.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1056,6 +1099,7 @@ This event is fired when a user edits a query.
 
 - **option_name** (required): `"maxTimeMS" | "filter" | "project" | "collation" | "sort" | "skip" | "limit" | "hint"`
   - The name of the edited field.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1083,6 +1127,7 @@ This event is fired when user executes a query
   - The type of the collection on which the query was executed.
 - **used_regex** (required): `boolean`
   - Indicates whether the query used a regular expression.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1102,6 +1147,7 @@ This event is fired when user copies to clipboard the query to export.
   - Indicates that the query was exported including driver syntax.
 - **with_builders** (optional): `boolean | undefined`
   - Indicates that the query was exported using builder syntax.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1127,6 +1173,7 @@ This event is fired when user favorites a recent query.
 
 - **isUpdateQuery** (required): `boolean`
   - Indicates whether the query was an update query.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1142,6 +1189,7 @@ This event is fired when user copied query to clipboard.
   - The unique identifier of the query history favorite that was copied.
 - **screen** (required): `"my_queries"`
   - The screen from which the query history favorite was copied.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--QueryHistoryFavoriteRemovedEvent"></a>
 
@@ -1157,6 +1205,7 @@ This event is fired when user removes query from favorites.
   - The screen from which the query history favorite was removed.
 - **isUpdateQuery** (optional): `boolean | undefined`
   - Indicates whether the removed query was an update query.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1180,6 +1229,7 @@ This event is fired when user selects a favorite query to put it in the query ba
   - The screen from which the query history favorite was loaded.
 - **isUpdateQuery** (optional): `boolean | undefined`
   - Indicates whether the loaded query was an update query.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1204,6 +1254,7 @@ This event is fired when user selects a recent query to put it in the query bar.
 **Properties**:
 
 - **isUpdateQuery** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1231,6 +1282,7 @@ and hits "enter".
 - **user_input_length** (optional): `number | undefined`
 - **request_id** (optional): `string | undefined`
 - **has_sample_documents** (optional): `boolean | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1245,6 +1297,7 @@ This event is fired when a user submits feedback for a query generation.
 - **feedback** (required): `"positive" | "negative"`
 - **text** (required): `string`
 - **request_id** (required): `string | null`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1262,6 +1315,7 @@ This event is fired when a query generation request fails with an error.
 - **status_code** (optional): `number | undefined`
 - **error_name** (optional): `string | undefined`
 - **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1279,6 +1333,7 @@ rendered in the UI.
 - **syntax_errors** (optional): `boolean | undefined`
 - **query_shape** (optional): `{} | undefined`
 - **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1297,6 +1352,7 @@ This event is fired when a user submits feedback for a pipeline generation.
 feedback to potential error lines in the logs.
 - **text** (required): `string`
   - The feedback comment left by the user.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1318,6 +1374,7 @@ This field is only set for guide cues belonging to a group.
   - The unique identifier of the specific guide cue that was dismissed.
 - **step** (required): `number`
   - The step number within the guide cue sequence where the user clicked "next".
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--GuideCueGroupDismissedEvent"></a>
 
@@ -1334,6 +1391,7 @@ guide cue group.
   - The unique identifier of the specific guide cue that was the last one in the group.
 - **step** (required): `number`
   - The step number within the guide cue sequence where the user clicked "next".
+- **is_compass_web** (optional): `true | undefined`
 
 
 ## Import/Export
@@ -1375,6 +1433,7 @@ in the list of available fields, but that were not selected for export.
   - Indicates whether the export operation was stopped before completion.
 - **duration** (required): `number`
   - The duration of the export operation in milliseconds.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1390,6 +1449,7 @@ This event is fired when user opens the export dialog.
   - The type of query for which the export has been open. (query = find query).
 - **origin** (required): `"menu" | "crud-toolbar" | "empty-state" | "aggregations-toolbar"`
   - The trigger location for the export.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1427,6 +1487,7 @@ If true, the import process stops upon encountering an error.
 - **ignore_empty_strings** (optional): `boolean | undefined`
   - Indicates whether empty strings in the imported file were ignored.
 If true, fields with empty strings were not included in the imported documents.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1441,6 +1502,7 @@ receiving import errors.
 
 - **errorCount** (required): `number`
   - Number of import errors present in the log.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1454,6 +1516,7 @@ This event is fired when user opens the import dialog.
 
 - **origin** (required): `"menu" | "crud-toolbar" | "empty-state"`
   - The trigger location for the import.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1486,6 +1549,7 @@ This event is fired when user creates an index.
   - Indicates whether the index is an Atlas Search index.
 - **type** (optional): `string | undefined`
   - Specifies the type of the index.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1515,6 +1579,7 @@ This event is fired when user creates an index and it fails.
   - Indicates whether the index is an Atlas Search index.
 - **type** (optional): `string | undefined`
   - Specifies the type of the index.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1528,6 +1593,7 @@ This event is fired when user opens create index dialog.
 
 - **atlas_search** (optional): `boolean | undefined`
   - Specifies if the index creation dialog open is for an Atlas Search index.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1541,6 +1607,7 @@ This event is fired when user drops an index.
 
 - **atlas_search** (optional): `boolean | undefined`
   - Indicates whether the index is an Atlas Search index.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1554,6 +1621,7 @@ This event is fired when user updates an index.
 
 - **atlas_search** (required): `boolean`
   - Indicates whether the index is an Atlas Search index.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1570,6 +1638,7 @@ This event is fired when user filters queries using db / coll filter.
 
 - **type** (optional): `"database" | "collection" | undefined`
   - The filter that was changed.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--MyQueriesSearchEvent"></a>
 
@@ -1591,6 +1660,7 @@ sort options.
   - The criterion by which the queries are sorted.
 - **order** (required): `"ascending" | "descending"`
   - The order of the sorting.
+- **is_compass_web** (optional): `true | undefined`
 
 
 ## Other
@@ -1625,6 +1695,7 @@ compass-readonly distribution).
 - **legacy_connections** (required): `boolean`
   - Whether Compass discovered any connections in the legacy connection format
 (prior to COMPASS-5490 'Remove storage-mixin' from summer 2023).
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AtlasLinkClickedEvent"></a>
 
@@ -1636,6 +1707,7 @@ This event is fired when a user clicks on the Atlas CTA.
 
 - **screen** (optional): `"agg_builder" | "connect" | undefined`
   - The screen from which the Atlas CTA was clicked.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ErrorFetchingAttributesEvent"></a>
 
@@ -1648,6 +1720,7 @@ while building the attributes.
 
 - **event_name** (required): `string`
   - The name of the event for which attributes could not be fetched.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--KeytarSecretsMigrationFailedEvent"></a>
 
@@ -1664,6 +1737,7 @@ NOTE: Should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
   - The number of connections that were successfully saved.
 - **num_failed_connections** (required): `number`
   - The number of connections that failed to save during the migration.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--PerformanceAdvisorClickedEvent"></a>
 
@@ -1681,10 +1755,11 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 - **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | undefined`
   - The name of the screen that was activated.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
-<a name="event--SecretStorageNotAvailable"></a>
+<a name="event--SecretStorageNotAvailableEvent"></a>
 
 ### Secret Storage Not Available
 
@@ -1737,6 +1812,7 @@ This event is fired when Action button for the signal is clicked inside the popu
 
 - **id** (required): `string`
   - A unique identifier for the type of the signal.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--SignalClosedEvent"></a>
 
@@ -1748,6 +1824,7 @@ This event is fired when user clicked the close button or outside the signal and
 
 - **id** (required): `string`
   - A unique identifier for the type of the signal.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--SignalLinkClickedEvent"></a>
 
@@ -1759,6 +1836,7 @@ This event is fired when "Learn more" link is clicked inside the signal popup.
 
 - **id** (required): `string`
   - A unique identifier for the type of the signal.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--SignalOpenedEvent"></a>
 
@@ -1770,6 +1848,7 @@ This event is fired when signal badge is clicked and popup is opened.
 
 - **id** (required): `string`
   - A unique identifier for the type of the signal.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--SignalShownEvent"></a>
 
@@ -1781,6 +1860,7 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 - **id** (required): `string`
   - A unique identifier for the type of the signal.
+- **is_compass_web** (optional): `true | undefined`
 
 
 ## Schema
@@ -1803,6 +1883,7 @@ This event is fired when user analyzes the schema.
   - Indicates whether the schema contains geospatial data.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1822,6 +1903,7 @@ This event is fired when user shares the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1844,6 +1926,7 @@ This event is fired when user edits validation rules (without saving them).
 
 - **json_schema** (required): `boolean`
   - Indicates wether the validation rule uses $jsonSchema.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1859,6 +1942,7 @@ This event is fired when user saves validation rules.
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1875,6 +1959,7 @@ This event is fired when a user changes the theme.
 
 - **theme** (required): `"DARK" | "LIGHT" | "OS_THEME"`
   - The theme selected by the user. It can be 'DARK', 'LIGHT', or 'OS_THEME'.
+- **is_compass_web** (optional): `true | undefined`
 
 
 ## Shell
@@ -1888,6 +1973,7 @@ This event is fired when the shell is open
 **Properties**:
 
 - **entrypoint** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1909,6 +1995,7 @@ tracking plan for details about single events.
   - The version of the embedded mongosh package.
 - **session_id** (required): `string`
   - The shell session_id.
+- **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1926,6 +2013,7 @@ See: https://web.dev/articles/vitals.
 
 - **value** (required): `number`
   - The reported metric value.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--LargestContentfulPaintEvent"></a>
 
@@ -1938,6 +2026,7 @@ See: https://web.dev/articles/vitals.
 
 - **value** (required): `number`
   - The reported metric value.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--FirstInputDelayEvent"></a>
 
@@ -1950,6 +2039,7 @@ See: https://web.dev/articles/vitals.
 
 - **value** (required): `number`
   - The reported metric value.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--CumulativeLayoutShiftEvent"></a>
 
@@ -1962,6 +2052,7 @@ See: https://web.dev/articles/vitals.
 
 - **value** (required): `number`
   - The reported metric value.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--TimeToFirstByteEvent"></a>
 
@@ -1974,6 +2065,7 @@ See: https://web.dev/articles/vitals.
 
 - **value** (required): `number`
   - The reported metric value.
+- **is_compass_web** (optional): `true | undefined`
 
 
 
