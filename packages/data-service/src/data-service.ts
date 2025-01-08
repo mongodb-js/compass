@@ -140,6 +140,7 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
   connectionInfoSecretsChanged: () => void;
   close: () => void;
   oidcAuthFailed: (error: string) => void;
@@ -2414,6 +2415,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
             }
           );
         }
+        this._emitter.emit('serverHeartbeatFailed', evt);
       });
 
       client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
