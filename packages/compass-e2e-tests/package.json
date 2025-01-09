@@ -55,6 +55,7 @@
     "electron-to-chromium": "^1.5.76",
     "eslint": "^7.25.0",
     "glob": "^10.2.5",
+    "globals": "^15.14.0",
     "hadron-build": "^25.6.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
