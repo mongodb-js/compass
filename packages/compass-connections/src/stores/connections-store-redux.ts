@@ -196,11 +196,7 @@ export type State = {
     }
   >;
 
-  // State related to connection editing form. Can't be null in single
-  // connection mode, so we always have a default connection set here even if
-  // nothing is being actively edited. Can be updated when single-connection
-  // mode is removed from the app
-  editingConnectionInfoId: ConnectionId;
+  editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
 
   // State related to connection favorite fields editing modal form (right now
@@ -487,23 +483,15 @@ export function createDefaultConnectionState(
   };
 }
 
-// For single connection mode we always have to start with the initial empty
-// connection in the state already. This can be removed when single connection
-// mode doesn't exist anymore
-const INITIAL_CONNECTION_STATE = createDefaultConnectionState();
-INITIAL_CONNECTION_STATE.isBeingCreated = true;
-
 const INITIAL_STATE: State = {
   connections: {
-    ids: [INITIAL_CONNECTION_STATE.info.id],
-    byId: {
-      [INITIAL_CONNECTION_STATE.info.id]: INITIAL_CONNECTION_STATE,
-    },
+    ids: [],
+    byId: {},
     status: 'initial',
     error: null,
   },
   oidcDeviceAuthInfo: {},
-  editingConnectionInfoId: INITIAL_CONNECTION_STATE.info.id,
+  editingConnectionInfoId: null,
   isEditingConnectionInfoModalOpen: false,
   editingConnectionFavoriteInfoId: null,
   isEditingConnectionFavoriteInfoModalOpen: false,
@@ -513,13 +501,9 @@ export function getInitialConnectionsStateForConnectionInfos(
   connectionInfos: ConnectionInfo[] = []
 ): State['connections'] {
   const byId = Object.fromEntries<ConnectionState>(
-    [
-      [INITIAL_CONNECTION_STATE.info.id, INITIAL_CONNECTION_STATE] as const,
-    ].concat(
-      connectionInfos.map((info) => {
-        return [info.id, createDefaultConnectionState(info)];
-      })
-    )
+    connectionInfos.map((info) => {
+      return [info.id, createDefaultConnectionState(info)];
+    })
   );
   return {
     byId,
@@ -985,28 +969,10 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     const newConnection = createDefaultConnectionState();
     newConnection.isBeingCreated = true;
 
-    let newConnectionsState = state.connections;
-
-    // Only relevant for single connections mode: if we're currently editing
-    // "new connection", clean it up from state before creating state for a new
-    // one
-    if (
-      state.editingConnectionInfoId &&
-      state.connections.byId[state.editingConnectionInfoId].isBeingCreated
-    ) {
-      newConnectionsState = {
-        ...newConnectionsState,
-        byId: {
-          ...newConnectionsState.byId,
-        },
-      };
-      delete newConnectionsState.byId[state.editingConnectionInfoId];
-    }
-
     return {
       ...state,
       connections: mergeConnectionStateById(
-        newConnectionsState,
+        state.connections,
         newConnection.info.id,
         newConnection
       ),
@@ -1078,7 +1044,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     }
 
     let connections = state.connections;
-    let editingConnectionInfoId = state.editingConnectionInfoId;
+    const editingConnectionInfoId = state.editingConnectionInfoId;
 
     // In cases where connection was never saved or used before, we remove it
     // from the connections state
@@ -1095,20 +1061,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         byId: newConnectionsById,
         ids: newIds,
       };
-
-      // Special case for single connection: after removing connection, we
-      // automatically create a new connection and will "select" it for editing.
-      // Can go away when single connection mode is removed
-      if (state.editingConnectionInfoId === action.connectionId) {
-        const newDefaultConnection = createDefaultConnectionState();
-        newDefaultConnection.isBeingCreated = true;
-        connections = mergeConnectionStateById(
-          connections,
-          newDefaultConnection.info.id,
-          newDefaultConnection
-        );
-        editingConnectionInfoId = newDefaultConnection.info.id;
-      }
     }
 
     return {

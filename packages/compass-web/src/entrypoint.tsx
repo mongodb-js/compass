@@ -55,7 +55,7 @@ import type {
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
