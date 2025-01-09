@@ -1,4 +1,7 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
-  "compilerOptions": {}
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["helpers", "installers", "tests", "*.ts"]
 }
