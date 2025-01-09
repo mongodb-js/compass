@@ -13,6 +13,7 @@ export async function setExportFilename(
   await expect(fs.stat(filename)).to.be.rejected;
 
   await browser.execute(function (f) {
+    // eslint-disable-next-line no-restricted-globals
     document.dispatchEvent(
       new CustomEvent('selectExportFileName', { detail: f })
     );

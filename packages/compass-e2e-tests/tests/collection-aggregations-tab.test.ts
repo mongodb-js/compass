@@ -124,6 +124,7 @@ describe('Collection aggregations tab', function () {
     await browser.connectToDefaults();
     // set guide cue to not show up
     await browser.execute((key) => {
+      // eslint-disable-next-line no-restricted-globals
       localStorage.setItem(key, 'true');
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
