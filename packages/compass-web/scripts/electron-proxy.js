@@ -404,6 +404,10 @@ proxyServer.on('upgrade', async (req, socket, head) => {
     ? https.request
     : http.request;
 
+  socket.on('error', (err) => {
+    logger.error(err);
+  });
+
   prepareSocket(socket, head);
 
   let extraHeaders = {};
@@ -430,7 +434,6 @@ proxyServer.on('upgrade', async (req, socket, head) => {
     socket.write(createHeaderStringFromResponse(proxyRes));
     proxyRes.pipe(socket);
   });
-
   proxyReq.on('upgrade', async (proxyRes, proxySocket, proxyHead) => {
     // Will not be piped, so we do this manually
     proxySocket.on('error', (err) => {
@@ -511,6 +514,14 @@ function cleanupAndExit() {
     process.exit();
   });
 }
+
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+  logger.error(
+    'Uncaught exception (caused by "%s"): ',
+    origin,
+    err.stack ?? err
+  );
+});
 
 electronApp.whenReady().then(async () => {
   // Create an empty browser window so that webdriver session can be
