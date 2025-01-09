@@ -216,6 +216,7 @@ type ThunkExtraArg = {
   ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  onFailToLoadConnections: (error: Error) => void;
 };
 
 export type ConnectionsThunkAction<
@@ -1266,7 +1267,11 @@ export const loadConnections = (): ConnectionsThunkAction<
   | ConnectionsLoadSuccessAction
   | ConnectionsLoadErrorAction
 > => {
-  return async (dispatch, getState, { connectionStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { connectionStorage, onFailToLoadConnections }
+  ) => {
     if (getState().connections.status !== 'initial') {
       return;
     }
@@ -1276,6 +1281,7 @@ export const loadConnections = (): ConnectionsThunkAction<
       dispatch({ type: ActionTypes.ConnectionsLoadSuccess, connections });
     } catch (err) {
       dispatch({ type: ActionTypes.ConnectionsLoadError, error: err as any });
+      onFailToLoadConnections(err as Error);
     }
   };
 };
