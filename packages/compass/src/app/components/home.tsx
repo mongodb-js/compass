@@ -6,6 +6,7 @@ import {
   css,
   cx,
   getScrollbarStyles,
+  openToast,
   palette,
   resetGlobalCSS,
 } from '@mongodb-js/compass-components';
@@ -149,6 +150,13 @@ function HomeWithConnections({
           onExtraConnectionDataRequest={getExtraConnectionData}
           onAutoconnectInfoRequest={onAutoconnectInfoRequest}
           doNotReconnectDisconnectedAutoconnectInfo
+          onFailToLoadConnections={(error) => {
+            openToast('failed-to-load-connections', {
+              title: 'Failed to load connections',
+              description: error.message,
+              variant: 'warning',
+            });
+          }}
         >
           <Home {...props}></Home>
         </CompassConnections>

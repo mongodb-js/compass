@@ -1,6 +1,11 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { resetGlobalCSS, css, Body } from '@mongodb-js/compass-components';
+import {
+  resetGlobalCSS,
+  css,
+  Body,
+  openToast,
+} from '@mongodb-js/compass-components';
 import type { AllPreferences } from 'compass-preferences-model';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
@@ -86,6 +91,14 @@ const App = () => {
     getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
   }, [csrfToken, csrfTime]);
 
+  const onFailToLoadConnections = useCallback((error: Error) => {
+    openToast('failed-to-load-connections', {
+      title: 'Failed to load connections',
+      description: error.message,
+      variant: 'warning',
+    });
+  }, []);
+
   if (status === 'checking') {
     return null;
   }
@@ -132,6 +145,7 @@ const App = () => {
             onTrack={sandboxTelemetry.track}
             onDebug={sandboxLogger.debug}
             onLog={sandboxLogger.log}
+            onFailToLoadConnections={onFailToLoadConnections}
           ></CompassWeb>
         </Body>
       </SandboxPreferencesUpdateProvider>

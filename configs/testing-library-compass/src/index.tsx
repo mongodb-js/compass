@@ -330,6 +330,12 @@ function createWrapper(
                     <ConnectFnProvider connect={wrapperState.connect}>
                       <CompassConnections
                         appName={options.appName ?? 'TEST'}
+                        onFailToLoadConnections={
+                          options.onFailToLoadConnections ??
+                          (() => {
+                            // noop
+                          })
+                        }
                         onExtraConnectionDataRequest={
                           options.onExtraConnectionDataRequest ??
                           (() => {
