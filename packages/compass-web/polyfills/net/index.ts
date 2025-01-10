@@ -8,13 +8,7 @@ import { Duplex } from 'stream';
  * implementation
  */
 class Socket extends Duplex {
-  private _tls = false;
   private _ws: WebSocket | null = null;
-  private _setOptions: {
-    setKeepAlive?: { enabled?: boolean; initialDelay?: number };
-    setTimeout?: { timeout?: number };
-    setNoDelay?: { noDelay?: boolean };
-  } = {};
   constructor() {
     super();
   }
@@ -27,7 +21,6 @@ class Socket extends Duplex {
     lookup?: ConnectionOptions['lookup'];
     tls?: boolean;
   }) {
-    this._tls = !!options.tls;
     const { wsURL, ...atlasOptions } =
       lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
     this._ws = new WebSocket(wsURL ?? '/ws-proxy');
@@ -62,7 +55,7 @@ class Socket extends Duplex {
             const res = JSON.parse(data) as { preMessageOk: 1 };
             if (res.preMessageOk) {
               setTimeout(() => {
-                this.emit(this._tls ? 'secureConnect' : 'connect');
+                this.emit(options.tls ? 'secureConnect' : 'connect');
               });
             }
           } catch (err) {
@@ -108,19 +101,13 @@ class Socket extends Duplex {
     this._ws?.close();
     return this;
   }
-  setKeepAlive(enabled = false, initialDelay = 0) {
-    this._setOptions.setKeepAlive = { enabled, initialDelay };
+  setKeepAlive() {
     return this;
   }
-  setTimeout(timeout: number, cb?: () => void) {
-    this._setOptions.setTimeout = { timeout };
-    if (cb) {
-      this.once('timeout', cb);
-    }
+  setTimeout() {
     return this;
   }
-  setNoDelay(noDelay = true) {
-    this._setOptions.setNoDelay = { noDelay };
+  setNoDelay() {
     return this;
   }
 }
