@@ -22,6 +22,7 @@ import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import ExpandControl from './expand-control';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -107,6 +108,8 @@ export type CrudToolbarProps = {
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
   onDeleteButtonClicked: () => void;
+  onExpandAllClicked: () => void;
+  onCollapseAllClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
   page: number;
@@ -137,6 +140,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onResetClicked,
   onUpdateButtonClicked,
   onDeleteButtonClicked,
+  onExpandAllClicked,
+  onCollapseAllClicked,
   openExportFileDialog,
   outdated,
   page,
@@ -293,6 +298,12 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               <Icon glyph="ChevronRight" />
             </IconButton>
           </div>
+
+          <ExpandControl
+            onExpandAll={onExpandAllClicked}
+            onCollapseAll={onCollapseAllClicked}
+          />
+
           <ViewSwitcher
             activeView={activeDocumentView}
             onChange={viewSwitchHandler}
