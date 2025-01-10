@@ -66,12 +66,13 @@ export const PipelineResultsHeader: React.FunctionComponent<
     <div className={containerStyles} data-testid="pipeline-results-header">
       <div className={pipelineOptionsStyles}>
         <Overline>All Results</Overline>
-        <PipelineOutputOptionsMenu
-          onChangeOption={handlePipelineOutputOptionsMenuChange}
-        />
       </div>
       <div className={pipelinePaginationStyles}>
         <PipelinePagination />
+        <PipelineOutputOptionsMenu
+          buttonText=""
+          onChangeOption={handlePipelineOutputOptionsMenuChange}
+        />
         <PipelineResultsViewControls
           value={resultsViewType}
           onChange={onChangeResultsView}

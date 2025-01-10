@@ -370,14 +370,14 @@ describe('CrudToolbar Component', function () {
     });
   });
 
-  describe.only('expand controls', function () {
+  describe('Output Options', function () {
     describe('table view', function () {
       it('should be disabled', function () {
         renderCrudToolbar({
           activeDocumentView: 'Table',
         });
 
-        expect(screen.getByTitle('Expand Controls')).to.have.attribute(
+        expect(screen.getByTitle('Output Options')).to.have.attribute(
           'aria-disabled',
           'true'
         );
@@ -392,7 +392,7 @@ describe('CrudToolbar Component', function () {
           onExpandAllClicked,
         });
 
-        userEvent.click(screen.getByTitle('Expand Controls'));
+        userEvent.click(screen.getByTitle('Output Options'));
         const expandAllBtn = screen.getByText('Expand all documents');
         expect(expandAllBtn).to.be.visible;
         userEvent.click(expandAllBtn);
@@ -406,7 +406,7 @@ describe('CrudToolbar Component', function () {
           onCollapseAllClicked,
         });
 
-        userEvent.click(screen.getByTitle('Expand Controls'));
+        userEvent.click(screen.getByTitle('Output Options'));
         const collapseAllBtn = screen.getByText('Collapse all documents');
         expect(collapseAllBtn).to.be.visible;
         userEvent.click(collapseAllBtn);

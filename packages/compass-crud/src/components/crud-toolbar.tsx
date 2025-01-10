@@ -22,7 +22,6 @@ import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import ExpandControl from './expand-control';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -33,30 +32,39 @@ const crudToolbarStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: spacing[3],
-  padding: spacing[3],
+  gap: spacing[300],
+  padding: spacing[300],
 });
 
 const crudBarStyles = css({
   width: '100%',
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   justifyContent: 'space-between',
 });
 
 const toolbarLeftActionStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const toolbarRightActionStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
+});
+
+const prevNextStyles = css({
+  display: 'flex',
+  alignItems: 'center',
 });
 
 const exportCollectionButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
+const outputOptionsButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
@@ -68,6 +76,12 @@ type ExportDataOption = 'export-query' | 'export-full-collection';
 const exportDataActions: MenuAction<ExportDataOption>[] = [
   { action: 'export-query', label: 'Export query results' },
   { action: 'export-full-collection', label: 'Export the full collection' },
+];
+
+type ExpandControlsOption = 'expand-all' | 'collapse-all';
+const expandControlsOptions: MenuAction<ExpandControlsOption>[] = [
+  { action: 'expand-all', label: 'Expand all documents' },
+  { action: 'collapse-all', label: 'Collapse all documents' },
 ];
 
 const OUTDATED_WARNING = `The content is outdated and no longer in sync
@@ -278,7 +292,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             </IconButton>
           )}
 
-          <div>
+          <div className={prevNextStyles}>
             <IconButton
               data-testid="docs-toolbar-prev-page-btn"
               aria-label="Previous Page"
@@ -299,10 +313,22 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             </IconButton>
           </div>
 
-          <ExpandControl
-            onExpandAll={onExpandAllClicked}
-            onCollapseAll={onCollapseAllClicked}
-            activeView={activeDocumentView}
+          <DropdownMenuButton<ExpandControlsOption>
+            data-testid="crud-export-collection"
+            actions={expandControlsOptions}
+            onAction={(action: ExpandControlsOption) =>
+              action === 'expand-all'
+                ? onExpandAllClicked()
+                : onCollapseAllClicked()
+            }
+            buttonText=""
+            buttonProps={{
+              className: outputOptionsButtonStyles,
+              size: 'xsmall',
+              title: 'Output Options',
+              ['aria-label']: 'Output Options',
+              disabled: activeDocumentView === 'Table',
+            }}
           />
 
           <ViewSwitcher

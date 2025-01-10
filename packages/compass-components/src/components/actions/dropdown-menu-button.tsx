@@ -27,7 +27,7 @@ export type DropdownMenuButtonProps<Action extends string> = {
   activeAction?: Action;
   'data-testid'?: string;
   buttonText: string;
-  buttonProps: ButtonProps;
+  buttonProps: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
   hideOnNarrow?: boolean;
 };
 
@@ -89,7 +89,6 @@ export function DropdownMenuButton<Action extends string>({
       }) => {
         return (
           <Button
-            {...buttonProps}
             ref={menuTriggerRef}
             data-testid={dataTestId ? `${dataTestId}-show-actions` : undefined}
             onClick={(evt) => {
@@ -98,10 +97,13 @@ export function DropdownMenuButton<Action extends string>({
             }}
             rightGlyph={<Icon glyph={'CaretDown'} />}
             title={buttonText}
+            {...buttonProps}
           >
-            <span className={hideOnNarrow ? hiddenOnNarrowStyles : undefined}>
-              {buttonText}
-            </span>
+            {buttonText && (
+              <span className={hideOnNarrow ? hiddenOnNarrowStyles : undefined}>
+                {buttonText}
+              </span>
+            )}
             {children}
           </Button>
         );
