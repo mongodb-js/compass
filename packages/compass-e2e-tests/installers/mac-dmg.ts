@@ -1,12 +1,13 @@
 import path from 'path';
 import { existsSync } from 'fs';
-import type { InstalledAppInfo, Package } from './types';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from './helpers';
 
-export async function installMacDMG(
-  appName: string,
-  { filepath }: Package
-): Promise<InstalledAppInfo> {
+export async function installMacDMG({
+  appName,
+  filepath,
+}: InstallablePackage): Promise<InstalledAppInfo> {
+  // TODO: rather copy this to a temporary directory
   const fullDestinationPath = `/Applications/${appName}.app`;
 
   if (existsSync(fullDestinationPath)) {
@@ -47,7 +48,9 @@ export async function installMacDMG(
   }
 
   return Promise.resolve({
-    appName,
     appPath: `/Applications/${appName}.app`,
+    uninstall: async function () {
+      /* TODO */
+    },
   });
 }

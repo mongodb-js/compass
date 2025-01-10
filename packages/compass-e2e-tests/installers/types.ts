@@ -1,9 +1,19 @@
+export type Installer = (pkg: InstallablePackage) => Promise<InstalledAppInfo>;
+
 export type Package = {
-  filename: string;
+  appName: string;
+  packageFilepath: string;
+  // TODO: once we can download the most recent release
+  //releaseFilepath: string;
+  installer: Installer;
+};
+
+export type InstallablePackage = {
+  appName: string;
   filepath: string;
 };
 
 export type InstalledAppInfo = {
-  appName: string;
   appPath: string;
+  uninstall: () => Promise<void>;
 };
