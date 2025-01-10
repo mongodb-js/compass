@@ -52,7 +52,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           },
         ],
       },
-      'mongodb+srv://replicaSet.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&maxPoolSize=3',
+      'mongodb+srv://replicaSet.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&serverMonitoringMode=poll&maxIdleTimeMS=30000&minPoolSize=0&maxPoolSize=5',
     ],
     [
       'sharded',
@@ -90,7 +90,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           },
         ],
       },
-      'mongodb+srv://sharded.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&maxPoolSize=3&srvMaxHosts=3',
+      'mongodb+srv://sharded.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&serverMonitoringMode=poll&maxIdleTimeMS=30000&minPoolSize=0&maxPoolSize=5&srvMaxHosts=1',
     ],
     [
       'serverless',
@@ -119,7 +119,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           },
         ],
       },
-      'mongodb+srv://serverless.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&maxPoolSize=3',
+      'mongodb+srv://serverless.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&serverMonitoringMode=poll&maxIdleTimeMS=30000&minPoolSize=0&maxPoolSize=5',
     ],
   ];
 

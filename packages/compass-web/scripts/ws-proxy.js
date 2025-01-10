@@ -3,15 +3,6 @@ const net = require('net');
 const tls = require('tls');
 const { WebSocketServer } = require('ws');
 
-function serializeError(err) {
-  if (err) {
-    return {
-      name: err.name,
-      message: err.message,
-    };
-  }
-}
-
 /**
  * Creates a simple passthrough proxy that accepts a websocket connection and
  * establishes a corresponding socket connection to a server. The connection
@@ -60,7 +51,7 @@ function createWebSocketProxy(port = 1337, logger = console) {
         SOCKET_ERROR_EVENT_LIST.forEach((evt) => {
           socket.on(evt, (err) => {
             logger.log('server socket error event (%s)', evt, err);
-            ws.send(JSON.stringify({ evt, error: serializeError(err) }));
+            ws.close(evt === 'close' ? 1001 : 1011);
           });
         });
         socket.on(connectEvent, () => {
