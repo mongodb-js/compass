@@ -302,6 +302,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           <ExpandControl
             onExpandAll={onExpandAllClicked}
             onCollapseAll={onCollapseAllClicked}
+            activeView={activeDocumentView}
           />
 
           <ViewSwitcher

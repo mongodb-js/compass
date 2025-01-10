@@ -1,12 +1,15 @@
 import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
 import React from 'react';
+import { type DocumentView } from '../stores/crud-store';
 
 interface ExpandControlProps {
+  activeView: DocumentView;
   onExpandAll: () => void;
   onCollapseAll: () => void;
 }
 
 const ExpandControl: React.FunctionComponent<ExpandControlProps> = ({
+  activeView,
   onExpandAll,
   onCollapseAll,
 }) => {
@@ -17,6 +20,7 @@ const ExpandControl: React.FunctionComponent<ExpandControlProps> = ({
           size="xsmall"
           aria-label="Expand Controls"
           title="Expand Controls"
+          disabled={activeView === 'Table'}
         >
           <Icon glyph="CaretDown" />
         </Button>
