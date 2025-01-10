@@ -669,11 +669,11 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          if [[ "$IS_WINDOWS" == "true" ]]; then
+          #if [[ "$IS_WINDOWS" == "true" ]]; then
             # TODO: windows_setup
             # TODO: windows_msi
             # TODO: windows_zip
-          fi
+          #fi
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
@@ -682,15 +682,15 @@ functions:
             # TODO: osx_zip
           fi
 
-          if [[ "$IS_UBUNTU" == "true" ]]; then
+          #if [[ "$IS_UBUNTU" == "true" ]]; then
             # TODO: linux_deb
             # TODO: linux_tar
-          fi
+          #fi
 
-          if [[ "$IS_RHEL" == "true" ]]; then
+          #if [[ "$IS_RHEL" == "true" ]]; then
             # TODO: linux_rpm
             # TODO: rhel_tar
-          fi
+          #fi
 
 
   test-web-sandbox:
