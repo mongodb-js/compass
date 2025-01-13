@@ -47,7 +47,7 @@ type RHELBuildInfo = CommonBuildInfo &
   Record<typeof rhelFilenameKeys[number], string>;
 
 export function assertBuildInfoIsWindows(
-  buildInfo: any
+  buildInfo: unknown
 ): asserts buildInfo is WindowsBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', windowsFilenameKeys);
