@@ -548,8 +548,6 @@ async function processCommonOpts({
   // Ensure that the user data dir exists
   await fs.mkdir(defaultUserDataDir, { recursive: true });
 
-  console.log({ defaultUserDataDir });
-
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
