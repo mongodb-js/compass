@@ -122,7 +122,9 @@ export function DropdownMenuButton<Action extends string>({
             data-testid={actionTestId(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
-            glyph={<ActionGlyph glyph={icon} size={iconSize} />}
+            glyph={
+              icon ? <ActionGlyph glyph={icon} size={iconSize} /> : undefined
+            }
             onClick={onClick}
           >
             {label}

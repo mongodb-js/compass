@@ -14,6 +14,8 @@ const containerStyles = css({
   flex: 'none',
 });
 
+const defaultTitle = 'Output Options';
+
 export const PipelineOutputOptionsMenu: React.FunctionComponent<{
   onChangeOption: (option: PipelineOutputOption) => void;
   buttonText?: string;
@@ -24,11 +26,11 @@ export const PipelineOutputOptionsMenu: React.FunctionComponent<{
         data-testid="pipeline-output-options"
         actions={pipelineOptionsActions}
         onAction={onChangeOption}
-        buttonText={buttonText ?? 'Output Options'}
+        buttonText={buttonText ?? defaultTitle}
         buttonProps={{
           size: 'xsmall',
-          title: buttonText ?? 'Output Options',
-          ['aria-label']: buttonText ?? 'Output Options',
+          title: buttonText || defaultTitle,
+          ['aria-label']: buttonText || defaultTitle,
         }}
       ></DropdownMenuButton>
     </div>
