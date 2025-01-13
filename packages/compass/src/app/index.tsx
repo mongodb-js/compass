@@ -381,7 +381,7 @@ const app = {
 
     if (
       state.previousVersion !== DEFAULT_APP_VERSION &&
-      APP_VERSION !== state.previousVErsion
+      APP_VERSION !== state.previousVersion
     ) {
       // Wait a bit before showing the update toast.
       setTimeout(() => {
