@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 import crossSpawn from 'cross-spawn';
 import { remote } from 'webdriverio';
 import Debug from 'debug';
@@ -171,12 +173,16 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
   }
 
   const res = settledRes.value;
+  assert(
+    res.ok,
+    `Failed to authenticate in Atlas Cloud: ${res.statusText} (${res.status})`
+  );
 
-  if (res.ok === false || !(await res.json()).projectId) {
-    throw new Error(
-      `Failed to authenticate in Atlas Cloud: ${res.statusText} (${res.status})`
-    );
-  }
+  const body = await res.json();
+  assert(
+    typeof body === 'object' && body !== null && 'projectId' in body,
+    'Expected a project id'
+  );
 
   if (signal.aborted) {
     return electronProxyRemote;
