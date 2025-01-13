@@ -69,7 +69,7 @@ export function assertBuildInfoIsUbuntu(
 }
 
 export function assertBuildInfoIsRHEL(
-  buildInfo: any
+  buildInfo: unknown
 ): asserts buildInfo is RHELBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', rhelFilenameKeys);
