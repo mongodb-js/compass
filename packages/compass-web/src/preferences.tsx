@@ -41,6 +41,7 @@ export function useCompassWebPreferences(
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
+      enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: true,
       enableGenAIFeaturesAtlasProject: false,
