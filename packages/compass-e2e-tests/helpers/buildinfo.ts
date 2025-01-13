@@ -61,7 +61,7 @@ export function assertBuildInfoIsOSX(
 }
 
 export function assertBuildInfoIsUbuntu(
-  buildInfo: any
+  buildInfo: unknown
 ): buildInfo is UbuntuBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', ubuntuFilenameKeys);
