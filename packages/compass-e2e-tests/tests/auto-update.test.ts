@@ -23,11 +23,17 @@ describe('Auto-update', function () {
       await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
 
       if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
-        await browser.$(Selectors.AutoUpdateRestartButton).waitForDisplayed();
+        const restartButton = browser.$(Selectors.AutoUpdateRestartButton);
+        await restartButton.waitForDisplayed();
+
+        // We could click the restart button to apply the update and restart the
+        // app, but restarting the app confuses webdriverio or at least our test
+        // helpers. So we're going to just restart the app manually.
       } else {
-        // When auto-update is not supported the toast contains a link to down
+        // When auto-update is not supported the toast contains a link to
+        // download
         const linkElement = browser.$(Selectors.AutoUpdateDownloadLink);
-        await browser.$(linkElement).waitForDisplayed();
+        await linkElement.waitForDisplayed();
         expect(await linkElement.getAttribute('href')).to.equal(
           'https://www.mongodb.com/try/download/compass'
         );

@@ -1,6 +1,7 @@
 import { execute } from '../installers/helpers';
 import type { Package } from '../installers/types';
 
+// TODO: move this since we'll use the same for testing TO
 function testInstalledApp(
   pkg: Package,
   appPath: string,

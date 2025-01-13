@@ -209,7 +209,8 @@ async function run() {
       appName: buildInfo.productName,
       packageFilepath: path.join(compassDir, 'dist', match.filename),
       updatable: match.updatable,
-      // TODO: releaseFilepath once we download the most recent released version too
+      // TODO(COMPASS-8532): releaseFilepath once we download the most recent
+      // released version too
       installer: match.installer,
     };
 
@@ -223,7 +224,8 @@ async function run() {
       console.log(url);
       await downloadFile(url, pkg.packageFilepath);
 
-      // TODO: we need to also download releaseFilepath once we have that
+      // TODO(COMPASS-8532): we need to also download releaseFilepath once we
+      // have that
     }
 
     if (!existsSync(pkg.packageFilepath)) {
@@ -232,20 +234,8 @@ async function run() {
       );
     }
 
-    // TODO: installing either the packaged file or the released file is better
-    // done as part of tests so we can also clean up and install one after the
-    // other, but that's for a separate PR.
-    /*
-    console.log('installing', pkg.packageFilepath);
-    const installedInfo = await pkg.installer({
-      appName: pkg.appName,
-      filepath: pkg.packageFilepath,
-    });
-    console.log('testing', installedInfo.appPath);
-    await testInstalledApp(pkg, installedInfo);
-    */
     await testAutoUpdateFrom(pkg);
-    // TODO:
+    // TODO(COMPASS-8535)
     //await testAutoUpdateTo(pkg);
   } else {
     throw new Error(`${context.package} not implemented`);

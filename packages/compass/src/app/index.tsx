@@ -380,8 +380,8 @@ const app = {
     }
 
     if (
-      semver.gt(APP_VERSION, state.previousVersion) &&
-      state.previousVersion !== DEFAULT_APP_VERSION
+      state.previousVersion !== DEFAULT_APP_VERSION &&
+      APP_VERSION !== state.previousVErsion
     ) {
       // Wait a bit before showing the update toast.
       setTimeout(() => {
