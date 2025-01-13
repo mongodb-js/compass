@@ -1466,6 +1466,15 @@ function isAtlasStreamsInstance(
   }
 }
 
+// We listen for non-retry-able errors on failed server heartbeats.
+// These can happen when:
+// - A user's session has ended.
+// - The user's roles have changed.
+// - The cluster / group they are trying to connect to has since been deleted.
+// When we encounter one we disconnect. This is to avoid polluting logs/metrics
+// and to avoid constantly retrying to connect when we know it'll fail.
+// These error codes can be found at
+// https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
   [code in typeof NonRetryableErrorCodes[number]]: string;
@@ -1501,7 +1510,9 @@ const openConnectionClosedWithNonRetryableErrorToast = (
 ) => {
   openToast(`non-retryable-error-encountered--${connectionInfo.id}`, {
     title: `Unable to connect to ${getConnectionTitle(connectionInfo)}`,
-    description: `Reason: ${getDescriptionForNonRetryableError(error)}`,
+    description: `Reason: ${getDescriptionForNonRetryableError(
+      error
+    )}. To use continue to use this connection either disconnect and reconnect, or refresh your page.`,
     variant: 'warning',
   });
 };
@@ -1701,34 +1712,32 @@ const connectWithOptions = (
         }
 
         let showedNonRetryableErrorToast = false;
-        if (connectionInfo.atlasMetadata) {
-          // When we're on cloud we listen for non-retry-able errors on failed server
-          // heartbeats. These can happen when:
-          // - A user's session has ended.
-          // - The user's roles have changed.
-          // - The cluster / group they are trying to connect to has since been deleted.
-          // When we encounter one we disconnect. This is to avoid polluting logs/metrics
-          // and to avoid constantly retrying to connect when we know it'll fail.
-          dataService.on(
-            'serverHeartbeatFailed',
-            (evt: ServerHeartbeatFailedEvent) => {
-              if (!isNonRetryableHeartbeatFailure(evt)) {
-                return;
-              }
-
-              if (!dataService.isConnected() || showedNonRetryableErrorToast) {
-                return;
-              }
-
-              openConnectionClosedWithNonRetryableErrorToast(
-                connectionInfo,
-                evt.failure
-              );
-              showedNonRetryableErrorToast = true;
-              void dataService.disconnect();
+        // Listen for non-retry-able errors on failed server heartbeats.
+        // These can happen when:
+        // - A user's session has ended.
+        // - The user's roles have changed.
+        // - The cluster / group they are trying to connect to has since been deleted.
+        // When we encounter one we disconnect. This is to avoid polluting logs/metrics
+        // and to avoid constantly retrying to connect when we know it'll fail.
+        dataService.on(
+          'serverHeartbeatFailed',
+          (evt: ServerHeartbeatFailedEvent) => {
+            if (!isNonRetryableHeartbeatFailure(evt)) {
+              return;
             }
-          );
-        }
+
+            if (!dataService.isConnected() || showedNonRetryableErrorToast) {
+              return;
+            }
+
+            openConnectionClosedWithNonRetryableErrorToast(
+              connectionInfo,
+              evt.failure
+            );
+            showedNonRetryableErrorToast = true;
+            void dataService.disconnect();
+          }
+        );
 
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {
