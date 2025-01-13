@@ -1,12 +1,34 @@
-import { expect } from 'chai';
-import {
-  init,
-  cleanup,
-  //screenshotIfFailed,
-  Selectors,
-} from '../helpers/compass';
-
+import { execute } from '../installers/helpers';
 import type { Package } from '../installers/types';
+
+function testInstalledApp(
+  pkg: Package,
+  appPath: string,
+  env: Record<string, string>
+): Promise<void> {
+  return execute(
+    'npm',
+    [
+      'run',
+      '--unsafe-perm',
+      'test-packaged',
+      '--workspace',
+      'compass-e2e-tests',
+      '--',
+      '--test-filter=auto-update',
+    ],
+    {
+      env: {
+        ...process.env,
+        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+        AUTO_UPDATE_UPDATABLE: pkg.updatable.toString(),
+        COMPASS_APP_NAME: pkg.appName,
+        COMPASS_APP_PATH: appPath,
+        ...env,
+      },
+    }
+  );
+}
 
 export async function testAutoUpdateFrom(pkg: Package) {
   // install the app
@@ -18,49 +40,16 @@ export async function testAutoUpdateFrom(pkg: Package) {
 
   console.log(appPath);
 
-  process.env.COMPASS_APP_NAME = pkg.appName;
-  process.env.COMPASS_APP_PATH = appPath;
-
   try {
     // TODO: start the autoupdate server
     try {
-      // run the app and wait for it to auto-update
-      const compass = await init('auto-update from', { firstRun: true });
-      const { browser } = compass;
-
-      await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
-
-      if (pkg.updatable) {
-        await browser.$(Selectors.AutoUpdateRestartButton).waitForDisplayed();
-      } else {
-        // When auto-update is not supported the toast contains a link to down
-        const linkElement = browser.$(Selectors.AutoUpdateDownloadLink);
-        await browser.$(linkElement).waitForDisplayed();
-        expect(await linkElement.getAttribute('href')).to.equal(
-          'https://www.mongodb.com/try/download/compass'
-        );
-      }
-
-      await cleanup(compass);
-
-      if (pkg.updatable) {
-        // run the app again and check that the version changed
-        const compass = await init('auto-update from restart', {
-          firstRun: false,
-        });
-        const { browser } = compass;
-        await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
-        await browser
-          .$(Selectors.AutoUpdateReleaseNotesLink)
-          .waitForDisplayed();
-      }
+      await testInstalledApp(pkg, appPath, {
+        AUTO_UPDATE_FROM: 'true',
+      });
     } finally {
       // TODO: stop the autoupdate server
     }
   } finally {
-    delete process.env.COMPASS_APP_NAME;
-    delete process.env.COMPASS_APP_PATH;
-
     // remove the app
     await uninstall();
   }

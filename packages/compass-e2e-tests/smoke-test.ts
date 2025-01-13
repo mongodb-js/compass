@@ -284,33 +284,6 @@ async function downloadFile(url: string, targetFile: string): Promise<void> {
   });
 }
 
-/*
-function testInstalledApp(
-  pkg: Package,
-  appInfo: InstalledAppInfo
-): Promise<void> {
-  return execute(
-    'npm',
-    [
-      'run',
-      '--unsafe-perm',
-      'test-packaged',
-      '--workspace',
-      'compass-e2e-tests',
-      '--',
-      '--test-filter=time-to-first-query',
-    ],
-    {
-      env: {
-        ...process.env,
-        COMPASS_APP_NAME: pkg.appName,
-        COMPASS_APP_PATH: appInfo.appPath,
-      },
-    }
-  );
-}
-*/
-
 run()
   .then(function () {
     console.log('done');
