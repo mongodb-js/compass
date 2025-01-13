@@ -74,6 +74,7 @@ describe('CompassWeb', function () {
             enableCreatingNewConnections: true,
             ...props.initialPreferences,
           }}
+          onFailToLoadConnections={() => {}}
         ></CompassWeb>
       </ConnectFnProvider>
     );

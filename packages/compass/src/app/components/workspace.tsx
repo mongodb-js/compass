@@ -12,7 +12,7 @@ import type {
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
-import { WorkspaceTab as WelcomeWorkspace } from '@mongodb-js/compass-welcome';
+import { DesktopWorkspaceTab as WelcomeWorkspace } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { WorkspaceTab as PerformanceWorkspace } from '@mongodb-js/compass-serverstats';
 import {

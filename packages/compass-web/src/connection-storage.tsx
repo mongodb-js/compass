@@ -168,10 +168,16 @@ export function buildConnectionInfoFromClusterDescription(
   connectionString.searchParams.set('authMechanism', 'MONGODB-X509');
   connectionString.searchParams.set('authSource', '$external');
 
+  // Make sure server monitoring is done without streaming
+  connectionString.searchParams.set('serverMonitoringMode', 'poll');
+  // Allow driver to clean up idle connections from the pool
+  connectionString.searchParams.set('maxIdleTimeMS', '30000');
+
   // Limit connection pool for replicas and sharded
-  connectionString.searchParams.set('maxPoolSize', '3');
+  connectionString.searchParams.set('minPoolSize', '0');
+  connectionString.searchParams.set('maxPoolSize', '5');
   if (isSharded(description)) {
-    connectionString.searchParams.set('srvMaxHosts', '3');
+    connectionString.searchParams.set('srvMaxHosts', '1');
   }
 
   for (const [key, value] of Object.entries(extraConnectionOptions ?? {})) {
@@ -285,7 +291,9 @@ class AtlasCloudConnectionStorage
 
     return clusterDescriptions.map((description) => {
       return buildConnectionInfoFromClusterDescription(
-        this.atlasService.driverProxyEndpoint(),
+        this.atlasService.driverProxyEndpoint(
+          `/clusterConnection/${this.projectId}`
+        ),
         this.orgId,
         this.projectId,
         description,

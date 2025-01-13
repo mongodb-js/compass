@@ -1,4 +1,5 @@
 import WelcomeModal from './modal';
-import WelcomeTab from './welcome-tab';
+import DesktopWelcomeTab from './desktop-welcome-tab';
+import WebWelcomeTab from './web-welcome-tab';
 
-export { WelcomeModal, WelcomeTab };
+export { WelcomeModal, DesktopWelcomeTab, WebWelcomeTab };
