@@ -5,6 +5,7 @@ export type Package = {
   packageFilepath: string;
   // TODO: once we can download the most recent release
   //releaseFilepath: string;
+  updatable: boolean;
   installer: Installer;
 };
 

@@ -8,9 +8,8 @@ import { hideBin } from 'yargs/helpers';
 import https from 'https';
 import { pick } from 'lodash';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
-import type { InstalledAppInfo, Package, Installer } from './installers/types';
+import type { Package, Installer } from './installers/types';
 import { installMacDMG } from './installers/mac-dmg';
-import { execute } from './installers/helpers';
 import {
   assertBuildInfoIsOSX,
   assertBuildInfoIsRHEL,
@@ -18,6 +17,7 @@ import {
   assertBuildInfoIsWindows,
   assertCommonBuildInfo,
 } from './helpers/buildinfo';
+import { testAutoUpdateFrom } from './smoketests/auto-update-from';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
@@ -202,12 +202,13 @@ async function run() {
   }
 
   if (match) {
-    const pkg = {
+    const pkg: Package = {
       // we need appName because it is the name of the executable inside the
       // package, regardless of what the package filename is named or where it
       // gets installed
       appName: buildInfo.productName,
       packageFilepath: path.join(compassDir, 'dist', match.filename),
+      updatable: match.updatable,
       // TODO: releaseFilepath once we download the most recent released version too
       installer: match.installer,
     };
@@ -234,6 +235,7 @@ async function run() {
     // TODO: installing either the packaged file or the released file is better
     // done as part of tests so we can also clean up and install one after the
     // other, but that's for a separate PR.
+    /*
     console.log('installing', pkg.packageFilepath);
     const installedInfo = await pkg.installer({
       appName: pkg.appName,
@@ -241,6 +243,10 @@ async function run() {
     });
     console.log('testing', installedInfo.appPath);
     await testInstalledApp(pkg, installedInfo);
+    */
+    await testAutoUpdateFrom(pkg);
+    // TODO:
+    //await testAutoUpdateTo(pkg);
   } else {
     throw new Error(`${context.package} not implemented`);
   }
@@ -278,6 +284,7 @@ async function downloadFile(url: string, targetFile: string): Promise<void> {
   });
 }
 
+/*
 function testInstalledApp(
   pkg: Package,
   appInfo: InstalledAppInfo
@@ -302,6 +309,7 @@ function testInstalledApp(
     }
   );
 }
+*/
 
 run()
   .then(function () {
