@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
 
-import WelcomeImage from './welcome-image';
+import { WelcomeModalImage } from './welcome-image';
 
 const disclaimer = css({
   padding: `0 ${spacing[900]}px`,
@@ -69,7 +69,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
           </div>
         ) : undefined
       }
-      graphic={<WelcomeImage width={156} height={209} />}
+      graphic={<WelcomeModalImage width={156} height={209} />}
       linkText={''}
       darkMode={darkMode}
     >

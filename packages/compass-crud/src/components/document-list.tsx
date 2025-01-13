@@ -22,7 +22,7 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
-import type { Document } from 'bson';
+import type { Document } from 'hadron-document';
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
   DOCUMENTS_STATUS_ERROR,
@@ -512,6 +512,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     [view, setCurrentViewInitialScrollTop, scrollRef, viewChanged]
   );
 
+  const onExpandAllClicked = useCallback(() => {
+    docs.forEach((doc) => !doc.expanded && doc.expand());
+  }, [docs]);
+
+  const onCollapseAllClicked = useCallback(() => {
+    docs.forEach((doc) => doc.expanded && doc.collapse());
+  }, [docs]);
+
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
       <WorkspaceContainer
@@ -533,6 +541,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onResetClicked={onResetClicked}
             onUpdateButtonClicked={onUpdateButtonClicked}
             onDeleteButtonClicked={onDeleteButtonClicked}
+            onExpandAllClicked={onExpandAllClicked}
+            onCollapseAllClicked={onCollapseAllClicked}
             openExportFileDialog={openExportFileDialog}
             outdated={outdated}
             readonly={!isEditable}

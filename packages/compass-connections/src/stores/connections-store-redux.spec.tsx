@@ -9,6 +9,7 @@ import {
   render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 const mockConnections = [
   {
@@ -46,6 +47,30 @@ describe('CompassConnections store', function () {
   afterEach(() => {
     sinon.resetHistory();
     sinon.restore();
+  });
+
+  describe('#loadAll', function () {
+    it('calls onFailToLoadConnections when it fails to loadAll connections', async function () {
+      const onFailToLoadConnectionsSpy = sinon.spy();
+      const connectionStorage = new InMemoryConnectionStorage();
+      connectionStorage.loadAll = sinon
+        .stub()
+        .rejects(new Error('loadAll failed'));
+
+      renderCompassConnections({
+        connectionStorage,
+        onFailToLoadConnections: onFailToLoadConnectionsSpy,
+      });
+
+      await waitFor(() => {
+        expect(onFailToLoadConnectionsSpy).to.have.been.calledOnce;
+      });
+
+      expect(onFailToLoadConnectionsSpy.firstCall.firstArg).to.have.property(
+        'message',
+        'loadAll failed'
+      );
+    });
   });
 
   describe('#connect', function () {

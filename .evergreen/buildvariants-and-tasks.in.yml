@@ -61,12 +61,12 @@ const PACKAGE_BUILD_VARIANTS = [
 ];
 
 const SMOKETEST_BUILD_VARIANTS = [
-  {
-    name: 'smoketest-ubuntu',
-    display_name: 'Smoketest Ubuntu',
-    run_on: 'ubuntu2004-large',
-    depends_on: 'package-ubuntu',
-  },
+//  {
+//    name: 'smoketest-ubuntu',
+//    display_name: 'Smoketest Ubuntu',
+//    run_on: 'ubuntu2004-large',
+//    depends_on: 'package-ubuntu',
+//  },
   
 //  {
 //    name: 'smoketest-windows',

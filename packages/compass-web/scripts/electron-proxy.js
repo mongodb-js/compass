@@ -15,6 +15,8 @@ const {
   webpack,
   WebpackDevServer,
 } = require('@mongodb-js/webpack-config-compass');
+const http = require('http');
+const https = require('https');
 
 const webpackConfig = require('../webpack.config')(
   { WEBPACK_SERVE: true },
@@ -33,6 +35,10 @@ const WEBPACK_DEV_SERVER_PORT = process.env
   .COMPASS_WEB_HTTP_WEBPACK_DEV_SERVER_PORT
   ? Number(process.env.COMPASS_WEB_HTTP_WEBPACK_DEV_SERVER_PORT)
   : 4242;
+
+const WEBSOCKET_PROXY_PORT = process.env.COMPASS_WEBSOCKET_PROXY_PORT
+  ? Number(process.env.COMPASS_WEBSOCKET_PROXY_PORT)
+  : 1337;
 
 const CLOUD_CONFIG_VARIANTS = {
   local: {
@@ -62,9 +68,6 @@ const CLOUD_CONFIG = process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev';
 const CLOUD_HOST = CLOUD_CONFIG_VARIANTS[CLOUD_CONFIG].cloudHost;
 
 const CLOUD_ORIGIN = `${CLOUD_CONFIG_VARIANTS[CLOUD_CONFIG].protocol}//${CLOUD_HOST}`;
-
-const TEST_DB_USER = `compass-web-test-user-x509-${Date.now()}`;
-const TEST_X509_CERT_PROMISE = new Map();
 
 function isSignedOutRedirect(location) {
   if (location) {
@@ -167,11 +170,11 @@ class AtlasCloudAuthenticator {
     };
   }
 
-  async getCloudHeaders() {
+  async getCloudHeaders(hostSubdomain = '') {
     const cookie = (await this.#getCloudSessionCookies()).join('; ');
     return {
       cookie,
-      host: CLOUD_HOST,
+      host: `${hostSubdomain}${CLOUD_HOST}`,
       origin: CLOUD_ORIGIN,
     };
   }
@@ -242,111 +245,9 @@ class AtlasCloudAuthenticator {
   }
 
   async cleanupAndLogout() {
-    // When logging out, delete the test user too. If we don't do this now, we
-    // will lose a chance to do it later due to missing auth
-    try {
-      await atlasCloudAuthenticator.deleteTestDBUser();
-    } catch (err) {
-      logger.err('[electron-proxy] failed to remove the test user:', err);
-    }
     await session.defaultSession.clearStorageData({
       storages: ['cookies', 'localstorage'],
     });
-  }
-
-  #createTestDBUser(projectId) {
-    return this.#fetch(`/nds/${projectId}/users`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        awsIAMType: 'NONE',
-        db: '$external',
-        deleteAfterDate: null,
-        hasScramSha256Auth: false,
-        hasUserToDNMapping: false,
-        isEditable: true,
-        labels: [],
-        ldapAuthType: 'NONE',
-        oidcAuthType: 'NONE',
-        roles: [{ collection: null, db: 'admin', role: 'atlasAdmin' }],
-        scopes: [],
-        user: `CN=${TEST_DB_USER}`,
-        x509Type: 'MANAGED',
-      }),
-    });
-  }
-
-  async #ensureTestDBUserExists(projectId) {
-    const users = await this.#fetch(`/nds/${projectId}/users`);
-    const testCertUser = users.find((user) => {
-      return (
-        user.x509Type === 'MANAGED' &&
-        user.user.replace(/^cn=/i, '') === TEST_DB_USER
-      );
-    });
-    const user = testCertUser ?? (await this.#createTestDBUser(projectId));
-    let mongodbConfigurationInProgress = true;
-    let attempts = 0;
-    while (mongodbConfigurationInProgress && attempts <= 10) {
-      attempts++;
-      await new Promise((resolve) => {
-        setTimeout(resolve, 5_000);
-      });
-      const project = await this.#fetch(`/nds/${projectId}`);
-      const configuringUserOrRoles = project?.plans?.some((plan) => {
-        return plan.moves?.some((move) => {
-          return move.name === 'ConfigureMongoDBForProject';
-        });
-      });
-      mongodbConfigurationInProgress =
-        project?.state === 'UPDATING' &&
-        (!project?.plans || configuringUserOrRoles);
-    }
-    return user;
-  }
-
-  async deleteTestDBUser() {
-    const projectId = await this.getProjectId();
-    const certUsername = encodeURIComponent(
-      `CN=${TEST_DB_USER.replace(/^cn=/i, '')}`
-    );
-    return this.#fetch(`/nds/${projectId}/users/$external/${certUsername}`, {
-      method: 'DELETE',
-    });
-  }
-
-  /**
-   *
-   * @returns {Promise<string>}
-   */
-  async getX509Cert() {
-    const projectId = await this.getProjectId();
-    if (TEST_X509_CERT_PROMISE.has(projectId)) {
-      return TEST_X509_CERT_PROMISE.get(projectId);
-    }
-    const promise = (async () => {
-      try {
-        const testUser = await this.#ensureTestDBUserExists(projectId);
-        const certUsername = encodeURIComponent(
-          `CN=${testUser.user.replace(/^cn=/i, '')}`
-        );
-        const certAuthDb = testUser.db ?? '$external';
-        return await this.#fetch(
-          `/nds/${projectId}/users/${certAuthDb}/${certUsername}/certs?monthsUntilExpiration=1`
-        );
-      } catch (err) {
-        TEST_X509_CERT_PROMISE.delete(projectId, promise);
-        logger.error(
-          '[electron-proxy] failed to issue a cert for the test user',
-          err
-        );
-        throw err;
-      }
-    })();
-    TEST_X509_CERT_PROMISE.set(projectId, promise);
-    return promise;
   }
 }
 
@@ -363,10 +264,6 @@ expressProxy.use('/authenticate', async (req, res) => {
 
   try {
     const { projectId } = await atlasCloudAuthenticator.authenticate();
-    // Start issuing the cert to save some time when signing in
-    void atlasCloudAuthenticator.getX509Cert().catch(() => {
-      // ignore errors
-    });
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ projectId }));
   } catch (err) {
@@ -385,25 +282,6 @@ expressProxy.use('/logout', async (req, res) => {
 
   await atlasCloudAuthenticator.cleanupAndLogout();
   res.statusCode = 200;
-  res.end();
-});
-
-expressProxy.use('/x509', async (req, res) => {
-  if (req.method !== 'GET') {
-    res.statusCode = 400;
-    res.end();
-    return;
-  }
-
-  try {
-    await atlasCloudAuthenticator.authenticate();
-    const cert = await atlasCloudAuthenticator.getX509Cert();
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(cert);
-  } catch (err) {
-    res.statusCode = 500;
-    res.send(err.stack ?? err.message);
-  }
   res.end();
 });
 
@@ -426,21 +304,6 @@ expressProxy.use('/projectId', async (req, res) => {
     res.statusCode = 500;
     res.send(err.stack ?? err.message);
   }
-  res.end();
-});
-
-expressProxy.use('/create-cluster', async (req, res) => {
-  if (req.method !== 'GET') {
-    res.statusCode = 400;
-    res.end();
-    return;
-  }
-
-  res.setHeader(
-    'Location',
-    `${CLOUD_ORIGIN}/v2/${await atlasCloudAuthenticator.getProjectId()}#/clusters/edit/`
-  );
-  res.statusCode = 303;
   res.end();
 });
 
@@ -472,6 +335,7 @@ expressProxy.use(
 );
 
 // Everything else is proxied directly to webpack-dev-server
+
 expressProxy.use(
   proxyMiddleware(`http://localhost:${WEBPACK_DEV_SERVER_PORT}`)
 );
@@ -482,7 +346,115 @@ logger.log('[electron-proxy] starting proxy server on port %s', PROXY_PORT);
 
 const proxyServer = expressProxy.listen(PROXY_PORT, 'localhost');
 
-const websocketProxyServer = createWebSocketProxy();
+/**
+ * Keeping a track of websocket proxy sockets so that we can clean them up on
+ * close
+ */
+const wsProxySockets = new Set();
+
+/**
+ * @param {import('stream').Duplex} socket
+ * @param {Buffer} head
+ */
+const prepareSocket = function (socket, head) {
+  wsProxySockets.add(socket);
+  socket.setTimeout(0);
+  socket.setNoDelay(true);
+  socket.setKeepAlive(true, 0);
+  if (head?.length) {
+    socket.unshift(head);
+  }
+};
+
+/**
+ * @param {http.IncomingMessage} res
+ * @param {Record<string, string | false>} headerOverride
+ */
+const createHeaderStringFromResponse = function (res, headerOverride = {}) {
+  let header = `HTTP/${res.httpVersion} ${res.statusCode} ${res.statusMessage}\r\n`;
+  for (let i = 0; i < res.rawHeaders.length; i += 2) {
+    const k = res.rawHeaders[i].toLowerCase();
+    const override = headerOverride[k];
+    const v = override ?? res.rawHeaders[i + 1];
+    delete headerOverride[k];
+    if (!v) {
+      continue;
+    }
+    header += `${k}: ${v}\r\n`;
+  }
+  for (const [k, v] of Object.entries(headerOverride)) {
+    header += `${k}: ${v}\r\n`;
+  }
+  header += '\r\n';
+  return header;
+};
+
+/**
+ * Proxying websocket requests is handled separately from express application
+ * directly on the proxy server
+ */
+proxyServer.on('upgrade', async (req, socket, head) => {
+  const isCCS = Boolean(req.url?.startsWith('/ccs'));
+  const websocketTarget = isCCS
+    ? `https://cluster-connection.${CLOUD_HOST}${
+        req.url?.replace('/ccs', '') ?? ''
+      }`
+    : `http://localhost:${WEBSOCKET_PROXY_PORT}`;
+  const createRequest = websocketTarget.startsWith('https')
+    ? https.request
+    : http.request;
+
+  socket.on('error', (err) => {
+    logger.error(err);
+  });
+
+  prepareSocket(socket, head);
+
+  let extraHeaders = {};
+
+  if (isCCS) {
+    extraHeaders = await atlasCloudAuthenticator.getCloudHeaders(
+      'cluster-connection.'
+    );
+  }
+
+  const proxyReq = createRequest(websocketTarget, {
+    method: req.method,
+    headers: { ...req.headers, ...extraHeaders },
+  });
+
+  proxyReq.on('error', (err) => {
+    logger.error(err);
+    socket.end();
+  });
+
+  proxyReq.on('response', (proxyRes) => {
+    // We only get response back if upgrade didn't happen, so stream back
+    // whatever server responded (it's probably an error)
+    socket.write(createHeaderStringFromResponse(proxyRes));
+    proxyRes.pipe(socket);
+  });
+  proxyReq.on('upgrade', async (proxyRes, proxySocket, proxyHead) => {
+    // Will not be piped, so we do this manually
+    proxySocket.on('error', (err) => {
+      logger.error(err);
+      socket.end();
+    });
+    prepareSocket(proxySocket, proxyHead);
+    socket.write(
+      createHeaderStringFromResponse(proxyRes, {
+        'access-control-allow-credentials': false,
+        'access-control-allow-origin': false,
+        'set-cookie': false,
+      })
+    );
+    proxySocket.pipe(socket).pipe(proxySocket);
+  });
+
+  proxyReq.end();
+});
+
+const websocketProxyServer = createWebSocketProxy(WEBSOCKET_PROXY_PORT);
 
 const webpackCompiler = webpack(webpackConfig);
 
@@ -518,6 +490,11 @@ function cleanupAndExit() {
       proxyServer.close(resolve);
     }),
 
+    // close all proxy sockets
+    Array.from(wsProxySockets.values()).map((socket) => {
+      return socket.destroy();
+    }),
+
     // close the driver websocket proxy server
     Array.from(websocketProxyServer.clients.values()).map((ws) => {
       return ws.terminate();
@@ -537,6 +514,14 @@ function cleanupAndExit() {
     process.exit();
   });
 }
+
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+  logger.error(
+    'Uncaught exception (caused by "%s"): ',
+    origin,
+    err.stack ?? err
+  );
+});
 
 electronApp.whenReady().then(async () => {
   // Create an empty browser window so that webdriver session can be

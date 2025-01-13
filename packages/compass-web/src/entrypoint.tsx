@@ -55,7 +55,7 @@ import type {
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
@@ -150,6 +150,11 @@ type CompassWebProps = {
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
+
+  /**
+   * Callback prop called when connections fail to load
+   */
+  onFailToLoadConnections: (err: Error) => void;
 };
 
 function CompassWorkspace({
@@ -253,6 +258,7 @@ const CompassWeb = ({
   onDebug,
   onTrack,
   onOpenConnectViaModal,
+  onFailToLoadConnections,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
@@ -335,6 +341,7 @@ const CompassWeb = ({
                   >
                     <CompassConnections
                       appName={appName ?? 'Compass Web'}
+                      onFailToLoadConnections={onFailToLoadConnections}
                       onExtraConnectionDataRequest={() => {
                         return Promise.resolve([{}, null] as [
                           Record<string, unknown>,

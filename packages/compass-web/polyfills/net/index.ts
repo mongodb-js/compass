@@ -2,10 +2,6 @@ import { ipVersion } from 'is-ip';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
 
-const WS_PROXY_PORT = process.env.COMPASS_WEB_WS_PROXY_PORT
-  ? Number(process.env.COMPASS_WEB_WS_PROXY_PORT)
-  : 1337;
-
 /**
  * net.Socket interface that works over the WebSocket connection. For now, only
  * used when running compass-web in a local sandbox, mms has their own
@@ -13,11 +9,6 @@ const WS_PROXY_PORT = process.env.COMPASS_WEB_WS_PROXY_PORT
  */
 class Socket extends Duplex {
   private _ws: WebSocket | null = null;
-  private _setOptions: {
-    setKeepAlive?: { enabled?: boolean; initialDelay?: number };
-    setTimeout?: { timeout?: number };
-    setNoDelay?: { noDelay?: boolean };
-  } = {};
   constructor() {
     super();
   }
@@ -30,17 +21,19 @@ class Socket extends Duplex {
     lookup?: ConnectionOptions['lookup'];
     tls?: boolean;
   }) {
-    const { wsURL, ...atlasOptions } = lookup?.() ?? {};
-    this._ws = new WebSocket(wsURL ?? `ws://localhost:${WS_PROXY_PORT}`);
+    const { wsURL, ...atlasOptions } =
+      lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
+    this._ws = new WebSocket(wsURL ?? '/ws-proxy');
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(
       'open',
       () => {
         const connectMsg = JSON.stringify({
-          connectOptions: options,
-          atlasOptions:
-            Object.keys(atlasOptions).length > 0 ? atlasOptions : undefined,
-          setOptions: this._setOptions,
+          port: options.port,
+          host: options.host,
+          tls: options.tls ?? false,
+          clusterName: atlasOptions.clusterName,
+          ok: 1,
         });
         setTimeout(() => {
           this._ws?.send(connectMsg);
@@ -59,16 +52,12 @@ class Socket extends Duplex {
       ({ data }: MessageEvent<string | ArrayBuffer>) => {
         if (typeof data === 'string') {
           try {
-            const { evt, error } = JSON.parse(data) as {
-              evt: string;
-              error?: Error;
-            };
-            setTimeout(() => {
-              this.emit(
-                evt,
-                evt === 'error' ? Object.assign(new Error(), error) : undefined
-              );
-            });
+            const res = JSON.parse(data) as { preMessageOk: 1 };
+            if (res.preMessageOk) {
+              setTimeout(() => {
+                this.emit(options.tls ? 'secureConnect' : 'connect');
+              });
+            }
           } catch (err) {
             // eslint-disable-next-line no-console
             console.error('error parsing proxy message "%s":', data, err);
@@ -112,19 +101,13 @@ class Socket extends Duplex {
     this._ws?.close();
     return this;
   }
-  setKeepAlive(enabled = false, initialDelay = 0) {
-    this._setOptions.setKeepAlive = { enabled, initialDelay };
+  setKeepAlive() {
     return this;
   }
-  setTimeout(timeout: number, cb?: () => void) {
-    this._setOptions.setTimeout = { timeout };
-    if (cb) {
-      this.once('timeout', cb);
-    }
+  setTimeout() {
     return this;
   }
-  setNoDelay(noDelay = true) {
-    this._setOptions.setNoDelay = { noDelay };
+  setNoDelay() {
     return this;
   }
 }

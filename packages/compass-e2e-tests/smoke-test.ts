@@ -8,9 +8,16 @@ import { hideBin } from 'yargs/helpers';
 import https from 'https';
 import { pick } from 'lodash';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
-import type { InstalledAppInfo, Package } from './installers/types';
+import type { InstalledAppInfo, Package, Installer } from './installers/types';
 import { installMacDMG } from './installers/mac-dmg';
 import { execute } from './installers/helpers';
+import {
+  assertBuildInfoIsOSX,
+  assertBuildInfoIsRHEL,
+  assertBuildInfoIsUbuntu,
+  assertBuildInfoIsWindows,
+  assertCommonBuildInfo,
+} from './helpers/buildinfo';
 
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
@@ -25,28 +32,20 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
-  .option('devVersion', {
+  .option('version', {
     type: 'string',
     // For dev versions we need this from evergreen. For beta or stable (or by
     // default, ie. when testing a locally packaged app) we get it from the
     // package.json
     default: process.env.DEV_VERSION_IDENTIFIER,
+    description:
+      'Will be read from packages/compass/package.json if not specified',
   })
-  .option('isWindows', {
-    type: 'boolean',
-    default: process.env.IS_WINDOWS === 'true',
-  })
-  .option('isOSX', {
-    type: 'boolean',
-    default: process.env.IS_OSX === 'true',
-  })
-  .option('isRHEL', {
-    type: 'boolean',
-    default: process.env.IS_RHEL === 'true',
-  })
-  .option('isUbuntu', {
-    type: 'boolean',
-    default: process.env.IS_UBUNTU === 'true',
+  .option('platform', {
+    type: 'string',
+    choices: ['win32', 'darwin', 'linux'],
+    demandOption: true,
+    default: process.env.PLATFORM ?? process.platform,
   })
   .option('arch', {
     type: 'string',
@@ -54,14 +53,25 @@ const argv = yargs(hideBin(process.argv))
     demandOption: true,
     default: process.env.ARCH ?? process.arch,
   })
+  .option('package', {
+    type: 'string',
+    choices: [
+      'windows_setup',
+      'windows_msi',
+      'windows_zip',
+      'osx_dmg',
+      'osx_zip',
+      'linux_deb',
+      'linux_tar',
+      'linux_rpm',
+      'rhel_tar',
+    ],
+    demandOption: true,
+    description: 'Which package to test',
+  })
   .option('skipDownload', {
     type: 'boolean',
     description: "Don't download all assets before starting",
-  })
-  .option('extension', {
-    type: 'string',
-    description:
-      'If specified it will only run the smoke tests for the specified installer/package',
   })
   .check((argv) => {
     if (!argv.skipDownload) {
@@ -72,23 +82,27 @@ const argv = yargs(hideBin(process.argv))
       }
     }
 
-    // hadron-build info can only do one platform & arch at a time
-    const platformsCount = [
-      argv.isWindows,
-      argv.isOSX,
-      argv.isUbuntu,
-      argv.isRHEL,
-    ].filter((x) => x).length;
-    if (platformsCount !== 1) {
-      throw new Error(
-        'Set exactly one of IS_WINDOWS, IS_OSX, IS_UBUNTU, IS_RHEL to true'
-      );
-    }
-
     return true;
   });
 
-type SmokeTestsContext = ReturnType<typeof argv['parseSync']>;
+type SmokeTestsContext = {
+  bucketName?: string;
+  bucketKeyPrefix?: string;
+  version?: string;
+  platform: 'win32' | 'darwin' | 'linux';
+  arch: 'x64' | 'arm64';
+  package:
+    | 'windows_setup'
+    | 'windows_msi'
+    | 'windows_zip'
+    | 'osx_dmg'
+    | 'osx_zip'
+    | 'linux_deb'
+    | 'linux_tar'
+    | 'linux_rpm'
+    | 'rhel_tar';
+  skipDownload?: boolean;
+};
 
 async function readJson<T extends object>(...segments: string[]): Promise<T> {
   const result = JSON.parse(
@@ -118,20 +132,16 @@ async function run() {
       'skipDownload',
       'bucketName',
       'bucketKeyPrefix',
-      'devVersion',
-      'isWindows',
-      'isOSX',
-      'isRHEL',
-      'isUbuntu',
+      'version',
+      'platform',
       'arch',
-      'extension',
+      'package',
     ])
   );
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
   // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
-  const version = context.devVersion ?? (await readPackageVersion(compassDir));
-  const platform = platformFromContext(context);
+  const version = context.version ?? (await readPackageVersion(compassDir));
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
   // build-info
@@ -139,7 +149,7 @@ async function run() {
     format: 'json',
     dir: compassDir,
     version,
-    platform,
+    platform: context.platform,
     arch: context.arch,
     out: outPath,
   };
@@ -149,186 +159,91 @@ async function run() {
 
   assertCommonBuildInfo(buildInfo);
 
-  // filter the extensions given the platform (isWindows, isOSX, isUbuntu, isRHEL) and extension
-  const { isWindows, isOSX, isRHEL, isUbuntu, extension } = context;
+  let match:
+    | { filename: string; installer: Installer; updatable: boolean }
+    | undefined = undefined;
 
-  const packages = getFilteredPackages(compassDir, buildInfo, {
-    isWindows,
-    isOSX,
-    isRHEL,
-    isUbuntu,
-    extension,
-  });
+  if (context.package === 'windows_setup') {
+    assertBuildInfoIsWindows(buildInfo);
+    // TODO
+  } else if (context.package === 'windows_msi') {
+    assertBuildInfoIsWindows(buildInfo);
+    // TODO
+  } else if (context.package === 'windows_zip') {
+    assertBuildInfoIsWindows(buildInfo);
+    // TODO
+  } else if (context.package === 'osx_dmg') {
+    assertBuildInfoIsOSX(buildInfo);
 
-  if (!context.skipDownload) {
-    await Promise.all(
-      packages.map(async ({ filename, filepath }) => {
-        await fs.mkdir(path.dirname(filepath), { recursive: true });
-        const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${filename}`;
-        console.log(url);
-        return downloadFile(url, filepath);
-      })
-    );
+    const filename = buildInfo.osx_dmg_filename;
+    match = {
+      filename,
+      installer: installMacDMG,
+      // The tests need to know whether to expect the path where auto-update
+      // works automatically or if Compass will only notify the user of an
+      // update.
+      updatable: true,
+    };
+  } else if (context.package === 'osx_zip') {
+    assertBuildInfoIsOSX(buildInfo);
+    // TODO
+  } else if (context.package === 'linux_deb') {
+    assertBuildInfoIsUbuntu(buildInfo);
+    // TODO
+  } else if (context.package === 'linux_tar') {
+    assertBuildInfoIsUbuntu(buildInfo);
+    // TODO
+  } else if (context.package === 'linux_rpm') {
+    assertBuildInfoIsRHEL(buildInfo);
+    // TODO
+  } else if (context.package === 'rhel_tar') {
+    assertBuildInfoIsRHEL(buildInfo);
+    // TODO
   }
 
-  verifyPackagesExist(packages);
+  if (match) {
+    const pkg = {
+      // we need appName because it is the name of the executable inside the
+      // package, regardless of what the package filename is named or where it
+      // gets installed
+      appName: buildInfo.productName,
+      packageFilepath: path.join(compassDir, 'dist', match.filename),
+      // TODO: releaseFilepath once we download the most recent released version too
+      installer: match.installer,
+    };
 
-  // TODO(COMPASS-8533): extract or install each package and then test the Compass binary
-  for (const pkg of packages) {
-    let appInfo: InstalledAppInfo | undefined = undefined;
+    if (!context.skipDownload) {
+      assert(
+        context.bucketName !== undefined &&
+          context.bucketKeyPrefix !== undefined
+      );
+      await fs.mkdir(path.dirname(pkg.packageFilepath), { recursive: true });
+      const url = `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${match.filename}`;
+      console.log(url);
+      await downloadFile(url, pkg.packageFilepath);
 
-    console.log('installing', pkg.filepath);
-
-    if (pkg.filename.endsWith('.dmg')) {
-      appInfo = await installMacDMG(buildInfo.productName, pkg);
+      // TODO: we need to also download releaseFilepath once we have that
     }
 
-    // TODO: all the other installers go here
-
-    if (appInfo) {
-      console.log('testing', appInfo.appPath);
-      await testInstalledApp(appInfo);
-    } else {
-      console.log(`no app got installed for ${pkg.filename}`);
+    if (!existsSync(pkg.packageFilepath)) {
+      throw new Error(
+        `${pkg.packageFilepath} does not exist. Did you forget to download or package?`
+      );
     }
-  }
-}
 
-function platformFromContext(
-  context: SmokeTestsContext
-): typeof process.platform {
-  if (context.isWindows) {
-    return 'win32';
-  }
-
-  if (context.isOSX) {
-    return 'darwin';
-  }
-
-  if (context.isRHEL || context.isUbuntu) {
-    return 'linux';
-  }
-
-  return process.platform;
-}
-
-type PackageFilterConfig = Pick<
-  SmokeTestsContext,
-  'isWindows' | 'isOSX' | 'isRHEL' | 'isUbuntu' | 'extension'
->;
-
-// subsets of the hadron-build info result
-
-const commonKeys = ['productName'];
-type CommonBuildInfo = Record<typeof commonKeys[number], string>;
-
-function assertCommonBuildInfo(
-  buildInfo: unknown
-): asserts buildInfo is CommonBuildInfo {
-  assert(
-    typeof buildInfo === 'object' && buildInfo !== null,
-    'Expected buildInfo to be an object'
-  );
-  for (const key of commonKeys) {
-    assert(key in buildInfo, `Expected buildInfo to have '${key}'`);
-  }
-}
-
-const windowsFilenameKeys = [
-  'windows_setup_filename',
-  'windows_msi_filename',
-  'windows_zip_filename',
-  'windows_nupkg_full_filename',
-] as const;
-type WindowsBuildInfo = Record<typeof windowsFilenameKeys[number], string>;
-
-const osxFilenameKeys = ['osx_dmg_filename', 'osx_zip_filename'] as const;
-type OSXBuildInfo = Record<typeof osxFilenameKeys[number], string>;
-
-const ubuntuFilenameKeys = [
-  'linux_deb_filename',
-  'linux_tar_filename',
-] as const;
-type UbuntuBuildInfo = Record<typeof ubuntuFilenameKeys[number], string>;
-
-const rhelFilenameKeys = ['linux_rpm_filename', 'rhel_tar_filename'] as const;
-type RHELBuildInfo = Record<typeof rhelFilenameKeys[number], string>;
-
-function buildInfoIsWindows(buildInfo: any): buildInfo is WindowsBuildInfo {
-  for (const key of windowsFilenameKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function buildInfoIsOSX(buildInfo: any): buildInfo is OSXBuildInfo {
-  for (const key of osxFilenameKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function buildInfoIsUbuntu(buildInfo: any): buildInfo is UbuntuBuildInfo {
-  for (const key of ubuntuFilenameKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function buildInfoIsRHEL(buildInfo: any): buildInfo is RHELBuildInfo {
-  for (const key of rhelFilenameKeys) {
-    if (!buildInfo[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function getFilteredPackages(
-  compassDir: string,
-  buildInfo: any,
-  config: PackageFilterConfig
-): Package[] {
-  let names: string[] = [];
-
-  if (config.isWindows) {
-    if (!buildInfoIsWindows(buildInfo)) {
-      throw new Error('missing windows package keys');
-    }
-    names = windowsFilenameKeys.map((key) => buildInfo[key]);
-  } else if (config.isOSX) {
-    if (!buildInfoIsOSX(buildInfo)) {
-      throw new Error('missing osx package keys');
-    }
-    names = osxFilenameKeys.map((key) => buildInfo[key]);
-  } else if (config.isRHEL) {
-    if (!buildInfoIsRHEL(buildInfo)) {
-      throw new Error('missing rhel package keys');
-    }
-    names = rhelFilenameKeys.map((key) => buildInfo[key]);
-  } else if (config.isUbuntu) {
-    if (!buildInfoIsUbuntu(buildInfo)) {
-      throw new Error('missing ubuntu package keys');
-    }
-    names = ubuntuFilenameKeys.map((key) => buildInfo[key]);
-  }
-
-  const extension = config.extension;
-
-  return names
-    .filter((filename) => !extension || filename.endsWith(extension))
-    .map((filename) => {
-      return {
-        filename,
-        filepath: path.join(compassDir, 'dist', filename),
-      };
+    // TODO: installing either the packaged file or the released file is better
+    // done as part of tests so we can also clean up and install one after the
+    // other, but that's for a separate PR.
+    console.log('installing', pkg.packageFilepath);
+    const installedInfo = await pkg.installer({
+      appName: pkg.appName,
+      filepath: pkg.packageFilepath,
     });
+    console.log('testing', installedInfo.appPath);
+    await testInstalledApp(pkg, installedInfo);
+  } else {
+    throw new Error(`${context.package} not implemented`);
+  }
 }
 
 async function downloadFile(url: string, targetFile: string): Promise<void> {
@@ -363,17 +278,10 @@ async function downloadFile(url: string, targetFile: string): Promise<void> {
   });
 }
 
-function verifyPackagesExist(packages: Package[]): void {
-  for (const { filepath } of packages) {
-    if (!existsSync(filepath)) {
-      throw new Error(
-        `${filepath} does not exist. Did you forget to download or package?`
-      );
-    }
-  }
-}
-
-function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
+function testInstalledApp(
+  pkg: Package,
+  appInfo: InstalledAppInfo
+): Promise<void> {
   return execute(
     'npm',
     [
@@ -388,7 +296,7 @@ function testInstalledApp(appInfo: InstalledAppInfo): Promise<void> {
     {
       env: {
         ...process.env,
-        COMPASS_APP_NAME: appInfo.appName,
+        COMPASS_APP_NAME: pkg.appName,
         COMPASS_APP_PATH: appInfo.appPath,
       },
     }

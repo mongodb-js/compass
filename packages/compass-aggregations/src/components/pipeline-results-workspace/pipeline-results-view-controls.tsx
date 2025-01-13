@@ -3,7 +3,6 @@ import {
   css,
   SegmentedControl,
   SegmentedControlOption,
-  Overline,
   Icon,
   spacing,
   useId,
@@ -29,14 +28,6 @@ const PipelineResultsViewControls: React.FunctionComponent<{
       className={containerStyles}
       data-testid="pipeline-results-view-controls"
     >
-      <Overline
-        as="label"
-        id={labelId}
-        htmlFor={controlId}
-        aria-label="Show documents as"
-      >
-        View
-      </Overline>
       <SegmentedControl
         id={controlId}
         aria-labelledby={labelId}

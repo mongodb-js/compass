@@ -231,6 +231,7 @@ describe('Automatically connecting from the command line', function () {
         }
       );
       await browser.execute(() => {
+        // eslint-disable-next-line no-restricted-globals
         location.reload();
       });
       await browser.waitForConnectionResult(
@@ -241,6 +242,7 @@ describe('Automatically connecting from the command line', function () {
       );
       await browser.disconnectAll();
       await browser.execute(() => {
+        // eslint-disable-next-line no-restricted-globals
         location.reload();
       });
     } catch (err: any) {
