@@ -26,13 +26,18 @@ type PipelinePaginationProps = {
 const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const paginationStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
   alignItems: 'baseline',
+});
+
+const prevNextStyles = css({
+  display: 'flex',
+  alignItems: 'center',
 });
 
 export const PipelinePagination: React.FunctionComponent<
@@ -56,7 +61,7 @@ export const PipelinePagination: React.FunctionComponent<
           <PipelinePaginationCount />
         </div>
       )}
-      <div>
+      <div className={prevNextStyles}>
         <IconButton
           data-testid="pipeline-pagination-prev-action"
           aria-label="Previous page"

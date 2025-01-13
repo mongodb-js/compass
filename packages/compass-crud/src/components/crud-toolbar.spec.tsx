@@ -71,6 +71,8 @@ describe('CrudToolbar Component', function () {
             onResetClicked={noop}
             onUpdateButtonClicked={noop}
             onDeleteButtonClicked={noop}
+            onExpandAllClicked={noop}
+            onCollapseAllClicked={noop}
             openExportFileDialog={noop}
             outdated={false}
             page={0}
@@ -365,6 +367,51 @@ describe('CrudToolbar Component', function () {
 
       userEvent.click(screen.getByText(deleteDataText).closest('button')!);
       expect(onDeleteButtonClickedSpy).to.have.been.called;
+    });
+  });
+
+  describe('Output Options', function () {
+    describe('table view', function () {
+      it('should be disabled', function () {
+        renderCrudToolbar({
+          activeDocumentView: 'Table',
+        });
+
+        expect(screen.getByTitle('Output Options')).to.have.attribute(
+          'aria-disabled',
+          'true'
+        );
+      });
+    });
+
+    describe('other views', function () {
+      it('should provide "Expand all documents"', function () {
+        const onExpandAllClicked = sinon.spy();
+        renderCrudToolbar({
+          activeDocumentView: 'JSON',
+          onExpandAllClicked,
+        });
+
+        userEvent.click(screen.getByTitle('Output Options'));
+        const expandAllBtn = screen.getByText('Expand all documents');
+        expect(expandAllBtn).to.be.visible;
+        userEvent.click(expandAllBtn);
+        expect(onExpandAllClicked).to.have.been.called;
+      });
+
+      it('should provide "Collapse all documents"', function () {
+        const onCollapseAllClicked = sinon.spy();
+        renderCrudToolbar({
+          activeDocumentView: 'JSON',
+          onCollapseAllClicked,
+        });
+
+        userEvent.click(screen.getByTitle('Output Options'));
+        const collapseAllBtn = screen.getByText('Collapse all documents');
+        expect(collapseAllBtn).to.be.visible;
+        userEvent.click(collapseAllBtn);
+        expect(onCollapseAllClicked).to.have.been.called;
+      });
     });
   });
 
