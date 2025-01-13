@@ -54,7 +54,7 @@ export function assertBuildInfoIsWindows(
 }
 
 export function assertBuildInfoIsOSX(
-  buildInfo: any
+  buildInfo: unknown
 ): asserts buildInfo is OSXBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', osxFilenameKeys);
