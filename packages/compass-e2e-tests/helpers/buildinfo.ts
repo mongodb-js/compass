@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const commonKeys = ['productName'];
 type CommonBuildInfo = Record<typeof commonKeys[number], string>;
 
-function assertObjectHasKeys(obj: any, name: string, keys: readonly string[]) {
+function assertObjectHasKeys(obj: unknown, name: string, keys: readonly string[]) {
   assert(
     typeof obj === 'object' && obj !== null,
     'Expected buildInfo to be an object'
