@@ -48,7 +48,7 @@ export async function installMacDMG({
   }
 
   return Promise.resolve({
-    appPath: `/Applications/${appName}.app`,
+    appPath: fullDestinationPath,
     uninstall: async function () {
       /* TODO */
     },
