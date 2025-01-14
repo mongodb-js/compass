@@ -381,7 +381,7 @@ const app = {
 
     log.info(mongoLogId(1_001_000_338), 'Main Window', 'Recent version info', {
       previousVersion: state.previousVersion,
-      DEFAULT_APP_VERSION,
+      highestInstalledVersion: state.highestInstalledVersion,
       APP_VERSION,
     });
 

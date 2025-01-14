@@ -19,6 +19,47 @@ import {
 } from './helpers/buildinfo';
 import { testAutoUpdateFrom } from './smoketests/auto-update-from';
 
+const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
+const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
+
+function isSupportedPlatform(
+  value: unknown
+): value is typeof SUPPORTED_PLATFORMS[number] {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  return SUPPORTED_PLATFORMS.includes(value as any);
+}
+
+function isSupportedArch(
+  value: unknown
+): value is typeof SUPPORTED_ARCHS[number] {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  return SUPPORTED_ARCHS.includes(value as any);
+}
+
+function getDefaultPlatform() {
+  const {
+    platform,
+    env: { PLATFORM },
+  } = process;
+  if (isSupportedPlatform(PLATFORM)) {
+    return PLATFORM;
+  } else if (isSupportedPlatform(platform)) {
+    return platform;
+  }
+}
+
+function getDefaultArch() {
+  const {
+    arch,
+    env: { ARCH },
+  } = process;
+  if (isSupportedArch(ARCH)) {
+    return ARCH;
+  } else if (isSupportedArch(arch)) {
+    return arch;
+  }
+}
+
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
   .detectLocale(false)
@@ -42,16 +83,14 @@ const argv = yargs(hideBin(process.argv))
       'Will be read from packages/compass/package.json if not specified',
   })
   .option('platform', {
-    type: 'string',
-    choices: ['win32', 'darwin', 'linux'],
+    choices: SUPPORTED_PLATFORMS,
     demandOption: true,
-    default: process.env.PLATFORM ?? process.platform,
+    default: getDefaultPlatform(),
   })
   .option('arch', {
-    type: 'string',
-    choices: ['x64', 'arm64'],
+    choices: SUPPORTED_ARCHS,
     demandOption: true,
-    default: process.env.ARCH ?? process.arch,
+    default: getDefaultArch(),
   })
   .option('package', {
     type: 'string',
@@ -65,7 +104,7 @@ const argv = yargs(hideBin(process.argv))
       'linux_tar',
       'linux_rpm',
       'rhel_tar',
-    ],
+    ] as const,
     demandOption: true,
     description: 'Which package to test',
   })
@@ -122,9 +161,7 @@ async function readPackageVersion(packagePath: string) {
 }
 
 async function run() {
-  const parsedArgs = argv.parseSync();
-
-  const context = parsedArgs as SmokeTestsContext;
+  const context: SmokeTestsContext = argv.parseSync();
 
   console.log(
     'context',
