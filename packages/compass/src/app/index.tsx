@@ -379,8 +379,7 @@ const app = {
       });
     }
 
-    // eslint-disable-next-line no-console
-    console.log({
+    log.info(mongoLogId(1_001_000_338), 'Main Window', 'Recent version info', {
       previousVersion: state.previousVersion,
       DEFAULT_APP_VERSION,
       APP_VERSION,
