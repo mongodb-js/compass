@@ -651,6 +651,30 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  get-compass-mongodb-com:
+    - command: git.get_project
+      type: system
+      params:
+        directory: compass-mongodb-com
+    - command: shell.exec
+      type: setup
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+
+          echo "Using node version:";
+          node -v;
+          echo "Using npm version:";
+          npm -v;
+          echo "Using gcc version:"
+          gcc --version;
+          echo "Using g++ version:"
+          g++ --version;
+
+          npm i
+
   smoketest-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
