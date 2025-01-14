@@ -1467,7 +1467,7 @@ function isAtlasStreamsInstance(
 }
 
 // We listen for non-retry-able errors on failed server heartbeats.
-// These can happen when:
+// These can happen on compass web when:
 // - A user's session has ended.
 // - The user's roles have changed.
 // - The cluster / group they are trying to connect to has since been deleted.
@@ -1713,7 +1713,7 @@ const connectWithOptions = (
 
         let showedNonRetryableErrorToast = false;
         // Listen for non-retry-able errors on failed server heartbeats.
-        // These can happen when:
+        // These can happen on compass web when:
         // - A user's session has ended.
         // - The user's roles have changed.
         // - The cluster / group they are trying to connect to has since been deleted.
