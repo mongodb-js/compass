@@ -9,6 +9,14 @@ function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
   return ['M0', 'M2', 'M5'].includes(instanceSize);
 }
 
+function isFlexTier(instanceSize: string | undefined): boolean {
+  if (!instanceSize) {
+    return false;
+  }
+
+  return instanceSize === 'FLEX';
+}
+
 function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {
   const atlasMetadata = connectionInfo.atlasMetadata;
 
@@ -19,6 +27,7 @@ function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {
   const { metricsType, instanceSize } = atlasMetadata;
   return (
     !isFreeOrSharedTierCluster(instanceSize) &&
+    !isFlexTier(instanceSize) &&
     (metricsType === 'cluster' || metricsType === 'replicaSet')
   );
 }

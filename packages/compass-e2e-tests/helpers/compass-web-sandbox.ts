@@ -92,6 +92,7 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
           `--app=${COMPASS_WEB_SANDBOX_RUNNER_PATH}`,
         ],
       },
+      'wdio:enforceWebDriverClassic': true,
     },
     waitforTimeout,
   });
@@ -180,10 +181,6 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
   if (signal.aborted) {
     return electronProxyRemote;
   }
-
-  debug('Waiting for x509 cert to propagate to Atlas clusters ...');
-
-  await fetch(`${sandboxUrl}/x509`);
 
   return electronProxyRemote;
 }

@@ -7,6 +7,7 @@ const tooltipContentStyles = css({
   listStyleType: 'none',
   padding: 0,
   margin: 0,
+  textAlign: 'left',
 });
 
 const containerStyles = css({

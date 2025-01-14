@@ -45,10 +45,10 @@ export async function disconnectAll(
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
   // bit, though.
-  const connectionItems = await browser.$$(
+  const connectionItems = browser.$$(
     Selectors.Multiple.ConnectedConnectionItems
   );
-  for (const connectionItem of connectionItems) {
+  for await (const connectionItem of connectionItems) {
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
     );

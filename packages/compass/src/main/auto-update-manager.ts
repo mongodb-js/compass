@@ -739,7 +739,9 @@ class CompassAutoUpdateManager {
     }
 
     this.autoUpdateOptions = {
-      endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
+      endpoint:
+        process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE ??
+        process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       product: product,
       channel: process.env.HADRON_CHANNEL,
       platform: process.platform,

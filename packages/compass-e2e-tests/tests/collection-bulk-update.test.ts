@@ -133,7 +133,7 @@ describe('Bulk Update', () => {
     });
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
-    const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
+    const modifiedDocument = browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
     const doc = await getFormattedDocument(browser);
     return /^_id: ObjectId\('[a-f0-9]{24}'\) i: 5 j: 0 foo: "bar"$/.test(doc);
@@ -199,10 +199,8 @@ describe('Bulk Update', () => {
 
     // Wait for the favourite to show and click it
     await browser.waitUntil(async () => {
-      const favouriteElements = await browser.$$(
-        Selectors.FavouriteQueryListItem
-      );
-      for (const element of favouriteElements) {
+      const favouriteElements = browser.$$(Selectors.FavouriteQueryListItem);
+      for await (const element of favouriteElements) {
         const favouriteName = await element
           .$(Selectors.FavouriteQueryTitle)
           .getText();
@@ -231,7 +229,7 @@ describe('Bulk Update', () => {
 });
 
 async function getFormattedDocument(browser: CompassBrowser): Promise<string> {
-  const document = await browser.$(Selectors.DocumentListEntry);
+  const document = browser.$(Selectors.DocumentListEntry);
   await document.waitForDisplayed();
   return (await document.getText())
     .replace(/\n/g, ' ')

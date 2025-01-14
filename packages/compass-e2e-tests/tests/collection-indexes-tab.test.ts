@@ -45,17 +45,18 @@ describe('Collection indexes tab', function () {
   });
 
   it('lists indexes', async function () {
-    const element = await browser.$(Selectors.IndexList);
+    const element = browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
     // This seems to sometimes render an empty list momentarily before it has
     // the list loaded and browser.$$ doesn't wait.
     await browser.waitUntil(async function () {
-      const indexes = await browser.$$(Selectors.indexComponent('_id_'));
-      return indexes.length === 1;
+      const numIndexes = await browser.$$(Selectors.indexComponent('_id_'))
+        .length;
+      return numIndexes === 1;
     });
 
-    const indexFieldNameElement = await browser.$(
+    const indexFieldNameElement = browser.$(
       `${Selectors.indexComponent('_id_')} ${Selectors.IndexFieldName}`
     );
     expect(await indexFieldNameElement.getText()).to.equal('_id_');
@@ -94,7 +95,7 @@ describe('Collection indexes tab', function () {
       const indexFieldTypeSelector = `${Selectors.indexComponent(indexName)} ${
         Selectors.IndexFieldType
       }`;
-      const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
+      const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
 
       await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
@@ -127,7 +128,7 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(Selectors.CreateIndexButton);
 
-      const createModal = await browser.$(Selectors.CreateIndexModal);
+      const createModal = browser.$(Selectors.CreateIndexModal);
       await createModal.waitForDisplayed();
 
       // Select i filed name from Combobox.
@@ -139,14 +140,14 @@ describe('Collection indexes tab', function () {
       await browser.keys(['Enter']);
 
       // Select text filed type from Select.
-      const fieldTypeSelect = await browser.$(
+      const fieldTypeSelect = browser.$(
         Selectors.createIndexModalFieldTypeSelectButton(0)
       );
       await fieldTypeSelect.waitForDisplayed();
 
       await fieldTypeSelect.click();
 
-      const fieldTypeSelectMenu = await browser.$(
+      const fieldTypeSelectMenu = browser.$(
         Selectors.createIndexModalFieldTypeSelectMenu(0)
       );
       await fieldTypeSelectMenu.waitForDisplayed();
@@ -165,9 +166,7 @@ describe('Collection indexes tab', function () {
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(
-        Selectors.indexComponent('columnstore')
-      );
+      const indexComponent = browser.$(Selectors.indexComponent('columnstore'));
       await indexComponent.waitForDisplayed();
       await browser.hover(Selectors.indexComponent('columnstore'));
 
@@ -177,7 +176,7 @@ describe('Collection indexes tab', function () {
         }`
       );
 
-      const dropModal = await browser.$(Selectors.DropIndexModal);
+      const dropModal = browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();
 
       await browser.setValueVisible(

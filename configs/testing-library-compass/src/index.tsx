@@ -93,6 +93,10 @@ type TestConnectionsOptions = {
   connectFn?: (
     connectionOptions: ConnectionInfo['connectionOptions']
   ) => Partial<DataService> | Promise<Partial<DataService>>;
+  /**
+   * Connection storage mock
+   */
+  connectionStorage?: ConnectionStorage;
 } & Partial<
   Omit<
     React.ComponentProps<typeof CompassConnections>,
@@ -258,9 +262,9 @@ function createWrapper(
     preferences: new InMemoryPreferencesAccess(options.preferences),
     track: Sinon.stub(),
     logger: createNoopLogger(),
-    connectionStorage: new InMemoryConnectionStorage(
-      options.connections
-    ) as ConnectionStorage,
+    connectionStorage:
+      options.connectionStorage ??
+      (new InMemoryConnectionStorage(options.connections) as ConnectionStorage),
     connectionsStore: {
       getState: undefined as unknown as () => State,
       actions: {} as ReturnType<typeof useConnectionActions>,
@@ -330,6 +334,12 @@ function createWrapper(
                     <ConnectFnProvider connect={wrapperState.connect}>
                       <CompassConnections
                         appName={options.appName ?? 'TEST'}
+                        onFailToLoadConnections={
+                          options.onFailToLoadConnections ??
+                          (() => {
+                            // noop
+                          })
+                        }
                         onExtraConnectionDataRequest={
                           options.onExtraConnectionDataRequest ??
                           (() => {

@@ -52,9 +52,11 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     atlasServiceBackendPreset:
       | 'atlas-local'
       | 'atlas-dev'
+      | 'atlas-qa'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
+      | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
     optInDataExplorerGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
@@ -472,10 +474,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable AI Features',
       long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
     },
-    deriveValue: deriveValueFromOtherPreferencesAsLogicalAnd(
-      'enableGenAIFeatures',
-      ['enableGenAIFeaturesAtlasOrg', 'networkTraffic']
-    ),
+    deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -672,6 +671,7 @@ export const storedUserPreferencesProps: Required<{
    * Chooses atlas service backend configuration from preset
    *  - atlas-local: local mms backend (http://localhost:8080)
    *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
    *  - atlas:       mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
@@ -683,11 +683,13 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum([
-        'atlas-dev',
         'atlas-local',
+        'atlas-dev',
+        'atlas-qa',
         'atlas',
-        'web-sandbox-atlas-dev',
         'web-sandbox-atlas-local',
+        'web-sandbox-atlas-dev',
+        'web-sandbox-atlas-qa',
         'web-sandbox-atlas',
       ])
       .default('atlas'),
@@ -1069,21 +1071,6 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     state:
       s(property) ??
       (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
-  });
-}
-
-/** Helper for deriving value/state for preferences from other preferences */
-function deriveValueFromOtherPreferencesAsLogicalAnd<
-  K extends keyof AllPreferences
->(property: K, preferencesToDeriveFrom: K[]): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && preferencesToDeriveFrom.every((p) => v(p)),
-    state:
-      s(property) ??
-      (preferencesToDeriveFrom.every((p) => v(p))
-        ? preferencesToDeriveFrom.map((p) => s(p)).filter(Boolean)?.[0] ??
-          'derived'
-        : undefined),
   });
 }
 

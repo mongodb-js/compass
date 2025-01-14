@@ -76,6 +76,30 @@ buildvariants:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
+  - name: smoketest-ubuntu-compass
+    display_name: Smoketest Ubuntu (compass)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-macos-x64-compass
+    display_name: Smoketest MacOS Intel (compass)
+    run_on: macos-14-gui
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass
+  - name: smoketest-macos-arm-compass
+    display_name: Smoketest MacOS Arm64 (compass)
+    run_on: macos-14-arm64-gui
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu1804-large
@@ -180,7 +204,7 @@ buildvariants:
       - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-arm
     display_name: Test Packaged App MacOS arm64 11
-    run_on: macos-1100-arm64-gui
+    run_on: macos-11-arm64-gui
     patchable: true
     depends_on:
       - name: package-compass
@@ -191,7 +215,7 @@ buildvariants:
       - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
-    run_on: macos-1100-gui
+    run_on: macos-11-gui
     patchable: false
     depends_on:
       - name: package-compass
@@ -472,6 +496,21 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
+  - name: smoketest-compass
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: latest-enterprise
+          compass_distribution: compass
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-1
     tags:
       - required-for-publish
@@ -1726,6 +1765,7 @@ tasks:
       - run-on-pr
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
+    patchable: false
     commands:
       - func: prepare
       - func: install

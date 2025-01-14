@@ -168,7 +168,7 @@ export const FileInputBackendContext = createContext<
 
 // This hook is to create a new instance of the file input
 // backend provided by the context.
-function useFileSystemBackend() {
+function useFileInputBackend() {
   const fileInputBackendContext = useContext(FileInputBackendContext);
 
   const fileInputBackend = useRef<null | FileInputBackend>(
@@ -362,14 +362,14 @@ function FileInput({
   // To make components of Compass environment agnostic
   // (electron, browser, VSCode Webview), we use a backend context so that
   // the different environments can supply their own file system backends.
-  const backend = useFileSystemBackend();
+  const backend = useFileInputBackend();
 
   const buttonText = React.useMemo(() => {
     if (Array.isArray(values) && values.length > 0) {
       return values.map((file) => path.basename(file)).join(', ');
     }
 
-    return multi ? 'Select files...' : 'Select a file...';
+    return multi ? 'Select files…' : 'Select a file…';
   }, [values, multi]);
 
   const onFilesChanged = React.useCallback(

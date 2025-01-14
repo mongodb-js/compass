@@ -83,6 +83,17 @@ export type IdentifyTraits = {
   os_linux_release?: string;
 };
 
+export type CommonProperties = {
+  is_compass_web?: true;
+};
+
+/**
+ * All events in compass
+ */
+type CommonEvent<E extends { payload: unknown }> = E & {
+  payload: E['payload'] & CommonProperties;
+};
+
 export type ConnectionScopedProperties = {
   /**
    * The id of the connection associated to this event.
@@ -93,8 +104,8 @@ export type ConnectionScopedProperties = {
 /**
  * Events that are connection scoped are associated with one connection.
  */
-type ConnectionScoped<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & ConnectionScopedProperties;
+type ConnectionScopedEvent<E extends { payload: unknown }> = E & {
+  payload: E['payload'] & CommonProperties & ConnectionScopedProperties;
 };
 
 /**
@@ -102,7 +113,7 @@ type ConnectionScoped<E extends { payload: unknown }> = E & {
  *
  * @category Atlas
  */
-type AtlasSignInSuccessEvent = {
+type AtlasSignInSuccessEvent = CommonEvent<{
   name: 'Atlas Sign In Success';
   payload: {
     /**
@@ -110,14 +121,14 @@ type AtlasSignInSuccessEvent = {
      */
     auid: string;
   };
-};
+}>;
 
 /**
  * This event is fired when user failed to sign in to their Atlas account.
  *
  * @category Atlas
  */
-type AtlasSignInErrorEvent = {
+type AtlasSignInErrorEvent = CommonEvent<{
   name: 'Atlas Sign In Error';
   payload: {
     /**
@@ -125,14 +136,14 @@ type AtlasSignInErrorEvent = {
      */
     error: string;
   };
-};
+}>;
 
 /**
  * This event is fired when user signed out from their Atlas account.
  *
  * @category Atlas
  */
-type AtlasSignOutEvent = {
+type AtlasSignOutEvent = CommonEvent<{
   name: 'Atlas Sign Out';
   payload: {
     /**
@@ -140,14 +151,14 @@ type AtlasSignOutEvent = {
      */
     auid: string;
   };
-};
+}>;
 
 /**
  * This event is fired when user selects a use case from the aggregation panel.
  *
  * @category Aggregation Builder
  */
-type AggregationUseCaseAddedEvent = ConnectionScoped<{
+type AggregationUseCaseAddedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Use Case Added';
   payload: {
     /**
@@ -167,7 +178,7 @@ type AggregationUseCaseAddedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationEditedEvent = ConnectionScoped<{
+type AggregationEditedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Edited';
   payload: {
     /**
@@ -209,7 +220,7 @@ type AggregationEditedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationExecutedEvent = ConnectionScoped<{
+type AggregationExecutedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Executed';
   payload: {
     /**
@@ -235,7 +246,7 @@ type AggregationExecutedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationCanceledEvent = ConnectionScoped<{
+type AggregationCanceledEvent = ConnectionScopedEvent<{
   name: 'Aggregation Canceled';
   payload: Record<string, never>;
 }>;
@@ -245,7 +256,7 @@ type AggregationCanceledEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationTimedOutEvent = ConnectionScoped<{
+type AggregationTimedOutEvent = ConnectionScopedEvent<{
   name: 'Aggregation Timed Out';
   payload: {
     /**
@@ -260,7 +271,7 @@ type AggregationTimedOutEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationSavedAsViewEvent = ConnectionScoped<{
+type AggregationSavedAsViewEvent = ConnectionScopedEvent<{
   name: 'Aggregation Saved As View';
   payload: {
     /**
@@ -276,7 +287,7 @@ type AggregationSavedAsViewEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type FocusModeOpenedEvent = ConnectionScoped<{
+type FocusModeOpenedEvent = ConnectionScopedEvent<{
   name: 'Focus Mode Opened';
   payload: {
     /**
@@ -292,7 +303,7 @@ type FocusModeOpenedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type FocusModeClosedEvent = ConnectionScoped<{
+type FocusModeClosedEvent = ConnectionScopedEvent<{
   name: 'Focus Mode Closed';
   payload: {
     /**
@@ -314,7 +325,7 @@ type FocusModeClosedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type EditorTypeChangedEvent = ConnectionScoped<{
+type EditorTypeChangedEvent = ConnectionScopedEvent<{
   name: 'Editor Type Changed';
   payload: {
     /**
@@ -336,7 +347,7 @@ type EditorTypeChangedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationUseCaseSavedEvent = ConnectionScoped<{
+type AggregationUseCaseSavedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Use Case Saved';
   payload: {
     /**
@@ -351,7 +362,7 @@ type AggregationUseCaseSavedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationSavedEvent = ConnectionScoped<{
+type AggregationSavedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Saved';
   payload: {
     /**
@@ -377,7 +388,7 @@ type AggregationSavedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationOpenedEvent = ConnectionScoped<{
+type AggregationOpenedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Opened';
   payload: {
     /**
@@ -402,7 +413,7 @@ type AggregationOpenedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationDeletedEvent = ConnectionScoped<{
+type AggregationDeletedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Deleted';
   payload: {
     /**
@@ -427,7 +438,7 @@ type AggregationDeletedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationSidePanelOpenedEvent = ConnectionScoped<{
+type AggregationSidePanelOpenedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Side Panel Opened';
   payload: {
     /**
@@ -444,7 +455,7 @@ type AggregationSidePanelOpenedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type ViewUpdatedEvent = ConnectionScoped<{
+type ViewUpdatedEvent = ConnectionScopedEvent<{
   name: 'View Updated';
   payload: {
     /**
@@ -465,7 +476,7 @@ type ViewUpdatedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationExplainedEvent = ConnectionScoped<{
+type AggregationExplainedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Explained';
   payload: {
     /**
@@ -486,7 +497,7 @@ type AggregationExplainedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationExportOpenedEvent = ConnectionScoped<{
+type AggregationExportOpenedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Export Opened';
   payload: {
     /**
@@ -502,7 +513,7 @@ type AggregationExportOpenedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationExportedEvent = ConnectionScoped<{
+type AggregationExportedEvent = ConnectionScopedEvent<{
   name: 'Aggregation Exported';
   payload: {
     /**
@@ -546,7 +557,7 @@ type AggregationExportedEvent = ConnectionScoped<{
  *
  * @category Aggregation Builder
  */
-type AggregationCopiedEvent = {
+type AggregationCopiedEvent = CommonEvent<{
   name: 'Aggregation Copied';
   payload: {
     /**
@@ -559,14 +570,14 @@ type AggregationCopiedEvent = {
      */
     screen: 'my-queries';
   };
-};
+}>;
 
 /**
  * This event is fired when the shell is open
  *
  * @category Shell
  */
-type OpenShellEvent = ConnectionScoped<{
+type OpenShellEvent = ConnectionScopedEvent<{
   name: 'Open Shell';
   payload: { entrypoint?: string };
 }>;
@@ -582,7 +593,7 @@ type OpenShellEvent = ConnectionScoped<{
  *
  * @category Shell
  */
-type ShellEvent = ConnectionScoped<{
+type ShellEvent = ConnectionScopedEvent<{
   name: `Shell ${string}`;
   payload: {
     /**
@@ -602,7 +613,7 @@ type ShellEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionDisconnectedEvent = ConnectionScoped<{
+type ConnectionDisconnectedEvent = ConnectionScopedEvent<{
   name: 'Connection Disconnected';
   payload: Record<string, never>;
 }>;
@@ -612,7 +623,7 @@ type ConnectionDisconnectedEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionCreatedEvent = ConnectionScoped<{
+type ConnectionCreatedEvent = ConnectionScopedEvent<{
   name: 'Connection Created';
   payload: {
     /**
@@ -627,7 +638,7 @@ type ConnectionCreatedEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionRemovedEvent = ConnectionScoped<{
+type ConnectionRemovedEvent = ConnectionScopedEvent<{
   name: 'Connection Removed';
   payload: Record<string, never>;
 }>;
@@ -637,7 +648,7 @@ type ConnectionRemovedEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionAttemptEvent = ConnectionScoped<{
+type ConnectionAttemptEvent = ConnectionScopedEvent<{
   name: 'Connection Attempt';
   payload: {
     /**
@@ -733,7 +744,7 @@ export type ExtraConnectionData = {
  *
  * @category Connection
  */
-type NewConnectionEvent = ConnectionScoped<{
+type NewConnectionEvent = ConnectionScopedEvent<{
   name: 'New Connection';
   payload: {
     /**
@@ -808,7 +819,7 @@ type NewConnectionEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionFailedEvent = ConnectionScoped<{
+type ConnectionFailedEvent = ConnectionScopedEvent<{
   name: 'Connection Failed';
   payload: {
     /**
@@ -828,7 +839,7 @@ type ConnectionFailedEvent = ConnectionScoped<{
  *
  * @category Connection
  */
-type ConnectionExportedEvent = {
+type ConnectionExportedEvent = CommonEvent<{
   name: 'Connection Exported';
   payload: {
     /**
@@ -836,14 +847,14 @@ type ConnectionExportedEvent = {
      */
     count: number;
   };
-};
+}>;
 
 /**
  * This event is fired when connections import initiated from either UI or CLI.
  *
  * @category Connection
  */
-type ConnectionImportedEvent = {
+type ConnectionImportedEvent = CommonEvent<{
   name: 'Connection Imported';
   payload: {
     /**
@@ -851,14 +862,14 @@ type ConnectionImportedEvent = {
      */
     count: number;
   };
-};
+}>;
 
 /**
  * This event is fired when user copies a document to the clipboard.
  *
  * @category Documents
  */
-type DocumentCopiedEvent = ConnectionScoped<{
+type DocumentCopiedEvent = ConnectionScopedEvent<{
   name: 'Document Copied';
   payload: {
     /**
@@ -873,7 +884,7 @@ type DocumentCopiedEvent = ConnectionScoped<{
  *
  * @category Documents
  */
-type DocumentDeletedEvent = ConnectionScoped<{
+type DocumentDeletedEvent = ConnectionScopedEvent<{
   name: 'Document Deleted';
   payload: {
     /**
@@ -888,7 +899,7 @@ type DocumentDeletedEvent = ConnectionScoped<{
  *
  * @category Documents
  */
-type DocumentUpdatedEvent = ConnectionScoped<{
+type DocumentUpdatedEvent = ConnectionScopedEvent<{
   name: 'Document Updated';
   payload: {
     /**
@@ -903,7 +914,7 @@ type DocumentUpdatedEvent = ConnectionScoped<{
  *
  * @category Documents
  */
-type DocumentClonedEvent = ConnectionScoped<{
+type DocumentClonedEvent = ConnectionScopedEvent<{
   name: 'Document Cloned';
   payload: {
     /**
@@ -918,7 +929,7 @@ type DocumentClonedEvent = ConnectionScoped<{
  *
  * @category Documents
  */
-type DocumentInsertedEvent = ConnectionScoped<{
+type DocumentInsertedEvent = ConnectionScopedEvent<{
   name: 'Document Inserted';
   payload: {
     /**
@@ -938,7 +949,7 @@ type DocumentInsertedEvent = ConnectionScoped<{
  *
  * @category Explain
  */
-type ExplainPlanExecutedEvent = ConnectionScoped<{
+type ExplainPlanExecutedEvent = ConnectionScopedEvent<{
   name: 'Explain Plan Executed';
   payload: {
     /**
@@ -958,7 +969,7 @@ type ExplainPlanExecutedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type BulkUpdateOpenedEvent = ConnectionScoped<{
+type BulkUpdateOpenedEvent = ConnectionScopedEvent<{
   name: 'Bulk Update Opened';
   payload: {
     /**
@@ -973,7 +984,7 @@ type BulkUpdateOpenedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type BulkUpdateExecutedEvent = ConnectionScoped<{
+type BulkUpdateExecutedEvent = ConnectionScopedEvent<{
   name: 'Bulk Update Executed';
   payload: {
     /**
@@ -988,7 +999,7 @@ type BulkUpdateExecutedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type BulkDeleteOpenedEvent = ConnectionScoped<{
+type BulkDeleteOpenedEvent = ConnectionScopedEvent<{
   name: 'Bulk Delete Opened';
   payload: Record<string, never>;
 }>;
@@ -998,7 +1009,7 @@ type BulkDeleteOpenedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type BulkDeleteExecutedEvent = ConnectionScoped<{
+type BulkDeleteExecutedEvent = ConnectionScopedEvent<{
   name: 'Bulk Delete Executed';
   payload: Record<string, never>;
 }>;
@@ -1009,7 +1020,7 @@ type BulkDeleteExecutedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type BulkUpdateFavoritedEvent = ConnectionScoped<{
+type BulkUpdateFavoritedEvent = ConnectionScopedEvent<{
   name: 'Bulk Update Favorited';
   payload: { isUpdatePreviewSupported: boolean };
 }>;
@@ -1021,7 +1032,7 @@ type BulkUpdateFavoritedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type UpdateExportOpenedEvent = ConnectionScoped<{
+type UpdateExportOpenedEvent = ConnectionScopedEvent<{
   name: 'Update Export Opened';
   payload: Record<string, never>;
 }>;
@@ -1033,7 +1044,7 @@ type UpdateExportOpenedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type DeleteExportOpenedEvent = ConnectionScoped<{
+type DeleteExportOpenedEvent = ConnectionScopedEvent<{
   name: 'Delete Export Opened';
   payload: Record<string, never>;
 }>;
@@ -1045,7 +1056,7 @@ type DeleteExportOpenedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type UpdateExportedEvent = ConnectionScoped<{
+type UpdateExportedEvent = ConnectionScopedEvent<{
   name: 'Update Exported';
   payload: {
     language?:
@@ -1070,7 +1081,7 @@ type UpdateExportedEvent = ConnectionScoped<{
  *
  * @category Bulk Operations
  */
-type DeleteExportedEvent = ConnectionScoped<{
+type DeleteExportedEvent = ConnectionScopedEvent<{
   name: 'Delete Exported';
   payload: {
     language?:
@@ -1093,7 +1104,7 @@ type DeleteExportedEvent = ConnectionScoped<{
  *
  * @category Import/Export
  */
-type ExportOpenedEvent = ConnectionScoped<{
+type ExportOpenedEvent = ConnectionScopedEvent<{
   name: 'Export Opened';
   payload: {
     /**
@@ -1113,7 +1124,7 @@ type ExportOpenedEvent = ConnectionScoped<{
  *
  * @category Import/Export
  */
-type ExportCompletedEvent = ConnectionScoped<{
+type ExportCompletedEvent = ConnectionScopedEvent<{
   name: 'Export Completed';
   payload: {
     /**
@@ -1191,7 +1202,7 @@ type ExportCompletedEvent = ConnectionScoped<{
  *
  * @category Import/Export
  */
-type ImportCompletedEvent = ConnectionScoped<{
+type ImportCompletedEvent = ConnectionScopedEvent<{
   name: 'Import Completed';
   payload: {
     /**
@@ -1258,7 +1269,7 @@ type ImportCompletedEvent = ConnectionScoped<{
  *
  * @category Import/Export
  */
-type ImportErrorLogOpenedEvent = ConnectionScoped<{
+type ImportErrorLogOpenedEvent = ConnectionScopedEvent<{
   name: 'Import Error Log Opened';
   payload: {
     /**
@@ -1273,7 +1284,7 @@ type ImportErrorLogOpenedEvent = ConnectionScoped<{
  *
  * @category Import/Export
  */
-type ImportOpenedEvent = ConnectionScoped<{
+type ImportOpenedEvent = ConnectionScopedEvent<{
   name: 'Import Opened';
   payload: {
     /**
@@ -1288,7 +1299,7 @@ type ImportOpenedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexCreateOpenedEvent = ConnectionScoped<{
+type IndexCreateOpenedEvent = ConnectionScopedEvent<{
   name: 'Index Create Opened';
   payload: {
     /**
@@ -1303,7 +1314,7 @@ type IndexCreateOpenedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexCreatedEvent = ConnectionScoped<{
+type IndexCreatedEvent = ConnectionScopedEvent<{
   name: 'Index Created';
 
   payload: {
@@ -1359,7 +1370,7 @@ type IndexCreatedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexCreateFailedEvent = ConnectionScoped<{
+type IndexCreateFailedEvent = ConnectionScopedEvent<{
   name: 'Index Create Failed';
 
   payload: {
@@ -1415,7 +1426,7 @@ type IndexCreateFailedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexEditedEvent = ConnectionScoped<{
+type IndexEditedEvent = ConnectionScopedEvent<{
   name: 'Index Edited';
   payload: {
     /**
@@ -1430,7 +1441,7 @@ type IndexEditedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexDroppedEvent = ConnectionScoped<{
+type IndexDroppedEvent = ConnectionScopedEvent<{
   name: 'Index Dropped';
   payload: {
     /**
@@ -1445,7 +1456,7 @@ type IndexDroppedEvent = ConnectionScoped<{
  *
  * @category Gen AI
  */
-type AiQueryFeedbackEvent = ConnectionScoped<{
+type AiQueryFeedbackEvent = ConnectionScopedEvent<{
   name: 'AI Query Feedback';
   payload: {
     feedback: 'positive' | 'negative';
@@ -1459,7 +1470,7 @@ type AiQueryFeedbackEvent = ConnectionScoped<{
  *
  * @category Gen AI
  */
-type AiResponseFailedEvent = ConnectionScoped<{
+type AiResponseFailedEvent = ConnectionScopedEvent<{
   name: 'AI Response Failed';
   payload: {
     /**
@@ -1479,7 +1490,7 @@ type AiResponseFailedEvent = ConnectionScoped<{
  *
  * @category Gen AI
  */
-type AiPromptSubmittedEvent = ConnectionScoped<{
+type AiPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'AI Prompt Submitted';
   payload: {
     /**
@@ -1498,7 +1509,7 @@ type AiPromptSubmittedEvent = ConnectionScoped<{
  *
  * @category Gen AI
  */
-type AiResponseGeneratedEvent = ConnectionScoped<{
+type AiResponseGeneratedEvent = ConnectionScopedEvent<{
   name: 'AI Response Generated';
   payload: {
     /**
@@ -1516,7 +1527,7 @@ type AiResponseGeneratedEvent = ConnectionScoped<{
  *
  * @category Gen AI
  */
-type PipelineAiFeedbackEvent = ConnectionScoped<{
+type PipelineAiFeedbackEvent = ConnectionScopedEvent<{
   name: 'PipelineAI Feedback';
   payload: {
     /**
@@ -1542,7 +1553,7 @@ type PipelineAiFeedbackEvent = ConnectionScoped<{
  *
  * @category My Queries
  */
-type MyQueriesFilterEvent = {
+type MyQueriesFilterEvent = CommonEvent<{
   name: 'My Queries Filter';
   payload: {
     /**
@@ -1550,7 +1561,7 @@ type MyQueriesFilterEvent = {
      */
     type?: 'database' | 'collection';
   };
-};
+}>;
 
 /**
  * This event is fired when user sorts items in the list using one of the
@@ -1558,7 +1569,7 @@ type MyQueriesFilterEvent = {
  *
  * @category My Queries
  */
-type MyQueriesSortEvent = {
+type MyQueriesSortEvent = CommonEvent<{
   name: 'My Queries Sort';
   payload: {
     /**
@@ -1578,7 +1589,7 @@ type MyQueriesSortEvent = {
      */
     order: 'ascending' | 'descending';
   };
-};
+}>;
 
 /**
  * This event is fired when user filters queries using search
@@ -1586,17 +1597,17 @@ type MyQueriesSortEvent = {
  *
  * @category My Queries
  */
-type MyQueriesSearchEvent = {
+type MyQueriesSearchEvent = CommonEvent<{
   name: 'My Queries Search';
   payload: Record<string, never>;
-};
+}>;
 
 /**
  * This event is fired when user copies to clipboard the query to export.
  *
  * @category Find Queries
  */
-type QueryExportedEvent = ConnectionScoped<{
+type QueryExportedEvent = ConnectionScopedEvent<{
   name: 'Query Exported';
   payload: {
     /**
@@ -1634,7 +1645,7 @@ type QueryExportedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryExportOpenedEvent = ConnectionScoped<{
+type QueryExportOpenedEvent = ConnectionScopedEvent<{
   name: 'Query Export Opened';
   payload: Record<string, never>;
 }>;
@@ -1644,7 +1655,7 @@ type QueryExportOpenedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryExecutedEvent = ConnectionScoped<{
+type QueryExecutedEvent = ConnectionScopedEvent<{
   name: 'Query Executed';
   payload: {
     /**
@@ -1695,7 +1706,7 @@ type QueryExecutedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryResultsRefreshedEvent = ConnectionScoped<{
+type QueryResultsRefreshedEvent = ConnectionScopedEvent<{
   name: 'Query Results Refreshed';
   payload: Record<string, never>;
 }>;
@@ -1705,7 +1716,7 @@ type QueryResultsRefreshedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryOpenedEvent = ConnectionScoped<{
+type QueryHistoryOpenedEvent = ConnectionScopedEvent<{
   name: 'Query History Opened';
   payload: Record<string, never>;
 }>;
@@ -1715,7 +1726,7 @@ type QueryHistoryOpenedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryClosedEvent = ConnectionScoped<{
+type QueryHistoryClosedEvent = ConnectionScopedEvent<{
   name: 'Query History Closed';
   payload: Record<string, never>;
 }>;
@@ -1725,7 +1736,7 @@ type QueryHistoryClosedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryFavoriteUsedEvent = ConnectionScoped<{
+type QueryHistoryFavoriteUsedEvent = ConnectionScopedEvent<{
   name: 'Query History Favorite Used';
   payload: {
     /**
@@ -1750,7 +1761,7 @@ type QueryHistoryFavoriteUsedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryFavoriteRemovedEvent = ConnectionScoped<{
+type QueryHistoryFavoriteRemovedEvent = ConnectionScopedEvent<{
   name: 'Query History Favorite Removed';
   payload: {
     /**
@@ -1775,7 +1786,7 @@ type QueryHistoryFavoriteRemovedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryFavoritesEvent = ConnectionScoped<{
+type QueryHistoryFavoritesEvent = ConnectionScopedEvent<{
   name: 'Query History Favorites';
   payload: Record<string, never>;
 }>;
@@ -1785,7 +1796,7 @@ type QueryHistoryFavoritesEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryRecentEvent = ConnectionScoped<{
+type QueryHistoryRecentEvent = ConnectionScopedEvent<{
   name: 'Query History Recent';
   payload: Record<string, never>;
 }>;
@@ -1795,7 +1806,7 @@ type QueryHistoryRecentEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryRecentUsedEvent = ConnectionScoped<{
+type QueryHistoryRecentUsedEvent = ConnectionScopedEvent<{
   name: 'Query History Recent Used';
   payload: { isUpdateQuery: boolean };
 }>;
@@ -1805,7 +1816,7 @@ type QueryHistoryRecentUsedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryFavoriteAddedEvent = ConnectionScoped<{
+type QueryHistoryFavoriteAddedEvent = ConnectionScopedEvent<{
   name: 'Query History Favorite Added';
   payload: {
     /**
@@ -1820,7 +1831,7 @@ type QueryHistoryFavoriteAddedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryEditedEvent = ConnectionScoped<{
+type QueryEditedEvent = ConnectionScopedEvent<{
   name: 'Query Edited';
   payload: {
     /**
@@ -1843,7 +1854,7 @@ type QueryEditedEvent = ConnectionScoped<{
  *
  * @category Find Queries
  */
-type QueryHistoryFavoriteCopiedEvent = {
+type QueryHistoryFavoriteCopiedEvent = CommonEvent<{
   name: 'Query History Favorite Copied';
   payload: {
     /**
@@ -1856,14 +1867,14 @@ type QueryHistoryFavoriteCopiedEvent = {
      */
     screen: 'my_queries';
   };
-};
+}>;
 
 /**
  * This event is fired when user edits validation rules (without saving them).
  *
  * @category Schema Validation
  */
-type SchemaValidationEditedEvent = ConnectionScoped<{
+type SchemaValidationEditedEvent = ConnectionScopedEvent<{
   name: 'Schema Validation Edited';
   payload: {
     /**
@@ -1878,7 +1889,7 @@ type SchemaValidationEditedEvent = ConnectionScoped<{
  *
  * @category Schema Validation
  */
-type SchemaValidationUpdatedEvent = ConnectionScoped<{
+type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
   name: 'Schema Validation Updated';
   payload: {
     /**
@@ -1898,7 +1909,7 @@ type SchemaValidationUpdatedEvent = ConnectionScoped<{
  *
  * @category Schema Validation
  */
-type SchemaValidationAddedEvent = ConnectionScoped<{
+type SchemaValidationAddedEvent = ConnectionScopedEvent<{
   name: 'Schema Validation Added';
   payload: Record<string, never>;
 }>;
@@ -1908,7 +1919,7 @@ type SchemaValidationAddedEvent = ConnectionScoped<{
  *
  * @category Schema
  */
-type SchemaAnalyzedEvent = ConnectionScoped<{
+type SchemaAnalyzedEvent = ConnectionScopedEvent<{
   name: 'Schema Analyzed';
   payload: {
     /**
@@ -1943,7 +1954,7 @@ type SchemaAnalyzedEvent = ConnectionScoped<{
  *
  * @category Schema
  */
-type SchemaExportedEvent = ConnectionScoped<{
+type SchemaExportedEvent = ConnectionScopedEvent<{
   name: 'Schema Exported';
   payload: {
     /**
@@ -1973,7 +1984,7 @@ type SchemaExportedEvent = ConnectionScoped<{
  *
  * @category Performance Tab
  */
-type CurrentOpShowOperationDetailsEvent = ConnectionScoped<{
+type CurrentOpShowOperationDetailsEvent = ConnectionScopedEvent<{
   name: 'CurrentOp showOperationDetails';
   payload: Record<string, never>;
 }>;
@@ -1983,7 +1994,7 @@ type CurrentOpShowOperationDetailsEvent = ConnectionScoped<{
  *
  * @category Performance Tab
  */
-type DetailViewHideOperationDetailsEvent = ConnectionScoped<{
+type DetailViewHideOperationDetailsEvent = ConnectionScopedEvent<{
   name: 'DetailView hideOperationDetails';
   payload: Record<string, never>;
 }>;
@@ -1993,7 +2004,7 @@ type DetailViewHideOperationDetailsEvent = ConnectionScoped<{
  *
  * @category Performance Tab
  */
-type DetailViewKillOpEvent = ConnectionScoped<{
+type DetailViewKillOpEvent = ConnectionScopedEvent<{
   name: 'DetailView killOp';
   payload: Record<string, never>;
 }>;
@@ -2003,7 +2014,7 @@ type DetailViewKillOpEvent = ConnectionScoped<{
  *
  * @category Performance Tab
  */
-type PerformanceResumedEvent = ConnectionScoped<{
+type PerformanceResumedEvent = ConnectionScopedEvent<{
   name: 'Performance Resumed';
   payload: Record<string, never>;
 }>;
@@ -2013,7 +2024,7 @@ type PerformanceResumedEvent = ConnectionScoped<{
  *
  * @category Performance Tab
  */
-type PerformancePausedEvent = ConnectionScoped<{
+type PerformancePausedEvent = ConnectionScopedEvent<{
   name: 'Performance Paused';
   payload: Record<string, never>;
 }>;
@@ -2023,7 +2034,7 @@ type PerformancePausedEvent = ConnectionScoped<{
  *
  * @category Guide Cues
  */
-type GuideCueDismissedEvent = {
+type GuideCueDismissedEvent = CommonEvent<{
   name: 'Guide Cue Dismissed';
   payload: {
     /**
@@ -2042,7 +2053,7 @@ type GuideCueDismissedEvent = {
      */
     step: number;
   };
-};
+}>;
 
 /**
  * This event is fired when a user clicks "next" on the last guide cue of a
@@ -2050,7 +2061,7 @@ type GuideCueDismissedEvent = {
  *
  * @category Guide Cues
  */
-type GuideCueGroupDismissedEvent = {
+type GuideCueGroupDismissedEvent = CommonEvent<{
   name: 'Guide Cue Group Dismissed';
   payload: {
     /**
@@ -2068,14 +2079,14 @@ type GuideCueGroupDismissedEvent = {
      */
     step: number;
   };
-};
+}>;
 
 /**
  * This event is fired when signal icon badge is rendered on the screen visible to the user.
  *
  * @category Proactive Performance Insights
  */
-type SignalShownEvent = {
+type SignalShownEvent = CommonEvent<{
   name: 'Signal Shown';
   payload: {
     /**
@@ -2083,14 +2094,14 @@ type SignalShownEvent = {
      */
     id: string;
   };
-};
+}>;
 
 /**
  * This event is fired when signal badge is clicked and popup is opened.
  *
  * @category Proactive Performance Insights
  */
-type SignalOpenedEvent = {
+type SignalOpenedEvent = CommonEvent<{
   name: 'Signal Opened';
   payload: {
     /**
@@ -2098,14 +2109,14 @@ type SignalOpenedEvent = {
      */
     id: string;
   };
-};
+}>;
 
 /**
  * This event is fired when Action button for the signal is clicked inside the popup.
  *
  * @category Proactive Performance Insights
  */
-type SignalActionButtonClickedEvent = {
+type SignalActionButtonClickedEvent = CommonEvent<{
   name: 'Signal Action Button Clicked';
   payload: {
     /**
@@ -2113,14 +2124,14 @@ type SignalActionButtonClickedEvent = {
      */
     id: string;
   };
-};
+}>;
 
 /**
  * This event is fired when "Learn more" link is clicked inside the signal popup.
  *
  * @category Proactive Performance Insights
  */
-type SignalLinkClickedEvent = {
+type SignalLinkClickedEvent = CommonEvent<{
   name: 'Signal Link Clicked';
   payload: {
     /**
@@ -2128,14 +2139,14 @@ type SignalLinkClickedEvent = {
      */
     id: string;
   };
-};
+}>;
 
 /**
  * This event is fired when user clicked the close button or outside the signal and closed the popup.
  *
  * @category Proactive Performance Insights
  */
-type SignalClosedEvent = {
+type SignalClosedEvent = CommonEvent<{
   name: 'Signal Closed';
   payload: {
     /**
@@ -2143,13 +2154,13 @@ type SignalClosedEvent = {
      */
     id: string;
   };
-};
+}>;
 /**
  * This event is fired when the "Update available" popup is shown and the user accepts the update.
  *
  * @category Auto-updates
  */
-type AutoupdateAcceptedEvent = {
+type AutoupdateAcceptedEvent = CommonEvent<{
   name: 'Autoupdate Accepted';
   payload: {
     /**
@@ -2167,44 +2178,44 @@ type AutoupdateAcceptedEvent = {
      */
     manual_download?: boolean;
   };
-};
+}>;
 
 /**
  * This event is fired when the user accepts to restart the application from the update popup.
  *
  * @category Auto-updates
  */
-type ApplicationRestartAcceptedEvent = {
+type ApplicationRestartAcceptedEvent = CommonEvent<{
   name: 'Application Restart Accepted';
   payload: Record<string, never>;
-};
+}>;
 
 /**
  * This event is fired when the auto-update feature is enabled.
  *
  * @category Auto-updates
  */
-type AutoupdateEnabledEvent = {
+type AutoupdateEnabledEvent = CommonEvent<{
   name: 'Autoupdate Enabled';
   payload: Record<string, never>;
-};
+}>;
 
 /**
  * This event is fired when the auto-update feature is disabled.
  *
  * @category Auto-updates
  */
-type AutoupdateDisabledEvent = {
+type AutoupdateDisabledEvent = CommonEvent<{
   name: 'Autoupdate Disabled';
   payload: Record<string, never>;
-};
+}>;
 
 /**
  * This event is fired when the "Update available" popup is shown and the user rejects the update.
  *
  * @category Auto-updates
  */
-type AutoupdateDismissedEvent = {
+type AutoupdateDismissedEvent = CommonEvent<{
   name: 'Autoupdate Dismissed';
   payload: {
     /**
@@ -2212,14 +2223,14 @@ type AutoupdateDismissedEvent = {
      */
     update_version: string;
   };
-};
+}>;
 
 /**
  * This event is fired when the user changes the items view type between list and grid.
  *
  * @category Database / Collection List
  */
-type SwitchViewTypeEvent = ConnectionScoped<{
+type SwitchViewTypeEvent = ConnectionScopedEvent<{
   name: 'Switch View Type';
   payload: {
     /**
@@ -2239,7 +2250,7 @@ type SwitchViewTypeEvent = ConnectionScoped<{
  *
  * @category Database / Collection List
  */
-type CollectionCreatedEvent = ConnectionScoped<{
+type CollectionCreatedEvent = ConnectionScopedEvent<{
   name: 'Collection Created';
   payload: {
     /**
@@ -2279,7 +2290,7 @@ type CollectionCreatedEvent = ConnectionScoped<{
  *
  * @category Database / Collection List
  */
-type DatabaseCreatedEvent = ConnectionScoped<{
+type DatabaseCreatedEvent = ConnectionScopedEvent<{
   name: 'Database Created';
   payload: {
     /**
@@ -2319,7 +2330,7 @@ type DatabaseCreatedEvent = ConnectionScoped<{
  *
  * @category Settings
  */
-type ThemeChangedEvent = {
+type ThemeChangedEvent = CommonEvent<{
   name: 'Theme Changed';
   payload: {
     /**
@@ -2327,7 +2338,7 @@ type ThemeChangedEvent = {
      */
     theme: 'DARK' | 'LIGHT' | 'OS_THEME';
   };
-};
+}>;
 
 /**
  * This event is fired at startup to report the First Contentful Paint metric.
@@ -2335,7 +2346,7 @@ type ThemeChangedEvent = {
  *
  * @category Web Vitals
  */
-type FirstContentfulPaintEvent = {
+type FirstContentfulPaintEvent = CommonEvent<{
   name: 'First Contentful Paint';
   payload: {
     /**
@@ -2343,7 +2354,7 @@ type FirstContentfulPaintEvent = {
      */
     value: number;
   };
-};
+}>;
 
 /**
  * This event is fired at startup to report the Largest Contentful Paint metric.
@@ -2351,7 +2362,7 @@ type FirstContentfulPaintEvent = {
  *
  * @category Web Vitals
  */
-type LargestContentfulPaintEvent = {
+type LargestContentfulPaintEvent = CommonEvent<{
   name: 'Largest Contentful Paint';
   payload: {
     /**
@@ -2359,7 +2370,7 @@ type LargestContentfulPaintEvent = {
      */
     value: number;
   };
-};
+}>;
 
 /**
  * This event is fired at startup to report the First Input Delay metric.
@@ -2367,7 +2378,7 @@ type LargestContentfulPaintEvent = {
  *
  * @category Web Vitals
  */
-type FirstInputDelayEvent = {
+type FirstInputDelayEvent = CommonEvent<{
   name: 'First Input Delay';
   payload: {
     /**
@@ -2375,7 +2386,7 @@ type FirstInputDelayEvent = {
      */
     value: number;
   };
-};
+}>;
 
 /**
  * This event is fired at startup to report the Cumulative Layout Shift metric.
@@ -2383,7 +2394,7 @@ type FirstInputDelayEvent = {
  *
  * @category Web Vitals
  */
-type CumulativeLayoutShiftEvent = {
+type CumulativeLayoutShiftEvent = CommonEvent<{
   name: 'Cumulative Layout Shift';
   payload: {
     /**
@@ -2391,7 +2402,7 @@ type CumulativeLayoutShiftEvent = {
      */
     value: number;
   };
-};
+}>;
 
 /**
  * This event is fired at startup to report the Time to First Byte metric.
@@ -2399,7 +2410,7 @@ type CumulativeLayoutShiftEvent = {
  *
  * @category Web Vitals
  */
-type TimeToFirstByteEvent = {
+type TimeToFirstByteEvent = CommonEvent<{
   name: 'Time to First Byte';
   payload: {
     /**
@@ -2407,13 +2418,13 @@ type TimeToFirstByteEvent = {
      */
     value: number;
   };
-};
+}>;
 /**
  * This event is fired when a user clicks on the Atlas CTA.
  *
  * @category Other
  */
-type AtlasLinkClickedEvent = {
+type AtlasLinkClickedEvent = CommonEvent<{
   name: 'Atlas Link Clicked';
   payload: {
     /**
@@ -2421,14 +2432,14 @@ type AtlasLinkClickedEvent = {
      */
     screen?: 'agg_builder' | 'connect';
   };
-};
+}>;
 
 /**
  * This event is fired when the application launch is initiated.
  *
  * @category Other
  */
-type ApplicationLaunchedEvent = {
+type ApplicationLaunchedEvent = CommonEvent<{
   name: 'Application Launched';
   payload: {
     /**
@@ -2477,7 +2488,7 @@ type ApplicationLaunchedEvent = {
      */
     legacy_connections: boolean;
   };
-};
+}>;
 
 /**
  * This event is fired when the keytar migration fails for a user.
@@ -2487,7 +2498,7 @@ type ApplicationLaunchedEvent = {
  *
  * @category Other
  */
-type KeytarSecretsMigrationFailedEvent = {
+type KeytarSecretsMigrationFailedEvent = CommonEvent<{
   name: 'Keytar Secrets Migration Failed';
   payload: {
     /**
@@ -2500,7 +2511,7 @@ type KeytarSecretsMigrationFailedEvent = {
      */
     num_failed_connections: number;
   };
-};
+}>;
 
 /**
  * This event is fired when we fail to track another event due to an exception
@@ -2508,7 +2519,7 @@ type KeytarSecretsMigrationFailedEvent = {
  *
  * @category Other
  */
-type ErrorFetchingAttributesEvent = {
+type ErrorFetchingAttributesEvent = CommonEvent<{
   name: 'Error Fetching Attributes';
   payload: {
     /**
@@ -2516,14 +2527,14 @@ type ErrorFetchingAttributesEvent = {
      */
     event_name: string;
   };
-};
+}>;
 
 /**
  * This event is fired when a user activates (i.e., navigates to) a screen.
  *
  * @category Other
  */
-type ScreenEvent = ConnectionScoped<{
+type ScreenEvent = ConnectionScopedEvent<{
   name: 'Screen';
   payload: {
     /**
@@ -2569,7 +2580,7 @@ type ScreenEvent = ConnectionScoped<{
  *
  * @category Other
  */
-type PerformanceAdvisorClickedEvent = ConnectionScoped<{
+type PerformanceAdvisorClickedEvent = ConnectionScopedEvent<{
   name: 'Performance Advisor Clicked';
   payload: Record<string, never>;
 }>;
@@ -2580,10 +2591,10 @@ type PerformanceAdvisorClickedEvent = ConnectionScoped<{
  *
  * @category Other
  */
-type SecretStorageNotAvailable = {
+type SecretStorageNotAvailableEvent = CommonEvent<{
   name: 'Secret Storage Not Available';
   payload: Record<string, never>;
-};
+}>;
 
 export type TelemetryEvent =
   | AggregationCanceledEvent
@@ -2697,7 +2708,7 @@ export type TelemetryEvent =
   | UpdateExportedEvent
   | UpdateExportOpenedEvent
   | ViewUpdatedEvent
-  | SecretStorageNotAvailable
+  | SecretStorageNotAvailableEvent
   | FirstContentfulPaintEvent
   | LargestContentfulPaintEvent
   | FirstInputDelayEvent

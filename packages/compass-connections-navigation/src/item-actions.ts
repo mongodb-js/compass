@@ -1,17 +1,29 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { type Actions } from './constants';
 import { type ItemSeparator } from '@mongodb-js/compass-components';
+import { type NotConnectedConnectionStatus } from './tree-data';
+import { ConnectButton } from './connect-button';
+import type { Actions } from './constants';
 
-export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
+export type NavigationItemAction = ItemAction<Actions> | ItemSeparator;
+export type NavigationItemActions = NavigationItemAction[];
+export type NullableNavigationItemActions = (NavigationItemAction | null)[];
+
+function stripNullActions(
+  actions: NullableNavigationItemActions
+): NavigationItemActions {
+  return actions.filter(
+    (action): action is Exclude<typeof action, null> => action !== null
+  );
+}
 
 export const commonConnectionItemActions = ({
   connectionInfo,
 }: {
   connectionInfo: ConnectionInfo;
-}): NavigationItemActions => {
+}): NavigationItemAction[] => {
   const isAtlas = !!connectionInfo.atlasMetadata;
-  const actions: (ItemAction<Actions> | ItemSeparator | null)[] = [
+  return stripNullActions([
     isAtlas
       ? null
       : {
@@ -56,11 +68,7 @@ export const commonConnectionItemActions = ({
           icon: 'Trash',
           variant: 'destructive',
         },
-  ];
-
-  return actions.filter((action): action is Exclude<typeof action, null> => {
-    return !!action;
-  });
+  ]);
 };
 
 export const connectedConnectionItemActions = ({
@@ -84,7 +92,7 @@ export const connectedConnectionItemActions = ({
   const connectionManagementActions = commonConnectionItemActions({
     connectionInfo,
   });
-  const actions: (ItemAction<Actions> | ItemSeparator | null)[] = [
+  return stripNullActions([
     hasWriteActionsDisabled
       ? null
       : {
@@ -128,28 +136,30 @@ export const connectedConnectionItemActions = ({
     },
     { separator: true },
     ...connectionManagementActions,
-  ];
-
-  return actions.filter((action): action is Exclude<typeof action, null> => {
-    return !!action;
-  });
+  ]);
 };
 
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
+  connectionStatus,
 }: {
   connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
 }): NavigationItemActions => {
   const commonActions = commonConnectionItemActions({ connectionInfo });
-  return [
-    {
-      action: 'connection-connect',
-      label: 'Connect',
-      icon: 'Connect',
-      expandedPresentation: 'button',
-    },
-    ...commonActions,
-  ];
+  if (connectionStatus === 'connecting') {
+    return commonActions;
+  } else {
+    return [
+      {
+        action: 'connection-connect',
+        label: 'Connect',
+        icon: 'Connect',
+        expandedAs: ConnectButton,
+      },
+      ...commonActions,
+    ];
+  }
 };
 
 export const databaseItemActions = ({

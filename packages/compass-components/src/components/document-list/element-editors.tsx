@@ -80,9 +80,9 @@ export const KeyEditor: React.FunctionComponent<{
         <Tooltip
           darkMode
           enabled={!valid}
-          usePortal={false}
           trigger={({
             className,
+            children,
             // Having a tooltip connected to the input elements is not the most
             // accessible thing ever and so a lot of event listeners of the
             // tooltip conflict with the textarea default behavior (due to
@@ -94,6 +94,8 @@ export const KeyEditor: React.FunctionComponent<{
             onPointerUp,
             onPointerDown,
             onMouseDown,
+            /* eslint-enable @typescript-eslint/no-unused-vars */
+            ...triggerProps
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
               <div className={className}>
@@ -119,7 +121,9 @@ export const KeyEditor: React.FunctionComponent<{
                   )}
                   style={{ width }}
                   spellCheck="false"
+                  {...triggerProps}
                 ></input>
+                {children}
               </div>
             );
           }}
@@ -186,6 +190,7 @@ export const ValueEditor: React.FunctionComponent<{
   onBlur,
 }) => {
   const val = String(value);
+  const darkMode = useDarkMode();
 
   const inputStyle = useMemo(() => {
     if (type === 'String') {
@@ -223,7 +228,6 @@ export const ValueEditor: React.FunctionComponent<{
         <Tooltip
           darkMode
           enabled={!valid}
-          usePortal={false}
           trigger={({
             className,
             children,
@@ -282,7 +286,11 @@ export const ValueEditor: React.FunctionComponent<{
                     className={cx(
                       editorReset,
                       editorOutline,
-                      !valid && editorInvalid
+                      !valid && editorInvalid,
+                      !valid &&
+                        (darkMode
+                          ? editorInvalidDarkMode
+                          : editorInvalidLightMode)
                     )}
                     style={inputStyle}
                     spellCheck="false"

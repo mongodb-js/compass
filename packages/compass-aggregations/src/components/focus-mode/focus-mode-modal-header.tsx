@@ -270,55 +270,60 @@ export const FocusModeModalHeader: React.FunctionComponent<
         />
       </div>
 
-      <Menu
-        data-testid="add-stage-menu-content"
-        className={menuStyles}
-        open={menuOpen}
-        setOpen={setMenuOpen}
-        trigger={({ onClick, children }: any) => {
-          return (
-            <div className={controlContainerStyles}>
-              <Button
-                data-testid="add-stage-menu-button"
-                size="xsmall"
-                leftGlyph={
-                  <Icon
-                    title={null}
-                    role="presentation"
-                    glyph="PlusWithCircle"
-                  ></Icon>
-                }
-                rightGlyph={
-                  <Icon
-                    title={null}
-                    role="presentation"
-                    glyph="CaretDown"
-                  ></Icon>
-                }
-                onClick={onClick}
-              >
-                Add stage
-              </Button>
-              {children}
-            </div>
-          );
-        }}
-      >
-        <MenuItem
-          className={menuItemStyles}
-          onClick={onAddStageAfter}
-          data-hotkey={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
+      {/* Menu popover is rendered inside this div and positioned correctly when it opens. */}
+      <div>
+        <Menu
+          data-testid="add-stage-menu-content"
+          className={menuStyles}
+          open={menuOpen}
+          setOpen={setMenuOpen}
+          trigger={({ onClick, children }: any) => {
+            return (
+              <div className={controlContainerStyles}>
+                <Button
+                  data-testid="add-stage-menu-button"
+                  size="xsmall"
+                  leftGlyph={
+                    <Icon
+                      title={null}
+                      role="presentation"
+                      glyph="PlusWithCircle"
+                    ></Icon>
+                  }
+                  rightGlyph={
+                    <Icon
+                      title={null}
+                      role="presentation"
+                      glyph="CaretDown"
+                    ></Icon>
+                  }
+                  onClick={onClick}
+                >
+                  Add stage
+                </Button>
+                {children}
+              </div>
+            );
+          }}
         >
-          Add stage after
-        </MenuItem>
-        <MenuItem
-          className={menuItemStyles}
-          onClick={onAddStageBefore}
-          data-hotkey={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
-        >
-          Add stage before
-        </MenuItem>
-      </Menu>
+          <MenuItem
+            className={menuItemStyles}
+            onClick={onAddStageAfter}
+            data-hotkey={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
+            data-text="Add stage after"
+          >
+            Add stage after
+          </MenuItem>
+          <MenuItem
+            className={menuItemStyles}
+            onClick={onAddStageBefore}
+            data-hotkey={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
+            data-text="Add stage before"
+          >
+            Add stage before
+          </MenuItem>
+        </Menu>
+      </div>
 
       {showInsights && insight && <SignalPopover signals={insight} />}
     </div>

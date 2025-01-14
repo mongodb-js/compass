@@ -4,7 +4,7 @@ export async function expandAccordion(
   browser: CompassBrowser,
   selector: string
 ): Promise<boolean> {
-  const expandButton = await browser.$(selector);
+  const expandButton = browser.$(selector);
   await expandButton.waitForDisplayed();
 
   if ((await expandButton.getAttribute('aria-expanded')) === 'false') {

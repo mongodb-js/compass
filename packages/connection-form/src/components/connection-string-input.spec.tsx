@@ -215,7 +215,8 @@ describe('ConnectionStringInput Component', function () {
 
     it('should show the connection string input disabled', function () {
       const textArea = screen.getByRole('textbox');
-      expect(textArea).to.match('[disabled]');
+      expect(textArea).to.match('[aria-disabled="true"]');
+      expect(textArea).to.match('[readonly]');
     });
 
     describe('clicking confirm to edit', function () {

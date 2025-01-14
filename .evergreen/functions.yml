@@ -322,7 +322,7 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
-          npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten --out expansions.raw.yml
+          npm run --workspace mongodb-compass build-info -- --format=yaml --flatten --out expansions.raw.yml
           # the 'author' key conflicts with evergreen's own expansion
           grep -v '^author:' < packages/compass/expansions.raw.yml > packages/compass/expansions.yml
     - command: expansions.update
@@ -650,6 +650,31 @@ functions:
           fi
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+
+  smoketest-packaged-app:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          HADRON_DISTRIBUTION: ${compass_distribution}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
+            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
+          fi
+
+          npm run --unsafe-perm --workspace compass-e2e-tests smoketest
 
   test-web-sandbox:
     - command: shell.exec

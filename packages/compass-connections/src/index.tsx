@@ -63,6 +63,10 @@ const ConnectionsComponent: React.FunctionComponent<{
    * connections on plugin activate
    */
   preloadStorageConnectionInfos?: ConnectionInfo[];
+  /**
+   * When connections fail to load, this callback will be called
+   */
+  onFailToLoadConnections: (error: Error) => void;
 }> = ({ children }) => {
   return (
     <ConnectionActionsProvider>
@@ -90,6 +94,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
         appName: initialProps.appName,
         connectFn: initialProps.connectFn,
         globalAppRegistry,
+        onFailToLoadConnections: initialProps.onFailToLoadConnections,
       });
 
       setTimeout(() => {

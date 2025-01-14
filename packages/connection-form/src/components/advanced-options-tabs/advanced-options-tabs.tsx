@@ -142,7 +142,7 @@ function AdvancedOptionsTabs({
             data-testid={`connection-${tabObject.id}-tab`}
             data-has-error={showTabErrorIndicator}
           >
-            <div className={tabContentStyles}>
+            <div aria-label={tabObject.name} className={tabContentStyles}>
               <TabComponent
                 errors={errors}
                 connectionStringUrl={connectionStringUrl}

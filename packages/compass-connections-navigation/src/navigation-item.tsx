@@ -212,16 +212,14 @@ export function NavigationItem({
       return [];
     }
 
-    const actions: ItemAction<
-      'open-non-genuine-mongodb-modal' | 'open-csfle-modal'
-    >[] = [];
+    const actions: ItemAction<Actions>[] = [];
     if (!item.isGenuineMongoDB) {
       actions.push({
         action: 'open-non-genuine-mongodb-modal',
         label: 'Non-Genuine MongoDB',
         tooltip: 'Non-Genuine MongoDB detected',
         icon: 'Warning',
-        actionButtonClassName: cx(nonGenuineBtnStyles, {
+        className: cx(nonGenuineBtnStyles, {
           [nonGenuineBtnStylesDarkMode]: isDarkMode,
         }),
       });
@@ -233,7 +231,7 @@ export function NavigationItem({
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
         icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
-        actionButtonClassName: cx(csfleBtnStyles, {
+        className: cx(csfleBtnStyles, {
           [csfleBtnStylesDarkMode]: isDarkMode,
         }),
       });
@@ -241,6 +239,12 @@ export function NavigationItem({
 
     return actions;
   }, [item, isDarkMode]);
+
+  const toggleExpand = useCallback(() => {
+    if (item.type !== 'placeholder') {
+      onItemExpand(item, !item.isExpanded);
+    }
+  }, [onItemExpand, item]);
 
   return (
     <StyledNavigationItem item={item}>
@@ -262,20 +266,18 @@ export function NavigationItem({
           isExpandDisabled={
             item.type === 'connection' && item.connectionStatus !== 'connected'
           }
-          onExpand={(isExpanded: boolean) => {
-            onItemExpand(item, isExpanded);
-          }}
+          toggleExpand={toggleExpand}
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls<Actions>
+            <ItemActionControls
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}
               // these are static buttons that we want visible always on the
               // sidebar, not as menu item but as action group
               collapseAfter={connectionStaticActions.length}
-            ></ItemActionControls>
+            />
           )}
         </NavigationBaseItem>
       )}

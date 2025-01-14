@@ -18,6 +18,7 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 import { context } from '../helpers/test-runner-context';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 const { expect } = chai;
 
@@ -29,21 +30,21 @@ async function getRecentQueries(
   browser: CompassBrowser,
   expectQueries = false
 ): Promise<RecentQuery[]> {
-  const history = await browser.$(Selectors.QueryBarHistory);
+  const history = browser.$(Selectors.QueryBarHistory);
   if (!(await history.isDisplayed())) {
     await browser.clickVisible(Selectors.QueryBarHistoryButton);
     await history.waitForDisplayed();
   }
 
   await browser.waitUntil(async () => {
-    const queryTags = await browser.$$(
+    const numQueryTags = await browser.$$(
       '[data-testid="query-history-query-attributes"]'
-    );
+    ).length;
     // Usually we expect to find some recents and the most common failure is
     // that we read out the queries before they are rendered.
     if (expectQueries) {
       // Keep going until we find something or timeout if we never do
-      return queryTags.length > 0;
+      return numQueryTags > 0;
     }
     return true;
   });
@@ -55,10 +56,10 @@ async function getRecentQueries(
       await queryTag
         .$$('[data-testid="query-history-query-attribute"]')
         .map(async (attributeTag) => {
-          const labelTag = await attributeTag.$(
+          const labelTag = attributeTag.$(
             '[data-testid="query-history-query-label"]'
           );
-          const preTag = await attributeTag.$('pre');
+          const preTag = attributeTag.$('pre');
           const key = await labelTag.getText();
           const value = await preTag.getText();
           attributes[key] = value;
@@ -71,7 +72,7 @@ async function navigateToTab(browser: CompassBrowser, tabName: string) {
   const tabSelector = Selectors.collectionSubTab(tabName);
   const tabSelectedSelector = Selectors.collectionSubTab(tabName, true);
 
-  const tabSelectedSelectorElement = await browser.$(tabSelectedSelector);
+  const tabSelectedSelectorElement = browser.$(tabSelectedSelector);
   // if the correct tab is already visible, do nothing
   if (await tabSelectedSelectorElement.isExisting()) {
     return;
@@ -85,7 +86,7 @@ async function navigateToTab(browser: CompassBrowser, tabName: string) {
 
 async function waitForJSON(
   browser: CompassBrowser,
-  element: WebdriverIO.Element
+  element: ChainablePromiseElement
 ) {
   // Sometimes the line numbers end up in the text for some reason. Probably
   // because we get the text before the component is properly initialised.
@@ -100,7 +101,7 @@ async function waitForJSON(
 }
 
 async function getFormattedDocument(browser: CompassBrowser) {
-  const document = await browser.$(Selectors.DocumentListEntry);
+  const document = browser.$(Selectors.DocumentListEntry);
   await document.waitForDisplayed();
   return (await document.getText())
     .replace(/\n/g, ' ')
@@ -156,7 +157,7 @@ describe('Collection documents tab', function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    const documentListActionBarMessageElement = await browser.$(
+    const documentListActionBarMessageElement = browser.$(
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
@@ -195,7 +196,7 @@ describe('Collection documents tab', function () {
       limit: '50',
     });
 
-    const documentListActionBarMessageElement = await browser.$(
+    const documentListActionBarMessageElement = browser.$(
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
@@ -244,16 +245,14 @@ describe('Collection documents tab', function () {
     );
 
     // stop it
-    const documentListFetchingElement = await browser.$(
+    const documentListFetchingElement = browser.$(
       Selectors.DocumentListFetching
     );
     await documentListFetchingElement.waitForDisplayed();
 
     await browser.clickVisible(Selectors.DocumentListFetchingStopButton);
 
-    const documentListErrorElement = await browser.$(
-      Selectors.DocumentListError
-    );
+    const documentListErrorElement = browser.$(Selectors.DocumentListError);
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
@@ -261,7 +260,7 @@ describe('Collection documents tab', function () {
 
     // execute another (small, fast) query
     await browser.runFindOperation('Documents', '{ i: 5 }');
-    const documentListActionBarMessageElement = await browser.$(
+    const documentListActionBarMessageElement = browser.$(
       Selectors.DocumentListActionBarMessage
     );
 
@@ -286,7 +285,7 @@ describe('Collection documents tab', function () {
 
       if (maxTimeMSMode === 'preference') {
         await browser.openSettingsModal();
-        const settingsModal = await browser.$(Selectors.SettingsModal);
+        const settingsModal = browser.$(Selectors.SettingsModal);
         await settingsModal.waitForDisplayed();
         await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -308,9 +307,7 @@ describe('Collection documents tab', function () {
         }
       );
 
-      const documentListErrorElement = await browser.$(
-        Selectors.DocumentListError
-      );
+      const documentListErrorElement = browser.$(Selectors.DocumentListError);
       await documentListErrorElement.waitForDisplayed();
 
       const errorText = await documentListErrorElement.getText();
@@ -323,7 +320,7 @@ describe('Collection documents tab', function () {
   it('keeps the query when navigating to schema', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    const documentListActionBarMessageElement = await browser.$(
+    const documentListActionBarMessageElement = browser.$(
       Selectors.DocumentListActionBarMessage
     );
     const documentsMessage =
@@ -337,9 +334,7 @@ describe('Collection documents tab', function () {
     await browser.runFind('Schema', true);
 
     // if the schema tab only matched one document, then it is presumably the same query
-    const schemaAnalysisMessageElement = await browser.$(
-      Selectors.AnalysisMessage
-    );
+    const schemaAnalysisMessageElement = browser.$(Selectors.AnalysisMessage);
     const analysisMessage = await schemaAnalysisMessageElement.getText();
     expect(analysisMessage.replace(/\s/g, ' ')).to.equal(
       'This report is based on a sample of 1 document.'
@@ -389,31 +384,31 @@ FindIterable<Document> result = collection.find(filter);`);
 
   it('supports view/edit via list view', async function () {
     await browser.runFindOperation('Documents', '{ i: 31 }');
-    const document = await browser.$(Selectors.DocumentListEntry);
+    const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
     expect(await getFormattedDocument(browser)).to.match(
       /^_id: ObjectId\('[a-f0-9]{24}'\) i: 31 j: 0$/
     );
 
-    const value = await document.$(
+    const valueElement = document.$(
       `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentClickableValue}`
     );
-    await value.doubleClick();
+    await valueElement.doubleClick();
 
     const input = document.$(
       `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
     await browser.setValueVisible(input, '42');
 
-    const footer = await document.$(Selectors.DocumentFooterMessage);
+    const footer = document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$(Selectors.UpdateDocumentButton);
+    const button = document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 31 }');
-    const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
+    const modifiedDocument = browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
     expect(await getFormattedDocument(browser)).to.match(
       /^_id: ObjectId\('[a-f0-9]{24}'\) i: 31 j: 42$/
@@ -424,7 +419,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 32 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
-    const document = await browser.$(Selectors.DocumentJSONEntry);
+    const document = browser.$(Selectors.DocumentJSONEntry);
     await document.waitForDisplayed();
 
     await waitForJSON(browser, document);
@@ -446,17 +441,17 @@ FindIterable<Document> result = collection.find(filter);`);
       newjson
     );
 
-    const footer = await document.$(Selectors.DocumentFooterMessage);
+    const footer = document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$(Selectors.UpdateDocumentButton);
+    const button = document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 32 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
-    const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
+    const modifiedDocument = browser.$(Selectors.DocumentJSONEntry);
     await modifiedDocument.waitForDisplayed();
 
     await waitForJSON(browser, modifiedDocument);
@@ -474,7 +469,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 123 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
-    const document = await browser.$(Selectors.DocumentJSONEntry);
+    const document = browser.$(Selectors.DocumentJSONEntry);
     await document.waitForDisplayed();
 
     await waitForJSON(browser, document);
@@ -499,17 +494,17 @@ FindIterable<Document> result = collection.find(filter);`);
       newjson
     );
 
-    const footer = await document.$(Selectors.DocumentFooterMessage);
+    const footer = document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$(Selectors.UpdateDocumentButton);
+    const button = document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 123 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
-    const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
+    const modifiedDocument = browser.$(Selectors.DocumentJSONEntry);
     await modifiedDocument.waitForDisplayed();
 
     await waitForJSON(browser, modifiedDocument);
@@ -527,13 +522,13 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
+    const document = browser.$('.ag-center-cols-clipper .ag-row-first');
     const text = (await document.getText()).replace(/\s+/g, ' ');
     expect(text).to.match(
       /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
     );
 
-    const value = await document.$('[col-id="j"] .element-value');
+    const value = document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
     const input = document.$(
@@ -541,19 +536,17 @@ FindIterable<Document> result = collection.find(filter);`);
     );
     await browser.setValueVisible(input, '-100');
 
-    const footer = await browser.$(Selectors.DocumentFooterMessage);
+    const footer = browser.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await browser.$(Selectors.UpdateDocumentButton);
+    const button = browser.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const modifiedDocument = await browser.$(
-      '.ag-center-cols-clipper .ag-row-first'
-    );
+    const modifiedDocument = browser.$('.ag-center-cols-clipper .ag-row-first');
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
       /^ObjectId\('[a-f0-9]{24}('\))? 33 -100$/
     );
@@ -566,7 +559,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.runFindOperation('Documents', '{ i: 34 }');
 
-    const document = await browser.$(Selectors.DocumentListEntry);
+    const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
 
     await browser.hover(Selectors.DocumentListEntry);
@@ -585,14 +578,14 @@ FindIterable<Document> result = collection.find(filter);`);
   it('can clone and delete a document from the contextual toolbar', async function () {
     await browser.runFindOperation('Documents', '{ i: 35 }');
 
-    const document = await browser.$(Selectors.DocumentListEntry);
+    const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
 
     await browser.hover(Selectors.DocumentListEntry);
     await browser.clickVisible(Selectors.CloneDocumentButton);
 
     // wait for the modal to appear
-    const insertDialog = await browser.$(Selectors.InsertDialog);
+    const insertDialog = browser.$(Selectors.InsertDialog);
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor and insert the document
@@ -600,7 +593,7 @@ FindIterable<Document> result = collection.find(filter);`);
       Selectors.InsertJSONEditor,
       '{ "i": 10042 }'
     );
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
     await insertDialog.waitForDisplayed({ reverse: true });
@@ -616,9 +609,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.ConfirmDeleteDocumentButton);
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
-    const noDocuments = await browser.$(
-      '[data-testid="document-list-zero-state"]'
-    );
+    const noDocuments = browser.$('[data-testid="document-list-zero-state"]');
     await noDocuments.waitForDisplayed();
   });
 
@@ -626,7 +617,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 35 }');
     await browser.clickVisible(Selectors.InsightIconButton);
     await browser.waitForAnimations(Selectors.InsightPopoverCard);
-    const unindexedQuerySignal = await browser.$(
+    const unindexedQuerySignal = browser.$(
       'strong=Query executed without index'
     );
     // Looks redundant, but selector above can return a special webdriver
@@ -652,22 +643,22 @@ FindIterable<Document> result = collection.find(filter);`);
         'Documents',
         '{ "names.firstName": "1-firstName" }'
       );
-      const document = await browser.$(Selectors.DocumentListEntry);
+      const document = browser.$(Selectors.DocumentListEntry);
       await document.waitForDisplayed();
 
       await browser.hover(Selectors.DocumentListEntry);
       await browser.clickVisible(Selectors.DocumentExpandButton);
-      const expandedHadronElements = await browser.$$(
+      const numExpandedHadronElements = await browser.$$(
         Selectors.HadronDocumentElement
-      );
-      expect(expandedHadronElements).to.have.lengthOf(14);
+      ).length;
+      expect(numExpandedHadronElements).to.equal(14);
 
       await browser.hover(Selectors.DocumentListEntry);
       await browser.clickVisible(Selectors.DocumentExpandButton);
-      const collapsedHadronElements = await browser.$$(
+      const numCollapsedHadronElements = await browser.$$(
         Selectors.HadronDocumentElement
-      );
-      expect(collapsedHadronElements).to.have.lengthOf(4);
+      ).length;
+      expect(numCollapsedHadronElements).to.equal(4);
     });
 
     it('preserves the expanded state of a document when switching between tabs', async function () {
@@ -675,23 +666,23 @@ FindIterable<Document> result = collection.find(filter);`);
         'Documents',
         '{ "names.firstName": "1-firstName" }'
       );
-      const document = await browser.$(Selectors.DocumentListEntry);
+      const document = browser.$(Selectors.DocumentListEntry);
       await document.waitForDisplayed();
 
       await browser.hover(Selectors.DocumentListEntry);
       await browser.clickVisible(Selectors.DocumentExpandButton);
-      const expandedHadronElements = await browser.$$(
+      const numExpandedHadronElements = await browser.$$(
         Selectors.HadronDocumentElement
-      );
-      expect(expandedHadronElements).to.have.lengthOf(14);
+      ).length;
+      expect(numExpandedHadronElements).to.equal(14);
 
       await browser.navigateWithinCurrentCollectionTabs('Aggregations');
       await browser.navigateWithinCurrentCollectionTabs('Documents');
 
-      const expandedHadronElementsPostSwitch = await browser.$$(
+      const numExpandedHadronElementsPostSwitch = await browser.$$(
         Selectors.HadronDocumentElement
-      );
-      expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+      ).length;
+      expect(numExpandedHadronElementsPostSwitch).to.equal(14);
     });
   });
 });

@@ -179,9 +179,9 @@ export const ConnectionFormInputSocksPassword =
 export const ConnectionFormReadPreferenceRadios =
   '#read-preferences input[type="radio"]';
 export const ConnectionFormInputReplicaset =
-  '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="replica-set"]';
 export const ConnectionFormInputDefaultDatabase =
-  '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="default-database"]';
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
@@ -191,7 +191,7 @@ export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
 };
 export const advancedOptionsTabPanel = (tabName: string): string => {
-  return `[role="tabpanel"][aria-label="${tabName}"]`;
+  return `[role="tabpanel"] [aria-label="${tabName}"]`;
 };
 export const connectionFormSchemeRadio = (value: string): string => {
   return `#connection-scheme-radio-box-group input[value="${value}"]`;
@@ -922,7 +922,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="option"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -931,40 +931,46 @@ export const stagePreview = (stageIndex: number): string => {
   return `[data-testid="stage-preview-${stageIndex}"]`;
 };
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-preview-toolbar-tooltip"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="stage-preview-empty"]`;
 };
 export const stageCollapseButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Collapse"]`;
 };
 export const stageExpandButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Expand"]`;
 };
 export const stageFocusModeButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="focus-mode-button"]`;
 };
 export const stagePickerComboboxInput = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
 export const stagePickerListBox = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="listbox"]`;
 };
 export const stageValueEditor = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] .cm-content`;
+  return `${StageCardAtIndex(stageIndex)} .cm-content`;
 };
 export const stageContent = (stageIndex: number): string => {
   return stageValueEditor(stageIndex);
 };
 export const stageAdd = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="add-after-stage"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="add-after-stage"]`;
 };
 export const stageToggle = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
+  return `${StageCardAtIndex(stageIndex)} #toggle-stage-button`;
 };
 export const stageMoreOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-option-menu-button"]`;
 };
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
@@ -990,10 +996,14 @@ export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-con
 export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
 
 export const stageEditorErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-error-message"]`;
 };
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-syntax-error"]`;
 };
 
 export const aggregationPipelineModeToggle = (
@@ -1229,12 +1239,11 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
-export const QueryBarAIEntryButton =
-  '[data-testid="open-ai-query-entry-button"]';
-export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
-export const QueryBarAIGenerateQueryButton =
-  '[data-testid="ai-generate-button"]';
-export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
+export const GenAITextInput = '[data-testid="ai-user-text-input"]';
+export const GenAIGenerateQueryButton = '[data-testid="ai-generate-button"]';
+export const GenAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIOpenButton = '[data-testid="open-gen-ai-button"]';
 
 // Workspace tabs
 export const WorkspaceTabsContainer =

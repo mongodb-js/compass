@@ -72,9 +72,10 @@ describe('project', function () {
       'street',
       'city',
     ]);
-    const selectedOptions = within(
+    const comboboxInput = within(
       screen.getByTestId('project-form-field')
-    ).getAllByRole('option');
+    ).getByRole('combobox');
+    const selectedOptions = within(comboboxInput).getAllByRole('option');
 
     expect(selectedOptions).to.have.lengthOf(2);
     expect(within(selectedOptions[0]).getByText(/street/i)).to.exist;

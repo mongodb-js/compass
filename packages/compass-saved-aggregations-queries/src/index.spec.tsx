@@ -357,15 +357,13 @@ describe('AggregationsQueriesList', function () {
       const selectBtn = screen.getByTestId(selectDataTestId);
       userEvent.click(selectBtn);
       await waitFor(() => {
-        expect(within(selectBtn).getByLabelText(new RegExp(value, 'i'))).to
-          .exist;
+        expect(screen.getByLabelText(new RegExp(value, 'i'))).to.exist;
       });
 
-      userEvent.click(within(selectBtn).getByLabelText(new RegExp(value, 'i')));
+      userEvent.click(screen.getByLabelText(new RegExp(value, 'i')));
 
       await waitFor(() => {
-        expect(within(selectBtn).getByLabelText(new RegExp(value, 'i'))).to
-          .throw;
+        expect(screen.getByLabelText(new RegExp(value, 'i'))).to.throw;
       });
     };
 

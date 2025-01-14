@@ -283,9 +283,7 @@ export const GroupWithSubset = ({
           <>
             <TextInput
               type="number"
-              label="Number of records"
-              // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
-              aria-labelledby=""
+              aria-label="Number of records"
               data-testid="number-of-records-input"
               placeholder="Number of records"
               className={recordInputStyles}
@@ -339,7 +337,6 @@ export const GroupWithSubset = ({
             className={selectStyles}
             allowDeselect={false}
             aria-label="Select direction"
-            usePortal={false}
             value={formData.sortDirection}
             onChange={(value: string) =>
               onChangeValue('sortDirection', value as SortDirection)

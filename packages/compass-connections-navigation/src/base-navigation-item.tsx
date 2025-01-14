@@ -6,7 +6,7 @@ import {
   ItemActionControls,
   cx,
 } from '@mongodb-js/compass-components';
-import { ROW_HEIGHT, type Actions } from './constants';
+import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
 import { type NavigationItemActions } from './item-actions';
 
@@ -28,7 +28,7 @@ type NavigationBaseItemProps = {
     actions: NavigationItemActions;
     onAction: (action: Actions) => void;
   };
-  onExpand: (toggle: boolean) => void;
+  toggleExpand: () => void;
 };
 
 const menuStyles = css({
@@ -98,7 +98,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   isExpanded,
   isFocused,
   hasDefaultAction,
-  onExpand,
+  toggleExpand,
   children,
 }) => {
   const [hoverProps, isHovered] = useHoverState();
@@ -114,12 +114,13 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
       <div className={cx('item-wrapper', itemWrapperStyles)} style={style}>
         {isExpandVisible && (
           <ExpandButton
-            onClick={(evt) => {
-              if (isExpandDisabled) return;
-              evt.stopPropagation();
-              onExpand(!isExpanded);
+            onClick={(event) => {
+              // Prevent the click from propagating to the `TreeItem`, triggering the default action
+              event.stopPropagation();
+              toggleExpand();
             }}
             isExpanded={isExpanded}
+            disabled={isExpandDisabled}
           ></ExpandButton>
         )}
         <div className={labelAndIconWrapperStyles}>
@@ -127,13 +128,13 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
           <span title={name}>{name}</span>
         </div>
         <div className={actionControlsWrapperStyles}>
-          <ItemActionControls<Actions>
+          <ItemActionControls
             menuClassName={menuStyles}
             isVisible={isActive || isHovered || isFocused}
             data-testid="sidebar-navigation-item-actions"
             iconSize="xsmall"
             {...actionProps}
-          ></ItemActionControls>
+          />
           {children}
         </div>
       </div>

@@ -38,10 +38,7 @@ import {
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-import {
-  PreferencesProvider,
-  CompassWebPreferencesAccess,
-} from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
@@ -58,7 +55,8 @@ import type {
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { useCompassWebPreferences } from './preferences';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -152,6 +150,11 @@ type CompassWebProps = {
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
+
+  /**
+   * Callback prop called when connections fail to load
+   */
+  onFailToLoadConnections: (err: Error) => void;
 };
 
 function CompassWorkspace({
@@ -255,6 +258,7 @@ const CompassWeb = ({
   onDebug,
   onTrack,
   onOpenConnectViaModal,
+  onFailToLoadConnections,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
@@ -262,31 +266,8 @@ const CompassWeb = ({
     onDebug,
   });
 
-  const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess({
-      maxTimeMS: 10_000,
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableImportExport: false,
-      enableGenAIFeatures: true,
-      enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassingOnAtlasProject: false,
-      enableGenAIFeaturesAtlasOrg: false,
-      enableMultipleConnectionSystem: true,
-      enablePerformanceAdvisorBanner: true,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
-      },
-      maximumNumberOfActiveConnections: 10,
-      trackUsageStatistics: true,
-      enableShell: false,
-      enableCreatingNewConnections: false,
-      enableGlobalWrites: false,
-      optInDataExplorerGenAIFeatures: false,
-      ...initialPreferences,
-    })
-  );
+  const preferencesAccess = useCompassWebPreferences(initialPreferences);
+
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
@@ -317,6 +298,37 @@ const CompassWeb = ({
           // Making sure that compass-web modals and tooltips are definitely not
           // hidden by Cloud UI sidebar and page header
           stackedElementsZIndex={10_000}
+          onNextGuideGue={(cue) => {
+            onTrackRef.current?.('Guide Cue Dismissed', {
+              groupId: cue.groupId,
+              cueId: cue.cueId,
+              step: cue.step,
+            });
+          }}
+          onNextGuideCueGroup={(cue) => {
+            if (cue.groupSteps !== cue.step) {
+              onTrackRef.current?.('Guide Cue Group Dismissed', {
+                groupId: cue.groupId,
+                cueId: cue.cueId,
+                step: cue.step,
+              });
+            }
+          }}
+          onSignalMount={(id) => {
+            onTrackRef.current?.('Signal Shown', { id });
+          }}
+          onSignalOpen={(id) => {
+            onTrackRef.current?.('Signal Opened', { id });
+          }}
+          onSignalPrimaryActionClick={(id) => {
+            onTrackRef.current?.('Signal Action Button Clicked', { id });
+          }}
+          onSignalLinkClick={(id) => {
+            onTrackRef.current?.('Signal Link Clicked', { id });
+          }}
+          onSignalClose={(id) => {
+            onTrackRef.current?.('Signal Closed', { id });
+          }}
           {...LINK_PROPS}
         >
           <PreferencesProvider value={preferencesAccess.current}>
@@ -329,6 +341,7 @@ const CompassWeb = ({
                   >
                     <CompassConnections
                       appName={appName ?? 'Compass Web'}
+                      onFailToLoadConnections={onFailToLoadConnections}
                       onExtraConnectionDataRequest={() => {
                         return Promise.resolve([{}, null] as [
                           Record<string, unknown>,
