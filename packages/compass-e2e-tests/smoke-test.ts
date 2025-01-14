@@ -19,6 +19,47 @@ import {
   assertCommonBuildInfo,
 } from './helpers/buildinfo';
 
+const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
+const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
+
+function isSupportedPlatform(
+  value: unknown
+): value is typeof SUPPORTED_PLATFORMS[number] {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  return SUPPORTED_PLATFORMS.includes(value as any);
+}
+
+function isSupportedArch(
+  value: unknown
+): value is typeof SUPPORTED_ARCHS[number] {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  return SUPPORTED_ARCHS.includes(value as any);
+}
+
+function getDefaultPlatform() {
+  const {
+    platform,
+    env: { PLATFORM },
+  } = process;
+  if (isSupportedPlatform(PLATFORM)) {
+    return PLATFORM;
+  } else if (isSupportedPlatform(platform)) {
+    return platform;
+  }
+}
+
+function getDefaultArch() {
+  const {
+    arch,
+    env: { ARCH },
+  } = process;
+  if (isSupportedArch(ARCH)) {
+    return ARCH;
+  } else if (isSupportedArch(arch)) {
+    return arch;
+  }
+}
+
 const argv = yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
   .detectLocale(false)
@@ -32,26 +73,15 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
-  .option('version', {
-    type: 'string',
-    // For dev versions we need this from evergreen. For beta or stable (or by
-    // default, ie. when testing a locally packaged app) we get it from the
-    // package.json
-    default: process.env.DEV_VERSION_IDENTIFIER,
-    description:
-      'Will be read from packages/compass/package.json if not specified',
-  })
   .option('platform', {
-    type: 'string',
-    choices: ['win32', 'darwin', 'linux'],
+    choices: SUPPORTED_PLATFORMS,
     demandOption: true,
-    default: process.env.PLATFORM ?? process.platform,
+    default: getDefaultPlatform(),
   })
   .option('arch', {
-    type: 'string',
-    choices: ['x64', 'arm64'],
+    choices: SUPPORTED_ARCHS,
     demandOption: true,
-    default: process.env.ARCH ?? process.arch,
+    default: getDefaultArch(),
   })
   .option('package', {
     type: 'string',
@@ -65,7 +95,7 @@ const argv = yargs(hideBin(process.argv))
       'linux_tar',
       'linux_rpm',
       'rhel_tar',
-    ],
+    ] as const,
     demandOption: true,
     description: 'Which package to test',
   })
@@ -88,7 +118,6 @@ const argv = yargs(hideBin(process.argv))
 type SmokeTestsContext = {
   bucketName?: string;
   bucketKeyPrefix?: string;
-  version?: string;
   platform: 'win32' | 'darwin' | 'linux';
   arch: 'x64' | 'arm64';
   package:
@@ -112,19 +141,8 @@ async function readJson<T extends object>(...segments: string[]): Promise<T> {
   return result as T;
 }
 
-async function readPackageVersion(packagePath: string) {
-  const pkg = await readJson(packagePath, 'package.json');
-  assert(
-    'version' in pkg && typeof pkg.version === 'string',
-    'Expected a package version'
-  );
-  return pkg.version;
-}
-
 async function run() {
-  const parsedArgs = argv.parseSync();
-
-  const context = parsedArgs as SmokeTestsContext;
+  const context: SmokeTestsContext = argv.parseSync();
 
   console.log(
     'context',
@@ -132,7 +150,6 @@ async function run() {
       'skipDownload',
       'bucketName',
       'bucketKeyPrefix',
-      'version',
       'platform',
       'arch',
       'package',
@@ -140,20 +157,33 @@ async function run() {
   );
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
-  // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
-  const version = context.version ?? (await readPackageVersion(compassDir));
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
   // build-info
   const infoArgs = {
     format: 'json',
     dir: compassDir,
-    version,
     platform: context.platform,
     arch: context.arch,
     out: outPath,
   };
   console.log('infoArgs', infoArgs);
+
+  // These are known environment variables that will affect the way
+  // writeBuildInfo works. Log them as a reminder and for our own sanity
+  console.log(
+    'info env vars',
+    pick(process.env, [
+      'HADRON_DISTRIBUTION',
+      'HADRON_APP_VERSION',
+      'HADRON_PRODUCT',
+      'HADRON_PRODUCT_NAME',
+      'HADRON_READONLY',
+      'HADRON_ISOLATED',
+      'DEV_VERSION_IDENTIFIER',
+      'IS_RHEL',
+    ])
+  );
   writeBuildInfo(infoArgs);
   const buildInfo = await readJson(infoArgs.out);
 
