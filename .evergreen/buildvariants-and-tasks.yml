@@ -498,7 +498,7 @@ tasks:
       - func: bootstrap
         vars:
           scope: compass-e2e-tests
-      - func: get-compass-mongodb-com
+      - func: spawn-compass-mongodb-com
       - func: smoketest-packaged-app
         vars:
           mongodb_version: latest-enterprise
