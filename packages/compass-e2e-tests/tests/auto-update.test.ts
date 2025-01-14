@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import {
   init,
   cleanup,
-  //screenshotIfFailed,
   Selectors,
+  screenshotPathName,
 } from '../helpers/compass';
 
 describe('Auto-update', function () {
@@ -17,9 +17,8 @@ describe('Auto-update', function () {
 
     // run the app and wait for it to auto-update
     const compass = await init('auto-update from', { firstRun: true });
+    const { browser } = compass;
     try {
-      const { browser } = compass;
-
       await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
 
       if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
@@ -39,6 +38,7 @@ describe('Auto-update', function () {
         );
       }
     } finally {
+      await browser.screenshot(screenshotPathName('auto-update-from'));
       await cleanup(compass);
     }
 
@@ -47,13 +47,16 @@ describe('Auto-update', function () {
       const compass = await init('auto-update from restart', {
         firstRun: false,
       });
+      const { browser } = compass;
       try {
-        const { browser } = compass;
         await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
         await browser
           .$(Selectors.AutoUpdateReleaseNotesLink)
           .waitForDisplayed();
       } finally {
+        await browser.screenshot(
+          screenshotPathName('auto-update-from-restart')
+        );
         await cleanup(compass);
       }
     }

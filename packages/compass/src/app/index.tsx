@@ -379,6 +379,13 @@ const app = {
       });
     }
 
+    // eslint-disable-next-line no-console
+    console.log({
+      previousVersion: state.previousVersion,
+      DEFAULT_APP_VERSION,
+      APP_VERSION,
+    });
+
     if (
       state.previousVersion !== DEFAULT_APP_VERSION &&
       APP_VERSION !== state.previousVersion
