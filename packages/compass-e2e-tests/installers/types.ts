@@ -3,7 +3,7 @@ export type Installer = (pkg: InstallablePackage) => Promise<InstalledAppInfo>;
 export type Package = {
   appName: string;
   packageFilepath: string;
-  // TODO: once we can download the most recent release
+  // TODO(COMPASS-8532): once we can download the most recent release
   //releaseFilepath: string;
   updatable: boolean;
   installer: Installer;
