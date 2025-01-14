@@ -32,16 +32,6 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
-  .option('version', {
-    type: 'string',
-    // For dev versions we need this from evergreen. For beta or stable (or by
-    // default, ie. when testing a locally packaged app) we get it from the
-    // package.json
-    // NOTE: DEV_VERSION_IDENTIFIER might be a blank string which would be invalid
-    default: process.env.DEV_VERSION_IDENTIFIER || undefined,
-    description:
-      'Will be read from packages/compass/package.json if not specified',
-  })
   .option('platform', {
     type: 'string',
     choices: ['win32', 'darwin', 'linux'],
@@ -89,7 +79,6 @@ const argv = yargs(hideBin(process.argv))
 type SmokeTestsContext = {
   bucketName?: string;
   bucketKeyPrefix?: string;
-  version?: string;
   platform: 'win32' | 'darwin' | 'linux';
   arch: 'x64' | 'arm64';
   package:
@@ -113,15 +102,6 @@ async function readJson<T extends object>(...segments: string[]): Promise<T> {
   return result as T;
 }
 
-async function readPackageVersion(packagePath: string) {
-  const pkg = await readJson(packagePath, 'package.json');
-  assert(
-    'version' in pkg && typeof pkg.version === 'string',
-    'Expected a package version'
-  );
-  return pkg.version;
-}
-
 async function run() {
   const parsedArgs = argv.parseSync();
 
@@ -133,7 +113,6 @@ async function run() {
       'skipDownload',
       'bucketName',
       'bucketKeyPrefix',
-      'version',
       'platform',
       'arch',
       'package',
@@ -141,15 +120,12 @@ async function run() {
   );
 
   const compassDir = path.resolve(__dirname, '..', '..', 'packages', 'compass');
-  // use the specified DEV_VERSION_IDENTIFIER if set or load version from packages/compass/package.json
-  const version = context.version ?? (await readPackageVersion(compassDir));
   const outPath = path.resolve(__dirname, 'hadron-build-info.json');
 
   // build-info
   const infoArgs = {
     format: 'json',
     dir: compassDir,
-    version,
     platform: context.platform,
     arch: context.arch,
     out: outPath,
