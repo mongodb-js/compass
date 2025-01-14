@@ -131,6 +131,22 @@ async function run() {
     out: outPath,
   };
   console.log('infoArgs', infoArgs);
+
+  // These are known environment variables that will affect the way
+  // writeBuildInfo works. Log them as a reminder and for our own sanity
+  console.log(
+    'info env vars',
+    pick(process.env, [
+      'HADRON_DISTRIBUTION',
+      'HADRON_APP_VERSION',
+      'HADRON_PRODUCT',
+      'HADRON_PRODUCT_NAME',
+      'HADRON_READONLY',
+      'HADRON_ISOLATED',
+      'DEV_VERSION_IDENTIFIER',
+      'IS_RHEL',
+    ])
+  );
   writeBuildInfo(infoArgs);
   const buildInfo = await readJson(infoArgs.out);
 
