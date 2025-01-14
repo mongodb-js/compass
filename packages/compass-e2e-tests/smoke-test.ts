@@ -37,7 +37,8 @@ const argv = yargs(hideBin(process.argv))
     // For dev versions we need this from evergreen. For beta or stable (or by
     // default, ie. when testing a locally packaged app) we get it from the
     // package.json
-    default: process.env.DEV_VERSION_IDENTIFIER,
+    // NOTE: DEV_VERSION_IDENTIFIER might be a blank string which would be invalid
+    default: process.env.DEV_VERSION_IDENTIFIER || undefined,
     description:
       'Will be read from packages/compass/package.json if not specified',
   })
