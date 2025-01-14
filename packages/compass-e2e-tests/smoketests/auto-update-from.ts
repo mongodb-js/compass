@@ -42,14 +42,9 @@ export async function testAutoUpdateFrom(pkg: Package) {
   console.log(appPath);
 
   try {
-    // TODO: start the autoupdate server
-    try {
-      await testInstalledApp(pkg, appPath, {
-        AUTO_UPDATE_FROM: 'true',
-      });
-    } finally {
-      // TODO: stop the autoupdate server
-    }
+    await testInstalledApp(pkg, appPath, {
+      AUTO_UPDATE_FROM: 'true',
+    });
   } finally {
     // remove the app
     await uninstall();
