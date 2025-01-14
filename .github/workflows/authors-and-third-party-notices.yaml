@@ -68,5 +68,5 @@ jobs:
 
       - name: Commit and push
         run: |
-          git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary [skip actions]" || true
+          git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary" || true
           git push

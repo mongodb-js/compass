@@ -322,15 +322,10 @@ function generateMarkdownPlan(
     day: 'numeric',
   });
 
-  const formattedTime = now.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
   const markdown = `
 # Compass Tracking Plan
 
-Generated on ${formattedDate} at ${formattedTime}
+Generated on ${formattedDate}
 
 ## Table of Contents
 ${toc}
