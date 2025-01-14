@@ -1,6 +1,10 @@
 import toNS from 'mongodb-ns';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
+import {
+  connectionStorageLocator,
+  IsAtlasConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import {
   ChevronCollapse,
   type ItemAction,
@@ -477,6 +481,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
 
+  const isAtlasConnectionStorage = useContext(IsAtlasConnectionStorageContext);
+
   return (
     <div className={connectionsContainerStyles}>
       <div
@@ -484,7 +490,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         data-testid="connections-header"
       >
         <Subtitle className={connectionListHeaderTitleStyles}>
-          Connections
+          {isAtlasConnectionStorage ? 'Clusters' : 'Connections'}
           {connections.length !== 0 && (
             <span className={connectionCountStyles}>
               ({connections.length})
@@ -503,7 +509,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length > 0 && (
         <>
           <NavigationItemsFilter
-            placeholder="Search connections"
+            placeholder={
+              isAtlasConnectionStorage
+                ? 'Search clusters'
+                : 'Search connections'
+            }
             filter={filter}
             onFilterChange={onFilterChange}
           />

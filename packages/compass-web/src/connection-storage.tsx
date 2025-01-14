@@ -1,4 +1,5 @@
 import React, { useContext, useRef } from 'react';
+import { IsAtlasConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import type {
   ConnectionStorage,
   ConnectionInfo,
@@ -374,7 +375,9 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
       <ConnectionStorageProvider
         value={sandboxConnectionStorage ?? storage.current}
       >
-        {children}
+        <IsAtlasConnectionStorageContext.Provider value={true}>
+          {children}
+        </IsAtlasConnectionStorageContext.Provider>
       </ConnectionStorageProvider>
     );
   }

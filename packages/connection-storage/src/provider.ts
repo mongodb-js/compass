@@ -15,6 +15,8 @@ export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null
 );
 
+export const IsAtlasConnectionStorageContext = createContext<boolean>(false);
+
 export const ConnectionStorageProvider = ConnectionStorageContext.Provider;
 
 // TODO(COMPASS-7397): storage context should not be leaking out of the service
