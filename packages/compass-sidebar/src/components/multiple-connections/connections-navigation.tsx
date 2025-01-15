@@ -1,10 +1,12 @@
 import toNS from 'mongodb-ns';
-import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { connect } from 'react-redux';
-import {
-  connectionStorageLocator,
-  IsAtlasConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
 import {
   ChevronCollapse,
   type ItemAction,
@@ -94,6 +96,12 @@ const noDeploymentStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
 });
+
+/**
+ * Indicates only Atlas cluster connections are supported, and the user cannot navigate
+ * to other types of connections from this UI.
+ */
+export const AtlasClusterConnectionsOnly = createContext<boolean>(false);
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -481,7 +489,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
 
-  const isAtlasConnectionStorage = useContext(IsAtlasConnectionStorageContext);
+  const isAtlasConnectionStorage = useContext(AtlasClusterConnectionsOnly);
 
   return (
     <div className={connectionsContainerStyles}>

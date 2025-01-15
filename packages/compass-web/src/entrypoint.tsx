@@ -19,7 +19,10 @@ import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
 } from '@mongodb-js/compass-collection';
-import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import {
+  CompassSidebarPlugin,
+  AtlasClusterConnectionsOnly,
+} from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import {
@@ -61,11 +64,13 @@ import { useCompassWebPreferences } from './preferences';
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
-      <AtlasServiceProvider>
-        <AtlasAiServiceProvider apiURLPreset="cloud">
-          {children}
-        </AtlasAiServiceProvider>
-      </AtlasServiceProvider>
+      <AtlasClusterConnectionsOnly.Provider value={true}>
+        <AtlasServiceProvider>
+          <AtlasAiServiceProvider apiURLPreset="cloud">
+            {children}
+          </AtlasAiServiceProvider>
+        </AtlasServiceProvider>
+      </AtlasClusterConnectionsOnly.Provider>
     </AtlasCloudAuthServiceProvider>
   );
 };
