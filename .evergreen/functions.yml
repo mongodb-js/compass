@@ -659,10 +659,12 @@ functions:
     - command: shell.exec
       type: setup
       params:
-        working_dir: src
+        working_dir: compass-mongodb-com
         shell: bash
         script: |
           set -e
+
+          source ../src/.evergreen/start-compass-mongodb-com.sh
 
           docker build -t compass/web ./
           docker run -p 8080:8080 -t -e PORT=8080 -e UPDATE_CHECKER_ALLOW_DOWNGRADES=true -d compass/web
