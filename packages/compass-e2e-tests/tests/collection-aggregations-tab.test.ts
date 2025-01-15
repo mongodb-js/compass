@@ -1332,15 +1332,7 @@ describe('Collection aggregations tab', function () {
       });
       await browser.waitForAriaDisabled(previousButton, true);
 
-      // previousButton has a tooltip and as it becomes disabled,
-      // tooltip disappers. wait for it to disappear
-      await browser.waitForAnimations(Selectors.FocusModeModal);
-
-      // As the tooltip disappeared at this point, the previousButton still
-      // has the focus. Pressing escape twice, should close the modal.
-      await browser.keys([Key.Escape]);
-      await sleep(100);
-      await browser.keys([Key.Escape]);
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
 
       await modal.waitForDisplayed({ reverse: true });
     });
