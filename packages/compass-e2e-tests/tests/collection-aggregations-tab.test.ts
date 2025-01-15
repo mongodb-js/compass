@@ -17,15 +17,10 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
-import { Key } from 'webdriverio';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 
 const { expect } = chai;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 const OUT_STAGE_PREVIEW_TEXT =
   'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.';
