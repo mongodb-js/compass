@@ -1430,3 +1430,11 @@ export const GlobalWrites = {
   SampleFindingDocuments: '[data-testid="sample-finding-documents"]',
   SampleInsertingDocuments: '[data-testid="sample-inserting-documents"]',
 };
+
+export const AutoUpdateToast = '[data-testid="toast-compass-update"]';
+export const AutoUpdateRestartButton =
+  '[data-testid="auto-update-restart-button"]';
+export const AutoUpdateDownloadLink =
+  '[data-testid="auto-update-download-link"]';
+export const AutoUpdateReleaseNotesLink =
+  '[data-testid="auto-update-release-notes-link"]';

@@ -651,6 +651,24 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  spawn-compass-mongodb-com:
+    - command: git.get_project
+      type: system
+      params:
+        directory: compass-mongodb-com
+    - command: shell.exec
+      type: setup
+      params:
+        working_dir: compass-mongodb-com
+        shell: bash
+        script: |
+          set -e
+
+          source ../src/.evergreen/start-compass-mongodb-com.sh
+
+          docker build -t compass/web ./
+          docker run -p 8080:8080 -t -e PORT=8080 -e UPDATE_CHECKER_ALLOW_DOWNGRADES=true -d compass/web
+
   smoketest-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins

@@ -8,14 +8,20 @@ export function execute(
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(command, ...args);
+
     const p = spawn(command, args, {
       stdio: 'inherit',
       ...options,
     });
+
     p.on('error', (err: any) => {
       reject(err);
     });
+
     p.on('close', (code: number | null, signal: NodeJS.Signals | null) => {
+      process.off('exit', killChild);
+      process.off('SIGINT', interruptChild);
+
       if (code !== null) {
         if (code === 0) {
           resolve();
@@ -41,5 +47,11 @@ export function execute(
         }
       }
     });
+
+    // Exit child process if main process exits
+    const killChild = () => p.kill();
+    const interruptChild = () => p.kill('SIGINT');
+    process.once('exit', killChild);
+    process.once('SIGINT', interruptChild);
   });
 }
