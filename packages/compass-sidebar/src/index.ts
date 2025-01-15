@@ -1,6 +1,5 @@
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
-import { createContext } from 'react';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {
