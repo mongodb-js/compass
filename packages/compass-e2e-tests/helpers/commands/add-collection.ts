@@ -2,9 +2,6 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export type AddCollectionOptions = {
-  capped?: {
-    size: number;
-  };
   customCollation?: {
     locale: string;
     strength: number;
@@ -48,15 +45,6 @@ export async function addCollection(
   if (collectionOptions) {
     await browser.clickVisible(
       Selectors.CreateCollectionCollectionOptionsAccordion
-    );
-  }
-
-  if (collectionOptions && collectionOptions.capped) {
-    await browser.clickVisible(Selectors.CreateCollectionCappedCheckboxLabel);
-
-    await browser.setValueVisible(
-      Selectors.CreateCollectionCappedSizeInput,
-      collectionOptions.capped.size.toString()
     );
   }
 

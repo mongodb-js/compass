@@ -15,7 +15,6 @@ describe('FLE2Fields [Component]', function () {
       component = mount(
         <FLE2Fields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           isFLE2
           configuredKMSProviders={['local']}
@@ -44,7 +43,6 @@ describe('FLE2Fields [Component]', function () {
       component = mount(
         <FLE2Fields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           configuredKMSProviders={['local']}
@@ -79,7 +77,6 @@ describe('FLE2Fields [Component]', function () {
       component = mount(
         <FLE2Fields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           configuredKMSProviders={['local']}
@@ -108,34 +105,6 @@ describe('FLE2Fields [Component]', function () {
     });
   });
 
-  describe('when the isCapped prop is true', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
-        <FLE2Fields
-          isTimeSeries={false}
-          isCapped
-          isClustered={false}
-          configuredKMSProviders={['local']}
-          currentTopologyType="ReplicaSetWithPrimary"
-          fle2={{}}
-          onChangeIsClustered={() => {}}
-          onChangeField={() => {}}
-          expireAfterSeconds=""
-        />
-      );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('has the FLE2 checkbox disabled', function () {
-      expect(component.find('Checkbox').props().disabled).to.equal(true);
-    });
-  });
-
   describe('when the isTimeSeries prop is true', function () {
     let component;
 
@@ -143,7 +112,6 @@ describe('FLE2Fields [Component]', function () {
       component = mount(
         <FLE2Fields
           isTimeSeries
-          isCapped={false}
           isClustered={false}
           configuredKMSProviders={['local']}
           currentTopologyType="ReplicaSetWithPrimary"

@@ -14,7 +14,6 @@ describe('ClusteredCollectionFields [Component]', function () {
       component = mount(
         <ClusteredCollectionFields
           isTimeSeries={false}
-          isCapped={false}
           isClustered
           clusteredIndex={{}}
           onChangeIsClustered={() => {}}
@@ -40,7 +39,6 @@ describe('ClusteredCollectionFields [Component]', function () {
       component = mount(
         <ClusteredCollectionFields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           clusteredIndex={{}}
           onChangeIsClustered={() => {}}
@@ -72,7 +70,6 @@ describe('ClusteredCollectionFields [Component]', function () {
       component = mount(
         <ClusteredCollectionFields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           clusteredIndex={{}}
           onChangeIsClustered={onChangeSpy}
@@ -95,32 +92,6 @@ describe('ClusteredCollectionFields [Component]', function () {
     it('calls the onchange with time series collection on', function () {
       expect(onChangeSpy.callCount).to.equal(1);
       expect(onChangeSpy.firstCall.args[0]).to.deep.equal(true);
-    });
-  });
-
-  describe('when the isCapped prop is true', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
-        <ClusteredCollectionFields
-          isTimeSeries={false}
-          isCapped
-          isClustered={false}
-          clusteredIndex={{}}
-          onChangeIsClustered={() => {}}
-          onChangeField={() => {}}
-          expireAfterSeconds=""
-        />
-      );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('has the clustered checkbox disabled', function () {
-      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 });

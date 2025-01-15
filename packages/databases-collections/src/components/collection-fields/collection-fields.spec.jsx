@@ -11,8 +11,6 @@ const additionalPreferenceSelector =
   'button[data-testid="additional-collection-preferences"]';
 const timeSeriesCollectionSelector =
   'input[type="checkbox"][data-testid="time-series-fields-checkbox"]';
-const cappedCollectionSelector =
-  'input[type="checkbox"][data-testid="capped-collection-fields-checkbox"]';
 const customCollationSelector =
   'input[type="checkbox"][data-testid="use-custom-collation-fields-checkbox"]';
 const clusteredCollectionSelector =
@@ -260,51 +258,6 @@ describe('CollectionFields [Component]', function () {
                 locale: 'af',
               },
             },
-          });
-        });
-      });
-
-      describe('when the capped collection checkbox is clicked', function () {
-        beforeEach(function () {
-          component
-            .find(cappedCollectionSelector)
-            .at(0)
-            .simulate('change', { target: { checked: true } });
-          component.update();
-        });
-
-        it('calls the onchange with capped collection on', function () {
-          expect(onChangeSpy.callCount).to.equal(1);
-          expect(onChangeSpy.firstCall.args[0]).to.deep.equal({
-            database: '',
-            collection: '',
-            options: {
-              capped: true,
-            },
-          });
-        });
-      });
-
-      describe('when the capped collection checkbox is clicked twice', function () {
-        beforeEach(function () {
-          component
-            .find(cappedCollectionSelector)
-            .at(0)
-            .simulate('change', { target: { checked: true } });
-          component.update();
-          component
-            .find(cappedCollectionSelector)
-            .at(0)
-            .simulate('change', { target: { checked: false } });
-          component.update();
-        });
-
-        it('calls the onchange with capped collection off', function () {
-          expect(onChangeSpy.callCount).to.equal(2);
-          expect(onChangeSpy.secondCall.args[0]).to.deep.equal({
-            database: '',
-            collection: '',
-            options: {},
           });
         });
       });

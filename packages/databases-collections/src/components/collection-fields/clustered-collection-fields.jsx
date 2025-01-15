@@ -15,7 +15,6 @@ const EXPIRE_AFTER_SECONDS_DESCRIPTION =
   'The _id field must be a date or an array that contains date values.';
 
 function ClusteredCollectionFields({
-  isCapped,
   isTimeSeries,
   isClustered,
   clusteredIndex,
@@ -34,7 +33,7 @@ function ClusteredCollectionFields({
   return (
     <CollapsibleFieldSet
       toggled={isClustered}
-      disabled={isTimeSeries || isCapped}
+      disabled={isTimeSeries}
       onToggle={(checked) => onChangeIsClustered(checked)}
       label="Clustered Collection"
       data-testid="clustered-collection-fields"
@@ -72,7 +71,6 @@ function ClusteredCollectionFields({
 }
 
 ClusteredCollectionFields.propTypes = {
-  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
   clusteredIndex: PropTypes.object.isRequired,

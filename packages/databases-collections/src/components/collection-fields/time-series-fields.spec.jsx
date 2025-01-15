@@ -14,7 +14,6 @@ describe('TimeSeriesFields [Component]', function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           supportsFlexibleBucketConfiguration={false}
@@ -42,7 +41,6 @@ describe('TimeSeriesFields [Component]', function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           supportsFlexibleBucketConfiguration={false}
@@ -76,7 +74,6 @@ describe('TimeSeriesFields [Component]', function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           supportsFlexibleBucketConfiguration={false}
@@ -104,40 +101,11 @@ describe('TimeSeriesFields [Component]', function () {
     });
   });
 
-  describe('when the isCapped prop is true', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
-        <TimeSeriesFields
-          isTimeSeries={false}
-          isCapped
-          isClustered={false}
-          isFLE2={false}
-          supportsFlexibleBucketConfiguration={false}
-          onChangeIsTimeSeries={() => {}}
-          onChangeField={() => {}}
-          timeSeries={{}}
-          expireAfterSeconds=""
-        />
-      );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('has the time-series checkbox disabled', function () {
-      expect(component.find('Checkbox').props().disabled).to.equal(true);
-    });
-  });
-
   describe('when supportsFlexibleBucketConfiguration is true', function () {
     it('renders flexible bucketing options', function () {
       const component = mount(
         <TimeSeriesFields
           isTimeSeries={true}
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           supportsFlexibleBucketConfiguration={true}
@@ -168,7 +136,6 @@ describe('TimeSeriesFields [Component]', function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries
-          isCapped={false}
           isClustered={false}
           isFLE2={false}
           supportsFlexibleBucketConfiguration={false}
