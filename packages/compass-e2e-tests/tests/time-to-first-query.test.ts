@@ -27,9 +27,6 @@ describe('Time to first query', function () {
   });
 
   it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
-    // We re-run the whole test to make sure that the timings for the test run
-    // are not skewed by waiting for the application to restart multiple times.
-
     // start compass inside the test so that the time is measured together
     compass = await init(this.test?.fullTitle(), { firstRun: true });
 
