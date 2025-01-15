@@ -17,7 +17,10 @@ import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider'
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
-import { AtlasClusterConnectionsOnly, CompassSidebarPlugin } from '../../index';
+import {
+  AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
+} from '../../index';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from '../../../../hadron-app-registry/dist';
 
@@ -119,11 +122,11 @@ describe('Multiple Connections Sidebar Component', function () {
 
     if (atlasClusterConnectionsOnly !== undefined) {
       component = (
-        <AtlasClusterConnectionsOnly.Provider
+        <AtlasClusterConnectionsOnlyProvider
           value={atlasClusterConnectionsOnly}
         >
           {component}
-        </AtlasClusterConnectionsOnly.Provider>
+        </AtlasClusterConnectionsOnlyProvider>
       );
     }
 

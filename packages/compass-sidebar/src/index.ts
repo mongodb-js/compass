@@ -12,7 +12,7 @@ import type { ConnectionsService } from '@mongodb-js/compass-connections/provide
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-export { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
+import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
 
 export const CompassSidebarPlugin = registerHadronPlugin(
   {
@@ -54,3 +54,6 @@ export const CompassSidebarPlugin = registerHadronPlugin(
     logger: createLoggerLocator('COMPASS-SIDEBAR-UI'),
   }
 );
+
+export const AtlasClusterConnectionsOnlyProvider =
+  AtlasClusterConnectionsOnly.Provider;

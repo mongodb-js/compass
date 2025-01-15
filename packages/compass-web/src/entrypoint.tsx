@@ -21,7 +21,7 @@ import {
 } from '@mongodb-js/compass-collection';
 import {
   CompassSidebarPlugin,
-  AtlasClusterConnectionsOnly,
+  AtlasClusterConnectionsOnlyProvider,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -64,13 +64,13 @@ import { useCompassWebPreferences } from './preferences';
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
-      <AtlasClusterConnectionsOnly.Provider value={true}>
+      <AtlasClusterConnectionsOnlyProvider value={true}>
         <AtlasServiceProvider>
           <AtlasAiServiceProvider apiURLPreset="cloud">
             {children}
           </AtlasAiServiceProvider>
         </AtlasServiceProvider>
-      </AtlasClusterConnectionsOnly.Provider>
+      </AtlasClusterConnectionsOnlyProvider>
     </AtlasCloudAuthServiceProvider>
   );
 };
