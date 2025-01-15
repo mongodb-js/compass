@@ -139,7 +139,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     if (isTestingDesktop(context)) {
       if (context.testPackagedApp) {
-        debug('Building Compass before running the tests ...');
+        debug('Maybe building Compass before running the tests ...');
         await buildCompass();
       } else {
         debug('Preparing Compass before running the tests');
