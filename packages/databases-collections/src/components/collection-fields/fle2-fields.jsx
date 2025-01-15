@@ -71,7 +71,6 @@ const queryableEncryptedFieldsEditorId = 'queryable-encrypted-fields-editor-id';
 const keyEncryptionKeyEditorId = 'key-encryption-key-editor-id';
 
 function FLE2Fields({
-  isCapped,
   isTimeSeries,
   isFLE2,
   onChangeIsFLE2,
@@ -86,7 +85,7 @@ function FLE2Fields({
   return (
     <CollapsibleFieldSet
       toggled={isFLE2}
-      disabled={isTimeSeries || isCapped}
+      disabled={isTimeSeries}
       onToggle={(checked) => onChangeIsFLE2(checked)}
       // Queryable Encryption is the user-facing name of FLE2
       label="Queryable Encryption"
@@ -169,7 +168,6 @@ function FLE2Fields({
 }
 
 FLE2Fields.propTypes = {
-  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isFLE2: PropTypes.bool.isRequired,
   onChangeIsFLE2: PropTypes.func.isRequired,
