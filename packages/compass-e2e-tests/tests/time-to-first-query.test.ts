@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -57,7 +58,11 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+    if (TEST_COMPASS_WEB) {
+      await browser.connectWithConnectionString();
+    } else {
+      await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+    }
 
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME_1,
