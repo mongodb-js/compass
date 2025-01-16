@@ -189,7 +189,11 @@ async function run() {
       throw new Error(`Testing '${kind}' packages is not yet implemented`);
     }
   } finally {
-    await Promise.all(cleanups.map((cleanup) => cleanup()));
+    // Chain the cleanup functions in reverse order
+    await cleanups
+      .slice()
+      .reverse()
+      .reduce((previous, cleanup) => previous.then(cleanup), Promise.resolve());
   }
 }
 
