@@ -15,7 +15,10 @@ import {
 } from './helpers/smoke-test/build-info';
 import { createSandbox } from './helpers/smoke-test/directories';
 import { downloadFile } from './helpers/smoke-test/downloads';
-import { SUPPORTED_PACKAGES } from './helpers/smoke-test/packages';
+import {
+  type PackageKind,
+  SUPPORTED_PACKAGES,
+} from './helpers/smoke-test/packages';
 import { type SmokeTestsContext } from './helpers/smoke-test/context';
 import { installMacZIP } from './installers/mac-zip';
 
@@ -98,7 +101,14 @@ const argv = yargs(hideBin(process.argv))
     description: 'Use the local package instead of downloading',
   });
 
-type TestSubject = PackageDetails & { filepath: string };
+type TestSubject = PackageDetails & {
+  filepath: string;
+  /**
+   * Is the package unsigned?
+   * In which case we'll expect auto-updating to fail.
+   */
+  unsigned?: boolean;
+};
 
 /**
  * Either finds the local package or downloads the package
@@ -120,6 +130,7 @@ async function getTestSubject(
     return {
       ...details,
       filepath: path.resolve(compassDistPath, details.filename),
+      unsigned: true,
     };
   } else {
     assert(
@@ -134,6 +145,16 @@ async function getTestSubject(
     });
 
     return { ...details, filepath };
+  }
+}
+
+function getInstaller(kind: PackageKind) {
+  if (kind === 'osx_dmg') {
+    return installMacDMG;
+  } else if (kind === 'osx_zip') {
+    return installMacZIP;
+  } else {
+    throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
 }
 
@@ -157,43 +178,26 @@ async function run() {
     ])
   );
 
-  const cleanups: (() => void | Promise<void>)[] = [
-    () => {
-      console.log('Cleaning up sandbox');
-      fs.rmSync(context.sandboxPath, { recursive: true });
-    },
-  ];
   const { kind, buildInfo, filepath } = await getTestSubject(context);
+  const install = getInstaller(kind);
 
   try {
     const appName = buildInfo.productName;
-    if (kind === 'osx_dmg') {
-      const { appPath, uninstall } = installMacDMG({
-        appName,
-        filepath,
-        destinationPath: context.sandboxPath,
-      });
-      cleanups.push(uninstall);
 
-      runTest({ appName, appPath });
-    } else if (kind === 'osx_zip') {
-      const { appPath, uninstall } = installMacZIP({
-        appName,
-        filepath,
-        destinationPath: context.sandboxPath,
-      });
-      cleanups.push(uninstall);
+    const { appPath, uninstall } = install({
+      appName,
+      filepath,
+      destinationPath: context.sandboxPath,
+    });
 
+    try {
       runTest({ appName, appPath });
-    } else {
-      throw new Error(`Testing '${kind}' packages is not yet implemented`);
+    } finally {
+      await uninstall();
     }
   } finally {
-    // Chain the cleanup functions in reverse order
-    await cleanups
-      .slice()
-      .reverse()
-      .reduce((previous, cleanup) => previous.then(cleanup), Promise.resolve());
+    console.log('Cleaning up sandbox');
+    fs.rmSync(context.sandboxPath, { recursive: true });
   }
 }
 
