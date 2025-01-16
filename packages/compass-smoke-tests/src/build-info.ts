@@ -180,7 +180,7 @@ export function readPackageDetails(
 export function writeAndReadPackageDetails(
   context: SmokeTestsContext
 ): PackageDetails {
-  const compassDir = path.resolve(__dirname, '../../../compass');
+  const compassDir = path.resolve(__dirname, '../../compass');
   const infoArgs = {
     format: 'json',
     dir: compassDir,

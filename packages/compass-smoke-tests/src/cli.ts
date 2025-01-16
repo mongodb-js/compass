@@ -7,19 +7,16 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
 import { installMacDMG } from './installers/mac-dmg';
-import { execute } from './installers/helpers';
+import { execute } from './execute';
 import {
   type PackageDetails,
   readPackageDetails,
   writeAndReadPackageDetails,
-} from './helpers/smoke-test/build-info';
-import { createSandbox } from './helpers/smoke-test/directories';
-import { downloadFile } from './helpers/smoke-test/downloads';
-import {
-  type PackageKind,
-  SUPPORTED_PACKAGES,
-} from './helpers/smoke-test/packages';
-import { type SmokeTestsContext } from './helpers/smoke-test/context';
+} from './build-info';
+import { createSandbox } from './directories';
+import { downloadFile } from './downloads';
+import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
+import { type SmokeTestsContext } from './context';
 import { installMacZIP } from './installers/mac-zip';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;

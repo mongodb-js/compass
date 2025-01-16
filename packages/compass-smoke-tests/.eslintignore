@@ -1,2 +1,7 @@
 .nyc-output
 dist
+
+# Sandboxes (created per test run)
+.sandboxes/
+# Cache of downloaded files
+.downloads/

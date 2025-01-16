@@ -2,10 +2,6 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import stream from 'node:stream';
-import { type fetch as undiciFetch } from 'undici-types';
-
-// Hacking types here because the DOM types doesn't match the fetch implemented by Node.js
-const fetch = globalThis.fetch as unknown as typeof undiciFetch;
 
 import { ensureDownloadsDirectory } from './directories';
 
