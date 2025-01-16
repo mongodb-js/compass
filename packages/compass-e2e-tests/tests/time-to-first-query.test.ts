@@ -57,7 +57,7 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString();
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
 
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME_1,
