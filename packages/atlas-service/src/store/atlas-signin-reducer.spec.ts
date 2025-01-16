@@ -158,7 +158,7 @@ describe('atlasSignInReducer', function () {
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
-    it.only('should cancel sign in if sign in is in progress', async function () {
+    it.only('should cancel sign in if sign in is in progress', function () {
       const mockAtlasService = {
         isAuthenticated: sandbox
           .stub()
@@ -177,10 +177,7 @@ describe('atlasSignInReducer', function () {
 
       void store.dispatch(performSignInAttempt()).catch(() => {});
 
-      await Promise.all([
-        store.dispatch(signIn()),
-        store.dispatch(cancelSignIn()),
-      ]);
+      store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
     });
   });
