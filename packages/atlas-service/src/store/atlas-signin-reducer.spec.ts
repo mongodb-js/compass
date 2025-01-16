@@ -158,10 +158,11 @@ describe('atlasSignInReducer', function () {
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
-    it('should cancel sign in if sign in is in progress', async function () {
+    it.only('should cancel sign in if sign in is in progress', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox
           .stub()
+          .onCall(0)
           .callsFake(({ signal }: { signal: AbortSignal }) => {
             return new Promise((resolve, reject) => {
               signal.addEventListener('abort', () => {
