@@ -7,6 +7,9 @@ const PROPERTIES_FLE2 = 'fle2';
 const PROPERTIES_VIEW = 'view';
 const PROPERTIES_READ_ONLY = 'read-only';
 
+/**
+ * @param {import('../').CollectionProps} coll 
+ */
 function getProperties(coll) {
   const properties = [];
 
@@ -29,7 +32,7 @@ function getProperties(coll) {
     });
   }
 
-  if (coll.capped) {
+  if (coll.is_capped) {
     properties.push({
       id: PROPERTIES_CAPPED,
     });

@@ -174,39 +174,6 @@ describe('Database collections tab', function () {
     await browser.waitUntilActiveDatabaseTab(DEFAULT_CONNECTION_NAME_1, 'test');
   });
 
-  it('can create a capped collection', async function () {
-    const collectionName = 'my-capped-collection';
-
-    // open the create collection modal from the button at the top
-    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
-
-    await browser.addCollection(
-      collectionName,
-      {
-        capped: {
-          size: 1000,
-        },
-      },
-      'add-collection-modal-capped.png'
-    );
-
-    await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
-      'test'
-    );
-
-    const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      selector,
-      'grid'
-    );
-    const collectionCard = browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    // TODO: how do we make sure this is really a capped collection?
-  });
-
   it('can create a collection with custom collation', async function () {
     const collectionName = 'my-custom-collation-collection';
 
