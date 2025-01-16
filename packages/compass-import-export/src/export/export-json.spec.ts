@@ -282,6 +282,43 @@ describe('exportJSON', function () {
     }
   });
 
+  it('responds to abortSignal.aborted - with delayed abort', async function () {
+    const abortController = new AbortController();
+
+    const resultPath = path.join(tmpdir, 'test-abort.exported.ejson');
+
+    const importedText = await fs.promises.readFile(
+      fixtures.json.complex,
+      'utf8'
+    );
+    const ejsonToInsert = EJSON.parse(importedText);
+    await dataService.insertMany(testNS, ejsonToInsert);
+
+    const output = fs.createWriteStream(resultPath);
+    const promise = exportJSONFromQuery({
+      dataService,
+      ns: testNS,
+      output,
+      variant: 'default',
+      abortSignal: abortController.signal,
+    });
+    abortController.abort();
+
+    const result = await promise;
+    const data = await fs.promises.readFile(resultPath, 'utf8');
+
+    try {
+      JSON.parse(data);
+      expect.fail('Expected file to not be valid JSON');
+    } catch (err) {
+      // With signal part of streams pipeline the file is created and if
+      // the signal is aborted the stream is destroyed and file is not
+      // writable anymore and as a result its not able to write trailing ] to the file.
+    }
+    expect(result.aborted).to.be.true;
+    expect(result.docsWritten).to.equal(0);
+  });
+
   it('exports aggregations', async function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
