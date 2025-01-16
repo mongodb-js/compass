@@ -158,7 +158,7 @@ describe('atlasSignInReducer', function () {
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
-    it('should cancel sign in if sign in is in progress', function () {
+    it('should cancel sign in if sign in is in progress', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox
           .stub()
@@ -177,6 +177,9 @@ describe('atlasSignInReducer', function () {
 
       void store.dispatch(performSignInAttempt()).catch(() => {});
 
+      // Give it some time for start the sign in attempt. It will be waiting
+      // at isAuthenticated, which never resolves.
+      await new Promise((resolve) => setTimeout(resolve, 100));
       store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
     });
