@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Wed, Jan 15, 2025
+Generated on Thu, Jan 16, 2025
 
 ## Table of Contents
 
@@ -936,8 +936,6 @@ This event is fired when a collection is created.
 
 **Properties**:
 
-- **is_capped** (required): `boolean`
-  - Indicates whether the collection is capped.
 - **has_collation** (required): `boolean`
   - Indicates whether the collection has a custom collation.
 - **is_timeseries** (required): `boolean`
@@ -960,8 +958,6 @@ This event is fired when a database is created.
 
 **Properties**:
 
-- **is_capped** (required): `boolean`
-  - Indicates whether the first collection in the database is capped.
 - **has_collation** (required): `boolean`
   - Indicates whether the first collection in the database has a custom collation.
 - **is_timeseries** (required): `boolean`
