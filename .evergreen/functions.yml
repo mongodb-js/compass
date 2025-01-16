@@ -651,7 +651,7 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
-  spawn-compass-mongodb-com:
+  get-compass-mongodb-com:
     - command: git.get_project
       type: system
       params:
@@ -664,10 +664,16 @@ functions:
         script: |
           set -e
 
-          source ../src/.evergreen/start-compass-mongodb-com.sh
+          echo "Using node version:";
+          node -v;
+          echo "Using npm version:";
+          npm -v;
+          echo "Using gcc version:"
+          gcc --version;
+          echo "Using g++ version:"
+          g++ --version;
 
-          docker build -t compass/web ./
-          docker run -p 8080:8080 -t -e PORT=8080 -e UPDATE_CHECKER_ALLOW_DOWNGRADES=true -d compass/web
+          npm ci
 
   smoketest-packaged-app:
     - command: shell.exec
