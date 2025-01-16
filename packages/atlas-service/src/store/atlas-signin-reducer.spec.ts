@@ -158,7 +158,7 @@ describe('atlasSignInReducer', function () {
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
-    it.only('should cancel sign in if sign in is in progress', function () {
+    it('should cancel sign in if sign in is in progress', function () {
       const mockAtlasService = {
         isAuthenticated: sandbox
           .stub()
