@@ -159,17 +159,17 @@ describe('atlasSignInReducer', function () {
     });
 
     it('should cancel sign in if sign in is in progress', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox
-          .stub()
-          .onCall(0)
-          .callsFake(({ signal }: { signal: AbortSignal }) => {
-            return new Promise((resolve, reject) => {
-              signal.addEventListener('abort', () => {
-                reject(signal.reason);
-              });
+      const isAuthenticatedStub = sandbox
+        .stub()
+        .callsFake(({ signal }: { signal: AbortSignal }) => {
+          return new Promise((resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(signal.reason);
             });
-          }),
+          });
+        });
+      const mockAtlasService = {
+        isAuthenticated: isAuthenticatedStub,
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -182,6 +182,8 @@ describe('atlasSignInReducer', function () {
       await new Promise((resolve) => setTimeout(resolve, 100));
       store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
+
+      expect(isAuthenticatedStub).to.have.been.calledOnce;
     });
   });
 
