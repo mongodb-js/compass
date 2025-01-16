@@ -92,6 +92,7 @@ export function assertBuildInfoIsRHEL(
 export type PackageDetails = {
   kind: PackageKind;
   filename: string;
+  autoUpdatable: boolean;
 } & (
   | {
       kind: 'windows_setup' | 'windows_msi' | 'windows_zip';
@@ -124,16 +125,36 @@ export function getPackageDetails(
     kind === 'windows_zip'
   ) {
     assertBuildInfoIsWindows(buildInfo);
-    return { kind, buildInfo, filename: buildInfo[`${kind}_filename`] };
+    return {
+      kind,
+      buildInfo,
+      filename: buildInfo[`${kind}_filename`],
+      autoUpdatable: kind === 'windows_setup',
+    };
   } else if (kind === 'osx_dmg' || kind === 'osx_zip') {
     assertBuildInfoIsOSX(buildInfo);
-    return { kind, buildInfo, filename: buildInfo[`${kind}_filename`] };
+    return {
+      kind,
+      buildInfo,
+      filename: buildInfo[`${kind}_filename`],
+      autoUpdatable: true,
+    };
   } else if (kind === 'linux_deb' || kind === 'linux_tar') {
     assertBuildInfoIsUbuntu(buildInfo);
-    return { kind, buildInfo, filename: buildInfo[`${kind}_filename`] };
+    return {
+      kind,
+      buildInfo,
+      filename: buildInfo[`${kind}_filename`],
+      autoUpdatable: false,
+    };
   } else if (kind === 'linux_rpm' || kind === 'rhel_tar') {
     assertBuildInfoIsRHEL(buildInfo);
-    return { kind, buildInfo, filename: buildInfo[`${kind}_filename`] };
+    return {
+      kind,
+      buildInfo,
+      filename: buildInfo[`${kind}_filename`],
+      autoUpdatable: false,
+    };
   } else {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new Error(`Unsupported package kind: ${kind}`);
