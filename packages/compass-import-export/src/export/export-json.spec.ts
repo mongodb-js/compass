@@ -274,16 +274,12 @@ describe('exportJSON', function () {
     expect(result.docsWritten).to.equal(0);
     expect(result.aborted).to.be.true;
 
-    let resultText;
     try {
-      resultText = await fs.promises.readFile(resultPath, 'utf8');
+      await fs.promises.readFile(resultPath, 'utf8');
+      expect.fail('Expected file to not exist');
     } catch (err) {
-      console.log(resultPath);
-      throw err;
+      // noop
     }
-
-    const expectedText = '';
-    expect(resultText).to.deep.equal(expectedText);
   });
 
   it('exports aggregations', async function () {
