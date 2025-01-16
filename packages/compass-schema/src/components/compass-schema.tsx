@@ -273,7 +273,7 @@ const InitialScreen: React.FunctionComponent<{
           href="https://docs.mongodb.com/compass/master/schema/"
           target="_blank"
         >
-          Learn more about schema analysis in Compass
+          Learn more about schema analysis
         </Link>
       }
     />

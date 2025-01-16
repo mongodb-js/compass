@@ -1,5 +1,11 @@
 import toNS from 'mongodb-ns';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   ChevronCollapse,
@@ -90,6 +96,12 @@ const noDeploymentStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
 });
+
+/**
+ * Indicates only Atlas cluster connections are supported, and the user cannot navigate
+ * to other types of connections from this UI.
+ */
+export const AtlasClusterConnectionsOnly = createContext<boolean>(false);
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -477,6 +489,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
 
+  const isAtlasConnectionStorage = useContext(AtlasClusterConnectionsOnly);
+
   return (
     <div className={connectionsContainerStyles}>
       <div
@@ -484,7 +498,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         data-testid="connections-header"
       >
         <Subtitle className={connectionListHeaderTitleStyles}>
-          Connections
+          {isAtlasConnectionStorage ? 'Clusters' : 'Connections'}
           {connections.length !== 0 && (
             <span className={connectionCountStyles}>
               ({connections.length})
@@ -503,7 +517,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length > 0 && (
         <>
           <NavigationItemsFilter
-            placeholder="Search connections"
+            placeholder={
+              isAtlasConnectionStorage
+                ? 'Search clusters'
+                : 'Search connections'
+            }
             filter={filter}
             onFilterChange={onFilterChange}
           />

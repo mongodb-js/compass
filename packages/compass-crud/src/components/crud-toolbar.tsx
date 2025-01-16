@@ -240,14 +240,22 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           {!readonly && (
             <UpdateMenu
               isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip="Remove limit and skip in your query to perform an update"
+              disabledTooltip={
+                isWritable
+                  ? 'Remove limit and skip in your query to perform an update'
+                  : instanceDescription
+              }
               onClick={onUpdateButtonClicked}
             ></UpdateMenu>
           )}
           {!readonly && (
             <DeleteMenu
               isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip="Remove limit and skip in your query to perform a delete"
+              disabledTooltip={
+                isWritable
+                  ? 'Remove limit and skip in your query to perform a delete'
+                  : instanceDescription
+              }
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}

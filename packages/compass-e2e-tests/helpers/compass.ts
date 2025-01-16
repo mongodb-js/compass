@@ -949,18 +949,20 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
 }
 
 export async function buildCompass(
-  force = false,
   compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  if (!force) {
-    try {
-      await getCompassBuildMetadata();
-      return;
-    } catch (e) {
-      // No compass build found, let's build it
-    }
+  try {
+    await getCompassBuildMetadata();
+    return;
+  } catch (e) {
+    /* ignore */
   }
 
+  if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
+    throw new Error('We did not expect to have to build Compass');
+  }
+
+  debug("No Compass build found, let's build it");
   await packageCompassAsync({
     dir: compassPath,
     skip_installer: true,
