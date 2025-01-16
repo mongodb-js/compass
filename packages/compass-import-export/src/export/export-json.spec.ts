@@ -280,6 +280,9 @@ describe('exportJSON', function () {
     } catch (err) {
       // noop
     }
+    // close the stream so that afterEach hook can clear the tmpdir
+    // otherwise it will throw an error (for windows)
+    output.close();
   });
 
   it('responds to abortSignal.aborted - with delayed abort', async function () {
