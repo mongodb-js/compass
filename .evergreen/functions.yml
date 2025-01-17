@@ -126,6 +126,12 @@ post:
   - command: attach.xunit_results
     params:
       file: src/.logs/*.xml
+modules:
+  - name: compass-mongodb-com
+    owner: 10gen
+    repo: compass-mongodb-com
+    prefix: ".." # put it next to src which contains compass
+    branch: main
 functions:
   clone:
     - command: git.get_project
@@ -663,12 +669,10 @@ functions:
     - command: shell.exec
       type: setup
       params:
-        working_dir: src
+        working_dir: compass-mongodb-com
         shell: bash
         script: |
           set -e
-          git clone https://github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
-          cd ../compass-mongodb-com
           echo "Using node version:";
           node -v;
           echo "Using npm version:";
