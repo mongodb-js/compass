@@ -131,7 +131,7 @@ modules:
     owner: 10gen
     repo: compass-mongodb-com
     prefix: ".." # put it next to src which contains compass
-    branch: main
+    branch: master
 functions:
   clone:
     - command: git.get_project
