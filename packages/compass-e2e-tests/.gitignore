@@ -4,7 +4,3 @@ fixtures/*.csv
 fixtures/*.json
 hadron-build-info.json
 
-# Ignoring sandboxes (created per test run)
-.smoke-sandboxes/
-# Cache of downloaded binaries
-.smoke-downloads/

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function ensureSandboxesDirectory() {
-  const sandboxesPath = path.resolve(__dirname, '../../.smoke-sandboxes');
+  const sandboxesPath = path.resolve(__dirname, '../.sandboxes');
   if (!fs.existsSync(sandboxesPath)) {
     fs.mkdirSync(sandboxesPath, { recursive: true });
   }
@@ -24,7 +24,7 @@ export function createSandbox() {
 }
 
 export function ensureDownloadsDirectory() {
-  const downloadsPath = path.resolve(__dirname, '../../.smoke-downloads');
+  const downloadsPath = path.resolve(__dirname, '../.downloads');
   if (!fs.existsSync(downloadsPath)) {
     fs.mkdirSync(downloadsPath, { recursive: true });
   }
