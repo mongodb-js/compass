@@ -60,7 +60,7 @@ const StatusMessages: Record<Status, string> = {
   ['UpdateStart']: 'Updating document…',
   ['UpdateError']: '',
   ['UpdateBlocked']:
-    'Document was modified in the background or it longer exists. Do you wish to continue and possibly overwrite new changes?',
+    'Document was modified in the background or it no longer exists. Do you wish to continue and possibly overwrite new changes?',
   ['UpdateSuccess']: 'Document updated.',
   ['DeleteStart']: 'Removing document…',
   ['DeleteError']: '',
