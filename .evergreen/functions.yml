@@ -45,6 +45,15 @@ variables:
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+    GITHUB_TOKEN: ${devtoolsbot_github_token}
+    DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
+    DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    EVERGREEN_BUCKET_NAME: mciuploads
+    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
+    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
+    DOCKERHUB_USERNAME: ${dockerhub_username}
+    DOCKERHUB_PASSWORD: ${dockerhub_password}
+  - &compass-e2e-secrets
     E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
     E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
     E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
@@ -62,24 +71,8 @@ variables:
     E2E_TESTS_ATLAS_READANYDATABASE_STRING: ${e2e_tests_atlas_readanydatabase_string}
     E2E_TESTS_ATLAS_CUSTOMROLE_STRING: ${e2e_tests_atlas_customrole_string}
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
-    MACOS_NOTARY_KEY: ${macos_notary_key}
-    MACOS_NOTARY_SECRET: ${macos_notary_secret}
-    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
-    MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
-    GITHUB_TOKEN: ${devtoolsbot_github_token}
-    DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
-    DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
-    EVERGREEN_BUCKET_NAME: mciuploads
-    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
-    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
-    GARASIGN_USERNAME: ${garasign_username}
-    GARASIGN_PASSWORD: ${garasign_password}
-    ARTIFACTORY_USERNAME: ${artifactory_username}
-    ARTIFACTORY_PASSWORD: ${artifactory_password}
-    DOCKERHUB_USERNAME: ${dockerhub_username}
-    DOCKERHUB_PASSWORD: ${dockerhub_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -459,12 +452,25 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          HADRON_DISTRIBUTION: ${compass_distribution}
+
+          # macOS signing secrets
+          MACOS_NOTARY_KEY: ${macos_notary_key}
+          MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
+          MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
+
+          # linux / windows signing secrets
+          GARASIGN_USERNAME: ${garasign_username}
+          GARASIGN_PASSWORD: ${garasign_password}
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+
+          HADRON_DISTRIBUTION: ${compass_distribution}
           GITHUB_PR_NUMBER: ${github_pr_number}
           PAPERTRAIL_KEY_ID: ${papertrail_key_id}
           PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
@@ -596,6 +602,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
@@ -625,6 +632,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
@@ -660,6 +668,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
@@ -692,7 +701,6 @@ functions:
             # TODO: rhel_tar
           #fi
 
-
   test-web-sandbox:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
@@ -702,6 +710,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
@@ -716,7 +725,6 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci web
 
-    
   test-web-sandbox-atlas-cloud:
     - command: shell.exec
       # It can take a very long time for Atlas cluster to get deployed
@@ -726,6 +734,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           DEBUG: ${debug|}
           COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME: ${e2e_tests_compass_web_atlas_username}
           COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD: ${e2e_tests_compass_web_atlas_password}
@@ -758,6 +767,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_SKIP_KERBEROS_TESTS: 'true'
           COMPASS_RUN_DOCKER_TESTS: 'true'
           DEBUG: ${debug}
