@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import crossSpawn from 'cross-spawn';
+import kill from 'tree-kill';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
@@ -175,7 +177,9 @@ async function run() {
     ])
   );
 
-  const { kind, buildInfo, filepath } = await getTestSubject(context);
+  const { kind, buildInfo, filepath, autoUpdatable } = await getTestSubject(
+    context
+  );
   const install = getInstaller(kind);
 
   try {
@@ -188,7 +192,25 @@ async function run() {
     });
 
     try {
-      runTest({ appName, appPath });
+      const server = startAutoUpdateServer({
+        allowDowngrades: true,
+        port: 8080,
+      });
+      try {
+        runTest({
+          appName,
+          appPath,
+          autoUpdatable,
+          testName: 'AUTO_UPDATE_FROM',
+        });
+      } finally {
+        if (server.pid) {
+          console.log('Stopping auto-update server');
+          kill(server.pid, 'SIGINT');
+        } else {
+          console.log('cannnot stop auto-update server because no pid');
+        }
+      }
     } finally {
       await uninstall();
     }
@@ -198,12 +220,55 @@ async function run() {
   }
 }
 
+type AutoUpdateServerOptions = {
+  port: number;
+  allowDowngrades?: boolean;
+};
+
+function startAutoUpdateServer({
+  port,
+  allowDowngrades,
+}: AutoUpdateServerOptions) {
+  const env: Record<string, string> = {
+    ...process.env,
+    PORT: port.toString(),
+  };
+  if (allowDowngrades) {
+    env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
+  }
+
+  // a git repo that is not published to npm that evergreen clones for us in CI
+  // next to the Compass code
+  const cwd = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    'compass-mongodb-com'
+  );
+
+  if (!fs.existsSync(cwd)) {
+    throw new Error(`compass-mongodb-com does not exist: ${cwd}`);
+  }
+
+  console.log('Starting auto-update server');
+  return crossSpawn('npm', ['run', 'start'], { env, cwd, shell: true });
+}
+
 type RunTestOptions = {
   appName: string;
   appPath: string;
+  autoUpdatable?: boolean;
+  testName: string;
 };
 
-function runTest({ appName, appPath }: RunTestOptions) {
+function runTest({
+  appName,
+  appPath,
+  autoUpdatable,
+  testName,
+}: RunTestOptions) {
   execute(
     'npm',
     [
@@ -213,11 +278,14 @@ function runTest({ appName, appPath }: RunTestOptions) {
       '--workspace',
       'compass-e2e-tests',
       '--',
-      '--test-filter=time-to-first-query',
+      '--test-filter=auto-update',
     ],
     {
       env: {
         ...process.env,
+        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+        AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
+        TEST_NAME: testName,
         COMPASS_APP_NAME: appName,
         COMPASS_APP_PATH: appPath,
       },
