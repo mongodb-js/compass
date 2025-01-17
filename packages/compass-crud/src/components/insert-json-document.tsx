@@ -29,12 +29,11 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
   isCommentNeeded,
   updateJsonDoc,
 }) => {
-  const [text, setText] = useState(() => {
-    return isCommentNeeded ? `${EDITOR_COMMENT}${jsonDoc}` : jsonDoc;
+  const [prefix] = useState(() => {
+    return isCommentNeeded ? `${EDITOR_COMMENT}` : '';
   });
 
   const onChangeText = (value: string) => {
-    setText(value);
     updateJsonDoc(value.split('*/\n').pop() ?? '');
   };
 
@@ -46,8 +45,7 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
     >
       <CodemirrorMultilineEditor
         data-testid="insert-document-json-editor"
-        language="json"
-        text={text}
+        text={prefix + jsonDoc}
         onChangeText={onChangeText}
         initialJSONFoldAll={false}
         minLines={18}

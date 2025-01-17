@@ -299,7 +299,7 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
       mode: ParseMode.Strict,
     });
     if (!parsed || typeof parsed !== 'object') {
-      // XXX(COMPASS-5689): We've hit the condition in
+      // XXX(COMPASS-5205): We've hit the condition in
       // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
       // in which instead of returning a parsed value or throwing an error,
       // the query parser just returns an empty string when encountering

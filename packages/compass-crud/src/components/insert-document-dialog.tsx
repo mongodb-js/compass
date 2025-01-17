@@ -4,9 +4,12 @@ import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
   Banner,
+  Button,
+  Code,
   css,
   FormModal,
   Icon,
+  Link,
   SegmentedControl,
   SegmentedControlOption,
   spacing,
@@ -19,7 +22,10 @@ import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-
+import { parseShellBSON } from '../stores/crud-store';
+import { BSONObject } from 'hadron-document/dist/utils';
+import { EJSON } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 /**
  * The insert invalid message.
  */
@@ -44,8 +50,8 @@ const bannerStyles = css({
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
-  toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
-  toggleInsertDocument: (view: 'JSON' | 'List') => void;
+  toggleInsertDocumentView: (view: 'Editor' | 'List') => void;
+  toggleInsertDocument: (view: 'Editor' | 'List') => void;
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
@@ -176,18 +182,20 @@ class InsertDocumentDialog extends React.PureComponent<
   }
 
   /**
-   * Switches between JSON and Hadron Document views.
+   * Switches between Editor and Hadron Document views.
    *
    * In case of multiple documents, only switches the this.props.insert.jsonView
    * In other cases, also modifies this.props.insert.doc/jsonDoc to keep data in place.
    *
-   * @param {String} view - which view we are looking at: JSON or LIST.
+   * @param {String} view - which view we are looking at: Editor or List.
    */
-  switchInsertDocumentView(view: string) {
+  switchInsertDocumentView(view: 'Editor' | 'List' | string) {
+    if (view !== 'Editor' && view !== 'List')
+      throw new Error(`Unexpected view type, got ${view}`);
     if (!this.hasManyDocuments()) {
-      this.props.toggleInsertDocument(view as 'JSON' | 'List');
+      this.props.toggleInsertDocument(view);
     } else {
-      this.props.toggleInsertDocumentView(view as 'JSON' | 'List');
+      this.props.toggleInsertDocumentView(view);
     }
   }
 
@@ -204,7 +212,7 @@ class InsertDocumentDialog extends React.PureComponent<
   hasErrors() {
     if (this.props.jsonView) {
       try {
-        JSON.parse(this.props.jsonDoc);
+        parseShellBSON(this.props.jsonDoc);
         return false;
       } catch {
         return true;
@@ -221,7 +229,7 @@ class InsertDocumentDialog extends React.PureComponent<
   hasManyDocuments() {
     let jsonDoc: unknown;
     try {
-      jsonDoc = JSON.parse(this.props.jsonDoc);
+      jsonDoc = parseShellBSON(this.props.jsonDoc);
     } catch {
       return false;
     }
@@ -262,14 +270,71 @@ class InsertDocumentDialog extends React.PureComponent<
     );
   }
 
+  accidentalEJSONKey(): [string, string] | undefined {
+    const allKeys = function* (doc: unknown): Iterable<string> {
+      if (
+        typeof doc !== 'object' ||
+        !doc ||
+        ('_bsontype' in doc && doc._bsontype)
+      )
+        return;
+      if (Array.isArray(doc)) {
+        for (const item of doc) yield* allKeys(item);
+      }
+      for (const [key, value] of Object.entries(doc)) {
+        yield key;
+        yield* allKeys(value);
+      }
+    };
+    const table = Object.fromEntries([
+      ['$oid', 'ObjectId()'],
+      ['$symbol', 'BSONSymbol()'],
+      ['$numberInt', 'Int32()'],
+      ['$numberLong', 'Long()'],
+      ['$numberDouble', 'Double()'],
+      ['$numberDecimal', 'Decimal128()'],
+      ['$binary', 'Binary()'],
+      ['$code', 'Code()'],
+      ['$timestamp', 'Timestamp()'],
+      ['$regularExpression', 'BSONRegExp()'],
+      ['$date', 'ISODate()'],
+      ['$minKey', 'MinKey()'],
+      ['$maxKey', 'MaxKey()'],
+    ] as const);
+
+    if (!this.props.jsonView) return;
+    try {
+      const doc = parseShellBSON(this.props.jsonDoc);
+      for (const key of allKeys(doc)) {
+        if (table[key]) return [key, table[key]];
+      }
+    } catch {
+      return;
+    }
+  }
+
+  convertEJSONToShellSyntax = () => {
+    let parsed;
+    try {
+      parsed = parseShellBSON(this.props.jsonDoc);
+    } catch (err) {
+      console.error({ err });
+      return;
+    }
+    const converted = toJSString(EJSON.deserialize(parsed)) ?? null;
+    this.props.updateJsonDoc(converted);
+  };
+
   /**
    * Render the modal dialog.
    *
    * @returns {React.Component} The react component.
    */
   render() {
-    const currentView = this.props.jsonView ? 'JSON' : 'List';
+    const currentView = this.props.jsonView ? 'Editor' : 'List';
     const variant = this.state.insertInProgress ? 'info' : 'danger';
+
+    const showEJSONConversionBannerKeys = this.accidentalEJSONKey();
 
     let message = this.props.message;
 
@@ -305,8 +370,8 @@ class InsertDocumentDialog extends React.PureComponent<
             <SegmentedControlOption
               disabled={this.hasErrors()}
               data-testid="insert-document-dialog-view-json"
-              aria-label="E-JSON View"
-              value="JSON"
+              aria-label="Text editor view"
+              value="Editor"
               glyph={<Icon glyph="CurlyBraces" />}
               onClick={(evt) => {
                 // We override the `onClick` functionality to prevent form submission.
@@ -339,6 +404,35 @@ class InsertDocumentDialog extends React.PureComponent<
             className={bannerStyles}
           >
             {message}
+          </Banner>
+        )}
+        {showEJSONConversionBannerKeys && (
+          <Banner variant="danger" className={bannerStyles}>
+            <p>
+              This document contains keys such as{' '}
+              <code>{showEJSONConversionBannerKeys[0]}</code> which indicate
+              that this document is supposed to be in
+              <Link href="https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/">
+                Extended JSON
+              </Link>
+              format, which was used by previous versions of Compass in this
+              dialog.
+            </p>
+
+            <p>
+              Do you want to convert this text to Shell Syntax (e.g.{' '}
+              <code>{showEJSONConversionBannerKeys[1]}</code>
+              instead of <code>{showEJSONConversionBannerKeys[0]}</code>)?
+            </p>
+
+            <p>
+              <Button
+                variant="default"
+                onClick={this.convertEJSONToShellSyntax}
+              >
+                Convert
+              </Button>
+            </p>
           </Banner>
         )}
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />

@@ -997,12 +997,12 @@ class CrudStoreImpl
       csfleState.state = 'csfle-disabled';
     }
 
-    const jsonDoc = hadronDoc.toEJSON();
+    const jsonDoc = toJSString(hadronDoc.generateObject());
 
     this.setState({
       insert: {
         doc: hadronDoc,
-        jsonDoc: jsonDoc,
+        jsonDoc: jsonDoc ?? null,
         jsonView: true,
         message: '',
         csfleState,
@@ -1260,7 +1260,7 @@ class CrudStoreImpl
    */
   toggleInsertDocument(view: DocumentView) {
     if (view === 'JSON') {
-      const jsonDoc = this.state.insert.doc?.toEJSON();
+      const jsonDoc = toJSString(this.state.insert.doc?.generateObject());
 
       this.setState({
         insert: {
@@ -1344,9 +1344,10 @@ class CrudStoreImpl
    * Insert a single document.
    */
   async insertMany() {
-    const docs = HadronDocument.FromEJSONArray(
-      this.state.insert.jsonDoc ?? ''
-    ).map((doc) => doc.generateObject());
+    const docs = parseShellBSON(this.state.insert.jsonDoc ?? '') as Record<
+      string,
+      unknown
+    >[];
     this.track(
       'Document Inserted',
       {
@@ -1414,9 +1415,7 @@ class CrudStoreImpl
 
     try {
       if (this.state.insert.jsonView) {
-        doc = HadronDocument.FromEJSON(
-          this.state.insert.jsonDoc ?? ''
-        ).generateObject();
+        doc = parseShellBSON(this.state.insert.jsonDoc ?? '') as BSONObject;
       } else {
         doc = this.state.insert.doc!.generateObject();
       }
@@ -2165,7 +2164,7 @@ export async function findAndModifyWithFLEFallback(
 export function parseShellBSON(source: string): BSONObject | BSONObject[] {
   const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
   if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
+    // XXX(COMPASS-5205): We've hit the condition in
     // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
     throw new Error('The provided definition is invalid.');
   }
