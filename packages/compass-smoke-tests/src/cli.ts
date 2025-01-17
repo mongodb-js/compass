@@ -252,8 +252,13 @@ function startAutoUpdateServer({
     throw new Error(`compass-mongodb-com does not exist: ${cwd}`);
   }
 
-  console.log('Starting auto-update server');
-  return crossSpawn('npm', ['run', 'start'], { env, cwd, shell: true });
+  console.log('Starting auto-update server', cwd);
+  return crossSpawn('npm', ['run', 'start'], {
+    env,
+    cwd,
+    stdio: 'inherit',
+    shell: true,
+  });
 }
 
 type RunTestOptions = {
