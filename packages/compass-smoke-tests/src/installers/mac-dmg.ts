@@ -15,6 +15,8 @@ export function installMacDMG({
 
   execute('hdiutil', ['attach', filepath]);
 
+  execute('umask', []);
+
   try {
     fs.cpSync(path.resolve(volumePath, appFilename), appPath, {
       recursive: true,
@@ -33,12 +35,22 @@ export function installMacDMG({
       'Application Support',
       appName
     );
+    const shipitDir = path.resolve(
+      process.env.HOME,
+      'Library',
+      'Caches',
+      'com.mongodb.compass.dev.ShipIt'
+    );
 
-    if (fs.existsSync(settingsDir)) {
-      console.log(`${settingsDir} already exists. Removing.`);
-      fs.rmSync(settingsDir, { recursive: true });
+    for (const dir of [settingsDir, shipitDir]) {
+      if (fs.existsSync(dir)) {
+        console.log(`${dir} already exists. Removing.`);
+        fs.rmSync(dir, { recursive: true });
+      }
     }
   }
+
+  execute('xattr', ['-dr', 'com.apple.quarantine', appPath]);
 
   // see if the executable will run without being quarantined or similar
   // TODO: Move this somewhere shared between mac installers

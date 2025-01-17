@@ -648,6 +648,36 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  get-compass-mongodb-com:
+    - command: github.generate_token
+      params:
+        owner: 10gen
+        repo: compass-mongodb-com
+        expansion_name: generated_token
+        permissions:  # optional
+          contents: read
+    - command: shell.exec
+      type: setup
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          eval $(.evergreen/print-compass-env.sh)
+          git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
+          cd ../compass-mongodb-com
+          echo "Using node version:";
+          node -v;
+          echo "Using npm version:";
+          npm -v;
+          echo "Using gcc version:"
+          gcc --version;
+          echo "Using g++ version:"
+          g++ --version;
+          npm ci --engine-strict=false
+
   smoketest-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
@@ -676,8 +706,8 @@ functions:
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
           fi
 
           #if [[ "$IS_UBUNTU" == "true" ]]; then
