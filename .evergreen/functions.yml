@@ -678,7 +678,7 @@ functions:
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-            npm run --unsafe-perm --workspace compass-e2e-tests smoketest -- --package=osx_dmg
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
             # TODO: osx_zip
           fi
 
