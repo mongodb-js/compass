@@ -45,20 +45,12 @@ variables:
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
-    MACOS_NOTARY_KEY: ${macos_notary_key}
-    MACOS_NOTARY_SECRET: ${macos_notary_secret}
-    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
-    MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
     MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
-    GARASIGN_USERNAME: ${garasign_username}
-    GARASIGN_PASSWORD: ${garasign_password}
-    ARTIFACTORY_USERNAME: ${artifactory_username}
-    ARTIFACTORY_PASSWORD: ${artifactory_password}
     DOCKERHUB_USERNAME: ${dockerhub_username}
     DOCKERHUB_PASSWORD: ${dockerhub_password}
   - &compass-e2e-secrets
@@ -460,12 +452,25 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          HADRON_DISTRIBUTION: ${compass_distribution}
+
+          # macOS signing secrets
+          MACOS_NOTARY_KEY: ${macos_notary_key}
+          MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
+          MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
+
+          # linux / windows signing secrets
+          GARASIGN_USERNAME: ${garasign_username}
+          GARASIGN_PASSWORD: ${garasign_password}
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+
+          HADRON_DISTRIBUTION: ${compass_distribution}
           GITHUB_PR_NUMBER: ${github_pr_number}
           PAPERTRAIL_KEY_ID: ${papertrail_key_id}
           PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
@@ -696,7 +701,6 @@ functions:
             # TODO: rhel_tar
           #fi
 
-
   test-web-sandbox:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
@@ -721,7 +725,6 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci web
 
-    
   test-web-sandbox-atlas-cloud:
     - command: shell.exec
       # It can take a very long time for Atlas cluster to get deployed
