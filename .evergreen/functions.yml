@@ -443,7 +443,7 @@ functions:
         script: |
           set -e
 
-          .evergreen/create-sbom.sh
+          bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
     - command: shell.exec
       params:
         working_dir: src
@@ -658,6 +658,26 @@ functions:
           fi
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+
+  get-compass-mongodb-com:
+    - command: shell.exec
+      type: setup
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          git clone https://github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
+          cd ../compass-mongodb-com
+          echo "Using node version:";
+          node -v;
+          echo "Using npm version:";
+          npm -v;
+          echo "Using gcc version:"
+          gcc --version;
+          echo "Using g++ version:"
+          g++ --version;
+          npm ci --engine-strict=false
 
   smoketest-packaged-app:
     - command: shell.exec
