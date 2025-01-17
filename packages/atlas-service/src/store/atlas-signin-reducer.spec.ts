@@ -159,16 +159,17 @@ describe('atlasSignInReducer', function () {
     });
 
     it('should cancel sign in if sign in is in progress', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox
-          .stub()
-          .callsFake(({ signal }: { signal: AbortSignal }) => {
-            return new Promise((resolve, reject) => {
-              signal.addEventListener('abort', () => {
-                reject(signal.reason);
-              });
+      const isAuthenticatedStub = sandbox
+        .stub()
+        .callsFake(({ signal }: { signal: AbortSignal }) => {
+          return new Promise((resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(signal.reason);
             });
-          }),
+          });
+        });
+      const mockAtlasService = {
+        isAuthenticated: isAuthenticatedStub,
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -176,11 +177,13 @@ describe('atlasSignInReducer', function () {
 
       void store.dispatch(performSignInAttempt()).catch(() => {});
 
-      await Promise.all([
-        store.dispatch(signIn()),
-        store.dispatch(cancelSignIn()),
-      ]);
+      // Give it some time for start the sign in attempt. It will be waiting
+      // at isAuthenticated, which never resolves.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
+
+      expect(isAuthenticatedStub).to.have.been.calledOnce;
     });
   });
 
