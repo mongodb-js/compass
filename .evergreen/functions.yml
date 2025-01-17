@@ -126,12 +126,6 @@ post:
   - command: attach.xunit_results
     params:
       file: src/.logs/*.xml
-modules:
-  - name: compass-mongodb-com
-    owner: 10gen
-    repo: compass-mongodb-com
-    prefix: ".." # put it next to src which contains compass
-    branch: master
 functions:
   clone:
     - command: git.get_project
@@ -666,13 +660,22 @@ functions:
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   get-compass-mongodb-com:
+    - command: github.generate_token
+      params:
+        owner: 10gen
+        repo: compass-mongodb-com
+        expansion_name: generated_token
+        permissions:  # optional
+          contents: read
     - command: shell.exec
       type: setup
       params:
-        working_dir: compass-mongodb-com
+        working_dir: src
         shell: bash
         script: |
           set -e
+          git clone https://x-access-token:${generated_token}github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
+          cd ../compass-mongodb-com
           echo "Using node version:";
           node -v;
           echo "Using npm version:";
