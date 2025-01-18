@@ -443,7 +443,7 @@ functions:
         script: |
           set -e
 
-          .evergreen/create-sbom.sh
+          bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
     - command: shell.exec
       params:
         working_dir: src
