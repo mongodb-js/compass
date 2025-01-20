@@ -7,6 +7,7 @@ type ItemConfig = {
     browser: CompassBrowser,
     selector: string
   ) => Promise<boolean>;
+  // eslint-disable-next-line no-restricted-globals
   getScrollContainer: (parent: Element | null) => ChildNode | null | undefined;
 };
 
@@ -23,6 +24,7 @@ const gridConfig: ItemConfig = {
     const length = await browser.$$(`${selector} [role="row"]`).length;
     return !!(rowCount && length);
   },
+  // eslint-disable-next-line no-restricted-globals
   getScrollContainer: (parent: Element | null) => {
     return parent?.firstChild;
   },
@@ -37,6 +39,7 @@ const treeConfig: ItemConfig = {
   ) => {
     return (await browser.$$(`${selector} [role="treeitem"]`).length) > 0;
   },
+  // eslint-disable-next-line no-restricted-globals
   getScrollContainer: (parent: Element | null) => {
     return parent?.firstChild?.firstChild;
   },
@@ -63,6 +66,7 @@ export async function scrollToVirtualItem(
   // scroll content
   const [scrollHeight, totalHeight] = await browser.execute(
     (selector, getScrollContainerString) => {
+      // eslint-disable-next-line no-restricted-globals
       const container = document.querySelector(selector);
       const scrollContainer = eval(getScrollContainerString)(container);
       const heightContainer = scrollContainer?.firstChild;
@@ -115,6 +119,7 @@ export async function scrollToVirtualItem(
       // scroll for another screen
       await browser.execute(
         (selector, nextScrollTop, getScrollContainerString) => {
+          // eslint-disable-next-line no-restricted-globals
           const container = document.querySelector(selector);
           const scrollContainer = eval(getScrollContainerString)(container);
           if (!scrollContainer) {

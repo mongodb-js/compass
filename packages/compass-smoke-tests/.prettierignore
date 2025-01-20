@@ -1,0 +1,8 @@
+.nyc_output
+dist
+coverage
+
+# Sandboxes (created per test run)
+.sandboxes/
+# Cache of downloaded files
+.downloads/

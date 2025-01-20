@@ -36,7 +36,8 @@ function startFakeTelemetry(): Promise<Telemetry> {
     },
     pollForEvents: async (browser: CompassBrowser): Promise<void> => {
       tracking = await browser.execute(function () {
-        return (window as any).tracking;
+        // eslint-disable-next-line no-restricted-globals
+        return 'tracking' in window && (window.tracking as any);
       });
 
       neverFetched = false;

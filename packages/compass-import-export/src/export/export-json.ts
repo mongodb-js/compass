@@ -52,9 +52,14 @@ export async function exportJSON({
 
   const ejsonOptions = getEJSONOptionsForVariant(variant);
 
-  if (!abortSignal?.aborted) {
-    output.write('[');
+  if (abortSignal?.aborted) {
+    return {
+      docsWritten,
+      aborted: true,
+    };
   }
+
+  output.write('[');
 
   const docStream = new Transform({
     objectMode: true,
@@ -88,21 +93,17 @@ export async function exportJSON({
       [inputStream, docStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
-    output.write(']\n', 'utf8');
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
-      // Finish the JSON file as the `final` of the docs stream didn't run.
-      output.write(']\n', 'utf8');
-
       return {
         docsWritten,
         aborted: true,
       };
     }
-    output.write(']\n', 'utf8');
-
     throw err;
   } finally {
+    // Finish the array output
+    output.write(']\n');
     void input.close();
   }
 

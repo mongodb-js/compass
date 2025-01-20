@@ -288,7 +288,6 @@ export type CreateNamespaceOptions = {
   database?: string;
   collection: string;
   options: {
-    capped?: boolean;
     size?: number;
     collation?: Record<string, unknown>;
     timeseries?: Record<string, unknown>;
@@ -389,7 +388,6 @@ export const createNamespace = (
       await ds.createCollection(namespace, (options as any) ?? {});
 
       const trackEvent = {
-        is_capped: !!data.options.capped,
         has_collation: !!data.options.collation,
         is_timeseries: !!data.options.timeseries,
         is_clustered: !!data.options.clusteredIndex,
