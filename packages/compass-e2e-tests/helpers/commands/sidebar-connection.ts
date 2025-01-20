@@ -4,7 +4,7 @@ import * as Selectors from '../selectors';
 export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
-): Promise<string | undefined> {
+): Promise<string> {
   const connections = browser.$$(Selectors.sidebarConnection(connectionName));
 
   const numConnections = await connections.length;
@@ -15,9 +15,17 @@ export async function getConnectionIdByName(
     );
   }
 
-  return await browser
+  const connectionId = await browser
     .$(Selectors.sidebarConnection(connectionName))
     .getAttribute('data-connection-id');
+
+  if (!connectionId) {
+    throw new Error(
+      `Could not find connection id for connection ${connectionName}`
+    );
+  }
+
+  return connectionId;
 }
 
 export async function selectConnection(

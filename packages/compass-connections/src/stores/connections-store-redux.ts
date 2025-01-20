@@ -1316,14 +1316,8 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (
-    dispatch,
-    _getState,
-    { preferences, track, getExtraConnectionData }
-  ) => {
-    const { openConnectionFailedToast } = getNotificationTriggers(
-      preferences.getPreferences().enableMultipleConnectionSystem
-    );
+  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+    const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
 
@@ -1534,12 +1528,9 @@ const connectWithOptions = (
         forceConnectionOptions,
         browserCommandForOIDCAuth,
         maximumNumberOfActiveConnections,
-        enableMultipleConnectionSystem,
       } = preferences.getPreferences();
 
-      const connectionProgress = getNotificationTriggers(
-        enableMultipleConnectionSystem
-      );
+      const connectionProgress = getNotificationTriggers();
 
       if (
         typeof maximumNumberOfActiveConnections !== 'undefined' &&
@@ -1880,13 +1871,9 @@ export const createNewConnection = (): ConnectionsThunkAction<
   void,
   CreateNewConnectionAction
 > => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
     dispatch({ type: ActionTypes.CreateNewConnection });
@@ -1896,13 +1883,9 @@ export const createNewConnection = (): ConnectionsThunkAction<
 export const editConnection = (
   connectionId: ConnectionId
 ): ConnectionsThunkAction<void, EditConnectionAction> => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
     dispatch({ type: ActionTypes.EditConnection, connectionId });
@@ -1913,13 +1896,9 @@ export const duplicateConnection = (
   connectionId: ConnectionId,
   { autoDuplicate }: { autoDuplicate: boolean } = { autoDuplicate: false }
 ): ConnectionsThunkAction<void, DuplicateConnectionAction> => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
 
@@ -1963,7 +1942,7 @@ const cleanupConnection = (
   return (
     _dispatch,
     getState,
-    { preferences, logger: { log, debug, mongoLogId }, track }
+    { logger: { log, debug, mongoLogId }, track }
   ) => {
     log.info(
       mongoLogId(1_001_000_313),
@@ -1987,9 +1966,7 @@ const cleanupConnection = (
       );
     }
 
-    const { closeConnectionStatusToast } = getNotificationTriggers(
-      preferences.getPreferences().enableMultipleConnectionSystem
-    );
+    const { closeConnectionStatusToast } = getNotificationTriggers();
 
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
 

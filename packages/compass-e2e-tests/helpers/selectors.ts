@@ -368,8 +368,7 @@ export const CollapseConnectionsButton =
   '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
 export const sidebarDatabase = (
-  // TODO(COMPASS-7906): don't allow undefined connectionId
-  connectionId: string | undefined,
+  connectionId: string,
   dbName: string
 ): string => {
   if (connectionId) {
@@ -379,16 +378,14 @@ export const sidebarDatabase = (
 };
 
 export const sidebarDatabaseToggle = (
-  // TODO(COMPASS-7906): don't allow undefined connectionId
-  connectionId: string | undefined,
+  connectionId: string,
   dbName: string
 ): string => {
   return `${sidebarDatabase(connectionId, dbName)} button[type=button]`;
 };
 
 export const sidebarCollection = (
-  // TODO(COMPASS-7906): don't allow undefined connectionId
-  connectionId: string | undefined,
+  connectionId: string,
   dbName: string,
   collectionName: string
 ): string => {

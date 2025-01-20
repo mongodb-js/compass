@@ -18,7 +18,7 @@ const { expect } = chai;
 describe('Instance sidebar', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  let connectionId: string | undefined;
+  let connectionId: string;
 
   before(async function () {
     compass = await init(this.test?.fullTitle());
