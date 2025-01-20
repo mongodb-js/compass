@@ -264,7 +264,7 @@ describe('AtlasCloudConnectionStorage', function () {
             payload = Array.from(Object.values(testClusters));
           }
           const { groups } =
-            /\/nds\/clusters\/abc\/(?<clusterName>.+?)\/+?/.exec(path) ?? {
+            /^\/nds\/clusters\/abc\/(?<clusterName>.+?)\/.+?$/.exec(path) ?? {
               groups: undefined,
             };
           if (groups?.clusterName) {
