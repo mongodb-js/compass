@@ -11,6 +11,11 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { createServiceProvider } from 'hadron-app-registry';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import {
+  mongoLogId,
+  useLogger,
+  type Logger,
+} from '@mongodb-js/compass-logging/provider';
 
 type ElectableSpecs = {
   instanceSize?: string;
@@ -156,7 +161,7 @@ export function buildConnectionInfoFromClusterDescription(
   description: ClusterDescriptionWithDataProcessingRegion,
   deployment: Deployment,
   extraConnectionOptions?: Record<string, any>
-) {
+): ConnectionInfo {
   const connectionString = new ConnectionString(
     `mongodb+srv://${description.srvAddress}`
   );
@@ -221,7 +226,10 @@ export function buildConnectionInfoFromClusterDescription(
   };
 }
 
-class AtlasCloudConnectionStorage
+/**
+ * @internal exported for testing purposes
+ */
+export class AtlasCloudConnectionStorage
   extends InMemoryConnectionStorage
   implements ConnectionStorage
 {
@@ -230,6 +238,7 @@ class AtlasCloudConnectionStorage
     private atlasService: AtlasService,
     private orgId: string,
     private projectId: string,
+    private logger: Logger,
     private extraConnectionOptions?: Record<string, any>
   ) {
     super();
@@ -249,67 +258,95 @@ class AtlasCloudConnectionStorage
           // TODO(CLOUDP-249088): replace with the list request that already
           // contains regional data when it exists instead of fetching
           // one-by-one after the list fetch
-          this.atlasService.cloudEndpoint(`nds/clusters/${this.projectId}`)
+          this.atlasService.cloudEndpoint(`/nds/clusters/${this.projectId}`)
         )
         .then((res) => {
           return res.json() as Promise<ClusterDescription[]>;
         })
         .then((descriptions) => {
           return Promise.all(
-            descriptions
-              .filter((description) => {
-                // Only list fully deployed clusters
-                // TODO(COMPASS-8228): We should probably list all and just
-                // account in the UI for a special state of a deployment as
-                // clusters can become inactive during their runtime and it's
-                // valuable UI info to display
-                return !description.isPaused && !!description.srvAddress;
-              })
-              .map(async (description) => {
-                // Even though nds/clusters will list serverless clusters, to get
-                // the regional description we need to change the url
-                const clusterDescriptionType = isServerless(description)
-                  ? 'serverless'
-                  : 'clusters';
+            descriptions.map(async (description) => {
+              // Even though nds/clusters will list serverless clusters, to get
+              // the regional description we need to change the url
+              const clusterDescriptionType = isServerless(description)
+                ? 'serverless'
+                : 'clusters';
+              try {
                 const res = await this.atlasService.authenticatedFetch(
                   this.atlasService.cloudEndpoint(
-                    `nds/${clusterDescriptionType}/${this.projectId}/${description.name}/regional/clusterDescription`
+                    `/nds/${clusterDescriptionType}/${this.projectId}/${description.name}/regional/clusterDescription`
                   )
                 );
                 return await (res.json() as Promise<ClusterDescriptionWithDataProcessingRegion>);
-              })
+              } catch (err) {
+                this.logger.log.error(
+                  mongoLogId(1_001_000_303),
+                  'LoadAndNormalizeClusterDescriptionInfo',
+                  'Failed to fetch cluster description for cluster',
+                  { clusterName: description.name, error: (err as Error).stack }
+                );
+                return null;
+              }
+            })
           );
         }),
       this.atlasService
         .authenticatedFetch(
-          this.atlasService.cloudEndpoint(`deployment/${this.projectId}`)
+          this.atlasService.cloudEndpoint(`/deployment/${this.projectId}`)
         )
         .then((res) => {
           return res.json() as Promise<Deployment>;
         }),
     ]);
 
-    return clusterDescriptions.map((description) => {
-      return buildConnectionInfoFromClusterDescription(
-        this.atlasService.driverProxyEndpoint(
-          `/clusterConnection/${this.projectId}`
-        ),
-        this.orgId,
-        this.projectId,
-        description,
-        deployment,
-        this.extraConnectionOptions
-      );
-    });
+    return clusterDescriptions
+      .map((description) => {
+        // Clear cases where cluster doesn't have enough metadata
+        //  - Failed to get the description
+        //  - Cluster is paused
+        //  - Cluster is missing an srv address (happens during deployment /
+        //    termination)
+        if (!description || !!description.isPaused || !description.srvAddress) {
+          return null;
+        }
+
+        try {
+          // We will always try to build the metadata, it can fail if deployment
+          // item for the cluster is missing even when description exists
+          // (happens during deployment / termination / weird corner cases of
+          // atlas cluster state)
+          return buildConnectionInfoFromClusterDescription(
+            this.atlasService.driverProxyEndpoint(
+              `/clusterConnection/${this.projectId}`
+            ),
+            this.orgId,
+            this.projectId,
+            description,
+            deployment,
+            this.extraConnectionOptions
+          );
+        } catch (err) {
+          this.logger.log.error(
+            mongoLogId(1_001_000_304),
+            'LoadAndNormalizeClusterDescriptionInfo',
+            'Failed to build connection info from cluster description',
+            { clusterName: description.name, error: (err as Error).stack }
+          );
+
+          return null;
+        }
+      })
+      .filter((connectionInfo): connectionInfo is ConnectionInfo => {
+        return !!connectionInfo;
+      });
   }
 
-  async loadAll(): Promise<ConnectionInfo[]> {
-    try {
-      return (this.loadAllPromise ??=
-        this._loadAndNormalizeClusterDescriptionInfo());
-    } finally {
-      delete this.loadAllPromise;
-    }
+  loadAll(): Promise<ConnectionInfo[]> {
+    this.loadAllPromise ??=
+      this._loadAndNormalizeClusterDescriptionInfo().finally(() => {
+        delete this.loadAllPromise;
+      });
+    return this.loadAllPromise;
   }
 }
 
@@ -358,12 +395,14 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     const extraConnectionOptions = useContext(
       SandboxExtraConnectionOptionsContext
     );
+    const logger = useLogger('ATLAS-CLOUD-CONNECTION-STORAGE');
     const atlasService = atlasServiceLocator();
     const storage = useRef(
       new AtlasCloudConnectionStorage(
         atlasService,
         orgId,
         projectId,
+        logger,
         extraConnectionOptions
       )
     );

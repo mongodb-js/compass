@@ -55,20 +55,11 @@ const CollectionHeaderActions: React.FunctionComponent<
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
     useOpenWorkspace();
-  const {
-    readOnly: preferencesReadOnly,
-    enableShell,
-    enableMultipleConnectionSystem,
-  } = usePreferences([
-    'readOnly',
-    'enableShell',
-    'enableMultipleConnectionSystem',
-  ]);
+  const { readOnly: preferencesReadOnly, enableShell: showOpenShellButton } =
+    usePreferences(['readOnly', 'enableShell']);
   const track = useTelemetry();
 
   const { database, collection } = toNS(namespace);
-
-  const showOpenShellButton = enableShell && enableMultipleConnectionSystem;
 
   return (
     <div

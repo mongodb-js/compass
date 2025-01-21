@@ -323,68 +323,39 @@ const databaseToItems = ({
 /**
  * Converts a list connections to virtual tree items.
  *
- * When isSingleConnection is true, the connections are treated as a single connection mode
- * and only two levels of items are shown: databases and collections.
- *
  * The IDs of the items are just to be used by the tree to correctly identify the items and
  * do not represent the actual IDs of the items.
  *
  * @param connections - The connections.
- * @param isSingleConnection - Whether the connections are a single connection.
  * @param expandedItems - The expanded items.
  */
 export function getVirtualTreeItems({
   connections,
-  isSingleConnection,
   expandedItems = {},
   preferencesReadOnly,
   preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
-  isSingleConnection: boolean;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
-  if (!isSingleConnection) {
-    return connections.flatMap((connection, connectionIndex) => {
-      if (connection.connectionStatus === ConnectionStatus.Connected) {
-        return connectedConnectionToItems({
-          connection,
-          expandedItems,
-          connectionIndex,
-          connectionsLength: connections.length,
-          preferencesReadOnly,
-          preferencesShellEnabled,
-        });
-      } else {
-        return notConnectedConnectionToItems({
-          connection,
-          connectionsLength: connections.length,
-          connectionIndex,
-        });
-      }
-    });
-  }
-
-  const connection = connections[0];
-  // In single connection mode we expect the only connection to be connected
-  if (connection.connectionStatus !== ConnectionStatus.Connected) {
-    return [];
-  }
-
-  const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-  const hasWriteActionsDisabled =
-    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
-  return connection.databases.flatMap((database, databaseIndex) => {
-    return databaseToItems({
-      connectionId: connection.connectionInfo.id,
-      database,
-      expandedItems: dbExpandedItems,
-      level: 1,
-      databasesLength: connection.databasesLength,
-      databaseIndex,
-      hasWriteActionsDisabled,
-    });
+  return connections.flatMap((connection, connectionIndex) => {
+    if (connection.connectionStatus === ConnectionStatus.Connected) {
+      return connectedConnectionToItems({
+        connection,
+        expandedItems,
+        connectionIndex,
+        connectionsLength: connections.length,
+        preferencesReadOnly,
+        preferencesShellEnabled,
+      });
+    } else {
+      return notConnectedConnectionToItems({
+        connection,
+        connectionsLength: connections.length,
+        connectionIndex,
+      });
+    }
   });
 }

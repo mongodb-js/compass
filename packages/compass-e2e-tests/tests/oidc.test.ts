@@ -257,17 +257,17 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
     );
 
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
     await once(emitter, 'authorizeEndpointCalled');
 
-    await browser.closeConnectModal();
+    await browser.clickVisible(Selectors.ConenctionToastCancelConnectionButton);
 
     overrideRequestHandler = () => {};
     await browser.connectWithConnectionString(connectionString);
@@ -315,13 +315,13 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
@@ -331,7 +331,7 @@ describe('OIDC integration', function () {
     // auth and then that will trigger the confirmation modal we expect.
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.OpenShellItem,
+      Selectors.OpenShellItem,
       false
     );
 
@@ -360,13 +360,13 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
@@ -376,7 +376,7 @@ describe('OIDC integration', function () {
     // auth and then that will trigger the confirmation modal we expect
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.OpenShellItem,
+      Selectors.OpenShellItem,
       false
     );
 

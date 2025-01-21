@@ -108,7 +108,7 @@ function Home({
       <CompassInstanceStorePlugin>
         <FieldStorePlugin>
           <div data-testid="home" className={verticalSplitStyles}>
-            <AppRegistryProvider scopeName="Multiple Connections">
+            <AppRegistryProvider scopeName="Connections">
               <Workspace
                 appName={appName}
                 onActiveWorkspaceTabChange={onWorkspaceChange}

@@ -201,13 +201,6 @@ describe('Global preferences', function () {
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
       }
-      // TODO(COMPASS-8071): This just passes for multiple connections because
-      // the shell section is never there.
-      {
-        const shellSection = browser.$(Selectors.ShellSection);
-        const isShellSectionExisting = await shellSection.isExisting();
-        expect(isShellSectionExisting).to.be.equal(false);
-      }
     } finally {
       await cleanup(compass);
     }

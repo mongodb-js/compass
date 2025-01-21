@@ -13,8 +13,6 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
-  const Sidebar = Selectors.Multiple;
-
   if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     await browser
@@ -22,7 +20,7 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
       .waitForDisplayed({ reverse: true });
   }
 
-  await browser.clickVisible(Sidebar.SidebarNewConnectionButton);
+  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
   const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
