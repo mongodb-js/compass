@@ -8,6 +8,8 @@ import { type PackageKind } from './packages';
 import { type SmokeTestsContext } from './context';
 import { pick } from 'lodash';
 
+const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
+
 function assertObjectHasKeys(
   obj: unknown,
   name: string,
@@ -25,13 +27,21 @@ function assertObjectHasKeys(
 
 // subsets of the hadron-build info result
 
-export const commonKeys = ['productName'] as const;
-export type CommonBuildInfo = Record<typeof commonKeys[number], string>;
+export const commonKeys = ['productName', 'channel'] as const;
+export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
+  channel: 'dev' | 'beta' | 'stable';
+};
 
 export function assertCommonBuildInfo(
   buildInfo: unknown
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
+  assert(
+    SUPPORTED_CHANNELS.includes((buildInfo as any).channel),
+    `Expected ${(buildInfo as any).channel} to be in ${SUPPORTED_CHANNELS.join(
+      ','
+    )}`
+  );
 }
 
 export const windowsFilenameKeys = [

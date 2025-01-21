@@ -7,7 +7,7 @@ import { ensureDownloadsDirectory } from './directories';
 
 type DownloadFileOptions = {
   url: string;
-  targetFilename: string;
+  targetFilename?: string;
   clearCache?: boolean;
 };
 
@@ -17,6 +17,14 @@ export async function downloadFile({
   clearCache,
 }: DownloadFileOptions): Promise<string> {
   const response = await fetch(url);
+
+  if (!targetFilename) {
+    // if no filename was specified, work out the filename based on the final
+    // URL the way a browser would
+    targetFilename = path.basename(new URL(response.url).pathname);
+  }
+
+  assert(targetFilename, 'Expected a filename');
 
   const etag = response.headers.get('etag');
   assert(etag, 'Expected an ETag header');
@@ -49,6 +57,8 @@ export async function downloadFile({
     response.body,
     fs.createWriteStream(outputPath)
   );
+
+  console.log(outputPath);
 
   return outputPath;
 }
