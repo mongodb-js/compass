@@ -175,12 +175,10 @@ async function run() {
     ])
   );
 
-  const { kind, buildInfo, filepath } = await getTestSubject(context);
+  const { kind, filepath, appName } = await getTestSubject(context);
   const install = getInstaller(kind);
 
   try {
-    const appName = buildInfo.productName;
-
     const { appPath, uninstall } = install({
       appName,
       filepath,
@@ -194,7 +192,7 @@ async function run() {
     }
   } finally {
     console.log('Cleaning up sandbox');
-    fs.rmSync(context.sandboxPath, { recursive: true });
+    // fs.rmSync(context.sandboxPath, { recursive: true });
   }
 }
 
