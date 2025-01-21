@@ -412,10 +412,6 @@ export const CreateCollectionCreateButton =
   '[data-testid="create-collection-modal"] [data-testid="submit-button"]';
 export const CreateCollectionCancelButton =
   '[data-testid="create-collection-modal"] [data-testid="cancel-button"]';
-export const CreateCollectionCappedCheckboxLabel =
-  '[data-testid="capped-collection-fields"] [data-testid="capped-collection-fields-label"]';
-export const CreateCollectionCappedSizeInput =
-  '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create-collection-modal"] [data-testid="additional-collection-preferences"]';
 export const CreateCollectionCustomCollationCheckboxLabel =

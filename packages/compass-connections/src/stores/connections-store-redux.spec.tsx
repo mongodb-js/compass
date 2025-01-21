@@ -10,6 +10,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { getDataServiceForConnection } from './connections-store-redux';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 const mockConnections = [
   {
@@ -33,6 +35,13 @@ const mockConnections = [
     savedConnectionType: 'favorite' as const,
   },
 ];
+
+const connectionInfoWithAtlasMetadata = {
+  ...createDefaultConnectionInfo(),
+  atlasMetadata: {
+    clusterName: 'pineapple',
+  } as ConnectionInfo['atlasMetadata'],
+};
 
 function renderCompassConnections(opts?: RenderConnectionsOptions) {
   return render(
@@ -273,6 +282,101 @@ describe('CompassConnections store', function () {
       expect(
         await connectionStorage.load({ id: mockConnections[0].id })
       ).to.have.nested.property('favorite.name', 'turtles');
+    });
+
+    it('should ignore server heartbeat failed events that are not non-retryable error codes', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      // Wait till we're connected.
+      await connectionsStore.actions.connect(connectionInfoWithAtlasMetadata);
+
+      const connections = connectionsStore.getState().connections;
+      expect(connections.ids).to.have.lengthOf(1);
+
+      const dataService = getDataServiceForConnection(
+        connectionInfoWithAtlasMetadata.id
+      );
+
+      let didDisconnect = false;
+      let didCheckForConnected = false;
+      sinon.stub(dataService, 'disconnect').callsFake(async () => {
+        didDisconnect = true;
+        return Promise.resolve();
+      });
+      dataService.isConnected = () => {
+        // If this is called we know the error wasn't handled properly.
+        didCheckForConnected = true;
+        return true;
+      };
+
+      let didReceiveCallToHeartbeatFailedListener = false;
+      dataService.on('serverHeartbeatFailed', () => {
+        didReceiveCallToHeartbeatFailedListener = true;
+      });
+
+      // Send a heartbeat fail with an error that's not a non-retryable error code.
+      dataService['emit']('serverHeartbeatFailed', {
+        failure: new Error('code: 1234, Not the error we are looking for'),
+      });
+
+      // Wait for the listener to handle the message.
+      await waitFor(() => {
+        expect(didReceiveCallToHeartbeatFailedListener).to.be.true;
+      });
+      await wait(1);
+
+      expect(didDisconnect).to.be.false;
+      expect(didCheckForConnected).to.be.false;
+    });
+
+    it('should listen for non-retryable errors on server heartbeat failed events and disconnect the data service when encountered', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      // Wait till we're connected.
+      await connectionsStore.actions.connect(connectionInfoWithAtlasMetadata);
+
+      const connections = connectionsStore.getState().connections;
+      expect(connections.ids).to.have.lengthOf(1);
+
+      const dataService = getDataServiceForConnection(
+        connectionInfoWithAtlasMetadata.id
+      );
+
+      let didDisconnect = false;
+      sinon.stub(dataService, 'disconnect').callsFake(async () => {
+        didDisconnect = true;
+        return Promise.resolve();
+      });
+      dataService.isConnected = () => true;
+
+      // Send a heartbeat fail with an error that's a non-retryable error code.
+      dataService['emit']('serverHeartbeatFailed', {
+        failure: new Error('code: 3003, reason: Insufficient permissions'),
+      });
+
+      await waitFor(() => {
+        expect(didDisconnect).to.be.true;
+      });
+
+      await waitFor(function () {
+        const titleNode = screen.getByText('Unable to connect to pineapple');
+        expect(titleNode).to.be.visible;
+
+        const descriptionNode = screen.getByText(
+          'Reason: Insufficient permissions. To use continue to use this connection either disconnect and reconnect, or refresh your page.'
+        );
+        expect(descriptionNode).to.be.visible;
+      });
     });
   });
 

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Accordion, spacing, css } from '@mongodb-js/compass-components';
 
-import CappedCollectionFields from './capped-collection-fields';
 import CollectionName from './collection-name';
 import DatabaseName from './database-name';
 import hasTimeSeriesSupport from './has-time-series-support';
@@ -45,13 +44,11 @@ export default class CollectionFields extends PureComponent {
   };
 
   state = {
-    isCapped: false,
     isCustomCollation: false,
     isTimeSeries: false,
     isClustered: false,
     isFLE2: false,
     fields: {
-      cappedSize: '',
       collation: {},
       collectionName: '',
       databaseName: '',
@@ -90,18 +87,8 @@ export default class CollectionFields extends PureComponent {
   };
 
   buildOptions() {
-    const {
-      isCapped,
-      isCustomCollation,
-      isTimeSeries,
-      isClustered,
-      isFLE2,
-      fields,
-    } = this.state;
-
-    const cappedOptions = isCapped
-      ? { capped: true, size: asNumber(fields.cappedSize) }
-      : {};
+    const { isCustomCollation, isTimeSeries, isClustered, isFLE2, fields } =
+      this.state;
 
     const collationOptions = isCustomCollation
       ? { collation: fields.collation }
@@ -141,7 +128,6 @@ export default class CollectionFields extends PureComponent {
 
     return omitEmptyFormFields({
       ...collationOptions,
-      ...cappedOptions,
       ...timeSeriesOptions,
       ...clusteredOptions,
       ...fle2Options,
@@ -151,19 +137,12 @@ export default class CollectionFields extends PureComponent {
   render() {
     const { serverVersion, withDatabase } = this.props;
 
-    const {
-      fields,
-      isCapped,
-      isCustomCollation,
-      isTimeSeries,
-      isClustered,
-      isFLE2,
-    } = this.state;
+    const { fields, isCustomCollation, isTimeSeries, isClustered, isFLE2 } =
+      this.state;
 
     const {
       collectionName,
       databaseName,
-      cappedSize,
       collation,
       timeSeries,
       expireAfterSeconds,
@@ -189,7 +168,6 @@ export default class CollectionFields extends PureComponent {
         />
         {hasTimeSeriesSupport(serverVersion) && (
           <TimeSeriesFields
-            isCapped={isCapped}
             isTimeSeries={isTimeSeries}
             isClustered={isClustered}
             isFLE2={isFLE2}
@@ -212,22 +190,9 @@ export default class CollectionFields extends PureComponent {
         <Accordion
           data-testid="additional-collection-preferences"
           text="Additional preferences"
-          hintText="(e.g. Custom collation, Capped, Clustered collections)"
+          hintText="(e.g. Custom collation, Clustered collections)"
         >
           <div className={advancedCollectionOptionsContainerStyles}>
-            <CappedCollectionFields
-              cappedSize={`${cappedSize}`}
-              isCapped={isCapped}
-              isTimeSeries={isTimeSeries}
-              isClustered={isClustered}
-              isFLE2={isFLE2}
-              onChangeCappedSize={(newCappedSizeString) =>
-                this.setField('cappedSize', newCappedSizeString)
-              }
-              onChangeIsCapped={(capped) =>
-                this.setState({ isCapped: capped }, this.updateOptions)
-              }
-            />
             <Collation
               collation={collation}
               onChangeCollationOption={(fieldName, value) => {
@@ -243,7 +208,6 @@ export default class CollectionFields extends PureComponent {
             />
             {hasClusteredCollectionSupport(serverVersion) && (
               <ClusteredCollectionFields
-                isCapped={isCapped}
                 isTimeSeries={isTimeSeries}
                 isClustered={isClustered}
                 clusteredIndex={clusteredIndex}
@@ -265,7 +229,6 @@ export default class CollectionFields extends PureComponent {
               this.props.configuredKMSProviders
             ) && (
               <FLE2Fields
-                isCapped={isCapped}
                 isTimeSeries={isTimeSeries}
                 isFLE2={isFLE2}
                 fle2={fle2}
