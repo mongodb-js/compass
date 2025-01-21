@@ -76,7 +76,7 @@ export async function connectWithConnectionString(
     });
   }
 
-  await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
   await browser.$(Selectors.ConnectionModal).waitForDisplayed();
 
   await browser.setValueVisible(
@@ -143,12 +143,9 @@ export async function waitForConnectionResult(
   if (connectionStatus === 'either') {
     // For the very rare cases where we don't care whether it fails or succeeds.
     // Usually because the exact result is a race condition.
-    const successSelector = Selectors.Multiple.connectionItemByName(
-      connectionName,
-      {
-        connected: true,
-      }
-    );
+    const successSelector = Selectors.connectionItemByName(connectionName, {
+      connected: true,
+    });
     const failureSelector = Selectors.ConnectionToastErrorText;
     await browser
       .$(`${successSelector},${failureSelector}`)
@@ -159,7 +156,7 @@ export async function waitForConnectionResult(
     // server
     await browser
       .$(
-        Selectors.Multiple.connectionItemByName(connectionName, {
+        Selectors.connectionItemByName(connectionName, {
           connected: true,
         })
       )

@@ -35,7 +35,6 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('hides and shows the plus icon on the sidebar to create a database', async function () {
-    const Sidebar = Selectors.Multiple;
     await browser.setFeature('readOnly', true);
     await browser.connectToDefaults();
 
@@ -50,7 +49,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(
       await browser.hasConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
-        Sidebar.CreateDatabaseButton,
+        Selectors.CreateDatabaseButton,
         false
       )
     ).to.be.equal(false);
@@ -73,7 +72,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     expect(
       await browser.hasConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
-        Sidebar.CreateDatabaseButton,
+        Selectors.CreateDatabaseButton,
         false
       )
     ).to.be.equal(true);

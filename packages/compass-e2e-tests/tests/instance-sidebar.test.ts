@@ -48,7 +48,7 @@ describe('Instance sidebar', function () {
 
     await browser.selectConnectionMenuItem(
       DEFAULT_CONNECTION_NAME_1,
-      Selectors.Multiple.ClusterInfoItem
+      Selectors.ClusterInfoItem
     );
 
     const modal = browser.$(Selectors.ConnectionInfoModal);
@@ -109,8 +109,8 @@ describe('Instance sidebar', function () {
 
     await browser.waitUntil(async () => {
       const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
-      // connection, database, collection for multiple connections (twice
-      // because there are two connections)
+      // connection, database, collection (twice because there are two
+      // connections)
       return numTreeItems === 6;
     });
 
@@ -147,8 +147,6 @@ describe('Instance sidebar', function () {
     // TODO(COMPASS-7086): flaky test
     this.retries(5);
 
-    const Sidebar = Selectors.Multiple;
-
     const dbName = `my-sidebar-database-${Date.now()}`;
     const collectionName = 'my-collection';
 
@@ -163,7 +161,7 @@ describe('Instance sidebar', function () {
     // open the create database modal from the sidebar
     await browser.selectConnectionMenuItem(
       DEFAULT_CONNECTION_NAME_1,
-      Sidebar.CreateDatabaseButton,
+      Selectors.CreateDatabaseButton,
       false
     );
 
@@ -242,7 +240,7 @@ describe('Instance sidebar', function () {
 
     await browser.selectConnectionMenuItem(
       DEFAULT_CONNECTION_NAME_1,
-      Selectors.Multiple.RefreshDatabasesItem
+      Selectors.RefreshDatabasesItem
     );
 
     // wait for the new collection we added via the driver to appear.

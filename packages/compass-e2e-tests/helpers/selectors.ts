@@ -33,17 +33,7 @@ export const WelcomeModal = '[data-testid="welcome-modal"]';
 export const CloseWelcomeModalButton =
   '[data-testid="welcome-modal"] [aria-label="Close modal"]';
 
-// Connection screen (single connection only)
-export const ConnectSection = '[data-testid="connections-wrapper"]';
-export const ConnectButton = '[data-testid="connect-button"]';
-export const SaveAndConnectButton = '[data-testid="save-and-connect-button"]';
-export const CancelConnectionButton =
-  '[data-testid="cancel-connection-button"]';
-export const ConnectionTitle = '[data-testid="connection-form"] h3';
-export const ConnectionEditFavouriteButton =
-  '[data-testid="edit-favorite-icon-button"]';
-
-// Connection form (shared by single and multiple connection)
+// Connection form
 export const ConnectionForm = '[data-testid="connection-form"]';
 export const ConnectionFormStringInput =
   'textarea[data-testid="connectionString"]';
@@ -69,6 +59,8 @@ export const ConnectionFormInputPassword =
   '[data-testid="connection-password-input"]';
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
+export const CancelConnectionButton =
+  '[data-testid="cancel-connection-button"]';
 
 export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
 export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
@@ -225,11 +217,7 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
   return `[data-testid="url-options"] [data-testid="url-option-entry-${index}"] input`;
 };
 
-// Connection status modal (single connection only)
-export const ConnectionStatusModalContent =
-  '[data-testid="connecting-modal-content"]';
-
-// Multiple Connections Modal
+// Connections modal
 export const ConnectionModal = '[data-testid="connection-form-modal"]';
 export const ConnectionModalTitle = `${ConnectionModal} h3`;
 export const ConnectionModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
@@ -248,93 +236,61 @@ export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
 
-// Single Connection sidebar
-export const Single = {
-  ConnectionsTitle: '[data-testid="connections-title"]',
-  SidebarNewConnectionButton: '[data-testid="new-connection-button"]',
-  FavoriteConnections: '[data-testid="favorite-connection"]',
-  FavoriteConnectionsHeader: '[data-testid="favorite-connections-list-header"]',
-  ConnectionMenu: '[data-testid="connection-menu"]',
-  CopyConnectionStringItem: `[data-testid="connection-menu-copy-connection-string-action"]`,
-  EditConnectionItem: `[data-testid="connection-menu-edit-connection-action"]`,
-  DuplicateConnectionItem: `[data-testid="connection-menu-duplicate-connection-action"]`,
-  RemoveConnectionItem: `[data-testid="connection-menu-remove-connection-action"]`,
-  RecentConnections: '[data-testid="recent-connection"]',
-  CreateDatabaseButton:
-    '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]',
-  // for single connections refresh is a button next to add, not a menu item
-  RefreshDatabasesButton:
-    '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]',
-  ShowTitleActionsButton: '[data-testid="sidebar-title-actions-show-actions"]',
-  ClusterInfoItem:
-    '[data-testid="sidebar-title-actions-open-connection-info-action"]',
-  ConnectionsMenuButton: `[data-testid="favorite-connections-list-header"] button[title="Show actions"]`,
-  ConnectionsMenu: '[data-testid="favorites-menu"]',
-  ExportConnectionsModalOpen:
-    '[data-testid="favorites-menu-export-saved-connections-action"]',
-  ImportConnectionsModalOpen:
-    '[data-testid="favorites-menu-import-saved-connections-action"]',
+// Connections sidebar
+export const ConnectionsTitle = '[data-testid="connections-header"]';
+export const ConnectButton = '[data-action="connection-connect"]';
+export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
+export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
+export const CreateDatabaseButton =
+  '[data-testid="sidebar-navigation-item-actions-create-database-action"]';
+export const OpenShellItem =
+  '[data-testid="sidebar-navigation-item-actions-open-shell-action"]';
+export const ViewPerformanceItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-performance-metrics-action"]';
+export const ShowConnectionInfoItem =
+  '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]';
+export const DisconnectConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-disconnect-action"]';
+export const EditConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-edit-connection-action"]';
+export const CopyConnectionStringItem =
+  '[data-testid="sidebar-navigation-item-actions-copy-connection-string-action"]';
+export const UnfavoriteConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-toggle-favorite-action"]';
+export const DuplicateConnectionItem = `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`;
+export const RemoveConnectionItem = `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`;
+export const RefreshDatabasesItem =
+  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
+export const ClusterInfoItem =
+  '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]';
+export const ConnectionsMenuButton =
+  '[data-testid="connections-list-title-actions-show-actions"]';
+export const ConnectionsMenu = '[data-testid="connections-list-title-actions"]';
+export const ExportConnectionsModalOpen =
+  '[data-testid="connections-list-title-actions-export-saved-connections-action"]';
+export const ImportConnectionsModalOpen =
+  '[data-testid="connections-list-title-actions-import-saved-connections-action"]';
 
-  InUseEncryptionMarker: '[data-testid="fle-connection-configuration"]',
-};
+export const InUseEncryptionMarker = '[data-action="open-csfle-modal"]';
 
-// Multiple Connections sidebar
-export const Multiple = {
-  ConnectionsTitle: '[data-testid="connections-header"]',
-  ConnectButton: '[data-action="connection-connect"]',
-  SidebarNewConnectionButton: '[data-action="add-new-connection"]',
-  ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
-  CreateDatabaseButton:
-    '[data-testid="sidebar-navigation-item-actions-create-database-action"]',
-  OpenShellItem:
-    '[data-testid="sidebar-navigation-item-actions-open-shell-action"]',
-  ViewPerformanceItem:
-    '[data-testid="sidebar-navigation-item-actions-connection-performance-metrics-action"]',
-  ShowConnectionInfoItem:
-    '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]',
-  DisconnectConnectionItem:
-    '[data-testid="sidebar-navigation-item-actions-connection-disconnect-action"]',
-  EditConnectionItem:
-    '[data-testid="sidebar-navigation-item-actions-edit-connection-action"]',
-  CopyConnectionStringItem:
-    '[data-testid="sidebar-navigation-item-actions-copy-connection-string-action"]',
-  UnfavoriteConnectionItem:
-    '[data-testid="sidebar-navigation-item-actions-connection-toggle-favorite-action"]',
-  DuplicateConnectionItem: `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`,
-  RemoveConnectionItem: `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`,
+export const ConnectionItems =
+  '[role="treeitem"][aria-level="1"] [data-is-connected]';
+export const ConnectedConnectionItems =
+  '[role="treeitem"][aria-level="1"] [data-is-connected=true]';
 
-  // for multiple connections refresh is a menu item, not a button next to add database
-  RefreshDatabasesItem:
-    '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]',
-  ClusterInfoItem:
-    '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]',
-  ConnectionsMenuButton:
-    '[data-testid="connections-list-title-actions-show-actions"]',
-  ConnectionsMenu: '[data-testid="connections-list-title-actions"]',
-  ExportConnectionsModalOpen:
-    '[data-testid="connections-list-title-actions-export-saved-connections-action"]',
-  ImportConnectionsModalOpen:
-    '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
+export const NoDeploymentsText = '[data-testid="no-deployments-text"]';
+export const AddNewConnectionButton =
+  '[data-testid="add-new-connection-button"]';
 
-  InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
-
-  ConnectionItems: '[role="treeitem"][aria-level="1"] [data-is-connected]',
-  ConnectedConnectionItems:
-    '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
-
-  NoDeploymentsText: '[data-testid="no-deployments-text"]',
-  AddNewConnectionButton: '[data-testid="add-new-connection-button"]',
-
-  connectionItemByName: (
-    connectionName: string,
-    { connected }: { connected?: boolean } = {}
-  ) => {
-    const connectedFilter =
-      connected !== undefined
-        ? `[data-is-connected="${connected.toString()}"]`
-        : '';
-    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
-  },
+export const connectionItemByName = (
+  connectionName: string,
+  { connected }: { connected?: boolean } = {}
+) => {
+  const connectedFilter =
+    connected !== undefined
+      ? `[data-is-connected="${connected.toString()}"]`
+      : '';
+  return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
 };
 
 // Rename Collection Modal
@@ -400,7 +356,7 @@ export const sidebarConnection = (connectionName: string): string => {
 };
 
 export const sidebarConnectionButton = (connectionName: string): string => {
-  return `${sidebarConnection(connectionName)} ${Multiple.ConnectButton}`;
+  return `${sidebarConnection(connectionName)} ${ConnectButton}`;
 };
 
 export const sidebarConnectionActionButton = (
@@ -412,11 +368,6 @@ export const sidebarConnectionActionButton = (
 
 export const sidebarConnectionMenuButton = (connectionName: string): string => {
   return `${sidebarConnection(connectionName)} button[title="Show actions"]`;
-};
-
-export const sidebarFavorite = (favoriteName: string): string => {
-  // single connection only
-  return `${Single.FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 // CSFLE modal

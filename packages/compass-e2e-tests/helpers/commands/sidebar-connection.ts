@@ -34,7 +34,7 @@ export async function selectConnection(
 ): Promise<void> {
   await browser.selectConnectionMenuItem(
     connectionName,
-    Selectors.Multiple.EditConnectionItem
+    Selectors.EditConnectionItem
   );
 
   await browser.waitUntil(async () => {
@@ -51,8 +51,6 @@ export async function selectConnectionMenuItem(
   itemSelector: string,
   openMenu = true
 ) {
-  const Sidebar = Selectors.Multiple;
-
   const selector = Selectors.sidebarConnection(connectionName);
 
   await browser.waitUntil(async () => {
@@ -68,7 +66,7 @@ export async function selectConnectionMenuItem(
     await browser.$(selector).waitForDisplayed();
 
     // workaround for weirdness in the ItemActionControls menu opener icon
-    await browser.clickVisible(Sidebar.ConnectionsTitle);
+    await browser.clickVisible(Selectors.ConnectionsTitle);
 
     // Hover over an arbitrary other element to ensure that the second hover will
     // actually be a fresh one. This otherwise breaks if this function is called
@@ -84,7 +82,7 @@ export async function selectConnectionMenuItem(
     await browser.clickVisible(
       Selectors.sidebarConnectionMenuButton(connectionName)
     );
-    await browser.$(Sidebar.ConnectionMenu).waitForDisplayed();
+    await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
   }
 
   await browser.clickVisible(itemSelector);
@@ -108,7 +106,7 @@ export async function removeConnection(
   if (await browser.$(selector).isExisting()) {
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.RemoveConnectionItem
+      Selectors.RemoveConnectionItem
     );
     await browser.$(selector).waitForExist({ reverse: true });
     return true;
@@ -137,12 +135,12 @@ export async function hasConnectionMenuItem(
     await browser.$(selector).waitForDisplayed();
 
     // workaround for weirdness in the ItemActionControls menu opener icon
-    await browser.clickVisible(Selectors.Multiple.ConnectionsTitle);
+    await browser.clickVisible(Selectors.ConnectionsTitle);
 
     // Hover over an arbitrary other element to ensure that the second hover will
     // actually be a fresh one. This otherwise breaks if this function is called
     // twice in a row.
-    await browser.hover(Selectors.Multiple.ConnectionsTitle);
+    await browser.hover(Selectors.ConnectionsTitle);
 
     await browser.hover(selector);
     return false;
@@ -153,7 +151,7 @@ export async function hasConnectionMenuItem(
     await browser.clickVisible(
       Selectors.sidebarConnectionMenuButton(connectionName)
     );
-    await browser.$(Selectors.Multiple.ConnectionMenu).waitForDisplayed();
+    await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
   }
 
   return await browser.$(itemSelector).isExisting();

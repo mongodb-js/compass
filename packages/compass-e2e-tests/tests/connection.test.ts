@@ -196,8 +196,6 @@ async function assertCannotCreateDb(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const Sidebar = Selectors.Multiple;
-
   // navigate to the databases tab so that the connection is
   // active/highlighted and then the add button and three dot menu will
   // display without needing to hover
@@ -206,7 +204,7 @@ async function assertCannotCreateDb(
   // open the create database modal from the sidebar
   await browser.selectConnectionMenuItem(
     connectionName,
-    Sidebar.CreateDatabaseButton,
+    Selectors.CreateDatabaseButton,
     false
   );
 
@@ -332,7 +330,7 @@ describe('Connection string', function () {
       'There was a problem connecting to 127.0.0.1:27091'
     );
 
-    // for multiple connections click the review button in the toast
+    // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     const errorText = await browser

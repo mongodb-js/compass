@@ -257,7 +257,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -266,8 +266,6 @@ describe('OIDC integration', function () {
 
     await browser.clickVisible(Selectors.ConnectButton);
     await once(emitter, 'authorizeEndpointCalled');
-
-    await browser.closeConnectModal();
 
     overrideRequestHandler = () => {};
     await browser.connectWithConnectionString(connectionString);
@@ -315,7 +313,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -331,7 +329,7 @@ describe('OIDC integration', function () {
     // auth and then that will trigger the confirmation modal we expect.
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.OpenShellItem,
+      Selectors.OpenShellItem,
       false
     );
 
@@ -360,7 +358,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -376,7 +374,7 @@ describe('OIDC integration', function () {
     // auth and then that will trigger the confirmation modal we expect
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.OpenShellItem,
+      Selectors.OpenShellItem,
       false
     );
 
