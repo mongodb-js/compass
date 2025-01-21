@@ -267,6 +267,8 @@ describe('OIDC integration', function () {
     await browser.clickVisible(Selectors.ConnectionFormConnectButton);
     await once(emitter, 'authorizeEndpointCalled');
 
+    await browser.clickVisible(Selectors.ConenctionToastCancelConnectionButton);
+
     overrideRequestHandler = () => {};
     await browser.connectWithConnectionString(connectionString);
     emitter.emit('secondConnectionEstablished');

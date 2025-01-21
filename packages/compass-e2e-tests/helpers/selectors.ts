@@ -59,8 +59,6 @@ export const ConnectionFormInputPassword =
   '[data-testid="connection-password-input"]';
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
-export const CancelConnectionButton =
-  '[data-testid="cancel-connection-button"]';
 export const ConnectionFormConnectionName =
   '[data-testid="personalization-name-input"]';
 export const ConnectionFormConnectionColor =
@@ -240,6 +238,8 @@ export const connectionToastById = (connectionId: string) => {
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
+export const ConenctionToastCancelConnectionButton =
+  '[data-testid="cancel-connection-button"]';
 
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
