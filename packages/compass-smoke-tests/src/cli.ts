@@ -6,7 +6,6 @@ import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
-import { installMacDMG } from './installers/mac-dmg';
 import { execute } from './execute';
 import {
   type PackageDetails,
@@ -17,7 +16,10 @@ import { createSandbox } from './directories';
 import { downloadFile } from './downloads';
 import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
 import { type SmokeTestsContext } from './context';
+
+import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
+import { installWindowsZIP } from './installers/windows-zip';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -150,6 +152,8 @@ function getInstaller(kind: PackageKind) {
     return installMacDMG;
   } else if (kind === 'osx_zip') {
     return installMacZIP;
+  } else if (kind === 'windows_zip') {
+    return installWindowsZIP;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
@@ -192,7 +196,7 @@ async function run() {
     }
   } finally {
     console.log('Cleaning up sandbox');
-    // fs.rmSync(context.sandboxPath, { recursive: true });
+    fs.rmSync(context.sandboxPath, { recursive: true });
   }
 }
 
