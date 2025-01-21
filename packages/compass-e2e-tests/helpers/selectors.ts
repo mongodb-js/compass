@@ -61,6 +61,15 @@ export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
 export const CancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
+export const ConnectionFormConnectionName =
+  '[data-testid="personalization-name-input"]';
+export const ConnectionFormConnectionColor =
+  '[data-testid="personalization-color-input"]';
+export const ConnectionFormFavoriteCheckbox =
+  '[data-testid="personalization-favorite-checkbox"]';
+export const ConnectionFormConnectButton = '[data-testid="connect-button"]';
+export const ConnectionFormSaveAndConnectButton =
+  '[data-testid="save-and-connect-button"]';
 
 export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
 export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
@@ -223,12 +232,8 @@ export const ConnectionModalTitle = `${ConnectionModal} h3`;
 export const ConnectionModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
 export const ConnectionModalConnectButton = '[data-testid="connect-button"]';
 export const ConnectionModalSaveButton = '[data-testid="save-button"]';
-export const ConnectionFormConnectionName =
-  '[data-testid="personalization-name-input"]';
-export const ConnectionFormConnectionColor =
-  '[data-testid="personalization-color-input"]';
-export const ConnectionFormFavoriteCheckbox =
-  '[data-testid="personalization-favorite-checkbox"]';
+
+// Connection process toast
 export const connectionToastById = (connectionId: string) => {
   return `[data-testid="toast-connection-status--${connectionId}"]`;
 };
@@ -238,7 +243,6 @@ export const ConnectionToastErrorReviewButton =
 
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
-export const ConnectButton = '[data-action="connection-connect"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
 export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
 export const CreateDatabaseButton =
@@ -356,7 +360,9 @@ export const sidebarConnection = (connectionName: string): string => {
 };
 
 export const sidebarConnectionButton = (connectionName: string): string => {
-  return `${sidebarConnection(connectionName)} ${ConnectButton}`;
+  return `${sidebarConnection(
+    connectionName
+  )} [data-action="connection-connect"]`;
 };
 
 export const sidebarConnectionActionButton = (

@@ -123,7 +123,7 @@ export async function doConnect(
   connectionName: string,
   options: ConnectionResultOptions = {}
 ) {
-  await browser.clickVisible(Selectors.ConnectButton);
+  await browser.clickVisible(Selectors.ConnectionFormConnectButton);
   await browser.waitForConnectionResult(connectionName, options);
 }
 

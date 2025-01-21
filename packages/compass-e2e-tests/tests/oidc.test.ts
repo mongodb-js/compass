@@ -264,7 +264,7 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
     await once(emitter, 'authorizeEndpointCalled');
 
     overrideRequestHandler = () => {};
@@ -319,7 +319,7 @@ describe('OIDC integration', function () {
       Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
@@ -364,7 +364,7 @@ describe('OIDC integration', function () {
       Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
