@@ -168,7 +168,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       return app.getPath('userData');
     });
 
-    await manager.cleanupOldLogfiles();
+    await manager.cleanupOldLogFiles();
 
     return writer;
   } catch (err) {
