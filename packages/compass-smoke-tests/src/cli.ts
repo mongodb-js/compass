@@ -218,6 +218,8 @@ function runTest({ appName, appPath }: RunTestOptions) {
       '--test-filter=time-to-first-query',
     ],
     {
+      // We need to use a shell to get environment variables setup correctly
+      shell: true,
       env: {
         ...process.env,
         COMPASS_APP_NAME: appName,
