@@ -22,6 +22,7 @@ import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
 const SHELL_THEME = { theme: Theme.Dark, enabled: true };
 
 type ShellPluginProps = {
+  runtimeId?: string;
   initialEvaluate?: string | string[];
   initialInput?: string;
 };
@@ -47,7 +48,7 @@ export type ShellPluginExtraArgs = ShellPluginServices & {
 };
 
 export function onActivated(
-  _initialProps: ShellPluginProps,
+  initialProps: ShellPluginProps,
   services: ShellPluginServices,
   { addCleanup, cleanup }: ActivateHelpers
 ) {
@@ -57,7 +58,8 @@ export function onActivated(
     reducer,
     {
       runtimeId: preferences.getPreferences().enableShell
-        ? createAndStoreRuntime(dataService, logger, track, connectionInfo).id
+        ? initialProps.runtimeId ??
+          createAndStoreRuntime(dataService, logger, track, connectionInfo).id
         : null,
       history: null,
     },

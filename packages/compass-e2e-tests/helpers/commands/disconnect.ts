@@ -45,9 +45,7 @@ export async function disconnectAll(
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
   // bit, though.
-  const connectionItems = browser.$$(
-    Selectors.Multiple.ConnectedConnectionItems
-  );
+  const connectionItems = browser.$$(Selectors.ConnectedConnectionItems);
   for await (const connectionItem of connectionItems) {
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
@@ -63,10 +61,9 @@ export async function disconnectAll(
     await browser.hideAllVisibleToasts();
   }
 
-  // NOTE: unlike the single connection flow this doesn't make sure the New
-  // Connection modal is open after disconnecting.
-  // This also doesn't remove all connections from the sidebar so the
-  // connection will still be there, just disconnected.
+  // NOTE: This doesn't make sure the New Connection modal is open after
+  // disconnecting. This also doesn't remove all connections from the sidebar so
+  // the connection will still be there, just disconnected.
 }
 
 export async function disconnectByName(
@@ -77,12 +74,12 @@ export async function disconnectByName(
 
   await browser.selectConnectionMenuItem(
     connectionName,
-    Selectors.Multiple.DisconnectConnectionItem
+    Selectors.DisconnectConnectionItem
   );
 
   await browser
     .$(
-      Selectors.Multiple.connectionItemByName(connectionName, {
+      Selectors.connectionItemByName(connectionName, {
         connected: false,
       })
     )

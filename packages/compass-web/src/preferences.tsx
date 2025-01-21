@@ -47,7 +47,6 @@ export function useCompassWebPreferences(
       enableGenAIFeaturesAtlasProject: false,
       enableGenAISampleDocumentPassingOnAtlasProject: false,
       enableGenAIFeaturesAtlasOrg: false,
-      enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,

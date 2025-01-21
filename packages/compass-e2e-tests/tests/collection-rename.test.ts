@@ -79,7 +79,7 @@ async function renameCollectionSuccessFlow(
 describe('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
-  let connectionId: string | undefined;
+  let connectionId: string;
 
   before(async function () {
     compass = await init(this.test?.fullTitle());
@@ -92,6 +92,7 @@ describe('Collection Rename Modal', () => {
 
     await browser.disconnectAll();
     await browser.connectToDefaults();
+
     connectionId = await browser.getConnectionIdByName(
       DEFAULT_CONNECTION_NAME_1
     );

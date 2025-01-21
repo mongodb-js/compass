@@ -186,24 +186,8 @@ export type State = {
       | { status: 'error'; error: Error }
     );
 
-  // Device auth flow info, stored in state so that it can be appended to the
-  // "Connecting..." modal. Only required for single connection mode and can be
-  // cleaned-up when multiple connections is the only mode of the app
-  oidcDeviceAuthInfo: Record<
-    ConnectionId,
-    {
-      verificationUrl: string;
-      userCode: string;
-    }
-  >;
-
   editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
-
-  // State related to connection favorite fields editing modal form (right now
-  // only relevant for single connection mode, this might change)
-  editingConnectionFavoriteInfoId: ConnectionId | null;
-  isEditingConnectionFavoriteInfoModalOpen: boolean;
 };
 
 type ThunkExtraArg = {
@@ -372,13 +356,6 @@ type DisconnectAction = {
   connectionId: ConnectionId;
 };
 
-type OidcNotifyDeviceAuthAction = {
-  type: ActionTypes.OidcNotifyDeviceAuth;
-  connectionId: ConnectionId;
-  verificationUrl: string;
-  userCode: string;
-};
-
 type CreateNewConnectionAction = {
   type: ActionTypes.CreateNewConnection;
 };
@@ -421,11 +398,6 @@ type RemoveConnectionAction = {
 
 type RemoveAllRecentConnectionsActions = {
   type: ActionTypes.RemoveAllRecentConnections;
-};
-
-type EditConnectionFavoriteInfoAction = {
-  type: ActionTypes.EditConnectionFavoriteInfo;
-  connectionId: ConnectionId;
 };
 
 function isAction<A extends AnyAction>(
@@ -492,11 +464,8 @@ const INITIAL_STATE: State = {
     status: 'initial',
     error: null,
   },
-  oidcDeviceAuthInfo: {},
   editingConnectionInfoId: null,
   isEditingConnectionInfoModalOpen: false,
-  editingConnectionFavoriteInfoId: null,
-  isEditingConnectionFavoriteInfoModalOpen: false,
 };
 
 export function getInitialConnectionsStateForConnectionInfos(
@@ -823,10 +792,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
           isAutoconnectInfo: true,
         }
       ),
-      // Single connection mode special case: when autoconnecting set
-      // autoconnect info as editing so that the always-visible connection form
-      // is populated correctly and the error is mapped to it if it happend
-      editingConnectionInfoId: connectionState.info.id,
     };
   }
   if (
@@ -835,12 +800,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.ConnectionAttemptStart
     )
   ) {
-    // Clean-up existing device auth info before starting new connection so that
-    // we don't show anything until driver actually provides it. Can be removed
-    // when this state is not in the store anymore
-    const oidcDeviceAuthInfo = { ...state.oidcDeviceAuthInfo };
-    delete oidcDeviceAuthInfo[action.connectionInfo.id];
-
     return {
       ...state,
       connections: mergeConnectionStateById(
@@ -871,7 +830,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
           error: null,
         }
       ),
-      oidcDeviceAuthInfo,
       isEditingConnectionInfoModalOpen:
         // Close the modal when connection starts for edited connection
         state.editingConnectionInfoId === action.connectionInfo.id
@@ -942,27 +900,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         action.connectionId,
         { status: 'disconnected' }
       ),
-    };
-  }
-  if (
-    isAction<OidcNotifyDeviceAuthAction>(
-      action,
-      ActionTypes.OidcNotifyDeviceAuth
-    )
-  ) {
-    if (!hasConnectionForId(state, action.connectionId)) {
-      return state;
-    }
-
-    return {
-      ...state,
-      oidcDeviceAuthInfo: {
-        ...state.oidcDeviceAuthInfo,
-        [action.connectionId]: {
-          userCode: action.userCode,
-          verificationUrl: action.verificationUrl,
-        },
-      },
     };
   }
   if (
@@ -1072,9 +1009,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...(state.editingConnectionInfoId === action.connectionId && {
         isEditingConnectionInfoModalOpen: false,
       }),
-      ...(state.editingConnectionFavoriteInfoId === action.connectionId && {
-        isEditingConnectionFavoriteInfoModalOpen: false,
-      }),
     };
   }
   if (
@@ -1091,9 +1025,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       ...(state.editingConnectionInfoId === action.connectionId && {
         isEditingConnectionInfoModalOpen: false,
-      }),
-      ...(state.editingConnectionFavoriteInfoId === action.connectionId && {
-        isEditingConnectionFavoriteInfoModalOpen: false,
       }),
     };
   }
@@ -1163,10 +1094,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
           newConnection?.info.id ?? state.editingConnectionInfoId,
         isEditingConnectionInfoModalOpen: false,
       }),
-      ...(state.editingConnectionFavoriteInfoId === action.connectionId && {
-        editingConnectionFavoriteInfoId: null,
-        isEditingConnectionFavoriteInfoModalOpen: false,
-      }),
     };
   }
   if (
@@ -1205,12 +1132,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         return id === state.editingConnectionInfoId;
       });
 
-    const isEditingFavoriteRemoveConnections =
-      !!state.editingConnectionFavoriteInfoId &&
-      idsToRemove.some((id) => {
-        return id === state.editingConnectionFavoriteInfoId;
-      });
-
     const newConnection = isEditingRemovedConnection
       ? createDefaultConnectionState()
       : undefined;
@@ -1237,26 +1158,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
           newConnection?.info.id ?? state.editingConnectionInfoId,
         isEditingConnectionInfoModalOpen: false,
       }),
-      ...(isEditingFavoriteRemoveConnections && {
-        editingConnectionFavoriteInfoId: null,
-        isEditingConnectionFavoriteInfoModalOpen: false,
-      }),
-    };
-  }
-  if (
-    isAction<EditConnectionFavoriteInfoAction>(
-      action,
-      ActionTypes.EditConnectionFavoriteInfo
-    )
-  ) {
-    if (!hasConnectionForId(state, action.connectionId)) {
-      return state;
-    }
-
-    return {
-      ...state,
-      editingConnectionFavoriteInfoId: action.connectionId,
-      isEditingConnectionFavoriteInfoModalOpen: true,
     };
   }
   return state;
@@ -1317,14 +1218,8 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (
-    dispatch,
-    _getState,
-    { preferences, track, getExtraConnectionData }
-  ) => {
-    const { openConnectionFailedToast } = getNotificationTriggers(
-      preferences.getPreferences().enableMultipleConnectionSystem
-    );
+  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+    const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
 
@@ -1525,7 +1420,6 @@ export const connect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
-  | OidcNotifyDeviceAuthAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: false });
 };
@@ -1538,7 +1432,6 @@ export const saveAndConnect = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
-  | OidcNotifyDeviceAuthAction
 > => {
   return connectWithOptions(connectionInfo, { forceSave: true });
 };
@@ -1554,7 +1447,6 @@ const connectWithOptions = (
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
-  | OidcNotifyDeviceAuthAction
 > => {
   return async (
     dispatch,
@@ -1586,12 +1478,9 @@ const connectWithOptions = (
         forceConnectionOptions,
         browserCommandForOIDCAuth,
         maximumNumberOfActiveConnections,
-        enableMultipleConnectionSystem,
       } = preferences.getPreferences();
 
-      const connectionProgress = getNotificationTriggers(
-        enableMultipleConnectionSystem
-      );
+      const connectionProgress = getNotificationTriggers();
 
       if (
         typeof maximumNumberOfActiveConnections !== 'undefined' &&
@@ -1656,12 +1545,6 @@ const connectWithOptions = (
                 browserCommandForOIDCAuth,
               },
               notifyDeviceFlow: (deviceFlowInfo) => {
-                dispatch({
-                  type: ActionTypes.OidcNotifyDeviceAuth,
-                  connectionId: connectionInfo.id,
-                  ...deviceFlowInfo,
-                });
-
                 connectionProgress.openNotifyDeviceAuthModal(
                   connectionInfo,
                   deviceFlowInfo.verificationUrl,
@@ -1960,13 +1843,9 @@ export const createNewConnection = (): ConnectionsThunkAction<
   void,
   CreateNewConnectionAction
 > => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
     dispatch({ type: ActionTypes.CreateNewConnection });
@@ -1976,13 +1855,9 @@ export const createNewConnection = (): ConnectionsThunkAction<
 export const editConnection = (
   connectionId: ConnectionId
 ): ConnectionsThunkAction<void, EditConnectionAction> => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
     dispatch({ type: ActionTypes.EditConnection, connectionId });
@@ -1993,13 +1868,9 @@ export const duplicateConnection = (
   connectionId: ConnectionId,
   { autoDuplicate }: { autoDuplicate: boolean } = { autoDuplicate: false }
 ): ConnectionsThunkAction<void, DuplicateConnectionAction> => {
-  return (dispatch, getState, { preferences }) => {
-    // In multiple connections mode we don't allow another edit to start while
-    // there is one in progress
-    if (
-      preferences.getPreferences().enableMultipleConnectionSystem &&
-      getState().isEditingConnectionInfoModalOpen
-    ) {
+  return (dispatch, getState) => {
+    // We don't allow another edit to start while there is one in progress
+    if (getState().isEditingConnectionInfoModalOpen) {
       return;
     }
 
@@ -2043,7 +1914,7 @@ const cleanupConnection = (
   return (
     _dispatch,
     getState,
-    { preferences, logger: { log, debug, mongoLogId }, track }
+    { logger: { log, debug, mongoLogId }, track }
   ) => {
     log.info(
       mongoLogId(1_001_000_313),
@@ -2067,9 +1938,7 @@ const cleanupConnection = (
       );
     }
 
-    const { closeConnectionStatusToast } = getNotificationTriggers(
-      preferences.getPreferences().enableMultipleConnectionSystem
-    );
+    const { closeConnectionStatusToast } = getNotificationTriggers();
 
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
 
