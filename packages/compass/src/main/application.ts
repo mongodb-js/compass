@@ -5,7 +5,7 @@ import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
-import { CompassAutoUpdateManager } from './auto-update-manager';
+// import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
@@ -162,7 +162,7 @@ class CompassApplication {
     void this.setupCompassAuthService();
     // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
     // toasts will obscure other things which we don't expect yet.
-    if (!process.env.CI) {
+    if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
       this.setupAutoUpdate();
     }
     await setupCSFLELibrary();
