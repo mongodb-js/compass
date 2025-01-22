@@ -9,6 +9,7 @@ import { type SmokeTestsContext } from './context';
 import { pick } from 'lodash';
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
+type Channel = typeof SUPPORTED_CHANNELS[number];
 
 function assertObjectHasKeys(
   obj: unknown,
