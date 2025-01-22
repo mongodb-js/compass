@@ -5,7 +5,7 @@ import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
-// import { CompassAutoUpdateManager } from './auto-update-manager';
+import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
