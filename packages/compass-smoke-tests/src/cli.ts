@@ -288,7 +288,7 @@ function runTest({
     {
       env: {
         ...process.env,
-        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://127.0.0.1:8080',
         AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
         TEST_NAME: testName,
         COMPASS_APP_NAME: appName,
