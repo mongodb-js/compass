@@ -2,11 +2,17 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import createDebug from 'debug';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContext } from './context';
 import { pick } from 'lodash';
+
+const debug = createDebug('compass-smoke-tests:build-info');
+
+const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
+type Channel = typeof SUPPORTED_CHANNELS[number];
 
 function assertObjectHasKeys(
   obj: unknown,
@@ -25,13 +31,21 @@ function assertObjectHasKeys(
 
 // subsets of the hadron-build info result
 
-export const commonKeys = ['productName'] as const;
-export type CommonBuildInfo = Record<typeof commonKeys[number], string>;
+export const commonKeys = ['productName', 'channel'] as const;
+export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
+  channel: Channel;
+};
 
 export function assertCommonBuildInfo(
   buildInfo: unknown
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
+  assert(
+    SUPPORTED_CHANNELS.includes((buildInfo as { channel: Channel }).channel),
+    `Expected ${
+      (buildInfo as { channel: Channel }).channel
+    } to be in ${SUPPORTED_CHANNELS.join(',')}`
+  );
 }
 
 export const windowsFilenameKeys = [
@@ -231,11 +245,11 @@ export function writeAndReadPackageDetails(
     arch: context.arch,
     out: path.resolve(context.sandboxPath, 'target.json'),
   };
-  console.log({ infoArgs });
+  debug({ infoArgs });
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
-  console.log(
+  debug(
     'info env vars',
     pick(process.env, [
       'HADRON_DISTRIBUTION',
