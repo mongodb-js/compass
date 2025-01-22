@@ -160,8 +160,6 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
-    // toasts will obscure other things which we don't expect yet.
     if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
       this.setupAutoUpdate();
     }
