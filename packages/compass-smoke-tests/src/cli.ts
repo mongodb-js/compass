@@ -20,6 +20,7 @@ import { type SmokeTestsContext } from './context';
 import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
+import { installWindowsMSI } from './installers/windows-msi';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -159,6 +160,8 @@ function getInstaller(kind: PackageKind) {
     return installMacZIP;
   } else if (kind === 'windows_zip') {
     return installWindowsZIP;
+  } else if (kind === 'windows_msi') {
+    return installWindowsMSI;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
