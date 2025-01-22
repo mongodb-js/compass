@@ -677,6 +677,9 @@ functions:
         script: |
           set -e
           eval $(.evergreen/print-compass-env.sh)
+          mkdir -p $ARTIFACTS_PATH
+          mkdir -p $NPM_CACHE_DIR
+          mkdir -p $NPM_TMP_DIR
           .evergreen/preinstall.sh
           git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
           cd ../compass-mongodb-com
