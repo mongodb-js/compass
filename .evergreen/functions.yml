@@ -674,7 +674,7 @@ functions:
         shell: bash
         script: |
           set -e
-          git clone https://x-access-token:${generated_token}github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
+          git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
           cd ../compass-mongodb-com
           echo "Using node version:";
           node -v;
