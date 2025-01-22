@@ -304,7 +304,6 @@ describe('useImportConnections', function () {
       const { result, connectionStorage } = renderUseImportConnectionsHook(
         {},
         {
-          preferences: { enableMultipleConnectionSystem: true },
           connections: [
             {
               id: 'id1',

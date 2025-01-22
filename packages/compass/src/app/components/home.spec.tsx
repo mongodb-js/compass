@@ -6,7 +6,6 @@ import type { DataService } from 'mongodb-data-service';
 import { WithAtlasProviders } from './entrypoint';
 import {
   renderWithConnections,
-  cleanup,
   screen,
   waitFor,
   within,
@@ -67,7 +66,6 @@ describe('Home [Component]', function () {
         preferences: {
           showedNetworkOptIn: true,
           networkTraffic: true,
-          enableMultipleConnectionSystem: false,
           ...preferences,
         },
         connectFn: () => {
@@ -80,7 +78,6 @@ describe('Home [Component]', function () {
   }
 
   afterEach(() => {
-    cleanup();
     sinon.restore();
   });
 
@@ -110,14 +107,10 @@ describe('Home [Component]', function () {
       expect(showSettingsSpy.callCount).to.equal(1);
     });
 
-    describe('and multi connections is enabled', function () {
-      it('renders only the workspaces', function () {
-        renderHome({}, [], createDataService(), {
-          enableMultipleConnectionSystem: true,
-        });
-        expect(screen.getByTestId('home')).to.be.displayed;
-        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
-      });
+    it('renders only the workspaces', function () {
+      renderHome({}, [], createDataService());
+      expect(screen.getByTestId('home')).to.be.displayed;
+      expect(() => screen.getByTestId('connections-wrapper')).to.throw();
     });
   });
 });

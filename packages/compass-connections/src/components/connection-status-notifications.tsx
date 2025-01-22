@@ -11,7 +11,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { isCancelError } from '@mongodb-js/compass-utils';
 
@@ -83,8 +82,6 @@ function ConnectionErrorToastBody({
     </span>
   );
 }
-
-const noop = () => undefined;
 
 const deviceAuthModalContentStyles = css({
   textAlign: 'center',
@@ -211,46 +208,24 @@ const openNotifyDeviceAuthModal = (
   );
 };
 
-export function getNotificationTriggers(
-  enableMultipleConnectionSystem: boolean
-) {
-  return enableMultipleConnectionSystem
-    ? {
-        openNotifyDeviceAuthModal,
-        openConnectionStartedToast,
-        openConnectionSucceededToast,
-        openConnectionFailedToast,
-        openMaximumConnectionsReachedToast,
-        closeConnectionStatusToast: (connectionId: string) => {
-          return closeToast(`connection-status--${connectionId}`);
-        },
-      }
-    : {
-        openNotifyDeviceAuthModal: noop,
-        openConnectionStartedToast: noop,
-        openConnectionSucceededToast: noop,
-        openConnectionFailedToast: noop,
-        openMaximumConnectionsReachedToast: noop,
-        closeConnectionStatusToast: noop,
-      };
+export function getNotificationTriggers() {
+  return {
+    openNotifyDeviceAuthModal,
+    openConnectionStartedToast,
+    openConnectionSucceededToast,
+    openConnectionFailedToast,
+    openMaximumConnectionsReachedToast,
+    closeConnectionStatusToast: (connectionId: string) => {
+      return closeToast(`connection-status--${connectionId}`);
+    },
+  };
 }
 
 /**
  * Returns triggers for various notifications (toasts and modals) that are
  * supposed to be displayed every time connection flow is happening in the
  * application.
- *
- * All toasts and modals are only applicable in multiple connections mode. Right
- * now it's gated by the feature flag, the flag check can be removed when this
- * is the default behavior
  */
 export function useConnectionStatusNotifications() {
-  const enableMultipleConnectionSystem = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-
-  // Gated by the feature flag: if flag is on, we return trigger functions, if
-  // flag is off, we return noop functions so that we can call them
-  // unconditionally in the actual flow
-  return getNotificationTriggers(enableMultipleConnectionSystem);
+  return getNotificationTriggers();
 }

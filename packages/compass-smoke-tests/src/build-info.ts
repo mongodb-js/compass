@@ -52,13 +52,32 @@ export const windowsFilenameKeys = [
   'windows_nupkg_full_filename',
 ] as const;
 export type WindowsBuildInfo = CommonBuildInfo &
-  Record<typeof windowsFilenameKeys[number], string>;
+  Record<typeof windowsFilenameKeys[number], string> & {
+    installerOptions: {
+      name: string;
+    };
+  };
 
 export function assertBuildInfoIsWindows(
   buildInfo: unknown
 ): asserts buildInfo is WindowsBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', windowsFilenameKeys);
+  assert(typeof buildInfo === 'object', 'Expected buildInfo to be an object');
+  assert(buildInfo !== null, 'Expected buildInfo to be an object');
+  assert(
+    'installerOptions' in buildInfo &&
+      typeof buildInfo.installerOptions === 'object',
+    'Expected buildInfo.installerOptions to be an object'
+  );
+  const { installerOptions } = buildInfo;
+  assert(
+    typeof installerOptions === 'object' &&
+      installerOptions !== null &&
+      'name' in installerOptions &&
+      typeof installerOptions.name === 'string',
+    'Expected buildInfo.installerOptions.name to be a string'
+  );
 }
 
 export const osxFilenameKeys = [
@@ -66,13 +85,32 @@ export const osxFilenameKeys = [
   'osx_zip_filename',
 ] as const;
 export type OSXBuildInfo = CommonBuildInfo &
-  Record<typeof osxFilenameKeys[number], string>;
+  Record<typeof osxFilenameKeys[number], string> & {
+    installerOptions: {
+      title: string;
+    };
+  };
 
 export function assertBuildInfoIsOSX(
   buildInfo: unknown
 ): asserts buildInfo is OSXBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', osxFilenameKeys);
+  assert(typeof buildInfo === 'object', 'Expected buildInfo to be an object');
+  assert(buildInfo !== null, 'Expected buildInfo to be an object');
+  assert(
+    'installerOptions' in buildInfo &&
+      typeof buildInfo.installerOptions === 'object',
+    'Expected buildInfo.installerOptions to be an object'
+  );
+  const { installerOptions } = buildInfo;
+  assert(
+    typeof installerOptions === 'object' &&
+      installerOptions !== null &&
+      'title' in installerOptions &&
+      typeof installerOptions.title === 'string',
+    'Expected buildInfo.installerOptions.title to be a string'
+  );
 }
 
 export const ubuntuFilenameKeys = [
@@ -104,6 +142,7 @@ export type PackageDetails = {
   kind: PackageKind;
   filename: string;
   autoUpdatable: boolean;
+  appName: string;
 } & (
   | {
       kind: 'windows_setup' | 'windows_msi' | 'windows_zip';
@@ -140,6 +179,7 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
+      appName: buildInfo.installerOptions.name,
       autoUpdatable: kind === 'windows_setup',
     };
   } else if (kind === 'osx_dmg' || kind === 'osx_zip') {
@@ -148,6 +188,7 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
+      appName: buildInfo.installerOptions.title,
       autoUpdatable: true,
     };
   } else if (kind === 'linux_deb' || kind === 'linux_tar') {
@@ -156,6 +197,7 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
+      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else if (kind === 'linux_rpm' || kind === 'rhel_tar') {
@@ -164,6 +206,7 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
+      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else {

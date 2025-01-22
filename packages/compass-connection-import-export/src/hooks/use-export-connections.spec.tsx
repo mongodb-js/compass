@@ -243,31 +243,28 @@ describe('useExportConnections', function () {
     expect(result.current.state.error).to.equal('');
   });
 
-  context('when multiple connections is enabled', function () {
-    it('includes also the non-favorites connections in the export list', function () {
-      const { result } = renderUseExportConnectionsHook(
-        {},
-        {
-          preferences: { enableMultipleConnectionSystem: true },
-          connections: [
-            {
-              id: 'id1',
-              connectionOptions: {
-                connectionString: 'mongodb://localhost:2020',
-              },
-              favorite: {
-                name: 'name1',
-              },
-              // expecting to include the non-favorite connections as well
-              savedConnectionType: 'recent',
+  it('includes also the non-favorites connections in the export list', function () {
+    const { result } = renderUseExportConnectionsHook(
+      {},
+      {
+        connections: [
+          {
+            id: 'id1',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:2020',
             },
-          ],
-        }
-      );
+            favorite: {
+              name: 'name1',
+            },
+            // expecting to include the non-favorite connections as well
+            savedConnectionType: 'recent',
+          },
+        ],
+      }
+    );
 
-      expect(result.current.state.connectionList).to.deep.equal([
-        { id: 'id1', name: 'name1', selected: true },
-      ]);
-    });
+    expect(result.current.state.connectionList).to.deep.equal([
+      { id: 'id1', name: 'name1', selected: true },
+    ]);
   });
 });

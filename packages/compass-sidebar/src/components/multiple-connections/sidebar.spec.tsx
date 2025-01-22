@@ -131,7 +131,6 @@ describe('Multiple Connections Sidebar Component', function () {
     }
 
     const result = renderWithConnections(component, {
-      preferences: { enableMultipleConnectionSystem: true },
       connections,
       connectFn() {
         return {

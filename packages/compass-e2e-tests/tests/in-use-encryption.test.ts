@@ -25,7 +25,7 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
 
   await browser.selectConnectionMenuItem(
     connectionName,
-    Selectors.Multiple.RefreshDatabasesItem
+    Selectors.RefreshDatabasesItem
   );
 }
 
@@ -147,7 +147,7 @@ describe('CSFLE / QE', function () {
       // edit from the menu.
       await browser.selectConnectionMenuItem(
         connectionName,
-        Selectors.Multiple.EditConnectionItem
+        Selectors.EditConnectionItem
       );
 
       // The modal should appear and the title of the modal should be the favorite name
@@ -866,7 +866,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(
           Selectors.sidebarConnectionActionButton(
             connectionName,
-            Selectors.Multiple.InUseEncryptionMarker
+            Selectors.InUseEncryptionMarker
           )
         );
 
@@ -892,7 +892,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(
           Selectors.sidebarConnectionActionButton(
             connectionName,
-            Selectors.Multiple.InUseEncryptionMarker
+            Selectors.InUseEncryptionMarker
           )
         );
 

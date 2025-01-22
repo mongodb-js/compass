@@ -85,9 +85,6 @@ describe('AggregationsQueriesList', function () {
     });
     const result = renderWithConnections(<PluginWithMocks></PluginWithMocks>, {
       connections: [connectionOne.connectionInfo, connectionTwo.connectionInfo],
-      preferences: {
-        enableMultipleConnectionSystem: true,
-      },
     });
     connectionsStore = result.connectionsStore;
   };

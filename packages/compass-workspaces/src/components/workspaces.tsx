@@ -40,7 +40,6 @@ import {
   ConnectionInfoProvider,
   useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 
 type Tooltip = [string, string][];
@@ -157,9 +156,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
-  const multipleConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -204,7 +200,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: multipleConnectionsEnabled ? connectionName : tab.type,
+            title: connectionName,
             tooltip: [['Connection', connectionName || '']] as Tooltip,
             iconGlyph: 'Server',
             tabTheme: getThemeOf(tab.connectionId),
@@ -217,9 +213,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: multipleConnectionsEnabled
-              ? `Performance: ${connectionName}`
-              : tab.type,
+            title: `Performance: ${connectionName}`,
             tooltip: [['Performance', connectionName || '']] as Tooltip,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
@@ -286,13 +280,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [
-    tabs,
-    collectionInfo,
-    getThemeOf,
-    getConnectionById,
-    multipleConnectionsEnabled,
-  ]);
+  }, [tabs, collectionInfo, getThemeOf, getConnectionById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
