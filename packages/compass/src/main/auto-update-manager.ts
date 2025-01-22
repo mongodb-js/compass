@@ -478,7 +478,7 @@ const STATE_UPDATE: Record<
         mongoLogId(1001000129),
         'AutoUpdateManager',
         'Error Downloading Update',
-        { message: error.message }
+        { message: error.message, attr: { keys: Object.keys(error) } }
       );
     },
   },
