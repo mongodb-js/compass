@@ -672,8 +672,12 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/preinstall.sh
           git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
           cd ../compass-mongodb-com
           echo "Using node version:";
