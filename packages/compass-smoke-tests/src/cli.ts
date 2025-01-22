@@ -16,6 +16,7 @@ import {
 import { createSandbox } from './directories';
 import { downloadFile } from './downloads';
 import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
+import { getLatestRelease } from './releases';
 import { type SmokeTestsContext } from './context';
 import { installMacZIP } from './installers/mac-zip';
 
@@ -143,60 +144,6 @@ async function getTestSubject(
 
     return { ...details, filepath };
   }
-}
-
-type Arch = 'arm64' | 'x64';
-
-type PlatformShortName =
-  | 'darwin-arm64'
-  | 'darwin-x64'
-  | 'windows'
-  | 'linux_deb'
-  | 'linux_rpm';
-
-function getPlatformShortName(
-  arch: Arch,
-  kind: PackageKind
-): PlatformShortName {
-  if (arch === 'arm64') {
-    if (kind === 'osx_dmg' || kind === 'osx_zip') {
-      return 'darwin-arm64';
-    }
-  }
-  if (arch === 'x64') {
-    if (kind === 'osx_dmg' || kind === 'osx_zip') {
-      return 'darwin-x64';
-    }
-    if (
-      kind === 'windows_setup' ||
-      kind === 'windows_msi' ||
-      kind === 'windows_zip'
-    ) {
-      return 'windows';
-    }
-    if (kind === 'linux_deb' || kind === 'linux_tar') {
-      return 'linux_deb';
-    }
-    if (kind === 'linux_rpm' || kind === 'rhel_tar') {
-      return 'linux_rpm';
-    }
-  }
-
-  throw new Error(`Unsupported arch/kind combo: ${arch}/${kind}`);
-}
-
-async function getLatestRelease(
-  channel: 'dev' | 'beta' | 'stable',
-  arch: Arch,
-  kind: PackageKind,
-  forceDownload?: boolean
-): Promise<string> {
-  const shortName = getPlatformShortName(arch, kind);
-
-  return await downloadFile({
-    url: `http://compass.mongodb.com/api/v2/download/latest/compass/${channel}/${shortName}`,
-    clearCache: forceDownload,
-  });
 }
 
 function getInstaller(kind: PackageKind) {
