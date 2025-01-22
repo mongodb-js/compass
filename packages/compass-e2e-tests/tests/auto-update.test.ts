@@ -36,7 +36,7 @@ describe('Auto-update', function () {
         const linkElement = browser.$(Selectors.AutoUpdateDownloadLink);
         await linkElement.waitForDisplayed();
         expect(await linkElement.getAttribute('href')).to.equal(
-          'https://www.mongodb.com/try/download/compass'
+          'https://www.mongodb.com/try/download/compass?utm_source=compass&utm_medium=product'
         );
       }
     } finally {
