@@ -30,7 +30,7 @@ function assertObjectHasKeys(
 
 export const commonKeys = ['productName', 'channel'] as const;
 export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
-  channel: 'dev' | 'beta' | 'stable';
+  channel: Channel;
 };
 
 export function assertCommonBuildInfo(
