@@ -98,6 +98,11 @@ const argv = yargs(hideBin(process.argv))
   .option('localPackage', {
     type: 'boolean',
     description: 'Use the local package instead of downloading',
+  })
+  .option('skipCleanup', {
+    type: 'boolean',
+    description: 'Do not delete the sandbox after a run',
+    default: false,
   });
 
 type TestSubject = PackageDetails & {
@@ -195,8 +200,12 @@ async function run() {
       await uninstall();
     }
   } finally {
-    console.log('Cleaning up sandbox');
-    fs.rmSync(context.sandboxPath, { recursive: true });
+    if (context.skipCleanup) {
+      console.log(`Skipped cleaning up sandbox: ${context.sandboxPath}`);
+    } else {
+      console.log(`Cleaning up sandbox: ${context.sandboxPath}`);
+      fs.rmSync(context.sandboxPath, { recursive: true });
+    }
   }
 }
 
