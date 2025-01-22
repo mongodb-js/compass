@@ -6,6 +6,7 @@ import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
+import createDebug from 'debug';
 import { execute } from './execute';
 import {
   type PackageDetails,
@@ -21,6 +22,8 @@ import { type SmokeTestsContext } from './context';
 import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
+
+const debug = createDebug('compass-smoke-tests');
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -166,9 +169,9 @@ async function run() {
     sandboxPath: createSandbox(),
   };
 
-  console.log(`Running tests in ${context.sandboxPath}`);
+  debug(`Running tests in ${context.sandboxPath}`);
 
-  console.log(
+  debug(
     'context',
     pick(context, [
       'forceDownload',
@@ -196,11 +199,11 @@ async function run() {
       await uninstall();
     }
   } finally {
-    console.log('Cleaning up sandbox');
+    debug('Cleaning up sandbox');
     fs.rmSync(context.sandboxPath, { recursive: true });
   }
 
-  console.log('update from latest release to this package');
+  debug('update from latest release to this package');
   const releasepath = await getLatestRelease(
     buildInfo.channel,
     context.arch,
@@ -223,7 +226,7 @@ async function run() {
       await uninstall();
     }
   } finally {
-    console.log('Cleaning up sandbox');
+    debug('Cleaning up sandbox');
     fs.rmSync(context.sandboxPath, { recursive: true });
   }
 }
@@ -259,7 +262,7 @@ function runTest({ appName, appPath }: RunTestOptions) {
 
 run()
   .then(function () {
-    console.log('done');
+    debug('done');
   })
   .catch(function (err) {
     console.error(err.stack);

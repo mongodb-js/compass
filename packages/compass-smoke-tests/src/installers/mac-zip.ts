@@ -1,8 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
+import createDebug from 'debug';
+
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+
+const debug = createDebug('compass-smoke-tests:installers:mac-zip');
 
 export function installMacZIP({
   appName,
@@ -25,7 +29,7 @@ export function installMacZIP({
     );
 
     if (fs.existsSync(settingsDir)) {
-      console.log(`${settingsDir} already exists. Removing.`);
+      debug(`${settingsDir} already exists. Removing.`);
       fs.rmSync(settingsDir, { recursive: true });
     }
   }
