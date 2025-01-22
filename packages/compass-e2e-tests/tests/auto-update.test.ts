@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { expect } from 'chai';
 import {
   init,
@@ -5,6 +6,7 @@ import {
   Selectors,
   screenshotPathName,
 } from '../helpers/compass';
+import { LOG_PATH } from '../helpers/test-runner-paths';
 
 describe('Auto-update', function () {
   it('auto-update from', async function () {
@@ -42,6 +44,14 @@ describe('Auto-update', function () {
     } finally {
       await browser.screenshot(screenshotPathName('auto-update-from'));
       await cleanup(compass);
+      if (process.platform === 'darwin') {
+        for (const filename of ['ShipIt_stderr.log', 'ShipIt_stderr.log']) {
+          fs.copyFileSync(
+            `${process.env.HOME}/Library/Caches/com.mongodb.compass.dev.ShipIt/${filename}`,
+            `${LOG_PATH}/${filename}`
+          );
+        }
+      }
     }
 
     if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
