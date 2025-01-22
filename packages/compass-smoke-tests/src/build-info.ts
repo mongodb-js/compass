@@ -38,10 +38,10 @@ export function assertCommonBuildInfo(
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assert(
-    SUPPORTED_CHANNELS.includes((buildInfo as any).channel),
-    `Expected ${(buildInfo as any).channel} to be in ${SUPPORTED_CHANNELS.join(
-      ','
-    )}`
+    SUPPORTED_CHANNELS.includes((buildInfo as { channel: Channel }).channel),
+    `Expected ${
+      (buildInfo as { channel: Channel }).channel
+    } to be in ${SUPPORTED_CHANNELS.join(',')}`
   );
 }
 
