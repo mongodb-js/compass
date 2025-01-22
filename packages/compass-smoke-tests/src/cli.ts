@@ -255,7 +255,7 @@ function startAutoUpdateServer({
   }
 
   console.log('Starting auto-update server', cwd);
-  return crossSpawn('npm', ['run', 'start'], {
+  return crossSpawn.spawn('npm', ['run', 'start'], {
     env,
     cwd,
     stdio: 'inherit',

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { expect } from 'chai';
 import {
   init,
@@ -44,12 +45,21 @@ describe('Auto-update', function () {
     } finally {
       await browser.screenshot(screenshotPathName('auto-update-from'));
       await cleanup(compass);
-      if (process.platform === 'darwin') {
-        for (const filename of ['ShipIt_stderr.log', 'ShipIt_stderr.log']) {
-          fs.copyFileSync(
-            `${process.env.HOME}/Library/Caches/com.mongodb.compass.dev.ShipIt/${filename}`,
-            `${LOG_PATH}/${filename}`
-          );
+
+      if (process.platform === 'darwin' && process.env.HOME) {
+        console.log('copying ShipIt dir if it exits');
+        const shipitDir = path.resolve(
+          process.env.HOME,
+          'Library',
+          'Caches',
+          'com.mongodb.compass.dev.ShipIt'
+        );
+
+        if (fs.existsSync(shipitDir)) {
+          console.log(`copying ${shipitDir}`);
+          fs.cpSync(shipitDir, `${LOG_PATH}/ShipIt`, { recursive: true });
+        } else {
+          console.log(`${shipitDir} does not exist`);
         }
       }
     }
