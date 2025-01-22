@@ -47,6 +47,9 @@ describe('Auto-update', function () {
       await cleanup(compass);
 
       if (process.platform === 'darwin' && process.env.HOME) {
+        const cachesDir = path.resolve(process.env.HOME, 'Library', 'Caches');
+        console.log('caches', cachesDir, fs.readdirSync(cachesDir));
+
         console.log('copying ShipIt dir if it exits');
         const shipitDir = path.resolve(
           process.env.HOME,
