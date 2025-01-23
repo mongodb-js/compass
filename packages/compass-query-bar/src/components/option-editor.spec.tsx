@@ -14,6 +14,7 @@ import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { RecentQuery } from '@mongodb-js/my-queries-storage';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -309,13 +310,13 @@ describe('OptionEditor', function () {
         skip: 1,
         limit: 1,
       },
-    ];
+    ] as unknown as RecentQuery[];
 
     it('filters out update queries', function () {
       const queries = getOptionBasedQueries('filter', 'recent', [
         ...savedQueries,
         { _lastExecuted: new Date(), update: { a: 1 }, filter: { a: 2 } },
-      ]);
+      ] as unknown as RecentQuery[]);
       expect(queries.length).to.equal(1);
     });
 
@@ -323,7 +324,7 @@ describe('OptionEditor', function () {
       const queries = getOptionBasedQueries('filter', 'recent', [
         ...savedQueries,
         { _lastExecuted: new Date() },
-      ]);
+      ] as unknown as RecentQuery[]);
       expect(queries.length).to.equal(1);
     });
 
@@ -334,7 +335,7 @@ describe('OptionEditor', function () {
         ...savedQueries,
         { _lastExecuted: new Date() },
         { _lastExecuted: new Date() },
-      ]);
+      ] as unknown as RecentQuery[]);
       expect(queries.length).to.equal(1);
     });
 

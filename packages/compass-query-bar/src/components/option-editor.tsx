@@ -40,6 +40,7 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import _ from 'lodash';
+import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -97,9 +98,8 @@ const insightsBadgeStyles = css({
   flex: 'none',
 });
 
-type OptionEditorName = Exclude<QueryProperty, 'maxTimeMS' | 'limit' | 'skip'>;
 type OptionEditorProps = {
-  optionName: OptionEditorName;
+  optionName: QueryOptionOfTypeDocument;
   namespace: string;
   id?: string;
   hasError?: boolean;
@@ -299,7 +299,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 };
 
 export function getOptionBasedQueries(
-  optionName: OptionEditorName,
+  optionName: QueryOptionOfTypeDocument,
   type: 'recent' | 'favorite',
   queries: (RecentQuery | FavoriteQuery)[]
 ) {
@@ -339,7 +339,10 @@ export function getOptionBasedQueries(
   );
 }
 
-const mapStateToProps = (state: RootState, ownProps: OptionEditorProps) => ({
+const mapStateToProps = (
+  state: RootState,
+  ownProps: Pick<OptionEditorProps, 'optionName'>
+) => ({
   namespace: state.queryBar.namespace,
   serverVersion: state.queryBar.serverVersion,
   savedQueries: [
