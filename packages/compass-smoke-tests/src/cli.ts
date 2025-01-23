@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import crossSpawn from 'cross-spawn';
-import kill from 'tree-kill';
+//import crossSpawn from 'cross-spawn';
+//import kill from 'tree-kill';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
@@ -22,6 +22,11 @@ import { type SmokeTestsContext } from './context';
 import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
+
+// hardcode to yesterday's nightly
+process.env.DEV_VERSION_IDENTIFIER = '25.1.22-dev.10011';
+process.env.EVERGREEN_BUCKET_KEY_PREFIX =
+  '10gen-compass-main/e231969720181ae6e978f0ce3799b954d99ed9a2_7797';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -194,10 +199,10 @@ async function run() {
     });
 
     try {
-      const server = startAutoUpdateServer({
-        allowDowngrades: true,
-        port: 8080,
-      });
+      //const server = startAutoUpdateServer({
+      //  allowDowngrades: true,
+      //  port: 8080,
+      //});
       try {
         runTest({
           appName,
@@ -206,12 +211,12 @@ async function run() {
           testName: 'AUTO_UPDATE_FROM',
         });
       } finally {
-        if (server.pid) {
-          console.log('Stopping auto-update server');
-          kill(server.pid, 'SIGINT');
-        } else {
-          console.log('cannnot stop auto-update server because no pid');
-        }
+        //if (server.pid) {
+        //  console.log('Stopping auto-update server');
+        //  kill(server.pid, 'SIGINT');
+        //} else {
+        //  console.log('cannnot stop auto-update server because no pid');
+        //}
       }
     } finally {
       await uninstall();
@@ -222,6 +227,7 @@ async function run() {
   }
 }
 
+/*
 type AutoUpdateServerOptions = {
   port: number;
   allowDowngrades?: boolean;
@@ -262,6 +268,7 @@ function startAutoUpdateServer({
     shell: true,
   });
 }
+*/
 
 type RunTestOptions = {
   appName: string;
@@ -292,7 +299,13 @@ function runTest({
       shell: true,
       env: {
         ...process.env,
-        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+        //HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+
+        // this is the usual one, just setting
+        // HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE so the app will set up the
+        // auto-update code even though it is running in CI
+        HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'https://compass.mongodb.com',
+
         AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
         TEST_NAME: testName,
         COMPASS_APP_NAME: appName,
