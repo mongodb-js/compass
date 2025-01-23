@@ -27,9 +27,19 @@ import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
-import type { BaseQuery, QueryFormFields } from '../constants/query-properties';
+import type {
+  BaseQuery,
+  QueryFormFields,
+  QueryProperty,
+} from '../constants/query-properties';
+import { QUERY_PROPERTIES } from '../constants/query-properties';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import type {
+  FavoriteQuery,
+  RecentQuery,
+} from '@mongodb-js/my-queries-storage';
+import _ from 'lodash';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -87,8 +97,9 @@ const insightsBadgeStyles = css({
   flex: 'none',
 });
 
+type OptionEditorName = Exclude<QueryProperty, 'maxTimeMS' | 'limit' | 'skip'>;
 type OptionEditorProps = {
-  optionName: string;
+  optionName: OptionEditorName;
   namespace: string;
   id?: string;
   hasError?: boolean;
@@ -107,7 +118,7 @@ type OptionEditorProps = {
   insights?: Signal | Signal[];
   disabled?: boolean;
   savedQueries: SavedQuery[];
-  onApplyQuery: (query: BaseQuery) => void;
+  onApplyQuery: (query: BaseQuery, fieldsToPreserve: QueryProperty[]) => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -166,27 +177,19 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     return isQueryHistoryAutocompleteEnabled
       ? createQueryWithHistoryAutocompleter({
           queryProperty: optionName,
-          savedQueries: savedQueries
-            .filter((query) => {
-              const isOptionNameInQuery =
-                optionName === 'filter' || optionName in query.queryProperties;
-              const isUpdateNotInQuery = !('update' in query.queryProperties);
-              return isOptionNameInQuery && isUpdateNotInQuery;
-            })
-            .map((query) => ({
-              type: query.type,
-              lastExecuted: query.lastExecuted,
-              queryProperties: query.queryProperties,
-            }))
-            .sort(
-              (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
-            ),
+          savedQueries,
           options: {
             fields: schemaFields,
             serverVersion,
           },
           onApply: (query: SavedQuery['queryProperties']) => {
-            onApplyQuery(query);
+            // When we are applying a query from `filter` field, we want to apply the whole query,
+            // otherwise we want to preserve the other fields that are already in the current query.
+            const fieldsToPreserve =
+              optionName === 'filter'
+                ? []
+                : QUERY_PROPERTIES.filter((x) => x !== optionName);
+            onApplyQuery(query, fieldsToPreserve);
             if (!query[optionName]) {
               return;
             }
@@ -295,20 +298,61 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-const ConnectedOptionEditor = (state: RootState) => ({
+export function getOptionBasedQueries(
+  optionName: OptionEditorName,
+  type: 'recent' | 'favorite',
+  queries: (RecentQuery | FavoriteQuery)[]
+) {
+  return (
+    queries
+      .map((query) => ({
+        type,
+        lastExecuted: query._lastExecuted,
+        // For query that's being autocompeted from the main `filter`, we want to
+        // show whole query to the user, so that when its applied, it will replace
+        // the whole query (filter, project, sort etc).
+        // For other options, we only want to show the query for that specific option.
+        queryProperties: getQueryAttributes(
+          optionName !== 'filter' ? { [optionName]: query[optionName] } : query
+        ),
+      }))
+      // Filter the query if:
+      // - its empty
+      // - its an `update` query
+      // - its a duplicate
+      .filter((query, i, arr) => {
+        const queryIsUpdate = _.has(query.queryProperties, 'update');
+        const queryIsEmpty = _.isEmpty(query.queryProperties);
+        if (queryIsEmpty || queryIsUpdate) {
+          return false;
+        }
+        return (
+          i ===
+          arr.findIndex(
+            (t) =>
+              JSON.stringify(t.queryProperties) ===
+              JSON.stringify(query.queryProperties)
+          )
+        );
+      })
+      .sort((a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime())
+  );
+}
+
+const mapStateToProps = (state: RootState, ownProps: OptionEditorProps) => ({
   namespace: state.queryBar.namespace,
   serverVersion: state.queryBar.serverVersion,
   savedQueries: [
-    ...state.queryBar.recentQueries.map((query) => ({
-      type: 'recent',
-      lastExecuted: query._lastExecuted,
-      queryProperties: getQueryAttributes(query),
-    })),
-    ...state.queryBar.favoriteQueries.map((query) => ({
-      type: 'favorite',
-      lastExecuted: query._lastExecuted,
-      queryProperties: getQueryAttributes(query),
-    })),
+    ...getOptionBasedQueries(
+      ownProps.optionName,
+      'recent',
+      state.queryBar.recentQueries
+    ),
+    ...getOptionBasedQueries(
+      ownProps.optionName,
+      'favorite',
+      state.queryBar.favoriteQueries
+    ),
   ],
 });
 
@@ -316,4 +360,4 @@ const mapDispatchToProps = {
   onApplyQuery: applyFromHistory,
 };
 
-export default connect(ConnectedOptionEditor, mapDispatchToProps)(OptionEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(OptionEditor);

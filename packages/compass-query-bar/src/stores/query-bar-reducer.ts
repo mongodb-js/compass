@@ -224,14 +224,23 @@ type ApplyFromHistoryAction = {
 };
 
 export const applyFromHistory = (
-  query: BaseQuery & { update?: Document }
+  query: BaseQuery & { update?: Document },
+  currentQueryFieldsToRetain: QueryProperty[] = []
 ): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
   return (dispatch, getState, { localAppRegistry, preferences }) => {
+    const currentFields = getState().queryBar.fields;
+    const currentQuery = currentQueryFieldsToRetain.reduce((acc, key) => {
+      if (currentFields[key]?.value) {
+        acc[key] = currentFields[key].value;
+      }
+      return acc;
+    }, {} as Record<string, number | Document>);
     const fields = mapQueryToFormFields(
       { maxTimeMS: preferences.getPreferences().maxTimeMS },
       {
         ...DEFAULT_FIELD_VALUES,
         ...query,
+        ...currentQuery,
       }
     );
     dispatch({
