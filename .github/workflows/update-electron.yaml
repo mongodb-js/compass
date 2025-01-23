@@ -47,5 +47,6 @@ jobs:
           branch: ci/update-electron
           title: 'chore(deps): update electron'
           labels: no-title-validation
+          author: ${{ steps.app-token.outputs.app-email }}
           body: |
             - Update electron
