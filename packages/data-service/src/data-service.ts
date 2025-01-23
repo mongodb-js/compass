@@ -3,7 +3,7 @@ import type {
   Tunnel,
 } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
-import { ExplainVerbosity, ClientEncryption, ReadPreference } from 'mongodb';
+import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -1782,7 +1782,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        console.log({ options });
         cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
           ...options,
           session,
@@ -2205,7 +2204,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       });
     }
 
-    // TODO now
     return this.aggregate(
       ns,
       pipeline,
@@ -2624,9 +2622,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _collection(ns: string, type: ClientType): Collection {
     return this._initializedClient(type)
       .db(this._databaseName(ns))
-      .collection(this._collectionName(ns), {
-        readPreference: ReadPreference.SECONDARY_PREFERRED,
-      });
+      .collection(this._collectionName(ns));
   }
 
   /**
