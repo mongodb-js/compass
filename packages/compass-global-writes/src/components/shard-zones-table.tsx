@@ -86,6 +86,35 @@ export function ShardZonesTable({
 }: {
   shardZones: ShardZoneData[];
 }) {
+  shardZones = [
+    {
+      country: 'Denmark',
+      isoCode: 'DK',
+      zoneName: 'eu-central-2',
+      readableName: 'Denmark',
+      typeOneIsoCode: 'DK',
+      zoneId: 'zone-1',
+      zoneLocations: ['Copenhagen', 'Roskilde', 'Aarhus'],
+    },
+    {
+      country: 'Denmark',
+      isoCode: 'DK-Z',
+      zoneName: 'eu-central-2-a',
+      readableName: 'Zealand',
+      typeOneIsoCode: 'DK',
+      zoneId: 'zone-2',
+      zoneLocations: ['Copenhagen', 'Roskilde'],
+    },
+    {
+      country: 'Denmark',
+      isoCode: 'DK-J',
+      zoneName: 'eu-central-2-b',
+      readableName: 'Jutland',
+      typeOneIsoCode: 'DK',
+      zoneId: 'zone-3',
+      zoneLocations: ['Aarhus'],
+    },
+  ];
   const [searchText, setSearchText] = useState<string>('');
   const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 

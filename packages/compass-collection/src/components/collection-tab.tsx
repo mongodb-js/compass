@@ -119,12 +119,14 @@ function WithErrorBoundary({
 
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  const connectionInfoRef = useConnectionInfoRef();
-  const isGlobalWritesEnabled = usePreference('enableGlobalWrites');
-  const isGlobalWritesSupported =
-    useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
-    !props.isReadonly &&
-    !toNS(props.namespace).specialish;
+  // const connectionInfoRef = useConnectionInfoRef();
+  // const isGlobalWritesEnabled = usePreference('enableGlobalWrites');
+  // const isGlobalWritesSupported =
+  //   useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
+  //   !props.isReadonly &&
+  //   !toNS(props.namespace).specialish;
+  const isGlobalWritesEnabled = true;
+  const isGlobalWritesSupported = true;
   return pluginTabs
     .filter((x) => {
       if (

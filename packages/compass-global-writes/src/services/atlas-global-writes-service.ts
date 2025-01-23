@@ -3,6 +3,7 @@ import keyBy from 'lodash/keyBy';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { CreateShardKeyData } from '../store/reducer';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 const TIMESTAMP_REGEX = /\[\d{1,2}:\d{2}:\d{2}\.\d{3}\]/;
 
@@ -104,8 +105,22 @@ export class AtlasGlobalWritesService {
     private connectionInfo: ConnectionInfoRef
   ) {}
 
-  private getAtlasMetadata() {
+  private getAtlasMetadata(): AtlasClusterMetadata {
     if (!this.connectionInfo.current?.atlasMetadata) {
+      return {
+        clusterName: 'MyCluster',
+        clusterType: 'GEOSHARDED',
+        clusterUniqueId: '123',
+        metricsId: '123',
+        metricsType: 'cluster',
+        orgId: 'my-org',
+        projectId: 'my-project',
+        regionalBaseUrl: 'https://fake.mongodb.com',
+        geoSharding: {
+          selfManagedSharding: true,
+        },
+        instanceSize: 'M30',
+      };
       throw new Error('Atlas metadata is not available');
     }
     return this.connectionInfo.current.atlasMetadata;
@@ -116,6 +131,24 @@ export class AtlasGlobalWritesService {
     const uri = this.atlasService.cloudEndpoint(
       `nds/clusters/${projectId}/${clusterName}`
     );
+    return {
+      geoSharding: {
+        customZoneMapping: {},
+        managedNamespaces: [
+          {
+            collection: 'startup_log',
+            customShardKey: 'other',
+            db: 'local',
+            isCustomShardKeyHashed: true,
+            isShardKeyUnique: true,
+            numInitialChunks: null,
+            presplitHashedZones: false,
+          },
+        ],
+        selfManagedSharding: true,
+      },
+      replicationSpecList: [],
+    };
     const response = await this.atlasService.authenticatedFetch(uri);
     const clusterDetails = await response.json();
     assertDataIsClusterDetailsApiResponse(clusterDetails);
@@ -180,6 +213,7 @@ export class AtlasGlobalWritesService {
     const uri = this.atlasService.cloudEndpoint(
       `/automation/deploymentStatus/${projectId}`
     );
+    return undefined;
     const response = await this.atlasService.authenticatedFetch(uri);
     const data = await response.json();
     assertDataIsAutomationAgentDeploymentStatusApiResponse(data);
@@ -196,6 +230,20 @@ export class AtlasGlobalWritesService {
   }
 
   async getShardingKeys(namespace: string) {
+    return {
+      fields: [
+        {
+          name: 'location',
+          type: 'RANGE',
+        },
+        {
+          name: 'other',
+          type: 'HASHED',
+        },
+      ],
+      isUnique: true,
+    };
+
     const { database: db, collection } = toNS(namespace);
     const atlasMetadata = this.getAtlasMetadata();
 
@@ -239,6 +287,7 @@ export class AtlasGlobalWritesService {
   }
 
   async getShardingZones() {
+    return transformZoneData([], []);
     const { projectId } = this.getAtlasMetadata();
     const {
       replicationSpecList: replicationSpecs,
