@@ -287,7 +287,6 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: publish
-      - name: publish-packages-next
       - name: publish-dev-release-info
       - name: create_static_analysis_report
 
@@ -428,17 +427,6 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
-
-  - name: publish-packages-next
-    tags: []
-    depends_on:
-      - name: '.required-for-publish'
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: publish-packages-next
 
   - name: publish-dev-release-info
     tags: []

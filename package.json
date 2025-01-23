@@ -50,8 +50,6 @@
     "update-evergreen-config": "node .evergreen/template-yml.js",
     "postupdate-evergreen-config": "evergreen validate .evergreen.yml",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
-    "version-packages-next": "npx lerna version \"0.0.0-next-$(git rev-parse HEAD)\" --exact --private --no-git-tag-version --force-publish --no-push --yes",
-    "publish-packages-next": "npx lerna publish from-package --no-private --dist-tag next --pre-dist-tag next --yes",
     "prepare": "husky install",
     "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
