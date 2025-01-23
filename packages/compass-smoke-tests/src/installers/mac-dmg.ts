@@ -33,16 +33,29 @@ export function installMacDMG({
       'Application Support',
       appName
     );
+    const shipitDir = path.resolve(
+      process.env.HOME,
+      'Library',
+      'Caches',
+      'com.mongodb.compass.dev.ShipIt'
+    );
 
-    if (fs.existsSync(settingsDir)) {
-      console.log(`${settingsDir} already exists. Removing.`);
-      fs.rmSync(settingsDir, { recursive: true });
+    for (const dir of [settingsDir, shipitDir]) {
+      if (fs.existsSync(dir)) {
+        console.log(`${dir} already exists. Removing.`);
+        fs.rmSync(dir, { recursive: true });
+      }
     }
   }
 
+  const executablePath = path.resolve(appPath, 'Contents/MacOS', appName);
+
+  execute('xattr', ['-l', appPath]);
+  execute('xattr', ['-l', executablePath]);
+
   // see if the executable will run without being quarantined or similar
   // TODO: Move this somewhere shared between mac installers
-  execute(path.resolve(appPath, 'Contents/MacOS', appName), ['--version']);
+  execute(executablePath, ['--version']);
 
   return {
     appPath: appPath,

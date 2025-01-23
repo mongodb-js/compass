@@ -6,6 +6,10 @@ export function execute(
   args: string[],
   options?: SpawnOptions
 ) {
+  // print the command so that when it outputs to stdout we can see where it
+  // comes from
+  console.log(command, args);
+
   const { status, signal } = spawnSync(command, args, {
     stdio: 'inherit',
     ...options,
