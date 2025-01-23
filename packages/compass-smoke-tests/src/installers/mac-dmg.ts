@@ -48,9 +48,14 @@ export function installMacDMG({
     }
   }
 
+  const executablePath = path.resolve(appPath, 'Contents/MacOS', appName);
+
+  execute('xattr', ['-l', appPath]);
+  execute('xattr', ['-l', executablePath]);
+
   // see if the executable will run without being quarantined or similar
   // TODO: Move this somewhere shared between mac installers
-  execute(path.resolve(appPath, 'Contents/MacOS', appName), ['--version']);
+  execute(executablePath, ['--version']);
 
   return {
     appPath: appPath,
