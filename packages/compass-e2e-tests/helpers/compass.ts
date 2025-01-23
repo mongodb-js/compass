@@ -636,8 +636,10 @@ async function startCompassElectron(
 
   process.env.APP_ENV = 'webdriverio';
   // For webdriverio env we are changing appName so that keychain records do not
-  // overlap with anything else
-  process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  // overlap with anything else. But leave it alone when testing auto-update.
+  if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
+    process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  }
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
