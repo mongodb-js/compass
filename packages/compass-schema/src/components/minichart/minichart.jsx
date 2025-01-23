@@ -7,7 +7,6 @@ import CoordinatesMinichart from '../coordinates-minichart';
 import D3Component from '../d3-component';
 import vizFns from '../../modules';
 import CONSTANTS from '../../constants/schema';
-import { connect } from 'react-redux';
 
 class MiniChart extends PureComponent {
   static displayName = 'MiniChartComponent';
@@ -36,12 +35,12 @@ class MiniChart extends PureComponent {
     this.resizeListener();
     window.addEventListener('resize', this.resizeListener);
     // this.unsubscribeMiniChartResize =
-    //   this.props.actions.resizeMiniCharts.listen(this.resizeListener);
+    //   this.props.actions.resizeMiniCharts.listen(this.resizeListener); // TODO: what was this doing?
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
-    this.unsubscribeMiniChartResize();
+    // this.unsubscribeMiniChartResize();
   }
 
   /**
@@ -150,4 +149,4 @@ class MiniChart extends PureComponent {
   }
 }
 
-export default connect(() => {}, {})(MiniChart);
+export default MiniChart;

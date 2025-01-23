@@ -155,7 +155,7 @@ export const handleSchemaShare = (): SchemaThunkAction<void> => {
 
 export const _trackSchemaShared = (
   hasSchema: boolean
-): SchemaThunkAction<undefined> => {
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { track, connectionInfoRef }) => {
     const { schema } = getState();
     // Use a function here to a) ensure that the calculations here

@@ -35,7 +35,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { RootState } from '../stores/store';
+import type { RootState, SchemaThunkDispatch } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/reducer';
 
 const rootStyles = css({
@@ -373,20 +373,27 @@ const Schema: React.FunctionComponent<{
   schema: MongodbSchema | null;
   count?: number;
   resultId?: number;
-  startAnalysis: () => Promise<void>;
-  stopAnalysis: () => void;
-}> = ({ analysisState, errorMessage, schema, resultId }) => {
+  onStartAnalysis: () => Promise<void>;
+  onStopAnalysis: () => void;
+}> = ({
+  analysisState,
+  errorMessage,
+  schema,
+  resultId,
+  onStartAnalysis,
+  onStopAnalysis,
+}) => {
   const onApplyClicked = useCallback(() => {
-    startAnalysis();
-  }, []);
+    void onStartAnalysis();
+  }, [onStartAnalysis]);
 
   const onCancelClicked = useCallback(() => {
-    stopAnalysis();
-  }, []);
+    onStopAnalysis();
+  }, [onStopAnalysis]);
 
   const onResetClicked = useCallback(() => {
-    startAnalysis();
-  }, []);
+    onStopAnalysis();
+  }, [onStopAnalysis]);
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
