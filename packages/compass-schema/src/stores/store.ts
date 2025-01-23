@@ -1,6 +1,6 @@
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createStore, applyMiddleware, type AnyAction } from 'redux';
-import thunk, { type ThunkAction } from 'redux-thunk';
+import thunk, { type ThunkDispatch, type ThunkAction } from 'redux-thunk';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type {
   ConnectionInfoRef,
@@ -40,6 +40,8 @@ export type SchemaThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   SchemaExtraArgs,
   A
 >;
+export type SchemaThunkDispatch<A extends AnyAction = AnyAction> =
+  ThunkDispatch<RootState, SchemaExtraArgs, A>;
 
 /**
  * Configure a store with the provided options.
