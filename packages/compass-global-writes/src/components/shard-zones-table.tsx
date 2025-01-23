@@ -104,10 +104,14 @@ export function ShardZonesTable({
       expanded,
     },
     onGlobalFilterChange: setSearchText,
-    onExpandedChange: setExpanded,
+    onExpandedChange: (expanded) => {
+      setExpanded(expanded);
+      console.log('new expanded', expanded);
+    },
     enableGlobalFilter: true,
     getFilteredRowModel: getFilteredRowModel(),
     getIsRowExpanded: (row) => {
+      console.log('getIsRowExpanded', hasFilteredChildren(row));
       return (
         (searchText && hasFilteredChildren(row)) ||
         (typeof expanded !== 'boolean' && expanded[row.id])
