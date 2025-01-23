@@ -55,8 +55,6 @@ export const analyzeSchema = async (
       ns,
     });
 
-    console.log({ aggregateOptions });
-
     const docs = await dataService.sample(
       ns,
       query,

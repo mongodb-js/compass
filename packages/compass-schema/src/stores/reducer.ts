@@ -1,6 +1,5 @@
 import type { Schema } from 'mongodb-schema';
 import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
@@ -11,7 +10,6 @@ import {
 } from '../constants/analysis-states';
 
 import type { Query } from '@mongodb-js/compass-query-bar';
-import type { InternalLayer } from '../modules/geo';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
@@ -22,6 +20,7 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { SchemaThunkAction } from './store';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -39,22 +38,13 @@ export type SchemaState = {
   errorMessage: string;
   schema: Schema | null;
   resultId: number;
-  abortController: undefined | AbortController;
-  ns: string;
-  geoLayers: Record<string, InternalLayer>;
 };
-
-export type SchemaThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
-  R,
-  SchemaState,
-  any,
-  A
->; // TODO - any are services
 
 export const enum SchemaActions {
   analysisStarted = 'schema-service/schema/analysisStarted',
   analysisFinished = 'schema-service/schema/analysisFinished',
   analysisFailed = 'schema-service/schema/analysisFailed',
+  analysisCancelled = 'schema-service/schema/analysisCancelled',
 }
 
 export type AnalysisStartedAction = {
@@ -69,6 +59,10 @@ export type AnalysisFinishedAction = {
 export type AnalysisFailedAction = {
   type: SchemaActions.analysisFailed;
   error: Error;
+};
+
+export type analysisCancelled = {
+  type: SchemaActions.analysisCancelled;
 };
 
 const reducer: Reducer<SchemaState, Action> = (
@@ -105,6 +99,13 @@ const reducer: Reducer<SchemaState, Action> = (
     };
   }
 
+  if (isAction<analysisCancelled>(action, SchemaActions.analysisCancelled)) {
+    return {
+      ...state,
+      analysisState: ANALYSIS_STATE_INITIAL,
+    };
+  }
+
   return state;
 };
 
@@ -128,8 +129,8 @@ function resultId(): number {
 }
 
 export const handleSchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState) => {
-    const { schema, ns } = getState();
+  return (dispatch, getState, { namespace }) => {
+    const { schema } = getState();
     void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
     const hasSchema = schema !== null;
     dispatch(_trackSchemaShared(hasSchema));
@@ -139,7 +140,7 @@ export const handleSchemaShare = (): SchemaThunkAction<void> => {
         ? {
             variant: 'success',
             title: 'Schema Copied',
-            description: `The schema definition of ${ns} has been copied to your clipboard in JSON format.`,
+            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
             timeout: 5_000,
           }
         : {
@@ -179,68 +180,62 @@ const getInitialState = (): SchemaState => ({
   errorMessage: '',
   schema: null,
   resultId: resultId(),
-  ns: undefined, // TODO: where is NS coming from
-  geoLayers: {},
 });
 
-// // TODO: what to do with layers??
-// onSchemaSampled (this: SchemaStore) {
-// 	this.geoLayers = {};
-// }
+export const onSchemaSampled = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { geoLayersRef }) => {
+    geoLayersRef.current = {};
+  };
+};
 
-// geoLayerAdded(
-// 	this: SchemaStore,
-// 	field: string,
-// 	layer: Layer,
-// 	// NB: reflux doesn't return values from actions so we have to pass
-// 	// component onChage as a callback
-// 	onAdded: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
-// ) {
-// 	this.geoLayers = addLayer(
-// 		field,
-// 		layer as Circle | Polygon,
-// 		this.geoLayers
-// 	);
-// 	onAdded(generateGeoQuery(this.geoLayers));
-// },
+export const geoLayerAdded = (
+  field: string,
+  layer: Layer
+): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  return (dispatch, getState, { geoLayersRef }) => {
+    geoLayersRef.current = addLayer(
+      field,
+      layer as Circle | Polygon,
+      geoLayersRef.current
+    );
+    return generateGeoQuery(geoLayersRef.current);
+  };
+};
 
-// geoLayersEdited(
-// 	this: SchemaStore,
-// 	field: string,
-// 	layers: LayerGroup,
-// 	// NB: reflux doesn't return values from actions so we have to pass
-// 	// component onChage as a callback
-// 	onEdited: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
-// ) {
-// 	layers.eachLayer((layer) => {
-// 		this.geoLayerAdded(field, layer, () => {
-// 			// noop, we will call `onEdited` when we're done with updates
-// 		});
-// 	});
-// 	onEdited(generateGeoQuery(this.geoLayers));
-// },
+export const geoLayersEdited = (
+  field: string,
+  layers: LayerGroup
+): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  return (dispatch, getState, { geoLayersRef }) => {
+    layers.eachLayer((layer) => {
+      dispatch(geoLayerAdded(field, layer));
+    });
+    return generateGeoQuery(geoLayersRef.current);
+  };
+};
 
-// geoLayersDeleted(
-// 	this: SchemaStore,
-// 	layers: LayerGroup,
-// 	// NB: reflux doesn't return values from actions so we have to pass
-// 	// component onChage as a callback
-// 	onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
-// ) {
-// 	layers.eachLayer((layer) => {
-// 		delete this.geoLayers[(layer as any)._leaflet_id];
-// 	});
-// 	onDeleted(generateGeoQuery(this.geoLayers));
-// },
+export const geoLayersDeleted = (
+  layers: LayerGroup
+): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  return (dispatch, getState, { geoLayersRef }) => {
+    layers.eachLayer((layer) => {
+      delete geoLayersRef.current[(layer as any)._leaflet_id];
+    });
+    return generateGeoQuery(geoLayersRef.current);
+  };
+};
 
-// stopAnalysis(this: SchemaStore) {
-// 	this.state.abortController?.abort();
-// },
+export const stopAnalysis = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { abortControllerRef }) => {
+    abortControllerRef.current?.abort();
+    dispatch({ type: SchemaActions.analysisCancelled });
+  };
+};
 
 export const _trackSchemaAnalyzed = (
   analysisTimeMS: number,
   query: Query
-): SchemaThunkAction<undefined> => {
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { track, connectionInfoRef }) => {
     const { schema } = getState();
     // Use a function here to a) ensure that the calculations here
@@ -268,15 +263,15 @@ export const startAnalysis = (): SchemaThunkAction<
     {
       queryBar,
       preferences,
-      debug,
+      logger: { debug, log },
       dataService,
       logger,
       fieldStoreService,
-      log,
+      abortControllerRef,
+      namespace,
     }
   ) => {
     const query = queryBar.getLastAppliedQuery('schema');
-    const { ns } = getState();
 
     const sampleSize = query.limit
       ? Math.min(DEFAULT_SAMPLE_SIZE, query.limit)
@@ -295,20 +290,20 @@ export const startAnalysis = (): SchemaThunkAction<
     try {
       debug('analysis started');
 
-      const abortController = new AbortController();
-      const abortSignal = abortController.signal;
+      abortControllerRef.current = new AbortController();
+      const abortSignal = abortControllerRef.current.signal;
 
       dispatch({ type: SchemaActions.analysisStarted });
 
       abortSignal?.addEventListener('abort', () => {
-        dispatch(stopAnalysis(abortSignal.reason));
+        dispatch(stopAnalysis());
       });
 
       const analysisStartTime = Date.now();
       const schema = await analyzeSchema(
         dataService,
         abortSignal,
-        ns,
+        namespace,
         samplingOptions,
         driverOptions,
         logger
@@ -316,14 +311,14 @@ export const startAnalysis = (): SchemaThunkAction<
       const analysisTime = Date.now() - analysisStartTime;
 
       if (schema !== null) {
-        fieldStoreService.updateFieldsFromSchema(ns, schema);
+        fieldStoreService.updateFieldsFromSchema(namespace, schema);
       }
 
       dispatch({ type: SchemaActions.analysisFinished, schema });
 
       _trackSchemaAnalyzed(analysisTime, query);
 
-      // this.onSchemaSampled(); // TODO: geoLayers
+      dispatch(onSchemaSampled());
     } catch (err: any) {
       log.error(
         mongoLogId(1_001_000_188),
@@ -335,7 +330,7 @@ export const startAnalysis = (): SchemaThunkAction<
       );
       dispatch({ type: SchemaActions.analysisFailed, error: err as Error });
     } finally {
-      // this.setState({ abortController: undefined }); // TODO: Abort controller
+      abortControllerRef.current = undefined;
     }
   };
 };
