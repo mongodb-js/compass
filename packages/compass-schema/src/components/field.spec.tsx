@@ -13,7 +13,6 @@ import {
   type SchemaType,
 } from 'mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
-import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -44,7 +43,6 @@ function renderField(
     <MockQueryBarPlugin {...(queryBarProps as any)}>
       <Field
         enableMaps={false}
-        actions={configureActions()}
         name="testFieldName"
         path={['test']}
         {...props}

@@ -98,4 +98,4 @@ export function configureStore(
   return store;
 }
 
-export type AtlasServiceStore = ReturnType<typeof configureStore>;
+export type SchemaStore = ReturnType<typeof configureStore>;

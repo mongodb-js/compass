@@ -8,8 +8,6 @@ import {
   ANALYSIS_STATE_INITIAL,
   ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
-
-import type { Query } from '@mongodb-js/compass-query-bar';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
@@ -21,6 +19,7 @@ import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
+import { UUID } from 'bson';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -37,7 +36,7 @@ export type SchemaState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
-  resultId: number;
+  resultId: string;
 };
 
 export const enum SchemaActions {
@@ -59,10 +58,6 @@ export type AnalysisFinishedAction = {
 export type AnalysisFailedAction = {
   type: SchemaActions.analysisFailed;
   error: Error;
-};
-
-export type analysisCancelled = {
-  type: SchemaActions.analysisCancelled;
 };
 
 const reducer: Reducer<SchemaState, Action> = (
@@ -99,13 +94,6 @@ const reducer: Reducer<SchemaState, Action> = (
     };
   }
 
-  if (isAction<analysisCancelled>(action, SchemaActions.analysisCancelled)) {
-    return {
-      ...state,
-      analysisState: ANALYSIS_STATE_INITIAL,
-    };
-  }
-
   return state;
 };
 
@@ -124,8 +112,8 @@ function getErrorState(err: Error & { code?: number }) {
   return { analysisState, errorMessage };
 }
 
-function resultId(): number {
-  return Math.floor(Math.random() * 2 ** 53);
+function resultId(): string {
+  return new UUID().toString();
 }
 
 export const handleSchemaShare = (): SchemaThunkAction<void> => {
@@ -182,12 +170,6 @@ const getInitialState = (): SchemaState => ({
   resultId: resultId(),
 });
 
-export const onSchemaSampled = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { geoLayersRef }) => {
-    geoLayersRef.current = {};
-  };
-};
-
 export const geoLayerAdded = (
   field: string,
   layer: Layer
@@ -228,28 +210,6 @@ export const geoLayersDeleted = (
 export const stopAnalysis = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { abortControllerRef }) => {
     abortControllerRef.current?.abort();
-    dispatch({ type: SchemaActions.analysisCancelled });
-  };
-};
-
-export const _trackSchemaAnalyzed = (
-  analysisTimeMS: number,
-  query: Query
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const { schema } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema analysis logic.
-    const trackEvent = () => ({
-      with_filter: Object.entries(query.filter ?? {}).length > 0,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-      analysis_time_ms: analysisTimeMS,
-    });
-    track('Schema Analyzed', trackEvent, connectionInfoRef.current);
   };
 };
 
@@ -269,6 +229,9 @@ export const startAnalysis = (): SchemaThunkAction<
       fieldStoreService,
       abortControllerRef,
       namespace,
+      geoLayersRef,
+      connectionInfoRef,
+      track,
     }
   ) => {
     const query = queryBar.getLastAppliedQuery('schema');
@@ -295,10 +258,6 @@ export const startAnalysis = (): SchemaThunkAction<
 
       dispatch({ type: SchemaActions.analysisStarted });
 
-      abortSignal?.addEventListener('abort', () => {
-        dispatch(stopAnalysis());
-      });
-
       const analysisStartTime = Date.now();
       const schema = await analyzeSchema(
         dataService,
@@ -316,9 +275,17 @@ export const startAnalysis = (): SchemaThunkAction<
 
       dispatch({ type: SchemaActions.analysisFinished, schema });
 
-      _trackSchemaAnalyzed(analysisTime, query);
+      // track schema analyzed
+      const trackEvent = () => ({
+        with_filter: Object.entries(query.filter ?? {}).length > 0,
+        schema_width: schema?.fields?.length ?? 0,
+        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
+        geo_data: schema ? schemaContainsGeoData(schema) : false,
+        analysis_time_ms: analysisTime,
+      });
+      track('Schema Analyzed', trackEvent, connectionInfoRef.current);
 
-      dispatch(onSchemaSampled());
+      geoLayersRef.current = {};
     } catch (err: any) {
       log.error(
         mongoLogId(1_001_000_188),

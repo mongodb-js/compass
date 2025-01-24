@@ -35,7 +35,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { RootState, SchemaThunkDispatch } from '../stores/store';
+import type { RootState } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/reducer';
 
 const rootStyles = css({
@@ -372,7 +372,7 @@ const Schema: React.FunctionComponent<{
   maxTimeMS?: number;
   schema: MongodbSchema | null;
   count?: number;
-  resultId?: number;
+  resultId?: string;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
 }> = ({
@@ -387,14 +387,6 @@ const Schema: React.FunctionComponent<{
     void onStartAnalysis();
   }, [onStartAnalysis]);
 
-  const onCancelClicked = useCallback(() => {
-    onStopAnalysis();
-  }, [onStopAnalysis]);
-
-  const onResetClicked = useCallback(() => {
-    onStopAnalysis();
-  }, [onStopAnalysis]);
-
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
   const enablePerformanceAdvisorBanner = usePreference(
@@ -407,12 +399,12 @@ const Schema: React.FunctionComponent<{
         toolbar={
           <SchemaToolbar
             onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
+            onResetClicked={onStopAnalysis}
             analysisState={analysisState}
             errorMessage={errorMessage || ''}
             isOutdated={!!outdated}
             sampleSize={schema ? schema.count : 0}
-            schemaResultId={String(resultId) || ''}
+            schemaResultId={resultId || ''}
           />
         }
       >
@@ -422,7 +414,7 @@ const Schema: React.FunctionComponent<{
             <InitialScreen onApplyClicked={onApplyClicked} />
           )}
           {analysisState === ANALYSIS_STATE_ANALYZING && (
-            <AnalyzingScreen onCancelClicked={onCancelClicked} />
+            <AnalyzingScreen onCancelClicked={onStopAnalysis} />
           )}
           {analysisState === ANALYSIS_STATE_COMPLETE && (
             <FieldList schema={schema} analysisState={analysisState} />
