@@ -678,6 +678,8 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
           git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
+          rm -rf ~/src/compass-mongodb-com
+          cp -r ../compass-mongodb-com ~/src
           cd ../compass-mongodb-com
           echo "Using node version:";
           node -v;
