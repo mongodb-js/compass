@@ -333,7 +333,7 @@ CoordinatesMinichart.propTypes = {
   onQueryChanged: PropTypes.func,
 };
 
-const ConnectedCoordinatesMinichart = connect(() => ({}), {
+const ConnectedCoordinatesMinichart = connect(undefined, {
   geoLayerAdded,
   geoLayersEdited,
   geoLayersDeleted,
