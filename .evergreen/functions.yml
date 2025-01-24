@@ -679,9 +679,8 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
-            # TODO: windows_setup
-            # TODO: windows_msi
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi
           fi
 
           if [[ "$IS_OSX" == "true" ]]; then

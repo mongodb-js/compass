@@ -20,6 +20,7 @@ import { type SmokeTestsContext } from './context';
 import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
+import { installWindowsMSI } from './installers/windows-msi';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -98,6 +99,11 @@ const argv = yargs(hideBin(process.argv))
   .option('localPackage', {
     type: 'boolean',
     description: 'Use the local package instead of downloading',
+  })
+  .option('skipCleanup', {
+    type: 'boolean',
+    description: 'Do not delete the sandbox after a run',
+    default: false,
   });
 
 type TestSubject = PackageDetails & {
@@ -154,6 +160,8 @@ function getInstaller(kind: PackageKind) {
     return installMacZIP;
   } else if (kind === 'windows_zip') {
     return installWindowsZIP;
+  } else if (kind === 'windows_msi') {
+    return installWindowsMSI;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
@@ -195,8 +203,12 @@ async function run() {
       await uninstall();
     }
   } finally {
-    console.log('Cleaning up sandbox');
-    fs.rmSync(context.sandboxPath, { recursive: true });
+    if (context.skipCleanup) {
+      console.log(`Skipped cleaning up sandbox: ${context.sandboxPath}`);
+    } else {
+      console.log(`Cleaning up sandbox: ${context.sandboxPath}`);
+      fs.rmSync(context.sandboxPath, { recursive: true });
+    }
   }
 }
 
