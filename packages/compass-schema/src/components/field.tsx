@@ -21,7 +21,6 @@ import type {
 import { FieldType, sortTypes } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
-import type { configureActions } from '../actions';
 import { useQueryBarQuery } from '@mongodb-js/compass-query-bar';
 import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
@@ -110,7 +109,6 @@ const nestedFieldStyles = css({
 });
 
 type FieldProps = {
-  actions: ReturnType<typeof configureActions>;
   name: string;
   path: string[];
   types: SchemaType[];
@@ -196,7 +194,7 @@ export function shouldShowUnboundArrayInsight(
   );
 }
 
-function Field({ actions, name, path, types, enableMaps }: FieldProps) {
+function Field({ name, path, types, enableMaps }: FieldProps) {
   const query = useQueryBarQuery();
   const changeQuery = useChangeQueryBarQuery();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -308,7 +306,6 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
               fieldValue={query.filter?.[fieldName]}
               type={activeType}
               nestedDocType={nestedDocType}
-              actions={actions}
               onQueryChanged={debouncedChangeQuery}
             />
           </div>
@@ -326,7 +323,7 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
             {(getNestedDocType(types)?.fields || []).map(
               (field: SchemaField) => (
                 <div className={nestedFieldStyles} key={field.name}>
-                  <Field actions={actions} enableMaps={enableMaps} {...field} />
+                  <Field enableMaps={enableMaps} {...field} />
                 </div>
               )
             )}

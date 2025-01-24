@@ -34,13 +34,10 @@ class MiniChart extends PureComponent {
     // but it is not noticable to the user.
     this.resizeListener();
     window.addEventListener('resize', this.resizeListener);
-    this.unsubscribeMiniChartResize =
-      this.props.actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeListener);
-    this.unsubscribeMiniChartResize();
   }
 
   /**
