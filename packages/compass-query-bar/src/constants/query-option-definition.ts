@@ -4,6 +4,10 @@ import { usePreference } from 'compass-preferences-model/provider';
 import type { QueryProperty } from './query-properties';
 
 export type QueryOption = Exclude<QueryProperty, 'update'>;
+export type QueryOptionOfTypeDocument = Exclude<
+  QueryProperty,
+  'maxTimeMS' | 'limit' | 'skip'
+>;
 
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
