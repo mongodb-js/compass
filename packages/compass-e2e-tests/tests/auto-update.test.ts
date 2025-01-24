@@ -9,6 +9,12 @@ import {
 } from '../helpers/compass';
 import { LOG_PATH } from '../helpers/test-runner-paths';
 
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 describe('Auto-update', function () {
   it('auto-update from', async function () {
     if (process.env.TEST_NAME !== 'AUTO_UPDATE_FROM') {
@@ -65,6 +71,11 @@ describe('Auto-update', function () {
     }
 
     if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
+      console.log(
+        'pause to make sure the app properly exited before starting again'
+      );
+      await wait(60_000);
+
       console.log('starting compass a second time');
       // run the app again and check that the version changed
       const compass = await init('auto-update from restart', {
