@@ -12,6 +12,7 @@ jobs:
   update_generated_files:
     name: Update automatically generated files
     runs-on: ubuntu-latest
+    if: "${{ github.event_name != 'push' || github.event.head_commit.message != 'chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary' }}"
     env:
       HADRON_DISTRIBUTION: compass
     steps:
