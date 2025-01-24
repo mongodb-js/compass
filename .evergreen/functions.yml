@@ -152,8 +152,6 @@ functions:
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
-          mkdir -p $NPM_CACHE_DIR
-          mkdir -p $NPM_TMP_DIR
 
     - command: shell.exec
       type: setup
