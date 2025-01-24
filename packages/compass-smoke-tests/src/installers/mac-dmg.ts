@@ -15,6 +15,8 @@ export function installMacDMG({
 
   execute('hdiutil', ['attach', filepath]);
 
+  execute('umask', []);
+
   try {
     fs.cpSync(path.resolve(volumePath, appFilename), appPath, {
       recursive: true,

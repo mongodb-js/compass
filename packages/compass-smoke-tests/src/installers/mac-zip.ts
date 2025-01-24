@@ -12,6 +12,8 @@ export function installMacZIP({
   const appFilename = `${appName}.app`;
   const appPath = path.resolve(destinationPath, appFilename);
 
+  execute('umask', []);
+
   execute('ditto', ['-xk', filepath, destinationPath]);
 
   // TODO: Consider instrumenting the app to use a settings directory in the sandbox
