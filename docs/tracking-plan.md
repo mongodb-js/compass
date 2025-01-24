@@ -5,7 +5,7 @@
 > This plan represents the tracking plan for the current branch / commit that 
 > you have selected (`main` by default), it might not be released yet. To find
 > the tracking plan for the specific Compass version you can use the following
-> URL: https://github.com/mongodb-js/compass/blob/v<compass version>/docs/tracking-plan.md
+> URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
 Generated on Fri, Jan 24, 2025
 
