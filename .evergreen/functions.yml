@@ -678,8 +678,6 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
           git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
-          rm -rf ~/src/compass-mongodb-com
-          cp -r ../compass-mongodb-com ~/src
           cd ../compass-mongodb-com
           echo "Using node version:";
           node -v;
@@ -719,8 +717,8 @@ functions:
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
           fi
 
           #if [[ "$IS_UBUNTU" == "true" ]]; then
