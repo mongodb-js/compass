@@ -86,6 +86,11 @@ export type QueryBarExtraArgs = {
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
   ThunkDispatch<RootState, QueryBarExtraArgs, A>;
 
+export type QueryBarThunkAction<
+  R,
+  A extends AnyAction = AnyAction
+> = ThunkAction<R, RootState, QueryBarExtraArgs, A>;
+
 export function configureStore(
   initialState: Partial<RootState['queryBar']> = {},
   services: QueryBarExtraArgs
