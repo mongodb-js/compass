@@ -101,7 +101,8 @@ export function ShardZonesTable({
     columns,
     state: {
       globalFilter: searchText,
-      expanded,
+      // Expand all matching rows when filtering
+      expanded: searchText !== '' ? true : expanded,
     },
     onGlobalFilterChange: setSearchText,
     onExpandedChange: setExpanded,
