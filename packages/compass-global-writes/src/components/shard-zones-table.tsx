@@ -24,6 +24,7 @@ import { ShardZonesDescription } from './shard-zones-description';
 
 const containerStyles = css({
   height: '400px',
+  overflow: 'auto',
 });
 
 interface ShardZoneRow {
