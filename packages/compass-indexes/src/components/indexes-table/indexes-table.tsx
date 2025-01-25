@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   css,
   cx,
@@ -95,6 +95,7 @@ export function IndexesTable<T>({
   columns,
   data,
 }: IndexesTableProps<T>) {
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
     []
@@ -104,7 +105,8 @@ export function IndexesTable<T>({
     columns,
     enableSortingRemoval: false,
     withPagination: false,
-    state: { sorting },
+    state: { sorting, expanded },
+    onExpandedChange: setExpanded,
     onSortingChange: setSorting,
   });
 
