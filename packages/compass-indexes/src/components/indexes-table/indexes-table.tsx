@@ -54,15 +54,13 @@ const rowStyles = css({
 
 // When row is not hovered, we hide the delete button
 const indexActionsCellStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
   button: {
     opacity: 0,
     '&:focus': {
       opacity: 1,
     },
   },
-  minWidth: spacing[5],
+  minWidth: spacing[800],
 });
 
 const tableHeadStyles = css({
@@ -157,16 +155,16 @@ export function IndexesTable<T>({
                 }`}
               >
                 {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {
+                  const isActionsCell = cell.column.id === 'actions';
                   return (
                     <Cell
                       key={cell.id}
                       id={cell.id}
                       cell={cell}
-                      className={cx(
-                        cell.column.id === 'actions' && indexActionsCellStyles,
-                        cell.column.id === 'actions' &&
-                          indexActionsCellClassName
-                      )}
+                      className={cx({
+                        [indexActionsCellClassName]: isActionsCell,
+                        [indexActionsCellStyles]: isActionsCell,
+                      })}
                       data-testid={`${dataTestId}-${cell.column.id}-field`}
                     >
                       {flexRender(
