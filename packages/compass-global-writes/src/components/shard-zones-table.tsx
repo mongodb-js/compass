@@ -15,6 +15,7 @@ import {
   type HeaderGroup,
   SearchInput,
   type LGTableDataType,
+  getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,
 } from '@mongodb-js/compass-components';
@@ -105,6 +106,7 @@ export function ShardZonesTable({
     onExpandedChange: setExpanded,
     enableGlobalFilter: true,
     getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getIsRowExpanded: (row) => {
       return (
         (searchText && hasFilteredChildren(row)) ||
