@@ -49,6 +49,7 @@ import {
   TableBody,
   flexRender,
   useLeafyGreenTable,
+  getExpandedRowModel,
   getFilteredRowModel,
 } from '@leafygreen-ui/table';
 import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
@@ -169,6 +170,7 @@ export {
   InfoSprinkle,
   flexRender,
   useLeafyGreenTable,
+  getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,
   Combobox,
