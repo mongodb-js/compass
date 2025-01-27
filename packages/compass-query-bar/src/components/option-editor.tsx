@@ -41,6 +41,11 @@ import type {
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
 
+type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> &
+  Pick<T, '_lastExecuted'>;
+type AutoCompleteRecentQuery = AutoCompleteQuery<RecentQuery>;
+type AutoCompleteFavoriteQuery = AutoCompleteQuery<FavoriteQuery>;
+
 const editorContainerStyles = css({
   position: 'relative',
   display: 'flex',
@@ -116,7 +121,8 @@ type OptionEditorProps = {
   ['data-testid']?: string;
   insights?: Signal | Signal[];
   disabled?: boolean;
-  savedQueries: SavedQuery[];
+  recentQueries: AutoCompleteRecentQuery[];
+  favoriteQueries: AutoCompleteFavoriteQuery[];
   onApplyQuery: (query: BaseQuery, fieldsToPreserve: QueryProperty[]) => void;
 };
 
@@ -135,7 +141,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
   disabled = false,
-  savedQueries,
+  recentQueries,
+  favoriteQueries,
   onApplyQuery,
 }) => {
   const showInsights = usePreference('showInsights');
@@ -171,6 +178,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const schemaFields = useAutocompleteFields(namespace);
   const maxTimeMSPreference = usePreference('maxTimeMS');
+
+  const savedQueries = useMemo(() => {
+    return [
+      ...getOptionBasedQueries(optionName, 'recent', recentQueries),
+      ...getOptionBasedQueries(optionName, 'favorite', favoriteQueries),
+    ];
+  }, [optionName, recentQueries, favoriteQueries]);
 
   const completer = useMemo(() => {
     return isQueryHistoryAutocompleteEnabled
@@ -300,7 +314,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 export function getOptionBasedQueries(
   optionName: QueryOptionOfTypeDocument,
   type: 'recent' | 'favorite',
-  queries: (RecentQuery | FavoriteQuery)[]
+  queries: (AutoCompleteRecentQuery | AutoCompleteFavoriteQuery)[]
 ) {
   return (
     queries
@@ -338,24 +352,13 @@ export function getOptionBasedQueries(
   );
 }
 
-const mapStateToProps = (
-  state: RootState,
-  ownProps: Pick<OptionEditorProps, 'optionName'>
-) => ({
-  namespace: state.queryBar.namespace,
-  serverVersion: state.queryBar.serverVersion,
-  savedQueries: [
-    ...getOptionBasedQueries(
-      ownProps.optionName,
-      'recent',
-      state.queryBar.recentQueries
-    ),
-    ...getOptionBasedQueries(
-      ownProps.optionName,
-      'favorite',
-      state.queryBar.favoriteQueries
-    ),
-  ],
+const mapStateToProps = ({
+  queryBar: { namespace, serverVersion, recentQueries, favoriteQueries },
+}: RootState) => ({
+  namespace,
+  serverVersion,
+  recentQueries,
+  favoriteQueries,
 });
 
 const mapDispatchToProps = {

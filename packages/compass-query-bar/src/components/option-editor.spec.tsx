@@ -14,7 +14,6 @@ import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -48,7 +47,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          recentQueries={[]}
+          favoriteQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -70,7 +70,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
-          savedQueries={[]}
+          recentQueries={[]}
+          favoriteQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -92,7 +93,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -120,7 +122,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -150,7 +153,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -183,21 +187,17 @@ describe('OptionEditor', function () {
             insertEmptyDocOnFocus
             onChange={() => {}}
             value=""
-            savedQueries={[
+            recentQueries={[
               {
-                type: 'recent',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 1 },
-                },
+                _lastExecuted: new Date(),
+                filter: { a: 1 },
               },
+            ]}
+            favoriteQueries={[
               {
-                type: 'favorite',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 2 },
-                  sort: { a: -1 },
-                },
+                _lastExecuted: new Date(),
+                filter: { a: 2 },
+                sort: { a: -1 },
               },
             ]}
             onApplyQuery={onApplySpy}
@@ -249,20 +249,16 @@ describe('OptionEditor', function () {
             insertEmptyDocOnFocus
             onChange={() => {}}
             value=""
-            savedQueries={[
+            favoriteQueries={[
               {
-                type: 'favorite',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  project: { a: 1 },
-                },
+                _lastExecuted: new Date(),
+                project: { a: 1 },
               },
+            ]}
+            recentQueries={[
               {
-                type: 'recent',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  project: { a: 0 },
-                },
+                _lastExecuted: new Date(),
+                project: { a: 0 },
               },
             ]}
             onApplyQuery={onApplySpy}
@@ -310,13 +306,13 @@ describe('OptionEditor', function () {
         skip: 1,
         limit: 1,
       },
-    ] as unknown as RecentQuery[];
+    ];
 
     it('filters out update queries', function () {
       const queries = getOptionBasedQueries('filter', 'recent', [
         ...savedQueries,
         { _lastExecuted: new Date(), update: { a: 1 }, filter: { a: 2 } },
-      ] as unknown as RecentQuery[]);
+      ]);
       expect(queries.length).to.equal(1);
     });
 
@@ -324,7 +320,7 @@ describe('OptionEditor', function () {
       const queries = getOptionBasedQueries('filter', 'recent', [
         ...savedQueries,
         { _lastExecuted: new Date() },
-      ] as unknown as RecentQuery[]);
+      ]);
       expect(queries.length).to.equal(1);
     });
 
@@ -335,7 +331,7 @@ describe('OptionEditor', function () {
         ...savedQueries,
         { _lastExecuted: new Date() },
         { _lastExecuted: new Date() },
-      ] as unknown as RecentQuery[]);
+      ]);
       expect(queries.length).to.equal(1);
     });
 
@@ -365,9 +361,9 @@ describe('OptionEditor', function () {
 
         expect(queries).to.deep.equal([
           {
-            type: 'recent',
             lastExecuted: savedQueries[0]._lastExecuted,
             queryProperties,
+            type: 'recent',
           },
         ]);
       });
