@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.8.1",
+  "version": "1.8.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -49,15 +49,15 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/atlas-service": "^0.34.1",
-    "@mongodb-js/compass-collection": "^4.48.1",
-    "@mongodb-js/compass-components": "^1.33.1",
-    "@mongodb-js/compass-connections": "^1.49.1",
-    "@mongodb-js/compass-logging": "^1.5.1",
-    "@mongodb-js/compass-telemetry": "^1.3.1",
-    "hadron-app-registry": "^9.3.1",
+    "@mongodb-js/atlas-service": "^0.34.5",
+    "@mongodb-js/compass-collection": "^4.48.5",
+    "@mongodb-js/compass-components": "^1.33.5",
+    "@mongodb-js/compass-connections": "^1.49.5",
+    "@mongodb-js/compass-logging": "^1.5.5",
+    "@mongodb-js/compass-telemetry": "^1.3.5",
+    "hadron-app-registry": "^9.3.5",
     "lodash": "^4.17.21",
-    "@mongodb-js/compass-field-store": "^9.24.1",
+    "@mongodb-js/compass-field-store": "^9.24.5",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
@@ -65,11 +65,11 @@
     "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.2.1",
-    "@mongodb-js/mocha-config-compass": "^1.5.1",
-    "@mongodb-js/prettier-config-compass": "^1.1.1",
-    "@mongodb-js/testing-library-compass": "^1.1.1",
-    "@mongodb-js/tsconfig-compass": "^1.1.1",
+    "@mongodb-js/eslint-config-compass": "^1.2.5",
+    "@mongodb-js/mocha-config-compass": "^1.5.5",
+    "@mongodb-js/prettier-config-compass": "^1.1.5",
+    "@mongodb-js/testing-library-compass": "^1.1.5",
+    "@mongodb-js/tsconfig-compass": "^1.1.5",
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",

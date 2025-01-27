@@ -17,11 +17,10 @@ async function expectCopyConnectionStringToClipboard(
   favoriteName: string,
   expected: string
 ): Promise<void> {
-  const Sidebar = Selectors.Multiple;
   if (!context.disableClipboardUsage) {
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Sidebar.CopyConnectionStringItem
+      Selectors.CopyConnectionStringItem
     );
     let actual = '';
     await browser.waitUntil(

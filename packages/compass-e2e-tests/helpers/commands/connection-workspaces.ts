@@ -12,7 +12,7 @@ export async function navigateToConnectionTab(
   } else {
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.ViewPerformanceItem
+      Selectors.ViewPerformanceItem
     );
   }
 

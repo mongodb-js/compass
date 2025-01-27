@@ -614,8 +614,6 @@ describe('Connection form', function () {
     const favoriteName = 'My Favorite';
     const newFavoriteName = 'My Favorite (edited)';
 
-    const Sidebar = Selectors.Multiple;
-
     // save
     await browser.saveFavorite(favoriteName, 'Green');
 
@@ -623,7 +621,7 @@ describe('Connection form', function () {
       // copy the connection string
       await browser.selectConnectionMenuItem(
         favoriteName,
-        Sidebar.CopyConnectionStringItem
+        Selectors.CopyConnectionStringItem
       );
       await browser.waitUntil(
         async () => {
@@ -638,16 +636,16 @@ describe('Connection form', function () {
     // duplicate
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Sidebar.DuplicateConnectionItem
+      Selectors.DuplicateConnectionItem
     );
 
-    // duplicating opens the modal, in multiple connections you have to save
+    // duplicating opens the modal you have to save
     await browser.clickVisible(Selectors.ConnectionModalSaveButton);
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
       `${favoriteName} (1)`,
-      Sidebar.RemoveConnectionItem
+      Selectors.RemoveConnectionItem
     );
 
     // edit the original

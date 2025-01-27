@@ -352,25 +352,14 @@ export function createInstancesStore(
     }
   );
 
-  on(
-    globalAppRegistry,
-    'sidebar-filter-navigation-list',
-    ({ connectionId }: { connectionId?: string } = {}) => {
-      const connectedConnectionIds = Array.from(
-        instancesManager.listMongoDBInstances().keys()
-      );
-      // connectionId will be provided by the sidebar when in single connection
-      // mode. We don't derive that from the list of connected connections
-      // because there is a possibility for us to be fetching all collections on
-      // wrong connection that way
-      const connectionIds = connectionId
-        ? [connectionId]
-        : connectedConnectionIds;
-      for (const id of connectionIds) {
-        void fetchAllCollections({ connectionId: id });
-      }
+  on(globalAppRegistry, 'sidebar-filter-navigation-list', () => {
+    const connectedConnectionIds = Array.from(
+      instancesManager.listMongoDBInstances().keys()
+    );
+    for (const id of connectedConnectionIds) {
+      void fetchAllCollections({ connectionId: id });
     }
-  );
+  });
 
   on(
     globalAppRegistry,

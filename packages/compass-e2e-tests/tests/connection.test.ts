@@ -39,7 +39,7 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_FREE_TIER_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
     'E2E_TESTS_ATLAS_PASSWORD',
-    'E2E_TESTS_ATLAS_X509_PEM',
+    'E2E_TESTS_ATLAS_X509_PEM_BASE64',
     'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
     'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
     'E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN',
@@ -196,8 +196,6 @@ async function assertCannotCreateDb(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const Sidebar = Selectors.Multiple;
-
   // navigate to the databases tab so that the connection is
   // active/highlighted and then the add button and three dot menu will
   // display without needing to hover
@@ -206,7 +204,7 @@ async function assertCannotCreateDb(
   // open the create database modal from the sidebar
   await browser.selectConnectionMenuItem(
     connectionName,
-    Sidebar.CreateDatabaseButton,
+    Selectors.CreateDatabaseButton,
     false
   );
 
@@ -332,7 +330,7 @@ describe('Connection string', function () {
       'There was a problem connecting to 127.0.0.1:27091'
     );
 
-    // for multiple connections click the review button in the toast
+    // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     const errorText = await browser
@@ -724,7 +722,11 @@ describe('Connection form', function () {
     try {
       tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
       const certPath = path.join(tempdir, 'x509.pem');
-      await fs.writeFile(certPath, process.env.E2E_TESTS_ATLAS_X509_PEM ?? '');
+      await fs.writeFile(
+        certPath,
+        process.env.E2E_TESTS_ATLAS_X509_PEM_BASE64 ?? '',
+        'base64'
+      );
 
       const atlasConnectionOptions: ConnectFormState = {
         hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],

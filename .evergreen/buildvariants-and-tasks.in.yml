@@ -67,13 +67,12 @@ const SMOKETEST_BUILD_VARIANTS = [
 //    run_on: 'ubuntu2004-large',
 //    depends_on: 'package-ubuntu',
 //  },
-  
-//  {
-//    name: 'smoketest-windows',
-//    display_name: 'Smoketest Windows',
-//    run_on: 'windows-vsCurrent-large',
-//    depends_on: 'package-windows',
-//  },
+  {
+    name: 'smoketest-windows',
+    display_name: 'Smoketest Windows',
+    run_on: 'windows-vsCurrent-large',
+    depends_on: 'package-windows',
+  },
 //  {
 //    name: 'smoketest-rhel',
 //    display_name: 'Smoketest RHEL',
@@ -288,7 +287,6 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: publish
-      - name: publish-packages-next
       - name: publish-dev-release-info
       - name: create_static_analysis_report
 
@@ -429,17 +427,6 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
-
-  - name: publish-packages-next
-    tags: []
-    depends_on:
-      - name: '.required-for-publish'
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: publish-packages-next
 
   - name: publish-dev-release-info
     tags: []

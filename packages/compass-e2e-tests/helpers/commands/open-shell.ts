@@ -7,7 +7,7 @@ export async function openShell(
 ): Promise<void> {
   await browser.selectConnectionMenuItem(
     connectionName,
-    Selectors.Multiple.OpenShellItem,
+    Selectors.OpenShellItem,
     false // the item is not contained in the three-dot menu
   );
 

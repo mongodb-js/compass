@@ -1,29 +1,22 @@
 import React from 'react';
 import { expect } from 'chai';
+import { EventEmitter } from 'events';
 import { CompassShellPlugin } from './index';
 import {
-  cleanup,
   renderWithActiveConnection,
   screen,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import { RuntimeMap } from './stores/store';
 
 describe('CompassShellPlugin', function () {
-  afterEach(() => {
-    cleanup();
-  });
+  it('returns a renderable plugin', async function () {
+    RuntimeMap.set('test', {
+      eventEmitter: new EventEmitter(),
+      terminate() {},
+    } as any);
 
-  // TODO(COMPASS-7906): remove
-  it.skip('returns a renderable plugin', async function () {
-    await renderWithActiveConnection(<CompassShellPlugin />, undefined, {
-      connectFn() {
-        return {
-          getMongoClientConnectionOptions() {
-            return { url: '', options: {} };
-          },
-        };
-      },
-    });
+    await renderWithActiveConnection(<CompassShellPlugin runtimeId="test" />);
 
     await waitFor(() => {
       expect(screen.getByTestId('shell-section')).to.exist;

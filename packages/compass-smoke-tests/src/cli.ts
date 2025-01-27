@@ -6,7 +6,6 @@ import path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
-import { installMacDMG } from './installers/mac-dmg';
 import { execute } from './execute';
 import {
   type PackageDetails,
@@ -17,7 +16,10 @@ import { createSandbox } from './directories';
 import { downloadFile } from './downloads';
 import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
 import { type SmokeTestsContext } from './context';
+
+import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
+import { installWindowsZIP } from './installers/windows-zip';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -150,6 +152,8 @@ function getInstaller(kind: PackageKind) {
     return installMacDMG;
   } else if (kind === 'osx_zip') {
     return installMacZIP;
+  } else if (kind === 'windows_zip') {
+    return installWindowsZIP;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
@@ -175,12 +179,10 @@ async function run() {
     ])
   );
 
-  const { kind, buildInfo, filepath } = await getTestSubject(context);
+  const { kind, filepath, appName } = await getTestSubject(context);
   const install = getInstaller(kind);
 
   try {
-    const appName = buildInfo.productName;
-
     const { appPath, uninstall } = install({
       appName,
       filepath,
@@ -216,6 +218,8 @@ function runTest({ appName, appPath }: RunTestOptions) {
       '--test-filter=time-to-first-query',
     ],
     {
+      // We need to use a shell to get environment variables setup correctly
+      shell: true,
       env: {
         ...process.env,
         COMPASS_APP_NAME: appName,

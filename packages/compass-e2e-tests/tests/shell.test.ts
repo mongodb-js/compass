@@ -68,7 +68,7 @@ describe('Shell', function () {
     expect(
       await browser.hasConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
-        Selectors.Multiple.OpenShellItem
+        Selectors.OpenShellItem
       )
     ).to.be.equal(true);
 
@@ -86,7 +86,7 @@ describe('Shell', function () {
     expect(
       await browser.hasConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
-        Selectors.Multiple.OpenShellItem
+        Selectors.OpenShellItem
       )
     ).to.be.equal(false);
   });
