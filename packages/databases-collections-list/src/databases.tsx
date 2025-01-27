@@ -13,6 +13,7 @@ type Database = {
   data_size: number;
   index_count: number;
   collectionsLength: number;
+  ns_source: 'provisioned' | 'privileges' | 'roles';
 };
 
 const DATABASE_CARD_WIDTH = spacing[6] * 4;
@@ -68,6 +69,7 @@ const DatabasesList: React.FunctionComponent<{
             type="database"
             viewType={viewType}
             status={db.status}
+            isProvisioned={db.ns_source === 'provisioned'}
             data={[
               {
                 label: 'Storage size',

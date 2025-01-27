@@ -19,6 +19,7 @@ type Collection = {
   index_size: number;
   properties: { id: string }[];
   source?: Collection;
+  ns_source: 'provisioned' | 'privileges';
 };
 
 const COLLECTION_CARD_WIDTH = spacing[6] * 4;
@@ -176,6 +177,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
+              isProvisioned={coll.ns_source === 'provisioned'}
               data={data}
               badges={badges}
               onItemClick={onItemClick}
