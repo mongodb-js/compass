@@ -39,7 +39,6 @@ import type {
   FavoriteQuery,
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
-import _ from 'lodash';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
 
 const editorContainerStyles = css({
@@ -321,8 +320,8 @@ export function getOptionBasedQueries(
       // - its an `update` query
       // - its a duplicate
       .filter((query, i, arr) => {
-        const queryIsUpdate = _.has(query.queryProperties, 'update');
-        const queryIsEmpty = _.isEmpty(query.queryProperties);
+        const queryIsUpdate = 'update' in query.queryProperties;
+        const queryIsEmpty = Object.keys(query.queryProperties).length === 0;
         if (queryIsEmpty || queryIsUpdate) {
           return false;
         }
