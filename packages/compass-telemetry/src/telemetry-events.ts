@@ -803,7 +803,9 @@ type NewConnectionEvent = ConnectionScopedEvent<{
     topology_type: string;
 
     /**
-     * The number of active connections.
+     * The number of saved active connections (doesn't include new connections
+     * that are not yet fully saved, like the ones created with the "New
+     * Connection" button)
      */
     num_active_connections: number;
 
@@ -2254,11 +2256,6 @@ type CollectionCreatedEvent = ConnectionScopedEvent<{
   name: 'Collection Created';
   payload: {
     /**
-     * Indicates whether the collection is capped.
-     */
-    is_capped: boolean;
-
-    /**
      * Indicates whether the collection has a custom collation.
      */
     has_collation: boolean;
@@ -2293,11 +2290,6 @@ type CollectionCreatedEvent = ConnectionScopedEvent<{
 type DatabaseCreatedEvent = ConnectionScopedEvent<{
   name: 'Database Created';
   payload: {
-    /**
-     * Indicates whether the first collection in the database is capped.
-     */
-    is_capped: boolean;
-
     /**
      * Indicates whether the first collection in the database has a custom collation.
      */

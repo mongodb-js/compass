@@ -231,6 +231,7 @@ describe('Automatically connecting from the command line', function () {
         }
       );
       await browser.execute(() => {
+        // eslint-disable-next-line no-restricted-globals
         location.reload();
       });
       await browser.waitForConnectionResult(
@@ -241,6 +242,7 @@ describe('Automatically connecting from the command line', function () {
       );
       await browser.disconnectAll();
       await browser.execute(() => {
+        // eslint-disable-next-line no-restricted-globals
         location.reload();
       });
     } catch (err: any) {
@@ -301,7 +303,7 @@ describe('Automatically connecting from the command line', function () {
 
       // no active connections
       const numConnectionItems = await browser.$$(
-        Selectors.Multiple.ConnectedConnectionItems
+        Selectors.ConnectedConnectionItems
       ).length;
       expect(numConnectionItems).to.equal(0);
     } finally {
@@ -335,15 +337,12 @@ describe('Automatically connecting from the command line', function () {
       browser = compass.browser;
 
       // there should be no connection items
-      const numConnectionItems = await browser.$$(
-        Selectors.Multiple.ConnectionItems
-      ).length;
+      const numConnectionItems = await browser.$$(Selectors.ConnectionItems)
+        .length;
       expect(numConnectionItems).to.equal(0);
 
-      await browser.$(Selectors.Multiple.NoDeploymentsText).waitForDisplayed();
-      await browser
-        .$(Selectors.Multiple.AddNewConnectionButton)
-        .waitForDisplayed();
+      await browser.$(Selectors.NoDeploymentsText).waitForDisplayed();
+      await browser.$(Selectors.AddNewConnectionButton).waitForDisplayed();
     } finally {
       await cleanup(compass);
     }

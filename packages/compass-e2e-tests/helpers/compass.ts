@@ -395,7 +395,8 @@ export class Compass {
 
   async stopBrowser(): Promise<void> {
     const logging: any[] = await this.browser.execute(function () {
-      return (window as any).logging;
+      // eslint-disable-next-line no-restricted-globals
+      return 'logging' in window && (window.logging as any);
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
@@ -635,8 +636,10 @@ async function startCompassElectron(
 
   process.env.APP_ENV = 'webdriverio';
   // For webdriverio env we are changing appName so that keychain records do not
-  // overlap with anything else
-  process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  // overlap with anything else. But leave it alone when testing auto-update.
+  if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
+    process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  }
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
@@ -948,18 +951,20 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
 }
 
 export async function buildCompass(
-  force = false,
   compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  if (!force) {
-    try {
-      await getCompassBuildMetadata();
-      return;
-    } catch (e) {
-      // No compass build found, let's build it
-    }
+  try {
+    await getCompassBuildMetadata();
+    return;
+  } catch (e) {
+    /* ignore */
   }
 
+  if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
+    throw new Error('We did not expect to have to build Compass');
+  }
+
+  debug("No Compass build found, let's build it");
   await packageCompassAsync({
     dir: compassPath,
     skip_installer: true,
@@ -1048,8 +1053,9 @@ export async function init(
     // larger window for more consistent results
     const [width, height] = await browser.execute(() => {
       // in case setWindowSize() below doesn't work
+      // eslint-disable-next-line no-restricted-globals
       window.resizeTo(window.screen.availWidth, window.screen.availHeight);
-
+      // eslint-disable-next-line no-restricted-globals
       return [window.screen.availWidth, window.screen.availHeight];
     });
     // getting available width=1512, height=944 in electron on mac which is arbitrary
@@ -1057,8 +1063,8 @@ export async function init(
     try {
       // window.resizeTo() doesn't work on firefox
       await browser.setWindowSize(width, height);
-    } catch (err: any) {
-      console.error(err?.stack);
+    } catch (err) {
+      console.error(err instanceof Error ? err.stack : err);
     }
   } else {
     await browser.execute(() => {

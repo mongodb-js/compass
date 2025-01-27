@@ -322,15 +322,16 @@ function generateMarkdownPlan(
     day: 'numeric',
   });
 
-  const formattedTime = now.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
   const markdown = `
 # Compass Tracking Plan
 
-Generated on ${formattedDate} at ${formattedTime}
+> [!NOTE]
+> This plan represents the tracking plan for the current branch / commit that 
+> you have selected (\`main\` by default), it might not be released yet. To find
+> the tracking plan for the specific Compass version you can use the following
+> URL: \`https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md\`
+
+Generated on ${formattedDate}
 
 ## Table of Contents
 ${toc}

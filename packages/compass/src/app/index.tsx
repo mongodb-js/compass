@@ -379,9 +379,15 @@ const app = {
       });
     }
 
+    log.info(mongoLogId(1_001_000_338), 'Main Window', 'Recent version info', {
+      previousVersion: state.previousVersion,
+      highestInstalledVersion: state.highestInstalledVersion,
+      APP_VERSION,
+    });
+
     if (
-      semver.gt(APP_VERSION, state.previousVersion) &&
-      state.previousVersion !== DEFAULT_APP_VERSION
+      state.previousVersion !== DEFAULT_APP_VERSION &&
+      APP_VERSION !== state.previousVersion
     ) {
       // Wait a bit before showing the update toast.
       setTimeout(() => {

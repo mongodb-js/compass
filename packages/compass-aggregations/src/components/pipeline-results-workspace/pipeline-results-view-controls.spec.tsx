@@ -17,7 +17,6 @@ describe('PipelineResultsViewControls', function () {
     );
     const container = screen.getByTestId('pipeline-results-view-controls');
     expect(container).to.exist;
-    expect(within(container).getByText('View')).to.exist;
     expect(within(container).getByLabelText('Document list')).to.exist;
     expect(within(container).getByLabelText('JSON list')).to.exist;
   });

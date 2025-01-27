@@ -70,7 +70,6 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     enableShowDialogOnQuit: boolean;
-    enableMultipleConnectionSystem: boolean;
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
@@ -804,18 +803,6 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Quit Confirmation Dialog',
       long: 'Toggle whether confirmation dialog is shown when quitting Compass (cmd/ctrl-Q).',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-
-  enableMultipleConnectionSystem: {
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enables support for multiple connections.',
-      long: 'Allows users to open multiple connections in the same window.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

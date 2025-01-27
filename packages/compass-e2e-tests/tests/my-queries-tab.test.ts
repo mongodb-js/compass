@@ -258,10 +258,10 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
 
-        // go to My Queries because for multiple connections it is not the default tab
+        // go to My Queries
         await browser.navigateToMyQueries();
 
         // browse to the query
@@ -389,7 +389,7 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
 
         await browser.navigateToMyQueries();
@@ -449,7 +449,7 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
 
         await browser.navigateToMyQueries();
@@ -495,11 +495,11 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
 
         await browser.navigateToMyQueries();
@@ -557,11 +557,11 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.Multiple.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem
         );
 
         await browser.navigateToMyQueries();

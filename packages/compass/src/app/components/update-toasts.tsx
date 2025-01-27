@@ -53,6 +53,7 @@ const RestartCompassToastContent = ({
       <button
         className={cx(buttonStyles, darkmode && buttonDarkStyles)}
         onClick={onUpdateClicked}
+        data-testid="auto-update-restart-button"
       >
         Restart
       </button>
@@ -83,6 +84,7 @@ export function onAutoupdateExternally({
           Compass features.
         </Body>
         <Link
+          data-testid="auto-update-download-link"
           as="a"
           target="_blank"
           href={'https://www.mongodb.com/try/download/compass'}
@@ -137,6 +139,7 @@ export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
     title: `Compass ${newVersion} installed successfully`,
     description: (
       <Link
+        data-testid="auto-update-release-notes-link"
         as="a"
         target="_blank"
         href={`https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`}

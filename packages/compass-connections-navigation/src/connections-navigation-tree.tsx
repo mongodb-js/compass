@@ -28,18 +28,11 @@ import {
   notConnectedConnectionItemActions,
 } from './item-actions';
 
-const MCContainer = css({
+const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
   flex: '1 0 auto',
   height: `calc(100% - ${spacing[1600]}px - ${spacing[200]}px)`,
 });
-
-const SCContainer = css({
-  display: 'flex',
-  flex: '1 0 auto',
-  height: 0,
-});
-
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   activeWorkspace: WorkspaceTab | null;
@@ -59,7 +52,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 }) => {
   const preferencesShellEnabled = usePreference('enableShell');
   const preferencesReadOnly = usePreference('readOnly');
-  const isSingleConnection = !usePreference('enableMultipleConnectionSystem');
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
@@ -69,18 +61,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
       connections,
-      isSingleConnection,
       expandedItems: expanded,
       preferencesReadOnly,
       preferencesShellEnabled,
     });
-  }, [
-    connections,
-    isSingleConnection,
-    expanded,
-    preferencesReadOnly,
-    preferencesShellEnabled,
-  ]);
+  }, [connections, expanded, preferencesReadOnly, preferencesShellEnabled]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
@@ -111,11 +96,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
+      if (activeWorkspace.type === 'Databases') {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace, isSingleConnection]);
+  }, [activeWorkspace]);
 
   const getCollapseAfterForConnectedItem = useCallback(
     (actions: NavigationItemActions) => {
@@ -213,7 +198,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
-    <div className={isSingleConnection ? SCContainer : MCContainer}>
+    <div className={ConnectionsNavigationContainerStyles}>
       <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
       {/* AutoSizer types does not allow both width and height to be disabled
         considering that to be a pointless usecase and hence the type

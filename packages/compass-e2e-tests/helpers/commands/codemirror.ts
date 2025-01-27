@@ -9,10 +9,13 @@ export async function getCodemirrorEditorText(
   // we have to find an instance of the editor and get the text directly from
   // its state
   const editorContents = await browser.execute(function (selector) {
-    const node =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+    const node: any =
+      // eslint-disable-next-line no-restricted-globals
       document.querySelector(`${selector} [data-codemirror]`) ??
+      // eslint-disable-next-line no-restricted-globals
       document.querySelector(`${selector}[data-codemirror]`);
-    return (node as any)._cm.state.sliceDoc() as string;
+    return node._cm.state.sliceDoc() as string;
   }, selector);
   return editorContents;
 }
@@ -26,10 +29,12 @@ export async function getCodemirrorEditorTextAll(
   // its state
   const editorContents = await browser.execute(function (selector) {
     const editors = Array.from(
+      // eslint-disable-next-line no-restricted-globals
       document.querySelectorAll(`${selector} [data-codemirror]`)
     );
-    return editors.map((node) => {
-      return (node as any)._cm.state.sliceDoc() as string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+    return editors.map((node: any) => {
+      return node._cm.state.sliceDoc() as string;
     });
   }, selector);
   return editorContents;
@@ -42,10 +47,13 @@ export async function setCodemirrorEditorValue(
 ) {
   await browser.execute(
     function (selector, text) {
-      const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+      const node: any =
+        // eslint-disable-next-line no-restricted-globals
         document.querySelector(`${selector} [data-codemirror]`) ??
+        // eslint-disable-next-line no-restricted-globals
         document.querySelector(`${selector}[data-codemirror]`);
-      const editor = (node as any)._cm;
+      const editor = node._cm;
 
       editor.dispatch({
         changes: {

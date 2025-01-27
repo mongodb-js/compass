@@ -5,8 +5,7 @@ export async function selectConnectionsMenuItem(
   browser: CompassBrowser,
   itemSelector: string
 ) {
-  const Sidebar = Selectors.Multiple;
-  await browser.clickVisible(Sidebar.ConnectionsMenuButton);
-  await browser.$(Sidebar.ConnectionsMenu).waitForDisplayed();
+  await browser.clickVisible(Selectors.ConnectionsMenuButton);
+  await browser.$(Selectors.ConnectionsMenu).waitForDisplayed();
   await browser.clickVisible(itemSelector);
 }

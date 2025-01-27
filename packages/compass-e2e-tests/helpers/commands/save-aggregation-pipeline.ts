@@ -47,4 +47,7 @@ export async function saveAggregationPipeline(
   const createButton = browser.$(Selectors.SavePipelineModal).$('button=Save');
 
   await createButton.click();
+
+  // wait for the modal to disappear
+  await savePipelineModal.waitForDisplayed({ reverse: true });
 }

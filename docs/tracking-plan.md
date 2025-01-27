@@ -1,7 +1,13 @@
 
 # Compass Tracking Plan
 
-Generated on Sun, Jan 12, 2025 at 03:17 AM
+> [!NOTE]
+> This plan represents the tracking plan for the current branch / commit that 
+> you have selected (`main` by default), it might not be released yet. To find
+> the tracking plan for the specific Compass version you can use the following
+> URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
+
+Generated on Mon, Jan 27, 2025
 
 ## Table of Contents
 
@@ -888,7 +894,9 @@ This event is fired when user successfully connects to a new server/cluster.
 - **topology_type** (required): `string`
   - The type of connected topology.
 - **num_active_connections** (required): `number`
-  - The number of active connections.
+  - The number of saved active connections (doesn't include new connections
+that are not yet fully saved, like the ones created with the "New
+Connection" button)
 - **num_inactive_connections** (required): `number`
   - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
@@ -936,8 +944,6 @@ This event is fired when a collection is created.
 
 **Properties**:
 
-- **is_capped** (required): `boolean`
-  - Indicates whether the collection is capped.
 - **has_collation** (required): `boolean`
   - Indicates whether the collection has a custom collation.
 - **is_timeseries** (required): `boolean`
@@ -960,8 +966,6 @@ This event is fired when a database is created.
 
 **Properties**:
 
-- **is_capped** (required): `boolean`
-  - Indicates whether the first collection in the database is capped.
 - **has_collation** (required): `boolean`
   - Indicates whether the first collection in the database has a custom collation.
 - **is_timeseries** (required): `boolean`

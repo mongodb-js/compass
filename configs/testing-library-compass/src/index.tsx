@@ -109,8 +109,12 @@ export class MockDataService
   implements
     Pick<
       DataService,
+      | 'getConnectionString'
+      | 'getConnectionOptions'
+      | 'getMongoClientConnectionOptions'
       | 'addReauthenticationHandler'
       | 'getCurrentTopologyType'
+      | 'getLastSeenTopology'
       | 'getUpdatedSecrets'
       | 'disconnect'
       | 'instance'
@@ -125,6 +129,12 @@ export class MockDataService
   }
   getConnectionOptions() {
     return this.connectionOptions;
+  }
+  getMongoClientConnectionOptions() {
+    return {
+      url: this.connectionOptions.connectionString,
+      options: { productName: 'Test', productDocsLink: 'http://example.com' },
+    };
   }
   addReauthenticationHandler(): void {
     // noop

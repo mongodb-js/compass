@@ -41,12 +41,12 @@ export function useCompassWebPreferences(
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
+      enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: true,
       enableGenAIFeaturesAtlasProject: false,
       enableGenAISampleDocumentPassingOnAtlasProject: false,
       enableGenAIFeaturesAtlasOrg: false,
-      enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,

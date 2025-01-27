@@ -30,7 +30,7 @@ const {
   E2E_TESTS_SERVERLESS_HOST,
   E2E_TESTS_FREE_TIER_HOST,
   E2E_TESTS_ANALYTICS_NODE_HOST,
-  E2E_TESTS_ATLAS_X509_PEM,
+  E2E_TESTS_ATLAS_X509_PEM_BASE64,
 } = process.env;
 
 const buildConnectionString = (
@@ -204,7 +204,10 @@ describe('connect', function () {
     });
 
     it('connects to atlas with X509', async function () {
-      if (!IS_CI && !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM)) {
+      if (
+        !IS_CI &&
+        !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM_BASE64)
+      ) {
         return this.skip();
       }
 
@@ -212,7 +215,11 @@ describe('connect', function () {
       try {
         tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
         const certPath = path.join(tempdir, 'x509.pem');
-        await fs.writeFile(certPath, E2E_TESTS_ATLAS_X509_PEM);
+        await fs.writeFile(
+          certPath,
+          process.env.E2E_TESTS_ATLAS_X509_PEM_BASE64 ?? '',
+          'base64'
+        );
 
         const url = new ConnectionStringUrl(
           `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`

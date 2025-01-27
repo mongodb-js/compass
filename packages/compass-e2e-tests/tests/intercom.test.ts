@@ -44,7 +44,8 @@ describe('Intercom integration', function () {
     await compass.browser.waitUntil(
       () => {
         return compass.browser.execute(() => {
-          return typeof (window as any).Intercom === 'function';
+          // eslint-disable-next-line no-restricted-globals
+          return 'Intercom' in window && typeof window.Intercom === 'function';
         });
       },
       {
