@@ -803,7 +803,9 @@ type NewConnectionEvent = ConnectionScopedEvent<{
     topology_type: string;
 
     /**
-     * The number of active connections.
+     * The number of saved active connections (doesn't include new connections
+     * that are not yet fully saved, like the ones created with the "New
+     * Connection" button)
      */
     num_active_connections: number;
 
