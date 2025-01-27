@@ -12,7 +12,10 @@ import {
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
-import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
+import type {
+  QueryOptionOfTypeDocument,
+  QueryOption as QueryOptionType,
+} from '../constants/query-option-definition';
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
@@ -187,7 +190,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor
-            optionName={name}
+            optionName={name as QueryOptionOfTypeDocument}
             hasError={hasError}
             id={id}
             onChange={onValueChange}
