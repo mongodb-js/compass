@@ -102,8 +102,9 @@ function pickCollectionInfo({
   validation,
   clustered,
   fle2,
+  ns_source,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2 };
+  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2, ns_source };
 }
 
 /**
@@ -124,6 +125,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     statusError: { type: 'string', default: null },
 
     // Normalized values from collectionInfo command
+    ns_source: 'string',
     readonly: 'boolean',
     clustered: 'boolean',
     fle2: 'boolean',
