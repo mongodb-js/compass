@@ -15,6 +15,7 @@ import {
   type HeaderGroup,
   SearchInput,
   type LGTableDataType,
+  getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,
 } from '@mongodb-js/compass-components';
@@ -23,6 +24,7 @@ import { ShardZonesDescription } from './shard-zones-description';
 
 const containerStyles = css({
   height: '400px',
+  overflow: 'auto',
 });
 
 interface ShardZoneRow {
@@ -86,7 +88,6 @@ export function ShardZonesTable({
 }: {
   shardZones: ShardZoneData[];
 }) {
-  const tableContainerRef = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 
@@ -96,17 +97,18 @@ export function ShardZonesTable({
   );
 
   const table = useLeafyGreenTable({
-    containerRef: tableContainerRef,
     data,
     columns,
     state: {
       globalFilter: searchText,
-      expanded,
+      // Expand all matching rows when filtering
+      expanded: searchText !== '' ? true : expanded,
     },
     onGlobalFilterChange: setSearchText,
     onExpandedChange: setExpanded,
     enableGlobalFilter: true,
     getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getIsRowExpanded: (row) => {
       return (
         (searchText && hasFilteredChildren(row)) ||
@@ -139,12 +141,7 @@ export function ShardZonesTable({
         aria-label="Search for a location"
         placeholder="Search for a location"
       />
-      <Table
-        className={containerStyles}
-        title="Zone Mapping"
-        table={table}
-        ref={tableContainerRef}
-      >
+      <Table className={containerStyles} title="Zone Mapping" table={table}>
         <TableHead isSticky>
           {table
             .getHeaderGroups()
@@ -168,25 +165,11 @@ export function ShardZonesTable({
             <Row key={row.id} row={row}>
               {row.getVisibleCells().map((cell) => {
                 return (
-                  <Cell key={cell.id}>
+                  <Cell key={cell.id} cell={cell}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Cell>
                 );
               })}
-              {row.subRows.map((subRow) => (
-                <Row key={subRow.id} row={subRow}>
-                  {subRow.getVisibleCells().map((cell) => {
-                    return (
-                      <Cell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </Cell>
-                    );
-                  })}
-                </Row>
-              ))}
             </Row>
           ))}
         </TableBody>
