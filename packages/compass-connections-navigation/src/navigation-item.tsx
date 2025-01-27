@@ -1,8 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { isLocalhost } from 'mongodb-build-info';
 import {
-  Icon,
-  ServerIcon,
   cx,
   css,
   palette,
@@ -17,8 +14,8 @@ import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
-import { WithStatusMarker } from './with-status-marker';
 import type { Actions } from './constants';
+import { NavigationItemIcon } from './navigation-item-icon';
 
 const nonGenuineBtnStyles = css({
   color: palette.yellow.dark2,
@@ -115,43 +112,6 @@ export function NavigationItem({
   getItemActions,
 }: NavigationItemProps) {
   const isDarkMode = useDarkMode();
-  const itemIcon = useMemo(() => {
-    if (item.type === 'database') {
-      return <Icon glyph="Database" />;
-    }
-    if (item.type === 'collection') {
-      return <Icon glyph="Folder" />;
-    }
-    if (item.type === 'view') {
-      return <Icon glyph="Visibility" />;
-    }
-    if (item.type === 'timeseries') {
-      return <Icon glyph="TimeSeries" />;
-    }
-    if (item.type === 'connection') {
-      const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isFavorite) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Favorite" />
-          </WithStatusMarker>
-        );
-      }
-      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Laptop" />
-          </WithStatusMarker>
-        );
-      }
-      return (
-        <WithStatusMarker status={item.connectionStatus}>
-          <ServerIcon />
-        </WithStatusMarker>
-      );
-    }
-  }, [item]);
-
   const onAction = useCallback(
     (action: Actions) => {
       if (item.type !== 'placeholder') {
@@ -258,7 +218,7 @@ export function NavigationItem({
           hasDefaultAction={
             item.type !== 'connection' || item.connectionStatus === 'connected'
           }
-          icon={itemIcon}
+          icon={<NavigationItemIcon item={item} />}
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}

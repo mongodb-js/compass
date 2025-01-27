@@ -43,11 +43,11 @@ type DatabaseRaw = MongoDBInstance['databases'][number];
 
 export type Database = Pick<
   DatabaseRaw,
-  '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
+  '_id' | 'name' | 'collectionsStatus' | 'collectionsLength' | 'ns_source'
 > & {
   collections: Pick<
     DatabaseRaw['collections'][number],
-    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
+    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline' | 'ns_source'
   >[];
 };
 export type AllDatabasesState = Record<

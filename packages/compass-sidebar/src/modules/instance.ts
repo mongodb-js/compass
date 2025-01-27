@@ -132,6 +132,7 @@ export const setupInstance =
         name: db.name,
         collectionsStatus: db.collectionsStatus,
         collectionsLength: db.collectionsLength,
+        ns_source: db.ns_source,
       };
     }
 
@@ -142,6 +143,7 @@ export const setupInstance =
         type: coll.type,
         sourceName: coll.sourceName,
         pipeline: coll.pipeline,
+        ns_source: coll.ns_source,
       };
     }
 
