@@ -11,6 +11,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write # needed to publish the release
+
 jobs:
   publish:
     name: Publish updated manifest to download center

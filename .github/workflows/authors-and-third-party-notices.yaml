@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: none # We use the github app token to push the changes
+
 jobs:
   update_generated_files:
     name: Update automatically generated files
