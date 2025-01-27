@@ -14,6 +14,9 @@ on:
     # Each Monday at 5 AM UTC
     - cron: "0 5 * * 1"
 
+permissions:
+  contents: write # To create the new branch and push it
+
 jobs:
   startRelease:
     name: Start new Beta release
@@ -43,7 +46,7 @@ jobs:
 
       - name: Start Release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           node scripts/release.js beta \
             --merge-branch="${{ github.event.inputs.mergeBranch || 'main' }}" \

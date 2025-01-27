@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: none # We use the github app token to open the PR
+
 jobs:
   update_generated_files:
     name: Bump packages
@@ -21,6 +24,7 @@ jobs:
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
