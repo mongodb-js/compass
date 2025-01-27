@@ -100,6 +100,11 @@ export type VirtualListProps<T> = {
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
 
   /**
+   * React.Ref passed to the inner container, that wrap the list items.
+   */
+  innerContainerRef?: React.Ref<HTMLDivElement>;
+
+  /**
    * WARNING: Use only when testing because the AutoSizer will be
    * disabled during tests
    *
@@ -145,6 +150,7 @@ export function VirtualList<T>({
   itemDataTestId,
   initialScrollTop,
   scrollableContainerRef,
+  innerContainerRef,
   listRef: _listRef,
   __TEST_LIST_WIDTH = 1024,
   __TEST_LIST_HEIGHT = 768,
@@ -196,6 +202,7 @@ export function VirtualList<T>({
               overscanCount={overScanCount}
               initialScrollOffset={initialScrollTop}
               outerRef={scrollableContainerRef}
+              innerRef={innerContainerRef}
               innerElementType={InnerElementType}
               className={listOuterContainerClassName}
             >
