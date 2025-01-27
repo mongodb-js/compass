@@ -43,7 +43,6 @@ export const enum SchemaActions {
   analysisStarted = 'schema-service/schema/analysisStarted',
   analysisFinished = 'schema-service/schema/analysisFinished',
   analysisFailed = 'schema-service/schema/analysisFailed',
-  analysisCancelled = 'schema-service/schema/analysisCancelled',
 }
 
 export type AnalysisStartedAction = {
@@ -119,8 +118,10 @@ function resultId(): string {
 export const handleSchemaShare = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { namespace }) => {
     const { schema } = getState();
-    void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
     const hasSchema = schema !== null;
+    if (hasSchema) {
+      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
+    }
     dispatch(_trackSchemaShared(hasSchema));
     openToast(
       'share-schema',
@@ -209,6 +210,7 @@ export const geoLayersDeleted = (
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { abortControllerRef }) => {
+    if (!abortControllerRef) return;
     abortControllerRef.current?.abort();
   };
 };
@@ -234,6 +236,11 @@ export const startAnalysis = (): SchemaThunkAction<
       track,
     }
   ) => {
+    const { analysisState } = getState();
+    if (analysisState === ANALYSIS_STATE_ANALYZING) {
+      debug('analysis already in progress. ignoring subsequent start');
+      return;
+    }
     const query = queryBar.getLastAppliedQuery('schema');
 
     const sampleSize = query.limit

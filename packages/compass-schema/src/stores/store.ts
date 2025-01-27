@@ -12,7 +12,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import reducer, { handleSchemaShare } from './reducer';
+import reducer, { handleSchemaShare, stopAnalysis } from './reducer';
 import type { InternalLayer } from '../modules/geo';
 
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
@@ -53,7 +53,7 @@ export type SchemaThunkDispatch<A extends AnyAction = AnyAction> =
 export function activateSchemaPlugin(
   { namespace }: Pick<CollectionTabPluginMetadata, 'namespace'>,
   services: SchemaPluginServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(services, namespace);
   /**
@@ -65,6 +65,8 @@ export function activateSchemaPlugin(
     'menu-share-schema-json',
     () => store.dispatch(handleSchemaShare()) // TODO: get the action
   );
+
+  addCleanup(() => store.dispatch(stopAnalysis()));
 
   return {
     store,
