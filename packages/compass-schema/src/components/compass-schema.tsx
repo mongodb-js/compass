@@ -399,7 +399,7 @@ const Schema: React.FunctionComponent<{
         toolbar={
           <SchemaToolbar
             onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onStopAnalysis}
+            onResetClicked={onStartAnalysis}
             analysisState={analysisState}
             errorMessage={errorMessage || ''}
             isOutdated={!!outdated}
