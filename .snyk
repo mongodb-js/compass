@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.25.0
+version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
@@ -7,20 +7,8 @@ ignore:
         reason: >-
           Not applicable as we do not use a valueFormatter or cellRenderer
           function
-        expires: 2024-11-15T18:27:24.346Z
+        expires: 2025-09-17T13:05:57.065Z
         created: 2024-01-18T18:27:24.353Z
-  SNYK-JS-AXIOS-6032459:
-    - '*':
-        reason: Not applicable to axios usage inside node-analytics package
-        expires: 2024-10-30T10:18:43.435Z
-        created: 2023-10-30T10:18:43.435Z
-  SNYK-JS-ELECTRON-7443355:
-    - '*':
-        reason: >-
-          Not applicable as we do not open / allow opening random webpages in
-          our Electron app.
-        expires: 2024-07-25T12:41:36.996Z
-        created: 2024-07-19T12:41:36.999Z
   SNYK-JS-AGGRIDCOMMUNITY-7414157:
     - '*':
         reason: >-
@@ -28,6 +16,38 @@ ignore:
           passes user input directly to the merge function
         expires: 2025-09-17T13:05:57.065Z
         created: 2024-09-17T13:05:57.071Z
+  SNYK-JS-ELECTRON-8642944:
+    - '*':
+        reason: >-
+          Fixed in https://github.com/electron/electron/releases/tag/v32.3.0
+        expires: 2025-03-26T09:48:32.235Z
+        created: 2025-01-27T09:48:32.246Z
+  SNYK-JS-ELECTRON-8642948:
+    - '*':
+        reason: >-
+          Fixed in https://github.com/electron/electron/releases/tag/v32.3.0
+        expires: 2025-03-26T09:49:13.962Z
+        created: 2025-01-27T09:49:13.968Z
+  SNYK-JS-ELECTRON-8097217:
+    - '*':
+        reason: >-
+          Not applicable: requires attacker to inject and execute custom
+          javascript on the page AND experimental api to be enabled (see
+          https://issues.chromium.org/issues/365376497)
+        expires: 2025-03-26T09:49:21.587Z
+        created: 2025-01-27T09:49:21.596Z
+  SNYK-JS-ELECTRON-8604283:
+    - '*':
+        reason: >-
+          Fixed in https://github.com/electron/electron/releases/tag/v32.3.0
+        expires: 2025-03-26T09:49:31.423Z
+        created: 2025-01-27T09:49:31.431Z
+  SNYK-JS-ELECTRON-8642946:
+    - '*':
+        reason: >-
+          Fixed in https://github.com/electron/electron/releases/tag/v32.3.0
+        expires: 2025-02-26T09:49:38.738Z
+        created: 2025-01-27T09:49:38.746Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
