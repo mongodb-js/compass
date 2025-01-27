@@ -127,6 +127,20 @@ post:
     params:
       file: src/.logs/*.xml
 functions:
+  package-and-publish-e2e-docker-image:
+    command: shell.exec
+    params:
+      shell: bash
+      env:
+        <<: *compass-env
+        AWS_ACCESS_KEY_ID: ${aws_key}
+        AWS_SECRET_ACCESS_KEY: ${aws_secret}
+        ECR_REGISTRY: ${ecr_registry}
+      include_expansions_in_env: [github_commit, ECR_REGION]
+      script: |
+        set -e
+        bash .evergreen/e2e-tests/package-and-publish-docker-image.sh
+    
   clone:
     - command: git.get_project
       type: system
