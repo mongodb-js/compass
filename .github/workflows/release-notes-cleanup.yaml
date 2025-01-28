@@ -12,6 +12,9 @@ on:
   release:
     types: [published, edited]
 
+permissions:
+  contents: write # to update the release notes
+
 jobs:
   cleanup_notes:
     name: Cleanup Notes

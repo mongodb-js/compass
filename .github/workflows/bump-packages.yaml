@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: none # We use the github app token to open the PR
+
 jobs:
   update_generated_files:
     name: Bump packages
@@ -21,6 +24,7 @@ jobs:
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -38,12 +42,8 @@ jobs:
 
       - name: Bump packages
         env:
-          LAST_BUMP_COMMIT_MESSAGE: "chore(release): bump package versions"
           SKIP_BUMP_PACKAGES: "mongodb-compass"
-        run: |
-          npm run bump-packages
-          git add .
-          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
+        run: npm run bump-packages
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5

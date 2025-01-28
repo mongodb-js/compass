@@ -7,7 +7,7 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { OptionEditor } from './option-editor';
+import { OptionEditor, getOptionBasedQueries } from './option-editor';
 import type { SinonSpy } from 'sinon';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import sinon from 'sinon';
@@ -47,7 +47,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          recentQueries={[]}
+          favoriteQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -69,7 +70,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
-          savedQueries={[]}
+          recentQueries={[]}
+          favoriteQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -91,7 +93,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -119,7 +122,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -149,7 +153,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
-          savedQueries={[]}
+          favoriteQueries={[]}
+          recentQueries={[]}
           onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
@@ -167,7 +172,7 @@ describe('OptionEditor', function () {
     });
   });
 
-  describe('when render filter bar with the query history autocompleter', function () {
+  describe('when rendering filter option', function () {
     let onApplySpy: SinonSpy;
     let preferencesAccess: PreferencesAccess;
 
@@ -182,64 +187,54 @@ describe('OptionEditor', function () {
             insertEmptyDocOnFocus
             onChange={() => {}}
             value=""
-            savedQueries={[
+            recentQueries={[
               {
-                type: 'recent',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 1 },
-                },
+                _lastExecuted: new Date(),
+                filter: { a: 1 },
               },
+            ]}
+            favoriteQueries={[
               {
-                type: 'favorite',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 2 },
-                  sort: { a: -1 },
-                },
-              },
-              {
-                type: 'recent',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 2 },
-                  sort: { a: -1 },
-                  update: { a: 10 },
-                },
+                _lastExecuted: new Date(),
+                filter: { a: 2 },
+                sort: { a: -1 },
               },
             ]}
             onApplyQuery={onApplySpy}
           />
         </PreferencesProvider>
       );
+      userEvent.click(screen.getByRole('textbox'));
+      await waitFor(() => {
+        screen.getByLabelText('Completions');
+      });
     });
 
     afterEach(function () {
       cleanup();
     });
 
-    it('filter applied correctly when autocomplete option is clicked', async function () {
-      userEvent.click(screen.getByRole('textbox'));
-      await waitFor(() => {
-        expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
-        expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
-        expect(
-          screen.queryByText('{ a: 2 }, sort: { a: -1 }, update: { a: 10 }')
-        ).to.be.null;
-      });
+    it('renders autocomplete options', function () {
+      expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
+      expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
+    });
 
+    it('calls onApply with correct params', async function () {
       // Simulate selecting the autocomplete option
       userEvent.click(screen.getByText('{ a: 2 }, sort: { a: -1 }'));
       await waitFor(() => {
-        expect(onApplySpy.lastCall).to.be.calledWithExactly({
-          filter: { a: 2 },
-          sort: { a: -1 },
-        });
+        expect(onApplySpy.lastCall).to.be.calledWithExactly(
+          {
+            filter: { a: 2 },
+            sort: { a: -1 },
+          },
+          []
+        );
       });
     });
   });
 
-  describe('when render project bar with the query history autocompleter', function () {
+  describe('when rendering project option', function () {
     let onApplySpy: SinonSpy;
     let preferencesAccess: PreferencesAccess;
 
@@ -254,62 +249,124 @@ describe('OptionEditor', function () {
             insertEmptyDocOnFocus
             onChange={() => {}}
             value=""
-            savedQueries={[
+            favoriteQueries={[
               {
-                type: 'favorite',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  project: { a: 1 },
-                },
+                _lastExecuted: new Date(),
+                project: { a: 1 },
               },
+            ]}
+            recentQueries={[
               {
-                type: 'favorite',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 2 },
-                  sort: { a: -1 },
-                },
-              },
-              {
-                type: 'recent',
-                lastExecuted: new Date(),
-                queryProperties: {
-                  filter: { a: 2 },
-                  sort: { a: -1 },
-                  project: { a: 0 },
-                },
+                _lastExecuted: new Date(),
+                project: { a: 0 },
               },
             ]}
             onApplyQuery={onApplySpy}
           />
         </PreferencesProvider>
       );
+      userEvent.click(screen.getByRole('textbox'));
+      await waitFor(() => {
+        screen.getByLabelText('Completions');
+      });
     });
 
     afterEach(function () {
       cleanup();
     });
 
-    it('only queries with project property are shown in project editor', async function () {
-      userEvent.click(screen.getByRole('textbox'));
-      await waitFor(() => {
-        expect(screen.getAllByText('project: { a: 1 }')[0]).to.be.visible;
-        expect(screen.queryByText('{ a: 2 }, sort: { a: -1 }')).to.be.null;
-        expect(screen.getByText('{ a: 2 }, sort: { a: -1 }, project: { a: 0 }'))
-          .to.be.visible;
-      });
+    it('renders autocomplete options', function () {
+      expect(screen.getAllByText('project: { a: 1 }')[0]).to.be.visible;
+      expect(screen.getAllByText('project: { a: 0 }')[0]).to.be.visible;
+    });
 
+    it('calls onApply with correct params', async function () {
       // Simulate selecting the autocomplete option
-      userEvent.click(
-        screen.getByText('{ a: 2 }, sort: { a: -1 }, project: { a: 0 }')
-      );
+      userEvent.click(screen.getByText('project: { a: 0 }'));
       await waitFor(() => {
-        expect(onApplySpy.lastCall).to.be.calledWithExactly({
-          filter: { a: 2 },
-          sort: { a: -1 },
-          project: { a: 0 },
-        });
+        expect(onApplySpy).to.have.been.calledOnceWithExactly(
+          {
+            project: { a: 0 },
+          },
+          ['filter', 'collation', 'sort', 'hint', 'skip', 'limit', 'maxTimeMS']
+        );
       });
     });
+  });
+
+  describe('getOptionBasedQueries', function () {
+    const savedQueries = [
+      {
+        _lastExecuted: new Date(),
+        filter: { a: 1 },
+        project: { b: 1 },
+        sort: { c: 1 },
+        collation: { locale: 'en' },
+        hint: { a: 1 },
+        skip: 1,
+        limit: 1,
+      },
+    ];
+
+    it('filters out update queries', function () {
+      const queries = getOptionBasedQueries('filter', 'recent', [
+        ...savedQueries,
+        { _lastExecuted: new Date(), update: { a: 1 }, filter: { a: 2 } },
+      ]);
+      expect(queries.length).to.equal(1);
+    });
+
+    it('filters out empty queries', function () {
+      const queries = getOptionBasedQueries('filter', 'recent', [
+        ...savedQueries,
+        { _lastExecuted: new Date() },
+      ]);
+      expect(queries.length).to.equal(1);
+    });
+
+    it('filters out duplicate queries', function () {
+      const queries = getOptionBasedQueries('filter', 'recent', [
+        ...savedQueries,
+        ...savedQueries,
+        ...savedQueries,
+        { _lastExecuted: new Date() },
+        { _lastExecuted: new Date() },
+      ]);
+      expect(queries.length).to.equal(1);
+    });
+
+    const optionNames = [
+      'filter',
+      'project',
+      'sort',
+      'collation',
+      'hint',
+    ] as const;
+    for (const name of optionNames) {
+      it(`maps query for ${name}`, function () {
+        const queries = getOptionBasedQueries(name, 'recent', savedQueries);
+
+        // For filter, we include all the query properties and for the rest
+        // we only include that specific option.
+        const queryProperties =
+          name === 'filter'
+            ? Object.fromEntries(
+                Object.entries(savedQueries[0]).filter(
+                  ([key]) => key !== '_lastExecuted'
+                )
+              )
+            : {
+                [name]: savedQueries[0][name],
+              };
+
+        expect(queries).to.deep.equal([
+          {
+            lastExecuted: savedQueries[0]._lastExecuted,
+            queryProperties,
+            type: 'recent',
+          },
+        ]);
+      });
+    }
   });
 });

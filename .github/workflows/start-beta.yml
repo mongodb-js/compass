@@ -14,6 +14,9 @@ on:
     # Each Monday at 5 AM UTC
     - cron: "0 5 * * 1"
 
+permissions:
+  contents: write # To create the new branch and push it
+
 jobs:
   startRelease:
     name: Start new Beta release
