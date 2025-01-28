@@ -1,5 +1,7 @@
 import type { Schema } from 'mongodb-schema';
 import type { Action, AnyAction, Reducer } from 'redux';
+import ConnectionString from 'mongodb-connection-string-url';
+import type { AggregateOptions } from 'mongodb';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
@@ -212,6 +214,12 @@ export const stopAnalysis = (): SchemaThunkAction<void> => {
   };
 };
 
+function isReadPreferenceSet(connectionString: string): boolean {
+  return !!new ConnectionString(connectionString).searchParams.get(
+    'readPreference'
+  );
+}
+
 export const startAnalysis = (): SchemaThunkAction<
   Promise<void>,
   AnalysisStartedAction | AnalysisFinishedAction | AnalysisFailedAction
@@ -250,8 +258,18 @@ export const startAnalysis = (): SchemaThunkAction<
       fields: query.project ?? undefined,
     };
 
-    const driverOptions = {
+    const driverOptions: AggregateOptions = {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
+      // When the read preference isn't set in the connection string explicitly,
+      // then we default to secondaryPreferred to avoid using the primary for
+      // schema analysis.
+      ...(isReadPreferenceSet(
+        connectionInfoRef.current.connectionOptions.connectionString
+      )
+        ? {}
+        : {
+            readPreference: 'secondaryPreferred',
+          }),
     };
 
     try {
