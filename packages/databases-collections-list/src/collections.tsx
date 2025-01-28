@@ -82,7 +82,7 @@ const CollectionsList: React.FunctionComponent<{
 }) => {
   return (
     <div className={pageContainerStyles}>
-      <ItemsGrid<CollectionProps>
+      <ItemsGrid
         namespace={namespace}
         items={collections}
         itemType="collection"

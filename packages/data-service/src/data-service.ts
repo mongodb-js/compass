@@ -1149,11 +1149,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
     } catch (error) {
       const message = (error as Error).message;
-      // We ignore errors for fetching collStats when requesting on an
-      // unsupported collection type: either a view or a ADF
       if (
+        // We ignore errors for fetching collStats when requesting on an
+        // unsupported collection type: either a view or a ADF
         message.includes('not valid for Data Lake') ||
-        message.includes('is a view, not a collection')
+        message.includes('is a view, not a collection') ||
+        // When trying to fetch collectionStats for a namespace whose db does not exist,
+        // the server throws an error. This happens because we show dbs/collections to
+        // the user from their roles/privileges.
+        message.includes(`Database [${databaseName}] not found`)
       ) {
         return this._buildCollectionStats(databaseName, collectionName, {});
       }
