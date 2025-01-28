@@ -1615,8 +1615,13 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    const sort =
+      query.sort ||
+      (this.preferences.getPreferences().showRecentDocumentsFirst &&
+        'natural: -1');
+
     const findOptions = {
-      sort: query.sort,
+      sort,
       projection: query.project,
       skip: query.skip,
       limit: docsPerPage,

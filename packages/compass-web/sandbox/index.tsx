@@ -130,6 +130,7 @@ const App = () => {
               enablePerformanceAdvisorBanner: isAtlas,
               enableAtlasSearchIndexes: !isAtlas,
               maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
+              showRecentDocumentsFirst: false,
               atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
               enableCreatingNewConnections: !isAtlas,
               enableGlobalWrites: isAtlas,
