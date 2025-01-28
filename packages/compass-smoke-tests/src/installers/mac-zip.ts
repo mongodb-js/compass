@@ -12,8 +12,6 @@ export function installMacZIP({
   const appFilename = `${appName}.app`;
   const appPath = path.resolve(destinationPath, appFilename);
 
-  execute('umask', []);
-
   execute('ditto', ['-xk', filepath, destinationPath]);
 
   // TODO: Consider instrumenting the app to use a settings directory in the sandbox
@@ -25,18 +23,10 @@ export function installMacZIP({
       'Application Support',
       appName
     );
-    const shipitDir = path.resolve(
-      process.env.HOME,
-      'Library',
-      'Caches',
-      'com.mongodb.compass.dev.ShipIt'
-    );
 
-    for (const dir of [settingsDir, shipitDir]) {
-      if (fs.existsSync(dir)) {
-        console.log(`${dir} already exists. Removing.`);
-        fs.rmSync(dir, { recursive: true });
-      }
+    if (fs.existsSync(settingsDir)) {
+      console.log(`${settingsDir} already exists. Removing.`);
+      fs.rmSync(settingsDir, { recursive: true });
     }
   }
 

@@ -197,7 +197,7 @@ async function run() {
       if (context.platform === 'darwin' && process.env.CI) {
         // Auto-update does not work on mac in CI at the moment. So in that case
         // we just run the E2E tests to make sure the app at least starts up.
-        runE2ETest({
+        runTimeToFirstQuery({
           appName,
           appPath,
         });
@@ -264,7 +264,7 @@ type RunE2ETestOptions = {
   appPath: string;
 };
 
-function runE2ETest({ appName, appPath }: RunE2ETestOptions) {
+function runTimeToFirstQuery({ appName, appPath }: RunE2ETestOptions) {
   execute(
     'npm',
     [

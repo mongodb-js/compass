@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { expect } from 'chai';
 import {
   init,
@@ -7,7 +5,6 @@ import {
   Selectors,
   screenshotPathName,
 } from '../helpers/compass';
-import { LOG_PATH } from '../helpers/test-runner-paths';
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -51,30 +48,13 @@ describe('Auto-update', function () {
     } finally {
       await browser.screenshot(screenshotPathName('auto-update-from'));
       await cleanup(compass);
-
-      if (process.platform === 'darwin' && process.env.HOME) {
-        console.log('copying ShipIt dir if it exits');
-        const shipitDir = path.resolve(
-          process.env.HOME,
-          'Library',
-          'Caches',
-          'com.mongodb.compass.dev.ShipIt'
-        );
-
-        if (fs.existsSync(shipitDir)) {
-          console.log(`copying ${shipitDir}`);
-          fs.cpSync(shipitDir, `${LOG_PATH}/ShipIt`, { recursive: true });
-        } else {
-          console.log(`${shipitDir} does not exist`);
-        }
-      }
     }
 
     if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
       console.log(
         'pause to make sure the app properly exited before starting again'
       );
-      await wait(60_000);
+      await wait(10_000);
 
       console.log('starting compass a second time');
       // run the app again and check that the version changed
