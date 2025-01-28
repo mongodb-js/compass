@@ -54,7 +54,7 @@ type DataLakeDetails = {
   version: string | null;
 };
 
-type CollectionDetails = {
+export type CollectionDetails = {
   _id: string;
   name: string;
   database: string;
@@ -76,9 +76,10 @@ type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
+  is_non_existant: boolean;
 };
 
-type DatabaseDetails = {
+export type DatabaseDetails = {
   _id: string;
   name: string;
   collection_count: number;
@@ -88,6 +89,7 @@ type DatabaseDetails = {
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
+  is_non_existant: boolean;
 };
 
 export type InstanceDetails = {
@@ -358,7 +360,7 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 
 export function adaptDatabaseInfo(
   databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name'> {
+): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existant'> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -375,8 +377,10 @@ export function adaptCollectionInfo({
   info,
   options,
   type,
-}: CollectionInfoNameOnly &
-  Partial<CollectionInfo> & { db: string }): CollectionDetails {
+}: CollectionInfoNameOnly & Partial<CollectionInfo> & { db: string }): Omit<
+  CollectionDetails,
+  'is_non_existant'
+> {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,

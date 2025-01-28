@@ -32,12 +32,28 @@ const cardTitleGroup = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
-  marginBottom: spacing[2],
 });
 
 const CardTitleGroup: React.FunctionComponent = ({ children }) => {
   return <div className={cardTitleGroup}>{children}</div>;
 };
+
+const nonExistantLightStyles = css({
+  color: palette.gray.dark1,
+});
+
+const nonExistantDarkStyles = css({
+  color: palette.gray.light1,
+});
+
+const inactiveCardStyles = css({
+  borderStyle: 'dashed',
+  borderWidth: 2,
+});
+
+const tooltipTriggerStyles = css({
+  display: 'flex',
+});
 
 const cardNameWrapper = css({
   // Workaround for uncollapsible text in flex children
@@ -64,15 +80,21 @@ const cardName = css({
   fontWeight: '600 !important' as unknown as number,
 });
 
-const CardName: React.FunctionComponent<{ children: string }> = ({
-  children,
-}) => {
+const CardName: React.FunctionComponent<{
+  children: string;
+  isNonExistant: boolean;
+}> = ({ children, isNonExistant }) => {
   const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
       <Subtitle
         as="div"
-        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
+        className={cx(
+          cardName,
+          darkMode ? cardNameDark : cardNameLight,
+          isNonExistant && !darkMode && nonExistantLightStyles,
+          isNonExistant && darkMode && nonExistantDarkStyles
+        )}
       >
         {children}
       </Subtitle>
@@ -163,6 +185,7 @@ export type NamespaceItemCardProps = {
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
+  isNonExistant: boolean;
   onItemClick(id: string): void;
   onItemDeleteClick?: (id: string) => void;
 };
@@ -195,9 +218,11 @@ export const NamespaceItemCard: React.FunctionComponent<
   onItemDeleteClick,
   badges = null,
   viewType,
+  isNonExistant,
   ...props
 }) => {
   const readOnly = usePreference('readOnly');
+  const darkMode = useDarkMode();
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 
@@ -207,7 +232,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return readOnly || !hasDeleteHandler
+    return readOnly || !hasDeleteHandler || isNonExistant
       ? []
       : [
           {
@@ -216,7 +241,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             icon: 'Trash',
           },
         ];
-  }, [type, readOnly, hasDeleteHandler]);
+  }, [type, readOnly, isNonExistant, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -238,7 +263,16 @@ export const NamespaceItemCard: React.FunctionComponent<
   );
 
   const cardProps = mergeProps(
-    { className: card },
+    {
+      className: cx(
+        card,
+        isNonExistant && [
+          !darkMode && nonExistantLightStyles,
+          darkMode && nonExistantDarkStyles,
+          inactiveCardStyles,
+        ]
+      ),
+    },
     defaultActionProps,
     hoverProps,
     focusProps,
@@ -262,7 +296,22 @@ export const NamespaceItemCard: React.FunctionComponent<
       {...cardProps}
     >
       <CardTitleGroup>
-        <CardName>{name}</CardName>
+        <CardName isNonExistant={isNonExistant}>{name}</CardName>
+
+        {isNonExistant && (
+          <Tooltip
+            align="bottom"
+            justify="start"
+            trigger={
+              <div className={tooltipTriggerStyles}>
+                <Icon glyph={'InfoWithCircle'} />
+              </div>
+            }
+          >
+            You have privileges to this namespace, but it is not in your list of
+            current namespaces
+          </Tooltip>
+        )}
 
         {viewType === 'list' && badgesGroup}
 
@@ -283,7 +332,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             <NamespaceParam
               key={idx}
               label={label}
-              hint={hint}
+              hint={!isNonExistant && hint}
               value={value}
               status={status}
               viewType={viewType}

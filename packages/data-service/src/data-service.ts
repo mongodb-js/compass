@@ -58,7 +58,11 @@ import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import type { InstanceDetails } from './instance-detail-helper';
+import type {
+  CollectionDetails,
+  DatabaseDetails,
+  InstanceDetails,
+} from './instance-detail-helper';
 import {
   isNotAuthorized,
   isNotSupportedPipelineStage,
@@ -312,7 +316,7 @@ export interface DataService {
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
     }
-  ): Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+  ): Promise<CollectionDetails[]>;
 
   /**
    * Returns normalized collection info provided by listCollection command for a
@@ -419,7 +423,7 @@ export interface DataService {
     roles?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
-  }): Promise<{ _id: string; name: string }[]>;
+  }): Promise<Omit<DatabaseDetails, 'collections'>[]>;
 
   /**
    * Get the stats for a database.
@@ -1145,11 +1149,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
     } catch (error) {
       const message = (error as Error).message;
-      // We ignore errors for fetching collStats when requesting on an
-      // unsupported collection type: either a view or a ADF
       if (
+        // We ignore errors for fetching collStats when requesting on an
+        // unsupported collection type: either a view or a ADF
         message.includes('not valid for Data Lake') ||
-        message.includes('is a view, not a collection')
+        message.includes('is a view, not a collection') ||
+        // When trying to fetch collectionStats for a namespace whose db does not exist,
+        // the server throws an error. This happens because we show dbs/collections to
+        // the user from their roles/privileges.
+        message.includes(`Database [${databaseName}] not found`)
       ) {
         return this._buildCollectionStats(databaseName, collectionName, {});
       }
@@ -1291,7 +1299,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
     } = {}
-  ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
+  ): Promise<CollectionDetails[]> {
+    const listCollections = async () => {
+      const colls = await this._listCollections(databaseName, filter, {
+        nameOnly,
+      });
+      return colls.map((coll) => ({
+        is_non_existant: false,
+        ...coll,
+      }));
+    };
     const getCollectionsFromPrivileges = async () => {
       const databases = getPrivilegesByDatabaseAndCollection(
         await this._getPrivilegesOrFallback(privileges),
@@ -1307,11 +1324,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // those registered as "real" collection names
           Boolean
         )
-        .map((name) => ({ name }));
+        .map((name) => ({ name, is_non_existant: true }));
     };
 
     const [listedCollections, collectionsFromPrivileges] = await Promise.all([
-      this._listCollections(databaseName, filter, { nameOnly }),
+      listCollections(),
       // If the filter is not empty, we can't meaningfully derive collections
       // from privileges and filter them as the criteria might include any key
       // from the listCollections result object and there is no such info in
@@ -1325,7 +1342,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
+    ).map(({ is_non_existant, ...coll }) => ({
+      is_non_existant,
+      ...adaptCollectionInfo({ db: databaseName, ...coll }),
+    }));
 
     return collections;
   }
@@ -1348,7 +1368,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     roles?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
-  } = {}): Promise<{ _id: string; name: string }[]> {
+  } = {}): Promise<Omit<DatabaseDetails, 'collections'>[]> {
     const adminDb = this._database('admin', 'CRUD');
 
     const listDatabases = async () => {
@@ -1363,7 +1383,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           },
           { enableUtf8Validation: false }
         );
-        return databases;
+        return databases.map((x) => ({
+          ...x,
+          is_non_existant: false,
+        }));
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
         // possible reason to preserve current behavior. We probably want this
@@ -1395,7 +1418,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // out
           Boolean
         )
-        .map((name) => ({ name }));
+        .map((name) => ({ name, is_non_existant: true }));
     };
 
     const getDatabasesFromRoles = async () => {
@@ -1410,7 +1433,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // have custom privileges that we can't currently fetch.
         ['read', 'readWrite', 'dbAdmin', 'dbOwner']
       );
-      return databases.map((name) => ({ name }));
+      return databases.map((name) => ({ name, is_non_existant: true }));
     };
 
     const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
@@ -1425,8 +1448,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map((db) => {
-      return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
+    ).map(({ name, is_non_existant, ...db }) => {
+      return {
+        _id: name,
+        name,
+        is_non_existant,
+        ...adaptDatabaseInfo(db),
+      };
     });
 
     return databases;

@@ -54,6 +54,7 @@ export type Database = {
   collectionsStatus: DatabaseOrCollectionStatus;
   collectionsLength: number;
   collections: Collection[];
+  isNonExistant: boolean;
 };
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
@@ -67,6 +68,7 @@ export type Collection = {
   type: 'view' | 'collection' | 'timeseries';
   sourceName: string | null;
   pipeline: unknown[];
+  isNonExistant: boolean;
 };
 
 export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
@@ -100,6 +102,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   connectionId: string;
   dbName: string;
   hasWriteActionsDisabled: boolean;
+  isNonExistant: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -110,6 +113,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   connectionId: string;
   namespace: string;
   hasWriteActionsDisabled: boolean;
+  isNonExistant: boolean;
 };
 
 export type SidebarActionableItem =
@@ -245,6 +249,7 @@ const databaseToItems = ({
     collections,
     collectionsLength,
     collectionsStatus,
+    isNonExistant,
   },
   connectionId,
   expandedItems = {},
@@ -277,6 +282,7 @@ const databaseToItems = ({
     dbName: id,
     isExpandable: true,
     hasWriteActionsDisabled,
+    isNonExistant,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -304,19 +310,22 @@ const databaseToItems = ({
   }
 
   return sidebarData.concat(
-    collections.map(({ _id: id, name, type }, collectionIndex) => ({
-      id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
-      level: level + 1,
-      name,
-      type,
-      setSize: collectionsLength,
-      posInSet: collectionIndex + 1,
-      colorCode,
-      connectionId,
-      namespace: id,
-      hasWriteActionsDisabled,
-      isExpandable: false,
-    }))
+    collections.map(
+      ({ _id: id, name, type, isNonExistant }, collectionIndex) => ({
+        id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
+        level: level + 1,
+        name,
+        type,
+        setSize: collectionsLength,
+        posInSet: collectionIndex + 1,
+        colorCode,
+        connectionId,
+        namespace: id,
+        hasWriteActionsDisabled,
+        isExpandable: false,
+        isNonExistant,
+      })
+    )
   );
 };
 
