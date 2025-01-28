@@ -546,8 +546,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Show recent documents first',
-      long: "If true, queries without a sort order will use '$natural: -1' as the sort order, which generally shows recently inserted documents first.",
+      short: 'Default Sort for Query Bar',
+      long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
     },
     validator: z.boolean().default(false),
     type: 'boolean',
