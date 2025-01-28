@@ -239,17 +239,22 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     if (!shouldFetch(this.status, force)) {
       return;
     }
+    // When trying to fetch collectionStats for a namespace whose db does not exist,
+    // the server throws an error. This happens because we show dbs/collections to
+    // the user from their roles/privileges. So, if the database does not exist, we
+    // skip fetching collectionStats for the namespace.
+    const dbExists = !getParentByType(this, 'Database').is_non_existant;
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
-        dataService.collectionStats(this.database, this.name),
+        dbExists ? dataService.collectionStats(this.database, this.name) : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
       this.set({
         status: 'ready',
         statusError: null,
-        ...collStats,
+        ...(collStats && collStats),
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
     } catch (err) {
