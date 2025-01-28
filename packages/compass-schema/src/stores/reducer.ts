@@ -161,9 +161,6 @@ export const _trackSchemaShared = (
   };
 };
 
-/**
- * @return {Object} initial schema state.
- */
 const getInitialState = (): SchemaState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
@@ -210,7 +207,7 @@ export const geoLayersDeleted = (
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef) return;
+    if (!abortControllerRef.current) return;
     abortControllerRef.current?.abort();
   };
 };

@@ -60,10 +60,8 @@ export function activateSchemaPlugin(
    * When `Share Schema as JSON` clicked in menu show a dialog message.
    */
 
-  on(
-    services.localAppRegistry,
-    'menu-share-schema-json',
-    () => store.dispatch(handleSchemaShare()) // TODO: get the action
+  on(services.localAppRegistry, 'menu-share-schema-json', () =>
+    store.dispatch(handleSchemaShare())
   );
 
   addCleanup(() => store.dispatch(stopAnalysis()));
