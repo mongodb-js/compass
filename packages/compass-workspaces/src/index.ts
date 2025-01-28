@@ -60,6 +60,7 @@ export function configureStore(
       tabs: initialTabs,
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
+      databaseInfo: {},
     },
     applyMiddleware(thunk.withExtraArgument(services))
   );
