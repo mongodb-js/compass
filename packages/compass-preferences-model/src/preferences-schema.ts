@@ -69,6 +69,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableGenAISampleDocumentPassing: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
+    showRecentDocumentsFirst: boolean;
     enableShowDialogOnQuit: boolean;
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
@@ -537,6 +538,21 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  /**
+   * Set the default sort.
+   */
+  showRecentDocumentsFirst: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show recent documents first',
+      long: "If true, queries without a sort order will use '$natural: -1' as the sort order, which generally shows recently inserted documents first.",
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+
   /**
    * Switch to enable DevTools in Electron.
    */

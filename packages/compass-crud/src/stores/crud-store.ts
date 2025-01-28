@@ -1544,6 +1544,7 @@ class CrudStoreImpl
     });
   }
 
+  // so this thing
   /**
    * This function is called when the collection filter changes.
    */
@@ -1572,6 +1573,7 @@ class CrudStoreImpl
           has_projection:
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
+          // here's your has sort
           has_sort: !!query.sort && Object.keys(query.sort).length > 0,
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
@@ -1615,7 +1617,14 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    // ok so this is half your battle
+    const sort =
+      query.sort ||
+      (this.preferences.getPreferences().showRecentDocumentsFirst &&
+        'natural: -1');
+
     const findOptions = {
+      // and here
       sort: query.sort,
       projection: query.project,
       skip: query.skip,
