@@ -1617,15 +1617,13 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
-    // ok so this is half your battle
     const sort =
       query.sort ||
       (this.preferences.getPreferences().showRecentDocumentsFirst &&
         'natural: -1');
 
     const findOptions = {
-      // and here
-      sort: query.sort,
+      sort,
       projection: query.project,
       skip: query.skip,
       limit: docsPerPage,
