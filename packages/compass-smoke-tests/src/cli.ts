@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import crossSpawn from 'cross-spawn';
+import kill from 'tree-kill';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
@@ -187,7 +189,9 @@ async function run() {
     ])
   );
 
-  const { kind, filepath, appName } = await getTestSubject(context);
+  const { kind, appName, filepath, autoUpdatable } = await getTestSubject(
+    context
+  );
   const install = getInstaller(kind);
 
   try {
@@ -198,7 +202,21 @@ async function run() {
     });
 
     try {
-      runTest({ appName, appPath });
+      if (context.platform === 'darwin' && process.env.CI) {
+        // Auto-update does not work on mac in CI at the moment. So in that case
+        // we just run the E2E tests to make sure the app at least starts up.
+        runTimeToFirstQuery({
+          appName,
+          appPath,
+        });
+      } else {
+        runUpdateTest({
+          appName,
+          appPath,
+          autoUpdatable,
+          testName: 'AUTO_UPDATE_FROM',
+        });
+      }
     } finally {
       await uninstall();
     }
@@ -212,12 +230,53 @@ async function run() {
   }
 }
 
-type RunTestOptions = {
+type AutoUpdateServerOptions = {
+  port: number;
+  allowDowngrades?: boolean;
+};
+
+function startAutoUpdateServer({
+  port,
+  allowDowngrades,
+}: AutoUpdateServerOptions) {
+  const env: Record<string, string> = {
+    ...process.env,
+    PORT: port.toString(),
+  };
+  if (allowDowngrades) {
+    env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
+  }
+
+  // a git repo that is not published to npm that evergreen clones for us in CI
+  // next to the Compass code
+  const cwd = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    'compass-mongodb-com'
+  );
+
+  if (!fs.existsSync(cwd)) {
+    throw new Error(`compass-mongodb-com does not exist: ${cwd}`);
+  }
+
+  console.log('Starting auto-update server', cwd);
+  return crossSpawn.spawn('npm', ['run', 'start'], {
+    env,
+    cwd,
+    stdio: 'inherit',
+    shell: true,
+  });
+}
+
+type RunE2ETestOptions = {
   appName: string;
   appPath: string;
 };
 
-function runTest({ appName, appPath }: RunTestOptions) {
+function runTimeToFirstQuery({ appName, appPath }: RunE2ETestOptions) {
   execute(
     'npm',
     [
@@ -239,6 +298,58 @@ function runTest({ appName, appPath }: RunTestOptions) {
       },
     }
   );
+}
+
+type RunUpdateTestOptions = {
+  appName: string;
+  appPath: string;
+  autoUpdatable?: boolean;
+  testName: string;
+};
+
+function runUpdateTest({
+  appName,
+  appPath,
+  autoUpdatable,
+  testName,
+}: RunUpdateTestOptions) {
+  const server = startAutoUpdateServer({
+    allowDowngrades: true,
+    port: 8080,
+  });
+  try {
+    execute(
+      'npm',
+      [
+        'run',
+        '--unsafe-perm',
+        'test-packaged',
+        '--workspace',
+        'compass-e2e-tests',
+        '--',
+        '--test-filter=auto-update',
+      ],
+      {
+        // We need to use a shell to get environment variables setup correctly
+        shell: true,
+        env: {
+          ...process.env,
+          HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+          AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
+          TEST_NAME: testName,
+          COMPASS_APP_NAME: appName,
+          COMPASS_APP_PATH: appPath,
+        },
+      }
+    );
+  } finally {
+    if (server.pid) {
+      console.log('Stopping auto-update server');
+      kill(server.pid, 'SIGINT');
+    } else {
+      console.log('cannnot stop auto-update server because no pid');
+    }
+  }
 }
 
 run()

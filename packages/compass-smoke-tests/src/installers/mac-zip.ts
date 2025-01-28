@@ -30,6 +30,8 @@ export function installMacZIP({
     }
   }
 
+  execute('xattr', ['-dr', 'com.apple.quarantine', appPath]);
+
   // see if the executable will run without being quarantined or similar
   // TODO: Move this somewhere shared between mac installers
   execute(path.resolve(appPath, 'Contents/MacOS', appName), ['--version']);
