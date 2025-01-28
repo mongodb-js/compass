@@ -700,14 +700,17 @@ functions:
           if [[ "$IS_WINDOWS" == "true" ]]; then
             # TODO: windows_setup
             # TODO: windows_msi
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests=auto-update-from
           fi
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
+            # NOTE: We're also skipping auto-update of the macOS app in CI
+            # because it doesn't work. Running a different test to make sure it
+            # can install and run successfully at least.
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=time-to-first-query
           fi
 
           #if [[ "$IS_UBUNTU" == "true" ]]; then

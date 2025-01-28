@@ -14,7 +14,7 @@ function wait(ms: number) {
 
 describe('Auto-update', function () {
   it('auto-update from', async function () {
-    if (process.env.TEST_NAME !== 'AUTO_UPDATE_FROM') {
+    if (process.env.TEST_NAME !== 'auto-update-from') {
       // we don't want this test to execute along with all the others under
       // normal circumstances because it is destructive - it overwrites Compass
       // itself

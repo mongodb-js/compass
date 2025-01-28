@@ -9,4 +9,5 @@ export type SmokeTestsContext = {
   forceDownload?: boolean;
   localPackage?: boolean;
   sandboxPath: string;
+  tests: string[];
 };

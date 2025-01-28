@@ -26,6 +26,8 @@ import { installWindowsZIP } from './installers/windows-zip';
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
 
+const SUPPORTED_TESTS = ['time-to-first-query', 'auto-update-from'] as const;
+
 function isSupportedPlatform(
   value: unknown
 ): value is typeof SUPPORTED_PLATFORMS[number] {
@@ -100,7 +102,14 @@ const argv = yargs(hideBin(process.argv))
   .option('localPackage', {
     type: 'boolean',
     description: 'Use the local package instead of downloading',
-  });
+  })
+  .option('tests', {
+    type: 'string',
+    choices: SUPPORTED_TESTS,
+    description: 'Which tests to run',
+  })
+  .array('tests')
+  .default('tests', []);
 
 type TestSubject = PackageDetails & {
   filepath: string;
@@ -178,6 +187,7 @@ async function run() {
       'platform',
       'arch',
       'package',
+      'tests',
     ])
   );
 
@@ -187,30 +197,37 @@ async function run() {
   const install = getInstaller(kind);
 
   try {
-    const { appPath, uninstall } = install({
-      appName,
-      filepath,
-      destinationPath: context.sandboxPath,
-    });
+    if (context.tests.length === 0) {
+      console.log('Warning: not performing any tests. Pass --tests.');
+    }
 
-    try {
-      if (context.platform === 'darwin' && process.env.CI) {
-        // Auto-update does not work on mac in CI at the moment. So in that case
-        // we just run the E2E tests to make sure the app at least starts up.
-        runTimeToFirstQuery({
-          appName,
-          appPath,
-        });
-      } else {
-        runUpdateTest({
-          appName,
-          appPath,
-          autoUpdatable,
-          testName: 'AUTO_UPDATE_FROM',
-        });
+    for (const testName of context.tests) {
+      const { appPath, uninstall } = install({
+        appName,
+        filepath,
+        destinationPath: context.sandboxPath,
+      });
+
+      try {
+        if (testName === 'time-to-first-query') {
+          // Auto-update does not work on mac in CI at the moment. So in that case
+          // we just run the E2E tests to make sure the app at least starts up.
+          runTimeToFirstQuery({
+            appName,
+            appPath,
+          });
+        }
+        if (testName === 'auto-update-from') {
+          runUpdateTest({
+            appName,
+            appPath,
+            autoUpdatable,
+            testName,
+          });
+        }
+      } finally {
+        await uninstall();
       }
-    } finally {
-      await uninstall();
     }
   } finally {
     console.log('Cleaning up sandbox');
