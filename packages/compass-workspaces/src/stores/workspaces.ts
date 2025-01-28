@@ -778,9 +778,9 @@ const fetchDatabaseInfo = (
       }
     } catch (err) {
       logger.debug(
-        'Collection Metadata',
-        logger.mongoLogId(1_001_000_306),
-        'Error fetching collection metadata for tab',
+        'Database Metadata',
+        logger.mongoLogId(1_001_000_339),
+        'Error fetching database metadata for tab',
         { namespace: workspaceOptions.namespace },
         err
       );
