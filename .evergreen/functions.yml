@@ -648,7 +648,7 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
-  get-compass-mongodb-com:
+  get-update-server:
     - command: github.generate_token
       params:
         owner: 10gen
