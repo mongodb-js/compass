@@ -1544,7 +1544,6 @@ class CrudStoreImpl
     });
   }
 
-  // so this thing
   /**
    * This function is called when the collection filter changes.
    */
@@ -1573,7 +1572,6 @@ class CrudStoreImpl
           has_projection:
             !!query.project && Object.keys(query.project).length > 0,
           has_skip: (query.skip ?? 0) > 0,
-          // here's your has sort
           has_sort: !!query.sort && Object.keys(query.sort).length > 0,
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
