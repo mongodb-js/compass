@@ -47,7 +47,7 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
   }
   if (item.type === 'collection') {
     if (item.ns_source === 'provisioned') {
-      return <Icon glyph="Collection" />;
+      return <Icon glyph="Folder" />;
     }
     return (
       <IconWithTooltip
