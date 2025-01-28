@@ -16,7 +16,7 @@ interface DatabaseProps {
   index_size: number;
   collectionsLength: number;
   collections: CollectionCollection;
-  ns_source: 'provisioned' | 'privileges' | 'roles';
+  is_non_existant: boolean;
 }
 
 interface Database extends DatabaseProps {

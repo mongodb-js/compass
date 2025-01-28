@@ -4,23 +4,7 @@ import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
-
-type Collection = {
-  _id: string;
-  name: string;
-  type: string;
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  document_count: number;
-  document_size: number;
-  avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
-  index_count: number;
-  index_size: number;
-  properties: { id: string }[];
-  source?: Collection;
-  ns_source: 'provisioned' | 'privileges';
-};
+import type { CollectionProps } from 'mongodb-collection-model';
 
 const COLLECTION_CARD_WIDTH = spacing[6] * 4;
 
@@ -83,7 +67,7 @@ const pageContainerStyles = css({
 
 const CollectionsList: React.FunctionComponent<{
   namespace: string;
-  collections: Collection[];
+  collections: CollectionProps[];
   onCollectionClick(id: string): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
@@ -98,7 +82,7 @@ const CollectionsList: React.FunctionComponent<{
 }) => {
   return (
     <div className={pageContainerStyles}>
-      <ItemsGrid
+      <ItemsGrid<CollectionProps>
         namespace={namespace}
         items={collections}
         itemType="collection"
@@ -177,7 +161,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
-              isProvisioned={coll.ns_source === 'provisioned'}
+              isNonExistant={coll.is_non_existant}
               data={data}
               badges={badges}
               onItemClick={onItemClick}

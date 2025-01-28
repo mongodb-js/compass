@@ -4,17 +4,7 @@ import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
-
-type Database = {
-  _id: string;
-  name: string;
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  storage_size: number;
-  data_size: number;
-  index_count: number;
-  collectionsLength: number;
-  ns_source: 'provisioned' | 'privileges' | 'roles';
-};
+import type { DatabaseProps } from 'mongodb-database-model';
 
 const DATABASE_CARD_WIDTH = spacing[6] * 4;
 
@@ -23,7 +13,7 @@ const DATABASE_CARD_HEIGHT = 154;
 const DATABASE_CARD_LIST_HEIGHT = 118;
 
 const DatabasesList: React.FunctionComponent<{
-  databases: Database[];
+  databases: DatabaseProps[];
   onDatabaseClick(id: string): void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
@@ -69,7 +59,7 @@ const DatabasesList: React.FunctionComponent<{
             type="database"
             viewType={viewType}
             status={db.status}
-            isProvisioned={db.ns_source === 'provisioned'}
+            isNonExistant={db.is_non_existant}
             data={[
               {
                 label: 'Storage size',

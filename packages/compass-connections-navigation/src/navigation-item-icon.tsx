@@ -5,7 +5,7 @@ import type { GlyphName } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from './with-status-marker';
 import { isLocalhost } from 'mongodb-build-info';
 
-const UNPROVISIONED_NAMESPACE_TEXT =
+const NON_EXISTANT_NAMESPACE_TEXT =
   'You have privileges to this namespace, but it is not in your list of current namespaces';
 
 const tooltipTriggerStyles = css({
@@ -35,26 +35,26 @@ const IconWithTooltip = ({
 
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
   if (item.type === 'database') {
-    if (item.ns_source === 'provisioned') {
-      return <Icon glyph="Database" />;
+    if (item.isNonExistant) {
+      return (
+        <IconWithTooltip
+          text={NON_EXISTANT_NAMESPACE_TEXT}
+          glyph="EmptyDatabase"
+        />
+      );
     }
-    return (
-      <IconWithTooltip
-        text={UNPROVISIONED_NAMESPACE_TEXT}
-        glyph="EmptyDatabase"
-      />
-    );
+    return <Icon glyph="Database" />;
   }
   if (item.type === 'collection') {
-    if (item.ns_source === 'provisioned') {
-      return <Icon glyph="Folder" />;
+    if (item.isNonExistant) {
+      return (
+        <IconWithTooltip
+          text={NON_EXISTANT_NAMESPACE_TEXT}
+          glyph="EmptyFolder"
+        />
+      );
     }
-    return (
-      <IconWithTooltip
-        text={UNPROVISIONED_NAMESPACE_TEXT}
-        glyph="EmptyFolder"
-      />
-    );
+    return <Icon glyph="Folder" />;
   }
   if (item.type === 'view') {
     return <Icon glyph="Visibility" />;

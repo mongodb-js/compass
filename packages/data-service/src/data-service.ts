@@ -1301,7 +1301,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         nameOnly,
       });
       return colls.map((coll) => ({
-        ns_source: 'provisioned' as const,
+        is_non_existant: false,
         ...coll,
       }));
     };
@@ -1320,7 +1320,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // those registered as "real" collection names
           Boolean
         )
-        .map((name) => ({ name, ns_source: 'privileges' as const }));
+        .map((name) => ({ name, is_non_existant: true }));
     };
 
     const [listedCollections, collectionsFromPrivileges] = await Promise.all([
@@ -1338,8 +1338,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map((coll) => ({
-      ns_source: coll.ns_source,
+    ).map(({ is_non_existant, ...coll }) => ({
+      is_non_existant,
       ...adaptCollectionInfo({ db: databaseName, ...coll }),
     }));
 
@@ -1381,7 +1381,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         );
         return databases.map((x) => ({
           ...x,
-          ns_source: 'provisioned' as const,
+          is_non_existant: false,
         }));
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
@@ -1414,7 +1414,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // out
           Boolean
         )
-        .map((name) => ({ name, ns_source: 'privileges' as const }));
+        .map((name) => ({ name, is_non_existant: true }));
     };
 
     const getDatabasesFromRoles = async () => {
@@ -1429,7 +1429,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // have custom privileges that we can't currently fetch.
         ['read', 'readWrite', 'dbAdmin', 'dbOwner']
       );
-      return databases.map((name) => ({ name, ns_source: 'roles' as const }));
+      return databases.map((name) => ({ name, is_non_existant: true }));
     };
 
     const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
@@ -1444,11 +1444,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map((db) => {
+    ).map(({ name, is_non_existant, ...db }) => {
       return {
-        _id: db.name,
-        name: db.name,
-        ns_source: db.ns_source,
+        _id: name,
+        name,
+        is_non_existant,
         ...adaptDatabaseInfo(db),
       };
     });

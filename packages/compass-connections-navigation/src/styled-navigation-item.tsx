@@ -35,8 +35,8 @@ export default function StyledNavigationItem({
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const isNonExistantNamespace =
-      item.type === 'database' ||
-      (item.type === 'collection' && item.ns_source !== 'provisioned');
+      (item.type === 'database' || item.type === 'collection') &&
+      item.isNonExistant;
 
     if (colorCode && colorCode !== DefaultColorCode) {
       style['--item-bg-color'] = connectionColorToHex(colorCode);

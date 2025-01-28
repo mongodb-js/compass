@@ -81,8 +81,8 @@ interface CollectionProps {
   /** Only relevant for a view and identifies collection/view from which this view was created. */
   sourceName: string | null;
   source: Collection;
-  properties: { id: string; options?: unknown }[];
-  ns_source: 'provisioned' | 'privileges';
+  properties: { id: string; options?: Record<string, unknown> }[];
+  is_non_existant: boolean;
 }
 
 type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;

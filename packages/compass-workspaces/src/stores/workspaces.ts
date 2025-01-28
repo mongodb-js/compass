@@ -101,11 +101,11 @@ export type CollectionTabInfo = {
   isTimeSeries: boolean;
   isReadonly: boolean;
   sourceName?: string | null;
-  ns_source: 'provisioned' | 'privileges';
+  isNonExistant: boolean;
 };
 
 export type DatabaseTabInfo = {
-  ns_source: 'provisioned' | 'privileges' | 'roles';
+  isNonExistant: boolean;
 };
 
 export type WorkspacesState = {
@@ -726,7 +726,7 @@ const fetchCollectionInfo = (
             isTimeSeries: coll.isTimeSeries,
             isReadonly: coll.readonly ?? coll.isView,
             sourceName: coll.sourceName,
-            ns_source: coll.ns_source,
+            isNonExistant: coll.is_non_existant,
           },
         });
       }
@@ -772,7 +772,7 @@ const fetchDatabaseInfo = (
           type: WorkspacesActions.FetchDatabaseTabInfo,
           namespaceId,
           info: {
-            ns_source: db.ns_source,
+            isNonExistant: db.is_non_existant,
           },
         });
       }

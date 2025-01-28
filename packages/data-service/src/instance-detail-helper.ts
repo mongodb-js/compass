@@ -76,7 +76,7 @@ export type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
-  ns_source: 'provisioned' | 'privileges';
+  is_non_existant: boolean;
 };
 
 export type DatabaseDetails = {
@@ -89,7 +89,7 @@ export type DatabaseDetails = {
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
-  ns_source: 'provisioned' | 'privileges' | 'roles';
+  is_non_existant: boolean;
 };
 
 export type InstanceDetails = {
@@ -360,7 +360,7 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 
 export function adaptDatabaseInfo(
   databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'ns_source'> {
+): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existant'> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -379,7 +379,7 @@ export function adaptCollectionInfo({
   type,
 }: CollectionInfoNameOnly & Partial<CollectionInfo> & { db: string }): Omit<
   CollectionDetails,
-  'ns_source'
+  'is_non_existant'
 > {
   const ns = toNS(`${db}.${name}`);
   const {

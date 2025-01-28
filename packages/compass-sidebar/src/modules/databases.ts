@@ -39,16 +39,21 @@ export type DatabasesAction =
   | FetchAllCollectionsAction
   | ExpandDatabaseAction;
 
-type DatabaseRaw = MongoDBInstance['databases'][number];
+export type InstanceDatabase = MongoDBInstance['databases'][number];
 
 export type Database = Pick<
-  DatabaseRaw,
-  '_id' | 'name' | 'collectionsStatus' | 'collectionsLength' | 'ns_source'
+  InstanceDatabase,
+  '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
-  collections: Pick<
-    DatabaseRaw['collections'][number],
-    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline' | 'ns_source'
-  >[];
+  isNonExistant: boolean;
+  collections: Array<
+    Pick<
+      InstanceDatabase['collections'][number],
+      '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
+    > & {
+      isNonExistant: boolean;
+    }
+  >;
 };
 export type AllDatabasesState = Record<
   ConnectionInfo['id'],

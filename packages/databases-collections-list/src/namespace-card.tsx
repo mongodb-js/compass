@@ -38,11 +38,11 @@ const CardTitleGroup: React.FunctionComponent = ({ children }) => {
   return <div className={cardTitleGroup}>{children}</div>;
 };
 
-const inactiveLightStyles = css({
+const nonExistantLightStyles = css({
   color: palette.gray.dark1,
 });
 
-const inactiveDarkStyles = css({
+const nonExistantDarkStyles = css({
   color: palette.gray.light1,
 });
 
@@ -82,8 +82,8 @@ const cardName = css({
 
 const CardName: React.FunctionComponent<{
   children: string;
-  isProvisioned: boolean;
-}> = ({ children, isProvisioned }) => {
+  isNonExistant: boolean;
+}> = ({ children, isNonExistant }) => {
   const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
@@ -92,8 +92,8 @@ const CardName: React.FunctionComponent<{
         className={cx(
           cardName,
           darkMode ? cardNameDark : cardNameLight,
-          !isProvisioned && !darkMode && inactiveLightStyles,
-          !isProvisioned && darkMode && inactiveDarkStyles
+          isNonExistant && !darkMode && nonExistantLightStyles,
+          isNonExistant && darkMode && nonExistantDarkStyles
         )}
       >
         {children}
@@ -185,7 +185,7 @@ export type NamespaceItemCardProps = {
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
-  isProvisioned: boolean;
+  isNonExistant: boolean;
   onItemClick(id: string): void;
   onItemDeleteClick?: (id: string) => void;
 };
@@ -218,7 +218,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   onItemDeleteClick,
   badges = null,
   viewType,
-  isProvisioned,
+  isNonExistant,
   ...props
 }) => {
   const readOnly = usePreference('readOnly');
@@ -232,7 +232,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return readOnly || !hasDeleteHandler || !isProvisioned
+    return readOnly || !hasDeleteHandler || isNonExistant
       ? []
       : [
           {
@@ -241,7 +241,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             icon: 'Trash',
           },
         ];
-  }, [type, readOnly, isProvisioned, hasDeleteHandler]);
+  }, [type, readOnly, isNonExistant, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -266,9 +266,9 @@ export const NamespaceItemCard: React.FunctionComponent<
     {
       className: cx(
         card,
-        !isProvisioned && [
-          !darkMode && inactiveLightStyles,
-          darkMode && inactiveDarkStyles,
+        isNonExistant && [
+          !darkMode && nonExistantLightStyles,
+          darkMode && nonExistantDarkStyles,
           inactiveCardStyles,
         ]
       ),
@@ -296,9 +296,9 @@ export const NamespaceItemCard: React.FunctionComponent<
       {...cardProps}
     >
       <CardTitleGroup>
-        <CardName isProvisioned={isProvisioned}>{name}</CardName>
+        <CardName isNonExistant={isNonExistant}>{name}</CardName>
 
-        {!isProvisioned && (
+        {isNonExistant && (
           <Tooltip
             align="bottom"
             justify="start"
@@ -332,7 +332,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             <NamespaceParam
               key={idx}
               label={label}
-              hint={isProvisioned && hint}
+              hint={!isNonExistant && hint}
               value={value}
               status={status}
               viewType={viewType}

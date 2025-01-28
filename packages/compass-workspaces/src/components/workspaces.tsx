@@ -142,7 +142,7 @@ type CompassWorkspacesProps = {
   ): void;
 };
 
-const notProvisionedStyles = css({
+const nonExistantStyles = css({
   color: palette.gray.base,
 });
 
@@ -232,7 +232,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             getConnectionById(tab.connectionId)?.title || '';
           const database = tab.namespace;
           const namespaceId = `${tab.connectionId}.${database}`;
-          const { ns_source } = databaseInfo[namespaceId] ?? {};
+          const { isNonExistant } = databaseInfo[namespaceId] ?? {};
           return {
             id: tab.id,
             connectionName,
@@ -242,12 +242,11 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               ['Connection', connectionName || ''],
               ['Database', database],
             ] as Tooltip,
-            iconGlyph:
-              ns_source !== 'provisioned' ? 'EmptyDatabase' : 'Database',
+            iconGlyph: isNonExistant ? 'EmptyDatabase' : 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
-            ...(ns_source !== 'provisioned' && {
-              className: notProvisionedStyles,
+            ...(isNonExistant && {
+              className: nonExistantStyles,
             }),
           } as const;
         }
@@ -255,7 +254,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           const { database, collection, ns } = toNS(tab.namespace);
           const namespaceId = `${tab.connectionId}.${ns}`;
           const info = collectionInfo[namespaceId] ?? {};
-          const { isTimeSeries, isReadonly, sourceName, ns_source } = info;
+          const { isTimeSeries, isReadonly, sourceName, isNonExistant } = info;
           const connectionName =
             getConnectionById(tab.connectionId)?.title || '';
           const collectionType = isTimeSeries
@@ -288,13 +287,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 ? 'Visibility'
                 : collectionType === 'timeseries'
                 ? 'TimeSeries'
-                : ns_source !== 'provisioned'
+                : isNonExistant
                 ? 'EmptyFolder'
                 : 'Folder',
             'data-namespace': ns,
             tabTheme: getThemeOf(tab.connectionId),
-            ...(ns_source !== 'provisioned' && {
-              className: notProvisionedStyles,
+            ...(isNonExistant && {
+              className: nonExistantStyles,
             }),
           } as const;
         }
