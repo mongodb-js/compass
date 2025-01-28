@@ -516,6 +516,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
     });
@@ -540,6 +541,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'My Queries',
     });
@@ -573,6 +575,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
     });
@@ -599,6 +602,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: () => true,
     });

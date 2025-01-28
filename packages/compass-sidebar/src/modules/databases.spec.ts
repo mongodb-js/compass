@@ -7,12 +7,20 @@ import { createInstance } from '../../test/helpers';
 const CONNECTION_ID = 'webscale';
 
 function createDatabases(dbs: any[] = []) {
-  return createInstance(dbs).databases.map((db) => {
+  const data = createInstance(dbs).databases.map((db) => {
     return {
       ...db.toJSON(),
       collections: db.collections.toJSON(),
     };
   });
+  return data.map(({ is_non_existant, collections, ...rest }) => ({
+    ...rest,
+    isNonExistant: is_non_existant,
+    collections: collections.map(({ is_non_existant, ...coll }) => ({
+      ...coll,
+      isNonExistant: is_non_existant,
+    })),
+  }));
 }
 
 describe('sidebar databases', function () {
