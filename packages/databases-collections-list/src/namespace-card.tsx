@@ -43,7 +43,7 @@ const nonExistantLightStyles = css({
 });
 
 const nonExistantDarkStyles = css({
-  color: palette.gray.light1,
+  color: palette.gray.base,
 });
 
 const inactiveCardStyles = css({
