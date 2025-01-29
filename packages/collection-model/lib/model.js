@@ -252,6 +252,16 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         ...collStats,
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
+      // If the collection is not unprovisioned `is_non_existent` anymore,
+      // let's update the parent database model to reflect the change.
+      // This happens when a user tries to insert first document into a
+      // collection that doesn't exist yet or creates a new collection 
+      // for an unprovisioned database.
+      if (!this.is_non_existent) {
+        getParentByType(this, 'Database').set({
+          is_non_existent: false,
+        });
+      }
     } catch (err) {
       this.set({ status: 'error', statusError: err.message });
       throw err;

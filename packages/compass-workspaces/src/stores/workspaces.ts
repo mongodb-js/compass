@@ -687,6 +687,15 @@ export type TabOptions = {
   newTab?: boolean;
 };
 
+export const updateCollectionInfo = (
+  namespaceId: string,
+  info: CollectionTabInfo
+): FetchCollectionInfoAction => ({
+  type: WorkspacesActions.FetchCollectionTabInfo,
+  namespaceId,
+  info,
+});
+
 const fetchCollectionInfo = (
   workspaceOptions: Extract<OpenWorkspaceOptions, { type: 'Collection' }>
 ): WorkspacesThunkAction<Promise<void>, FetchCollectionInfoAction> => {
@@ -719,16 +728,13 @@ const fetchCollectionInfo = (
 
       if (coll) {
         await coll.fetch({ dataService });
-        dispatch({
-          type: WorkspacesActions.FetchCollectionTabInfo,
-          namespaceId,
-          info: {
-            isTimeSeries: coll.isTimeSeries,
-            isReadonly: coll.readonly ?? coll.isView,
-            sourceName: coll.sourceName,
-            isNonExistent: coll.is_non_existent,
-          },
-        });
+        const info = {
+          isTimeSeries: coll.isTimeSeries,
+          isReadonly: coll.readonly ?? coll.isView,
+          sourceName: coll.sourceName,
+          isNonExistent: coll.is_non_existent,
+        };
+        dispatch(updateCollectionInfo(namespaceId, info));
       }
     } catch (err) {
       logger.debug(
@@ -741,6 +747,15 @@ const fetchCollectionInfo = (
     }
   };
 };
+
+export const updateDatabaseInfo = (
+  namespaceId: string,
+  info: DatabaseTabInfo
+): FetchDatabaseInfoAction => ({
+  type: WorkspacesActions.FetchDatabaseTabInfo,
+  namespaceId,
+  info,
+});
 
 const fetchDatabaseInfo = (
   workspaceOptions: Extract<OpenWorkspaceOptions, { type: 'Collections' }>
@@ -768,13 +783,10 @@ const fetchDatabaseInfo = (
       const db = instance.databases.get(workspaceOptions.namespace);
       if (db) {
         await db.fetch({ dataService });
-        dispatch({
-          type: WorkspacesActions.FetchDatabaseTabInfo,
-          namespaceId,
-          info: {
-            isNonExistent: db.is_non_existent,
-          },
-        });
+        const info = {
+          isNonExistent: db.is_non_existent,
+        };
+        dispatch(updateDatabaseInfo(namespaceId, info));
       }
     } catch (err) {
       logger.debug(

@@ -1175,7 +1175,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
     collName: string
   ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
     const [collInfo] = await this._listCollections(dbName, { name: collName });
-    return adaptCollectionInfo({ db: dbName, ...collInfo }) ?? null;
+    return (
+      adaptCollectionInfo({
+        db: dbName,
+        ...collInfo,
+        is_non_existent: false,
+      }) ?? null
+    );
   }
 
   @op(mongoLogId(1_001_000_031))
@@ -1346,10 +1352,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map(({ is_non_existent, ...coll }) => ({
-      is_non_existent,
-      ...adaptCollectionInfo({ db: databaseName, ...coll }),
-    }));
+    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
 
     return collections;
   }
@@ -1452,11 +1455,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map(({ name, is_non_existent, ...db }) => {
+    ).map(({ name, ...db }) => {
       return {
         _id: name,
         name,
-        is_non_existent,
         ...adaptDatabaseInfo(db),
       };
     });
