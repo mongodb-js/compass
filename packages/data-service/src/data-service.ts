@@ -1157,7 +1157,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // When trying to fetch collectionStats for a collection whose db
           // does not exist or the collection itself does not exist, the
           // server throws an error. This happens because we show collections
-          //  to the user from their privileges.
+          // to the user from their privileges.
           message.includes(`Database [${databaseName}] not found`),
         message.includes(
           `Collection [${databaseName}.${collectionName}] not found`
