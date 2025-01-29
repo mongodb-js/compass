@@ -1179,7 +1179,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       adaptCollectionInfo({
         db: dbName,
         ...collInfo,
-        is_non_existent: false,
       }) ?? null
     );
   }
@@ -1352,7 +1351,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
+    ).map(({ is_non_existent, ...coll }) => ({
+      is_non_existent,
+      ...adaptCollectionInfo({ db: databaseName, ...coll }),
+    }));
 
     return collections;
   }
@@ -1455,10 +1457,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map(({ name, ...db }) => {
+    ).map(({ name, is_non_existent, ...db }) => {
       return {
         _id: name,
         name,
+        is_non_existent,
         ...adaptDatabaseInfo(db),
       };
     });

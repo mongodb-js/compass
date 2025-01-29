@@ -359,9 +359,8 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 }
 
 export function adaptDatabaseInfo(
-  databaseStats: Partial<DbStats> &
-    Partial<DatabaseInfo> & { is_non_existent: boolean }
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name'> {
+  databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
+): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existent'> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -369,7 +368,6 @@ export function adaptDatabaseInfo(
     storage_size: databaseStats.storageSize ?? 0,
     data_size: databaseStats.dataSize ?? 0,
     index_size: databaseStats.indexSize ?? 0,
-    is_non_existent: databaseStats.is_non_existent,
   };
 }
 
@@ -379,12 +377,10 @@ export function adaptCollectionInfo({
   info,
   options,
   type,
-  is_non_existent,
 }: CollectionInfoNameOnly &
   Partial<CollectionInfo> & {
     db: string;
-    is_non_existent: boolean;
-  }): CollectionDetails {
+  }): Omit<CollectionDetails, 'is_non_existent'> {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,
@@ -432,6 +428,5 @@ export function adaptCollectionInfo({
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,
-    is_non_existent,
   };
 }
