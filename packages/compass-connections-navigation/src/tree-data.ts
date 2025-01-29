@@ -54,7 +54,7 @@ export type Database = {
   collectionsStatus: DatabaseOrCollectionStatus;
   collectionsLength: number;
   collections: Collection[];
-  isNonExistant: boolean;
+  isNonExistent: boolean;
 };
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
@@ -68,7 +68,7 @@ export type Collection = {
   type: 'view' | 'collection' | 'timeseries';
   sourceName: string | null;
   pipeline: unknown[];
-  isNonExistant: boolean;
+  isNonExistent: boolean;
 };
 
 export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
@@ -102,7 +102,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   connectionId: string;
   dbName: string;
   hasWriteActionsDisabled: boolean;
-  isNonExistant: boolean;
+  isNonExistent: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -113,7 +113,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   connectionId: string;
   namespace: string;
   hasWriteActionsDisabled: boolean;
-  isNonExistant: boolean;
+  isNonExistent: boolean;
 };
 
 export type SidebarActionableItem =
@@ -249,7 +249,7 @@ const databaseToItems = ({
     collections,
     collectionsLength,
     collectionsStatus,
-    isNonExistant,
+    isNonExistent,
   },
   connectionId,
   expandedItems = {},
@@ -282,7 +282,7 @@ const databaseToItems = ({
     dbName: id,
     isExpandable: true,
     hasWriteActionsDisabled,
-    isNonExistant,
+    isNonExistent,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -311,7 +311,7 @@ const databaseToItems = ({
 
   return sidebarData.concat(
     collections.map(
-      ({ _id: id, name, type, isNonExistant }, collectionIndex) => ({
+      ({ _id: id, name, type, isNonExistent }, collectionIndex) => ({
         id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
         level: level + 1,
         name,
@@ -323,7 +323,7 @@ const databaseToItems = ({
         namespace: id,
         hasWriteActionsDisabled,
         isExpandable: false,
-        isNonExistant,
+        isNonExistent,
       })
     )
   );

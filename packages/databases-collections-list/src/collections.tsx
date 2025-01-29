@@ -161,7 +161,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
-              isNonExistant={coll.is_non_existant}
+              isNonExistent={coll.is_non_existent}
               data={data}
               badges={badges}
               onItemClick={onItemClick}

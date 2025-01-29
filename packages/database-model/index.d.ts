@@ -16,7 +16,7 @@ interface DatabaseProps {
   index_size: number;
   collectionsLength: number;
   collections: CollectionCollection;
-  is_non_existant: boolean;
+  is_non_existent: boolean;
 }
 
 interface Database extends DatabaseProps {

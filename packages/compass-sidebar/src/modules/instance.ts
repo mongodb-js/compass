@@ -132,7 +132,7 @@ export const setupInstance =
         name: db.name,
         collectionsStatus: db.collectionsStatus,
         collectionsLength: db.collectionsLength,
-        isNonExistant: db.is_non_existant,
+        isNonExistent: db.is_non_existent,
       };
     }
 
@@ -143,7 +143,7 @@ export const setupInstance =
         type: coll.type,
         sourceName: coll.sourceName,
         pipeline: coll.pipeline,
-        isNonExistant: coll.is_non_existant,
+        isNonExistent: coll.is_non_existent,
       };
     }
 

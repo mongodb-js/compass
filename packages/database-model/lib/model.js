@@ -105,7 +105,7 @@ const DatabaseModel = AmpersandModel.extend(
       statusError: { type: 'string', default: null },
       collectionsStatus: { type: 'string', default: 'initial' },
       collectionsStatusError: { type: 'string', default: null },
-      is_non_existant: 'boolean',
+      is_non_existent: 'boolean',
       collection_count: 'number',
       document_count: 'number',
       storage_size: 'number',
@@ -236,7 +236,7 @@ const DatabaseCollection = AmpersandCollection.extend(
         roles: instanceModel.auth.roles
       });
 
-      this.set(dbs.map(({ _id, name, is_non_existant }) => ({ _id, name, is_non_existant })));
+      this.set(dbs.map(({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })));
     },
 
     toJSON(opts = { derived: true }) {

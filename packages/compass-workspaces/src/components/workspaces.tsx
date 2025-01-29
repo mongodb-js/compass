@@ -232,7 +232,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             getConnectionById(tab.connectionId)?.title || '';
           const database = tab.namespace;
           const namespaceId = `${tab.connectionId}.${database}`;
-          const { isNonExistant } = databaseInfo[namespaceId] ?? {};
+          const { isNonExistent } = databaseInfo[namespaceId] ?? {};
           return {
             id: tab.id,
             connectionName,
@@ -242,10 +242,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               ['Connection', connectionName || ''],
               ['Database', database],
             ] as Tooltip,
-            iconGlyph: isNonExistant ? 'EmptyDatabase' : 'Database',
+            iconGlyph: isNonExistent ? 'EmptyDatabase' : 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
-            ...(isNonExistant && {
+            ...(isNonExistent && {
               className: nonExistantStyles,
             }),
           } as const;
@@ -254,7 +254,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           const { database, collection, ns } = toNS(tab.namespace);
           const namespaceId = `${tab.connectionId}.${ns}`;
           const info = collectionInfo[namespaceId] ?? {};
-          const { isTimeSeries, isReadonly, sourceName, isNonExistant } = info;
+          const { isTimeSeries, isReadonly, sourceName, isNonExistent } = info;
           const connectionName =
             getConnectionById(tab.connectionId)?.title || '';
           const collectionType = isTimeSeries
@@ -287,12 +287,12 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 ? 'Visibility'
                 : collectionType === 'timeseries'
                 ? 'TimeSeries'
-                : isNonExistant
+                : isNonExistent
                 ? 'EmptyFolder'
                 : 'Folder',
             'data-namespace': ns,
             tabTheme: getThemeOf(tab.connectionId),
-            ...(isNonExistant && {
+            ...(isNonExistent && {
               className: nonExistantStyles,
             }),
           } as const;

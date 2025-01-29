@@ -13,12 +13,12 @@ function createDatabases(dbs: any[] = []) {
       collections: db.collections.toJSON(),
     };
   });
-  return data.map(({ is_non_existant, collections, ...rest }) => ({
+  return data.map(({ is_non_existent, collections, ...rest }) => ({
     ...rest,
-    isNonExistant: is_non_existant,
-    collections: collections.map(({ is_non_existant, ...coll }) => ({
+    isNonExistent: is_non_existent,
+    collections: collections.map(({ is_non_existent, ...coll }) => ({
       ...coll,
-      isNonExistant: is_non_existant,
+      isNonExistent: is_non_existent,
     })),
   }));
 }

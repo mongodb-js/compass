@@ -82,7 +82,7 @@ interface CollectionProps {
   sourceName: string | null;
   source: Collection;
   properties: { id: string; options?: Record<string, unknown> }[];
-  is_non_existant: boolean;
+  is_non_existent: boolean;
 }
 
 type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
