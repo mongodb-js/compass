@@ -209,7 +209,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       : false
     : boolean;
 
-  // selectableValues?: ReadonlyArray<AllPreferences[K]>;
+  selectableValues?: ReadonlyArray<{ value: string; label: string }>;
   validator: z.Schema<
     AllPreferences[K],
     z.ZodTypeDef,
@@ -559,6 +559,12 @@ export const storedUserPreferencesProps: Required<{
       short: 'Default Sort for Query Bar',
       long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
     },
+    selectableValues: [
+      { value: '', label: 'Default' },
+      { value: '{ $natural: -1 }', label: 'Natural Order recent first' },
+      { value: '{ _id: 1 }', label: 'ID Ascending' },
+      { value: '{ _id: -1 }', label: 'ID Descending' },
+    ],
     validator: z.enum(SORT_ORDER_VALUES).default(''),
     type: 'string',
   },

@@ -157,51 +157,51 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   );
 }
 
-function DropdownSetting<PreferenceName extends StringPreferences>({
-  name,
-  onChange,
-  selectableValues,
-  value,
-  disabled,
-}: {
-  name: PreferenceName;
-  onChange: HandleChange<PreferenceName>;
-  selectableValues: string[];
-  value: string | undefined;
-  disabled: boolean;
-}) {
-  const onChangeEvent = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      onChange(
-        name,
-        event.target.value as UserConfigurablePreferences[PreferenceName]
-      );
-    },
-    [name, onChange]
-  );
+// function DropdownSetting<PreferenceName extends StringPreferences>({
+//   name,
+//   onChange,
+//   selectableValues,
+//   value,
+//   disabled,
+// }: {
+//   name: PreferenceName;
+//   onChange: HandleChange<PreferenceName>;
+//   selectableValues: string[];
+//   value: string | undefined;
+//   disabled: boolean;
+// }) {
+//   const onChangeEvent = useCallback(
+//     (event: React.ChangeEvent<HTMLSelectElement>) => {
+//       onChange(
+//         name,
+//         event.target.value as UserConfigurablePreferences[PreferenceName]
+//       );
+//     },
+//     [name, onChange]
+//   );
 
-  return (
-    <>
-      <SettingLabel name={name} />
-      <select
-        className={inputStyles}
-        aria-labelledby={`${name}-label`}
-        id={name}
-        name={name}
-        data-testid={name}
-        value={value === undefined ? '' : `${value}`}
-        onChange={onChangeEvent}
-        disabled={disabled}
-      >
-        {selectableValues.map((valu, ie) => (
-          <option key={i} value={value}>
-            {value}
-          </option>
-        ))}
-      </select>
-    </>
-  );
-}
+//   return (
+//     <>
+//       <SettingLabel name={name} />
+//       <select
+//         className={inputStyles}
+//         aria-labelledby={`${name}-label`}
+//         id={name}
+//         name={name}
+//         data-testid={name}
+//         value={value === undefined ? '' : `${value}`}
+//         onChange={onChangeEvent}
+//         disabled={disabled}
+//       >
+//         {selectableValues.map((value) => (
+//           <option key={i} value={value}>
+//             {value}
+//           </option>
+//         ))}
+//       </select>
+//     </>
+//   );
+// }
 
 function StringSetting<PreferenceName extends StringPreferences>({
   name,
