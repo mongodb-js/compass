@@ -49,6 +49,10 @@ const nonExistantDarkStyles = css({
 const inactiveCardStyles = css({
   borderStyle: 'dashed',
   borderWidth: 2,
+  '&:hover': {
+    borderStyle: 'dashed',
+    borderWidth: 2,
+  },
 });
 
 const tooltipTriggerStyles = css({
