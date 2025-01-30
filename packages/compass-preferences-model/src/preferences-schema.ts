@@ -565,10 +565,11 @@ export const storedUserPreferencesProps: Required<{
       short: 'Default Sort for Query Bar',
       long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
       options: {
-        '': 'Default',
-        '{ $natural: -1 }': 'Natural Order recent first',
-        '{ _id: 1 }': 'ID Ascending',
-        '{ _id: -1 }': 'ID Descending',
+        '': 'None (equivalent to $natural: 1, in ascending natural order of documents)',
+        '{ $natural: -1 }':
+          '$natural: -1 (in descending natural order of documents)',
+        '{ _id: 1 }': '_id: 1 (in ascending order by creation)',
+        '{ _id: -1 }': '_id: -1 (in descending order by creation) ',
       },
     },
     validator: z.enum(SORT_ORDER_VALUES).default(''),
