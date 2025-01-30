@@ -1193,3 +1193,17 @@ export function getSettingDescription<
     type,
   };
 }
+
+export function getSettingSelectableValues<
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+>(
+  name: Name
+): Pick<PreferenceDefinition<Name>, 'selectableValues'> & { type: unknown } {
+  const { selectableValues, type } = allPreferencesProps[
+    name
+  ] as PreferenceDefinition<Name>;
+  return {
+    selectableValues,
+    type,
+  };
+}

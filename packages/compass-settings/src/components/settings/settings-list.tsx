@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import {
   getSettingDescription,
+  getSettingSelectableValues,
   featureFlags,
 } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
@@ -18,6 +19,7 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
@@ -170,6 +172,7 @@ function DropdownSetting<PreferenceName extends StringPreferences>({
   value: string | undefined;
   disabled: boolean;
 }) {
+  selectableValues = JSON.parse(JSON.stringify(selectableValues));
   const onChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       onChange(
@@ -301,7 +304,7 @@ function SettingsInput({
 
   const { name, type, onChange, value, selectableValues } = props;
 
-  console.log('will we match');
+  console.log('will we match, ', type);
   if (type === 'boolean') {
     input = (
       <BooleanSetting
@@ -312,7 +315,7 @@ function SettingsInput({
       />
     );
   } else if (type === 'string' && selectableValues) {
-    console.log('yay we matched');
+    console.log('yay we matched ', selectableValues);
     input = (
       <DropdownSetting
         name={name}
@@ -362,11 +365,9 @@ const ConnectedSettingsInput = connect(
     const { name } = ownProps;
     const { type } = getSettingDescription(name);
 
-    console.log('settings: ', settings);
-    console.log('preferenceStates: ', preferenceStates);
     return {
       value: settings[name],
-      selectableValues: preferenceStates[name]?.selectableValues,
+      selectableValues: getSettingSelectableValues(name).selectableValues,
       type: type,
       disabled: !!preferenceStates[name],
       stateLabel: settingStateLabels[preferenceStates[name] ?? ''],
