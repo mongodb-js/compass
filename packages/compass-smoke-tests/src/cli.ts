@@ -109,12 +109,12 @@ const argv = yargs(hideBin(process.argv))
     default: false,
   })
   .option('tests', {
-    type: 'string',
+    type: 'array',
+    string: true,
     choices: SUPPORTED_TESTS,
     description: 'Which tests to run',
   })
-  .array('tests')
-  .default('tests', []);
+  .default('tests', SUPPORTED_TESTS.slice());
 
 type TestSubject = PackageDetails & {
   filepath: string;
