@@ -674,7 +674,7 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com
+          npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com --engine-strict=false
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             # TODO: windows_setup
