@@ -19,7 +19,6 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
@@ -304,7 +303,6 @@ function SettingsInput({
 
   const { name, type, onChange, value, selectableValues } = props;
 
-  console.log('will we match, ', type);
   if (type === 'boolean') {
     input = (
       <BooleanSetting
@@ -315,7 +313,6 @@ function SettingsInput({
       />
     );
   } else if (type === 'string' && selectableValues) {
-    console.log('yay we matched ', selectableValues);
     input = (
       <DropdownSetting
         name={name}
