@@ -200,7 +200,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
         short: string;
         long?: string;
         options?: AllPreferences[K] extends string
-          ? { [k in AllPreferences[K]]: string }
+          ? { [k in AllPreferences[K]]: { label: string; description: string } }
           : never;
       };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
@@ -565,11 +565,22 @@ export const storedUserPreferencesProps: Required<{
       short: 'Default Sort for Query Bar',
       long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
       options: {
-        '': 'None (equivalent to $natural: 1, in ascending natural order of documents)',
-        '{ $natural: -1 }':
-          '$natural: -1 (in descending natural order of documents)',
-        '{ _id: 1 }': '_id: 1 (in ascending order by creation)',
-        '{ _id: -1 }': '_id: -1 (in descending order by creation) ',
+        '': {
+          label: '$natural: 1 (MongoDB server default)',
+          description: 'in natural order of documents',
+        },
+        '{ $natural: -1 }': {
+          label: '$natural: -1',
+          description: 'in reverse natural order of documents',
+        },
+        '{ _id: 1 }': {
+          label: '_id: 1',
+          description: 'in ascending order by id',
+        },
+        '{ _id: -1 }': {
+          label: '_id: -1',
+          description: 'in descending order by id',
+        },
       },
     },
     validator: z.enum(SORT_ORDER_VALUES).default(''),

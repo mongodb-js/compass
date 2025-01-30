@@ -194,8 +194,14 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
         disabled={disabled}
       >
         {SORT_ORDER_VALUES.map((option) => (
-          <Option key={option} value={option}>
-            {(optionDescriptions && optionDescriptions[option]) || value}
+          <Option
+            key={option}
+            value={option}
+            description={
+              optionDescriptions && optionDescriptions[option].description
+            }
+          >
+            {optionDescriptions && optionDescriptions[option].label}
           </Option>
         ))}
       </Select>
