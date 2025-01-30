@@ -2,13 +2,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { once } from 'node:events';
 
-import crossSpawn from 'cross-spawn';
-import kill from 'tree-kill';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
-import { execute } from './execute';
+import { execute, executeAsync } from './execute';
 import {
   type PackageDetails,
   readPackageDetails,
@@ -226,7 +225,7 @@ async function run() {
           });
         }
         if (testName === 'auto-update-from') {
-          runUpdateTest({
+          await runUpdateTest({
             appName,
             appPath,
             autoUpdatable,
@@ -247,45 +246,22 @@ async function run() {
   }
 }
 
-type AutoUpdateServerOptions = {
-  port: number;
-  allowDowngrades?: boolean;
-};
-
-function startAutoUpdateServer({
-  port,
-  allowDowngrades,
-}: AutoUpdateServerOptions) {
-  const env: Record<string, string> = {
-    ...process.env,
-    PORT: port.toString(),
-  };
-  if (allowDowngrades) {
-    env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
+async function importUpdateServer() {
+  try {
+    return (await import('compass-mongodb-com')).default;
+  } catch (err: unknown) {
+    console.log('Remember to npm link compass-mongodb-com');
+    throw err;
   }
+}
 
-  // a git repo that is not published to npm that evergreen clones for us in CI
-  // next to the Compass code
-  const cwd = path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
-    'compass-mongodb-com'
-  );
+async function startAutoUpdateServer() {
+  console.log('Starting auto-update server');
+  const { httpServer, updateChecker, start } = (await importUpdateServer())();
+  start();
+  await once(updateChecker, 'refreshed');
 
-  if (!fs.existsSync(cwd)) {
-    throw new Error(`compass-mongodb-com does not exist: ${cwd}`);
-  }
-
-  console.log('Starting auto-update server', cwd);
-  return crossSpawn.spawn('npm', ['run', 'start'], {
-    env,
-    cwd,
-    stdio: 'inherit',
-    shell: true,
-  });
+  return httpServer;
 }
 
 type RunE2ETestOptions = {
@@ -324,18 +300,26 @@ type RunUpdateTestOptions = {
   testName: string;
 };
 
-function runUpdateTest({
+async function runUpdateTest({
   appName,
   appPath,
   autoUpdatable,
   testName,
 }: RunUpdateTestOptions) {
-  const server = startAutoUpdateServer({
-    allowDowngrades: true,
-    port: 8080,
-  });
+  process.env.PORT = '0'; // dynamic port
+  process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
+
+  const server = await startAutoUpdateServer();
+
+  const address = server.address();
+  assert(typeof address === 'object' && address !== null);
+  const port = address.port;
+  const HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${port}`;
+  console.log({ HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE });
+
   try {
-    execute(
+    // must be async because the update server is running in the same process
+    await executeAsync(
       'npm',
       [
         'run',
@@ -351,7 +335,7 @@ function runUpdateTest({
         shell: true,
         env: {
           ...process.env,
-          HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE: 'http://localhost:8080',
+          HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
           AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
           TEST_NAME: testName,
           COMPASS_APP_NAME: appName,
@@ -360,12 +344,9 @@ function runUpdateTest({
       }
     );
   } finally {
-    if (server.pid) {
-      console.log('Stopping auto-update server');
-      kill(server.pid, 'SIGINT');
-    } else {
-      console.log('cannnot stop auto-update server because no pid');
-    }
+    console.log('Stopping auto-update server');
+    server.close();
+    delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
   }
 }
 

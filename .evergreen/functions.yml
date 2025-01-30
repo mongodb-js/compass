@@ -677,6 +677,9 @@ functions:
           echo "Using g++ version:"
           g++ --version;
           npm ci --engine-strict=false
+          npm link --engine-strict=false
+          cd ../compass
+          npm link compass-mongodb-com --engine-strict=false
 
   smoketest-packaged-app:
     - command: shell.exec

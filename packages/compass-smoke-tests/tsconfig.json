@@ -3,7 +3,11 @@
   "compilerOptions": {
     "noEmit": true,
     "types": ["node"],
-    "lib": ["ES2021"]
+    "lib": ["ES2021"],
+    "module": "NodeNext",
+    "paths": {
+      "compass-mongodb-com": ["./src/compass-mongodb-com.d.ts"]
+    }
   },
   "include": ["src/**/*"]
 }
