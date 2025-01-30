@@ -5,7 +5,7 @@ const generalFields = [
   'readOnly',
   'enableShell',
   'protectConnectionStrings',
-  'showRecentDocumentsFirst',
+  'defaultSortOrder',
   'showKerberosPasswordField',
   'maxTimeMS',
   'enableDevTools',
