@@ -2,12 +2,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { once } from 'node:events';
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
-import { execute, executeAsync } from './execute';
 import {
   type PackageDetails,
   readPackageDetails,
@@ -16,6 +14,8 @@ import {
 import { createSandbox } from './directories';
 import { downloadFile } from './downloads';
 import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
+import { getLatestRelease } from './releases';
+import { SUPPORTED_TESTS } from './tests/types';
 import { type SmokeTestsContext } from './context';
 
 import { installMacDMG } from './installers/mac-dmg';
@@ -23,10 +23,12 @@ import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
 import { installWindowsMSI } from './installers/windows-msi';
 
+import { testTimeToFirstQuery } from './tests/time-to-first-query';
+import { testAutoUpdateFrom } from './tests/auto-update-from';
+import { testAutoUpdateTo } from './tests/auto-update-to';
+
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
-
-const SUPPORTED_TESTS = ['time-to-first-query', 'auto-update-from'] as const;
 
 function isSupportedPlatform(
   value: unknown
@@ -198,9 +200,13 @@ async function run() {
     ])
   );
 
-  const { kind, appName, filepath, autoUpdatable } = await getTestSubject(
-    context
-  );
+  const {
+    kind,
+    appName,
+    filepath,
+    buildInfo: { channel, version },
+    autoUpdatable,
+  } = await getTestSubject(context);
   const install = getInstaller(kind);
 
   try {
@@ -209,9 +215,19 @@ async function run() {
     }
 
     for (const testName of context.tests) {
+      const installerPath =
+        testName === 'auto-update-to'
+          ? await getLatestRelease(
+              channel,
+              context.arch,
+              kind,
+              context.forceDownload
+            )
+          : filepath;
+
       const { appPath, uninstall } = install({
         appName,
-        filepath,
+        filepath: installerPath,
         destinationPath: context.sandboxPath,
       });
 
@@ -219,17 +235,31 @@ async function run() {
         if (testName === 'time-to-first-query') {
           // Auto-update does not work on mac in CI at the moment. So in that case
           // we just run the E2E tests to make sure the app at least starts up.
-          runTimeToFirstQuery({
+          testTimeToFirstQuery({
             appName,
             appPath,
           });
         }
         if (testName === 'auto-update-from') {
-          await runUpdateTest({
+          await testAutoUpdateFrom({
             appName,
             appPath,
             autoUpdatable,
-            testName,
+          });
+        }
+        if (testName === 'auto-update-to') {
+          assert(
+            context.bucketKeyPrefix !== undefined,
+            'Bucket key prefix is needed to download'
+          );
+
+          await testAutoUpdateTo({
+            appName,
+            appPath,
+            autoUpdatable,
+            channel,
+            bucketKeyPrefix: context.bucketKeyPrefix,
+            version,
           });
         }
       } finally {
@@ -243,110 +273,6 @@ async function run() {
       console.log(`Cleaning up sandbox: ${context.sandboxPath}`);
       fs.rmSync(context.sandboxPath, { recursive: true });
     }
-  }
-}
-
-async function importUpdateServer() {
-  try {
-    return (await import('compass-mongodb-com')).default;
-  } catch (err: unknown) {
-    console.log('Remember to npm link compass-mongodb-com');
-    throw err;
-  }
-}
-
-async function startAutoUpdateServer() {
-  console.log('Starting auto-update server');
-  const { httpServer, updateChecker, start } = (await importUpdateServer())();
-  start();
-  await once(updateChecker, 'refreshed');
-
-  return httpServer;
-}
-
-type RunE2ETestOptions = {
-  appName: string;
-  appPath: string;
-};
-
-function runTimeToFirstQuery({ appName, appPath }: RunE2ETestOptions) {
-  execute(
-    'npm',
-    [
-      'run',
-      '--unsafe-perm',
-      'test-packaged',
-      '--workspace',
-      'compass-e2e-tests',
-      '--',
-      '--test-filter=time-to-first-query',
-    ],
-    {
-      // We need to use a shell to get environment variables setup correctly
-      shell: true,
-      env: {
-        ...process.env,
-        COMPASS_APP_NAME: appName,
-        COMPASS_APP_PATH: appPath,
-      },
-    }
-  );
-}
-
-type RunUpdateTestOptions = {
-  appName: string;
-  appPath: string;
-  autoUpdatable?: boolean;
-  testName: string;
-};
-
-async function runUpdateTest({
-  appName,
-  appPath,
-  autoUpdatable,
-  testName,
-}: RunUpdateTestOptions) {
-  process.env.PORT = '0'; // dynamic port
-  process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
-
-  const server = await startAutoUpdateServer();
-
-  const address = server.address();
-  assert(typeof address === 'object' && address !== null);
-  const port = address.port;
-  const HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${port}`;
-  console.log({ HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE });
-
-  try {
-    // must be async because the update server is running in the same process
-    await executeAsync(
-      'npm',
-      [
-        'run',
-        '--unsafe-perm',
-        'test-packaged',
-        '--workspace',
-        'compass-e2e-tests',
-        '--',
-        '--test-filter=auto-update',
-      ],
-      {
-        // We need to use a shell to get environment variables setup correctly
-        shell: true,
-        env: {
-          ...process.env,
-          HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
-          AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
-          TEST_NAME: testName,
-          COMPASS_APP_NAME: appName,
-          COMPASS_APP_PATH: appPath,
-        },
-      }
-    );
-  } finally {
-    console.log('Stopping auto-update server');
-    server.close();
-    delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
   }
 }
 

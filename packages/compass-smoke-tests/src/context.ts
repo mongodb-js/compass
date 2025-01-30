@@ -1,4 +1,5 @@
 import { type PackageKind } from './packages';
+import { type TestName } from './tests/types';
 
 export type SmokeTestsContext = {
   bucketName?: string;
@@ -9,6 +10,6 @@ export type SmokeTestsContext = {
   forceDownload?: boolean;
   localPackage?: boolean;
   sandboxPath: string;
-  tests: string[];
+  tests: TestName[];
   skipCleanup: boolean;
 };
