@@ -209,7 +209,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       : false
     : boolean;
 
-  selectableValues?: ReadonlyArray<AllPreferences[K]>;
+  // selectableValues?: ReadonlyArray<AllPreferences[K]>;
   validator: z.Schema<
     AllPreferences[K],
     z.ZodTypeDef,

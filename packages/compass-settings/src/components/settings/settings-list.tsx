@@ -298,7 +298,7 @@ function SettingsInput({
 
   let input = null;
 
-  const { name, type, onChange, value, selectableValues } = props;
+  const { name, type, onChange, value /* selectableValues */ } = props;
 
   if (type === 'boolean') {
     input = (
@@ -309,16 +309,16 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-  } else if (type === 'string' && selectableValues) {
-    input = (
-      <DropdownSetting
-        name={name}
-        selectableValues={selectableValues}
-        onChange={onChange}
-        value={value as string}
-        disabled={!!disabled}
-      />
-    );
+    // } else if (type === 'string' && selectableValues) {
+    //   input = (
+    //     <DropdownSetting
+    //       name={name}
+    //       selectableValues={selectableValues}
+    //       onChange={onChange}
+    //       value={value as string}
+    //       disabled={!!disabled}
+    //     />
+    //   );
   } else if (type === 'number') {
     input = (
       <NumericSetting
