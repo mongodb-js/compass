@@ -3,6 +3,11 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -27,28 +32,39 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
 
 const testErrorMessage =
   'An error occurred during schema analysis: test error msg';
-
-const renderSchemaToolbar = (
-  props: Partial<ComponentProps<typeof SchemaToolbar>> = {}
-) => {
-  const queryBarProps = {};
-  render(
-    <MockQueryBarPlugin {...(queryBarProps as any)}>
-      <SchemaToolbar
-        analysisState="complete"
-        errorMessage={''}
-        isOutdated={false}
-        onAnalyzeSchemaClicked={() => {}}
-        onResetClicked={() => {}}
-        sampleSize={10}
-        schemaResultId="123"
-        {...props}
-      />
-    </MockQueryBarPlugin>
-  );
-};
+const exportSchemaTestId = 'open-schema-export-button';
 
 describe('SchemaToolbar', function () {
+  let defaultPreferences: PreferencesAccess;
+
+  before(async function () {
+    defaultPreferences = await createSandboxFromDefaultPreferences();
+  });
+
+  const renderSchemaToolbar = (
+    props: Partial<ComponentProps<typeof SchemaToolbar>> = {},
+    preferences: PreferencesAccess = defaultPreferences
+  ) => {
+    const queryBarProps = {};
+    render(
+      <PreferencesProvider value={preferences}>
+        <MockQueryBarPlugin {...(queryBarProps as any)}>
+          <SchemaToolbar
+            analysisState="complete"
+            errorMessage={''}
+            isOutdated={false}
+            onAnalyzeSchemaClicked={() => {}}
+            onResetClicked={() => {}}
+            sampleSize={10}
+            schemaResultId="123"
+            onExportSchemaClicked={() => {}}
+            {...props}
+          />
+        </MockQueryBarPlugin>
+      </PreferencesProvider>
+    );
+  };
+
   afterEach(function () {
     sinon.restore();
   });
@@ -97,5 +113,34 @@ describe('SchemaToolbar', function () {
   it('renders the query bar role', function () {
     renderSchemaToolbar();
     expect(screen.getByTestId('query-bar')).to.be.visible;
+  });
+
+  it('does not render the export schema button', function () {
+    renderSchemaToolbar({
+      sampleSize: 100,
+    });
+    expect(screen.getByText(/documents/)).to.be.visible;
+
+    expect(screen.queryByTestId(exportSchemaTestId)).to.not.exist;
+  });
+
+  describe('when rendered with the enableExportSchema feature flag true', function () {
+    beforeEach(async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableExportSchema: true,
+      });
+
+      renderSchemaToolbar(
+        {
+          sampleSize: 100,
+        },
+        preferences
+      );
+    });
+
+    it('renders the export schema button', function () {
+      expect(screen.getByTestId(exportSchemaTestId)).to.be.visible;
+    });
   });
 });

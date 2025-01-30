@@ -1,12 +1,15 @@
 import React, { useMemo } from 'react';
 import {
   Body,
+  Button,
   ErrorSummary,
+  Icon,
   Link,
   WarningSummary,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { AnalysisState } from '../../constants/analysis-states';
 import {
   ANALYSIS_STATE_ERROR,
@@ -60,6 +63,7 @@ type SchemaToolbarProps = {
   errorMessage: string;
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
+  onExportSchemaClicked: () => void;
   onResetClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
@@ -70,6 +74,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   errorMessage,
   isOutdated,
   onAnalyzeSchemaClicked,
+  onExportSchemaClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
@@ -78,6 +83,8 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
     () => (sampleSize === 1 ? 'document' : 'documents'),
     [sampleSize]
   );
+
+  const enableExportSchema = usePreference('enableExportSchema');
 
   return (
     <div className={schemaToolbarStyles}>
@@ -92,6 +99,19 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       </div>
       {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
         <div className={schemaToolbarActionBarStyles}>
+          {enableExportSchema && ANALYSIS_STATE_COMPLETE && (
+            <div>
+              <Button
+                variant="default"
+                onClick={onExportSchemaClicked}
+                data-testid="open-schema-export-button"
+                size="xsmall"
+                leftGlyph={<Icon glyph="Export" />}
+              >
+                Export Schema
+              </Button>
+            </div>
+          )}
           <div
             className={schemaToolbarActionBarRightStyles}
             data-testid="schema-document-count"

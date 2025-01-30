@@ -8,8 +8,9 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { startAnalysis, stopAnalysis } from './reducer';
+import { startAnalysis, stopAnalysis } from './schema-analysis-reducer';
 import Sinon from 'sinon';
+import { changeExportSchemaFormat } from './schema-export-reducer';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();
@@ -74,24 +75,26 @@ describe('Schema Store', function () {
     });
 
     it('defaults analysis state to initial', function () {
-      expect(store.getState().analysisState).to.equal(ANALYSIS_STATE_INITIAL);
+      expect(store.getState().schemaAnalysis.analysisState).to.equal(
+        ANALYSIS_STATE_INITIAL
+      );
     });
 
     it('defaults the error to empty', function () {
-      expect(store.getState().errorMessage).to.equal('');
+      expect(store.getState().schemaAnalysis.errorMessage).to.equal('');
     });
 
     it('defaults the schema to null', function () {
-      expect(store.getState().schema).to.equal(null);
+      expect(store.getState().schemaAnalysis.schema).to.equal(null);
     });
 
     it('runs analysis', async function () {
-      const oldResultId = store.getState().resultId;
+      const oldResultId = store.getState().schemaAnalysis.resultId;
       sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
       await store.dispatch(startAnalysis());
       expect(sampleStub).to.have.been.called;
       const { analysisState, errorMessage, schema, resultId } =
-        store.getState();
+        store.getState().schemaAnalysis;
       expect(analysisState).to.equal('complete');
       expect(!!errorMessage).to.be.false;
       expect(schema).not.to.be.null;
@@ -100,12 +103,54 @@ describe('Schema Store', function () {
 
     it('analysis can be aborted', async function () {
       const analysisPromise = store.dispatch(startAnalysis());
-      expect(store.getState().analysisState).to.equal('analyzing');
+      expect(store.getState().schemaAnalysis.analysisState).to.equal(
+        'analyzing'
+      );
       sampleStub.rejects(new Error('abort'));
       store.dispatch(stopAnalysis());
       isCancelErrorStub.returns(true);
       await analysisPromise;
-      expect(store.getState().analysisState).to.equal('initial');
+      expect(store.getState().schemaAnalysis.analysisState).to.equal('initial');
+    });
+
+    describe('schema export', function () {
+      describe('with an analyzed schema', function () {
+        beforeEach(async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          await store.dispatch(startAnalysis());
+        });
+
+        it('runs schema export formatting with the analyzed schema', async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          await store.dispatch(changeExportSchemaFormat('standardJSON'));
+          expect(sampleStub).to.have.been.called;
+          const { exportStatus, errorMessage, exportedSchema } =
+            store.getState().schemaExport;
+          expect(exportStatus).to.equal('complete');
+          expect(!!errorMessage).to.be.false;
+          expect(exportedSchema).not.to.be.undefined;
+          const expectedExportedSchema =
+            '{"count":2,"fields":[{"name":"name","path":["name"],"count":2,"type":"String","probability":1,"hasDuplicates":false,"types":[{"name":"String","path":["name"],"count":2,"probability":1,"unique":2,"hasDuplicates":false,"values":["Hans","Greta"],"bsonType":"String"}]}]}';
+          expect(exportedSchema).to.equal(expectedExportedSchema);
+        });
+
+        it('can cancel a schema formatting in progress', async function () {
+          // TODO: Pass in new schema format with mocked formatters to test.
+          const analysisPromise = store.dispatch(
+            changeExportSchemaFormat('standardJSON')
+          );
+          expect(store.getState().schemaAnalysis.analysisState).to.equal(
+            'analyzing'
+          );
+          sampleStub.rejects(new Error('abort'));
+          store.dispatch(stopAnalysis());
+          isCancelErrorStub.returns(true);
+          await analysisPromise;
+          expect(store.getState().schemaAnalysis.analysisState).to.equal(
+            'initial'
+          );
+        });
+      });
     });
   });
 });
