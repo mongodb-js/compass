@@ -1,6 +1,8 @@
 import path from 'node:path';
-import fs from 'node:fs';
-
+import {
+  assertFileNotQuarantined,
+  removeApplicationSupportForApp,
+} from './mac-utils';
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 
@@ -14,27 +16,9 @@ export function installMacZIP({
 
   execute('ditto', ['-xk', filepath, destinationPath]);
 
-  // TODO: Consider instrumenting the app to use a settings directory in the sandbox
-  // TODO: Move this somewhere shared between mac installers
-  if (process.env.HOME) {
-    const settingsDir = path.resolve(
-      process.env.HOME,
-      'Library',
-      'Application Support',
-      appName
-    );
+  removeApplicationSupportForApp(appName);
 
-    if (fs.existsSync(settingsDir)) {
-      console.log(`${settingsDir} already exists. Removing.`);
-      fs.rmSync(settingsDir, { recursive: true });
-    }
-  }
-
-  execute('xattr', ['-dr', 'com.apple.quarantine', appPath]);
-
-  // see if the executable will run without being quarantined or similar
-  // TODO: Move this somewhere shared between mac installers
-  execute(path.resolve(appPath, 'Contents/MacOS', appName), ['--version']);
+  assertFileNotQuarantined(appPath);
 
   return {
     appPath: appPath,
