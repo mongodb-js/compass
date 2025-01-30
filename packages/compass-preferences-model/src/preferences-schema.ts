@@ -559,7 +559,6 @@ export const storedUserPreferencesProps: Required<{
       short: 'Default Sort for Query Bar',
       long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
     },
-    selectableValues: SORT_ORDER_VALUES,
     validator: z.enum(SORT_ORDER_VALUES).default(''),
     type: 'string',
   },

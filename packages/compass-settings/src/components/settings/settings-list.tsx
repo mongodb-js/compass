@@ -252,7 +252,6 @@ function StringSetting<PreferenceName extends StringPreferences>({
 type AnySetting = {
   name: string;
   type: unknown;
-  selectableValues?: unknown[];
   value?: unknown;
   onChange(field: string, value: unknown): void;
 };
