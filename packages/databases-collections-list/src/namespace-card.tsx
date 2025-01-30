@@ -312,8 +312,8 @@ export const NamespaceItemCard: React.FunctionComponent<
               </div>
             }
           >
-            You have privileges to this namespace, but it is not in your list of
-            current namespaces
+            Your privileges grant you access to this namespace, but it does not
+            currently exist
           </Tooltip>
         )}
 

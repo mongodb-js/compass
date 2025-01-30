@@ -6,7 +6,7 @@ import { WithStatusMarker } from './with-status-marker';
 import { isLocalhost } from 'mongodb-build-info';
 
 const NON_EXISTANT_NAMESPACE_TEXT =
-  'You have privileges to this namespace, but it is not in your list of current namespaces';
+  'Your privileges grant you access to this namespace, but it does not currently exist';
 
 const tooltipTriggerStyles = css({
   display: 'flex',
