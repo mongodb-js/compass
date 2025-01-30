@@ -495,7 +495,6 @@ tasks:
       - func: bootstrap
         vars:
           scope: compass-e2e-tests
-      - func: get-update-server
       - func: smoketest-packaged-app
         vars:
           mongodb_version: latest-enterprise

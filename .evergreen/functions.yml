@@ -648,7 +648,7 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
-  get-update-server:
+  smoketest-packaged-app:
     - command: github.generate_token
       params:
         owner: 10gen
@@ -656,32 +656,6 @@ functions:
         expansion_name: generated_token
         permissions:  # optional
           contents: read
-    - command: shell.exec
-      type: setup
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-        script: |
-          set -e
-          eval $(.evergreen/print-compass-env.sh)
-          git clone https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com.git ../compass-mongodb-com
-          cd ../compass-mongodb-com
-          echo "Using node version:";
-          node -v;
-          echo "Using npm version:";
-          npm -v;
-          echo "Using gcc version:"
-          gcc --version;
-          echo "Using g++ version:"
-          g++ --version;
-          npm ci --engine-strict=false
-          npm link --engine-strict=false
-          cd ../src
-          npm link compass-mongodb-com --engine-strict=false
-
-  smoketest-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
@@ -699,6 +673,8 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             # TODO: windows_setup
