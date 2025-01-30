@@ -157,51 +157,51 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   );
 }
 
-// function DropdownSetting<PreferenceName extends StringPreferences>({
-//   name,
-//   onChange,
-//   selectableValues,
-//   value,
-//   disabled,
-// }: {
-//   name: PreferenceName;
-//   onChange: HandleChange<PreferenceName>;
-//   selectableValues: string[];
-//   value: string | undefined;
-//   disabled: boolean;
-// }) {
-//   const onChangeEvent = useCallback(
-//     (event: React.ChangeEvent<HTMLSelectElement>) => {
-//       onChange(
-//         name,
-//         event.target.value as UserConfigurablePreferences[PreferenceName]
-//       );
-//     },
-//     [name, onChange]
-//   );
+function DropdownSetting<PreferenceName extends StringPreferences>({
+  name,
+  onChange,
+  selectableValues,
+  value,
+  disabled,
+}: {
+  name: PreferenceName;
+  onChange: HandleChange<PreferenceName>;
+  selectableValues: ReadonlyArray<{ label: string; value: string }>;
+  value: string | undefined;
+  disabled: boolean;
+}) {
+  const onChangeEvent = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      onChange(
+        name,
+        event.target.value as UserConfigurablePreferences[PreferenceName]
+      );
+    },
+    [name, onChange]
+  );
 
-//   return (
-//     <>
-//       <SettingLabel name={name} />
-//       <select
-//         className={inputStyles}
-//         aria-labelledby={`${name}-label`}
-//         id={name}
-//         name={name}
-//         data-testid={name}
-//         value={value === undefined ? '' : `${value}`}
-//         onChange={onChangeEvent}
-//         disabled={disabled}
-//       >
-//         {selectableValues.map((value) => (
-//           <option key={i} value={value}>
-//             {value}
-//           </option>
-//         ))}
-//       </select>
-//     </>
-//   );
-// }
+  return (
+    <>
+      <SettingLabel name={name} />
+      <select
+        className={inputStyles}
+        aria-labelledby={`${name}-label`}
+        id={name}
+        name={name}
+        data-testid={name}
+        value={value === undefined ? '' : `${value}`}
+        onChange={onChangeEvent}
+        disabled={disabled}
+      >
+        {selectableValues.map(({ label, value }, i) => (
+          <option key={i} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </>
+  );
+}
 
 function StringSetting<PreferenceName extends StringPreferences>({
   name,
@@ -253,6 +253,7 @@ type AnySetting = {
   name: string;
   type: unknown;
   value?: unknown;
+  selectableValues?: ReadonlyArray<{ label: string; value: string }>;
   onChange(field: string, value: unknown): void;
 };
 
@@ -298,8 +299,9 @@ function SettingsInput({
 
   let input = null;
 
-  const { name, type, onChange, value /* selectableValues */ } = props;
+  const { name, type, onChange, value, selectableValues } = props;
 
+  console.log('will we match');
   if (type === 'boolean') {
     input = (
       <BooleanSetting
@@ -309,16 +311,17 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-    // } else if (type === 'string' && selectableValues) {
-    //   input = (
-    //     <DropdownSetting
-    //       name={name}
-    //       selectableValues={selectableValues}
-    //       onChange={onChange}
-    //       value={value as string}
-    //       disabled={!!disabled}
-    //     />
-    //   );
+  } else if (type === 'string' && selectableValues) {
+    console.log('yay we matched');
+    input = (
+      <DropdownSetting
+        name={name}
+        selectableValues={selectableValues}
+        onChange={onChange}
+        value={value as string}
+        disabled={!!disabled}
+      />
+    );
   } else if (type === 'number') {
     input = (
       <NumericSetting
@@ -359,8 +362,11 @@ const ConnectedSettingsInput = connect(
     const { name } = ownProps;
     const { type } = getSettingDescription(name);
 
+    console.log('settings: ', settings);
+    console.log('preferenceStates: ', preferenceStates);
     return {
       value: settings[name],
+      selectableValues: preferenceStates[name]?.selectableValues,
       type: type,
       disabled: !!preferenceStates[name],
       stateLabel: settingStateLabels[preferenceStates[name] ?? ''],
