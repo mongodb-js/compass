@@ -31,7 +31,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 const cardTitleGroup = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const CardTitleGroup: React.FunctionComponent = ({ children }) => {
@@ -48,10 +48,10 @@ const nonExistantDarkStyles = css({
 
 const inactiveCardStyles = css({
   borderStyle: 'dashed',
-  borderWidth: 2,
+  borderWidth: spacing[50],
   '&:hover': {
     borderStyle: 'dashed',
-    borderWidth: 2,
+    borderWidth: spacing[50],
   },
 });
 
@@ -113,7 +113,7 @@ const cardActionContainer = css({
 
 const cardBadges = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   // Preserving space for when cards with and without badges are mixed in a
   // single row
   minHeight: 20,
@@ -124,7 +124,7 @@ const CardBadges: React.FunctionComponent = ({ children }) => {
 };
 
 const cardBadge = css({
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const cardBadgeLabel = css({});
@@ -171,7 +171,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
 };
 
 const card = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 export type DataProp = {
@@ -196,8 +196,8 @@ export type NamespaceItemCardProps = {
 
 const namespaceDataGroup = css({
   display: 'flex',
-  gap: spacing[2],
-  marginTop: spacing[3],
+  gap: spacing[200],
+  marginTop: spacing[400],
 });
 
 const column = css({
