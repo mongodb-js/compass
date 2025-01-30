@@ -21,7 +21,7 @@ export const SORT_ORDER_VALUES = [
   '',
   '{ $natural: -1 }',
   '{ _id: 1 }',
-  '{_id: -1 }',
+  '{ _id: -1 }',
 ] as const;
 export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
 
@@ -196,7 +196,13 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** A description used for the --help text and the Settings UI */
   description: K extends keyof InternalUserPreferences
     ? null
-    : { short: string; long?: string };
+    : {
+        short: string;
+        long?: string;
+        options?: AllPreferences[K] extends string
+          ? { [k in AllPreferences[K]]: string }
+          : never;
+      };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
@@ -558,13 +564,13 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Default Sort for Query Bar',
       long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
+      options: {
+        '': 'Default',
+        '{ $natural: -1 }': 'Natural Order recent first',
+        '{ _id: 1 }': 'ID Ascending',
+        '{ _id: -1 }': 'ID Descending',
+      },
     },
-    selectableValues: [
-      { value: '', label: 'Default' },
-      { value: '{ $natural: -1 }', label: 'Natural Order recent first' },
-      { value: '{ _id: 1 }', label: 'ID Ascending' },
-      { value: '{ _id: -1 }', label: 'ID Descending' },
-    ],
     validator: z.enum(SORT_ORDER_VALUES).default(''),
     type: 'string',
   },

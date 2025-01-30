@@ -13,6 +13,7 @@ export { featureFlags } from './feature-flags';
 export {
   getSettingDescription,
   getSettingSelectableValues,
+  SORT_ORDER_VALUES,
 } from './preferences-schema';
-export type { AllPreferences } from './preferences-schema';
+export type { AllPreferences, SORT_ORDERS } from './preferences-schema';
 export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';

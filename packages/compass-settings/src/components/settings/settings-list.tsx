@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import {
   getSettingDescription,
-  getSettingSelectableValues,
   featureFlags,
 } from 'compass-preferences-model/provider';
+import { SORT_ORDER_VALUES } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,
@@ -158,20 +158,18 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   );
 }
 
-function DropdownSetting<PreferenceName extends StringPreferences>({
+function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
   name,
   onChange,
-  selectableValues,
   value,
   disabled,
 }: {
   name: PreferenceName;
   onChange: HandleChange<PreferenceName>;
-  selectableValues: ReadonlyArray<{ label: string; value: string }>;
   value: string | undefined;
   disabled: boolean;
 }) {
-  selectableValues = JSON.parse(JSON.stringify(selectableValues));
+  const optionDescriptions = getSettingDescription(name).description.options;
   const onChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       onChange(
@@ -195,9 +193,9 @@ function DropdownSetting<PreferenceName extends StringPreferences>({
         onChange={onChangeEvent}
         disabled={disabled}
       >
-        {selectableValues.map(({ label, value }, i) => (
-          <option key={i} value={value}>
-            {label}
+        {SORT_ORDER_VALUES.map((option, i) => (
+          <option key={i} value={option}>
+            {(optionDescriptions && optionDescriptions[option]) || value}
           </option>
         ))}
       </select>
@@ -255,7 +253,6 @@ type AnySetting = {
   name: string;
   type: unknown;
   value?: unknown;
-  selectableValues?: ReadonlyArray<{ label: string; value: string }>;
   onChange(field: string, value: unknown): void;
 };
 
@@ -301,7 +298,7 @@ function SettingsInput({
 
   let input = null;
 
-  const { name, type, onChange, value, selectableValues } = props;
+  const { name, type, onChange, value } = props;
 
   if (type === 'boolean') {
     input = (
@@ -312,11 +309,10 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-  } else if (type === 'string' && selectableValues) {
+  } else if (type === 'string' && name === 'defaultSortOrder') {
     input = (
-      <DropdownSetting
+      <DefaultSortOrderSetting
         name={name}
-        selectableValues={selectableValues}
         onChange={onChange}
         value={value as string}
         disabled={!!disabled}
@@ -364,7 +360,6 @@ const ConnectedSettingsInput = connect(
 
     return {
       value: settings[name],
-      selectableValues: getSettingSelectableValues(name).selectableValues,
       type: type,
       disabled: !!preferenceStates[name],
       stateLabel: settingStateLabels[preferenceStates[name] ?? ''],
