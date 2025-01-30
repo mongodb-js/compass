@@ -13,6 +13,8 @@ import {
   css,
   spacing,
   TextInput,
+  Select,
+  Option,
   FormFieldContainer,
   Badge,
 } from '@mongodb-js/compass-components';
@@ -170,12 +172,9 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
   disabled: boolean;
 }) {
   const optionDescriptions = getSettingDescription(name).description.options;
-  const onChangeEvent = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      onChange(
-        name,
-        event.target.value as UserConfigurablePreferences[PreferenceName]
-      );
+  const onChangeCallback = useCallback(
+    (value: string) => {
+      onChange(name, value as UserConfigurablePreferences[PreferenceName]);
     },
     [name, onChange]
   );
@@ -183,22 +182,23 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
   return (
     <>
       <SettingLabel name={name} />
-      <select
+      <Select
         className={inputStyles}
+        allowDeselect={false}
         aria-labelledby={`${name}-label`}
         id={name}
         name={name}
         data-testid={name}
-        value={value === undefined ? '' : `${value}`}
-        onChange={onChangeEvent}
+        value={value}
+        onChange={onChangeCallback}
         disabled={disabled}
       >
-        {SORT_ORDER_VALUES.map((option, i) => (
-          <option key={i} value={option}>
+        {SORT_ORDER_VALUES.map((option) => (
+          <Option key={option} value={option}>
             {(optionDescriptions && optionDescriptions[option]) || value}
-          </option>
+          </Option>
         ))}
-      </select>
+      </Select>
     </>
   );
 }
