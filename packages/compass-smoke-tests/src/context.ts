@@ -10,4 +10,5 @@ export type SmokeTestsContext = {
   localPackage?: boolean;
   sandboxPath: string;
   tests: string[];
+  skipCleanup: boolean;
 };

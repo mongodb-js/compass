@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-
+import type { Schema as MongodbSchema } from 'mongodb-schema';
+import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_INITIAL,
@@ -29,12 +30,13 @@ import {
   Badge,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../stores/store';
+import { startAnalysis, stopAnalysis } from '../stores/reducer';
 
 const rootStyles = css({
   width: '100%',
@@ -296,10 +298,9 @@ const AnalyzingScreen: React.FunctionComponent<{
 };
 
 const FieldList: React.FunctionComponent<{
-  schema: any;
+  schema: MongodbSchema | null;
   analysisState: AnalysisState;
-  actions: Record<string, any>;
-}> = ({ schema, analysisState, actions }) => {
+}> = ({ schema, analysisState }) => {
   const darkMode = useDarkMode();
 
   if (analysisState !== ANALYSIS_STATE_COMPLETE) {
@@ -327,7 +328,7 @@ const FieldList: React.FunctionComponent<{
     >
       <div data-testid="schema-field-list">
         {fields.map((field: any) => (
-          <Field key={field.name} actions={actions} {...field} />
+          <Field key={field.name} {...field} />
         ))}
       </div>
     </div>
@@ -366,25 +367,25 @@ const PerformanceAdvisorBanner = () => {
 };
 
 const Schema: React.FunctionComponent<{
-  actions: ReturnType<typeof configureActions>;
   analysisState: AnalysisState;
   errorMessage?: string;
   maxTimeMS?: number;
-  schema?: any;
+  schema: MongodbSchema | null;
   count?: number;
   resultId?: string;
-}> = ({ actions, analysisState, errorMessage, schema, resultId }) => {
+  onStartAnalysis: () => Promise<void>;
+  onStopAnalysis: () => void;
+}> = ({
+  analysisState,
+  errorMessage,
+  schema,
+  resultId,
+  onStartAnalysis,
+  onStopAnalysis,
+}) => {
   const onApplyClicked = useCallback(() => {
-    actions.startAnalysis();
-  }, [actions]);
-
-  const onCancelClicked = useCallback(() => {
-    actions.stopAnalysis();
-  }, [actions]);
-
-  const onResetClicked = useCallback(() => {
-    actions.startAnalysis();
-  }, [actions]);
+    void onStartAnalysis();
+  }, [onStartAnalysis]);
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
@@ -398,7 +399,7 @@ const Schema: React.FunctionComponent<{
         toolbar={
           <SchemaToolbar
             onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
+            onResetClicked={onApplyClicked}
             analysisState={analysisState}
             errorMessage={errorMessage || ''}
             isOutdated={!!outdated}
@@ -413,14 +414,10 @@ const Schema: React.FunctionComponent<{
             <InitialScreen onApplyClicked={onApplyClicked} />
           )}
           {analysisState === ANALYSIS_STATE_ANALYZING && (
-            <AnalyzingScreen onCancelClicked={onCancelClicked} />
+            <AnalyzingScreen onCancelClicked={onStopAnalysis} />
           )}
           {analysisState === ANALYSIS_STATE_COMPLETE && (
-            <FieldList
-              schema={schema}
-              analysisState={analysisState}
-              actions={actions}
-            />
+            <FieldList schema={schema} analysisState={analysisState} />
           )}
         </div>
       </WorkspaceContainer>
@@ -428,4 +425,15 @@ const Schema: React.FunctionComponent<{
   );
 };
 
-export default Schema;
+export default connect(
+  (state: RootState) => ({
+    analysisState: state.analysisState,
+    errorMessage: state.errorMessage,
+    schema: state.schema,
+    resultId: state.resultId,
+  }),
+  {
+    onStartAnalysis: startAnalysis,
+    onStopAnalysis: stopAnalysis,
+  }
+)(Schema);

@@ -1,5 +1,18 @@
-import assert from 'node:assert/strict';
 import { spawnSync, type SpawnOptions } from 'node:child_process';
+
+export class ExecuteFailure extends Error {
+  constructor(
+    public command: string,
+    public args: string[],
+    public status: number | null,
+    public signal: NodeJS.Signals | null
+  ) {
+    const commandDetails = `${command} ${args.join(' ')}`;
+    const statusDetails = `status = ${status || 'null'}`;
+    const signalDetails = `signal = ${signal || 'null'})`;
+    super(`${commandDetails} exited with ${statusDetails} ${signalDetails}`);
+  }
+}
 
 export function execute(
   command: string,
@@ -14,10 +27,7 @@ export function execute(
     stdio: 'inherit',
     ...options,
   });
-  assert(
-    status === 0 && signal === null,
-    `${command} ${args.join(' ')} exited with (status = ${
-      status || 'null'
-    }, signal = ${signal || 'null'})`
-  );
+  if (status !== 0 || signal !== null) {
+    throw new ExecuteFailure(command, args, status, signal);
+  }
 }
