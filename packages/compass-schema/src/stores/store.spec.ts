@@ -123,11 +123,11 @@ describe('Schema Store', function () {
       expect(store.getState().analysisState).to.equal('initial');
     });
 
-    it('runs the analysis with read pref secondaryPreferred', async function () {
+    it('runs the analysis with fallback read pref secondaryPreferred', async function () {
       sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
       await store.dispatch(startAnalysis());
-      expect(sampleStub.getCall(0).args[2])
-        .property('readPreference')
+      expect(sampleStub.getCall(0).args[3])
+        .property('fallbackReadPreference')
         .to.equal('secondaryPreferred');
     });
   });
