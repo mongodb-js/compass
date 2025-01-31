@@ -42,11 +42,11 @@ async function getPublicCloudInfo(host: string): Promise<{
   } catch (err) {
     debug(`getCloudInfo failed for "${host}": ${(err as Error).message}`);
 
-    log.error(
+    log.warn(
       mongoLogId(1_001_000_339),
       'getPublicCloudInfo',
-      (err as Error).message,
-      { host }
+      'Failed to look up host cloud information for telemetry',
+      { host, error: (err as Error).message }
     );
     return {};
   }
