@@ -6,7 +6,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { KMSProviders, MongoClientOptions } from 'mongodb';
 import { createLogger } from '@mongodb-js/compass-logging';
-const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
+const { debug, log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 type HostInformation = {
   is_localhost: boolean;
@@ -40,6 +40,8 @@ async function getPublicCloudInfo(host: string): Promise<{
       public_cloud_name,
     };
   } catch (err) {
+    debug(`getCloudInfo failed: ${(err as Error).message}`);
+
     log.error(
       mongoLogId(1_001_000_339),
       'getPublicCloudInfo',
