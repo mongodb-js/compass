@@ -116,6 +116,7 @@ export function IndexesTable<T>({
         className={tableStyles}
         data-testid={`${dataTestId}-list`}
         table={table}
+        shouldTruncate={false}
       >
         <TableHead
           isSticky
