@@ -678,8 +678,8 @@ functions:
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             # TODO: windows_setup
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests auto-update-from auto-update-to
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests auto-update-from auto-update-to
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests auto-update-from
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests auto-update-from
           fi
 
           if [[ "$IS_OSX" == "true" ]]; then
