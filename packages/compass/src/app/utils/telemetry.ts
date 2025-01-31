@@ -40,13 +40,13 @@ async function getPublicCloudInfo(host: string): Promise<{
       public_cloud_name,
     };
   } catch (err) {
-    debug(`getCloudInfo failed: ${(err as Error).message}`);
+    debug(`getCloudInfo failed for "${host}": ${(err as Error).message}`);
 
     log.error(
       mongoLogId(1_001_000_339),
       'getPublicCloudInfo',
-      'Error fetching cloud info',
-      (err as Error).message
+      (err as Error).message,
+      { host }
     );
     return {};
   }
