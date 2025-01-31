@@ -54,6 +54,8 @@
     "@mongodb-js/compass-workspaces": "^0.31.0",
     "@mongodb-js/connection-info": "^0.11.0",
     "compass-preferences-model": "^2.33.0",
+    "mongodb-collection-model": "^5.25.0",
+    "mongodb-database-model": "^2.25.0",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2"
   },
