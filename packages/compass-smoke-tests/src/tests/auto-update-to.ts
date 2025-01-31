@@ -63,6 +63,7 @@ export async function testAutoUpdateTo({
           HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
           AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
           TEST_NAME: 'auto-update-to',
+          EXPECTED_UPDATE_VERSION: version,
           COMPASS_APP_NAME: appName,
           COMPASS_APP_PATH: appPath,
         },

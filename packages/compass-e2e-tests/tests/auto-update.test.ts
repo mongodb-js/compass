@@ -33,6 +33,14 @@ describe('Auto-update', function () {
           const restartButton = browser.$(Selectors.AutoUpdateRestartButton);
           await restartButton.waitForDisplayed();
 
+          if (process.env.EXPECTED_UPDATE_VERSION) {
+            expect(
+              await browser.$(Selectors.AutoUpdateToast).getText()
+            ).to.contain(
+              `Compass is ready to update to ${process.env.EXPECTED_UPDATE_VERSION}!`
+            );
+          }
+
           // We could click the restart button to apply the update and restart the
           // app, but restarting the app confuses webdriverio or at least our test
           // helpers. So we're going to just restart the app manually.
@@ -46,8 +54,13 @@ describe('Auto-update', function () {
             'https://www.mongodb.com/try/download/compass?utm_source=compass&utm_medium=product'
           );
 
-          // TODO: when updating to a known version we know the version, so
-          // check for the text
+          if (process.env.EXPECTED_UPDATE_VERSION) {
+            expect(
+              await browser.$(Selectors.AutoUpdateToast).getText()
+            ).to.contain(
+              `Compass ${process.env.EXPECTED_UPDATE_VERSION} is available`
+            );
+          }
         }
       } finally {
         await browser.screenshot(screenshotPathName(testName));
@@ -68,11 +81,21 @@ describe('Auto-update', function () {
         const { browser } = compass;
         try {
           await browser.$(Selectors.AutoUpdateToast).waitForDisplayed();
-          await browser
-            .$(Selectors.AutoUpdateReleaseNotesLink)
-            .waitForDisplayed();
-          // TODO: when updating to a known version we know the version, so
-          // check for the text
+          const releaseNotesLink = browser.$(
+            Selectors.AutoUpdateReleaseNotesLink
+          );
+          await releaseNotesLink.waitForDisplayed();
+          // for now we only know the new version in the auto-update-to case
+          if (process.env.EXPECTED_UPDATE_VERSION) {
+            expect(
+              await browser.$(Selectors.AutoUpdateToast).getText()
+            ).to.contain(
+              `Compass ${process.env.EXPECTED_UPDATE_VERSION} installed successfully`
+            );
+            expect(await releaseNotesLink.getAttribute('href')).to.equal(
+              `https://github.com/mongodb-js/compass/releases/tag/v${process.env.EXPECTED_UPDATE_VERSION}`
+            );
+          }
         } finally {
           await browser.screenshot(screenshotPathName(`${testName}-restart`));
           await cleanup(compass);
