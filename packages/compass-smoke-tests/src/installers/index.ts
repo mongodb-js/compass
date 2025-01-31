@@ -3,6 +3,7 @@ import { installMacDMG } from './mac-dmg';
 import { installMacZIP } from './mac-zip';
 import { installWindowsZIP } from './windows-zip';
 import { installWindowsMSI } from './windows-msi';
+import { installWindowsSetup } from './windows-setup';
 
 export function getInstaller(kind: PackageKind) {
   if (kind === 'osx_dmg') {
@@ -13,6 +14,8 @@ export function getInstaller(kind: PackageKind) {
     return installWindowsZIP;
   } else if (kind === 'windows_msi') {
     return installWindowsMSI;
+  } else if (kind === 'windows_setup') {
+    return installWindowsSetup;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
