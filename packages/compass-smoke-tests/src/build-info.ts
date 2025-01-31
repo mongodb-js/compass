@@ -12,14 +12,13 @@ const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
 export type Channel = typeof SUPPORTED_CHANNELS[number];
 
-function assertObjectHasKeys(
-  obj: unknown,
-  name: string,
-  keys: readonly string[]
-) {
+function assertObjectHasKeys<
+  Keys extends readonly string[],
+  Obj extends Record<Keys[number], unknown>
+>(obj: unknown, name: string, keys: Keys): asserts obj is Obj {
   assert(
     typeof obj === 'object' && obj !== null,
-    'Expected buildInfo to be an object'
+    `Expected ${name} to be an object`
   );
 
   for (const key of keys) {
@@ -39,10 +38,10 @@ export function assertCommonBuildInfo(
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assert(
-    SUPPORTED_CHANNELS.includes((buildInfo as { channel: Channel }).channel),
-    `Expected ${
-      (buildInfo as { channel: Channel }).channel
-    } to be in ${SUPPORTED_CHANNELS.join(',')}`
+    SUPPORTED_CHANNELS.includes(buildInfo.channel as Channel),
+    `Expected ${JSON.stringify(
+      buildInfo.channel
+    )} to be in ${SUPPORTED_CHANNELS.join(',')}`
   );
 }
 
