@@ -89,3 +89,27 @@ export async function getLatestRelease(
     clearCache: forceDownload,
   });
 }
+
+export function getLatestReleaseKindByKind(kind: PackageKind): PackageKind {
+  if (kind === 'osx_dmg' || kind === 'osx_zip') {
+    return 'osx_dmg';
+  }
+
+  if (
+    kind === 'windows_setup' ||
+    kind === 'windows_msi' ||
+    kind === 'windows_zip'
+  ) {
+    return 'windows_setup';
+  }
+
+  if (kind === 'linux_deb' || kind === 'linux_tar') {
+    return 'linux_deb';
+  }
+
+  if (kind === 'linux_rpm' || kind === 'rhel_tar') {
+    return 'linux_rpm';
+  }
+
+  throw new Error(`Unsupported kind: ${kind as string}`);
+}

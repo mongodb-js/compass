@@ -14,7 +14,7 @@ import {
 import { createSandbox } from './directories';
 import { downloadFile } from './downloads';
 import { type PackageKind, SUPPORTED_PACKAGES } from './packages';
-import { getLatestRelease } from './releases';
+import { getLatestRelease, getLatestReleaseKindByKind } from './releases';
 import { SUPPORTED_TESTS } from './tests/types';
 import { type SmokeTestsContext } from './context';
 
@@ -207,7 +207,6 @@ async function run() {
     buildInfo: { channel, version },
     autoUpdatable,
   } = await getTestSubject(context);
-  const install = getInstaller(kind);
 
   try {
     if (context.tests.length === 0) {
@@ -224,6 +223,10 @@ async function run() {
               context.forceDownload
             )
           : filepath;
+
+      const install = getInstaller(
+        testName === 'auto-update-to' ? getLatestReleaseKindByKind(kind) : kind
+      );
 
       const { appPath, uninstall } = install({
         appName,
