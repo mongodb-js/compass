@@ -215,7 +215,6 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       : false
     : boolean;
 
-  selectableValues?: ReadonlyArray<{ value: string; label: string }>;
   validator: z.Schema<
     AllPreferences[K],
     z.ZodTypeDef,
@@ -1208,20 +1207,6 @@ export function getSettingDescription<
   ] as PreferenceDefinition<Name>;
   return {
     description,
-    type,
-  };
-}
-
-export function getSettingSelectableValues<
-  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
->(
-  name: Name
-): Pick<PreferenceDefinition<Name>, 'selectableValues'> & { type: unknown } {
-  const { selectableValues, type } = allPreferencesProps[
-    name
-  ] as PreferenceDefinition<Name>;
-  return {
-    selectableValues,
     type,
   };
 }
