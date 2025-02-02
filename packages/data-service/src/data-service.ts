@@ -669,7 +669,7 @@ export interface DataService {
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
     options?: AggregateOptions,
     executionOptions?: ExecutionOptions & {
-      fallbackReadPreference: ReadPreferenceMode;
+      fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<Document[]>;
 
