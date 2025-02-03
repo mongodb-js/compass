@@ -152,7 +152,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           {exportStatus === 'complete' && (
             <Code
               id="export-schema-content"
-              data-testid="export-to-language-input"
+              data-testid="export-schema-content"
               language="json"
               copyable={true}
             >
@@ -172,6 +172,14 @@ const ExportSchemaModal: React.FunctionComponent<{
       <ModalFooter>
         <Button onClick={onClose} variant="default">
           Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            /* TODO(COMPASS-8704) */
+          }}
+          variant="primary"
+        >
+          Export
         </Button>
       </ModalFooter>
     </Modal>

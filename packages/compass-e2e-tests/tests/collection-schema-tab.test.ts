@@ -109,6 +109,41 @@ describe('Collection schema tab', function () {
     });
   }
 
+  describe('with the enableExportSchema feature flag enabled', function () {
+    beforeEach(async function () {
+      await browser.setFeature('enableExportSchema', true);
+    });
+
+    it.only('shows an exported schema to copy', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Schema'
+      );
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const element = browser.$(Selectors.SchemaFieldList);
+      await element.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.ExportSchemaButton);
+
+      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+      await exportModal.waitForDisplayed();
+
+      // TODO: Check format and then change it.
+      // await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
+      await exportSchemaContent.waitForDisplayed();
+      // expect(
+      //   await browser.getCodemirrorEditorText(Selectors.ExportSchemaOutput)
+      // ).to.match(/{\s+\$set:\s+{\s+},?\s+}/);
+      const text = await browser.$(Selectors.ExportSchemaOutput).getText();
+      expect(text).to.match('test');
+    });
+  });
+
   it('analyzes the schema with a query');
   it('can reset the query');
   it('can create a geoquery from a map');
