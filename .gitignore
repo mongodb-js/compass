@@ -35,3 +35,6 @@ config/*/.npmrc
 .sbom
 .logs
 .evergreen/logs
+
+# Typescript incremental build info
+*.tsbuildinfo

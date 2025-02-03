@@ -3,21 +3,20 @@
   "version": "1.34.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "compass:exports": {
     ".": "./src/index.ts"
   },
-  "types": "./lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib"
+    "dist"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "node -e \"fs.rmSync('lib', { recursive: true, force: true })\" || true",
-    "precompile": "npm run clean",
-    "compile": "tsc -p tsconfig.json",
+    "clean": "tsc --build --clean",
+    "compile": "tsc --build",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
