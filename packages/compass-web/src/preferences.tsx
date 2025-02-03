@@ -37,7 +37,6 @@ export function useCompassWebPreferences(
 ): React.MutableRefObject<CompassWebPreferencesAccess> {
   const preferencesAccess = useRef(
     new CompassWebPreferencesAccess({
-      maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,

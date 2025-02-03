@@ -31,13 +31,33 @@ import { usePreference } from 'compass-preferences-model/provider';
 const cardTitleGroup = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3],
-  marginBottom: spacing[2],
+  gap: spacing[400],
 });
 
 const CardTitleGroup: React.FunctionComponent = ({ children }) => {
   return <div className={cardTitleGroup}>{children}</div>;
 };
+
+const nonExistantLightStyles = css({
+  color: palette.gray.dark1,
+});
+
+const nonExistantDarkStyles = css({
+  color: palette.gray.base,
+});
+
+const inactiveCardStyles = css({
+  borderStyle: 'dashed',
+  borderWidth: spacing[50],
+  '&:hover': {
+    borderStyle: 'dashed',
+    borderWidth: spacing[50],
+  },
+});
+
+const tooltipTriggerStyles = css({
+  display: 'flex',
+});
 
 const cardNameWrapper = css({
   // Workaround for uncollapsible text in flex children
@@ -64,15 +84,21 @@ const cardName = css({
   fontWeight: '600 !important' as unknown as number,
 });
 
-const CardName: React.FunctionComponent<{ children: string }> = ({
-  children,
-}) => {
+const CardName: React.FunctionComponent<{
+  children: string;
+  isNonExistent: boolean;
+}> = ({ children, isNonExistent }) => {
   const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
       <Subtitle
         as="div"
-        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
+        className={cx(
+          cardName,
+          darkMode ? cardNameDark : cardNameLight,
+          isNonExistent && !darkMode && nonExistantLightStyles,
+          isNonExistent && darkMode && nonExistantDarkStyles
+        )}
       >
         {children}
       </Subtitle>
@@ -87,7 +113,7 @@ const cardActionContainer = css({
 
 const cardBadges = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   // Preserving space for when cards with and without badges are mixed in a
   // single row
   minHeight: 20,
@@ -98,7 +124,7 @@ const CardBadges: React.FunctionComponent = ({ children }) => {
 };
 
 const cardBadge = css({
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const cardBadgeLabel = css({});
@@ -145,7 +171,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
 };
 
 const card = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 export type DataProp = {
@@ -163,14 +189,15 @@ export type NamespaceItemCardProps = {
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
+  isNonExistent: boolean;
   onItemClick(id: string): void;
   onItemDeleteClick?: (id: string) => void;
 };
 
 const namespaceDataGroup = css({
   display: 'flex',
-  gap: spacing[2],
-  marginTop: spacing[3],
+  gap: spacing[200],
+  marginTop: spacing[400],
 });
 
 const column = css({
@@ -195,9 +222,11 @@ export const NamespaceItemCard: React.FunctionComponent<
   onItemDeleteClick,
   badges = null,
   viewType,
+  isNonExistent,
   ...props
 }) => {
   const readOnly = usePreference('readOnly');
+  const darkMode = useDarkMode();
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 
@@ -207,7 +236,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return readOnly || !hasDeleteHandler
+    return readOnly || !hasDeleteHandler || isNonExistent
       ? []
       : [
           {
@@ -216,7 +245,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             icon: 'Trash',
           },
         ];
-  }, [type, readOnly, hasDeleteHandler]);
+  }, [type, readOnly, isNonExistent, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -238,7 +267,16 @@ export const NamespaceItemCard: React.FunctionComponent<
   );
 
   const cardProps = mergeProps(
-    { className: card },
+    {
+      className: cx(
+        card,
+        isNonExistent && [
+          !darkMode && nonExistantLightStyles,
+          darkMode && nonExistantDarkStyles,
+          inactiveCardStyles,
+        ]
+      ),
+    },
     defaultActionProps,
     hoverProps,
     focusProps,
@@ -262,7 +300,22 @@ export const NamespaceItemCard: React.FunctionComponent<
       {...cardProps}
     >
       <CardTitleGroup>
-        <CardName>{name}</CardName>
+        <CardName isNonExistent={isNonExistent}>{name}</CardName>
+
+        {isNonExistent && (
+          <Tooltip
+            align="bottom"
+            justify="start"
+            trigger={
+              <div className={tooltipTriggerStyles}>
+                <Icon glyph={'InfoWithCircle'} />
+              </div>
+            }
+          >
+            Your privileges grant you access to this namespace, but it does not
+            currently exist
+          </Tooltip>
+        )}
 
         {viewType === 'list' && badgesGroup}
 
@@ -283,7 +336,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             <NamespaceParam
               key={idx}
               label={label}
-              hint={hint}
+              hint={!isNonExistent && hint}
               value={value}
               status={status}
               viewType={viewType}

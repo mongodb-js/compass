@@ -206,6 +206,7 @@ function Tab({
   tabContentId,
   iconGlyph,
   tabTheme,
+  className: tabClassName,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
   const darkMode = useDarkMode();
@@ -250,7 +251,8 @@ function Tab({
             themeClass,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
-            isDragging && draggingTabStyles
+            isDragging && draggingTabStyles,
+            tabClassName
           )}
           aria-selected={isSelected}
           role="tab"

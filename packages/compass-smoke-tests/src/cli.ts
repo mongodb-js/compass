@@ -2,11 +2,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { once } from 'node:events';
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
-import { execute } from './execute';
+import { execute, executeAsync } from './execute';
 import {
   type PackageDetails,
   readPackageDetails,
@@ -20,9 +21,12 @@ import { type SmokeTestsContext } from './context';
 import { installMacDMG } from './installers/mac-dmg';
 import { installMacZIP } from './installers/mac-zip';
 import { installWindowsZIP } from './installers/windows-zip';
+import { installWindowsMSI } from './installers/windows-msi';
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
+
+const SUPPORTED_TESTS = ['time-to-first-query', 'auto-update-from'] as const;
 
 function isSupportedPlatform(
   value: unknown
@@ -98,7 +102,19 @@ const argv = yargs(hideBin(process.argv))
   .option('localPackage', {
     type: 'boolean',
     description: 'Use the local package instead of downloading',
-  });
+  })
+  .option('skipCleanup', {
+    type: 'boolean',
+    description: 'Do not delete the sandbox after a run',
+    default: false,
+  })
+  .option('tests', {
+    type: 'array',
+    string: true,
+    choices: SUPPORTED_TESTS,
+    description: 'Which tests to run',
+  })
+  .default('tests', SUPPORTED_TESTS.slice());
 
 type TestSubject = PackageDetails & {
   filepath: string;
@@ -154,6 +170,8 @@ function getInstaller(kind: PackageKind) {
     return installMacZIP;
   } else if (kind === 'windows_zip') {
     return installWindowsZIP;
+  } else if (kind === 'windows_msi') {
+    return installWindowsMSI;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
@@ -176,36 +194,82 @@ async function run() {
       'platform',
       'arch',
       'package',
+      'tests',
     ])
   );
 
-  const { kind, filepath, appName } = await getTestSubject(context);
+  const { kind, appName, filepath, autoUpdatable } = await getTestSubject(
+    context
+  );
   const install = getInstaller(kind);
 
   try {
-    const { appPath, uninstall } = install({
-      appName,
-      filepath,
-      destinationPath: context.sandboxPath,
-    });
+    if (context.tests.length === 0) {
+      console.log('Warning: not performing any tests. Pass --tests.');
+    }
 
-    try {
-      runTest({ appName, appPath });
-    } finally {
-      await uninstall();
+    for (const testName of context.tests) {
+      const { appPath, uninstall } = install({
+        appName,
+        filepath,
+        destinationPath: context.sandboxPath,
+      });
+
+      try {
+        if (testName === 'time-to-first-query') {
+          // Auto-update does not work on mac in CI at the moment. So in that case
+          // we just run the E2E tests to make sure the app at least starts up.
+          runTimeToFirstQuery({
+            appName,
+            appPath,
+          });
+        }
+        if (testName === 'auto-update-from') {
+          await runUpdateTest({
+            appName,
+            appPath,
+            autoUpdatable,
+            testName,
+          });
+        }
+      } finally {
+        await uninstall();
+      }
     }
   } finally {
-    console.log('Cleaning up sandbox');
-    fs.rmSync(context.sandboxPath, { recursive: true });
+    if (context.skipCleanup) {
+      console.log(`Skipped cleaning up sandbox: ${context.sandboxPath}`);
+    } else {
+      console.log(`Cleaning up sandbox: ${context.sandboxPath}`);
+      fs.rmSync(context.sandboxPath, { recursive: true });
+    }
   }
 }
 
-type RunTestOptions = {
+async function importUpdateServer() {
+  try {
+    return (await import('compass-mongodb-com')).default;
+  } catch (err: unknown) {
+    console.log('Remember to npm link compass-mongodb-com');
+    throw err;
+  }
+}
+
+async function startAutoUpdateServer() {
+  console.log('Starting auto-update server');
+  const { httpServer, updateChecker, start } = (await importUpdateServer())();
+  start();
+  await once(updateChecker, 'refreshed');
+
+  return httpServer;
+}
+
+type RunE2ETestOptions = {
   appName: string;
   appPath: string;
 };
 
-function runTest({ appName, appPath }: RunTestOptions) {
+function runTimeToFirstQuery({ appName, appPath }: RunE2ETestOptions) {
   execute(
     'npm',
     [
@@ -227,6 +291,63 @@ function runTest({ appName, appPath }: RunTestOptions) {
       },
     }
   );
+}
+
+type RunUpdateTestOptions = {
+  appName: string;
+  appPath: string;
+  autoUpdatable?: boolean;
+  testName: string;
+};
+
+async function runUpdateTest({
+  appName,
+  appPath,
+  autoUpdatable,
+  testName,
+}: RunUpdateTestOptions) {
+  process.env.PORT = '0'; // dynamic port
+  process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
+
+  const server = await startAutoUpdateServer();
+
+  const address = server.address();
+  assert(typeof address === 'object' && address !== null);
+  const port = address.port;
+  const HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${port}`;
+  console.log({ HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE });
+
+  try {
+    // must be async because the update server is running in the same process
+    await executeAsync(
+      'npm',
+      [
+        'run',
+        '--unsafe-perm',
+        'test-packaged',
+        '--workspace',
+        'compass-e2e-tests',
+        '--',
+        '--test-filter=auto-update',
+      ],
+      {
+        // We need to use a shell to get environment variables setup correctly
+        shell: true,
+        env: {
+          ...process.env,
+          HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
+          AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
+          TEST_NAME: testName,
+          COMPASS_APP_NAME: appName,
+          COMPASS_APP_PATH: appPath,
+        },
+      }
+    );
+  } finally {
+    console.log('Stopping auto-update server');
+    server.close();
+    delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
+  }
 }
 
 run()
