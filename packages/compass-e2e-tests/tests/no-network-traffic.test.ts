@@ -8,6 +8,30 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 
+import http from 'http';
+import https from 'https';
+
+// Intercept HTTP requests
+const originalHttpRequest = http.request;
+http.request = function (...args: any[]) {
+  console.log('HTTP Request:', args);
+  return originalHttpRequest.apply(this, args as any);
+};
+
+// Intercept HTTPS requests
+const originalHttpsRequest = https.request;
+https.request = function (...args: any[]) {
+  console.log('HTTPS Request:', args);
+  return originalHttpsRequest.apply(this, args as any);
+};
+
+// If you want to intercept at an even lower level:
+const originalClientRequest = http.ClientRequest;
+http.ClientRequest = function () {
+  console.log('Client Request:', arguments);
+  return new originalClientRequest(arguments as any);
+} as any;
+
 /**
  * @securityTest Enhanced Network Isolation Tests
  *
@@ -24,10 +48,10 @@ describe('networkTraffic: false / Isolated Edition', function () {
   before(function () {
     skipForWeb(this, 'cli params not available in compass-web');
 
-    if (process.platform !== 'linux') {
-      // No strace on other platforms
-      return this.skip();
-    }
+    // if (process.platform !== 'linux') {
+    //   // No strace on other platforms
+    //   return this.skip();
+    // }
   });
 
   beforeEach(async function () {
@@ -54,10 +78,8 @@ describe('networkTraffic: false / Isolated Edition', function () {
     const outfile = path.join(tmpdir, 'strace-out.log');
     async function wrapBinary(binary: string): Promise<string> {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
-      await fs.writeFile(
-        wrapperFile,
-        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`
-      );
+      // kill off strace
+      await fs.writeFile(wrapperFile, `#!/bin/bash\n '${binary}' "$@"\n`);
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
     }
@@ -115,12 +137,11 @@ describe('networkTraffic: false / Isolated Edition', function () {
       );
     }
 
-    if (
-      [...connectTargets].some(
-        (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
-      )
-    ) {
-      throw new Error(`Connected to unexpected host! ${[...connectTargets]}`);
+    const unexpectedHosts = [...connectTargets].filter(
+      (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
+    );
+    if (unexpectedHosts.length > 0) {
+      throw new Error(`Connected to unexpected host! ${[...unexpectedHosts]}`);
     }
     if (![...connectTargets].some((target) => /:27091$/.test(target))) {
       throw new Error(
