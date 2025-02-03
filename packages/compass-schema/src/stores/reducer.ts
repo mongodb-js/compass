@@ -1,5 +1,6 @@
 import type { Schema } from 'mongodb-schema';
 import type { Action, AnyAction, Reducer } from 'redux';
+import type { AggregateOptions } from 'mongodb';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
@@ -250,7 +251,7 @@ export const startAnalysis = (): SchemaThunkAction<
       fields: query.project ?? undefined,
     };
 
-    const driverOptions = {
+    const driverOptions: AggregateOptions = {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 

@@ -51,6 +51,7 @@ import type {
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
   SearchIndexDescription,
+  ReadPreferenceMode,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -124,6 +125,12 @@ function uniqueBy<T extends Record<string, unknown>>(
 
 function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
+}
+
+function isReadPreferenceSet(connectionString: string): boolean {
+  return !!new ConnectionStringUrl(connectionString).searchParams.get(
+    'readPreference'
+  );
 }
 
 let id = 0;
@@ -665,7 +672,9 @@ export interface DataService {
     ns: string,
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
     options?: AggregateOptions,
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]>;
 
   /*** Insert ***/
@@ -2219,7 +2228,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
     options: AggregateOptions = {},
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
@@ -2246,6 +2257,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       pipeline,
       {
         allowDiskUse: true,
+        // When the read preference isn't set in the connection string explicitly,
+        // then we allow consumers to default to a read preference, for instance
+        // secondaryPreferred to avoid using the primary for analyzing documents.
+        ...(executionOptions?.fallbackReadPreference &&
+        !isReadPreferenceSet(this._connectionOptions.connectionString)
+          ? {
+              readPreference: executionOptions?.fallbackReadPreference,
+            }
+          : {}),
         ...options,
       },
       executionOptions

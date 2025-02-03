@@ -64,6 +64,7 @@ export const analyzeSchema = async (
       },
       {
         abortSignal,
+        fallbackReadPreference: 'secondaryPreferred',
       }
     );
     const schemaData = await mongodbSchema(docs);
