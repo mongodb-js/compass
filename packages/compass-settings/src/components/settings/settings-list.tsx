@@ -168,7 +168,7 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
 }: {
   name: PreferenceName;
   onChange: HandleChange<PreferenceName>;
-  value: string | undefined;
+  value: string;
   disabled: boolean;
 }) {
   const optionDescriptions = getSettingDescription(name).description.options;
