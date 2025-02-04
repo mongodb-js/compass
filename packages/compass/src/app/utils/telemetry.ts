@@ -158,7 +158,20 @@ async function getHostnameForConnection(
   );
   if (connectionStringData.isSRV) {
     const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
-      () => {
+      (err: unknown) => {
+        debug(
+          `resolveMongodbSrv failed for "${connectionStringData.hosts.join(
+            ','
+          )}": ${(err as Error).message}`
+        );
+
+        log.warn(
+          mongoLogId(1_001_000_340),
+          'resolveMongodbSrv',
+          'Failed to resolve mongodb srv for telemetry',
+          { hosts: connectionStringData.hosts, error: (err as Error).message }
+        );
+
         return null;
       }
     );
