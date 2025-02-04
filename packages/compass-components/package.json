@@ -63,7 +63,7 @@
     "@leafygreen-ui/search-input": "^5.0.2",
     "@leafygreen-ui/segmented-control": "^10.0.2",
     "@leafygreen-ui/select": "^14.0.2",
-    "@leafygreen-ui/table": "^13.0.0",
+    "@leafygreen-ui/table": "^13.0.1",
     "@leafygreen-ui/tabs": "^14.0.2",
     "@leafygreen-ui/text-area": "^10.0.2",
     "@leafygreen-ui/text-input": "^14.0.2",
