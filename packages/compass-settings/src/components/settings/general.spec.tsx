@@ -60,7 +60,7 @@ describe('GeneralSettings', function () {
   });
 
   it('changes defaultSortOrder value when selecting an option', function () {
-    const select = within(container).getByTestId('defaultSortOrder').click();
+    within(container).getByTestId('defaultSortOrder').click();
     within(container).getByText('_id: 1').click();
     expect(getSettings()).to.have.property('defaultSortOrder', '{ _id: 1 }');
   });
