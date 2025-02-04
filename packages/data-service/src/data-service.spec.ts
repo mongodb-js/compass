@@ -7,6 +7,7 @@ import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { Int32, UUID } from 'bson';
 import sinon from 'sinon';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
@@ -1042,6 +1043,54 @@ describe('DataService', function () {
           'db.coll',
           [{ $sample: { size: 1000 } }],
           { allowDiskUse: false }
+        );
+      });
+
+      it('allows to pass fallbackReadPreference and sets the read preference when unset', function () {
+        sandbox.spy(dataService, 'aggregate');
+        void dataService.sample(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregate).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true, readPreference: 'secondaryPreferred' }
+        );
+      });
+
+      it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', function () {
+        sandbox.spy(dataService, 'aggregate');
+        const connectionStringReplacement = new ConnectionStringUrl(
+          cluster().connectionString
+        );
+        connectionStringReplacement.searchParams.set(
+          'readPreference',
+          'primary'
+        );
+        sandbox.replace(dataService as any, '_connectionOptions', {
+          connectionString: connectionStringReplacement.toString(),
+        });
+        void dataService.sample(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregate).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true }
         );
       });
     });
