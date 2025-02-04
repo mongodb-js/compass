@@ -168,7 +168,8 @@
     "depcheck": "depcheck",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "verify-package-contents": "ts-node ./scripts/verify-package-contents.ts"
   },
   "repository": {
     "type": "git",
@@ -250,6 +251,7 @@
     "electron-squirrel-startup": "^1.0.1",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",
+    "glob": "^10.2.5",
     "hadron-app-registry": "^9.4.0",
     "hadron-build": "^25.7.0",
     "hadron-ipc": "^3.4.0",
