@@ -1,0 +1,36 @@
+name: Test Installers
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      bucket_name:
+        type: string
+        description: 'S3 bucket to download installers from'
+        required: true
+      bucket_key_prefix:
+        type: string
+        description: 'S3 bucket key prefix to download installers from'
+        required: true
+      version:
+        type: string
+        description: 'Version of the installer to download'
+        required: true
+
+jobs:
+  test:
+    name: Dummy action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+        
