@@ -617,6 +617,10 @@ async function startCompassElectron(
     '--log-level=0'
   );
 
+  // chromeArgs.push(
+  //   '--host-rules=MAP * 127.0.0.1',
+  // );
+
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
   }
