@@ -2,7 +2,7 @@ import { once } from 'events';
 import http from 'http';
 import type { AddressInfo } from 'net';
 import { EJSON } from 'bson';
-import type { MongoLogEntry } from 'mongodb-log-writer';
+import type { MongoLogEntry } from 'mongodb-log-writer/mongo-log-writer';
 import { TEST_COMPASS_WEB } from './compass';
 import type { CompassBrowser } from './compass-browser';
 
