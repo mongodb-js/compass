@@ -1663,7 +1663,8 @@ describe('store', function () {
         const plugin = activatePlugin();
         store = plugin.store;
         deactivate = () => plugin.deactivate();
-        await dataService.insertOne('compass-crud.test', { name: 'testing' });
+        await dataService.insertOne('compass-crud.test', { name: 'testing1' });
+        await dataService.insertOne('compass-crud.test', { name: 'testing2' });
       });
 
       afterEach(function () {
@@ -1680,9 +1681,36 @@ describe('store', function () {
 
             (state) => {
               expect(state.error).to.equal(null);
-              expect(state.docs).to.have.length(1);
+              expect(state.docs).to.have.length(2);
+              expect(state.docs[0].doc.name).to.equal('testing1');
               expect(state.debouncingLoad).to.equal(false);
-              expect(state.count).to.equal(1);
+              expect(state.count).to.equal(2);
+              expect(state.start).to.equal(1);
+              expect(state.shardKeys).to.deep.equal({});
+            },
+          ]);
+
+          void store.refreshDocuments();
+
+          await listener;
+        });
+
+        it('uses the sort order from preferences', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const listener = waitForStates(store, [
+            (state) => {
+              expect(state.debouncingLoad).to.equal(true);
+              expect(state.count).to.equal(null);
+            },
+
+            (state) => {
+              expect(state.error).to.equal(null);
+              expect(state.docs).to.have.length(2);
+              expect(state.docs[0].doc.name).to.equal('testing2');
+              expect(state.debouncingLoad).to.equal(false);
+              expect(state.count).to.equal(2);
               expect(state.start).to.equal(1);
               expect(state.shardKeys).to.deep.equal({});
             },

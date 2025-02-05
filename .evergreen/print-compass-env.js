@@ -101,10 +101,7 @@ function printCompassEnv() {
   printVar('IS_RHEL', process.env.IS_RHEL);
   printVar('IS_UBUNTU', process.env.IS_UBUNTU);
   printVar('DEBUG', process.env.DEBUG);
-  printVar(
-    'MONGODB_VERSION',
-    process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION
-  );
+  printVar('MONGODB_VERSION', process.env.MONGODB_VERSION);
   printVar('DEV_VERSION_IDENTIFIER', process.env.DEV_VERSION_IDENTIFIER);
   printVar('EVERGREEN_REVISION', process.env.EVERGREEN_REVISION);
   printVar(
