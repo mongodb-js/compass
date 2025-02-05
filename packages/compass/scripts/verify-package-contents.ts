@@ -66,11 +66,24 @@ function run() {
   const destinationPath = fs.mkdtempSync('compass-package-');
   const fixturePath = path.resolve(__dirname, 'fixtures');
 
+  let nextNumber = 1;
+
+  const nextName = (extension: string) => {
+    return `replaced-${nextNumber++}.${extension}`;
+  };
+
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
 
-    const paths = globSync('**/*', { cwd: destinationPath });
-    paths.sort();
+    const paths = globSync('**/*', { cwd: destinationPath })
+      .sort()
+      .map((p): string => {
+        return p.replace(
+          /\b([0-9a-f])+\.(node)$/,
+          (match: string, name: string, ext: string) => nextName(ext)
+        );
+      });
+
     const expectedPaths = JSON.parse(
       fs.readFileSync(path.join(fixturePath, `${kind}-paths.json`), 'utf8')
     );
