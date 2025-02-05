@@ -60,8 +60,7 @@ function extractArchive(artifactsDir: string, destinationPath: string): Kind {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
-async function run() {
+function run() {
   const artifactsDir = path.resolve(__dirname, '..', 'dist');
   const destinationPath = fs.mkdtempSync('compass-package-');
   const fixturePath = path.resolve(__dirname, 'fixtures');
@@ -83,11 +82,4 @@ async function run() {
   }
 }
 
-run()
-  .then(function () {
-    debug('done');
-  })
-  .catch(function (err) {
-    debug(err.stack);
-    process.exitCode = 1;
-  });
+run();

@@ -67,23 +67,23 @@ if [ "$IS_WINDOWS" = true ]; then
   verify_using_powershell $WINDOWS_EXE_NAME
   verify_using_powershell $WINDOWS_MSI_NAME
   echo "Skipping verification for Windows artifacts using gpg: $WINDOWS_ZIP_NAME, $WINDOWS_NUPKG_NAME"
-  npm run -w mongodb-compass verify-package-contents
+  DEBUG=compass* npm run -w mongodb-compass verify-package-contents
 
 elif [ "$IS_UBUNTU" = true ]; then
   setup_gpg
   verify_using_gpg $LINUX_DEB_NAME
   verify_using_gpg $LINUX_TAR_NAME
-  npm run -w mongodb-compass verify-package-contents
+  DEBUG=compass* npm run -w mongodb-compass verify-package-contents
 elif [ "$IS_RHEL" = true ]; then
   setup_gpg
   verify_using_rpm $RHEL_RPM_NAME
   verify_using_gpg $RHEL_TAR_NAME
-  npm run -w mongodb-compass verify-package-contents
+  DEBUG=compass* npm run -w mongodb-compass verify-package-contents
 elif [ "$IS_OSX" = true ]; then
   setup_gpg
   verify_using_gpg $OSX_ZIP_NAME
   verify_using_codesign $OSX_DMG_NAME
-  npm run -w mongodb-compass verify-package-contents
+  DEBUG=compass* npm run -w mongodb-compass verify-package-contents
 else
   echo "Unknown OS, failed to verify file signing"
   exit 1
