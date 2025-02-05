@@ -4,6 +4,7 @@ import { sync as globSync } from 'glob';
 import { spawnSync, type SpawnOptions } from 'node:child_process';
 import createDebug from 'debug';
 import { expect } from 'chai';
+import { difference } from 'lodash';
 
 const debug = createDebug('compass:scripts:verify-package-contents');
 
@@ -65,18 +66,26 @@ function run() {
   const destinationPath = fs.mkdtempSync('compass-package-');
   const fixturePath = path.resolve(__dirname, 'fixtures');
 
-  debug({ artifactsDir, destinationPath, fixturePath });
-
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
 
     const paths = globSync('**/*', { cwd: destinationPath });
     paths.sort();
-    console.log(JSON.stringify(paths, null, 4));
-    const fixtureJSON = JSON.parse(
+    const expectedPaths = JSON.parse(
       fs.readFileSync(path.join(fixturePath, `${kind}-paths.json`), 'utf8')
     );
-    expect(paths).to.deep.equal(fixtureJSON);
+
+    // Just doing a straight deep equality between hundreds of lines doesn't
+    // give you anything readable when it fails, so remove the intersection of
+    // the two arrays before doing the comparison
+    const leftPaths = difference(paths, expectedPaths as string[]);
+    const rightPaths = difference(expectedPaths as string[], paths);
+    try {
+      expect(leftPaths).to.deep.equal(rightPaths);
+    } catch (err: unknown) {
+      debug('file paths', JSON.stringify(paths, null, 4));
+      throw err;
+    }
   } finally {
     fs.rmSync(destinationPath, { recursive: true });
   }
