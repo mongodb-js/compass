@@ -221,7 +221,7 @@ const toRegex = (object) => {
 };
 
 const toCode = (object) => {
-  return new Code('' + object, {});
+  return new Code('' + object);
 };
 
 const toSymbol = (object) => {
