@@ -10,6 +10,10 @@ type PlatformShortName =
   | 'linux_deb'
   | 'linux_rpm';
 
+/**
+ * Determines a short name (package type) passable to the update server.
+ * See https://github.com/10gen/compass-mongodb-com/blob/a1fb99908815d3c3ab0efb5960430cc3faf99a15/src/routes/update.js#L353-L377 for the possible values.
+ */
 function getPlatformShortName(
   arch: Arch,
   kind: PackageKind
