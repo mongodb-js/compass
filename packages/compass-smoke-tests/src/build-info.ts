@@ -5,7 +5,7 @@ import path from 'node:path';
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
-import { type SmokeTestsContext } from './context';
+import { type SmokeTestsContextWithSandbox } from './context';
 import { pick } from 'lodash';
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
@@ -232,7 +232,7 @@ export function readPackageDetails(
 }
 
 export function writeAndReadPackageDetails(
-  context: SmokeTestsContext
+  context: SmokeTestsContextWithSandbox
 ): PackageDetails {
   const compassDir = path.resolve(__dirname, '../../compass');
   const infoArgs = {

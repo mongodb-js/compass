@@ -9,7 +9,10 @@ export type SmokeTestsContext = {
   package: PackageKind;
   forceDownload?: boolean;
   localPackage?: boolean;
-  sandboxPath: string;
   tests: TestName[];
   skipCleanup: boolean;
+};
+
+export type SmokeTestsContextWithSandbox = SmokeTestsContext & {
+  sandboxPath: string;
 };
