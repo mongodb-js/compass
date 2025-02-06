@@ -3,8 +3,7 @@ import path from 'node:path';
 import { sync as globSync } from 'glob';
 import { spawnSync, type SpawnOptions } from 'node:child_process';
 import createDebug from 'debug';
-import { expect } from 'chai';
-import { difference } from 'lodash';
+import { Minimatch } from 'minimatch';
 
 const debug = createDebug('compass:scripts:verify-package-contents');
 
@@ -66,38 +65,63 @@ function run() {
   const destinationPath = fs.mkdtempSync('compass-package-');
   const fixturePath = path.resolve(__dirname, 'fixtures');
 
-  let nextNumber = 1;
-
-  const nextName = (extension: string) => {
-    return `replaced-${nextNumber++}.${extension}`;
-  };
-
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
 
-    const paths = globSync('**/*', { cwd: destinationPath })
+    const relativePaths = globSync('**/*', { cwd: destinationPath })
       .sort()
       .map((p): string => {
-        return p.replace(
-          /\b([0-9a-f])+\.(node)$/,
-          (match: string, name: string, ext: string) => nextName(ext)
+        // The only thing that differs between different distributions and
+        // channels is the name of what to call the app folder and/or executable.
+        // So just replace them here and then we don't have to maintain as many
+        // allow lists.
+        return (
+          p
+            // windows
+            .replace(/MongoDBCompassIsolatedEditionDev/g, 'APP')
+            .replace(/MongoDBCompassIsolatedEditionBeta/g, 'APP')
+            .replace(/MongoDBCompassIsolatedEdition/g, 'APP')
+
+            .replace(/MongoDBCompassReadonlyDev/g, 'APP')
+            .replace(/MongoDBCompassReadonlyBeta/g, 'APP')
+            .replace(/MongoDBCompassReadonly/g, 'APP')
+
+            .replace(/MongoDBCompassDev/g, 'APP')
+            .replace(/MongoDBCompassBeta/g, 'APP')
+            .replace(/MongoDBCompass/g, 'APP')
+
+            // mac, linux
+            .replace(/MongoDB Compass Isolated Edition Dev/g, 'APP')
+            .replace(/MongoDB Compass Isolated Edition Beta/g, 'APP')
+            .replace(/MongoDB Compass Isolated Edition/g, 'APP')
+
+            .replace(/MongoDB Compass Readonly Dev/g, 'APP')
+            .replace(/MongoDB Compass Readonly Beta/g, 'APP')
+            .replace(/MongoDB Compass Readonly/g, 'APP')
+
+            .replace(/MongoDB Compass Dev/g, 'APP')
+            .replace(/MongoDB Compass Beta/g, 'APP')
+            .replace(/MongoDB Compass/g, 'APP')
+
+            // linux
+            .replace(/-linux-x64/g, 'SUFFIX')
         );
       });
 
-    const expectedPaths = JSON.parse(
-      fs.readFileSync(path.join(fixturePath, `${kind}-paths.json`), 'utf8')
-    );
+    const patterns: Minimatch[] = JSON.parse(
+      fs.readFileSync(path.join(fixturePath, `${kind}-patterns.json`), 'utf8')
+    ).map((pattern: string) => {
+      return new Minimatch(pattern);
+    });
 
-    // Just doing a straight deep equality between hundreds of lines doesn't
-    // give you anything readable when it fails, so remove the intersection of
-    // the two arrays before doing the comparison
-    const leftPaths = difference(paths, expectedPaths as string[]);
-    const rightPaths = difference(expectedPaths as string[], paths);
-    try {
-      expect(leftPaths).to.deep.equal(rightPaths);
-    } catch (err: unknown) {
-      debug('file paths', JSON.stringify(paths, null, 4));
-      throw err;
+    const disallowed = relativePaths.filter((relativePath) => {
+      return !patterns.find((pattern) => {
+        return pattern.match(relativePath);
+      });
+    });
+
+    if (disallowed.length) {
+      throw new Error(`Disallowed paths:\n${disallowed.join('\n')}`);
     }
   } finally {
     fs.rmSync(destinationPath, { recursive: true });
