@@ -1069,6 +1069,7 @@ describe('SRV connectivity', function () {
     const srvResolution = resolutionDetails.find((q: any) => q.query === 'SRV');
     const txtResolution = resolutionDetails.find((q: any) => q.query === 'TXT');
     expect(srvResolution).to.deep.equal({
+      durationMs: +srvResolution.durationMs,
       query: 'SRV',
       hostname: '_mongodb._tcp.test1.test.build.10gen.cc',
       error: null,
@@ -1076,6 +1077,7 @@ describe('SRV connectivity', function () {
     });
     txtResolution.error = !!txtResolution.error; // Do not assert exact error message
     expect(txtResolution).to.deep.equal({
+      durationMs: +txtResolution.durationMs,
       query: 'TXT',
       hostname: 'test1.test.build.10gen.cc',
       error: true,
