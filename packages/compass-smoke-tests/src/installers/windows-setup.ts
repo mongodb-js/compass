@@ -21,42 +21,44 @@ export function installWindowsSetup({
   appName,
   filepath,
 }: InstallablePackage): InstalledAppInfo {
-  const { LOCALAPPDATA: LOCAL_APPDATA_PATH } = process.env;
-  assert(
-    typeof LOCAL_APPDATA_PATH === 'string',
-    'Expected a LOCALAPPDATA environment injected by the shell'
-  );
-  const installDirectory = path.resolve(LOCAL_APPDATA_PATH, appName);
-
-  function uninstall({ expectMissing = false }: UninstallOptions = {}) {
-    const registryEntry = windowsRegistry.query(
+  function queryRegistry() {
+    return windowsRegistry.query(
       `HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${appName}`
     );
-    if (registryEntry) {
+  }
+
+  function uninstall({ expectMissing = false }: UninstallOptions = {}) {
+    const entry = queryRegistry();
+    if (entry) {
+      const {
+        InstallLocation: installLocation,
+        UninstallString: uninstallCommand,
+      } = entry;
+      assert(
+        typeof installLocation === 'string',
+        'Expected an entry in the registry with the install location'
+      );
+      assert(
+        typeof uninstallCommand === 'string',
+        'Expected an entry in the registry with the uninstall command'
+      );
       if (expectMissing) {
         console.warn(
           'Found an existing registry entry (likely from a previous run)'
         );
       }
-      const { UninstallString: uninstallCommand } = registryEntry;
       assert(
         typeof uninstallCommand === 'string',
         'Expected an UninstallString in the registry entry'
       );
       console.log(`Running command to uninstall: ${uninstallCommand}`);
       cp.execSync(uninstallCommand, { stdio: 'inherit' });
+      // Removing the any remaining files manually
+      fs.rmSync(installLocation, { recursive: true, force: true });
     }
-    // Removing the any remaining files
-    fs.rmSync(installDirectory, { recursive: true, force: true });
   }
 
   uninstall({ expectMissing: true });
-
-  // Assert the app is not on the filesystem at the expected location
-  assert(
-    !fs.existsSync(installDirectory),
-    `Delete any existing installations first (found ${installDirectory})`
-  );
 
   // Run the installer
   console.warn(
@@ -64,11 +66,18 @@ export function installWindowsSetup({
   );
   execute(filepath, []);
 
-  const appPath = path.resolve(installDirectory, `${appName}.exe`);
-  execute(appPath, ['--version']);
+  const entry = queryRegistry();
+  assert(entry !== null, 'Expected an entry in the registry after installing');
+  const { InstallLocation: appPath } = entry;
+  assert(
+    typeof appPath === 'string',
+    'Expected an entry in the registry with the install location'
+  );
+  const appExecutablePath = path.resolve(appPath, `${appName}.exe`);
+  execute(appExecutablePath, ['--version']);
 
   return {
-    appPath: installDirectory,
+    appPath,
     uninstall,
   };
 }
