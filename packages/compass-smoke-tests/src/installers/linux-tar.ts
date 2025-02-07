@@ -11,10 +11,10 @@ export function installLinuxTar({
   const appFilename = `${appName}-linux-x64`;
   const appPath = path.resolve(destinationPath, appFilename);
 
-  execute('tar', ['-xzf', filepath, '-C', destinationPath]);
+  execute('tar', ['-xzvf', filepath, '-C', destinationPath]);
 
   // Check that the executable will run without being quarantined or similar
-  execute(path.resolve(appPath, appName), ['--version']);
+  execute('xvfb-run', [path.resolve(appPath, appName), '--version']);
 
   return {
     appPath,
