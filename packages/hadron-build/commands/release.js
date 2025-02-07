@@ -439,6 +439,8 @@ const installDependencies = util.callbackify(async (CONFIG) => {
  */
 const removeDevelopmentFiles = (CONFIG, done) => {
   var DOT_FILES = [
+    'expansions.raw.yml',
+    'expansions.yml',
     '.DS_Store',
     '.eslint*',
     '.evergreen*',
