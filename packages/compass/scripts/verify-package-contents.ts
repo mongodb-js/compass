@@ -62,7 +62,7 @@ function extractArchive(artifactsDir: string, destinationPath: string): Kind {
 
 function run() {
   const artifactsDir = path.resolve(__dirname, '..', 'dist');
-  const destinationPath = fs.mkdtempSync('compass-package-');
+  const destinationPath = path.resolve(fs.mkdtempSync('compass-package-'));
   const fixturePath = path.resolve(__dirname, 'fixtures');
 
   try {
