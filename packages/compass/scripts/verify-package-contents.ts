@@ -29,6 +29,7 @@ export function execute(
   debug(command, args);
   const { status, signal } = spawnSync(command, args, {
     stdio: 'inherit',
+    maxBuffer: 100 * 1024 * 1024,
     ...options,
   });
   if (status !== 0 || signal !== null) {
