@@ -69,20 +69,24 @@ function run() {
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
 
-    const asarPaths = globSync('**/*.asar', { cwd: destinationPath });
-    for (const asarPath of asarPaths) {
-      const basePath = path.join(destinationPath, asarPath);
-      execute('npx', [
-        '@electron/asar',
-        'extract',
-        basePath.replaceAll(path.sep, path.posix.sep),
-        path
-          .join(
-            path.dirname(basePath),
-            path.basename(basePath) + '.fully-unpacked'
-          )
-          .replaceAll(path.sep, path.posix.sep),
-      ]);
+    // npx or asar doesn't run on windows in CI, but the contents of the .asar
+    // is the same and we test it on other platforms, so should be OK to skip
+    if (process.platform !== 'win32') {
+      const asarPaths = globSync('**/*.asar', { cwd: destinationPath });
+      for (const asarPath of asarPaths) {
+        const basePath = path.join(destinationPath, asarPath);
+        execute('npx', [
+          '@electron/asar',
+          'extract',
+          basePath.replaceAll(path.sep, path.posix.sep),
+          path
+            .join(
+              path.dirname(basePath),
+              path.basename(basePath) + '.fully-unpacked'
+            )
+            .replaceAll(path.sep, path.posix.sep),
+        ]);
+      }
     }
 
     const relativePaths = globSync('**/*', { cwd: destinationPath })
