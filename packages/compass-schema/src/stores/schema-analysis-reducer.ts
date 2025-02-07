@@ -1,4 +1,3 @@
-import type { Schema } from 'mongodb-schema';
 import type { Action, Reducer } from 'redux';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
@@ -21,6 +20,8 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
 import { UUID } from 'bson';
 import { isAction } from '../utils';
+import { type SchemaAccessor } from 'mongodb-schema/lib/schema-accessor';
+import { type Schema } from 'mongodb-schema';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -29,6 +30,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
+  analysisResults: SchemaAccessor | null;
   schema: Schema | null;
   resultId: string;
 };
@@ -45,7 +47,8 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
-  schema: Schema | null;
+  analysisResults: SchemaAccessor | null;
+  schema?: Schema;
 };
 
 export type AnalysisFailedAction = {
@@ -79,10 +82,11 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   ) {
     return {
       ...state,
-      analysisState: action.schema
+      analysisState: action.analysisResults
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
-      schema: action.schema,
+      analysisResults: action.analysisResults,
+      schema: action.schema || null,
       resultId: resultId(),
     };
   }
@@ -172,6 +176,7 @@ export const _trackSchemaShared = (
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
+  analysisResults: null,
   schema: null,
   resultId: resultId(),
 });
@@ -273,7 +278,7 @@ export const startAnalysis = (): SchemaThunkAction<
       dispatch({ type: SchemaAnalysisActions.analysisStarted });
 
       const analysisStartTime = Date.now();
-      const schema = await analyzeSchema(
+      const analysisResults = await analyzeSchema(
         dataService,
         abortSignal,
         namespace,
@@ -281,20 +286,28 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      const internalSchema = await analysisResults?.getInternalSchema();
       const analysisTime = Date.now() - analysisStartTime;
 
-      if (schema !== null) {
-        fieldStoreService.updateFieldsFromSchema(namespace, schema);
+      if (internalSchema) {
+        fieldStoreService.updateFieldsFromSchema(namespace, internalSchema);
       }
 
-      dispatch({ type: SchemaAnalysisActions.analysisFinished, schema });
+      const schema = await analysisResults?.getInternalSchema();
+      dispatch({
+        type: SchemaAnalysisActions.analysisFinished,
+        analysisResults,
+        schema,
+      });
 
       // track schema analyzed
       const trackEvent = () => ({
         with_filter: Object.entries(query.filter ?? {}).length > 0,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-        geo_data: schema ? schemaContainsGeoData(schema) : false,
+        schema_width: internalSchema?.fields?.length ?? 0,
+        schema_depth: internalSchema ? calculateSchemaDepth(internalSchema) : 0,
+        geo_data: internalSchema
+          ? schemaContainsGeoData(internalSchema)
+          : false,
         analysis_time_ms: analysisTime,
       });
       track('Schema Analyzed', trackEvent, connectionInfoRef.current);

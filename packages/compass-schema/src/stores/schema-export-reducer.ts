@@ -146,9 +146,22 @@ export const changeExportSchemaFormat = (
       );
 
       // TODO.
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      exportedSchema = JSON.stringify(getState().schemaAnalysis.schema);
+      const analysisResults = getState().schemaAnalysis.analysisResults;
+      let jsonSchema: Record<string, any> | undefined = {};
+      if (exportFormat === 'standardJSON') {
+        jsonSchema = await analysisResults?.getStandardJsonSchema();
+      } else if (exportFormat === 'mongoDBJSON') {
+        jsonSchema = await analysisResults?.getMongoDBJsonSchema();
+      } else if (exportFormat === 'extendedJSON') {
+        jsonSchema = await analysisResults?.getExpandedJSONSchema();
+      } else if (exportFormat === 'legacyJSON') {
+        jsonSchema = await analysisResults?.getInternalSchema();
+      }
+      console.log({ jsonSchema });
+      exportedSchema = JSON.stringify(jsonSchema, undefined, 2);
+      // exportedSchema = JSON.stringify(getState().schemaAnalysis.schema);
     } catch (err: any) {
       if (abortController.signal.aborted) {
         return;

@@ -1,6 +1,6 @@
-import { isInternalFieldPath } from 'hadron-document';
+// import { isInternalFieldPath } from 'hadron-document';
 import type { AggregateOptions, Filter, Document } from 'mongodb';
-import mongodbSchema from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 import type {
   Schema,
   ArraySchemaType,
@@ -11,6 +11,7 @@ import type {
 } from 'mongodb-schema';
 import type { DataService } from '../stores/store';
 import type { Logger } from '@mongodb-js/compass-logging';
+import { type SchemaAccessor } from 'mongodb-schema/lib/schema-accessor';
 
 const MONGODB_GEO_TYPES = [
   'Point',
@@ -49,7 +50,7 @@ export const analyzeSchema = async (
     | undefined,
   aggregateOptions: AggregateOptions,
   { log, mongoLogId, debug }: Logger
-): Promise<Schema | null> => {
+): Promise<SchemaAccessor | null> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
       ns,
@@ -66,14 +67,14 @@ export const analyzeSchema = async (
         abortSignal,
       }
     );
-    const schemaData = await mongodbSchema(docs);
-    schemaData.fields = schemaData.fields.filter(
-      ({ path }) => !isInternalFieldPath(path[0])
-    );
+    const analyzedSchema = await analyzeDocuments(docs);
+    // schemaData.fields = schemaData.fields.filter(
+    //   ({ path }) => !isInternalFieldPath(path[0])
+    // );
     log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
       ns,
     });
-    return schemaData;
+    return analyzedSchema;
   } catch (err: any) {
     log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', {
       ns,
