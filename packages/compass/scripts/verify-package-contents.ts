@@ -41,19 +41,19 @@ type Kind = 'osx_zip' | 'windows_zip' | 'linux_tar' | 'rhel_tar';
 
 function extractArchive(artifactsDir: string, destinationPath: string): Kind {
   if (process.env.IS_OSX && process.env.OSX_ZIP_NAME) {
-    const filepath = path.resolve(artifactsDir, process.env.OSX_ZIP_NAME);
+    const filepath = path.join(artifactsDir, process.env.OSX_ZIP_NAME);
     execute('ditto', ['-xk', filepath, destinationPath]);
     return 'osx_zip';
   } else if (process.env.IS_WINDOWS && process.env.WINDOWS_ZIP_NAME) {
-    const filepath = path.resolve(artifactsDir, process.env.WINDOWS_ZIP_NAME);
+    const filepath = path.join(artifactsDir, process.env.WINDOWS_ZIP_NAME);
     execute('unzip', [filepath, '-d', destinationPath]);
     return 'windows_zip';
   } else if (process.env.IS_UBUNTU && process.env.LINUX_TAR_NAME) {
-    const filepath = path.resolve(artifactsDir, process.env.LINUX_TAR_NAME);
+    const filepath = path.join(artifactsDir, process.env.LINUX_TAR_NAME);
     execute('tar', ['xzf', filepath, '-C', destinationPath]);
     return 'linux_tar';
   } else if (process.env.IS_RHEL && process.env.RHEL_TAR_NAME) {
-    const filepath = path.resolve(artifactsDir, process.env.RHEL_TAR_NAME);
+    const filepath = path.join(artifactsDir, process.env.RHEL_TAR_NAME);
     execute('tar', ['xzf', filepath, '-C', destinationPath]);
     return 'linux_tar';
   } else {
@@ -62,9 +62,9 @@ function extractArchive(artifactsDir: string, destinationPath: string): Kind {
 }
 
 function run() {
-  const artifactsDir = path.resolve(__dirname, '..', 'dist');
-  const destinationPath = path.resolve(fs.mkdtempSync('compass-package-'));
-  const fixturePath = path.resolve(__dirname, 'fixtures');
+  const artifactsDir = 'dist';
+  const destinationPath = fs.mkdtempSync('compass-package-');
+  const fixturePath = 'scripts/patterns';
 
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
@@ -76,7 +76,7 @@ function run() {
         '@electron/asar',
         'extract',
         basePath,
-        path.resolve(
+        path.join(
           path.dirname(basePath),
           path.basename(basePath) + '.fully-unpacked'
         ),
