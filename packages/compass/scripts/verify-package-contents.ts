@@ -68,6 +68,20 @@ function run() {
   try {
     const kind = extractArchive(artifactsDir, destinationPath);
 
+    const asarPaths = globSync('**/*.asar', { cwd: destinationPath });
+    for (const asarPath of asarPaths) {
+      const basePath = path.join(destinationPath, asarPath);
+      execute('npx', [
+        '@electron/asar',
+        'extract',
+        basePath,
+        path.resolve(
+          path.dirname(basePath),
+          path.basename(basePath) + '.fully-unpacked'
+        ),
+      ]);
+    }
+
     const relativePaths = globSync('**/*', { cwd: destinationPath })
       .sort()
       .map((p): string => {
