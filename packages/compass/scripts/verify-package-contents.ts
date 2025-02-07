@@ -75,11 +75,13 @@ function run() {
       execute('npx', [
         '@electron/asar',
         'extract',
-        basePath,
-        path.join(
-          path.dirname(basePath),
-          path.basename(basePath) + '.fully-unpacked'
-        ),
+        basePath.replaceAll(path.sep, path.posix.sep),
+        path
+          .join(
+            path.dirname(basePath),
+            path.basename(basePath) + '.fully-unpacked'
+          )
+          .replaceAll(path.sep, path.posix.sep),
       ]);
     }
 
