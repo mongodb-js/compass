@@ -104,7 +104,7 @@ function run() {
             .replace(/MongoDB Compass/g, 'APP')
 
             // linux
-            .replace(/-linux-x64/g, 'SUFFIX')
+            .replace(/linux-x64/g, 'SUFFIX')
         );
       });
 
