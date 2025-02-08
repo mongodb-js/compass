@@ -132,7 +132,11 @@ describe('networkTraffic: false / Isolated Edition', function () {
       (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
     );
     if (unexpectedHosts.length > 0) {
-      throw new Error(`Connected to unexpected host! ${[...unexpectedHosts]}`);
+      throw new Error(
+        `Connected to unexpected host! ${[
+          ...unexpectedHosts,
+        ]}. Here is the whole file content:\n ${straceLog}`
+      );
     }
     if (![...connectTargets].some((target) => /:27091$/.test(target))) {
       throw new Error(
