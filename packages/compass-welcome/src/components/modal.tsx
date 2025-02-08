@@ -40,45 +40,45 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
     closeModal();
   }, [closeModal]);
 
-  return <div>hello</div>;
-  // <MarketingModal
-  //   data-testid="welcome-modal"
-  //   open={isOpen}
-  //   onClose={close}
-  //   onButtonClick={close}
-  //   title="Welcome to Compass"
-  //   buttonText="Start"
-  //   showBlob
-  //   blobPosition="top right"
-  //   disclaimer={
-  //     networkTraffic ? (
-  //       <div className={disclaimer}>
-  //         To help improve our products, anonymous usage data is collected and
-  //         sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
-  //         <br />
-  //         Manage this behaviour on the Compass{' '}
-  //         <Link
-  //           data-testid="open-settings-link"
-  //           hideExternalIcon
-  //           className={link}
-  //           onClick={goToSettings}
-  //         >
-  //           Settings
-  //         </Link>{' '}
-  //         page.
-  //       </div>
-  //     ) : undefined
-  //   }
-  //   graphic={<WelcomeModalImage width={156} height={209} />}
-  //   linkText={''}
-  //   darkMode={darkMode}
-  // >
-  //   <Body>
-  //     Build aggregation pipelines, optimize queries, analyze schemas,
-  //     and&nbsp;more. All with the GUI built by - and for - MongoDB.
-  //   </Body>
-  // </MarketingModal>
-  // );
+  return (
+    <MarketingModal
+      data-testid="welcome-modal"
+      open={isOpen}
+      onClose={close}
+      onButtonClick={close}
+      title="Welcome to Compass"
+      buttonText="Start"
+      showBlob
+      blobPosition="top right"
+      disclaimer={
+        networkTraffic ? (
+          <div className={disclaimer}>
+            To help improve our products, anonymous usage data is collected and
+            sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
+            <br />
+            Manage this behaviour on the Compass{' '}
+            <Link
+              data-testid="open-settings-link"
+              hideExternalIcon
+              className={link}
+              onClick={goToSettings}
+            >
+              Settings
+            </Link>{' '}
+            page.
+          </div>
+        ) : undefined
+      }
+      graphic={<WelcomeModalImage width={156} height={209} />}
+      linkText={''}
+      darkMode={darkMode}
+    >
+      <Body>
+        Build aggregation pipelines, optimize queries, analyze schemas,
+        and&nbsp;more. All with the GUI built by - and for - MongoDB.
+      </Body>
+    </MarketingModal>
+  );
 };
 
 export default withPreferences(WelcomeModal, ['networkTraffic']);
