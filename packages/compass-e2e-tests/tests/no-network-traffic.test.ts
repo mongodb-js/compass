@@ -11,27 +11,6 @@ import os from 'os';
 import http from 'http';
 import https from 'https';
 
-// Intercept HTTP requests
-const originalHttpRequest = http.request;
-http.request = function (...args: any[]) {
-  console.log('HTTP Request:', args);
-  return originalHttpRequest.apply(this, args as any);
-};
-
-// Intercept HTTPS requests
-const originalHttpsRequest = https.request;
-https.request = function (...args: any[]) {
-  console.log('HTTPS Request:', args);
-  return originalHttpsRequest.apply(this, args as any);
-};
-
-// If you want to intercept at an even lower level:
-const originalClientRequest = http.ClientRequest;
-http.ClientRequest = function () {
-  console.log('Client Request:', arguments);
-  return new originalClientRequest(arguments as any);
-} as any;
-
 /**
  * @securityTest Enhanced Network Isolation Tests
  *
