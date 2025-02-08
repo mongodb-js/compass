@@ -92,11 +92,15 @@ async function main() {
     throw new Error('No tests to run');
   }
 
+  console.log('before mocha 1');
+
   const mocha = new Mocha({
     timeout: context.mochaTimeout,
     bail: context.mochaBail,
     reporter: require.resolve('@mongodb-js/mocha-config-compass/reporter'),
   });
+
+  console.log('after mocha 1');
 
   // @ts-expect-error mocha types are incorrect, global setup this is bound to
   // runner, not context
@@ -115,6 +119,7 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
+  console.log('Running e2e ...');
   debug('Running E2E tests');
   runnerPromise = new Promise((resolve) => {
     mocha.run((failures: number) => {

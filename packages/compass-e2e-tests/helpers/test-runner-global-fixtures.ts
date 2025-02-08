@@ -58,6 +58,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
   };
 
   try {
+    console.log('unzipping fixtures...');
     debug('Unzipping fixtures...');
     await gunzip(
       // Not using absolute paths because Windows fails to resolve glob
@@ -71,14 +72,19 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('X DISPLAY', process.env.DISPLAY);
 
+    console.log('line 75 ish');
+
     if (!context.disableStartStop) {
       for (const connectionInfo of DEFAULT_CONNECTIONS) {
         if (connectionInfo.testServer) {
+          console.log('cnxn info: ', connectionInfo);
           debug(
             'Starting MongoDB server for connection %s',
             getConnectionTitle(connectionInfo)
           );
+          console.log('85 ish');
           const server = await startTestServer(connectionInfo.testServer);
+          console.log('stgarted test server');
           cleanupFns.push(() => {
             debug(
               'Stopping server for connection %s',
@@ -89,6 +95,8 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         }
         throwIfAborted();
       }
+
+      console.log('line 90 ish');
 
       if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
         debug('Starting Compass Web server ...');
@@ -123,6 +131,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
       }
     }
 
+    console.log('mongodb server info');
     debug('Getting mongodb server info');
     await updateMongoDBServerInfo();
 

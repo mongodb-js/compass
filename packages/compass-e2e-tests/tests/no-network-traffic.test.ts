@@ -46,11 +46,12 @@ describe('networkTraffic: false / Isolated Edition', function () {
   let i = 0;
 
   before(function () {
+    console.log('an early before in our test of choice');
     skipForWeb(this, 'cli params not available in compass-web');
 
     if (process.platform !== 'linux') {
       // No strace on other platforms
-      return this.skip();
+      // return this.skip();
     }
   });
 
@@ -80,12 +81,13 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
       await fs.writeFile(
         wrapperFile,
-        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`
+        `#!/bin/bash\nulimit -c 0;  '${binary}' "$@"\n`
       );
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
     }
 
+    console.log('process pid inside no network test: ', process.pid);
     const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
@@ -95,6 +97,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     });
     const browser = compass.browser;
 
+    console.log('set up default connections...');
     await browser.setupDefaultConnections();
 
     {
@@ -102,8 +105,9 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const exitOnDisconnectFile = path.join(tmpdir, 'exitOnDisconnect.js');
       await fs.writeFile(
         exitOnDisconnectFile,
-        'process.once("disconnect", () => process.exit())'
+        'process.once("disconnect", () => {})'
       );
+      console.log('browser.execute...');
       await browser.execute((exitOnDisconnectFile) => {
         process.env.NODE_OPTIONS ??= '';
         process.env.NODE_OPTIONS += ` --require "${exitOnDisconnectFile}"`;
@@ -111,6 +115,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     }
 
     try {
+      console.log('connect to defaults...');
       await browser.connectToDefaults();
     } finally {
       await cleanup(compass);

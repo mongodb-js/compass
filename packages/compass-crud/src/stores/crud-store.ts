@@ -123,6 +123,7 @@ export const fetchDocuments: (
   options,
   executionOptions
 ) => {
+  console.log('fetching documents inside crud store, pid ', process.pid);
   const canCalculateDocSize =
     // $bsonSize is only supported for mongodb >= 4.4.0
     semver.gte(serverVersion, '4.4.0') &&

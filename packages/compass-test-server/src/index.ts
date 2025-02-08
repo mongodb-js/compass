@@ -14,6 +14,7 @@ let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
 const defaults: MongoClusterOptions = {
   topology: 'standalone',
+  binDir: '/opt/homebrew/bin',
   tmpDir: path.join(
     os.tmpdir(),
     `compass-tests-${hash(process.env.EVERGREEN_TASK_ID ?? '')}`
@@ -26,8 +27,10 @@ const defaults: MongoClusterOptions = {
 export async function startTestServer(
   config: Partial<MongoClusterOptions> & { alwaysStartNewServer?: boolean } = {}
 ): Promise<MongoCluster> {
+  console.log('29 ish');
   const key = JSON.stringify(config);
   const existing = !config.alwaysStartNewServer && clusters.get(key);
+  console.log('here 31');
   if (existing && !existing.isClosed()) return existing;
   const cluster = await MongoCluster.start({
     ...defaults,
