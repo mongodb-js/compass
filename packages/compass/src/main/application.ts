@@ -11,9 +11,6 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-
-import http from 'http';
-import https from 'https';
 import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
@@ -132,40 +129,6 @@ class CompassApplication {
     // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
     // https://github.com/electron/electron/issues/33640
     await app.whenReady();
-
-    // Intercept HTTP requests
-    const originalHttpRequest = http.request;
-    http.request = function (...args: any[]) {
-      console.log('HTTP Request:', args);
-      log.error(
-        mongoLogId(1_001_818_275),
-        'DJECHLIN',
-        'DJECHLIN HTTP REQUEST HAPPENED OH NO',
-        { message: args }
-      );
-      return originalHttpRequest.apply(this, args as any);
-    };
-
-    // Intercept HTTPS requests
-    const originalHttpsRequest = https.request;
-    https.request = function (...args: any[]) {
-      console.log('HTTPS Request:', args);
-      log.error(
-        mongoLogId(1_001_818_276),
-        'DJECHLIN',
-        'DJECHLIN HTTPS SSSSSSSSSS REQUEST HAPPENED OH NO',
-        { message: args }
-      );
-      return originalHttpsRequest.apply(this, args as any);
-    };
-
-    // If you want to intercept at an even lower level:
-    const originalClientRequest = http.ClientRequest;
-    http.ClientRequest = function () {
-      console.log('Client Request:', arguments);
-      return new originalClientRequest(arguments as any);
-    } as any;
-
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
