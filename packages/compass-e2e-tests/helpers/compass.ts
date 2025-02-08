@@ -168,9 +168,16 @@ export class Compass {
 
     for (const [k, v] of Object.entries(Commands)) {
       this.browser.addCommand(k, (...args) => {
+        // kinda interesting
+        console.log('adding list of commands and doing k[v]: ', k);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        return v(browser, ...args);
+        return (() => {
+          console.log('I am running command k ', k);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return v(this.browser, ...args);
+        })();
       });
     }
 
@@ -449,6 +456,8 @@ async function getCompassExecutionParameters(): Promise<{
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
     : ELECTRON_PATH;
+  console.log('looks like the binary is ', binary);
+  console.log('btw test packaged app is ', testPackagedApp);
   return { testPackagedApp, binary };
 }
 
@@ -674,8 +683,10 @@ async function startCompassElectron(
     ...wdioOptions,
   };
 
-  debug('Starting compass via webdriverio with the following configuration:');
-  debug(JSON.stringify(options, null, 2));
+  console.log(
+    'Starting compass via webdriverio with the following configuration:'
+  );
+  console.log(JSON.stringify(options, null, 2));
 
   let browser: CompassBrowser;
 
@@ -831,6 +842,7 @@ export async function startBrowser(
       `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
     );
   } else {
+    console.log('navigating to sandbox url: ', context.sandboxUrl);
     await browser.navigateTo(context.sandboxUrl);
   }
 

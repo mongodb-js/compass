@@ -58,10 +58,9 @@ describe('networkTraffic: false / Isolated Edition', function () {
     const outfile = path.join(tmpdir, 'strace-out.log');
     async function wrapBinary(binary: string): Promise<string> {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
-      await fs.writeFile(
-        wrapperFile,
-        `#!/bin/bash\nulimit -c 0;  '${binary}' "$@"\n`
-      );
+      const str = `#!/bin/bash\nulimit -c 0;  '${binary}' "$@"\n`;
+      console.log('contents of wrapped file will be ', str);
+      await fs.writeFile(wrapperFile, str);
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
     }
