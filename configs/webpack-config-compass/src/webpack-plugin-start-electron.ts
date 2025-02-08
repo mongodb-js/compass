@@ -166,9 +166,6 @@ export class WebpackPluginStartElectron {
     this.logger.info(
       '- Ctrl+A to restart the main process with extra arguments'
     );
-    this.logger.info('appPath: ', this.appPath);
-    this.logger.info('extraArgs: ', extraArgs);
-    this.logger.info('env:', process.env);
     this.electronProcess = spawn(
       // XXX: in non-electron environment this import returns path to the binary
       electronBinaryPath as unknown as string,
