@@ -11,6 +11,36 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
 import { openToast } from '@mongodb-js/compass-components';
+import http from 'http';
+import https from 'https';
+
+console.log('DJECHLIN WE ARE IN INDEX');
+
+// Intercept HTTP requests
+const originalHttpRequest = http.request;
+http.request = function (...args: any[]) {
+  console.log('DJECHLIN HTTP Request:', args);
+  log.error(
+    mongoLogId(1_001_818_275),
+    'DJECHLIN',
+    'DJECHLIN HTTP REQUEST HAPPENED OH NO',
+    { message: args }
+  );
+  return originalHttpRequest.apply(this, args as any);
+};
+
+// Intercept HTTPS requests
+const originalHttpsRequest = https.request;
+https.request = function (...args: any[]) {
+  console.log('DJECHLIN HTTPS Request:', args);
+  log.error(
+    mongoLogId(1_001_818_276),
+    'DJECHLIN',
+    'DJECHLIN HTTPS SSSSSSSSSS REQUEST HAPPENED OH NO',
+    { message: args }
+  );
+  return originalHttpsRequest.apply(this, args as any);
+};
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
