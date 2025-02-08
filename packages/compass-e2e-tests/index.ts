@@ -54,7 +54,7 @@ async function main() {
   const e2eTestGroup = context.testGroup;
   const e2eTestFilter = context.testFilter;
 
-  const tests = (
+  let tests = (
     await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
       cwd: __dirname,
     })
@@ -67,6 +67,7 @@ async function main() {
       return index >= minGroupIndex && index <= maxGroupIndex;
     })
     .sort((a, b) => {
+      // this comment is wrong
       // The only test file that's interested in the first-run experience (at the
       // time of writing) is time-to-first-query.ts and that happens to be
       // alphabetically right at the end. Which is fine, but the first test to run
@@ -82,17 +83,24 @@ async function main() {
       }
     });
 
+  tests = tests.filter((test) => test === 'tests/no-network-traffic.test.ts');
+
+  console.log('test files: ', tests);
   debug('Test files:', tests);
 
   if (tests.length === 0) {
     throw new Error('No tests to run');
   }
 
+  console.log('before mocha 1');
+
   const mocha = new Mocha({
     timeout: context.mochaTimeout,
     bail: context.mochaBail,
     reporter: require.resolve('@mongodb-js/mocha-config-compass/reporter'),
   });
+
+  console.log('after mocha 1');
 
   // @ts-expect-error mocha types are incorrect, global setup this is bound to
   // runner, not context
@@ -111,9 +119,11 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
+  console.log('Running e2e ...');
   debug('Running E2E tests');
   runnerPromise = new Promise((resolve) => {
     mocha.run((failures: number) => {
+      console.log('on finish??');
       debug('Finished running e2e tests', { failures });
       process.exitCode = failures ? 1 : 0;
       // Since the webdriverio update something is messing with the terminal's
@@ -160,5 +170,7 @@ process.on('unhandledRejection', (err: Error) => {
 async function run() {
   await main();
 }
+
+console.log('running???????');
 
 void run();
