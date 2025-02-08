@@ -57,7 +57,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
       let str;
       if (process.platform === 'linux') {
-        str = `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`;
+        str = `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -t -o '${outfile}' '${binary}' "$@"\n`;
       } else {
         str = `#!/bin/bash\nulimit -c 0;  '${binary}' "$@"\n`;
       }
@@ -73,7 +73,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       wrapBinary,
       // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
       // Probably the welcome modal.
-      firstRun: true,
+      firstRun: false,
     });
     const browser = compass.browser;
 
