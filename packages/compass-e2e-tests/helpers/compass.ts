@@ -621,6 +621,8 @@ async function startCompassElectron(
     chromeArgs.push(...opts.extraSpawnArgs);
   }
 
+  chromeArgs.push('--host-rules=MAP * 127.0.0.1');
+
   // Electron on Windows interprets its arguments in a weird way where
   // the second positional argument inserted by webdriverio (about:blank)
   // throws it off and won't let it start because it then interprets the first
