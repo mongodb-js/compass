@@ -82,15 +82,15 @@ async function main() {
       }
     });
 
-  tests = tests.filter(
-    (test) =>
-      test === 'tests/atlas-login.test.ts' ||
-      test === 'tests/auto-connect.test.ts' ||
-      test === 'tests/collection-aggregations-tab.test.ts' ||
-      test === 'tests/collection-ai-query.test.ts' ||
-      test === 'tests/collection-heading.test.ts' ||
-      test === 'tests/no-network-traffic.test.ts'
-  );
+  // tests = tests.filter(
+  //   (test) =>
+  //     test === 'tests/atlas-login.test.ts' ||
+  //     test === 'tests/auto-connect.test.ts' ||
+  //     test === 'tests/collection-aggregations-tab.test.ts' ||
+  //     test === 'tests/collection-ai-query.test.ts' ||
+  //     test === 'tests/collection-heading.test.ts' ||
+  //     test === 'tests/no-network-traffic.test.ts'
+  // );
 
   debug('Test files:', tests);
 
