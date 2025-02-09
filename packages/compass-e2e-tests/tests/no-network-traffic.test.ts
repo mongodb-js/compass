@@ -67,7 +67,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       wrapBinary,
       // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
       // Probably the welcome modal.
-      firstRun: false,
+      firstRun: true,
     });
     const browser = compass.browser;
 
