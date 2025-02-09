@@ -82,7 +82,11 @@ async function main() {
       }
     });
 
-  tests = tests.filter((test) => test === 'tests/no-network-traffic.test.ts');
+  tests = tests.filter(
+    (test) =>
+      test === 'tests/collection-indexes-tab.test.ts' ||
+      test === 'tests/no-network-traffic.test.ts'
+  );
 
   debug('Test files:', tests);
 
