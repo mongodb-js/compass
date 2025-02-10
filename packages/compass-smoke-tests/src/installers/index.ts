@@ -4,6 +4,7 @@ import { installMacZIP } from './mac-zip';
 import { installWindowsZIP } from './windows-zip';
 import { installWindowsMSI } from './windows-msi';
 import { installWindowsSetup } from './windows-setup';
+import { installLinuxTar } from './linux-tar';
 
 export function getInstaller(kind: PackageKind) {
   if (kind === 'osx_dmg') {
@@ -16,6 +17,8 @@ export function getInstaller(kind: PackageKind) {
     return installWindowsMSI;
   } else if (kind === 'windows_setup') {
     return installWindowsSetup;
+  } else if (kind === 'linux_tar') {
+    return installLinuxTar;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
