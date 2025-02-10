@@ -677,9 +677,9 @@ functions:
           npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com --engine-strict=false
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
-            # TODO: windows_setup
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests=auto-update-from
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests=auto-update-from
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests auto-update-from
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests auto-update-from
           fi
 
           if [[ "$IS_OSX" == "true" ]]; then
