@@ -693,7 +693,7 @@ functions:
           fi
 
           if [[ "$IS_UBUNTU" == "true" ]]; then
-            # TODO: linux_deb
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_deb --tests=time-to-first-query
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
           fi
 
