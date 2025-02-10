@@ -2,6 +2,9 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import stream from 'node:stream';
+import createDebug from 'debug';
+
+const debug = createDebug('compass:smoketests:downloads');
 
 import { ensureDownloadsDirectory } from './directories';
 
@@ -33,7 +36,7 @@ export async function downloadFile({
     if (clearCache) {
       fs.rmSync(cacheDirectoryPath, { recursive: true, force: true });
     } else {
-      console.log('Skipped downloading', url, '(cache existed)');
+      debug('Skipped downloading', url, '(cache existed)');
       return outputPath;
     }
   }
@@ -44,7 +47,7 @@ export async function downloadFile({
 
   // Write the response to file
   assert(response.body, 'Expected a response body');
-  console.log('Downloading', url);
+  debug('Downloading', url);
   await stream.promises.pipeline(
     response.body,
     fs.createWriteStream(outputPath)
