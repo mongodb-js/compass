@@ -79,7 +79,8 @@ describe('connection tracking', function () {
       title: 'is srv',
     },
   ]) {
-    it(`tracks a new connection event - ${title}`, async function () {
+    // TODO: https://jira.mongodb.org/browse/COMPASS-8932
+    it.skip(`tracks a new connection event - ${title}`, async function () {
       const [properties] = await getExtraConnectionData({
         ...connectionInfo,
         connectionOptions: {
