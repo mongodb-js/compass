@@ -54,7 +54,7 @@
     "@mongodb-js/compass-editor": "^0.36.0",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.31.0",
     "@mongodb-js/compass-telemetry": "^1.4.0",
-    "@mongodb-js/shell-bson-parser": "^1.1.2",
+    "@mongodb-js/shell-bson-parser": "^1.2.0",
     "bson-transpilers": "^3.2.0",
     "compass-preferences-model": "^2.33.0",
     "hadron-app-registry": "^9.4.0",
