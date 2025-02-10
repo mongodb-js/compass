@@ -62,7 +62,6 @@ export function onActivated(
           createAndStoreRuntime(dataService, logger, track, connectionInfo).id
         : null,
       history: null,
-      mongoshVersion: '',
     },
     applyMiddleware(
       thunk.withExtraArgument({
