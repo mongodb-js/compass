@@ -468,7 +468,7 @@ tasks:
           compass_distribution: <%= distribution %>
   <% } %>
 
-<% for (const distribution of ['compass']) { %>
+<% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
   - name: smoketest-<%= distribution %>
     tags: ['required-for-publish', 'run-on-pr']
     commands:

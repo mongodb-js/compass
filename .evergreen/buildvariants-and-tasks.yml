@@ -515,6 +515,36 @@ tasks:
           mongodb_version: 8.0.x-enterprise
           compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: smoketest-compass-isolated
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: 8.0.x-enterprise
+          compass_distribution: compass-isolated
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: smoketest-compass-readonly
+    tags:
+      - required-for-publish
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: smoketest-packaged-app
+        vars:
+          mongodb_version: 8.0.x-enterprise
+          compass_distribution: compass-readonly
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-1
     tags:
       - required-for-publish
