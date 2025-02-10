@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
 import { pick } from 'lodash';
+
+const debug = createDebug('compass:smoketests:build-info');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
@@ -242,11 +245,11 @@ export function writeAndReadPackageDetails(
     arch: context.arch,
     out: path.resolve(context.sandboxPath, 'target.json'),
   };
-  console.log({ infoArgs });
+  debug({ infoArgs });
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
-  console.log(
+  debug(
     'info env vars',
     pick(process.env, [
       'HADRON_DISTRIBUTION',

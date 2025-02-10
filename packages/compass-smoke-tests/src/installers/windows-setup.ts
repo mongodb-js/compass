@@ -2,10 +2,13 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import cp from 'node:child_process';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 import * as windowsRegistry from './windows-registry';
+
+const debug = createDebug('compass:smoketests:windows-setup');
 
 type UninstallOptions = {
   /**
@@ -51,7 +54,7 @@ export function installWindowsSetup({
         typeof uninstallCommand === 'string',
         'Expected an UninstallString in the registry entry'
       );
-      console.log(`Running command to uninstall: ${uninstallCommand}`);
+      debug(`Running command to uninstall: ${uninstallCommand}`);
       cp.execSync(uninstallCommand, { stdio: 'inherit' });
       // Removing the any remaining files manually
       fs.rmSync(installLocation, { recursive: true, force: true });
