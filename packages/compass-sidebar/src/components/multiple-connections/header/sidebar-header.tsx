@@ -31,18 +31,24 @@ const actions: ItemAction<Action>[] = [
 
 export function SidebarHeader({
   onAction,
+  isCompassWeb,
 }: {
   onAction(actionName: Action): void;
+  isCompassWeb?: boolean;
 }): React.ReactElement {
   return (
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
-      <Subtitle className={sidebarHeaderTextStyles}>Compass</Subtitle>
-      <ItemActionControls<Action>
-        onAction={onAction}
-        iconSize="small"
-        actions={actions}
-        data-testid="connections-sidebar-title-actions"
-      ></ItemActionControls>
+      <Subtitle className={sidebarHeaderTextStyles}>
+        {isCompassWeb ? 'Data Explorer' : 'Compass'}
+      </Subtitle>
+      {!isCompassWeb && (
+        <ItemActionControls<Action>
+          onAction={onAction}
+          iconSize="small"
+          actions={actions}
+          data-testid="connections-sidebar-title-actions"
+        ></ItemActionControls>
+      )}
     </div>
   );
 }
