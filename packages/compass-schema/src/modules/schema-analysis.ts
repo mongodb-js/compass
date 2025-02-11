@@ -65,6 +65,7 @@ export const analyzeSchema = async (
       },
       {
         abortSignal,
+        fallbackReadPreference: 'secondaryPreferred',
       }
     );
     const schemaAccessor = await analyzeDocuments(docs, {

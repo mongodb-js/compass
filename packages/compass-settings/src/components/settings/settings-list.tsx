@@ -4,6 +4,7 @@ import {
   getSettingDescription,
   featureFlags,
 } from 'compass-preferences-model/provider';
+import { SORT_ORDER_VALUES } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,
@@ -12,6 +13,8 @@ import {
   css,
   spacing,
   TextInput,
+  Select,
+  Option,
   FormFieldContainer,
   Badge,
 } from '@mongodb-js/compass-components';
@@ -157,6 +160,55 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   );
 }
 
+function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
+  name,
+  onChange,
+  value,
+  disabled,
+}: {
+  name: PreferenceName;
+  onChange: HandleChange<PreferenceName>;
+  value: string;
+  disabled: boolean;
+}) {
+  const optionDescriptions = getSettingDescription(name).description.options;
+  const onChangeCallback = useCallback(
+    (value: string) => {
+      onChange(name, value as UserConfigurablePreferences[PreferenceName]);
+    },
+    [name, onChange]
+  );
+
+  return (
+    <>
+      <SettingLabel name={name} />
+      <Select
+        className={inputStyles}
+        allowDeselect={false}
+        aria-labelledby={`${name}-label`}
+        id={name}
+        name={name}
+        data-testid={name}
+        value={value}
+        onChange={onChangeCallback}
+        disabled={disabled}
+      >
+        {SORT_ORDER_VALUES.map((option) => (
+          <Option
+            key={option}
+            value={option}
+            description={
+              optionDescriptions && optionDescriptions[option].description
+            }
+          >
+            {optionDescriptions && optionDescriptions[option].label}
+          </Option>
+        ))}
+      </Select>
+    </>
+  );
+}
+
 function StringSetting<PreferenceName extends StringPreferences>({
   name,
   onChange,
@@ -263,9 +315,16 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-  }
-
-  if (type === 'number') {
+  } else if (type === 'string' && name === 'defaultSortOrder') {
+    input = (
+      <DefaultSortOrderSetting
+        name={name}
+        onChange={onChange}
+        value={value as string}
+        disabled={!!disabled}
+      />
+    );
+  } else if (type === 'number') {
     input = (
       <NumericSetting
         name={name}
@@ -275,9 +334,7 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-  }
-
-  if (type === 'string') {
+  } else if (type === 'string') {
     input = (
       <StringSetting
         name={name}

@@ -176,7 +176,7 @@ export const changeExportSchemaFormat = (
     let exportedSchema: string;
     try {
       log.info(
-        mongoLogId(1_001_000_339),
+        mongoLogId(1_001_000_342),
         'Schema export formatting',
         'Formatting schema',
         {
@@ -199,7 +199,7 @@ export const changeExportSchemaFormat = (
         return;
       }
       log.error(
-        mongoLogId(1_001_000_340),
+        mongoLogId(1_001_000_343),
         'Schema export formatting',
         'Error formatting schema',
         {
@@ -219,7 +219,7 @@ export const changeExportSchemaFormat = (
     }
 
     log.info(
-      mongoLogId(1_001_000_341),
+      mongoLogId(1_001_000_344),
       'Schema export formatting complete',
       'Formatting schema complete',
       {

@@ -1,21 +1,27 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
-import { type SmokeTestsContext } from './context';
+import { type SmokeTestsContextWithSandbox } from './context';
 import { pick } from 'lodash';
 
-function assertObjectHasKeys(
-  obj: unknown,
-  name: string,
-  keys: readonly string[]
-) {
+const debug = createDebug('compass:smoketests:build-info');
+
+const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
+
+export type Channel = typeof SUPPORTED_CHANNELS[number];
+
+function assertObjectHasKeys<
+  Keys extends readonly string[],
+  Obj extends Record<Keys[number], unknown>
+>(obj: unknown, name: string, keys: Keys): asserts obj is Obj {
   assert(
     typeof obj === 'object' && obj !== null,
-    'Expected buildInfo to be an object'
+    `Expected ${name} to be an object`
   );
 
   for (const key of keys) {
@@ -25,13 +31,21 @@ function assertObjectHasKeys(
 
 // subsets of the hadron-build info result
 
-export const commonKeys = ['productName'] as const;
-export type CommonBuildInfo = Record<typeof commonKeys[number], string>;
+export const commonKeys = ['productName', 'version', 'channel'] as const;
+export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
+  channel: Channel;
+};
 
 export function assertCommonBuildInfo(
   buildInfo: unknown
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
+  assert(
+    SUPPORTED_CHANNELS.includes(buildInfo.channel as Channel),
+    `Expected ${JSON.stringify(
+      buildInfo.channel
+    )} to be in ${SUPPORTED_CHANNELS.join(',')}`
+  );
 }
 
 export const windowsFilenameKeys = [
@@ -221,7 +235,7 @@ export function readPackageDetails(
 }
 
 export function writeAndReadPackageDetails(
-  context: SmokeTestsContext
+  context: SmokeTestsContextWithSandbox
 ): PackageDetails {
   const compassDir = path.resolve(__dirname, '../../compass');
   const infoArgs = {
@@ -231,11 +245,11 @@ export function writeAndReadPackageDetails(
     arch: context.arch,
     out: path.resolve(context.sandboxPath, 'target.json'),
   };
-  console.log({ infoArgs });
+  debug({ infoArgs });
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
-  console.log(
+  debug(
     'info env vars',
     pick(process.env, [
       'HADRON_DISTRIBUTION',

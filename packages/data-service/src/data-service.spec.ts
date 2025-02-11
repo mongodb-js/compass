@@ -7,6 +7,7 @@ import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { Int32, UUID } from 'bson';
 import sinon from 'sinon';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
@@ -22,6 +23,7 @@ import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
 import { range } from 'lodash';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -535,6 +537,91 @@ describe('DataService', function () {
         );
         expect(collections).to.have.nested.property('[0].type', 'collection');
       });
+
+      context('with non existant collections', function () {
+        let dataService: DataServiceImpl;
+        beforeEach(async function () {
+          await mongoClient.db('imdb').command({
+            createRole: 'moderator',
+            privileges: [
+              {
+                resource: { db: 'imdb', collection: 'movies' },
+                actions: ['find'],
+              },
+              {
+                resource: { db: 'imdb', collection: 'reviews' },
+                actions: ['find'],
+              },
+              {
+                resource: { db: 'imdb', collection: 'users' },
+                actions: ['find'],
+              },
+            ],
+            roles: [],
+          });
+
+          await mongoClient.db('admin').command({
+            createUser: 'new_user',
+            pwd: 'new_password',
+            roles: [{ role: 'moderator', db: 'imdb' }],
+          });
+          const cs = new ConnectionString(connectionOptions.connectionString);
+          cs.username = 'new_user';
+          cs.password = 'new_password';
+          const newConnectionOptions = {
+            connectionString: cs.toString(),
+          };
+
+          dataService = new DataServiceImpl(newConnectionOptions);
+          await dataService.connect();
+        });
+
+        afterEach(async function () {
+          await Promise.all([
+            mongoClient.db('admin').command({
+              dropUser: 'new_user',
+            }),
+            mongoClient.db('imdb').command({
+              dropRole: 'moderator',
+            }),
+            mongoClient.db('imdb').dropDatabase(),
+          ]).catch(() => null);
+          await dataService?.disconnect();
+        });
+
+        it('returns collections from user privileges', async function () {
+          const collections = await dataService.listCollections('imdb');
+          const mappedCollections = collections.map(
+            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+          );
+
+          const expectedCollections = [
+            { _id: 'imdb.movies', name: 'movies', is_non_existent: true },
+            { _id: 'imdb.reviews', name: 'reviews', is_non_existent: true },
+            { _id: 'imdb.users', name: 'users', is_non_existent: true },
+          ];
+          expect(mappedCollections).to.deep.include.members(
+            expectedCollections
+          );
+        });
+
+        it('gives precedence to the provisioned collections', async function () {
+          await dataService.createCollection('imdb.movies', {});
+          const collections = await dataService.listCollections('imdb');
+          const mappedCollections = collections.map(
+            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+          );
+
+          const expectedCollections = [
+            { _id: 'imdb.movies', name: 'movies', is_non_existent: false },
+            { _id: 'imdb.reviews', name: 'reviews', is_non_existent: true },
+            { _id: 'imdb.users', name: 'users', is_non_existent: true },
+          ];
+          expect(mappedCollections).to.deep.include.members(
+            expectedCollections
+          );
+        });
+      });
     });
 
     describe('#updateCollection', function () {
@@ -687,6 +774,98 @@ describe('DataService', function () {
           expect(databaseNames).to.contain('local');
         }
         expect(databaseNames).to.contain(`${testDatabaseName}`);
+      });
+
+      context('with non existant databases', function () {
+        let dataService: DataServiceImpl;
+        beforeEach(async function () {
+          await mongoClient.db('imdb').command({
+            createRole: 'moderator',
+            privileges: [
+              {
+                resource: { db: 'imdb', collection: 'movies' },
+                actions: ['find'],
+              },
+              {
+                resource: { db: 'imdb', collection: 'reviews' },
+                actions: ['find'],
+              },
+            ],
+            roles: [],
+          });
+
+          await mongoClient.db('admin').command({
+            createUser: 'new_user',
+            pwd: 'new_password',
+            roles: [
+              { role: 'readWrite', db: 'sample_airbnb' },
+              { role: 'read', db: 'sample_wiki' },
+              { role: 'moderator', db: 'imdb' },
+            ],
+          });
+          const cs = new ConnectionString(connectionOptions.connectionString);
+          cs.username = 'new_user';
+          cs.password = 'new_password';
+          const newConnectionOptions = {
+            connectionString: cs.toString(),
+          };
+
+          dataService = new DataServiceImpl(newConnectionOptions);
+          await dataService.connect();
+        });
+
+        afterEach(async function () {
+          await Promise.all([
+            mongoClient.db('admin').command({
+              dropUser: 'new_user',
+            }),
+            mongoClient.db('imdb').command({
+              dropRole: 'moderator',
+            }),
+            mongoClient.db('imdb').dropDatabase(),
+          ]).catch(() => null);
+          await dataService?.disconnect();
+        });
+
+        it('returns databases from user roles and privileges', async function () {
+          const databases = await dataService.listDatabases();
+          const mappedDatabases = databases.map(
+            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+          );
+
+          const expectedDatabases = [
+            // Based on roles
+            {
+              _id: 'sample_airbnb',
+              name: 'sample_airbnb',
+              is_non_existent: true,
+            },
+            { _id: 'sample_wiki', name: 'sample_wiki', is_non_existent: true },
+            // Based on privileges
+            { _id: 'imdb', name: 'imdb', is_non_existent: true },
+          ];
+          expect(mappedDatabases).to.deep.include.members(expectedDatabases);
+        });
+
+        it('gives precedence to the provisioned databases', async function () {
+          await dataService.createCollection('imdb.movies', {});
+          await dataService.createCollection('sample_airbnb.whatever', {});
+          const databases = await dataService.listDatabases();
+          const mappedDatabases = databases.map(
+            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+          );
+
+          const expectedDatabases = [
+            {
+              _id: 'sample_airbnb',
+              name: 'sample_airbnb',
+              is_non_existent: false,
+            },
+            { _id: 'sample_wiki', name: 'sample_wiki', is_non_existent: true },
+            { _id: 'imdb', name: 'imdb', is_non_existent: false },
+          ];
+          expect(mappedDatabases).to.deep.include.members(expectedDatabases);
+        });
       });
     });
 
@@ -864,6 +1043,54 @@ describe('DataService', function () {
           'db.coll',
           [{ $sample: { size: 1000 } }],
           { allowDiskUse: false }
+        );
+      });
+
+      it('allows to pass fallbackReadPreference and sets the read preference when unset', function () {
+        sandbox.spy(dataService, 'aggregate');
+        void dataService.sample(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregate).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true, readPreference: 'secondaryPreferred' }
+        );
+      });
+
+      it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', function () {
+        sandbox.spy(dataService, 'aggregate');
+        const connectionStringReplacement = new ConnectionStringUrl(
+          cluster().connectionString
+        );
+        connectionStringReplacement.searchParams.set(
+          'readPreference',
+          'primary'
+        );
+        sandbox.replace(dataService as any, '_connectionOptions', {
+          connectionString: connectionStringReplacement.toString(),
+        });
+        void dataService.sample(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregate).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true }
         );
       });
     });
@@ -1609,8 +1836,15 @@ describe('DataService', function () {
             },
           },
         });
-        const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['pineapple', 'foo', 'buz', 'bar']);
+        const dbs = (await dataService.listDatabases()).map(
+          ({ name, is_non_existent }) => ({ name, is_non_existent })
+        );
+        expect(dbs).to.deep.eq([
+          { name: 'pineapple', is_non_existent: true },
+          { name: 'foo', is_non_existent: false },
+          { name: 'buz', is_non_existent: true },
+          { name: 'bar', is_non_existent: false },
+        ]);
       });
 
       it('returns result from privileges even if listDatabases threw any error', async function () {
@@ -1629,8 +1863,10 @@ describe('DataService', function () {
             },
           },
         });
-        const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['foo']);
+        const dbs = (await dataService.listDatabases()).map(
+          ({ name, is_non_existent }) => ({ name, is_non_existent })
+        );
+        expect(dbs).to.deep.eq([{ name: 'foo', is_non_existent: true }]);
       });
     });
 
@@ -1723,9 +1959,14 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          (coll) => coll.name
+          ({ name, is_non_existent }) => ({ name, is_non_existent })
         );
-        expect(colls).to.deep.eq(['bar', 'buz', 'bla', 'meow']);
+        expect(colls).to.deep.eq([
+          { name: 'bar', is_non_existent: true },
+          { name: 'buz', is_non_existent: false },
+          { name: 'bla', is_non_existent: false },
+          { name: 'meow', is_non_existent: false },
+        ]);
       });
 
       it('returns result from privileges even if listCollections threw any error', async function () {
@@ -1747,9 +1988,9 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          (coll) => coll.name
+          ({ name, is_non_existent }) => ({ name, is_non_existent })
         );
-        expect(colls).to.deep.eq(['bar']);
+        expect(colls).to.deep.eq([{ name: 'bar', is_non_existent: true }]);
       });
     });
 

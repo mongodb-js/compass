@@ -17,6 +17,14 @@ import {
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
 
+export const SORT_ORDER_VALUES = [
+  '',
+  '{ $natural: -1 }',
+  '{ _id: 1 }',
+  '{ _id: -1 }',
+] as const;
+export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
+
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
@@ -69,6 +77,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableGenAISampleDocumentPassing: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
+    defaultSortOrder: SORT_ORDERS;
     enableShowDialogOnQuit: boolean;
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
@@ -187,7 +196,13 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** A description used for the --help text and the Settings UI */
   description: K extends keyof InternalUserPreferences
     ? null
-    : { short: string; long?: string };
+    : {
+        short: string;
+        long?: string;
+        options?: AllPreferences[K] extends string
+          ? { [k in AllPreferences[K]]: { label: string; description: string } }
+          : never;
+      };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
@@ -199,6 +214,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       ? boolean
       : false
     : boolean;
+
   validator: z.Schema<
     AllPreferences[K],
     z.ZodTypeDef,
@@ -537,6 +553,39 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  /**
+   * Set the default sort.
+   */
+  defaultSortOrder: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Default Sort for Query Bar',
+      long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
+      options: {
+        '': {
+          label: '$natural: 1 (MongoDB server default)',
+          description: 'in natural order of documents',
+        },
+        '{ $natural: -1 }': {
+          label: '$natural: -1',
+          description: 'in reverse natural order of documents',
+        },
+        '{ _id: 1 }': {
+          label: '_id: 1',
+          description: 'in ascending order by id',
+        },
+        '{ _id: -1 }': {
+          label: '_id: -1',
+          description: 'in descending order by id',
+        },
+      },
+    },
+    validator: z.enum(SORT_ORDER_VALUES).default(''),
+    type: 'string',
+  },
+
   /**
    * Switch to enable DevTools in Electron.
    */
