@@ -17,13 +17,10 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import {
-  schemaAnalysisReducer,
-  handleSchemaShare,
-  stopAnalysis,
-} from './schema-analysis-reducer';
+import { schemaAnalysisReducer, stopAnalysis } from './schema-analysis-reducer';
 import {
   cancelExportSchema,
+  SchemaExportActions,
   schemaExportReducer,
 } from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
@@ -79,7 +76,7 @@ export function activateSchemaPlugin(
    */
 
   on(services.localAppRegistry, 'menu-share-schema-json', () =>
-    store.dispatch(handleSchemaShare())
+    store.dispatch({ type: SchemaExportActions.openLegacyBanner })
   );
 
   addCleanup(() => store.dispatch(stopAnalysis()));

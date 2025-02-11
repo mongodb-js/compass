@@ -39,6 +39,7 @@ import type { RootState } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
 import ExportSchemaModal from './export-schema-modal';
+import ExportSchemaLegacyBanner from './export-schema-legacy-banner';
 
 const rootStyles = css({
   width: '100%',
@@ -431,6 +432,7 @@ const Schema: React.FunctionComponent<{
         </WorkspaceContainer>
       </div>
       {enableExportSchema && <ExportSchemaModal />}
+      {enableExportSchema && <ExportSchemaLegacyBanner />}
     </>
   );
 };
