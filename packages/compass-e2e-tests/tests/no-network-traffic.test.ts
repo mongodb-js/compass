@@ -22,11 +22,12 @@ describe('networkTraffic: false / Isolated Edition', function () {
   let i = 0;
 
   before(function () {
+    console.log('an early before in our test of choice');
     skipForWeb(this, 'cli params not available in compass-web');
 
     if (process.platform !== 'linux') {
       // No strace on other platforms
-      return this.skip();
+      // return this.skip();
     }
   });
 
@@ -54,14 +55,19 @@ describe('networkTraffic: false / Isolated Edition', function () {
     const outfile = path.join(tmpdir, 'strace-out.log');
     async function wrapBinary(binary: string): Promise<string> {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
-      await fs.writeFile(
-        wrapperFile,
-        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`
-      );
+      let str;
+      if (process.platform === 'linux') {
+        str = `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -t -o '${outfile}' '${binary}' "$@"\n`;
+      } else {
+        str = `#!/bin/bash\nulimit -c 0;  '${binary}' "$@"\n`;
+      }
+      console.log('contents of wrapped file will be ', str);
+      await fs.writeFile(wrapperFile, str);
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
     }
 
+    console.log('process pid inside no network test: ', process.pid);
     const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
@@ -71,6 +77,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     });
     const browser = compass.browser;
 
+    console.log('set up default connections...');
     await browser.setupDefaultConnections();
 
     {
@@ -78,8 +85,9 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const exitOnDisconnectFile = path.join(tmpdir, 'exitOnDisconnect.js');
       await fs.writeFile(
         exitOnDisconnectFile,
-        'process.once("disconnect", () => process.exit())'
+        'process.once("disconnect", () => {})'
       );
+      console.log('browser.execute...');
       await browser.execute((exitOnDisconnectFile) => {
         process.env.NODE_OPTIONS ??= '';
         process.env.NODE_OPTIONS += ` --require "${exitOnDisconnectFile}"`;
@@ -87,9 +95,14 @@ describe('networkTraffic: false / Isolated Edition', function () {
     }
 
     try {
+      console.log('connect to defaults...');
       await browser.connectToDefaults();
     } finally {
       await cleanup(compass);
+    }
+
+    if (process.platform !== 'linux') {
+      return;
     }
 
     const straceLog = await fs.readFile(outfile, 'utf8');
@@ -115,12 +128,15 @@ describe('networkTraffic: false / Isolated Edition', function () {
       );
     }
 
-    if (
-      [...connectTargets].some(
-        (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
-      )
-    ) {
-      throw new Error(`Connected to unexpected host! ${[...connectTargets]}`);
+    const unexpectedHosts = [...connectTargets].filter(
+      (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
+    );
+    if (unexpectedHosts.length > 0) {
+      throw new Error(
+        `Connected to unexpected host! ${[
+          ...unexpectedHosts,
+        ]}. Here is the whole file content:\n ${straceLog}`
+      );
     }
     if (![...connectTargets].some((target) => /:27091$/.test(target))) {
       throw new Error(

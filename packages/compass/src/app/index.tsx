@@ -12,6 +12,8 @@ import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
 import { openToast } from '@mongodb-js/compass-components';
 
+console.log('DJECHLIN WE ARE IN INDEX');
+
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
