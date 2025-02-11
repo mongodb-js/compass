@@ -48,14 +48,24 @@ const containerStyles = css({
 });
 
 const linkTitle = 'Atlas Search.';
-const AtlasIndexesBanner = () => {
+
+const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   const { atlasMetadata } = useConnectionInfo();
+  if (!atlasMetadata) {
+    return null;
+  }
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
-        <Link href={getAtlasSearchIndexesLink(atlasMetadata)} hideExternalIcon>
+        <Link
+          href={getAtlasSearchIndexesLink({
+            clusterName: atlasMetadata.clusterName,
+            namespace,
+          })}
+          hideExternalIcon
+        >
           {linkTitle}
         </Link>
       ) : (
@@ -66,6 +76,7 @@ const AtlasIndexesBanner = () => {
 };
 
 type IndexesProps = {
+  namespace: string;
   isReadonlyView?: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
@@ -88,6 +99,7 @@ const indexesContainersStyles = css({
 });
 
 export function Indexes({
+  namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
@@ -130,7 +142,7 @@ export function Indexes({
       >
         <div className={indexesContainersStyles}>
           {!isReadonlyView && !enableAtlasSearchIndexes && (
-            <AtlasIndexesBanner />
+            <AtlasIndexesBanner namespace={namespace} />
           )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
@@ -148,11 +160,13 @@ export function Indexes({
 }
 
 const mapState = ({
+  namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
   indexView,
 }: RootState) => ({
+  namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
