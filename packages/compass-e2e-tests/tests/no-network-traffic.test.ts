@@ -56,7 +56,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
       await fs.writeFile(
         wrapperFile,
-        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`
+        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -tt -o '${outfile}' '${binary}' "$@"\n`
       );
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
@@ -67,7 +67,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       wrapBinary,
       // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
       // Probably the welcome modal.
-      firstRun: false,
+      firstRun: true,
     });
     const browser = compass.browser;
 
@@ -115,12 +115,15 @@ describe('networkTraffic: false / Isolated Edition', function () {
       );
     }
 
-    if (
-      [...connectTargets].some(
-        (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
-      )
-    ) {
-      throw new Error(`Connected to unexpected host! ${[...connectTargets]}`);
+    const unexpectedHosts = [...connectTargets].filter(
+      (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
+    );
+    if (unexpectedHosts.length > 0) {
+      throw new Error(
+        `Connected to unexpected host! ${[
+          ...unexpectedHosts,
+        ]}. Here is the strace log:\n ${straceLog}`
+      );
     }
     if (![...connectTargets].some((target) => /:27091$/.test(target))) {
       throw new Error(
