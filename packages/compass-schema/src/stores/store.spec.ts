@@ -129,26 +129,14 @@ describe('Schema Store', function () {
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
-          const expectedExportedSchema =
-            '{"count":2,"fields":[{"name":"name","path":["name"],"count":2,"type":"String","probability":1,"hasDuplicates":false,"types":[{"name":"String","path":["name"],"count":2,"probability":1,"unique":2,"hasDuplicates":false,"values":["Hans","Greta"],"bsonType":"String"}]}]}';
-          expect(exportedSchema).to.equal(expectedExportedSchema);
-        });
-
-        it('can cancel a schema formatting in progress', async function () {
-          // TODO: Pass in new schema format with mocked formatters to test.
-          const analysisPromise = store.dispatch(
-            changeExportSchemaFormat('standardJSON')
+          expect(JSON.parse(exportedSchema!).type).to.equal('object');
+          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(
+            'https://json-schema.org/draft/2020-12/schema'
           );
-          expect(store.getState().schemaAnalysis.analysisState).to.equal(
-            'analyzing'
-          );
-          sampleStub.rejects(new Error('abort'));
-          store.dispatch(stopAnalysis());
-          isCancelErrorStub.returns(true);
-          await analysisPromise;
-          expect(store.getState().schemaAnalysis.analysisState).to.equal(
-            'initial'
-          );
+          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
+          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+            name: { type: 'string' },
+          });
         });
       });
     });

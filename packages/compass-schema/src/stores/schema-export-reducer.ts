@@ -1,8 +1,15 @@
 import type { Action, Reducer } from 'redux';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type {
+  StandardJSONSchema,
+  InternalSchema,
+  MongoDBJSONSchema,
+  ExpandedJSONSchema,
+} from 'mongodb-schema';
 
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
+import type { SchemaAccessor } from '../modules/schema-analysis';
 
 export type SchemaFormat =
   | 'standardJSON'
@@ -110,6 +117,38 @@ export const cancelExportSchema = (): SchemaThunkAction<
   };
 };
 
+async function getSchemaByFormat({
+  exportFormat,
+  schemaAccessor,
+}: {
+  exportFormat: SchemaFormat;
+  schemaAccessor: SchemaAccessor;
+  signal: AbortSignal;
+}): Promise<string> {
+  // TODO: Use the signal once we pull in the schema accessor type changes.
+  let schema:
+    | StandardJSONSchema
+    | MongoDBJSONSchema
+    | ExpandedJSONSchema
+    | InternalSchema;
+  switch (exportFormat) {
+    case 'standardJSON':
+      schema = await schemaAccessor.getStandardJsonSchema();
+      break;
+    case 'mongoDBJSON':
+      schema = await schemaAccessor.getMongoDBJsonSchema();
+      break;
+    case 'extendedJSON':
+      schema = await schemaAccessor.getExpandedJSONSchema();
+      break;
+    case 'legacyJSON':
+      schema = await schemaAccessor.getInternalSchema();
+      break;
+  }
+
+  return JSON.stringify(schema, null, 2);
+}
+
 export const changeExportSchemaFormat = (
   exportFormat: SchemaFormat
 ): SchemaThunkAction<
@@ -145,10 +184,16 @@ export const changeExportSchemaFormat = (
         }
       );
 
-      // TODO.
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const schemaAccessor = getState().schemaAnalysis.schemaAccessor;
+      if (!schemaAccessor) {
+        throw new Error('No schema analysis available');
+      }
 
-      exportedSchema = JSON.stringify(getState().schemaAnalysis.schema);
+      exportedSchema = await getSchemaByFormat({
+        schemaAccessor,
+        exportFormat,
+        signal: abortController.signal,
+      });
     } catch (err: any) {
       if (abortController.signal.aborted) {
         return;

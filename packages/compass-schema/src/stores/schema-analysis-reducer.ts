@@ -1,4 +1,5 @@
-import type { Schema } from 'mongodb-schema';
+import type { Schema, InternalSchema } from 'mongodb-schema';
+import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
@@ -12,6 +13,7 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaDepth,
+  type SchemaAccessor,
   schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
@@ -30,6 +32,7 @@ export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
+  schemaAccessor: SchemaAccessor | null;
   resultId: string;
 };
 
@@ -45,6 +48,7 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
+  schemaAccessor: SchemaAccessor | null;
   schema: Schema | null;
 };
 
@@ -68,6 +72,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       analysisState: ANALYSIS_STATE_ANALYZING,
       errorMessage: '',
       schema: null,
+      schemaAccessor: null,
     };
   }
 
@@ -83,6 +88,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
+      schemaAccessor: action.schemaAccessor,
       resultId: resultId(),
     };
   }
@@ -173,6 +179,7 @@ const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
   schema: null,
+  schemaAccessor: null,
   resultId: resultId(),
 });
 
@@ -264,16 +271,16 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
+    abortControllerRef.current = new AbortController();
+    const abortSignal = abortControllerRef.current.signal;
+
     try {
       debug('analysis started');
-
-      abortControllerRef.current = new AbortController();
-      const abortSignal = abortControllerRef.current.signal;
 
       dispatch({ type: SchemaAnalysisActions.analysisStarted });
 
       const analysisStartTime = Date.now();
-      const schema = await analyzeSchema(
+      const schemaAccessor = await analyzeSchema(
         dataService,
         abortSignal,
         namespace,
@@ -281,13 +288,24 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      let schema: InternalSchema | null = null;
+      if (schemaAccessor) {
+        schema = await schemaAccessor.getInternalSchema();
+        schema.fields = schema.fields.filter(
+          ({ path }) => !isInternalFieldPath(path[0])
+        );
+      }
       const analysisTime = Date.now() - analysisStartTime;
 
       if (schema !== null) {
         fieldStoreService.updateFieldsFromSchema(namespace, schema);
       }
 
-      dispatch({ type: SchemaAnalysisActions.analysisFinished, schema });
+      dispatch({
+        type: SchemaAnalysisActions.analysisFinished,
+        schema,
+        schemaAccessor,
+      });
 
       // track schema analyzed
       const trackEvent = () => ({

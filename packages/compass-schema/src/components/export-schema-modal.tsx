@@ -39,6 +39,16 @@ const contentContainerStyles = css({
   paddingBottom: spacing[400],
 });
 
+const codeStyles = css({
+  maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
+  overflow: 'auto',
+});
+
+const footerStyles = css({
+  display: 'flex',
+  gap: spacing[200],
+});
+
 const exportSchemaFormatOptions: {
   title: string;
   id: SchemaFormat;
@@ -135,7 +145,7 @@ const ExportSchemaModal: React.FunctionComponent<{
               The JSON Extended format is deprecated and will be removed in a
               future release.
             </strong>
-            We&apos;re transitioning to a better format. Discover the new
+            &nbsp;We&apos;re transitioning to a better format. Discover the new
             experience by selecting a relevant format from above.
           </Banner>
         )}
@@ -154,6 +164,7 @@ const ExportSchemaModal: React.FunctionComponent<{
               id="export-schema-content"
               data-testid="export-schema-content"
               language="json"
+              className={codeStyles}
               copyable={true}
             >
               {exportedSchema ?? 'Empty'}
@@ -169,7 +180,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           )}
         </div>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
         <Button onClick={onClose} variant="default">
           Cancel
         </Button>

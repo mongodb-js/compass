@@ -114,7 +114,7 @@ describe('Collection schema tab', function () {
       await browser.setFeature('enableExportSchema', true);
     });
 
-    it.only('shows an exported schema to copy', async function () {
+    it('shows an exported schema to copy', async function () {
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME_1,
         'test',
@@ -131,16 +131,27 @@ describe('Collection schema tab', function () {
       const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
       await exportModal.waitForDisplayed();
 
-      // TODO: Check format and then change it.
-      // await browser.clickVisible(Selectors.AnalyzeSchemaButton);
-
       const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
       await exportSchemaContent.waitForDisplayed();
-      // expect(
-      //   await browser.getCodemirrorEditorText(Selectors.ExportSchemaOutput)
-      // ).to.match(/{\s+\$set:\s+{\s+},?\s+}/);
       const text = await browser.$(Selectors.ExportSchemaOutput).getText();
-      expect(text).to.match('test');
+      const parsedText = JSON.parse(text);
+      delete parsedText.$defs;
+      expect(parsedText).to.deep.equal({
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
+        required: ['_id', 'i', 'j'],
+        properties: {
+          _id: {
+            $ref: '#/$defs/ObjectId',
+          },
+          i: {
+            type: 'integer',
+          },
+          j: {
+            type: 'integer',
+          },
+        },
+      });
     });
   });
 
