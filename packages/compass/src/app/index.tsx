@@ -238,7 +238,7 @@ const Application = View.extend({
       <React.StrictMode>
         <CompassElectron
           appName={remote.app.getName()}
-          showWelcomeModal={!wasNetworkOptInShown}
+          showWelcomeModal={false}
           createFileInputBackend={createElectronFileInputBackend(
             remote,
             webUtils
