@@ -94,7 +94,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
-    connections: ConnectionInfo[] = [savedFavoriteConnection],
+    connections: ConnectionInfo[] | null = [savedFavoriteConnection],
     atlasClusterConnectionsOnly: boolean | undefined = undefined
   ) {
     workspace = sinon.spy({
@@ -235,6 +235,11 @@ describe('Multiple Connections Sidebar Component', function () {
   });
 
   describe('connections list', function () {
+    it('should display a loading state while connections are not loaded yet', function () {
+      doRender(null, null);
+      expect(screen.getByTestId('connections-placeholder')).to.be.visible;
+    });
+
     context('when there are no connections', function () {
       it('should display an empty state with a CTA to add new connection', function () {
         doRender(undefined, []);

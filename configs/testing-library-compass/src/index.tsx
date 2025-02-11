@@ -81,9 +81,11 @@ type TestConnectionsOptions = {
    */
   preferences?: Partial<AllPreferences>;
   /**
-   * Initial list of connections to be "loaded" to the application
+   * Initial list of connections to be "loaded" to the application. Empty list
+   * by default. You can explicitly pass `null` to disable initial preloading of
+   * the connections
    */
-  connections?: ConnectionInfo[];
+  connections?: ConnectionInfo[] | null;
   /**
    * Connection function that returns DataService when connecting to a
    * connection with the connections store. Second argument is a constructor
@@ -266,6 +268,9 @@ function createWrapper(
   TestingLibraryWrapper: ComponentWithChildren = EmptyWrapper,
   container?: HTMLElement
 ) {
+  const connections =
+    options.connections === null ? undefined : options.connections ?? [];
+
   const wrapperState = {
     globalAppRegistry: new AppRegistry(),
     localAppRegistry: new AppRegistry(),
@@ -274,7 +279,7 @@ function createWrapper(
     logger: createNoopLogger(),
     connectionStorage:
       options.connectionStorage ??
-      (new InMemoryConnectionStorage(options.connections) as ConnectionStorage),
+      (new InMemoryConnectionStorage(connections) as ConnectionStorage),
     connectionsStore: {
       getState: undefined as unknown as () => State,
       actions: {} as ReturnType<typeof useConnectionActions>,
@@ -359,7 +364,7 @@ function createWrapper(
                         onAutoconnectInfoRequest={
                           options.onAutoconnectInfoRequest
                         }
-                        preloadStorageConnectionInfos={options.connections}
+                        preloadStorageConnectionInfos={connections}
                       >
                         <StoreGetter>
                           <TestEnvCurrentConnectionContext.Provider
