@@ -1071,7 +1071,7 @@ export const SearchIndexConfirmButton =
 export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
 export const searchIndexExpandButton = (name: string) =>
-  `${searchIndexRow(name)} button:first-child`;
+  `${searchIndexRow(name)} button[aria-label="Expand row"]`;
 export const searchIndexAggregateButton = (name: string) =>
   `${searchIndexRow(
     name

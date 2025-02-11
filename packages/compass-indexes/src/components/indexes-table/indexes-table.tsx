@@ -54,15 +54,13 @@ const rowStyles = css({
 
 // When row is not hovered, we hide the delete button
 const indexActionsCellStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
   button: {
     opacity: 0,
     '&:focus': {
       opacity: 1,
     },
   },
-  minWidth: spacing[5],
+  minWidth: spacing[800],
 });
 
 const tableHeadStyles = css({
@@ -99,13 +97,11 @@ export function IndexesTable<T>({
     `${id}-sorting-state`,
     []
   );
-  const tableContainerRef = React.useRef<HTMLDivElement>(null);
   const table = useLeafyGreenTable<T>({
-    containerRef: tableContainerRef,
     data,
     columns,
-    enableExpanding: true,
     enableSortingRemoval: false,
+    withPagination: false,
     state: { sorting },
     onSortingChange: setSorting,
   });
@@ -120,7 +116,7 @@ export function IndexesTable<T>({
         className={tableStyles}
         data-testid={`${dataTestId}-list`}
         table={table}
-        ref={tableContainerRef}
+        shouldTruncate={false}
       >
         <TableHead
           isSticky
@@ -147,26 +143,30 @@ export function IndexesTable<T>({
           ))}
         </TableHead>
         <TableBody>
-          {rows.map((row: LeafyGreenTableRow<T>) => {
-            return (
+          {rows.map((row: LeafyGreenTableRow<T>) =>
+            row.isExpandedContent ? (
+              <ExpandedContent key={row.id} row={row} />
+            ) : (
               <Row
-                className={rowStyles}
                 key={row.id}
                 row={row}
+                className={rowStyles}
                 data-testid={`${dataTestId}-row-${
                   (row.original as { name?: string }).name ?? row.id
                 }`}
               >
                 {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {
+                  const isActionsCell = cell.column.id === 'actions';
                   return (
                     <Cell
-                      className={cx(
-                        cell.column.id === 'actions' && indexActionsCellStyles,
-                        cell.column.id === 'actions' &&
-                          indexActionsCellClassName
-                      )}
-                      data-testid={`${dataTestId}-${cell.column.id}-field`}
                       key={cell.id}
+                      id={cell.id}
+                      cell={cell}
+                      className={cx({
+                        [indexActionsCellClassName]: isActionsCell,
+                        [indexActionsCellStyles]: isActionsCell,
+                      })}
+                      data-testid={`${dataTestId}-${cell.column.id}-field`}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -175,13 +175,9 @@ export function IndexesTable<T>({
                     </Cell>
                   );
                 })}
-
-                {row.original.renderExpandedContent && (
-                  <ExpandedContent row={row} />
-                )}
               </Row>
-            );
-          })}
+            )
+          )}
         </TableBody>
       </Table>
     </div>
