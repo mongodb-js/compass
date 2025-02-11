@@ -64,7 +64,10 @@ func main() {
 
 	err := cmd.Run()
 	if err != nil {
-		log.Fatal("Error signing the file", err)
+		fmt.Println("Error signing the file")
+		fmt.Println(err)
+		// if we error out then we won't see much because of howelectron-windows-installer fails
+		return
 	}
 
 	fmt.Println("File signed successfully.")
