@@ -6,7 +6,6 @@ import {
   SplitButton,
   type GlyphName,
   type ItemComponentProps,
-  type PolymorphicProps,
   type MenuItemProps,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
@@ -18,7 +17,7 @@ const menuItemStyles = css({
 type ConnectMenuItemProps = {
   action: Actions;
   glyph: GlyphName;
-} & PolymorphicProps<'button', Omit<MenuItemProps, 'glyph'>>;
+} & Omit<MenuItemProps, 'glyph'>;
 
 function ConnectMenuItem({ action, glyph, ...rest }: ConnectMenuItemProps) {
   return (

@@ -32,10 +32,6 @@ import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
-export type {
-  InferredPolymorphicProps,
-  PolymorphicProps,
-} from '@leafygreen-ui/polymorphic';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
