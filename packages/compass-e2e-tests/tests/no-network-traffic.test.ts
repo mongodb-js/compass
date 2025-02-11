@@ -65,9 +65,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
-      // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
-      // Probably the welcome modal.
-      firstRun: false,
+      firstRun: true,
     });
     const browser = compass.browser;
 
