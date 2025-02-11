@@ -2,6 +2,7 @@ import { activateSchemaPlugin } from './store';
 import type { SchemaStore, SchemaPluginServices } from './store';
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -10,7 +11,10 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { startAnalysis, stopAnalysis } from './schema-analysis-reducer';
 import Sinon from 'sinon';
-import { changeExportSchemaFormat } from './schema-export-reducer';
+import {
+  changeExportSchemaFormat,
+  openExportSchema,
+} from './schema-export-reducer';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();
@@ -135,10 +139,18 @@ describe('Schema Store', function () {
           await store.dispatch(startAnalysis());
         });
 
-        it('runs schema export formatting with the analyzed schema', async function () {
+        it('runs schema export formatting with the analyzed schema when opened', async function () {
           sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
-          await store.dispatch(changeExportSchemaFormat('standardJSON'));
           expect(sampleStub).to.have.been.called;
+          expect(store.getState().schemaExport.exportStatus).to.equal(
+            'inprogress'
+          );
+          store.dispatch(openExportSchema());
+          await waitFor(() => {
+            expect(store.getState().schemaExport.exportStatus).to.equal(
+              'complete'
+            );
+          });
           const { exportStatus, errorMessage, exportedSchema } =
             store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
@@ -151,6 +163,24 @@ describe('Schema Store', function () {
           expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
           expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
             name: { type: 'string' },
+          });
+        });
+
+        it('runs schema export formatting with a new format', async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
+          expect(sampleStub).to.have.been.called;
+          const { exportStatus, errorMessage, exportedSchema } =
+            store.getState().schemaExport;
+          expect(exportStatus).to.equal('complete');
+          expect(!!errorMessage).to.be.false;
+          expect(exportedSchema).not.to.be.undefined;
+          expect(JSON.parse(exportedSchema!).type).to.equal(undefined);
+          expect(JSON.parse(exportedSchema!).bsonType).to.equal('object');
+          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(undefined);
+          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
+          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+            name: { bsonType: 'string' },
           });
         });
       });

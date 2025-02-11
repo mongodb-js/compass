@@ -160,7 +160,10 @@ describe('schema-analysis', function () {
         count: 2,
       };
 
-      const internalSchema = await schema!.getInternalSchema();
+      if (!schema) {
+        throw new Error('schema is nul');
+      }
+      const internalSchema = await schema.getInternalSchema();
       internalSchema.fields = internalSchema.fields.filter(
         ({ path }) => !isInternalFieldPath(path[0])
       );

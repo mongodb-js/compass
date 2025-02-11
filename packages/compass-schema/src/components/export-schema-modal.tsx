@@ -1,7 +1,6 @@
 import React, { type ChangeEvent, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
-  Banner,
   Button,
   Code,
   ModalBody,
@@ -28,10 +27,6 @@ import {
 
 const loaderStyles = css({
   marginTop: spacing[400],
-});
-
-const legacyWarningStyles = css({
-  marginTop: spacing[200],
 });
 
 const contentContainerStyles = css({
@@ -135,20 +130,6 @@ const ExportSchemaModal: React.FunctionComponent<{
             );
           })}
         </RadioBoxGroup>
-        {exportFormat === 'legacyJSON' && (
-          <Banner
-            className={legacyWarningStyles}
-            variant="warning"
-            data-testid="legacy-export-json-warning"
-          >
-            <strong>
-              The JSON Extended format is deprecated and will be removed in a
-              future release.
-            </strong>
-            &nbsp;We&apos;re transitioning to a better format. Discover the new
-            experience by selecting a relevant format from above.
-          </Banner>
-        )}
         <div className={contentContainerStyles}>
           {exportStatus === 'inprogress' && (
             <CancelLoader
