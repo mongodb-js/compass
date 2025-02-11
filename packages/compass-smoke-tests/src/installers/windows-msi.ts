@@ -1,7 +1,10 @@
 import path from 'node:path';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute, ExecuteFailure } from '../execute';
+
+const debug = createDebug('compass:smoketests:windows-msi');
 
 // See https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec
 
@@ -24,7 +27,7 @@ export function installWindowsMSI({
     uninstall();
   } catch (err) {
     if (err instanceof ExecuteFailure && err.status === 1605) {
-      console.log(
+      debug(
         "Uninstalling before installing failed, which is expected if the app wasn't already installed"
       );
     } else {

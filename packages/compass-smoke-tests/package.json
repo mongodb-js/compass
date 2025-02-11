@@ -35,6 +35,7 @@
     "@mongodb-js/prettier-config-compass": "^1.2.0",
     "@mongodb-js/tsconfig-compass": "^1.2.0",
     "depcheck": "^1.4.1",
+    "debug": "^4.3.4",
     "eslint": "^7.25.0",
     "hadron-build": "^25.7.0",
     "lodash": "^4.17.21",

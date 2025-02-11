@@ -2,12 +2,15 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
+import createDebug from 'debug';
 import { SUPPORTED_TESTS } from './tests/types';
 import { type SmokeTestsContext } from './context';
 import { SUPPORTED_PACKAGES } from './packages';
 import { testTimeToFirstQuery } from './tests/time-to-first-query';
 import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
+
+const debug = createDebug('compass:smoketests');
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -103,9 +106,9 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   const context: SmokeTestsContext = argv.parseSync();
 
-  console.log(`Running tests`);
+  debug(`Running tests`);
 
-  console.log(
+  debug(
     'context',
     pick(context, [
       'forceDownload',
@@ -119,7 +122,7 @@ async function run() {
   );
 
   for (const testName of context.tests) {
-    console.log(testName);
+    debug(`Running ${testName}`);
 
     if (testName === 'time-to-first-query') {
       await testTimeToFirstQuery(context);
@@ -133,7 +136,7 @@ async function run() {
 
 run()
   .then(function () {
-    console.log('done');
+    debug('done');
   })
   .catch(function (err) {
     console.error(err.stack);

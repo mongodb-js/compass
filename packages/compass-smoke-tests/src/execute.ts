@@ -1,4 +1,7 @@
 import { spawn, spawnSync, type SpawnOptions } from 'node:child_process';
+import createDebug from 'debug';
+
+const debug = createDebug('compass:smoketests:execute');
 
 export class ExecuteFailure extends Error {
   constructor(
@@ -34,7 +37,7 @@ export function executeAsync(
   options?: SpawnOptions
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log(command, ...args);
+    debug(command, ...args);
     const child = spawn(command, args, {
       stdio: 'inherit',
       ...options,

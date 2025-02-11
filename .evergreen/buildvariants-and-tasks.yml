@@ -76,6 +76,14 @@ buildvariants:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
+  - name: smoketest-ubuntu-compass
+    display_name: Smoketest Ubuntu (compass)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass
   - name: smoketest-windows-compass
     display_name: Smoketest Windows (compass)
     run_on: windows-vsCurrent-large

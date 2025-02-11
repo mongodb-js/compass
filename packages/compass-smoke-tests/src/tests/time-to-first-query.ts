@@ -1,9 +1,12 @@
 import fs from 'node:fs';
+import createDebug from 'debug';
 import { type SmokeTestsContext } from '../context';
 import { execute } from '../execute';
 import { getInstaller } from '../installers';
 import { createSandbox } from '../directories';
 import { getTestSubject } from '../test-subject';
+
+const debug = createDebug('compass:smoketests:time-to-first-query');
 
 export async function testTimeToFirstQuery(context: SmokeTestsContext) {
   const sandboxPath = createSandbox();
@@ -48,9 +51,9 @@ export async function testTimeToFirstQuery(context: SmokeTestsContext) {
     }
   } finally {
     if (context.skipCleanup) {
-      console.log(`Skipped cleaning up sandbox: ${sandboxPath}`);
+      debug(`Skipped cleaning up sandbox: ${sandboxPath}`);
     } else {
-      console.log(`Cleaning up sandbox: ${sandboxPath}`);
+      debug(`Cleaning up sandbox: ${sandboxPath}`);
       fs.rmSync(sandboxPath, { recursive: true });
     }
   }
