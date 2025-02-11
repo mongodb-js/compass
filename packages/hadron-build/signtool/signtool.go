@@ -59,12 +59,13 @@ func main() {
 	cmd := exec.Command("node", "-e", script)
 	fmt.Println("Running command:", cmd.String())
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
+	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Error signing the file")
+		fmt.Printf("%s\n", stdoutStderr)
 		fmt.Println(err)
 		// if we error out then we won't see much because of how electron-windows-installer fails
 		return
