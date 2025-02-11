@@ -168,9 +168,16 @@ export class Compass {
 
     for (const [k, v] of Object.entries(Commands)) {
       this.browser.addCommand(k, (...args) => {
+        // kinda interesting
+        console.log('adding list of commands and doing k[v]: ', k);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        return v(browser, ...args);
+        return (() => {
+          console.log('I am running command k ', k);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return v(this.browser, ...args);
+        })();
       });
     }
 
@@ -449,6 +456,8 @@ async function getCompassExecutionParameters(): Promise<{
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
     : ELECTRON_PATH;
+  console.log('looks like the binary is ', binary);
+  console.log('btw test packaged app is ', testPackagedApp);
   return { testPackagedApp, binary };
 }
 
@@ -591,6 +600,7 @@ async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  console.log('start compass electron...');
   runCounter++;
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
 
@@ -617,6 +627,8 @@ async function startCompassElectron(
     '--log-level=0'
   );
 
+  chromeArgs.push('--host-rules=MAP * 127.0.0.1');
+
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
   }
@@ -638,7 +650,8 @@ async function startCompassElectron(
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else. But leave it alone when testing auto-update.
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
-    process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+    process.env.HADRON_PRODUCT_NAME_OVERRIDE =
+      'MongoDB Compassssssss WebdriverIO';
   }
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
@@ -670,8 +683,10 @@ async function startCompassElectron(
     ...wdioOptions,
   };
 
-  debug('Starting compass via webdriverio with the following configuration:');
-  debug(JSON.stringify(options, null, 2));
+  console.log(
+    'Starting compass via webdriverio with the following configuration:'
+  );
+  console.log(JSON.stringify(options, null, 2));
 
   let browser: CompassBrowser;
 
@@ -827,6 +842,7 @@ export async function startBrowser(
       `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
     );
   } else {
+    console.log('navigating to sandbox url: ', context.sandboxUrl);
     await browser.navigateTo(context.sandboxUrl);
   }
 
@@ -922,7 +938,11 @@ export async function rebuildNativeModules(
 export async function compileCompassAssets(
   compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  await promisify(execFile)('npm', ['run', 'compile'], { cwd: compassPath });
+  console.log('path nonsense: ', compassPath);
+  await promisify(execFile)('npm', ['run', 'compile'], {
+    maxBuffer: 256 * 1024 * 1024,
+    cwd: compassPath,
+  });
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {
@@ -1035,6 +1055,7 @@ export async function init(
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
   name = pathName(name ?? formattedDate());
+  console.log('process pid inside init: ', name, process.pid);
 
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of

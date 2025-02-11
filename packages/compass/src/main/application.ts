@@ -473,8 +473,8 @@ class CompassApplication {
     await app.whenReady();
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
-      allowedCloudEndpoints,
       (details, callback) => {
+        console.log('DJECHLIN hello stuff 1', details);
         const filteredHeaders = Object.fromEntries(
           Object.entries(details.requestHeaders).filter(([name]) => {
             return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
@@ -487,6 +487,7 @@ class CompassApplication {
     session.defaultSession.webRequest.onHeadersReceived(
       allowedCloudEndpoints,
       (details, callback) => {
+        console.log('DJECHLIN hello stuff 2', details);
         const filteredHeaders = Object.fromEntries(
           Object.entries(
             // Types are not matching documentation
