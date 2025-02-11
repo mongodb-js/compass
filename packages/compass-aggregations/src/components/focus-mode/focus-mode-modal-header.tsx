@@ -71,6 +71,8 @@ const menuStyles = css({
 });
 
 const menuItemStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
   '&:after': {
     content: 'attr(data-hotkey)',
     whiteSpace: 'nowrap',
