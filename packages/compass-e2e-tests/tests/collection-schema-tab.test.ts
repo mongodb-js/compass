@@ -111,6 +111,8 @@ describe('Collection schema tab', function () {
 
   describe('with the enableExportSchema feature flag enabled', function () {
     beforeEach(async function () {
+      // TODO(COMPASS-8819): remove web skip when defaulted true.
+      skipForWeb(this, "can't toggle features in compass-web");
       await browser.setFeature('enableExportSchema', true);
     });
 
