@@ -66,9 +66,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error signing the file")
 		fmt.Printf("%s\n", stdoutStderr)
-		fmt.Println(err)
-		// if we error out then we won't see much because of how electron-windows-installer fails
-		return
+		log.Fatal(err)
 	}
 
 	fmt.Println("File signed successfully.")
