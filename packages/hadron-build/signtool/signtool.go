@@ -64,8 +64,7 @@ func main() {
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println("Error signing the file")
-		return
+		log.Fatal("Error signing the file")
 	}
 
 	fmt.Println("File signed successfully.")
