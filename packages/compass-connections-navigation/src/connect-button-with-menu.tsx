@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  type ButtonHTMLAttributes,
+} from 'react';
 import {
   css,
   Icon,
@@ -17,18 +22,26 @@ const menuItemStyles = css({
 type ConnectMenuItemProps = {
   action: Actions;
   glyph: GlyphName;
-} & Omit<MenuItemProps, 'glyph'>;
+} & Omit<
+  MenuItemProps & ButtonHTMLAttributes<HTMLButtonElement>,
+  'glyph' | 'as'
+>;
 
-function ConnectMenuItem({ action, glyph, ...rest }: ConnectMenuItemProps) {
+export const ConnectMenuItem = forwardRef<
+  HTMLButtonElement,
+  ConnectMenuItemProps
+>(function ConnectMenuItem({ action, glyph, ...rest }, ref) {
   return (
     <MenuItem
+      as="button"
       data-action={action}
       className={menuItemStyles}
       glyph={<Icon glyph={glyph} />}
       {...rest}
+      ref={ref}
     />
   );
-}
+});
 
 // Hack to make SplitButton consider this as a MenuItem
 ConnectMenuItem.displayName = 'MenuItem';
