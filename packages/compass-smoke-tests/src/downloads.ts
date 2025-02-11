@@ -21,6 +21,10 @@ export async function downloadFile({
 }: DownloadFileOptions): Promise<string> {
   const response = await fetch(url);
 
+  assert(
+    response.ok,
+    `Request failed with status ${response.status} (${response.statusText})`
+  );
   const etag = response.headers.get('etag');
   assert(etag, 'Expected an ETag header');
   const cleanEtag = etag.match(/[0-9a-fA-F]/g)?.join('');
