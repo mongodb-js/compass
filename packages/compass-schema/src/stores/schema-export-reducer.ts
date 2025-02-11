@@ -9,7 +9,12 @@ import type {
 
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
-import type { SchemaAccessor } from '../modules/schema-analysis';
+import {
+  calculateSchemaDepth,
+  schemaContainsGeoData,
+  type SchemaAccessor,
+} from '../modules/schema-analysis';
+import { openToast } from '@mongodb-js/compass-components';
 
 export type SchemaFormat =
   | 'standardJSON'
@@ -20,6 +25,7 @@ export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
   abortController?: AbortController;
   isOpen: boolean;
+  isLegacyBannerOpen: boolean;
   exportedSchema?: string;
   exportFormat: SchemaFormat;
   errorMessage?: string;
@@ -34,11 +40,14 @@ const getInitialState = (): SchemaExportState => ({
   exportStatus: 'inprogress',
   exportedSchema: undefined,
   isOpen: false,
+  isLegacyBannerOpen: false,
 });
 
 export const enum SchemaExportActions {
   openExportSchema = 'schema-service/schema-export/openExportSchema',
   closeExportSchema = 'schema-service/schema-export/closeExportSchema',
+  openLegacyBanner = 'schema-service/schema-export/openLegacyBanner',
+  closeLegacyBanner = 'schema-service/schema-export/closeLegacyBanner',
   changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
   changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
@@ -264,6 +273,30 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   }
 
   if (
+    isAction<openLegacyBannerAction>(
+      action,
+      SchemaExportActions.openLegacyBanner
+    )
+  ) {
+    return {
+      ...state,
+      isLegacyBannerOpen: true,
+    };
+  }
+
+  if (
+    isAction<closeLegacyBannerAction>(
+      action,
+      SchemaExportActions.closeLegacyBanner
+    )
+  ) {
+    return {
+      ...state,
+      isLegacyBannerOpen: false,
+    };
+  }
+
+  if (
     isAction<ChangeExportSchemaFormatStartedAction>(
       action,
       SchemaExportActions.changeExportSchemaFormatStarted
@@ -318,4 +351,71 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   }
 
   return state;
+};
+
+//// TODO: add ticket number to clean this up
+export type openLegacyBannerAction = {
+  type: SchemaExportActions.openLegacyBanner;
+};
+
+export type closeLegacyBannerAction = {
+  type: SchemaExportActions.closeLegacyBanner;
+};
+
+export const switchToSchemaExport = (): SchemaThunkAction<void> => {
+  return (dispatch) => {
+    dispatch({ type: SchemaExportActions.closeExportSchema });
+    dispatch(openExportSchema());
+  };
+};
+
+export const confirmedLegacySchemaShare = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { namespace }) => {
+    const {
+      schemaAnalysis: { schema },
+    } = getState();
+    const hasSchema = schema !== null;
+    if (hasSchema) {
+      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
+    }
+    dispatch(_trackSchemaShared(hasSchema));
+    dispatch({ type: SchemaExportActions.closeLegacyBanner });
+    openToast(
+      'share-schema',
+      hasSchema
+        ? {
+            variant: 'success',
+            title: 'Schema Copied',
+            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
+            timeout: 5_000,
+          }
+        : {
+            variant: 'warning',
+            title: 'Analyze Schema First',
+            description: 'Please Analyze the Schema First from the Schema Tab.',
+            timeout: 5_000,
+          }
+    );
+  };
+};
+
+export const _trackSchemaShared = (
+  hasSchema: boolean
+): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    const {
+      schemaAnalysis: { schema },
+    } = getState();
+    // Use a function here to a) ensure that the calculations here
+    // are only made when telemetry is enabled and b) that errors from
+    // those calculations are caught and logged rather than displayed to
+    // users as errors from the core schema sharing logic.
+    const trackEvent = () => ({
+      has_schema: hasSchema,
+      schema_width: schema?.fields?.length ?? 0,
+      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
+      geo_data: schema ? schemaContainsGeoData(schema) : false,
+    });
+    track('Schema Exported', trackEvent, connectionInfoRef.current);
+  };
 };
