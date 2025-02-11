@@ -66,7 +66,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error signing the file")
 		fmt.Println(err)
-		// if we error out then we won't see much because of howelectron-windows-installer fails
+		// if we error out then we won't see much because of how electron-windows-installer fails
 		return
 	}
 
