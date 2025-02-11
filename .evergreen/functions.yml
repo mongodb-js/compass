@@ -678,7 +678,7 @@ functions:
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
-            if [[ "$HADRON_DISTRIBUTION" == "compass-isolated"]]; then
+            if [[ "$HADRON_DISTRIBUTION" == "compass-isolated" ]]; then
               # auto-update is not supported on isolated
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests time-to-first-query
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests time-to-first-query
