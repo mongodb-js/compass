@@ -9,26 +9,30 @@ import { execute } from '../execute';
  * Call dnf to get the package name
  */
 function getPackageName(filepath: string) {
-  const result = cp.spawnSync(
-    'dnf',
-    ['repoquery', '--queryformat', '%{NAME}', filepath],
+  const { status, stdout, stderr } = cp.spawnSync(
+    'rpm',
+    ['--query', '--queryformat', '%{NAME}', '--package', filepath],
     { encoding: 'utf8' }
   );
   assert.equal(
-    result.status,
+    status,
     0,
-    `Expected a clean exit, got status ${result.status || 'null'}`
+    `Expected a clean exit, got status ${status || 'null'}: ${stderr}`
   );
-  return result.stdout.trim();
+  return stdout.trim();
 }
 
 /**
  * Check if a package is installed (by name)
  */
 export function isInstalled(packageName: string) {
-  const result = cp.spawnSync('dnf', ['list', 'installed', packageName], {
-    stdio: 'inherit',
-  });
+  const result = cp.spawnSync(
+    'sudo',
+    ['dnf', 'list', 'installed', packageName],
+    {
+      stdio: 'inherit',
+    }
+  );
   return result.status === 0;
 }
 
@@ -41,7 +45,7 @@ export function installLinuxRpm({
   const appPath = path.resolve(installPath, appName);
 
   function uninstall() {
-    execute('dnf', ['dnf', 'remove', '-y', packageName]);
+    execute('sudo', ['dnf', 'remove', '-y', packageName]);
   }
 
   if (isInstalled(packageName)) {
@@ -59,7 +63,7 @@ export function installLinuxRpm({
     !fs.existsSync(installPath),
     `Expected no install directory to exist: ${installPath}`
   );
-  execute('dnf', ['install', '-y', filepath]);
+  execute('sudo', ['dnf', 'install', '-y', filepath]);
 
   assert(isInstalled(packageName), 'Expected the package to be installed');
   assert(
@@ -68,7 +72,7 @@ export function installLinuxRpm({
   );
 
   // Check that the executable will run without being quarantined or similar
-  execute('xvfb-run', [appPath, '--version', '--no-sandbox']); // Remove '--no-sandbox' if we don't plan on running this as root
+  execute('xvfb-run', [appPath, '--version']);
 
   return {
     appPath: installPath,
