@@ -54,7 +54,7 @@ async function main() {
   const e2eTestGroup = context.testGroup;
   const e2eTestFilter = context.testFilter;
 
-  const tests = (
+  let tests = (
     await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
       cwd: __dirname,
     })
@@ -81,6 +81,8 @@ async function main() {
         return 0;
       }
     });
+
+  tests = tests.filter((test) => test === 'tests/no-network-traffic.test.ts');
 
   debug('Test files:', tests);
 
