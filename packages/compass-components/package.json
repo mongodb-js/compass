@@ -46,7 +46,7 @@
     "@leafygreen-ui/guide-cue": "^7.0.2",
     "@leafygreen-ui/hooks": "^8.3.4",
     "@leafygreen-ui/icon": "^13.1.2",
-    "@leafygreen-ui/icon-button": "^16.0.2",
+    "@leafygreen-ui/icon-button": "16.0.2",
     "@leafygreen-ui/info-sprinkle": "^4.0.2",
     "@leafygreen-ui/leafygreen-provider": "^4.0.2",
     "@leafygreen-ui/logo": "^10.0.2",
