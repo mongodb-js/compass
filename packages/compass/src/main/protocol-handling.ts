@@ -2,11 +2,10 @@ import { promisify } from 'util';
 import { app as electronApp } from 'electron';
 import path from 'path';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { mongoLogId } from 'mongodb-log-writer';
 import type { RegistryItem } from 'winreg-ts';
 import { Registry } from 'winreg-ts';
 import type { PreferencesAccess } from 'compass-preferences-model';
-const { log } = createLogger('COMPASS-MAIN');
+const { log, mongoLogId } = createLogger('COMPASS-MAIN');
 
 type ProtocolsList = { name: string; schemes: string[] }[];
 async function appProtocolsConfig(): Promise<ProtocolsList> {

@@ -469,8 +469,17 @@ const INITIAL_STATE: State = {
 };
 
 export function getInitialConnectionsStateForConnectionInfos(
-  connectionInfos: ConnectionInfo[] = []
+  connectionInfos?: ConnectionInfo[]
 ): State['connections'] {
+  if (!connectionInfos) {
+    // Keep initial state if we're not preloading any connections
+    return {
+      byId: {},
+      ids: [],
+      status: 'initial',
+      error: null,
+    };
+  }
   const byId = Object.fromEntries<ConnectionState>(
     connectionInfos.map((info) => {
       return [info.id, createDefaultConnectionState(info)];
@@ -479,8 +488,7 @@ export function getInitialConnectionsStateForConnectionInfos(
   return {
     byId,
     ids: getSortedIdsForConnections(Object.values(byId)),
-    // Keep initial state if we're not preloading any connections
-    status: connectionInfos.length > 0 ? 'ready' : 'initial',
+    status: 'ready',
     error: null,
   };
 }
@@ -2126,7 +2134,7 @@ export const openSettingsModal = (
 };
 
 export function configureStore(
-  preloadConnectionInfos: ConnectionInfo[] = [],
+  preloadConnectionInfos: ConnectionInfo[] | undefined,
   thunkArg: ThunkExtraArg
 ) {
   return createStore(

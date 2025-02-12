@@ -17,6 +17,7 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
+  enableExportSchema: boolean;
   enableRenameCollectionModal: boolean;
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
@@ -98,6 +99,16 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable Global Writes tab in Atlas Cloud',
+    },
+  },
+
+  /**
+   * Feature flag for export schema. Epic: COMPASS-6862.
+   */
+  enableExportSchema: {
+    stage: 'development',
+    description: {
+      short: 'Enable schema export',
     },
   },
 };

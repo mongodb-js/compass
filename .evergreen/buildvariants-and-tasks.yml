@@ -92,6 +92,14 @@ buildvariants:
         variant: package-windows
     tasks:
       - name: smoketest-compass
+  - name: smoketest-rhel-compass
+    display_name: Smoketest RHEL (compass)
+    run_on: rhel80-large
+    depends_on:
+      - name: package-compass
+        variant: package-rhel
+    tasks:
+      - name: smoketest-compass
   - name: smoketest-macos-x64-compass
     display_name: Smoketest MacOS Intel (compass)
     run_on: macos-14-gui

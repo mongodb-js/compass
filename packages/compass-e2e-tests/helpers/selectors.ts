@@ -1011,6 +1011,10 @@ export const AggregationWizardSortFormDirectionSelect = (idx: number) =>
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
+export const ExportSchemaButton = '[data-testid="open-schema-export-button"]';
+export const ExportSchemaFormatOptions =
+  '[data-testid="export-schema-format-type-box-group"]';
+export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
@@ -1071,7 +1075,7 @@ export const SearchIndexConfirmButton =
 export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
 export const searchIndexExpandButton = (name: string) =>
-  `${searchIndexRow(name)} button:first-child`;
+  `${searchIndexRow(name)} button[aria-label="Expand row"]`;
 export const searchIndexAggregateButton = (name: string) =>
   `${searchIndexRow(
     name

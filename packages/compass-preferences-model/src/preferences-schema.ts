@@ -562,7 +562,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Default Sort for Query Bar',
-      long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
+      long: 'All queries executed from the query bar will apply this sort.',
       options: {
         '': {
           label: '$natural: 1 (MongoDB server default)',

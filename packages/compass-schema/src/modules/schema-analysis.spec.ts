@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
 import type { Schema } from 'mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { isInternalFieldPath } from 'hadron-document';
 
 import {
   analyzeSchema,
@@ -159,7 +160,15 @@ describe('schema-analysis', function () {
         count: 2,
       };
 
-      expect(schema).to.deep.equal(expectedSchema);
+      if (!schema) {
+        throw new Error('schema is nul');
+      }
+      const internalSchema = await schema.getInternalSchema();
+      internalSchema.fields = internalSchema.fields.filter(
+        ({ path }) => !isInternalFieldPath(path[0])
+      );
+
+      expect(internalSchema).to.deep.equal(expectedSchema);
     });
 
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {

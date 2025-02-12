@@ -1,5 +1,10 @@
 import type { Logger } from '@mongodb-js/compass-logging';
-import { createStore, applyMiddleware, type AnyAction } from 'redux';
+import {
+  createStore,
+  applyMiddleware,
+  type AnyAction,
+  combineReducers,
+} from 'redux';
 import thunk, { type ThunkDispatch, type ThunkAction } from 'redux-thunk';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type {
@@ -12,7 +17,15 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import reducer, { handleSchemaShare, stopAnalysis } from './reducer';
+import {
+  schemaAnalysisReducer,
+  handleSchemaShare,
+  stopAnalysis,
+} from './schema-analysis-reducer';
+import {
+  cancelExportSchema,
+  schemaExportReducer,
+} from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
 
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
@@ -28,7 +41,12 @@ export type SchemaPluginServices = {
   queryBar: QueryBarService;
 };
 
-export type RootState = ReturnType<typeof reducer>;
+export const rootReducer = combineReducers({
+  schemaAnalysis: schemaAnalysisReducer,
+  schemaExport: schemaExportReducer,
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
 export type SchemaExtraArgs = SchemaPluginServices & {
   abortControllerRef: { current?: AbortController };
   geoLayersRef: { current: Record<string, InternalLayer> };
@@ -65,6 +83,7 @@ export function activateSchemaPlugin(
   );
 
   addCleanup(() => store.dispatch(stopAnalysis()));
+  addCleanup(() => store.dispatch(cancelExportSchema()));
 
   return {
     store,
@@ -85,7 +104,7 @@ export function configureStore(
     current: {},
   };
   const store = createStore(
-    reducer,
+    rootReducer,
     applyMiddleware(
       thunk.withExtraArgument({
         ...services,

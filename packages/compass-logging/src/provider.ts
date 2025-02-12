@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
 import type { Logger } from './logger';
-import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
+import type {
+  MongoLogId,
+  MongoLogWriter,
+} from 'mongodb-log-writer/mongo-log-writer';
 import { createServiceLocator } from 'hadron-app-registry';
 
 export type { Logger } from './logger';
@@ -84,4 +87,4 @@ export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
 
-export type { MongoLogWriter } from 'mongodb-log-writer';
+export type { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
