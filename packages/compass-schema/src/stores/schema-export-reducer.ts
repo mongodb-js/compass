@@ -364,7 +364,7 @@ export type closeLegacyBannerAction = {
 
 export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   return (dispatch) => {
-    dispatch({ type: SchemaExportActions.closeExportSchema });
+    dispatch({ type: SchemaExportActions.closeLegacyBanner });
     dispatch(openExportSchema());
   };
 };
