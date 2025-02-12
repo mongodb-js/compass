@@ -2,3 +2,5 @@ ignores:
  - '@mongodb-js/prettier-config-compass'
  - '@mongodb-js/tsconfig-compass'
  - compass-mongodb-com
+ # Calling into the e2e tests via child processes
+ - compass-e2e-tests
