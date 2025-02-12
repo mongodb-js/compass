@@ -20,28 +20,37 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
   const sandboxPath = createSandbox();
   const subject = getTestSubjectDetails({ ...context, sandboxPath });
   const {
-    kind,
-    autoUpdatable,
     buildInfo: { channel, version },
   } = subject;
 
   try {
-    const install = getInstaller(getLatestReleaseKindByKind(kind));
+    // Derive the kind of package needed to install the latest release
+    const latestApp = getTestSubjectDetails({
+      ...context,
+      sandboxPath,
+      package: getLatestReleaseKindByKind(subject.kind),
+    });
+
+    assert.equal(latestApp.buildInfo.channel, subject.buildInfo.channel);
+
+    const install = getInstaller(latestApp.kind);
     const filepath = await getLatestRelease(
       channel,
       context.arch,
-      kind,
+      latestApp.kind,
       context.forceDownload
     );
 
     const { appPath, appName, uninstall } = install({
-      ...subject,
+      ...latestApp,
       filepath,
+      filename: subject.filename,
       sandboxPath,
     });
 
     try {
       process.env.PORT = '0'; // dynamic port
+      process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES = 'true';
 
       if (channel === 'dev') {
         process.env.DEV_RELEASE = JSON.stringify({
@@ -82,7 +91,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
             env: {
               ...process.env,
               HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
-              AUTO_UPDATE_UPDATABLE: (!!autoUpdatable).toString(),
+              AUTO_UPDATE_UPDATABLE: (!!subject.autoUpdatable).toString(),
               TEST_NAME: 'auto-update-to',
               EXPECTED_UPDATE_VERSION: version,
               COMPASS_APP_NAME: appName,
@@ -95,6 +104,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
         server.close();
         delete process.env.DEV_RELEASE;
         delete process.env.PUBLISHED_RELEASES;
+        delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
       }
     } finally {
       await uninstall();
