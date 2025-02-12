@@ -8,7 +8,12 @@ async function resetForRemove(browser: CompassBrowser) {
   // and therefore be rendered.
   await browser.clickVisible(Selectors.CollapseConnectionsButton);
 
-  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+  if (
+    (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
+    (await browser
+      .$(Selectors.SidebarFilterInput)
+      .getAttribute('aria-disabled')) !== 'true'
+  ) {
     // Clear the filter to make sure every connection shows
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
