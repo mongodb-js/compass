@@ -217,7 +217,7 @@ buildvariants:
 <% } %>
 
 <% for (const buildVariant of SMOKETEST_BUILD_VARIANTS) { %>
-<% for (const distribution of ['compass']) { %>
+<% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
   - name: <%= buildVariant.name %>-<%= distribution %>
     display_name: <%= buildVariant.display_name %> (<%= distribution %>)
     run_on: <%= buildVariant.run_on %>

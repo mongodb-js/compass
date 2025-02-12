@@ -84,6 +84,22 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: smoketest-compass
+  - name: smoketest-ubuntu-compass-isolated
+    display_name: Smoketest Ubuntu (compass-isolated)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-ubuntu-compass-readonly
+    display_name: Smoketest Ubuntu (compass-readonly)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-ubuntu
+    tasks:
+      - name: smoketest-compass-readonly
   - name: smoketest-windows-compass
     display_name: Smoketest Windows (compass)
     run_on: windows-vsCurrent-large
@@ -92,6 +108,22 @@ buildvariants:
         variant: package-windows
     tasks:
       - name: smoketest-compass
+  - name: smoketest-windows-compass-isolated
+    display_name: Smoketest Windows (compass-isolated)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-windows
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-windows-compass-readonly
+    display_name: Smoketest Windows (compass-readonly)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-windows
+    tasks:
+      - name: smoketest-compass-readonly
   - name: smoketest-macos-x64-compass
     display_name: Smoketest MacOS Intel (compass)
     run_on: macos-14-gui
@@ -100,6 +132,22 @@ buildvariants:
         variant: package-macos-x64
     tasks:
       - name: smoketest-compass
+  - name: smoketest-macos-x64-compass-isolated
+    display_name: Smoketest MacOS Intel (compass-isolated)
+    run_on: macos-14-gui
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-macos-x64-compass-readonly
+    display_name: Smoketest MacOS Intel (compass-readonly)
+    run_on: macos-14-gui
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-macos-x64
+    tasks:
+      - name: smoketest-compass-readonly
   - name: smoketest-macos-arm-compass
     display_name: Smoketest MacOS Arm64 (compass)
     run_on: macos-14-arm64-gui
@@ -108,6 +156,22 @@ buildvariants:
         variant: package-macos-arm
     tasks:
       - name: smoketest-compass
+  - name: smoketest-macos-arm-compass-isolated
+    display_name: Smoketest MacOS Arm64 (compass-isolated)
+    run_on: macos-14-arm64-gui
+    depends_on:
+      - name: package-compass-isolated
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass-isolated
+  - name: smoketest-macos-arm-compass-readonly
+    display_name: Smoketest MacOS Arm64 (compass-readonly)
+    run_on: macos-14-arm64-gui
+    depends_on:
+      - name: package-compass-readonly
+        variant: package-macos-arm
+    tasks:
+      - name: smoketest-compass-readonly
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu1804-large
