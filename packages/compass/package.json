@@ -231,6 +231,7 @@
     "@mongodb-js/my-queries-storage": "^0.22.0",
     "@mongodb-js/prettier-config-compass": "^1.2.0",
     "@mongodb-js/sbom-tools": "^0.7.0",
+    "@mongodb-js/signing-utils": "^0.3.7",
     "@mongodb-js/testing-library-compass": "^1.2.0",
     "@mongodb-js/tsconfig-compass": "^1.2.0",
     "@mongodb-js/webpack-config-compass": "^1.6.0",

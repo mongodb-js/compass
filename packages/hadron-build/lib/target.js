@@ -436,20 +436,7 @@ class Target {
       );
 
       const electronWinstaller = require('electron-winstaller');
-
-      // We monkey-patch the signtool.exe that comes with electron-winstaller
-      // with our drop-in replace ment signtool.exe written in go so that
-      // electron-winstaller will execute that. But it requires
-      // @mongodb-js/signing-tools via node and that's only a dep of this
-      // package. So change the working directory to packages/hadron-build so
-      // that that would work.
-      const oldCWD = process.cwd();
-      process.chdir(path.join(__dirname, '..', '..'));
-      try {
-        await electronWinstaller.createWindowsInstaller(this.installerOptions);
-      } finally {
-        process.chdir(oldCWD);
-      }
+      await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
       await fs.promises.rename(
         this.dest('RELEASES'),
