@@ -14,15 +14,15 @@ const errorBoundaryStyles = css({
 });
 
 export interface SidebarPluginProps {
-  showSidebarHeader?: boolean;
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
+  isCompassWeb?: boolean;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
-  showSidebarHeader,
   onOpenConnectViaModal,
+  isCompassWeb,
 }) => {
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLogger('COMPASS-SIDEBAR-UI');
@@ -41,9 +41,9 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
       }}
     >
       <MultipleConnectionSidebar
-        showSidebarHeader={showSidebarHeader}
         activeWorkspace={activeWorkspace}
         onOpenConnectViaModal={onOpenConnectViaModal}
+        isCompassWeb={isCompassWeb}
       />
     </ErrorBoundary>
   );
