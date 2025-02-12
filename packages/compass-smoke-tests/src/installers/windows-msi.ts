@@ -21,6 +21,7 @@ export function installWindowsMSI({
   const appPath = path.resolve(installDirectory, `${appName}.exe`);
 
   function uninstall() {
+    debug('Uninstalling %s', filepath);
     execute('msiexec', ['/uninstall', filepath, '/passive']);
   }
 

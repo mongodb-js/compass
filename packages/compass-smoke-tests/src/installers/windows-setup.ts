@@ -35,6 +35,7 @@ export function installWindowsSetup({
   }
 
   function uninstall({ expectMissing = false }: UninstallOptions = {}) {
+    debug('Uninstalling %s', filepath);
     const entry = queryRegistry();
     if (entry) {
       const {
