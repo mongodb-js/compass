@@ -9,6 +9,7 @@ import { SUPPORTED_PACKAGES } from './packages';
 import { testTimeToFirstQuery } from './tests/time-to-first-query';
 import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
+import { deleteSandboxesDirectory } from './directories';
 
 const debug = createDebug('compass:smoketests');
 
@@ -92,7 +93,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('skipCleanup', {
     type: 'boolean',
-    description: 'Do not delete the sandbox after a run',
+    description: 'Do not delete the sandboxes after a run',
     default: false,
   })
   .option('tests', {
@@ -105,6 +106,27 @@ const argv = yargs(hideBin(process.argv))
 
 async function run() {
   const context: SmokeTestsContext = argv.parseSync();
+
+  function cleanupMaybe() {
+    if (context.skipCleanup) {
+      console.log('Skipped cleanup of sandboxes');
+    } else {
+      debug('Cleaning up sandboxes');
+      try {
+        deleteSandboxesDirectory();
+      } catch (err) {
+        if (err instanceof Error) {
+          console.warn(`Failed cleaning sandboxes: ${err.message}`);
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
+
+  process.once('SIGTERM', cleanupMaybe);
+  process.once('SIGINT', cleanupMaybe);
+  process.once('exit', cleanupMaybe);
 
   debug(`Running tests`);
 
