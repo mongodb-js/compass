@@ -26,6 +26,7 @@ export type SchemaExportState = {
   abortController?: AbortController;
   isOpen: boolean;
   isLegacyBannerOpen: boolean;
+  dontShowLegacyBanner: boolean;
   exportedSchema?: string;
   exportFormat: SchemaFormat;
   errorMessage?: string;
@@ -41,6 +42,7 @@ const getInitialState = (): SchemaExportState => ({
   exportedSchema: undefined,
   isOpen: false,
   isLegacyBannerOpen: false,
+  dontShowLegacyBanner: localStorage.getItem('dontShowLegacyBanner') === 'true',
 });
 
 export const enum SchemaExportActions {
@@ -48,6 +50,7 @@ export const enum SchemaExportActions {
   closeExportSchema = 'schema-service/schema-export/closeExportSchema',
   openLegacyBanner = 'schema-service/schema-export/openLegacyBanner',
   closeLegacyBanner = 'schema-service/schema-export/closeLegacyBanner',
+  dontShowLegacyBanner = 'schema-service/schema-export/dontShowLegacyBanner',
   changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
   changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
@@ -278,6 +281,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
       SchemaExportActions.openLegacyBanner
     )
   ) {
+    console.log('opening the banner');
     return {
       ...state,
       isLegacyBannerOpen: true,
@@ -288,6 +292,18 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
     isAction<closeLegacyBannerAction>(
       action,
       SchemaExportActions.closeLegacyBanner
+    )
+  ) {
+    return {
+      ...state,
+      isLegacyBannerOpen: false,
+    };
+  }
+
+  if (
+    isAction<dontShowLegacyBannerAction>(
+      action,
+      SchemaExportActions.dontShowLegacyBanner
     )
   ) {
     return {
@@ -362,6 +378,10 @@ export type closeLegacyBannerAction = {
   type: SchemaExportActions.closeLegacyBanner;
 };
 
+export type dontShowLegacyBannerAction = {
+  type: SchemaExportActions.dontShowLegacyBanner;
+};
+
 export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   return (dispatch) => {
     dispatch({ type: SchemaExportActions.closeLegacyBanner });
@@ -417,5 +437,12 @@ export const _trackSchemaShared = (
       geo_data: schema ? schemaContainsGeoData(schema) : false,
     });
     track('Schema Exported', trackEvent, connectionInfoRef.current);
+  };
+};
+
+export const stopShowingLegacyBanner = (): SchemaThunkAction<void> => {
+  return (dispatch) => {
+    localStorage.setItem('dontShowLegacyBanner', 'true');
+    dispatch({ type: SchemaExportActions.dontShowLegacyBanner });
   };
 };

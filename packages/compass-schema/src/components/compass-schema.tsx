@@ -376,6 +376,7 @@ const Schema: React.FunctionComponent<{
   schema: MongodbSchema | null;
   count?: number;
   resultId?: string;
+  dontShowLegacyBanner?: boolean;
   onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
@@ -384,6 +385,7 @@ const Schema: React.FunctionComponent<{
   errorMessage,
   schema,
   resultId,
+  dontShowLegacyBanner,
   onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
@@ -432,7 +434,9 @@ const Schema: React.FunctionComponent<{
         </WorkspaceContainer>
       </div>
       {enableExportSchema && <ExportSchemaModal />}
-      {enableExportSchema && <ExportSchemaLegacyBanner />}
+      {enableExportSchema && !dontShowLegacyBanner && (
+        <ExportSchemaLegacyBanner />
+      )}
     </>
   );
 };
@@ -443,6 +447,7 @@ export default connect(
     errorMessage: state.schemaAnalysis.errorMessage,
     schema: state.schemaAnalysis.schema,
     resultId: state.schemaAnalysis.resultId,
+    dontShowLegacyBanner: state.schemaExport.dontShowLegacyBanner,
   }),
   {
     onStartAnalysis: startAnalysis,

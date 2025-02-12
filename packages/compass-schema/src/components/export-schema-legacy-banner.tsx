@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   ModalBody,
@@ -8,6 +8,7 @@ import {
   spacing,
   Badge,
   Button,
+  Checkbox,
 } from '@mongodb-js/compass-components';
 
 import type { RootState, SchemaThunkDispatch } from '../stores/store';
@@ -15,6 +16,7 @@ import {
   confirmedLegacySchemaShare,
   switchToSchemaExport,
   SchemaExportActions,
+  stopShowingLegacyBanner,
 } from '../stores/schema-export-reducer';
 
 const Image = () => (
@@ -462,7 +464,23 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
   onClose: () => void;
   onLegacyShare: () => void;
   onSwitchToSchemaExport: () => void;
-}> = ({ isOpen, onClose, onLegacyShare, onSwitchToSchemaExport }) => {
+  stopShowingLegacyBanner: () => void;
+}> = ({
+  isOpen,
+  onClose,
+  onLegacyShare,
+  onSwitchToSchemaExport,
+  stopShowingLegacyBanner,
+}) => {
+  const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
+  const handleLegacyShare = useCallback(() => {
+    if (dontShowAgainChecked) stopShowingLegacyBanner();
+    onLegacyShare();
+  }, [onLegacyShare, dontShowAgainChecked, stopShowingLegacyBanner]);
+  const handleSwitchToNew = useCallback(() => {
+    if (dontShowAgainChecked) stopShowingLegacyBanner();
+    onSwitchToSchemaExport();
+  }, [onSwitchToSchemaExport, dontShowAgainChecked, stopShowingLegacyBanner]);
   return (
     <Modal open={isOpen} setOpen={onClose} contentClassName={containerStyles}>
       <ModalHeader
@@ -492,16 +510,19 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
             3 standardized schema formats designed for schema validation and
             analysis use cases.
           </div>
-          <Button variant="default" size="small" onClick={onLegacyShare}>
+          <Button variant="default" size="small" onClick={handleLegacyShare}>
             Continue with legacy Share
           </Button>
-          <Button
-            variant="primary"
-            size="small"
-            onClick={onSwitchToSchemaExport}
-          >
+          <Button variant="primary" size="small" onClick={handleSwitchToNew}>
             Try new Export
           </Button>
+        </div>
+        <div>
+          <Checkbox
+            label="Do not show me this message again"
+            checked={dontShowAgainChecked}
+            onChange={(e) => setDontShowAgainChecked(e.currentTarget.checked)}
+          />
         </div>
       </ModalBody>
     </Modal>
@@ -516,5 +537,6 @@ export default connect(
     onClose: () => dispatch({ type: SchemaExportActions.closeLegacyBanner }),
     onLegacyShare: () => dispatch(confirmedLegacySchemaShare()),
     onSwitchToSchemaExport: () => dispatch(switchToSchemaExport()),
+    stopShowingLegacyBanner: () => dispatch(stopShowingLegacyBanner()),
   })
 )(ExportSchemaLegacyBanner);
