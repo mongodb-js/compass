@@ -16,45 +16,36 @@ export async function testTimeToFirstQuery(context: SmokeTestsContext) {
   });
   const { kind } = subject;
 
+  const install = getInstaller(kind);
+
+  const { appPath, appName, uninstall } = install({
+    ...subject,
+    sandboxPath,
+  });
+
   try {
-    const install = getInstaller(kind);
-
-    const { appPath, appName, uninstall } = install({
-      ...subject,
-      sandboxPath,
-    });
-
-    try {
-      execute(
-        'npm',
-        [
-          'run',
-          '--unsafe-perm',
-          'test-packaged',
-          '--workspace',
-          'compass-e2e-tests',
-          '--',
-          '--test-filter=time-to-first-query',
-        ],
-        {
-          // We need to use a shell to get environment variables setup correctly
-          shell: true,
-          env: {
-            ...process.env,
-            COMPASS_APP_NAME: appName,
-            COMPASS_APP_PATH: appPath,
-          },
-        }
-      );
-    } finally {
-      await uninstall();
-    }
+    execute(
+      'npm',
+      [
+        'run',
+        '--unsafe-perm',
+        'test-packaged',
+        '--workspace',
+        'compass-e2e-tests',
+        '--',
+        '--test-filter=time-to-first-query',
+      ],
+      {
+        // We need to use a shell to get environment variables setup correctly
+        shell: true,
+        env: {
+          ...process.env,
+          COMPASS_APP_NAME: appName,
+          COMPASS_APP_PATH: appPath,
+        },
+      }
+    );
   } finally {
-    if (context.skipCleanup) {
-      debug(`Skipped cleaning up sandbox: ${sandboxPath}`);
-    } else {
-      debug(`Cleaning up sandbox: ${sandboxPath}`);
-      fs.rmSync(sandboxPath, { recursive: true });
-    }
+    await uninstall();
   }
 }
