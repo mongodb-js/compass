@@ -6,6 +6,7 @@ import { SUPPORTED_TESTS } from './tests/types';
 import { type SmokeTestsContext } from './context';
 import { SUPPORTED_PACKAGES } from './packages';
 import { testTimeToFirstQuery } from './tests/time-to-first-query';
+import { testReadOnly } from './tests/read-only';
 import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
 
@@ -123,6 +124,8 @@ async function run() {
 
     if (testName === 'time-to-first-query') {
       await testTimeToFirstQuery(context);
+    } else if (testName === 'read-only') {
+      await testReadOnly(context);
     } else if (testName === 'auto-update-from') {
       await testAutoUpdateFrom(context);
     } else if (testName === 'auto-update-to') {
