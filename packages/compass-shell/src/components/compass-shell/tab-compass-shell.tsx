@@ -21,6 +21,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { Shell } from '@mongosh/browser-repl';
 import type { RootState } from '../../stores/store';
 import { selectRuntimeById, saveHistory } from '../../stores/store';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const compassShellStyles = css(
   {
@@ -74,6 +75,8 @@ function useInitialEval(
   return initialEvalApplied ? undefined : initialEvaluate;
 }
 
+let _mongoshVersion = '';
+
 export const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
@@ -104,6 +107,33 @@ export const CompassShell: React.FC<CompassShellProps> = ({
     'shellInput',
     initialInput ?? ''
   );
+
+  const [mongoshVersion, setMongoshVersion] = useTabState(
+    'mongoshVersion',
+    _mongoshVersion
+  );
+  const logger = useLogger('COMPASS-SHELL');
+
+  useEffect(() => {
+    const { log, mongoLogId } = logger;
+    if (!runtime || mongoshVersion) return;
+    runtime
+      .evaluate('version()')
+      .then((value) => {
+        setMongoshVersion((_mongoshVersion = 'v' + String(value.printable)));
+      })
+      .catch((err) => {
+        setMongoshVersion('[unknown]');
+        log.error(
+          mongoLogId(1_001_000_342),
+          'shell',
+          'could not evaluate mongosh version',
+          {
+            error: (err as Error).message,
+          }
+        );
+      });
+  }, [runtime, logger, mongoshVersion, setMongoshVersion]);
 
   useOnTabReplace(() => {
     // Never allow to replace the shell tab to avoid destroying the runtime
@@ -156,13 +186,17 @@ export const CompassShell: React.FC<CompassShellProps> = ({
     );
   }
 
-  if (!canRenderShell) {
+  if (!canRenderShell || !mongoshVersion) {
     return <div className={compassShellStyles} />;
   }
 
   return (
     <>
-      <ShellInfoModal show={infoModalVisible} hideInfoModal={hideInfoModal} />
+      <ShellInfoModal
+        show={infoModalVisible}
+        hideInfoModal={hideInfoModal}
+        mongoshVersion={mongoshVersion}
+      />
       {/* Clicking on the shell container to focus it is a ux improvement to give
           the shell more of a native shell feeling. We disable the jsx-ally rules
           as this is a unique ux improvement solely for clicking. */}

@@ -305,6 +305,16 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'repl',
           msg: 'Evaluating input',
           attr: {
+            input: 'version()',
+          },
+        },
+        {
+          s: 'I',
+          c: 'MONGOSH',
+          id: 1_000_000_007,
+          ctx: 'repl',
+          msg: 'Evaluating input',
+          attr: {
             input: 'db.runCommand({ connectionStatus: 1 })',
           },
         },
