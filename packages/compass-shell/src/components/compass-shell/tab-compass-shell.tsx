@@ -125,7 +125,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
       .catch((err) => {
         setMongoshVersion('[unknown]');
         log.error(
-          mongoLogId(1_001_000_342),
+          mongoLogId(1_001_000_345),
           'shell',
           'could not evaluate mongosh version',
           {
