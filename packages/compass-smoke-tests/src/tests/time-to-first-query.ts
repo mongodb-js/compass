@@ -10,18 +10,18 @@ const debug = createDebug('compass:smoketests:time-to-first-query');
 
 export async function testTimeToFirstQuery(context: SmokeTestsContext) {
   const sandboxPath = createSandbox();
-  const { kind, appName, filepath } = await getTestSubject({
+  const subject = await getTestSubject({
     ...context,
     sandboxPath,
   });
+  const { kind } = subject;
 
   try {
     const install = getInstaller(kind);
 
-    const { appPath, uninstall } = install({
-      appName,
-      filepath,
-      destinationPath: sandboxPath,
+    const { appPath, appName, uninstall } = install({
+      ...subject,
+      sandboxPath,
     });
 
     try {

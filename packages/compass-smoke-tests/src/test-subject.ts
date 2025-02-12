@@ -19,7 +19,7 @@ type TestSubjectDetails = PackageDetails & {
   unsigned?: boolean;
 };
 
-type TestSubject = TestSubjectDetails & {
+export type TestSubject = TestSubjectDetails & {
   filepath: string;
 };
 /**

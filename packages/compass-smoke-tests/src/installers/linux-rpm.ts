@@ -37,9 +37,12 @@ export function isInstalled(packageName: string) {
 }
 
 export function installLinuxRpm({
-  appName,
+  kind,
   filepath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
+  assert.equal(kind, 'linux_rpm');
+  const appName = buildInfo.productName;
   const packageName = getPackageName(filepath);
   const installPath = `/usr/lib/${packageName}`;
   const appPath = path.resolve(installPath, appName);
@@ -75,6 +78,7 @@ export function installLinuxRpm({
   execute('xvfb-run', [appPath, '--version']);
 
   return {
+    appName,
     appPath: installPath,
     uninstall,
   };
