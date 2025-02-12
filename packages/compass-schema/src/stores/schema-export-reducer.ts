@@ -281,7 +281,6 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
       SchemaExportActions.openLegacyBanner
     )
   ) {
-    console.log('opening the banner');
     return {
       ...state,
       isLegacyBannerOpen: true,

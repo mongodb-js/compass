@@ -444,6 +444,10 @@ const containerStyles = css({
   width: '650px',
 });
 
+const checkboxContainerStyles = css({
+  marginTop: spacing[300],
+});
+
 const comparisonContainerStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
@@ -517,7 +521,7 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
             Try new Export
           </Button>
         </div>
-        <div>
+        <div className={checkboxContainerStyles}>
           <Checkbox
             label="Do not show me this message again"
             checked={dontShowAgainChecked}
