@@ -7,7 +7,7 @@ import { createSandbox } from '../directories';
 import { getTestSubjectDetails } from '../test-subject';
 import { executeAsync } from '../execute';
 import { getLatestRelease, getLatestReleaseKindByKind } from '../releases';
-import { startAutoUpdateServer } from './update-server';
+import { startAutoUpdateServer, stopAutoUpdateServer } from './update-server';
 
 const debug = createDebug('compass:smoketests:auto-update-to');
 
@@ -100,7 +100,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
       );
     } finally {
       debug('Stopping auto-update server');
-      server.close();
+      await stopAutoUpdateServer(server);
       delete process.env.DEV_RELEASE;
       delete process.env.PUBLISHED_RELEASES;
       delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;

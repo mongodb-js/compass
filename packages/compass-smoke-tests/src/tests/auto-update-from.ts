@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
+
 import createDebug from 'debug';
+
 import { type SmokeTestsContext } from '../context';
 import { getInstaller } from '../installers';
 import { createSandbox } from '../directories';
 import { getTestSubject } from '../test-subject';
 import { executeAsync } from '../execute';
-import { startAutoUpdateServer } from './update-server';
+import { startAutoUpdateServer, stopAutoUpdateServer } from './update-server';
 
 const debug = createDebug('compass:smoketests:auto-update-from');
 
@@ -66,7 +67,7 @@ export async function testAutoUpdateFrom(context: SmokeTestsContext) {
       );
     } finally {
       debug('Stopping auto-update server');
-      server.close();
+      await stopAutoUpdateServer(server);
       delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
     }
   } finally {
