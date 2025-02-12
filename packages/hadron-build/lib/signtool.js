@@ -1,6 +1,4 @@
 'use strict';
-const fs = require('fs');
-const crypto = require('crypto');
 const path = require('path');
 const debug = require('debug')('hadron-build:target');
 const { sign: _garasign } = require('@mongodb-js/signing-utils');
@@ -53,20 +51,6 @@ function getSigningMethod(src) {
   }
 }
 
-function hashFile(filename) {
-  return new Promise((resolve, reject) => {
-    const hash = crypto.createHash('sha256');
-    const fh = fs.createReadStream(filename);
-
-    fh.on('data', d => hash.update(d));
-    fh.on('end', () => {
-        const digest = hash.digest('hex');
-        resolve(digest);
-    });
-    fh.on('error', reject);
-  });
-}
-
 /**
  * We are signing the file using `gpg` or `jsign` depending on the
  * file extension. If the extension is `.exe` or `.msi`, we use `jsign`
@@ -92,9 +76,7 @@ async function sign(src, garasign = _garasign) {
     signingMethod: getSigningMethod(src),
   };
 
-  debug(`checksum of ${src} before signing: ${await hashFile(src)}`);
-  await garasign(src, clientOptions);
-  debug(`checksum of ${src} after signing: ${await hashFile(src)}`);
+  return await garasign(src, clientOptions);
 }
 
 module.exports = { sign, signArchive, getSignedFilename };
