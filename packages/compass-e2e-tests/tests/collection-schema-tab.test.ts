@@ -109,6 +109,54 @@ describe('Collection schema tab', function () {
     });
   }
 
+  describe('with the enableExportSchema feature flag enabled', function () {
+    beforeEach(async function () {
+      // TODO(COMPASS-8819): remove web skip when defaulted true.
+      skipForWeb(this, "can't toggle features in compass-web");
+      await browser.setFeature('enableExportSchema', true);
+    });
+
+    it('shows an exported schema to copy', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Schema'
+      );
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const element = browser.$(Selectors.SchemaFieldList);
+      await element.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.ExportSchemaButton);
+
+      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+      await exportModal.waitForDisplayed();
+
+      const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
+      await exportSchemaContent.waitForDisplayed();
+      const text = await browser.$(Selectors.ExportSchemaOutput).getText();
+      const parsedText = JSON.parse(text);
+      delete parsedText.$defs;
+      expect(parsedText).to.deep.equal({
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
+        required: ['_id', 'i', 'j'],
+        properties: {
+          _id: {
+            $ref: '#/$defs/ObjectId',
+          },
+          i: {
+            type: 'integer',
+          },
+          j: {
+            type: 'integer',
+          },
+        },
+      });
+    });
+  });
+
   it('analyzes the schema with a query');
   it('can reset the query');
   it('can create a geoquery from a map');

@@ -22,7 +22,7 @@ import {
   geoLayerAdded,
   geoLayersDeleted,
   geoLayersEdited,
-} from '../../stores/reducer';
+} from '../../stores/schema-analysis-reducer';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
