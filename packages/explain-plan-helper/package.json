@@ -49,7 +49,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/shell-bson-parser": "^1.1.2",
+    "@mongodb-js/shell-bson-parser": "^1.2.0",
     "mongodb-explain-compat": "^3.3.0"
   },
   "devDependencies": {

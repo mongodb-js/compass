@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import createDebug from 'debug';
 import { type SmokeTestsContext } from '../context';
 import { getInstaller } from '../installers';
 import { createSandbox } from '../directories';
@@ -7,6 +8,8 @@ import { getTestSubjectDetails } from '../test-subject';
 import { executeAsync } from '../execute';
 import { getLatestRelease, getLatestReleaseKindByKind } from '../releases';
 import { startAutoUpdateServer } from './update-server';
+
+const debug = createDebug('compass:smoketests:auto-update-to');
 
 export async function testAutoUpdateTo(context: SmokeTestsContext) {
   assert(
@@ -88,7 +91,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
           }
         );
       } finally {
-        console.log('Stopping auto-update server');
+        debug('Stopping auto-update server');
         server.close();
         delete process.env.DEV_RELEASE;
         delete process.env.PUBLISHED_RELEASES;
@@ -98,9 +101,9 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
     }
   } finally {
     if (context.skipCleanup) {
-      console.log(`Skipped cleaning up sandbox: ${sandboxPath}`);
+      debug(`Skipped cleaning up sandbox: ${sandboxPath}`);
     } else {
-      console.log(`Cleaning up sandbox: ${sandboxPath}`);
+      debug(`Cleaning up sandbox: ${sandboxPath}`);
       fs.rmSync(sandboxPath, { recursive: true });
     }
   }

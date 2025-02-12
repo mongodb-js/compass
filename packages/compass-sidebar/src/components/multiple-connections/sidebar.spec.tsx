@@ -5,7 +5,6 @@ import type { RenderWithConnectionsHookResult } from '@mongodb-js/testing-librar
 import {
   createPluginTestHelpers,
   screen,
-  cleanup,
   waitFor,
   within,
   userEvent,
@@ -94,7 +93,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
-    connections: ConnectionInfo[] = [savedFavoriteConnection],
+    connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
     atlasClusterConnectionsOnly: boolean | undefined = undefined
   ) {
     workspace = sinon.spy({
@@ -153,7 +152,6 @@ describe('Multiple Connections Sidebar Component', function () {
   }
 
   afterEach(function () {
-    cleanup();
     sinon.restore();
   });
 
@@ -235,6 +233,18 @@ describe('Multiple Connections Sidebar Component', function () {
   });
 
   describe('connections list', function () {
+    it('should display a loading state while connections are not loaded yet', function () {
+      doRender(null, 'no-preload');
+      expect(screen.getByTestId('connections-placeholder')).to.be.visible;
+      expect(screen.getByRole('searchbox', { name: 'Search' })).to.have.attr(
+        'aria-disabled',
+        'true'
+      );
+      expect(
+        screen.getByRole('button', { name: 'Filter connections' })
+      ).to.have.attr('aria-disabled', 'true');
+    });
+
     context('when there are no connections', function () {
       it('should display an empty state with a CTA to add new connection', function () {
         doRender(undefined, []);

@@ -364,3 +364,14 @@ export function useConnectionsColorList(): {
     });
   }, isEqual);
 }
+
+export function useConnectionsListLoadingStatus() {
+  return useSelector((state) => {
+    const status = state.connections.status;
+    return {
+      status,
+      error: state.connections.error?.message ?? null,
+      isInitialLoad: status === 'initial' || status === 'loading',
+    };
+  }, isEqual);
+}

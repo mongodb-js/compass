@@ -1,7 +1,12 @@
 import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import { css, ItemActionGroup } from '@mongodb-js/compass-components';
+
+const styles = css({
+  // Align actions with the end of the table
+  justifyContent: 'flex-end',
+});
 
 type Index = {
   name: string;
@@ -83,9 +88,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   return (
     <ItemActionGroup<IndexAction>
       data-testid="index-actions"
+      className={styles}
       actions={indexActions}
       onAction={onAction}
-    ></ItemActionGroup>
+    />
   );
 };
 

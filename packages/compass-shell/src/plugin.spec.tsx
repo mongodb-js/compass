@@ -14,6 +14,9 @@ describe('CompassShellPlugin', function () {
     RuntimeMap.set('test', {
       eventEmitter: new EventEmitter(),
       terminate() {},
+      evaluate() {
+        return Promise.resolve({});
+      },
     } as any);
 
     await renderWithActiveConnection(<CompassShellPlugin runtimeId="test" />);

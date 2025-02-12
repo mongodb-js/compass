@@ -708,19 +708,21 @@ functions:
           fi
 
           if [[ "$IS_UBUNTU" == "true" ]]; then
-            # TODO: linux_deb
             if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_deb --tests=read-only
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=read-only
             else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_deb --tests=time-to-first-query
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
             fi
           fi
 
           if [[ "$IS_RHEL" == "true" ]]; then
-            # TODO: linux_rpm
             if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=read-only
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=read-only
             else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=time-to-first-query
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
             fi
           fi

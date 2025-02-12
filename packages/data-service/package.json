@@ -53,7 +53,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.6.0",
     "@mongodb-js/compass-utils": "^0.8.0",
-    "@mongodb-js/devtools-connect": "^3.3.4",
+    "@mongodb-js/devtools-connect": "^3.4.1",
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
     "bson": "^6.10.1",
     "lodash": "^4.17.21",
@@ -78,7 +78,7 @@
     "eslint": "^7.25.0",
     "kerberos": "^2.2.0",
     "mocha": "^10.2.0",
-    "mongodb-log-writer": "^1.4.2",
+    "mongodb-log-writer": "^2.1.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",

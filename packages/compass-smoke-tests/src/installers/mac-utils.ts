@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
+
+const debug = createDebug('compass:smoketests:mac-utils');
 
 // TODO: Consider instrumenting the app to use a settings directory in the sandbox
 export function removeApplicationSupportForApp(appName: string) {
@@ -15,7 +18,7 @@ export function removeApplicationSupportForApp(appName: string) {
   );
 
   if (fs.existsSync(settingsDir)) {
-    console.log(`${settingsDir} already exists. Removing.`);
+    debug(`${settingsDir} already exists. Removing.`);
     fs.rmSync(settingsDir, { recursive: true });
   }
 }
