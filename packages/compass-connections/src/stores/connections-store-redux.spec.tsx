@@ -67,6 +67,7 @@ describe('CompassConnections store', function () {
         .rejects(new Error('loadAll failed'));
 
       renderCompassConnections({
+        connections: 'no-preload',
         connectionStorage,
         onFailToLoadConnections: onFailToLoadConnectionsSpy,
       });
