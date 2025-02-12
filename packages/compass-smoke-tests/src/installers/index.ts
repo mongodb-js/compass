@@ -6,6 +6,7 @@ import { installWindowsMSI } from './windows-msi';
 import { installWindowsSetup } from './windows-setup';
 import { installLinuxTar } from './linux-tar';
 import { installLinuxDeb } from './linux-deb';
+import { installLinuxRpm } from './linux-rpm';
 
 export function getInstaller(kind: PackageKind) {
   if (kind === 'osx_dmg') {
@@ -22,6 +23,8 @@ export function getInstaller(kind: PackageKind) {
     return installLinuxTar;
   } else if (kind === 'linux_deb') {
     return installLinuxDeb;
+  } else if (kind === 'linux_rpm') {
+    return installLinuxRpm;
   } else {
     throw new Error(`Installer for '${kind}' is not yet implemented`);
   }
