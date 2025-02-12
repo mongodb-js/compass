@@ -677,7 +677,11 @@ functions:
           npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com --engine-strict=false
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
+            if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests read-only
+            else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
+            fi
             if [[ "$HADRON_DISTRIBUTION" == "compass-isolated" ]]; then
               # auto-update is not supported on isolated
               npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests time-to-first-query
@@ -694,18 +698,31 @@ functions:
             # NOTE: We're also skipping auto-update of the macOS app in CI
             # because it doesn't work. Running a different test to make sure it
             # can install and run successfully at least.
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=time-to-first-query
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=time-to-first-query
+            if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=read-only
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=read-only
+            else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=time-to-first-query
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=time-to-first-query
+            fi
           fi
 
           if [[ "$IS_UBUNTU" == "true" ]]; then
             # TODO: linux_deb
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+            if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=read-only
+            else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+            fi
           fi
 
           if [[ "$IS_RHEL" == "true" ]]; then
             # TODO: linux_rpm
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+            if [[ "$HADRON_DISTRIBUTION" == "compass-readonly" ]]; then
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=read-only
+            else
+              npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+            fi
           fi
 
   test-web-sandbox:
