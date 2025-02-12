@@ -26,7 +26,7 @@ export type SchemaExportState = {
   abortController?: AbortController;
   isOpen: boolean;
   isLegacyBannerOpen: boolean;
-  dontShowLegacyBanner: boolean;
+  legacyBannerChoice?: 'legacy' | 'export';
   exportedSchema?: string;
   exportFormat: SchemaFormat;
   errorMessage?: string;
@@ -42,7 +42,7 @@ const getInitialState = (): SchemaExportState => ({
   exportedSchema: undefined,
   isOpen: false,
   isLegacyBannerOpen: false,
-  dontShowLegacyBanner: localStorage.getItem('dontShowLegacyBanner') === 'true',
+  legacyBannerChoice: undefined,
 });
 
 export const enum SchemaExportActions {
@@ -50,7 +50,7 @@ export const enum SchemaExportActions {
   closeExportSchema = 'schema-service/schema-export/closeExportSchema',
   openLegacyBanner = 'schema-service/schema-export/openLegacyBanner',
   closeLegacyBanner = 'schema-service/schema-export/closeLegacyBanner',
-  dontShowLegacyBanner = 'schema-service/schema-export/dontShowLegacyBanner',
+  setLegacyBannerChoice = 'schema-service/schema-export/setLegacyBannerChoice',
   changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
   changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
@@ -300,14 +300,14 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   }
 
   if (
-    isAction<dontShowLegacyBannerAction>(
+    isAction<setLegacyBannerChoiceAction>(
       action,
-      SchemaExportActions.dontShowLegacyBanner
+      SchemaExportActions.setLegacyBannerChoice
     )
   ) {
     return {
       ...state,
-      isLegacyBannerOpen: false,
+      legacyBannerChoice: action.choice,
     };
   }
 
@@ -373,13 +373,40 @@ export type openLegacyBannerAction = {
   type: SchemaExportActions.openLegacyBanner;
 };
 
+export const openLegacyBanner = (): SchemaThunkAction<void> => {
+  return (dispatch, getState) => {
+    const choiceInState = getState().schemaExport.legacyBannerChoice;
+    const savedChoice = choiceInState || localStorage.getItem(localStorageId);
+    if (savedChoice) {
+      if (savedChoice !== choiceInState) {
+        dispatch({
+          type: SchemaExportActions.setLegacyBannerChoice,
+          choice: savedChoice,
+        });
+      }
+      if (savedChoice === 'legacy') {
+        dispatch(confirmedLegacySchemaShare());
+        return;
+      }
+      if (savedChoice === 'export') {
+        dispatch(openExportSchema());
+        return;
+      }
+    }
+    dispatch({ type: SchemaExportActions.openLegacyBanner });
+  };
+};
+
 export type closeLegacyBannerAction = {
   type: SchemaExportActions.closeLegacyBanner;
 };
 
-export type dontShowLegacyBannerAction = {
-  type: SchemaExportActions.dontShowLegacyBanner;
+export type setLegacyBannerChoiceAction = {
+  type: SchemaExportActions.setLegacyBannerChoice;
+  choice: 'legacy' | 'export';
 };
+
+const localStorageId = 'schemaExportLegacyBannerChoice';
 
 export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   return (dispatch) => {
@@ -439,9 +466,11 @@ export const _trackSchemaShared = (
   };
 };
 
-export const stopShowingLegacyBanner = (): SchemaThunkAction<void> => {
+export const stopShowingLegacyBanner = (
+  choice: 'legacy' | 'export'
+): SchemaThunkAction<void> => {
   return (dispatch) => {
-    localStorage.setItem('dontShowLegacyBanner', 'true');
-    dispatch({ type: SchemaExportActions.dontShowLegacyBanner });
+    localStorage.setItem(localStorageId, choice);
+    dispatch({ type: SchemaExportActions.setLegacyBannerChoice, choice });
   };
 };

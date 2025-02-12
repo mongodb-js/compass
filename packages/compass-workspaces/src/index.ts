@@ -157,9 +157,7 @@ export function activateWorkspacePlugin(
 
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
-    console.log({ activeTab });
     if (activeTab?.type === 'Collection') {
-      console.log('this is collection');
       getLocalAppRegistryForTab(activeTab.id).emit('menu-share-schema-json');
     }
   });
