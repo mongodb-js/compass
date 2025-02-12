@@ -18,12 +18,12 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
   );
 
   const sandboxPath = createSandbox();
+  const subject = getTestSubjectDetails({ ...context, sandboxPath });
   const {
     kind,
-    appName,
     autoUpdatable,
     buildInfo: { channel, version },
-  } = getTestSubjectDetails({ ...context, sandboxPath });
+  } = subject;
 
   try {
     const install = getInstaller(getLatestReleaseKindByKind(kind));
@@ -34,10 +34,10 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
       context.forceDownload
     );
 
-    const { appPath, uninstall } = install({
-      appName,
+    const { appPath, appName, uninstall } = install({
+      ...subject,
       filepath,
-      destinationPath: sandboxPath,
+      sandboxPath,
     });
 
     try {

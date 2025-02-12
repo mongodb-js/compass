@@ -1,5 +1,5 @@
-import path from 'node:path';
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import fs from 'node:fs';
 import cp from 'node:child_process';
 import createDebug from 'debug';
@@ -21,9 +21,13 @@ type UninstallOptions = {
  * Install using the Windows installer.
  */
 export function installWindowsSetup({
-  appName,
+  kind,
   filepath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
+  assert.equal(kind, 'windows_setup');
+  const appName = buildInfo.installerOptions.name;
+
   function queryRegistry() {
     return windowsRegistry.query(
       `HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${appName}`
@@ -80,6 +84,7 @@ export function installWindowsSetup({
   execute(appExecutablePath, ['--version']);
 
   return {
+    appName,
     appPath,
     uninstall,
   };
