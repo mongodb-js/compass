@@ -1,3 +1,4 @@
+/* eslint-disable mocha/max-top-level-suites */
 'use strict';
 const hadronBuild = require('../');
 const commands = hadronBuild;
