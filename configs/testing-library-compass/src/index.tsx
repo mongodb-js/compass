@@ -82,10 +82,11 @@ type TestConnectionsOptions = {
   preferences?: Partial<AllPreferences>;
   /**
    * Initial list of connections to be "loaded" to the application. Empty list
-   * by default. You can explicitly pass `null` to disable initial preloading of
-   * the connections
+   * by default. You can explicitly pass `no-preload` to disable initial
+   * preloading of the connections, otherwise connections are always preloaded
+   * before rendering when using helper methods
    */
-  connections?: ConnectionInfo[] | null;
+  connections?: ConnectionInfo[] | 'no-preload';
   /**
    * Connection function that returns DataService when connecting to a
    * connection with the connections store. Second argument is a constructor
@@ -247,6 +248,12 @@ const EmptyWrapper = ({ children }: { children: React.ReactElement }) => {
   return <>{children}</>;
 };
 
+function getConnectionsFromConnectionsOption(
+  connections: TestConnectionsOptions['connections']
+): Exclude<TestConnectionsOptions['connections'], 'no-preload'> {
+  return connections === 'no-preload' ? undefined : connections ?? [];
+}
+
 const TEST_ENV_CURRENT_CONNECTION = {
   info: {
     id: 'TEST',
@@ -268,9 +275,7 @@ function createWrapper(
   TestingLibraryWrapper: ComponentWithChildren = EmptyWrapper,
   container?: HTMLElement
 ) {
-  const connections =
-    options.connections === null ? undefined : options.connections ?? [];
-
+  const connections = getConnectionsFromConnectionsOption(options.connections);
   const wrapperState = {
     globalAppRegistry: new AppRegistry(),
     localAppRegistry: new AppRegistry(),
@@ -421,7 +426,9 @@ function renderWithConnections(
     hydrate,
   });
   expect(
-    (connectionsOptions.connections ?? []).every((info) => {
+    (
+      getConnectionsFromConnectionsOption(connectionsOptions.connections) ?? []
+    ).every((info) => {
       return !!wrapperState.connectionsStore.getState().connections.byId[
         info.id
       ];
@@ -515,7 +522,10 @@ async function renderWithActiveConnection(
   const renderResult = renderWithConnections(ui, {
     ...options,
     wrapper: ConnectionInfoWrapper,
-    connections: [connectionInfo, ...(connections ?? [])],
+    connections: [
+      connectionInfo,
+      ...(getConnectionsFromConnectionsOption(connections) ?? []),
+    ],
   });
   await waitForConnect(renderResult.connectionsStore, connectionInfo);
   return renderResult;
@@ -537,7 +547,10 @@ async function renderHookWithActiveConnection<HookProps, HookResult>(
   const renderHookResult = renderHookWithConnections(cb, {
     ...options,
     wrapper: ConnectionInfoWrapper,
-    connections: [connectionInfo, ...(connections ?? [])],
+    connections: [
+      connectionInfo,
+      ...(getConnectionsFromConnectionsOption(connections) ?? []),
+    ],
   });
   await waitForConnect(renderHookResult.connectionsStore, connectionInfo);
   return renderHookResult;

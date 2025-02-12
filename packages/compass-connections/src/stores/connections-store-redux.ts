@@ -469,7 +469,7 @@ const INITIAL_STATE: State = {
 };
 
 export function getInitialConnectionsStateForConnectionInfos(
-  connectionInfos: ConnectionInfo[] | null
+  connectionInfos?: ConnectionInfo[]
 ): State['connections'] {
   if (!connectionInfos) {
     // Keep initial state if we're not preloading any connections
@@ -2134,7 +2134,7 @@ export const openSettingsModal = (
 };
 
 export function configureStore(
-  preloadConnectionInfos: ConnectionInfo[] | null,
+  preloadConnectionInfos: ConnectionInfo[] | undefined,
   thunkArg: ThunkExtraArg
 ) {
   return createStore(

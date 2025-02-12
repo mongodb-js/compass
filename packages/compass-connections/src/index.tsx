@@ -85,20 +85,17 @@ const CompassConnectionsPlugin = registerHadronPlugin(
       { logger, preferences, connectionStorage, track, globalAppRegistry },
       { addCleanup, cleanup }
     ) {
-      const store = configureStore(
-        initialProps.preloadStorageConnectionInfos ?? null,
-        {
-          logger,
-          preferences,
-          connectionStorage,
-          track,
-          getExtraConnectionData: initialProps.onExtraConnectionDataRequest,
-          appName: initialProps.appName,
-          connectFn: initialProps.connectFn,
-          globalAppRegistry,
-          onFailToLoadConnections: initialProps.onFailToLoadConnections,
-        }
-      );
+      const store = configureStore(initialProps.preloadStorageConnectionInfos, {
+        logger,
+        preferences,
+        connectionStorage,
+        track,
+        getExtraConnectionData: initialProps.onExtraConnectionDataRequest,
+        appName: initialProps.appName,
+        connectFn: initialProps.connectFn,
+        globalAppRegistry,
+        onFailToLoadConnections: initialProps.onFailToLoadConnections,
+      });
 
       setTimeout(() => {
         void store.dispatch(loadConnections());
