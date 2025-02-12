@@ -59,10 +59,8 @@ func main() {
 	cmd := exec.Command("node", "-e", script)
 	fmt.Println("Running command:", cmd.String())
 
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-
 	stdoutStderr, err := cmd.CombinedOutput()
+
 	if err != nil {
 		fmt.Println("Error signing the file")
 		fmt.Printf("%s\n", stdoutStderr)
