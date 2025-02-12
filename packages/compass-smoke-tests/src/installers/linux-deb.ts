@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 import * as apt from './apt';
+
+const debug = createDebug('compass:smoketests:linux-deb');
 
 export function installLinuxDeb({
   kind,
@@ -18,6 +21,7 @@ export function installLinuxDeb({
   const appPath = path.resolve(installPath, appName);
 
   function uninstall() {
+    debug('Uninstalling %s', filepath);
     execute('sudo', ['apt', 'remove', '--yes', '--purge', packageName]);
   }
 

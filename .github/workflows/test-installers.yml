@@ -124,6 +124,8 @@ jobs:
             test: time-to-first-query
 
     runs-on: ${{ matrix.runs-on }}
+    env:
+      DEBUG: compass:smoketests:*
     steps:
       - name: Checkout
         uses: actions/checkout@v2
