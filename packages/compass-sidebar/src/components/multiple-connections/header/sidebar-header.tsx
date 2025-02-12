@@ -22,6 +22,11 @@ const sidebarHeaderTextStyles = css({
   fontWeight: 600,
 });
 
+const badgeStyles = css({
+  verticalAlign: 'middle',
+  marginLeft: spacing[100],
+});
+
 type Action = 'open-compass-settings';
 
 const actions: ItemAction<Action>[] = [
@@ -43,12 +48,16 @@ export function SidebarHeader({
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle className={sidebarHeaderTextStyles}>
         {isCompassWeb ? 'Data Explorer' : 'Compass'}
+        {isCompassWeb && (
+          <Badge
+            variant={BadgeVariant.Blue}
+            className={badgeStyles}
+            data-testid="sidebar-header-badge"
+          >
+            Preview
+          </Badge>
+        )}
       </Subtitle>
-      {isCompassWeb && (
-        <Badge variant={BadgeVariant.Blue} data-testid="sidebar-header-badge">
-          Preview
-        </Badge>
-      )}
       {!isCompassWeb && (
         <ItemActionControls<Action>
           onAction={onAction}
