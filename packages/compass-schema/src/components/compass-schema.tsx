@@ -434,9 +434,7 @@ const Schema: React.FunctionComponent<{
         </WorkspaceContainer>
       </div>
       {enableExportSchema && <ExportSchemaModal />}
-      {enableExportSchema && !dontShowLegacyBanner && (
-        <ExportSchemaLegacyBanner />
-      )}
+      {enableExportSchema && <ExportSchemaLegacyBanner />}
     </>
   );
 };
@@ -447,7 +445,6 @@ export default connect(
     errorMessage: state.schemaAnalysis.errorMessage,
     schema: state.schemaAnalysis.schema,
     resultId: state.schemaAnalysis.resultId,
-    dontShowLegacyBanner: state.schemaExport.dontShowLegacyBanner,
   }),
   {
     onStartAnalysis: startAnalysis,

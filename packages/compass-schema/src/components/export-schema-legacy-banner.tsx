@@ -468,7 +468,7 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
   onClose: () => void;
   onLegacyShare: () => void;
   onSwitchToSchemaExport: () => void;
-  stopShowingLegacyBanner: () => void;
+  stopShowingLegacyBanner: (choice: 'legacy' | 'export') => void;
 }> = ({
   isOpen,
   onClose,
@@ -478,11 +478,11 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
 }) => {
   const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
   const handleLegacyShare = useCallback(() => {
-    if (dontShowAgainChecked) stopShowingLegacyBanner();
+    if (dontShowAgainChecked) stopShowingLegacyBanner('legacy');
     onLegacyShare();
   }, [onLegacyShare, dontShowAgainChecked, stopShowingLegacyBanner]);
   const handleSwitchToNew = useCallback(() => {
-    if (dontShowAgainChecked) stopShowingLegacyBanner();
+    if (dontShowAgainChecked) stopShowingLegacyBanner('export');
     onSwitchToSchemaExport();
   }, [onSwitchToSchemaExport, dontShowAgainChecked, stopShowingLegacyBanner]);
   return (
@@ -541,6 +541,7 @@ export default connect(
     onClose: () => dispatch({ type: SchemaExportActions.closeLegacyBanner }),
     onLegacyShare: () => dispatch(confirmedLegacySchemaShare()),
     onSwitchToSchemaExport: () => dispatch(switchToSchemaExport()),
-    stopShowingLegacyBanner: () => dispatch(stopShowingLegacyBanner()),
+    stopShowingLegacyBanner: (choice: 'legacy' | 'export') =>
+      dispatch(stopShowingLegacyBanner(choice)),
   })
 )(ExportSchemaLegacyBanner);
