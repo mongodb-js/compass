@@ -27,6 +27,10 @@ func main() {
 	}
 
 	allowedExtensions := []string{
+		"GARASIGN_USERNAME",
+		"GARASIGN_PASSWORD",
+		"ARTIFACTORY_USERNAME",
+		"ARTIFACTORY_PASSWORD",
 		"SIGNING_SERVER_HOSTNAME",
 		"SIGNING_SERVER_PRIVATE_KEY",
 		"SIGNING_SERVER_USERNAME",
@@ -55,12 +59,15 @@ func main() {
 	cmd := exec.Command("node", "-e", script)
 	fmt.Println("Running command:", cmd.String())
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	stdoutStderr, err := cmd.CombinedOutput()
 
-	err := cmd.Run()
 	if err != nil {
 		fmt.Println("Error signing the file")
+		fmt.Printf("%s\n", stdoutStderr)
+		log.Println(err)
+		// if we error out then we won't see much because of how
+		// electron-windows-installer fails. We'll have to rely on package
+		// verification elsewhere to fail CI
 		return
 	}
 
