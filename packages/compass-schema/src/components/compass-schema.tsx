@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-
+import type { Schema as MongodbSchema } from 'mongodb-schema';
+import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_INITIAL,
@@ -29,12 +30,15 @@ import {
   Badge,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../stores/store';
+import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
+import { openExportSchema } from '../stores/schema-export-reducer';
+import ExportSchemaModal from './export-schema-modal';
 
 const rootStyles = css({
   width: '100%',
@@ -296,10 +300,9 @@ const AnalyzingScreen: React.FunctionComponent<{
 };
 
 const FieldList: React.FunctionComponent<{
-  schema: any;
+  schema: MongodbSchema | null;
   analysisState: AnalysisState;
-  actions: Record<string, any>;
-}> = ({ schema, analysisState, actions }) => {
+}> = ({ schema, analysisState }) => {
   const darkMode = useDarkMode();
 
   if (analysisState !== ANALYSIS_STATE_COMPLETE) {
@@ -327,7 +330,7 @@ const FieldList: React.FunctionComponent<{
     >
       <div data-testid="schema-field-list">
         {fields.map((field: any) => (
-          <Field key={field.name} actions={actions} {...field} />
+          <Field key={field.name} {...field} />
         ))}
       </div>
     </div>
@@ -366,25 +369,27 @@ const PerformanceAdvisorBanner = () => {
 };
 
 const Schema: React.FunctionComponent<{
-  actions: ReturnType<typeof configureActions>;
   analysisState: AnalysisState;
   errorMessage?: string;
   maxTimeMS?: number;
-  schema?: any;
+  schema: MongodbSchema | null;
   count?: number;
   resultId?: string;
-}> = ({ actions, analysisState, errorMessage, schema, resultId }) => {
+  onExportSchemaClicked: () => void;
+  onStartAnalysis: () => Promise<void>;
+  onStopAnalysis: () => void;
+}> = ({
+  analysisState,
+  errorMessage,
+  schema,
+  resultId,
+  onExportSchemaClicked,
+  onStartAnalysis,
+  onStopAnalysis,
+}) => {
   const onApplyClicked = useCallback(() => {
-    actions.startAnalysis();
-  }, [actions]);
-
-  const onCancelClicked = useCallback(() => {
-    actions.stopAnalysis();
-  }, [actions]);
-
-  const onResetClicked = useCallback(() => {
-    actions.startAnalysis();
-  }, [actions]);
+    void onStartAnalysis();
+  }, [onStartAnalysis]);
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
@@ -392,40 +397,54 @@ const Schema: React.FunctionComponent<{
     'enablePerformanceAdvisorBanner'
   );
 
+  const enableExportSchema = usePreference('enableExportSchema');
+
   return (
-    <div className={rootStyles}>
-      <WorkspaceContainer
-        toolbar={
-          <SchemaToolbar
-            onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
-            analysisState={analysisState}
-            errorMessage={errorMessage || ''}
-            isOutdated={!!outdated}
-            sampleSize={schema ? schema.count : 0}
-            schemaResultId={resultId || ''}
-          />
-        }
-      >
-        <div className={contentStyles}>
-          {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
-          {analysisState === ANALYSIS_STATE_INITIAL && (
-            <InitialScreen onApplyClicked={onApplyClicked} />
-          )}
-          {analysisState === ANALYSIS_STATE_ANALYZING && (
-            <AnalyzingScreen onCancelClicked={onCancelClicked} />
-          )}
-          {analysisState === ANALYSIS_STATE_COMPLETE && (
-            <FieldList
-              schema={schema}
+    <>
+      <div className={rootStyles}>
+        <WorkspaceContainer
+          toolbar={
+            <SchemaToolbar
+              onAnalyzeSchemaClicked={onApplyClicked}
+              onExportSchemaClicked={onExportSchemaClicked}
+              onResetClicked={onApplyClicked}
               analysisState={analysisState}
-              actions={actions}
+              errorMessage={errorMessage || ''}
+              isOutdated={!!outdated}
+              sampleSize={schema ? schema.count : 0}
+              schemaResultId={resultId || ''}
             />
-          )}
-        </div>
-      </WorkspaceContainer>
-    </div>
+          }
+        >
+          <div className={contentStyles}>
+            {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
+            {analysisState === ANALYSIS_STATE_INITIAL && (
+              <InitialScreen onApplyClicked={onApplyClicked} />
+            )}
+            {analysisState === ANALYSIS_STATE_ANALYZING && (
+              <AnalyzingScreen onCancelClicked={onStopAnalysis} />
+            )}
+            {analysisState === ANALYSIS_STATE_COMPLETE && (
+              <FieldList schema={schema} analysisState={analysisState} />
+            )}
+          </div>
+        </WorkspaceContainer>
+      </div>
+      {enableExportSchema && <ExportSchemaModal />}
+    </>
   );
 };
 
-export default Schema;
+export default connect(
+  (state: RootState) => ({
+    analysisState: state.schemaAnalysis.analysisState,
+    errorMessage: state.schemaAnalysis.errorMessage,
+    schema: state.schemaAnalysis.schema,
+    resultId: state.schemaAnalysis.resultId,
+  }),
+  {
+    onStartAnalysis: startAnalysis,
+    onStopAnalysis: stopAnalysis,
+    onExportSchemaClicked: openExportSchema,
+  }
+)(Schema);

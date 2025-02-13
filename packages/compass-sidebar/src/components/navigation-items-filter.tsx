@@ -30,6 +30,7 @@ export default function NavigationItemsFilter({
   title = 'Search',
   filter,
   onFilterChange,
+  disabled = false,
 }: {
   placeholder?: string;
   ariaLabel?: string;
@@ -38,6 +39,7 @@ export default function NavigationItemsFilter({
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
+  disabled?: boolean;
 }): React.ReactElement {
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (event) => {
@@ -66,12 +68,14 @@ export default function NavigationItemsFilter({
         title={title}
         onChange={onChange}
         className={textInputStyles}
+        disabled={disabled}
       />
       <ConnectionsFilterPopover
         open={isPopoverOpen}
         setOpen={setPopoverOpen}
         filter={filter}
         onFilterChange={onFilterChange}
+        disabled={disabled}
       />
     </form>
   );

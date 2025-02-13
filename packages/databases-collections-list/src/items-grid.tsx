@@ -22,7 +22,7 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 
-type Item = { _id: string } & Record<string, unknown>;
+type Item = { _id: string } & Record<string, any>;
 
 const rowStyles = css({
   paddingLeft: spacing[3],

@@ -1,5 +1,6 @@
 import React, { PureComponent, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import L from 'leaflet';
 
@@ -17,6 +18,11 @@ import GeoscatterMapItem from './marker';
 import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
 import { getHereAttributionMessage } from './utils';
 import { debounce } from 'lodash';
+import {
+  geoLayerAdded,
+  geoLayersDeleted,
+  geoLayersEdited,
+} from '../../stores/schema-analysis-reducer';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
@@ -124,10 +130,12 @@ class UnthemedCoordinatesMinichart extends PureComponent {
       unique: PropTypes.number,
       values: PropTypes.array,
     }),
-    actions: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
     darkMode: PropTypes.bool,
     onGeoQueryChanged: PropTypes.func.isRequired,
+    geoLayerAdded: PropTypes.func.isRequired,
+    geoLayersEdited: PropTypes.func.isRequired,
+    geoLayersDeleted: PropTypes.func.isRequired,
   };
 
   state = {
@@ -239,7 +247,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   }
 
   onCreated = (evt) => {
-    this.props.actions.geoLayerAdded(
+    this.props.geoLayerAdded(
       this.props.fieldName,
       evt.layer,
       this.props.onGeoQueryChanged
@@ -247,7 +255,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   };
 
   onEdited = (evt) => {
-    this.props.actions.geoLayersEdited(
+    this.props.geoLayersEdited(
       this.props.fieldName,
       evt.layers,
       this.props.onGeoQueryChanged
@@ -255,10 +263,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   };
 
   onDeleted = (evt) => {
-    this.props.actions.geoLayersDeleted(
-      evt.layers,
-      this.props.onGeoQueryChanged
-    );
+    this.props.geoLayersDeleted(evt.layers, this.props.onGeoQueryChanged);
   };
 
   /**
@@ -328,5 +333,10 @@ CoordinatesMinichart.propTypes = {
   onQueryChanged: PropTypes.func,
 };
 
-export default CoordinatesMinichart;
-export { CoordinatesMinichart };
+const ConnectedCoordinatesMinichart = connect(undefined, {
+  geoLayerAdded,
+  geoLayersEdited,
+  geoLayersDeleted,
+})(CoordinatesMinichart);
+
+export default ConnectedCoordinatesMinichart;

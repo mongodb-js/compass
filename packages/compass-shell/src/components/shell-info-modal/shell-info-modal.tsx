@@ -14,11 +14,6 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 
-const mongoshVersion = `v${
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires
-  require('@mongosh/browser-repl/package.json').version
-}`;
-
 const shortcutsTableContainerStyles = css({
   marginTop: spacing[2],
   maxHeight: '50vh',
@@ -32,9 +27,11 @@ const shortcutsTitleStyles = css({
 function ShellInfoModal({
   hideInfoModal,
   show,
+  mongoshVersion,
 }: {
   hideInfoModal: () => void;
   show: boolean;
+  mongoshVersion: string;
 }) {
   useTrackOnChange(
     (track: TrackFunction) => {

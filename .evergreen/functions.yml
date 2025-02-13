@@ -649,6 +649,13 @@ functions:
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   smoketest-packaged-app:
+    - command: github.generate_token
+      params:
+        owner: 10gen
+        repo: compass-mongodb-com
+        expansion_name: generated_token
+        permissions:  # optional
+          contents: read
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
@@ -667,28 +674,33 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
+          npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com --engine-strict=false
+
           if [[ "$IS_WINDOWS" == "true" ]]; then
-            # TODO: windows_setup
-            # TODO: windows_msi
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests auto-update-from
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests auto-update-from
           fi
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip
+            # NOTE: We're also skipping auto-update of the macOS app in CI
+            # because it doesn't work. Running a different test to make sure it
+            # can install and run successfully at least.
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=time-to-first-query
           fi
 
-          #if [[ "$IS_UBUNTU" == "true" ]]; then
-            # TODO: linux_deb
-            # TODO: linux_tar
-          #fi
+          if [[ "$IS_UBUNTU" == "true" ]]; then
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_deb --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+          fi
 
-          #if [[ "$IS_RHEL" == "true" ]]; then
-            # TODO: linux_rpm
-            # TODO: rhel_tar
-          #fi
+          if [[ "$IS_RHEL" == "true" ]]; then
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+          fi
 
   test-web-sandbox:
     - command: shell.exec

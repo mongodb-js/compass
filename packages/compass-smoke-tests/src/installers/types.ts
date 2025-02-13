@@ -16,5 +16,5 @@ export type InstallablePackage = {
 
 export type InstalledAppInfo = {
   appPath: string;
-  uninstall: () => Promise<void>;
+  uninstall: () => void | Promise<void>;
 };

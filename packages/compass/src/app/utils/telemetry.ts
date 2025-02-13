@@ -5,6 +5,8 @@ import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { KMSProviders, MongoClientOptions } from 'mongodb';
+import { createLogger } from '@mongodb-js/compass-logging';
+const { debug, log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 type HostInformation = {
   is_localhost: boolean;
@@ -38,6 +40,14 @@ async function getPublicCloudInfo(host: string): Promise<{
       public_cloud_name,
     };
   } catch (err) {
+    debug(`getCloudInfo failed for "${host}": ${(err as Error).message}`);
+
+    log.warn(
+      mongoLogId(1_001_000_341),
+      'getPublicCloudInfo',
+      'Failed to look up host cloud information for telemetry',
+      { host, error: (err as Error).message }
+    );
     return {};
   }
 }
@@ -148,7 +158,20 @@ async function getHostnameForConnection(
   );
   if (connectionStringData.isSRV) {
     const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
-      () => {
+      (err: unknown) => {
+        debug(
+          `resolveMongodbSrv failed for "${connectionStringData.hosts.join(
+            ','
+          )}": ${(err as Error).message}`
+        );
+
+        log.warn(
+          mongoLogId(1_001_000_340),
+          'resolveMongodbSrv',
+          'Failed to resolve mongodb srv for telemetry',
+          { hosts: connectionStringData.hosts, error: (err as Error).message }
+        );
+
         return null;
       }
     );

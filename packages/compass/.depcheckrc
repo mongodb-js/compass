@@ -13,5 +13,7 @@ ignores: [
     'mongodb-client-encryption',
     'interruptor',
     # webpack always externalizes 'clipboard' for legacy reasons
-    'clipboard'
+    'clipboard',
+    # include signing-utils so that signtool.go can get to it
+    '@mongodb-js/signing-utils'
   ]
