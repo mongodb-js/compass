@@ -376,7 +376,6 @@ const Schema: React.FunctionComponent<{
   schema: MongodbSchema | null;
   count?: number;
   resultId?: string;
-  dontShowLegacyBanner?: boolean;
   onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
@@ -385,7 +384,6 @@ const Schema: React.FunctionComponent<{
   errorMessage,
   schema,
   resultId,
-  dontShowLegacyBanner,
   onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
