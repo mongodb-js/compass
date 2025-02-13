@@ -661,6 +661,16 @@ describe('Connect in a new window', () => {
     await cleanup(compass);
   });
 
+  afterEach(async function () {
+    // Close any windows opened while testing, in reverse order
+    const [mainWindow, ...otherWindows] = await browser.getWindowHandles();
+    for (const window of otherWindows.reverse()) {
+      await browser.switchToWindow(window);
+      await browser.closeWindow();
+    }
+    await browser.switchToWindow(mainWindow);
+  });
+
   it('can connect in new window', async function (this) {
     skipForWeb(this, 'connecting in new window is not supported on web');
 
@@ -668,7 +678,8 @@ describe('Connect in a new window', () => {
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
 
-    expect((await browser.getWindowHandles()).length).equals(1);
+    const windowsBefore = await browser.getWindowHandles();
+    expect(windowsBefore.length).equals(1);
 
     const connectionElement = browser.$(connectionSelector);
     await browser.clickVisible(
@@ -681,6 +692,7 @@ describe('Connect in a new window', () => {
     const windowsAfter = await browser.getWindowHandles();
     expect(windowsAfter.length).equals(2);
     const [, newWindowHandle] = windowsAfter;
+
     await browser.switchToWindow(newWindowHandle);
     await browser.waitForConnectionResult(connectionName, {
       connectionStatus: 'success',
