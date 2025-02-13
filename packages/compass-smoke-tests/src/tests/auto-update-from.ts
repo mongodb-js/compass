@@ -22,6 +22,7 @@ export async function testAutoUpdateFrom(context: SmokeTestsContext) {
 
   const install = getInstaller(kind);
 
+  debug('Installing');
   const { appName, appPath, uninstall } = install({
     ...subject,
     filepath,
@@ -40,6 +41,7 @@ export async function testAutoUpdateFrom(context: SmokeTestsContext) {
     const HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${port}`;
 
     try {
+      debug('Executing');
       // must be async because the update server is running in the same process
       await executeAsync(
         'npm',
@@ -71,6 +73,7 @@ export async function testAutoUpdateFrom(context: SmokeTestsContext) {
       delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
     }
   } finally {
+    debug('Uninstalling');
     await uninstall();
   }
 }

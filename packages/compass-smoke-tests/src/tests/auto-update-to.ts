@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 import createDebug from 'debug';
 import { type SmokeTestsContext } from '../context';
 import { getInstaller } from '../installers';
@@ -40,6 +39,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
     context.forceDownload
   );
 
+  debug('Installing');
   const { appPath, appName, uninstall } = install({
     ...latestApp,
     filepath,
@@ -72,6 +72,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
     const HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${port}`;
 
     try {
+      debug('Executing');
       // must be async because the update server is running in the same process
       await executeAsync(
         'npm',
@@ -106,6 +107,7 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
       delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
     }
   } finally {
+    debug('Uninstalling');
     await uninstall();
   }
 }
