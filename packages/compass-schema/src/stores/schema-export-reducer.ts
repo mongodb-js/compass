@@ -368,7 +368,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   return state;
 };
 
-//// TODO: add ticket number to clean this up
+// TODO clean out when phase out is confirmed COMPASS-8692
 export type openLegacyBannerAction = {
   type: SchemaExportActions.openLegacyBanner;
 };
@@ -438,7 +438,8 @@ export const confirmedLegacySchemaShare = (): SchemaThunkAction<void> => {
         : {
             variant: 'warning',
             title: 'Analyze Schema First',
-            description: 'Please analyze the schema in the schema tab before sharing the schema.',
+            description:
+              'Please analyze the schema in the schema tab before sharing the schema.',
           }
     );
   };

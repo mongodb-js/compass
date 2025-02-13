@@ -19,7 +19,7 @@ import {
   stopShowingLegacyBanner,
 } from '../stores/schema-export-reducer';
 
-const Image = () => (
+const SchemaExportSVG = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="214"
@@ -491,7 +491,7 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
         title={
           <>
             <div className={imageContainerStyles}>
-              <Image />
+              <SchemaExportSVG />
             </div>
             New &amp; Improved Export Schema Experience
           </>
