@@ -91,7 +91,7 @@ export function ConnectButtonWithMenu({
           glyph="Connect"
           onClick={onClick}
         >
-          Connect Here
+          Here
         </ConnectMenuItem>,
         <ConnectMenuItem
           key="connection-connect-in-new-window"
@@ -99,7 +99,7 @@ export function ConnectButtonWithMenu({
           glyph="OpenNewTab"
           onClick={onClick}
         >
-          Connect in a New Window
+          In New Window
         </ConnectMenuItem>,
       ]}
     >
