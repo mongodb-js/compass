@@ -18,6 +18,7 @@ import type {
 import {
   cancelEditConnection,
   connect as connectionsConnect,
+  connectInNewWindow,
   saveAndConnect,
   connectionsEventEmitter,
   createNewConnection,
@@ -87,6 +88,9 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
   return {
     connect: (connectionInfo: ConnectionInfo) => {
       return dispatch(connectionsConnect(connectionInfo));
+    },
+    connectInNewWindow: (connectionInfo: ConnectionInfo) => {
+      return dispatch(connectInNewWindow(connectionInfo));
     },
     saveAndConnect: (connectionInfo: ConnectionInfo) => {
       return dispatch(saveAndConnect(connectionInfo));

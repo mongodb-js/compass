@@ -133,6 +133,7 @@ type ConnectionsNavigationComponentProps = {
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
   onConnect(info: ConnectionInfo): void;
+  onConnectInNewWindow(info: ConnectionInfo): void;
   onNewConnection(): void;
   onEditConnection(info: ConnectionInfo): void;
   onRemoveConnection(info: ConnectionInfo): void;
@@ -178,6 +179,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   isPerformanceTabSupported,
   onFilterChange,
   onConnect,
+  onConnectInNewWindow,
   onNewConnection,
   onEditConnection,
   onRemoveConnection,
@@ -347,6 +349,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'connection-connect':
           onConnect(item.connectionInfo);
           return;
+        case 'connection-connect-in-new-window':
+          onConnectInNewWindow(item.connectionInfo);
+          return;
         case 'edit-connection':
           onEditConnection(item.connectionInfo);
           return;
@@ -383,6 +388,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenConnectionInfo,
       onDisconnect,
       onConnect,
+      onConnectInNewWindow,
       onEditConnection,
       onCopyConnectionString,
       onToggleFavoriteConnectionInfo,

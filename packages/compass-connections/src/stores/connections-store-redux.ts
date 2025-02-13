@@ -1420,6 +1420,12 @@ const openConnectionClosedWithNonRetryableErrorToast = (
   });
 };
 
+export const connectInNewWindow =
+  (connectionInfo: ConnectionInfo): ConnectionsThunkAction<void> =>
+  (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('connect-in-new-window', connectionInfo.id);
+  };
+
 export const connect = (
   connectionInfo: ConnectionInfo
 ): ConnectionsThunkAction<

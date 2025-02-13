@@ -56,6 +56,7 @@ export function useCompassWebPreferences(
       enableCreatingNewConnections: false,
       enableGlobalWrites: false,
       optInDataExplorerGenAIFeatures: false,
+      enableConnectInNewWindow: false,
       ...initialPreferences,
     })
   );
