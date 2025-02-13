@@ -493,7 +493,7 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
             <div className={imageContainerStyles}>
               <Image />
             </div>
-            New & Improved Export Schema Experience
+            New &amp; Improved Export Schema Experience
           </>
         }
         subtitle={`
