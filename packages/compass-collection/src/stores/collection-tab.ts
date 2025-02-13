@@ -80,6 +80,10 @@ export function activatePlugin(
     store.dispatch(selectTab('Aggregations'));
   });
 
+  on(localAppRegistry, 'menu-share-schema-json', () => {
+    store.dispatch(selectTab('Schema'));
+  });
+
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
   });

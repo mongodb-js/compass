@@ -18,7 +18,6 @@ import {
   schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
-import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
@@ -125,56 +124,6 @@ function getErrorState(err: Error & { code?: number }) {
 function resultId(): string {
   return new UUID().toString();
 }
-
-export const handleSchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    const hasSchema = schema !== null;
-    if (hasSchema) {
-      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
-    }
-    dispatch(_trackSchemaShared(hasSchema));
-    openToast(
-      'share-schema',
-      hasSchema
-        ? {
-            variant: 'success',
-            title: 'Schema Copied',
-            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
-            timeout: 5_000,
-          }
-        : {
-            variant: 'warning',
-            title: 'Analyze Schema First',
-            description: 'Please Analyze the Schema First from the Schema Tab.',
-            timeout: 5_000,
-          }
-    );
-  };
-};
-
-export const _trackSchemaShared = (
-  hasSchema: boolean
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = () => ({
-      has_schema: hasSchema,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-    });
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
-  };
-};
 
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
