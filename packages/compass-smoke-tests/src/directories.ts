@@ -3,12 +3,21 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+const SANDBOXES_PATH = path.resolve(__dirname, '../.sandboxes');
+
+export function deleteSandboxesDirectory() {
+  fs.rmSync(SANDBOXES_PATH, { recursive: true, force: true });
+}
+
+export function sandboxesDirectoryExists() {
+  return fs.existsSync(SANDBOXES_PATH);
+}
+
 function ensureSandboxesDirectory() {
-  const sandboxesPath = path.resolve(__dirname, '../.sandboxes');
-  if (!fs.existsSync(sandboxesPath)) {
-    fs.mkdirSync(sandboxesPath, { recursive: true });
+  if (!sandboxesDirectoryExists()) {
+    fs.mkdirSync(SANDBOXES_PATH, { recursive: true });
   }
-  return sandboxesPath;
+  return SANDBOXES_PATH;
 }
 
 export function createSandbox() {

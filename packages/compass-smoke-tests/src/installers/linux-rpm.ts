@@ -2,9 +2,13 @@ import assert from 'node:assert/strict';
 import cp from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+
+const debug = createDebug('compass:smoketests:linux-rpm');
+
 /**
  * Call dnf to get the package name
  */
@@ -48,6 +52,7 @@ export function installLinuxRpm({
   const appPath = path.resolve(installPath, appName);
 
   function uninstall() {
+    debug('Uninstalling %s', filepath);
     execute('sudo', ['dnf', 'remove', '-y', packageName]);
   }
 
