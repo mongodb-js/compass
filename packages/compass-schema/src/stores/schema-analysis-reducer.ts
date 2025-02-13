@@ -14,7 +14,6 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaDepth,
-  type SchemaAccessor,
   schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
@@ -33,7 +32,6 @@ export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
-  schemaAccessor: SchemaAccessor | null;
   resultId: string;
 };
 
@@ -49,7 +47,6 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
-  schemaAccessor: SchemaAccessor | null;
   schema: Schema | null;
 };
 
@@ -73,7 +70,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       analysisState: ANALYSIS_STATE_ANALYZING,
       errorMessage: '',
       schema: null,
-      schemaAccessor: null,
     };
   }
 
@@ -89,7 +85,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
-      schemaAccessor: action.schemaAccessor,
       resultId: resultId(),
     };
   }
@@ -180,7 +175,6 @@ const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
   schema: null,
-  schemaAccessor: null,
   resultId: resultId(),
 });
 
@@ -222,9 +216,9 @@ export const geoLayersDeleted = (
 };
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef.current) return;
-    abortControllerRef.current?.abort();
+  return (dispatch, getState, { analysisAbortControllerRef }) => {
+    if (!analysisAbortControllerRef.current) return;
+    analysisAbortControllerRef.current?.abort();
   };
 };
 
@@ -242,7 +236,8 @@ export const startAnalysis = (): SchemaThunkAction<
       dataService,
       logger,
       fieldStoreService,
-      abortControllerRef,
+      analysisAbortControllerRef,
+      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
@@ -272,8 +267,8 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
-    abortControllerRef.current = new AbortController();
-    const abortSignal = abortControllerRef.current.signal;
+    analysisAbortControllerRef.current = new AbortController();
+    const abortSignal = analysisAbortControllerRef.current.signal;
 
     try {
       debug('analysis started');
@@ -289,6 +284,7 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      schemaAccessorRef.current = schemaAccessor;
       let schema: Schema | null = null;
       if (schemaAccessor) {
         schema = await schemaAccessor.getInternalSchema();
@@ -305,7 +301,6 @@ export const startAnalysis = (): SchemaThunkAction<
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
         schema,
-        schemaAccessor,
       });
 
       // track schema analyzed
@@ -333,7 +328,7 @@ export const startAnalysis = (): SchemaThunkAction<
         error: err as Error,
       });
     } finally {
-      abortControllerRef.current = undefined;
+      analysisAbortControllerRef.current = undefined;
     }
   };
 };

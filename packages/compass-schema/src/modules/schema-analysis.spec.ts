@@ -196,7 +196,7 @@ describe('schema-analysis', function () {
       );
     });
 
-    it('returns null if is cancelled', async function () {
+    it('returns undefined if is cancelled', async function () {
       const dataService = {
         sample: () => Promise.reject(new Error('test error')),
         isCancelError: () => true,
@@ -214,7 +214,7 @@ describe('schema-analysis', function () {
         dummyLogger
       );
 
-      expect(result).to.equal(null);
+      expect(result).to.equal(undefined);
     });
 
     it('throws if sample throws', async function () {

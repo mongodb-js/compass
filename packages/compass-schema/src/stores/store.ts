@@ -17,6 +17,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { SchemaAccessor } from 'mongodb-schema';
 import {
   schemaAnalysisReducer,
   handleSchemaShare,
@@ -48,7 +49,9 @@ export const rootReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type SchemaExtraArgs = SchemaPluginServices & {
-  abortControllerRef: { current?: AbortController };
+  analysisAbortControllerRef: { current?: AbortController };
+  exportAbortControllerRef: { current?: AbortController };
+  schemaAccessorRef: { current?: SchemaAccessor };
   geoLayersRef: { current: Record<string, InternalLayer> };
   namespace: string;
 };
@@ -97,7 +100,13 @@ export function configureStore(
   services: SchemaPluginServices,
   namespace: string
 ) {
-  const abortControllerRef = {
+  const analysisAbortControllerRef = {
+    current: undefined,
+  };
+  const exportAbortControllerRef = {
+    current: undefined,
+  };
+  const schemaAccessorRef = {
     current: undefined,
   };
   const geoLayersRef: { current: Record<string, InternalLayer> } = {
@@ -108,7 +117,9 @@ export function configureStore(
     applyMiddleware(
       thunk.withExtraArgument({
         ...services,
-        abortControllerRef,
+        analysisAbortControllerRef,
+        exportAbortControllerRef,
+        schemaAccessorRef,
         geoLayersRef,
         namespace,
       })
