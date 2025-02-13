@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import createDebug from 'debug';
 import { type SmokeTestsContext } from '../context';
 import { execute } from '../execute';
@@ -18,12 +17,14 @@ export async function testTimeToFirstQuery(context: SmokeTestsContext) {
 
   const install = getInstaller(kind);
 
+  debug('Installing');
   const { appPath, appName, uninstall } = install({
     ...subject,
     sandboxPath,
   });
 
   try {
+    debug('Executing');
     execute(
       'npm',
       [
@@ -46,6 +47,7 @@ export async function testTimeToFirstQuery(context: SmokeTestsContext) {
       }
     );
   } finally {
+    debug('Uninstalling');
     await uninstall();
   }
 }
