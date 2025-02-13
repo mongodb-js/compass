@@ -438,8 +438,7 @@ export const confirmedLegacySchemaShare = (): SchemaThunkAction<void> => {
         : {
             variant: 'warning',
             title: 'Analyze Schema First',
-            description: 'Please Analyze the Schema First from the Schema Tab.',
-            timeout: 5_000,
+            description: 'Please analyze the schema in the schema tab before sharing the schema.',
           }
     );
   };
