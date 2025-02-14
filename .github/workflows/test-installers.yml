@@ -39,7 +39,7 @@ jobs:
           # TODO: Re-enable (see https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079619474)
           # - linux_tar
           # TODO: Enable (needs a docker container)
-          # - linux_rpm
+          - linux_rpm
         hadron-distribution:
           - compass
           - compass-readonly
@@ -78,10 +78,21 @@ jobs:
           #   runs-on: ubuntu-latest
           #   arch: x64
           #   hadron-platform: linux
-          # - package: linux_rpm
-          #   runs-on: ubuntu-latest
-          #   arch: x64
-          #   hadron-platform: linux
+          - package: linux_rpm
+            runs-on: ubuntu-latest
+            arch: x64
+            hadron-platform: linux
+            distro-id: rhel80
+            post-checkout-command: |
+              dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
+              # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
+              dnf config-manager --set-enabled devel
+              dnf update -y
+              dnf install -y compat-openssl11
+            container:
+              image: rockylinux:9
+              volumes:
+                - ${{ github.workspace }}:/compass
 
           # Install the update server for auto-update tests
           - test: auto-update-from
@@ -124,6 +135,7 @@ jobs:
             test: time-to-first-query
 
     runs-on: ${{ matrix.runs-on }}
+    container: ${{ matrix.container }}
     env:
       DEBUG: compass:smoketests:*
     steps:
@@ -134,6 +146,11 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+
+      - name: Run post-checkout command
+        if: matrix.post-checkout-command
+        run: ${{ matrix.post-checkout-command }}
+
       - name: Cache downloads
         uses: actions/cache@v4
         with:
@@ -174,6 +191,9 @@ jobs:
           HADRON_DISTRIBUTION: ${{ matrix.hadron-distribution }}
           PLATFORM: ${{ matrix.hadron-platform }}
           ARCH: ${{ matrix.arch }}
+          # Useful to pass a "fake" DISTRO_ID environment to inform the "mongodb-download-url" package
+          # See https://github.com/mongodb-js/devtools-shared/blob/aff66db7b7fc4f8ecaec2383fd4e8c116733a7e4/packages/download-url/src/linux-distro.ts#L14
+          DISTRO_ID: ${{ matrix.distro-id }}
           # Exposing token to prevent update server from being rate limited
           GITHUB_TOKEN: ${{ github.token }}
         working-directory: packages/compass-smoke-tests
