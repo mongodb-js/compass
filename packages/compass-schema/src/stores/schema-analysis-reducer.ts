@@ -15,7 +15,6 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaMetadata,
-  type SchemaAccessor,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
@@ -32,7 +31,6 @@ export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
-  schemaAccessor: SchemaAccessor | null;
   resultId: string;
 };
 
@@ -48,7 +46,6 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
-  schemaAccessor: SchemaAccessor | null;
   schema: Schema | null;
 };
 
@@ -72,7 +69,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       analysisState: ANALYSIS_STATE_ANALYZING,
       errorMessage: '',
       schema: null,
-      schemaAccessor: null,
     };
   }
 
@@ -88,7 +84,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
-      schemaAccessor: action.schemaAccessor,
       resultId: resultId(),
     };
   }
@@ -129,7 +124,6 @@ const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
   schema: null,
-  schemaAccessor: null,
   resultId: resultId(),
 });
 
@@ -178,9 +172,9 @@ const userCancelledAnalysisAbortReason = 'Cancelled analysis';
 export const stopAnalysis = (
   userCancelled = false
 ): SchemaThunkAction<void> => {
-  return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef.current) return;
-    abortControllerRef.current?.abort(
+  return (dispatch, getState, { analysisAbortControllerRef }) => {
+    if (!analysisAbortControllerRef.current) return;
+    analysisAbortControllerRef.current?.abort(
       userCancelled ? userCancelledAnalysisAbortReason : undefined
     );
   };
@@ -239,7 +233,8 @@ export const startAnalysis = (): SchemaThunkAction<
       dataService,
       logger,
       fieldStoreService,
-      abortControllerRef,
+      analysisAbortControllerRef,
+      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
@@ -269,8 +264,8 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
-    abortControllerRef.current = new AbortController();
-    const abortSignal = abortControllerRef.current.signal;
+    analysisAbortControllerRef.current = new AbortController();
+    const abortSignal = analysisAbortControllerRef.current.signal;
 
     const analysisStartTime = Date.now();
     try {
@@ -286,11 +281,11 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
-
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
       }
 
+      schemaAccessorRef.current = schemaAccessor;
       let schema: Schema | null = null;
       if (schemaAccessor) {
         schema = await schemaAccessor.getInternalSchema();
@@ -307,7 +302,6 @@ export const startAnalysis = (): SchemaThunkAction<
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
         schema,
-        schemaAccessor,
       });
 
       track(
@@ -350,7 +344,7 @@ export const startAnalysis = (): SchemaThunkAction<
         error: err as Error,
       });
     } finally {
-      abortControllerRef.current = undefined;
+      analysisAbortControllerRef.current = undefined;
     }
   };
 };

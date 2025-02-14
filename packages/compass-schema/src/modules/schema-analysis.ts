@@ -2,6 +2,7 @@ import type { AggregateOptions, Filter, Document } from 'mongodb';
 import { analyzeDocuments } from 'mongodb-schema';
 import type {
   Schema,
+  SchemaAccessor,
   ArraySchemaType,
   DocumentSchemaType,
   SchemaField,
@@ -25,8 +26,6 @@ function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
   return err;
 }
 
-export type SchemaAccessor = Awaited<ReturnType<typeof analyzeDocuments>>;
-
 export const analyzeSchema = async (
   dataService: DataService,
   abortSignal: AbortSignal,
@@ -40,7 +39,7 @@ export const analyzeSchema = async (
     | undefined,
   aggregateOptions: AggregateOptions,
   { log, mongoLogId, debug }: Logger
-): Promise<SchemaAccessor | null> => {
+): Promise<SchemaAccessor | undefined> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
       ns,
@@ -72,7 +71,7 @@ export const analyzeSchema = async (
     });
     if (dataService.isCancelError(err)) {
       debug('caught background operation terminated error', err);
-      return null;
+      return;
     }
 
     const error = promoteMongoErrorCode(err);
