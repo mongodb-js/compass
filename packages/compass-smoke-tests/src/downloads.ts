@@ -19,6 +19,7 @@ export async function downloadFile({
   targetFilename,
   clearCache,
 }: DownloadFileOptions): Promise<string> {
+  debug('Fetching', { url });
   const response = await fetch(url);
 
   assert(
@@ -40,7 +41,7 @@ export async function downloadFile({
     if (clearCache) {
       fs.rmSync(cacheDirectoryPath, { recursive: true, force: true });
     } else {
-      debug('Skipped downloading', url, '(cache existed)');
+      debug('Skipped downloading (cache existed)', { url });
       return outputPath;
     }
   }
@@ -51,11 +52,11 @@ export async function downloadFile({
 
   // Write the response to file
   assert(response.body, 'Expected a response body');
-  debug('Downloading', url);
+  debug('Downloading', { url, outputPath });
   await stream.promises.pipeline(
     response.body,
     fs.createWriteStream(outputPath)
   );
-
+  debug('Download completed', { url, outputPath });
   return outputPath;
 }
