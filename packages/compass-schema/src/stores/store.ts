@@ -20,7 +20,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { schemaAnalysisReducer, stopAnalysis } from './schema-analysis-reducer';
 import {
   cancelExportSchema,
-  confirmedLegacySchemaShare,
+  confirmedExportLegacySchemaToClipboard,
   openLegacyBanner,
   schemaExportReducer,
 } from './schema-export-reducer';
@@ -72,17 +72,17 @@ export function activateSchemaPlugin(
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(services, namespace);
+
   /**
    * When `Share Schema as JSON` clicked in menu show a dialog message.
    */
-
   on(services.localAppRegistry, 'menu-share-schema-json', () => {
     const { enableExportSchema } = services.preferences.getPreferences();
     if (enableExportSchema) {
       store.dispatch(openLegacyBanner());
       return;
     }
-    store.dispatch(confirmedLegacySchemaShare());
+    store.dispatch(confirmedExportLegacySchemaToClipboard());
   });
 
   addCleanup(() => store.dispatch(stopAnalysis()));

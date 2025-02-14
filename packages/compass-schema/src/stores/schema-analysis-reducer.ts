@@ -13,9 +13,8 @@ import {
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
-  calculateSchemaDepth,
+  calculateSchemaMetadata,
   type SchemaAccessor,
-  schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
@@ -257,14 +256,34 @@ export const startAnalysis = (): SchemaThunkAction<
         schemaAccessor,
       });
 
-      // track schema analyzed
-      const trackEvent = () => ({
-        with_filter: Object.entries(query.filter ?? {}).length > 0,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-        geo_data: schema ? schemaContainsGeoData(schema) : false,
-        analysis_time_ms: analysisTime,
-      });
+      const trackEvent = async () => {
+        const {
+          field_types,
+          geo_data,
+          optional_field_count,
+          schema_depth,
+          variable_type_count,
+        } = schema
+          ? await calculateSchemaMetadata(schema)
+          : {
+              field_types: {},
+              geo_data: false,
+              optional_field_count: 0,
+              schema_depth: 0,
+              variable_type_count: 0,
+            };
+
+        return {
+          with_filter: Object.entries(query.filter ?? {}).length > 0,
+          schema_width: schema?.fields?.length ?? 0,
+          field_types,
+          variable_type_count,
+          optional_field_count,
+          schema_depth,
+          geo_data,
+          analysis_time_ms: analysisTime,
+        };
+      };
       track('Schema Analyzed', trackEvent, connectionInfoRef.current);
 
       geoLayersRef.current = {};

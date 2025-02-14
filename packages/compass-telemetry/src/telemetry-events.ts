@@ -1935,6 +1935,23 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
     schema_width: number;
 
     /**
+     * Key/value pairs of bsonType and count.
+     */
+    field_types: {
+      [bsonType: string]: number;
+    };
+
+    /**
+     * The count of fields with multiple types in a given schema (not counting undefined).
+     */
+    variable_type_count: number;
+
+    /**
+     * The count of fields that don't appear on all documents.
+     */
+    optional_field_count: number;
+
+    /**
      * The number of nested levels.
      */
     schema_depth: number;
@@ -1952,6 +1969,26 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user analyzes the schema.
+ *
+ * @category Schema
+ */
+type SchemaAnalysisCancelledEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Cancelled';
+  payload: {
+    /**
+     * Indicates whether a filter was applied during the schema analysis.
+     */
+    with_filter: boolean;
+
+    /**
+     * The time taken when analyzing the schema, before being cancelled, in milliseconds.
+     */
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
  * This event is fired when user shares the schema.
  *
  * @category Schema
@@ -1963,6 +2000,10 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      * Indicates whether the schema was analyzed before sharing.
      */
     has_schema: boolean;
+
+    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+
+    source: 'app_menu' | 'schema_tab';
 
     /**
      * The number of fields at the top level.
@@ -2683,6 +2724,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
   | SchemaValidationAddedEvent

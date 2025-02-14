@@ -6,15 +6,14 @@ import type {
   MongoDBJSONSchema,
   ExpandedJSONSchema,
 } from 'mongodb-schema';
+import { openToast } from '@mongodb-js/compass-components';
 
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
 import {
-  calculateSchemaDepth,
-  schemaContainsGeoData,
+  calculateSchemaMetadata,
   type SchemaAccessor,
 } from '../modules/schema-analysis';
-import { openToast } from '@mongodb-js/compass-components';
 
 export type SchemaFormat =
   | 'standardJSON'
@@ -161,6 +160,41 @@ async function getSchemaByFormat({
   return JSON.stringify(schema, null, 2);
 }
 
+const _trackSchemaExported = ({
+  schema,
+  source,
+  format,
+}: {
+  schema: InternalSchema | null;
+  source: 'app_menu' | 'schema_tab';
+  format: SchemaFormat;
+}): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    // Use a function here to a) ensure that the calculations here
+    // are only made when telemetry is enabled and b) that errors from
+    // those calculations are caught and logged rather than displayed to
+    // users as errors from the core schema sharing logic.
+    const trackEvent = async () => {
+      const { geo_data, schema_depth } = schema
+        ? await calculateSchemaMetadata(schema)
+        : {
+            geo_data: false,
+            schema_depth: 0,
+          };
+
+      return {
+        has_schema: schema !== null,
+        format,
+        source,
+        schema_width: schema?.fields?.length ?? 0,
+        schema_depth,
+        geo_data,
+      };
+    };
+    track('Schema Exported', trackEvent, connectionInfoRef.current);
+  };
+};
+
 export const changeExportSchemaFormat = (
   exportFormat: SchemaFormat
 ): SchemaThunkAction<
@@ -185,18 +219,19 @@ export const changeExportSchemaFormat = (
       exportFormat,
     });
 
+    log.info(
+      mongoLogId(1_001_000_342),
+      'Schema export formatting',
+      'Formatting schema',
+      {
+        format: exportFormat,
+      }
+    );
+
+    const { schemaAccessor, schema } = getState().schemaAnalysis;
+
     let exportedSchema: string;
     try {
-      log.info(
-        mongoLogId(1_001_000_342),
-        'Schema export formatting',
-        'Formatting schema',
-        {
-          format: exportFormat,
-        }
-      );
-
-      const schemaAccessor = getState().schemaAnalysis.schemaAccessor;
       if (!schemaAccessor) {
         throw new Error('No schema analysis available');
       }
@@ -229,6 +264,14 @@ export const changeExportSchemaFormat = (
     if (abortController.signal.aborted) {
       return;
     }
+
+    dispatch(
+      _trackSchemaExported({
+        schema,
+        format: exportFormat,
+        source: 'schema_tab',
+      })
+    );
 
     log.info(
       mongoLogId(1_001_000_344),
@@ -385,7 +428,7 @@ export const openLegacyBanner = (): SchemaThunkAction<void> => {
         });
       }
       if (savedChoice === 'legacy') {
-        dispatch(confirmedLegacySchemaShare());
+        dispatch(confirmedExportLegacySchemaToClipboard());
         return;
       }
       if (savedChoice === 'export') {
@@ -415,56 +458,42 @@ export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   };
 };
 
-export const confirmedLegacySchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    const hasSchema = schema !== null;
-    if (hasSchema) {
-      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
-    }
-    dispatch(_trackSchemaShared(hasSchema));
-    dispatch({ type: SchemaExportActions.closeLegacyBanner });
-    openToast(
-      'share-schema',
-      hasSchema
-        ? {
-            variant: 'success',
-            title: 'Schema Copied',
-            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
-            timeout: 5_000,
-          }
-        : {
-            variant: 'warning',
-            title: 'Analyze Schema First',
-            description:
-              'Please analyze the schema in the schema tab before sharing the schema.',
-          }
-    );
+export const confirmedExportLegacySchemaToClipboard =
+  (): SchemaThunkAction<void> => {
+    return (dispatch, getState, { namespace }) => {
+      const {
+        schemaAnalysis: { schema },
+      } = getState();
+      const hasSchema = schema !== null;
+      if (hasSchema) {
+        void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
+      }
+      dispatch(
+        _trackSchemaExported({
+          schema,
+          source: 'app_menu',
+          format: 'legacyJSON',
+        })
+      );
+      dispatch({ type: SchemaExportActions.closeLegacyBanner });
+      openToast(
+        'share-schema',
+        hasSchema
+          ? {
+              variant: 'success',
+              title: 'Schema Copied',
+              description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
+              timeout: 5_000,
+            }
+          : {
+              variant: 'warning',
+              title: 'Analyze Schema First',
+              description:
+                'Please analyze the schema in the schema tab before sharing the schema.',
+            }
+      );
+    };
   };
-};
-
-export const _trackSchemaShared = (
-  hasSchema: boolean
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = () => ({
-      has_schema: hasSchema,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-    });
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
-  };
-};
 
 export const stopShowingLegacyBanner = (
   choice: 'legacy' | 'export'

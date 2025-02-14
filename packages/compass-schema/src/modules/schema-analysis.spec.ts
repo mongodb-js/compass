@@ -6,11 +6,7 @@ import type { Schema } from 'mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { isInternalFieldPath } from 'hadron-document';
 
-import {
-  analyzeSchema,
-  calculateSchemaDepth,
-  schemaContainsGeoData,
-} from './schema-analysis';
+import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
 
 const testDocs = [
   {
@@ -250,164 +246,176 @@ describe('schema-analysis', function () {
     });
   });
 
-  describe('#calculateSchemaDepth', function () {
-    describe('with an empty schema', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([{}]);
+  describe('#calculateSchemaMetadata', function () {
+    describe('schema_depth', function () {
+      describe('with an empty schema', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([{}]);
+        });
+
+        it('has a depth of 0', async function () {
+          const { schema_depth } = await calculateSchemaMetadata(schema);
+          expect(schema_depth).to.equal(0);
+        });
       });
 
-      it('has a depth of 0', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(0);
-      });
-    });
-
-    describe('with a basic schema', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            someFields: {
-              pineapple: 25,
+      describe('with a basic schema', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              someFields: {
+                pineapple: 25,
+              },
+              ok: 'nice',
             },
-            ok: 'nice',
-          },
-        ]);
+          ]);
+        });
+
+        it('has a depth of 2', async function () {
+          const { schema_depth } = await calculateSchemaMetadata(schema);
+          expect(schema_depth).to.equal(2);
+        });
       });
 
-      it('has a depth of 2', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(2);
-      });
-    });
+      describe('with complex schema with different document depths', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema(testDocs);
+        });
 
-    describe('with complex schema with different document depths', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema(testDocs);
-      });
-
-      it('has the correct depth', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(8);
-      });
-    });
-
-    describe('with a basic array', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            arrayField: [1, 2, 3],
-          },
-        ]);
+        it('has the correct depth', async function () {
+          const { schema_depth } = await calculateSchemaMetadata(schema);
+          expect(schema_depth).to.equal(8);
+        });
       });
 
-      it('has a depth of two', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(2);
-      });
-    });
-
-    describe('with nested arrays', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            arrayField: [[[['a']]]],
-          },
-        ]);
-      });
-
-      it('has the correct depth', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(5);
-      });
-    });
-  });
-
-  describe('#schemaContainsGeoData', function () {
-    describe('with an empty schema', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([{}]);
-      });
-
-      it('returns false', function () {
-        expect(schemaContainsGeoData(schema)).to.equal(false);
-      });
-    });
-
-    describe('with a basic document without geo data', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            fruits: {
-              pineapple: 'yes',
-              apples: ['golden', 'fiji'],
+      describe('with a basic array', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              arrayField: [1, 2, 3],
             },
-          },
-        ]);
+          ]);
+        });
+
+        it('has a depth of two', async function () {
+          const { schema_depth } = await calculateSchemaMetadata(schema);
+          expect(schema_depth).to.equal(2);
+        });
       });
 
-      it('does not detect geo data', function () {
-        expect(schemaContainsGeoData(schema)).to.equal(false);
-      });
-    });
-
-    describe('with more complex documents without geo data', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema(testDocs);
-      });
-
-      it('does not detect geo data', function () {
-        expect(schemaContainsGeoData(schema)).to.equal(false);
-      });
-    });
-
-    describe('with a basic document with Point geo data', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            name: 'somewhere',
-            location: {
-              type: 'Point',
-              coordinates: [-73.856077, 40.848447],
+      describe('with nested arrays', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              arrayField: [[[['a']]]],
             },
-          },
-        ]);
-      });
+          ]);
+        });
 
-      it('detects geo data', function () {
-        expect(schemaContainsGeoData(schema)).to.equal(true);
+        it('has the correct depth', async function () {
+          const { schema_depth } = await calculateSchemaMetadata(schema);
+          expect(schema_depth).to.equal(5);
+        });
       });
     });
 
-    describe('with Polygon geo data', function () {
-      let schema: Schema;
-      before(async function () {
-        schema = await mongoDBSchemaAnalyzeSchema([
-          {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: [
-                  [
-                    [-73.856077, 40.848447],
-                    [-72.856077, 41.848447],
-                    [-73.856077, 41.848447],
-                    [-72.856077, 40.848447],
-                  ],
-                ],
+    describe('geo_data', function () {
+      describe('with an empty schema', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([{}]);
+        });
+
+        it('returns false', async function () {
+          const { geo_data } = await calculateSchemaMetadata(schema);
+          expect(geo_data).to.equal(false);
+        });
+      });
+
+      describe('with a basic document without geo data', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              fruits: {
+                pineapple: 'yes',
+                apples: ['golden', 'fiji'],
               },
             },
-          },
-        ]);
+          ]);
+        });
+
+        it('does not detect geo data', async function () {
+          const { geo_data } = await calculateSchemaMetadata(schema);
+          expect(geo_data).to.equal(false);
+        });
       });
 
-      it('detects geo data', function () {
-        expect(schemaContainsGeoData(schema)).to.equal(true);
+      describe('with more complex documents without geo data', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema(testDocs);
+        });
+
+        it('does not detect geo data', async function () {
+          const { geo_data } = await calculateSchemaMetadata(schema);
+          expect(geo_data).to.equal(false);
+        });
+      });
+
+      describe('with a basic document with Point geo data', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              name: 'somewhere',
+              location: {
+                type: 'Point',
+                coordinates: [-73.856077, 40.848447],
+              },
+            },
+          ]);
+        });
+
+        it('detects geo data', async function () {
+          const { geo_data } = await calculateSchemaMetadata(schema);
+          expect(geo_data).to.equal(true);
+        });
+      });
+
+      describe('with Polygon geo data', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: [
+                    [
+                      [-73.856077, 40.848447],
+                      [-72.856077, 41.848447],
+                      [-73.856077, 41.848447],
+                      [-72.856077, 40.848447],
+                    ],
+                  ],
+                },
+              },
+            },
+          ]);
+        });
+
+        it('detects geo data', async function () {
+          const { geo_data } = await calculateSchemaMetadata(schema);
+          expect(geo_data).to.equal(true);
+        });
       });
     });
   });
