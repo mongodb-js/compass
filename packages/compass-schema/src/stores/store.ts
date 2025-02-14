@@ -18,13 +18,11 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { SchemaAccessor } from 'mongodb-schema';
-import {
-  schemaAnalysisReducer,
-  handleSchemaShare,
-  stopAnalysis,
-} from './schema-analysis-reducer';
+import { schemaAnalysisReducer, stopAnalysis } from './schema-analysis-reducer';
 import {
   cancelExportSchema,
+  confirmedLegacySchemaShare,
+  openLegacyBanner,
   schemaExportReducer,
 } from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
@@ -81,9 +79,14 @@ export function activateSchemaPlugin(
    * When `Share Schema as JSON` clicked in menu show a dialog message.
    */
 
-  on(services.localAppRegistry, 'menu-share-schema-json', () =>
-    store.dispatch(handleSchemaShare())
-  );
+  on(services.localAppRegistry, 'menu-share-schema-json', () => {
+    const { enableExportSchema } = services.preferences.getPreferences();
+    if (enableExportSchema) {
+      store.dispatch(openLegacyBanner());
+      return;
+    }
+    store.dispatch(confirmedLegacySchemaShare());
+  });
 
   addCleanup(() => store.dispatch(stopAnalysis()));
   addCleanup(() => store.dispatch(cancelExportSchema()));

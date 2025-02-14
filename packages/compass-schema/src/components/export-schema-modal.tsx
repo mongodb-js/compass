@@ -60,10 +60,6 @@ const exportSchemaFormatOptions: {
     title: 'Extended',
     id: 'extendedJSON',
   },
-  {
-    title: 'Extended (Legacy)',
-    id: 'legacyJSON',
-  },
 ];
 
 const formatTypeRadioBoxGroupId = 'export-schema-format-type-box-group';

@@ -12,18 +12,20 @@ const debug = createDebug('compass:smoketests:auto-update-from');
 
 export async function testAutoUpdateFrom(context: SmokeTestsContext) {
   const sandboxPath = createSandbox();
-  const { kind, appName, filepath, autoUpdatable } = await getTestSubject({
+  const subject = await getTestSubject({
     ...context,
     sandboxPath,
   });
 
+  const { kind, filepath, autoUpdatable } = subject;
+
   try {
     const install = getInstaller(kind);
 
-    const { appPath, uninstall } = install({
-      appName,
+    const { appName, appPath, uninstall } = install({
+      ...subject,
       filepath,
-      destinationPath: sandboxPath,
+      sandboxPath,
     });
 
     try {

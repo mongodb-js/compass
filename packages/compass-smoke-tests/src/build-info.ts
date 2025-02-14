@@ -145,7 +145,6 @@ export type PackageDetails = {
   kind: PackageKind;
   filename: string;
   autoUpdatable: boolean;
-  appName: string;
 } & (
   | {
       kind: 'windows_setup' | 'windows_msi' | 'windows_zip';
@@ -182,7 +181,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.installerOptions.name,
       autoUpdatable: kind === 'windows_setup',
     };
   } else if (kind === 'osx_dmg' || kind === 'osx_zip') {
@@ -191,7 +189,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.installerOptions.title,
       autoUpdatable: true,
     };
   } else if (kind === 'linux_deb' || kind === 'linux_tar') {
@@ -200,7 +197,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else if (kind === 'linux_rpm' || kind === 'rhel_tar') {
@@ -209,7 +205,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else {
