@@ -18,8 +18,10 @@ import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
 import { getNextKmsProviderName } from './kms-provider-content';
-import { FileInputBackendProvider } from '@mongodb-js/compass-components';
-import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
+import {
+  FileInputBackendProvider,
+  createJSDomFileInputDummyBackend,
+} from '@mongodb-js/compass-components';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'
