@@ -21,6 +21,7 @@ import {
   cancelExportSchema,
   changeExportSchemaFormat,
   closeExportSchema,
+  trackSchemaExported,
   type SchemaFormat,
   type ExportStatus,
 } from '../stores/schema-export-reducer';
@@ -75,6 +76,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
+  onExportedSchemaCopied: () => void;
 }> = ({
   errorMessage,
   exportStatus,
@@ -84,6 +86,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
+  onExportedSchemaCopied,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -143,6 +146,7 @@ const ExportSchemaModal: React.FunctionComponent<{
               language="json"
               className={codeStyles}
               copyable={true}
+              onCopy={onExportedSchemaCopied}
             >
               {exportedSchema ?? 'Empty'}
             </Code>
@@ -163,7 +167,7 @@ const ExportSchemaModal: React.FunctionComponent<{
         </Button>
         <Button
           onClick={() => {
-            /* TODO(COMPASS-8704) */
+            /* TODO(COMPASS-8704): download and track with trackSchemaExported */
           }}
           variant="primary"
         >
@@ -183,6 +187,7 @@ export default connect(
     exportedSchema: state.schemaExport.exportedSchema,
   }),
   {
+    onExportedSchemaCopied: trackSchemaExported,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,

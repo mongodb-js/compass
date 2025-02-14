@@ -195,6 +195,22 @@ const _trackSchemaExported = ({
   };
 };
 
+export const onSchemaExportCopied = (): SchemaThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      schemaAnalysis: { schema },
+      schemaExport: { exportFormat },
+    } = getState();
+    dispatch(
+      _trackSchemaExported({
+        schema,
+        format: exportFormat,
+        source: 'schema_tab',
+      })
+    );
+  };
+};
+
 export const changeExportSchemaFormat = (
   exportFormat: SchemaFormat
 ): SchemaThunkAction<
@@ -228,7 +244,7 @@ export const changeExportSchemaFormat = (
       }
     );
 
-    const { schemaAccessor, schema } = getState().schemaAnalysis;
+    const { schemaAccessor } = getState().schemaAnalysis;
 
     let exportedSchema: string;
     try {
@@ -264,14 +280,6 @@ export const changeExportSchemaFormat = (
     if (abortController.signal.aborted) {
       return;
     }
-
-    dispatch(
-      _trackSchemaExported({
-        schema,
-        format: exportFormat,
-        source: 'schema_tab',
-      })
-    );
 
     log.info(
       mongoLogId(1_001_000_344),
