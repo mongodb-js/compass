@@ -418,5 +418,228 @@ describe('schema-analysis', function () {
         });
       });
     });
+
+    describe('variable_type_count', function () {
+      describe('with fields having multiple types', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { pineapple: 123 },
+            { pineapple: 'string' },
+            { pineapple: true },
+            { singleType: 'onlyString' },
+          ]);
+        });
+
+        it('counts fields with more than one type', async function () {
+          const { variable_type_count } = await calculateSchemaMetadata(schema);
+          expect(variable_type_count).to.equal(1);
+        });
+      });
+
+      describe('with no fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([{}]);
+        });
+
+        it('returns zero', async function () {
+          const { variable_type_count } = await calculateSchemaMetadata(schema);
+          expect(variable_type_count).to.equal(0);
+        });
+      });
+
+      describe('with all single-type fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { a: 1 },
+            { a: 2, b: 2 },
+            { a: 2, c: 3 },
+          ]);
+        });
+
+        it('returns zero', async function () {
+          const { variable_type_count } = await calculateSchemaMetadata(schema);
+          expect(variable_type_count).to.equal(0);
+        });
+      });
+
+      describe('with differing nested fields fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { required: { notAlwaysPresent: 'yes' } },
+            { required: { notAlwaysPresent: 123456 } },
+            { required: { sometimesHere: true } },
+          ]);
+        });
+
+        it('returns does not count the optionals', async function () {
+          const { variable_type_count } = await calculateSchemaMetadata(schema);
+          expect(variable_type_count).to.equal(0);
+        });
+      });
+    });
+
+    describe('optional_field_count', function () {
+      describe('with optional fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { pineapple: 'yes', optional: 123 },
+            { pineapple: 'yes' },
+            { pineapple: 'yes', optional: 'maybe' },
+          ]);
+        });
+
+        it('counts fields missing from some documents', async function () {
+          const { optional_field_count } = await calculateSchemaMetadata(
+            schema
+          );
+          expect(optional_field_count).to.equal(1);
+        });
+      });
+
+      describe('with no fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([{}]);
+        });
+
+        it('returns zero', async function () {
+          const { optional_field_count } = await calculateSchemaMetadata(
+            schema
+          );
+          expect(optional_field_count).to.equal(0);
+        });
+      });
+
+      describe('with all required fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { required: 1 },
+            { required: 2 },
+            { required: 3 },
+          ]);
+        });
+
+        it('returns zero', async function () {
+          const { optional_field_count } = await calculateSchemaMetadata(
+            schema
+          );
+          expect(optional_field_count).to.equal(0);
+        });
+      });
+
+      describe('with differing nested fields fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { required: { notAlwaysPresent: true } },
+            { required: { notAlwaysPresent: true } },
+            { required: { sometimesHere: true } },
+          ]);
+        });
+
+        it('returns does not count the optionals', async function () {
+          const { optional_field_count } = await calculateSchemaMetadata(
+            schema
+          );
+          expect(optional_field_count).to.equal(0);
+        });
+      });
+    });
+
+    describe('field_types', function () {
+      describe('with mixed bson types', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { number: 42, value: true, string: 'test' },
+            {
+              number: 100,
+              value: 'ok',
+              anotherString: 'hello',
+              yetAnotherString: 'blueberry',
+            },
+          ]);
+        });
+
+        it('correctly counts the bson types', async function () {
+          const { field_types } = await calculateSchemaMetadata(schema);
+          expect(field_types).to.deep.equal({
+            Number: 1,
+            Boolean: 1,
+            String: 4,
+            Undefined: 3,
+          });
+        });
+      });
+
+      describe('with no fields', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([{}]);
+        });
+
+        it('returns an empty object', async function () {
+          const { field_types } = await calculateSchemaMetadata(schema);
+          expect(field_types).to.deep.equal({});
+        });
+      });
+
+      describe('with a type occurring multiple times', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            { pineapple: 1, secondPineapple: 2, singlePineapple: 3 },
+            { pineapple: 1, secondPineapple: 2 },
+            { pineapple: 2, secondPineapple: 2 },
+          ]);
+        });
+
+        it('correctly counts a single type', async function () {
+          const { field_types } = await calculateSchemaMetadata(schema);
+          expect(field_types).to.deep.equal({
+            Number: 3,
+            Undefined: 1,
+          });
+        });
+      });
+
+      describe('with nested arrays and objects', function () {
+        let schema: Schema;
+        before(async function () {
+          schema = await mongoDBSchemaAnalyzeSchema([
+            {
+              arrayField: [[[['a']]]],
+            },
+            {
+              arrayField: [[[['a', 123]]]],
+              objectField: {
+                innerObject: {
+                  pineapple: 'wahoo',
+                  anotherNumberInObject: 55,
+                },
+                numberInObject: 42,
+              },
+            },
+          ]);
+        });
+
+        it('correctly counts bson types', async function () {
+          const { field_types } = await calculateSchemaMetadata(schema);
+          expect(field_types).to.deep.equal({
+            Document: 2,
+            Array: 4,
+            String: 2,
+            Number: 3,
+            Undefined: 1,
+          });
+        });
+      });
+    });
   });
 });

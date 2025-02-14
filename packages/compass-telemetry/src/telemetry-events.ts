@@ -1943,11 +1943,13 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 
     /**
      * The count of fields with multiple types in a given schema (not counting undefined).
+     * This is only calculated for the top level fields, not nested fields and arrays.
      */
     variable_type_count: number;
 
     /**
      * The count of fields that don't appear on all documents.
+     * This is only calculated for the top level fields, not nested fields and arrays.
      */
     optional_field_count: number;
 

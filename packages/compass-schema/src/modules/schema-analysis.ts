@@ -113,11 +113,13 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
 
   /**
    * The count of fields with multiple types in a given schema (not counting undefined).
+   * This is only calculated for the top level fields, not nested fields and arrays.
    */
   variable_type_count: number;
 
   /**
    * The count of fields that don't appear on all documents.
+   * This is only calculated for the top level fields, not nested fields and arrays.
    */
   optional_field_count: number;
 
@@ -136,11 +138,12 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
     [bsonType: string]: number;
   } = {};
   let variableTypeCount = 0;
-  const optionalFieldCount = 0;
+  let optionalFieldCount = 0;
   let unblockThreadCounter = 0;
 
   async function traverseSchemaTree(
-    fieldsOrTypes: SchemaField[] | SchemaType[]
+    fieldsOrTypes: SchemaField[] | SchemaType[],
+    isRoot = false
   ): Promise<number> {
     unblockThreadCounter++;
     if (unblockThreadCounter === UNBLOCK_INTERVAL_COUNT) {
@@ -169,10 +172,19 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
 
       if (isSchemaType(fieldOrType)) {
         fieldTypes[fieldOrType.bsonType] =
-          (fieldTypes[fieldOrType.bsonType] || 0) + 1;
-      } else {
-        if (fieldOrType.type !== 'string') {
+          (fieldTypes[fieldOrType.bsonType] ?? 0) + 1;
+      } else if (isRoot) {
+        // Count variable types (more than one unique type excluding undefined).
+        if (
+          fieldOrType.types &&
+          (fieldOrType.types.length > 2 ||
+            fieldOrType.types?.filter((t) => t.name !== 'Undefined').length > 1)
+        ) {
           variableTypeCount++;
+        }
+
+        if (fieldOrType.probability < 1) {
+          optionalFieldCount++;
         }
       }
 
@@ -202,7 +214,10 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
     return deepestPath;
   }
 
-  const schemaDepth = await traverseSchemaTree(schema.fields);
+  const schemaDepth = await traverseSchemaTree(
+    schema.fields,
+    true /* isRoot */
+  );
 
   return {
     field_types: fieldTypes,
