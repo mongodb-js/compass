@@ -3,11 +3,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  createSandboxFromDefaultPreferences,
-  type PreferencesAccess,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { AllPreferences } from 'compass-preferences-model';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -35,33 +31,28 @@ const testErrorMessage =
 const exportSchemaTestId = 'open-schema-export-button';
 
 describe('SchemaToolbar', function () {
-  let defaultPreferences: PreferencesAccess;
-
-  before(async function () {
-    defaultPreferences = await createSandboxFromDefaultPreferences();
-  });
-
   const renderSchemaToolbar = (
     props: Partial<ComponentProps<typeof SchemaToolbar>> = {},
-    preferences: PreferencesAccess = defaultPreferences
+    preferences: Partial<AllPreferences> = {}
   ) => {
     const queryBarProps = {};
     render(
-      <PreferencesProvider value={preferences}>
-        <MockQueryBarPlugin {...(queryBarProps as any)}>
-          <SchemaToolbar
-            analysisState="complete"
-            errorMessage={''}
-            isOutdated={false}
-            onAnalyzeSchemaClicked={() => {}}
-            onResetClicked={() => {}}
-            sampleSize={10}
-            schemaResultId="123"
-            onExportSchemaClicked={() => {}}
-            {...props}
-          />
-        </MockQueryBarPlugin>
-      </PreferencesProvider>
+      <MockQueryBarPlugin {...(queryBarProps as any)}>
+        <SchemaToolbar
+          analysisState="complete"
+          errorMessage={''}
+          isOutdated={false}
+          onAnalyzeSchemaClicked={() => {}}
+          onResetClicked={() => {}}
+          sampleSize={10}
+          schemaResultId="123"
+          onExportSchemaClicked={() => {}}
+          {...props}
+        />
+      </MockQueryBarPlugin>,
+      {
+        preferences,
+      }
     );
   };
 
@@ -125,17 +116,14 @@ describe('SchemaToolbar', function () {
   });
 
   describe('when rendered with the enableExportSchema feature flag true', function () {
-    beforeEach(async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableExportSchema: true,
-      });
-
+    beforeEach(function () {
       renderSchemaToolbar(
         {
           sampleSize: 100,
         },
-        preferences
+        {
+          enableExportSchema: true,
+        }
       );
     });
 

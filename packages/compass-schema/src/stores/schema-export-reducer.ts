@@ -5,6 +5,7 @@ import type {
   InternalSchema,
   MongoDBJSONSchema,
   ExpandedJSONSchema,
+  SchemaAccessor,
 } from 'mongodb-schema';
 
 import type { SchemaThunkAction } from './store';
@@ -12,7 +13,6 @@ import { isAction } from '../utils';
 import {
   calculateSchemaDepth,
   schemaContainsGeoData,
-  type SchemaAccessor,
 } from '../modules/schema-analysis';
 import { openToast } from '@mongodb-js/compass-components';
 
@@ -23,7 +23,6 @@ export type SchemaFormat =
   | 'legacyJSON';
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
-  abortController?: AbortController;
   isOpen: boolean;
   isLegacyBannerOpen: boolean;
   legacyBannerChoice?: 'legacy' | 'export';
@@ -81,11 +80,8 @@ export const closeExportSchema = (): SchemaThunkAction<
   void,
   CloseExportSchemaAction
 > => {
-  return (dispatch, getState) => {
-    const {
-      schemaExport: { abortController },
-    } = getState();
-    abortController?.abort();
+  return (dispatch, getState, { exportAbortControllerRef }) => {
+    exportAbortControllerRef.current?.abort();
 
     return dispatch({
       type: SchemaExportActions.closeExportSchema,
@@ -99,7 +95,6 @@ export type CancelExportSchemaAction = {
 
 export type ChangeExportSchemaFormatStartedAction = {
   type: SchemaExportActions.changeExportSchemaFormatStarted;
-  abortController: AbortController;
   exportFormat: SchemaFormat;
 };
 
@@ -117,11 +112,8 @@ export const cancelExportSchema = (): SchemaThunkAction<
   void,
   CancelExportSchemaAction
 > => {
-  return (dispatch, getState) => {
-    const {
-      schemaExport: { abortController },
-    } = getState();
-    abortController?.abort();
+  return (dispatch, getState, { exportAbortControllerRef }) => {
+    exportAbortControllerRef.current?.abort();
 
     return dispatch({
       type: SchemaExportActions.cancelExportSchema,
@@ -169,19 +161,19 @@ export const changeExportSchemaFormat = (
   | ChangeExportSchemaFormatErroredAction
   | ChangeExportSchemaFormatCompletedAction
 > => {
-  return async (dispatch, getState, { logger: { log } }) => {
-    const {
-      schemaExport: { abortController: existingAbortController },
-    } = getState();
-
+  return async (
+    dispatch,
+    getState,
+    { logger: { log }, exportAbortControllerRef, schemaAccessorRef }
+  ) => {
     // If we're already in progress we abort their current operation.
-    existingAbortController?.abort();
+    exportAbortControllerRef.current?.abort();
 
-    const abortController = new AbortController();
+    exportAbortControllerRef.current = new AbortController();
+    const abortSignal = exportAbortControllerRef.current.signal;
 
     dispatch({
       type: SchemaExportActions.changeExportSchemaFormatStarted,
-      abortController,
       exportFormat,
     });
 
@@ -196,7 +188,7 @@ export const changeExportSchemaFormat = (
         }
       );
 
-      const schemaAccessor = getState().schemaAnalysis.schemaAccessor;
+      const schemaAccessor = schemaAccessorRef.current;
       if (!schemaAccessor) {
         throw new Error('No schema analysis available');
       }
@@ -204,10 +196,10 @@ export const changeExportSchemaFormat = (
       exportedSchema = await getSchemaByFormat({
         schemaAccessor,
         exportFormat,
-        signal: abortController.signal,
+        signal: abortSignal,
       });
     } catch (err: any) {
-      if (abortController.signal.aborted) {
+      if (abortSignal.aborted) {
         return;
       }
       log.error(
@@ -226,7 +218,7 @@ export const changeExportSchemaFormat = (
       return;
     }
 
-    if (abortController.signal.aborted) {
+    if (abortSignal.aborted) {
       return;
     }
 
@@ -319,7 +311,6 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   ) {
     return {
       ...state,
-      abortController: action.abortController,
       exportStatus: 'inprogress',
       exportFormat: action.exportFormat,
     };
