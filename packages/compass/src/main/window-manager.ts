@@ -271,9 +271,9 @@ class CompassWindowManager {
         const bw = BrowserWindow.fromWebContents(evt.sender);
         return getWindowAutoConnectPreferences(bw, compassApp.preferences);
       },
-      'test:show-connect-window': () => showConnectWindow(compassApp),
+      'test:show-connect-window': () => void showConnectWindow(compassApp),
       'app:connect-in-new-window': (event, connectionId: string) =>
-        showConnectWindow(compassApp, { connectionId }),
+        void showConnectWindow(compassApp, { connectionId }),
     });
 
     ipcMain?.on('show-file', (evt, filename: string) => {
