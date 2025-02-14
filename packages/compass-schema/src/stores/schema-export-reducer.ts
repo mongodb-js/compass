@@ -195,7 +195,7 @@ const _trackSchemaExported = ({
   };
 };
 
-export const onSchemaExportCopied = (): SchemaThunkAction<void> => {
+export const trackSchemaExported = (): SchemaThunkAction<void> => {
   return (dispatch, getState) => {
     const {
       schemaAnalysis: { schema },

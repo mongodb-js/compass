@@ -222,9 +222,7 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
   return {
     field_types: fieldTypes,
     geo_data: hasGeoData,
-    // TODO: calculate these
     optional_field_count: optionalFieldCount,
-
     schema_depth: schemaDepth,
     variable_type_count: variableTypeCount,
   };
