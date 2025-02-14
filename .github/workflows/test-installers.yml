@@ -178,10 +178,10 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
           persist-credentials: false
-          path: 'compass-mongodb-com'
+          path: compass-mongodb-com
       - name: Install Compass Update server
         if: matrix.install-update-server
-        run: npm install --no-save --workspace packages/compass-smoke-tests ${{ github.workspace }}/compass-mongodb-com
+        run: npm install --no-save --workspace packages/compass-smoke-tests ./compass-mongodb-com
 
       - name: Run tests
         env:
