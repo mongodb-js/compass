@@ -100,6 +100,7 @@ export type InternalUserPreferences = {
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
   userCreatedAt: number;
+  // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
 };
 
@@ -409,6 +410,7 @@ export const storedUserPreferencesProps: Required<{
   },
   /**
    * Enables a dropdown in the connections sidebar to connect in a new window.
+   * TODO: Remove this as part of COMPASS-8970.
    */
   enableConnectInNewWindow: {
     ui: false,

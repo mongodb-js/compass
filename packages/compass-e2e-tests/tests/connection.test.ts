@@ -672,6 +672,7 @@ describe('Connect in a new window', () => {
   });
 
   it('can connect in new window', async function (this) {
+    // TODO: Remove this as part of COMPASS-8970.
     skipForWeb(this, 'connecting in new window is not supported on web');
 
     const connectionName = DEFAULT_CONNECTION_NAMES[0];
@@ -707,6 +708,7 @@ describe('Connect in a new window', () => {
     const connectionElement = browser.$(connectionSelector);
     await connectionElement.$(Selectors.ConnectButton).waitForDisplayed();
     await connectionElement.$(Selectors.ConnectDropdownButton).waitForExist({
+      // TODO: Remove this as part of COMPASS-8970.
       reverse: isTestingWeb(),
     });
   });
