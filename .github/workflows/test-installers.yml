@@ -177,4 +177,5 @@ jobs:
           # Exposing token to prevent update server from being rate limited
           GITHUB_TOKEN: ${{ github.token }}
         working-directory: packages/compass-smoke-tests
-        run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }}
+        # Using --skipUninstalling --skipCleanup because the runners are ephemeral
+        run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup

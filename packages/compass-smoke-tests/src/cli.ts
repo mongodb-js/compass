@@ -96,6 +96,11 @@ const argv = yargs(hideBin(process.argv))
     description: 'Do not delete the sandboxes after a run',
     default: false,
   })
+  .option('skipUninstall', {
+    type: 'boolean',
+    description: 'Do not uninstall after a run',
+    default: false,
+  })
   .option('tests', {
     type: 'array',
     string: true,
