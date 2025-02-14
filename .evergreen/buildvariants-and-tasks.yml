@@ -125,29 +125,13 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: test-server-40x-community-1
-      - name: test-server-40x-community-2
-      - name: test-server-40x-community-3
       - name: test-server-40x-enterprise-1
-      - name: test-server-40x-enterprise-2
-      - name: test-server-40x-enterprise-3
       - name: test-server-42x-community-1
-      - name: test-server-42x-community-2
-      - name: test-server-42x-community-3
       - name: test-server-42x-enterprise-1
-      - name: test-server-42x-enterprise-2
-      - name: test-server-42x-enterprise-3
       - name: test-server-44x-community-1
-      - name: test-server-44x-community-2
-      - name: test-server-44x-community-3
       - name: test-server-44x-enterprise-1
-      - name: test-server-44x-enterprise-2
-      - name: test-server-44x-enterprise-3
       - name: test-server-5x-community-1
-      - name: test-server-5x-community-2
-      - name: test-server-5x-community-3
       - name: test-server-5x-enterprise-1
-      - name: test-server-5x-enterprise-2
-      - name: test-server-5x-enterprise-3
   - name: test-maintained-servers
     display_name: Test Maintained Servers
     run_on: ubuntu2004-large
@@ -157,23 +141,11 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: test-server-60x-community-1
-      - name: test-server-60x-community-2
-      - name: test-server-60x-community-3
       - name: test-server-60x-enterprise-1
-      - name: test-server-60x-enterprise-2
-      - name: test-server-60x-enterprise-3
       - name: test-server-70x-community-1
-      - name: test-server-70x-community-2
-      - name: test-server-70x-community-3
       - name: test-server-70x-enterprise-1
-      - name: test-server-70x-enterprise-2
-      - name: test-server-70x-enterprise-3
       - name: test-server-80x-community-1
-      - name: test-server-80x-community-2
-      - name: test-server-80x-community-3
       - name: test-server-80x-enterprise-1
-      - name: test-server-80x-enterprise-2
-      - name: test-server-80x-enterprise-3
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
     run_on: ubuntu2004-large
@@ -183,8 +155,6 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: test-server-latest-alpha-1
-      - name: test-server-latest-alpha-2
-      - name: test-server-latest-alpha-3
   - name: test-packaged-app-ubuntu
     display_name: Test Packaged App Ubuntu 20.04
     run_on: ubuntu2004-large
@@ -194,8 +164,6 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-windows
     display_name: Test Packaged App Windows 10
     run_on: windows-vsCurrent-large
@@ -205,8 +173,6 @@ buildvariants:
         variant: package-windows
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-rhel
     display_name: Test Packaged App RHEL 8.0
     run_on: rhel80-large
@@ -216,8 +182,6 @@ buildvariants:
         variant: package-rhel
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-arm
     display_name: Test Packaged App MacOS arm64 11
     run_on: macos-11-arm64-gui
@@ -227,8 +191,6 @@ buildvariants:
         variant: package-macos-arm
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
     run_on: macos-11-gui
@@ -238,8 +200,6 @@ buildvariants:
         variant: package-macos-x64
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-macos-14-arm
     display_name: Test Packaged App MacOS arm64 14
     run_on: macos-14-arm64-gui
@@ -249,8 +209,6 @@ buildvariants:
         variant: package-macos-arm
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-macos-14-x64
     display_name: Test Packaged App MacOS x64 14
     run_on: macos-14-gui
@@ -260,8 +218,6 @@ buildvariants:
         variant: package-macos-x64
     tasks:
       - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: publish
     display_name: Publish Artifacts
     run_on: ubuntu2004-large
@@ -279,8 +235,6 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: e2e-coverage-1
-      - name: e2e-coverage-2
-      - name: e2e-coverage-3
   - name: csfle-tests
     display_name: CSFLE Tests
     run_on: ubuntu2004-large
@@ -291,11 +245,7 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: test-web-sandbox-chrome-1
-      - name: test-web-sandbox-chrome-2
-      - name: test-web-sandbox-chrome-3
       - name: test-web-sandbox-firefox-1
-      - name: test-web-sandbox-firefox-2
-      - name: test-web-sandbox-firefox-3
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2004-large
@@ -374,36 +324,8 @@ tasks:
       - func: bootstrap
       - func: e2e-coverage
         vars:
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-          mongodb_version: 8.0.x-enterprise
-  - name: e2e-coverage-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: e2e-coverage
-        vars:
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-          mongodb_version: 8.0.x-enterprise
-  - name: e2e-coverage-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: e2e-coverage
-        vars:
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           mongodb_version: 8.0.x-enterprise
   - name: generate-vulnerability-report
@@ -543,54 +465,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-40x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-40x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-enterprise-1
     tags:
@@ -612,54 +488,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-40x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-40x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-community-1
     tags:
@@ -681,54 +511,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-42x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.2.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-42x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.2.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-enterprise-1
     tags:
@@ -750,54 +534,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-42x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.2.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-42x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.2.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-community-1
     tags:
@@ -819,54 +557,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-44x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.4.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-44x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.4.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-enterprise-1
     tags:
@@ -888,54 +580,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-44x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.4.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-44x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 4.4.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-community-1
     tags:
@@ -957,54 +603,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-5x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 5.x.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-5x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 5.x.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-enterprise-1
     tags:
@@ -1026,54 +626,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-5x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 5.x.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-5x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 5.x.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-1
     tags:
@@ -1095,54 +649,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-1
     tags:
@@ -1164,54 +672,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-1
     tags:
@@ -1233,54 +695,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-70x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 7.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-70x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 7.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-1
     tags:
@@ -1302,54 +718,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-70x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 7.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-70x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 7.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-1
     tags:
@@ -1371,54 +741,8 @@ tasks:
         vars:
           mongodb_version: 8.0.x
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-80x-community-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-80x-community-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-1
     tags:
@@ -1440,54 +764,8 @@ tasks:
         vars:
           mongodb_version: 8.0.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-80x-enterprise-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-80x-enterprise-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-1
     tags:
@@ -1509,54 +787,8 @@ tasks:
         vars:
           mongodb_version: latest-alpha-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-latest-alpha-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: latest-alpha-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-latest-alpha-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: latest-alpha-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-1
     tags:
@@ -1580,58 +812,8 @@ tasks:
         vars:
           mongodb_version: 8.0.x-enterprise
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-packaged-app-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-packaged-app-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-1
     tags:
@@ -1653,54 +835,8 @@ tasks:
           mongodb_version: 8.0.x-enterprise
           browser_name: chrome
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-web-sandbox-chrome-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: test-web-sandbox
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          browser_name: chrome
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-web-sandbox-chrome-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: test-web-sandbox
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          browser_name: chrome
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-1
     tags:
@@ -1722,54 +858,8 @@ tasks:
           mongodb_version: 8.0.x-enterprise
           browser_name: firefox
           compass_distribution: compass
-          e2e_test_groups: 3
+          e2e_test_groups: 1
           e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-web-sandbox-firefox-2
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: test-web-sandbox
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          browser_name: firefox
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-web-sandbox-firefox-3
-    tags:
-      - required-for-publish
-      - run-on-pr
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: test-web-sandbox
-        vars:
-          mongodb_version: 8.0.x-enterprise
-          browser_name: firefox
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-atlas-cloud
     tags:

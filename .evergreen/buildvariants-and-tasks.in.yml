@@ -175,7 +175,7 @@ const COMPASS_DISTRIBUTIONS = ["compass", "compass-isolated", "compass-readonly"
 
 const BROWSERS = ["chrome", "firefox"];
 
-const E2E_TEST_GROUPS_NUMBER = 3;
+const E2E_TEST_GROUPS_NUMBER = 1;
 const E2E_TEST_GROUPS = Array.from({ length: E2E_TEST_GROUPS_NUMBER }).map((_, i) => ({number: i + 1}));
 %>
 
