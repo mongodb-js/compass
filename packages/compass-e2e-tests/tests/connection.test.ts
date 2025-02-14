@@ -20,6 +20,10 @@ import {
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
+import {
+  DEFAULT_CONNECTION_NAMES,
+  isTestingWeb,
+} from '../helpers/test-runner-context';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -638,6 +642,75 @@ describe('Connection string', function () {
       'test',
       'new-collection'
     );
+  });
+});
+
+describe('Connect in a new window', () => {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    compass = await init(this.test?.fullTitle(), {
+      firstRun: false,
+    });
+    browser = compass.browser;
+    await browser.setupDefaultConnections();
+  });
+
+  after(async function () {
+    await cleanup(compass);
+  });
+
+  afterEach(async function () {
+    // Close any windows opened while testing, in reverse order
+    const [mainWindow, ...otherWindows] = await browser.getWindowHandles();
+    for (const window of otherWindows.reverse()) {
+      await browser.switchToWindow(window);
+      await browser.closeWindow();
+    }
+    await browser.switchToWindow(mainWindow);
+  });
+
+  it('can connect in new window', async function (this) {
+    // TODO: Remove this as part of COMPASS-8970.
+    skipForWeb(this, 'connecting in new window is not supported on web');
+
+    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionSelector = Selectors.sidebarConnection(connectionName);
+    await browser.hover(connectionSelector);
+
+    const windowsBefore = await browser.getWindowHandles();
+    expect(windowsBefore.length).equals(1);
+
+    const connectionElement = browser.$(connectionSelector);
+    await browser.clickVisible(
+      connectionElement.$(Selectors.ConnectDropdownButton)
+    );
+    await browser.clickVisible(
+      connectionElement.$(Selectors.ConnectInNewWindowButton)
+    );
+
+    const windowsAfter = await browser.getWindowHandles();
+    expect(windowsAfter.length).equals(2);
+    const [, newWindowHandle] = windowsAfter;
+
+    await browser.switchToWindow(newWindowHandle);
+    await browser.waitForConnectionResult(connectionName, {
+      connectionStatus: 'success',
+    });
+  });
+
+  it('shows correct connect button', async function (this) {
+    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionSelector = Selectors.sidebarConnection(connectionName);
+    await browser.hover(connectionSelector);
+
+    const connectionElement = browser.$(connectionSelector);
+    await connectionElement.$(Selectors.ConnectButton).waitForDisplayed();
+    await connectionElement.$(Selectors.ConnectDropdownButton).waitForExist({
+      // TODO: Remove this as part of COMPASS-8970.
+      reverse: isTestingWeb(),
+    });
   });
 });
 

@@ -12,6 +12,7 @@ import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { DEFAULT_CONNECTION_NAMES } from '../helpers/test-runner-context';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
 const connectionNameSuccess = 'Success';
@@ -20,6 +21,22 @@ const connectionStringUnreachable =
 const connectionNameUnreachable = 'Unreachable';
 const connectionStringInvalid = 'http://example.com';
 const connectionNameInvalid = 'Invalid';
+
+async function createDefaultConnectionAndClose(name: string | undefined) {
+  const compass = await init(name);
+  try {
+    const { browser } = compass;
+    await browser.setupDefaultConnections();
+    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionId = await browser.getConnectionIdByName(connectionName);
+    if (!connectionId) {
+      throw new Error('Expected a connection id');
+    }
+    return { connectionName, connectionId };
+  } finally {
+    await cleanup(compass);
+  }
+}
 
 describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
@@ -122,6 +139,22 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       await waitForConnectionSuccessAndCheckConnection(compass, 'Success');
+    } finally {
+      await cleanup(compass);
+    }
+  });
+
+  it('works with a connection id on the command line', async function () {
+    // Create the connection
+    const { connectionId, connectionName } =
+      await createDefaultConnectionAndClose(this.test?.fullTitle());
+    const compass = await init(this.test?.fullTitle(), {
+      wrapBinary: positionalArgs([connectionId]),
+      // reuse the same user directory so we'd get the same connections
+      firstRun: false,
+    });
+    try {
+      await waitForConnectionSuccessAndCheckConnection(compass, connectionName);
     } finally {
       await cleanup(compass);
     }

@@ -368,6 +368,11 @@ const app = {
         });
       }
     );
+    // Propagate events from global app registry to the main process
+    globalAppRegistry.on('connect-in-new-window', (connectionId: string) => {
+      void ipcRenderer?.call('app:connect-in-new-window', connectionId);
+    });
+
     // As soon as dom is ready, render and set up the rest.
     state.render();
     marky.stop('Time to Connect rendered');

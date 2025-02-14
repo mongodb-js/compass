@@ -244,6 +244,11 @@ export const ConenctionToastCancelConnectionButton =
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
+export const ConnectButton =
+  '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
+export const ConnectDropdownButton = `${ConnectButton} [data-testid="lg-split_button-trigger"]`;
+export const ConnectInNewWindowButton =
+  '[data-action="connection-connect-in-new-window"]';
 export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
 export const CreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-create-database-action"]';
@@ -363,6 +368,12 @@ export const sidebarConnectionButton = (connectionName: string): string => {
   return `${sidebarConnection(
     connectionName
   )} [data-action="connection-connect"]`;
+};
+
+export const sidebarConnectionDropdownButton = (
+  connectionName: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${ConnectDropdownButton}`;
 };
 
 export const sidebarConnectionActionButton = (

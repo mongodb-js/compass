@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { RenderMode } from '@leafygreen-ui/popover';
 
@@ -32,6 +32,12 @@ const containerStyle = css({
 
 export type ItemActionMenuProps<Action extends string> = {
   actions: MenuAction<Action>[];
+  isVisible?: boolean;
+  /**
+   * Called to signal to the parent if the component wants to prevent becoming hidden.
+   * Note: In the current implementation, this is called when a menu is opened.
+   */
+  setHidable?(hideable: boolean): void;
   onAction(actionName: Action): void;
   // TODO: Merge className and menuClassName
   className?: string;
@@ -40,13 +46,13 @@ export type ItemActionMenuProps<Action extends string> = {
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
-  isVisible?: boolean;
   'data-testid'?: string;
 };
 
 export function ItemActionMenu<Action extends string>({
-  isVisible = true,
   actions,
+  isVisible = true,
+  setHidable,
   onAction,
   className,
   menuClassName,
@@ -78,6 +84,13 @@ export function ItemActionMenu<Action extends string>({
     },
     [onAction]
   );
+
+  // Opening the menu should keep it visible
+  useEffect(() => {
+    if (setHidable) {
+      setHidable(!isMenuOpen);
+    }
+  }, [setHidable, isMenuOpen]);
 
   const shouldRender = isMenuOpen || (isVisible && actions.length > 0);
 
