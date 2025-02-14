@@ -1,12 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ValidationStates from '.';
+import { ValidationStates } from './validation-states';
 import {
   createPluginTestHelpers,
   screen,
 } from '@mongodb-js/testing-library-compass';
-import { CompassSchemaValidationPlugin } from '../../index';
+import { CompassSchemaValidationPlugin } from '../index';
 
 const { renderWithConnections } = createPluginTestHelpers(
   CompassSchemaValidationPlugin.provider.withMockServices({

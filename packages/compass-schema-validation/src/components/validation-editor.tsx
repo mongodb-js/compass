@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { debounce } from 'lodash';
+import { connect } from 'react-redux';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
@@ -18,15 +19,25 @@ import {
   createValidationAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type {
   Validation,
   ValidationLevel,
   ValidationServerAction,
   ValidationState,
-} from '../../modules/validation';
-import { checkValidator } from '../../modules/validation';
-import { ActionSelector, LevelSelector } from '../validation-selectors';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+} from '../modules/validation';
+import { ActionSelector, LevelSelector } from './validation-selectors';
+import type { RootState } from '../modules';
+import {
+  checkValidator,
+  validatorChanged,
+  cancelValidation,
+  saveValidation,
+  validationActionChanged,
+  validationLevelChanged,
+} from '../modules/validation';
+import { namespaceChanged } from '../modules/namespace';
+import { clearSampleDocuments } from '../modules/sample-documents';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -62,7 +73,7 @@ const buttonStyles = css({
   marginLeft: spacing[2],
 });
 
-export type ValidationCodeEditorProps = Pick<
+type ValidationCodeEditorProps = Pick<
   React.ComponentProps<typeof CodemirrorMultilineEditor>,
   'onChangeText' | 'readOnly'
 > & {
@@ -95,7 +106,7 @@ const ValidationCodeEditor = ({
   );
 };
 
-export type ValidationEditorProps = {
+type ValidationEditorProps = {
   namespace: string;
   clearSampleDocuments: () => void;
   validatorChanged: (text: string) => void;
@@ -119,7 +130,9 @@ export type ValidationEditorProps = {
 /**
  * The validation editor component.
  */
-const ValidationEditor: React.FunctionComponent<ValidationEditorProps> = ({
+export const ValidationEditor: React.FunctionComponent<
+  ValidationEditorProps
+> = ({
   namespace,
   clearSampleDocuments,
   validatorChanged,
@@ -271,4 +284,21 @@ const ValidationEditor: React.FunctionComponent<ValidationEditorProps> = ({
   );
 };
 
-export default ValidationEditor;
+const mapStateToProps = (state: RootState) => ({
+  serverVersion: state.serverVersion,
+  validation: state.validation,
+  namespace: state.namespace.ns,
+});
+
+/**
+ * Connect the redux store to the component (dispatch).
+ */
+export default connect(mapStateToProps, {
+  clearSampleDocuments,
+  validatorChanged,
+  cancelValidation,
+  saveValidation,
+  namespaceChanged,
+  validationActionChanged,
+  validationLevelChanged,
+})(ValidationEditor);
