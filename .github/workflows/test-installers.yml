@@ -126,8 +126,11 @@ jobs:
             package: windows_msi
           - test: auto-update-to
             package: windows_setup
+          # Waiting for https://github.com/10gen/compass-mongodb-com/pull/122 to be released
           - test: auto-update-to
             package: linux_deb
+          - test: auto-update-to
+            package: linux_rpm
 
           # Skip time-to-first-query tests for readonly because it doesn't have editable documents
           # See https://github.com/mongodb-js/compass/actions/runs/13286945911/job/37097791601
