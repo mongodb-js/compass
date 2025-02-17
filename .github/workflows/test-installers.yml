@@ -6,6 +6,10 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
+      version:
+        type: string
+        description: 'Version of the installer to download'
+        required: true
       bucket_name:
         type: string
         description: 'S3 bucket to download installers from'
@@ -14,10 +18,11 @@ on:
         type: string
         description: 'S3 bucket key prefix to download installers from'
         required: true
-      version:
+      nonce:
         type: string
-        description: 'Version of the installer to download'
-        required: true
+        description: 'A random string to track the run from dispatch to watching'
+
+run-name: Test Installers ${{ github.event.inputs.version }} / (nonce = ${{ github.event.inputs.nonce || 'not set' }})
 
 jobs:
   test:
