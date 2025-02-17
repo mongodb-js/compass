@@ -1,9 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import SampleDocuments from '.';
+import { SampleDocuments } from './sample-documents';
 import { Provider } from 'react-redux';
-import { configureStore } from '../../stores/store';
+import { configureStore } from '../stores/store';
 
 describe('SampleDocuments [Component]', function () {
   it('renders a valid and invalid document preview', function () {

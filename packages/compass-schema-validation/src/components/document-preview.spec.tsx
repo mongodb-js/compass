@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 
-import DocumentPreview from '.';
+import { DocumentPreview } from './document-preview';
 
 describe('DocumentPreview [Component]', function () {
   context('when document loading state is initial', function () {

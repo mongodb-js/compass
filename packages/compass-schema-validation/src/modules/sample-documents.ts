@@ -33,7 +33,6 @@ export const INITIAL_STATE: SampleDocumentState = {
 /**
  * Action names
  */
-
 export const CLEAR_SAMPLE_DOCUMENTS =
   'validation/namespace/CLEAR_SAMPLE_DOCUMENTS' as const;
 interface ClearSampleDocumentsAction {
