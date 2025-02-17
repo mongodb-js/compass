@@ -2,6 +2,7 @@ import type { Schema } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
@@ -13,8 +14,7 @@ import {
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
-  calculateSchemaDepth,
-  schemaContainsGeoData,
+  calculateSchemaMetadata,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
@@ -164,10 +164,58 @@ export const geoLayersDeleted = (
   };
 };
 
-export const stopAnalysis = (): SchemaThunkAction<void> => {
+// We track when the user cancels the analysis. We use the userCancelled
+// flag to indicate if we should track, as we also automatically stop
+// analysis when deactivating the plugin.
+const userCancelledAnalysisAbortReason = 'Cancelled analysis';
+
+export const stopAnalysis = (
+  userCancelled = false
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { analysisAbortControllerRef }) => {
     if (!analysisAbortControllerRef.current) return;
-    analysisAbortControllerRef.current?.abort();
+    analysisAbortControllerRef.current?.abort(
+      userCancelled ? userCancelledAnalysisAbortReason : undefined
+    );
+  };
+};
+
+const getSchemaAnalyzedEventPayload = ({
+  schema,
+  query,
+  analysisTime,
+}: {
+  schema: Schema | null;
+  query: ReturnType<QueryBarService['getLastAppliedQuery']>;
+  analysisTime: number;
+}) => {
+  return async () => {
+    const {
+      field_types,
+      geo_data,
+      optional_field_count,
+      schema_depth,
+      variable_type_count,
+    } = schema
+      ? await calculateSchemaMetadata(schema)
+      : {
+          field_types: {},
+          geo_data: false,
+          optional_field_count: 0,
+          schema_depth: 0,
+          variable_type_count: 0,
+        };
+
+    return {
+      with_filter: Object.entries(query.filter ?? {}).length > 0,
+      schema_width: schema?.fields?.length ?? 0,
+      field_types,
+      variable_type_count,
+      optional_field_count,
+      schema_depth,
+      geo_data,
+      analysis_time_ms: analysisTime,
+    };
   };
 };
 
@@ -219,12 +267,12 @@ export const startAnalysis = (): SchemaThunkAction<
     analysisAbortControllerRef.current = new AbortController();
     const abortSignal = analysisAbortControllerRef.current.signal;
 
+    const analysisStartTime = Date.now();
     try {
       debug('analysis started');
 
       dispatch({ type: SchemaAnalysisActions.analysisStarted });
 
-      const analysisStartTime = Date.now();
       const schemaAccessor = await analyzeSchema(
         dataService,
         abortSignal,
@@ -233,6 +281,10 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      if (abortSignal?.aborted) {
+        throw new Error(abortSignal?.reason || new Error('Operation aborted'));
+      }
+
       schemaAccessorRef.current = schemaAccessor;
       let schema: Schema | null = null;
       if (schemaAccessor) {
@@ -252,18 +304,33 @@ export const startAnalysis = (): SchemaThunkAction<
         schema,
       });
 
-      // track schema analyzed
-      const trackEvent = () => ({
-        with_filter: Object.entries(query.filter ?? {}).length > 0,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-        geo_data: schema ? schemaContainsGeoData(schema) : false,
-        analysis_time_ms: analysisTime,
-      });
-      track('Schema Analyzed', trackEvent, connectionInfoRef.current);
+      track(
+        'Schema Analyzed',
+        getSchemaAnalyzedEventPayload({
+          schema,
+          query,
+          analysisTime,
+        }),
+        connectionInfoRef.current
+      );
 
       geoLayersRef.current = {};
     } catch (err: any) {
+      if (
+        abortSignal.aborted &&
+        abortSignal.reason === userCancelledAnalysisAbortReason
+      ) {
+        const analysisTime = Date.now() - analysisStartTime;
+        track(
+          'Schema Analysis Cancelled',
+          {
+            analysis_time_ms: analysisTime,
+            with_filter: Object.entries(query.filter ?? {}).length > 0,
+          },
+          connectionInfoRef.current
+        );
+      }
+
       log.error(
         mongoLogId(1_001_000_188),
         'Schema analysis',

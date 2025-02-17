@@ -13,7 +13,7 @@ import {
 
 import type { RootState, SchemaThunkDispatch } from '../stores/store';
 import {
-  confirmedLegacySchemaShare,
+  confirmedExportLegacySchemaToClipboard,
   switchToSchemaExport,
   SchemaExportActions,
   stopShowingLegacyBanner,
@@ -539,7 +539,7 @@ export default connect(
   }),
   (dispatch: SchemaThunkDispatch) => ({
     onClose: () => dispatch({ type: SchemaExportActions.closeLegacyBanner }),
-    onLegacyShare: () => dispatch(confirmedLegacySchemaShare()),
+    onLegacyShare: () => dispatch(confirmedExportLegacySchemaToClipboard()),
     onSwitchToSchemaExport: () => dispatch(switchToSchemaExport()),
     stopShowingLegacyBanner: (choice: 'legacy' | 'export') =>
       dispatch(stopShowingLegacyBanner(choice)),
