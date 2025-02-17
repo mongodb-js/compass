@@ -54,7 +54,7 @@ function getDefaultArch() {
   }
 }
 
-const argv = yargs(hideBin(process.argv))
+yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
   .detectLocale(false)
   .version(false)
@@ -67,51 +67,68 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
   })
-  .option('platform', {
-    choices: SUPPORTED_PLATFORMS,
-    demandOption: true,
-    default: getDefaultPlatform(),
-  })
-  .option('arch', {
-    choices: SUPPORTED_ARCHS,
-    demandOption: true,
-    default: getDefaultArch(),
-  })
-  .option('package', {
-    type: 'string',
-    choices: SUPPORTED_PACKAGES,
-    demandOption: true,
-    description: 'Which package to test',
-  })
-  .option('forceDownload', {
-    type: 'boolean',
-    description: 'Force download all assets before starting',
-  })
-  .option('localPackage', {
-    type: 'boolean',
-    description: 'Use the local package instead of downloading',
-  })
-  .option('skipCleanup', {
-    type: 'boolean',
-    description: 'Do not delete the sandboxes after a run',
-    default: false,
-  })
-  .option('skipUninstall', {
-    type: 'boolean',
-    description: 'Do not uninstall after a run',
-    default: false,
-  })
-  .option('tests', {
-    type: 'array',
-    string: true,
-    choices: SUPPORTED_TESTS,
-    description: 'Which tests to run',
-  })
-  .default('tests', SUPPORTED_TESTS.slice());
+  .command(
+    '$0',
+    'Run smoke tests',
+    (argv) =>
+      argv
+        .option('platform', {
+          choices: SUPPORTED_PLATFORMS,
+          demandOption: true,
+          default: getDefaultPlatform(),
+        })
+        .option('arch', {
+          choices: SUPPORTED_ARCHS,
+          demandOption: true,
+          default: getDefaultArch(),
+        })
+        .option('package', {
+          type: 'string',
+          choices: SUPPORTED_PACKAGES,
+          demandOption: true,
+          description: 'Which package to test',
+        })
+        .option('forceDownload', {
+          type: 'boolean',
+          description: 'Force download all assets before starting',
+        })
+        .option('localPackage', {
+          type: 'boolean',
+          description: 'Use the local package instead of downloading',
+        })
+        .option('skipCleanup', {
+          type: 'boolean',
+          description: 'Do not delete the sandboxes after a run',
+          default: false,
+        })
+        .option('skipUninstall', {
+          type: 'boolean',
+          description: 'Do not uninstall after a run',
+          default: false,
+        })
+        .option('tests', {
+          type: 'array',
+          string: true,
+          choices: SUPPORTED_TESTS,
+          description: 'Which tests to run',
+        })
+        .default('tests', SUPPORTED_TESTS.slice()),
+    async (args) => {
+      await run(args);
+    }
+  )
+  .parseAsync()
+  .then(
+    () => {
+      debug('done');
+    },
+    (err) => {
+      console.error(err.stack);
+      process.exitCode = 1;
+    }
+  );
 
-async function run() {
-  const context: SmokeTestsContext = argv.parseSync();
-
+async function run(context: SmokeTestsContext) {
   function cleanupMaybe() {
     if (context.skipCleanup) {
       console.log('Skipped cleanup of sandboxes');
@@ -160,12 +177,3 @@ async function run() {
     }
   }
 }
-
-run()
-  .then(function () {
-    debug('done');
-  })
-  .catch(function (err) {
-    console.error(err.stack);
-    process.exitCode = 1;
-  });
