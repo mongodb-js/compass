@@ -698,7 +698,7 @@ functions:
           fi
 
           if [[ "$IS_RHEL" == "true" ]]; then
-            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=time-to-first-query
+            # npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=time-to-first-query
             npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
           fi
 

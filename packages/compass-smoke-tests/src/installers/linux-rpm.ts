@@ -30,13 +30,9 @@ function getPackageName(filepath: string) {
  * Check if a package is installed (by name)
  */
 export function isInstalled(packageName: string) {
-  const result = cp.spawnSync(
-    'sudo',
-    ['dnf', 'list', 'installed', packageName],
-    {
-      stdio: 'inherit',
-    }
-  );
+  const result = cp.spawnSync('dnf', ['list', 'installed', packageName], {
+    stdio: 'inherit',
+  });
   return result.status === 0;
 }
 
@@ -53,7 +49,7 @@ export function installLinuxRpm({
 
   function uninstall() {
     debug('Uninstalling %s', filepath);
-    execute('sudo', ['dnf', 'remove', '-y', packageName]);
+    execute('dnf', ['remove', '-y', packageName]);
   }
 
   if (isInstalled(packageName)) {
@@ -71,7 +67,7 @@ export function installLinuxRpm({
     !fs.existsSync(installPath),
     `Expected no install directory to exist: ${installPath}`
   );
-  execute('sudo', ['dnf', 'install', '-y', filepath]);
+  execute('dnf', ['install', '-y', filepath]);
 
   assert(isInstalled(packageName), 'Expected the package to be installed');
   assert(
@@ -80,7 +76,9 @@ export function installLinuxRpm({
   );
 
   // Check that the executable will run without being quarantined or similar
-  execute('xvfb-run', [appPath, '--version']);
+  // Passing --no-sandbox because RHEL and Rocky usually run as root and --disable-gpu to avoid warnings
+  // (see compass-e2e-tests/helpers/chrome-startup-flags.ts for details)
+  execute('xvfb-run', [appPath, '--version', '--no-sandbox', '--disable-gpu']);
 
   return {
     appName,
