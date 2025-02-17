@@ -122,6 +122,6 @@ export async function dispatchAndWait({
     await new Promise((resolve) => setTimeout(resolve, watchPollDelayMs));
   }
   throw new Error(
-    `Run did not complete successfully within ${WATCH_POLL_TIMEOUT_MS}ms`
+    `Run did not complete successfully within ${WATCH_POLL_TIMEOUT_MS}ms: See ${run.html_url} for details.`
   );
 }
