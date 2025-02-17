@@ -21,8 +21,111 @@ on:
 
 jobs:
   test:
-    name: Dummy action
-    runs-on: ubuntu-latest
+    name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - time-to-first-query
+          - auto-update-from
+          - auto-update-to
+        package:
+          - osx_dmg
+          - osx_zip
+          - windows_zip
+          - windows_msi
+          - windows_setup
+          - linux_deb
+          # TODO: Re-enable (see https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079619474)
+          # - linux_tar
+          # TODO: Enable (needs a docker container)
+          # - linux_rpm
+        hadron-distribution:
+          - compass
+          - compass-readonly
+          - compass-isolated
+        include:
+          # MacOS
+          - package: osx_dmg
+            runs-on: macos-13
+            arch: x64
+            hadron-platform: darwin
+          - package: osx_zip
+            runs-on: macos-latest
+            arch: arm64
+            hadron-platform: darwin
+
+          # Windows
+          - package: windows_zip
+            runs-on: windows-latest
+            arch: x64
+            hadron-platform: windows
+          - package: windows_msi
+            runs-on: windows-latest
+            arch: x64
+            hadron-platform: windows
+          - package: windows_setup
+            runs-on: windows-latest
+            arch: x64
+            hadron-platform: windows
+
+          # Linux
+          - package: linux_deb
+            runs-on: ubuntu-latest
+            arch: x64
+            hadron-platform: linux
+          # - package: linux_tar
+          #   runs-on: ubuntu-latest
+          #   arch: x64
+          #   hadron-platform: linux
+          # - package: linux_rpm
+          #   runs-on: ubuntu-latest
+          #   arch: x64
+          #   hadron-platform: linux
+
+          # Install the update server for auto-update tests
+          - test: auto-update-from
+            install-update-server: true
+          - test: auto-update-to
+            install-update-server: true
+
+        exclude:
+          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079620322
+          - package: osx_dmg
+            test: auto-update-from
+          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079621700
+          - package: windows_setup
+            test: auto-update-from
+          # Skip auto-update tests for isolated and readonly distributions for now
+          # This is not supported by the update server we're using in the test harness
+          - hadron-distribution: compass-isolated
+            test: auto-update-from
+          - hadron-distribution: compass-isolated
+            test: auto-update-to
+          - hadron-distribution: compass-readonly
+            test: auto-update-from
+          - hadron-distribution: compass-readonly
+            test: auto-update-to
+          # Temporary skip failing auto-update-to tests
+          - test: auto-update-to
+            package: osx_dmg
+          - test: auto-update-to
+            package: windows_zip
+          - test: auto-update-to
+            package: windows_msi
+          - test: auto-update-to
+            package: windows_setup
+          - test: auto-update-to
+            package: linux_deb
+
+          # Skip time-to-first-query tests for readonly because it doesn't have editable documents
+          # See https://github.com/mongodb-js/compass/actions/runs/13286945911/job/37097791601
+          - hadron-distribution: compass-readonly
+            test: time-to-first-query
+
+    runs-on: ${{ matrix.runs-on }}
+    env:
+      DEBUG: compass:smoketests:*
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,6 +134,47 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - name: Install dependencies
+      - name: Cache downloads
+        uses: actions/cache@v4
+        with:
+          key: smoke-tests-downloads-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}-${{ matrix.package }}
+          path: packages/compass-smoke-tests/.downloads
+      - name: Install dependencies and build packages
         run: npm ci
-        
+      - name: Bootstrap packages
+        run: npx lerna run bootstrap --scope @mongodb-js/compass-smoke-tests --include-dependencies
+
+      - name: Create GitHub App Token
+        if: matrix.install-update-server
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+          owner: 10gen
+          repositories: compass-mongodb-com
+      - name: Checkout Compass Update server
+        if: matrix.install-update-server
+        uses: actions/checkout@v4
+        with:
+          repository: 10gen/compass-mongodb-com
+          token: ${{ steps.app-token.outputs.token }}
+          # Make sure the value of GITHUB_TOKEN will not be persisted in repo's config
+          persist-credentials: false
+          path: 'compass-mongodb-com'
+      - name: Install Compass Update server
+        if: matrix.install-update-server
+        run: npm install --no-save --workspace packages/compass-smoke-tests ${{ github.workspace }}/compass-mongodb-com
+
+      - name: Run tests
+        env:
+          EVERGREEN_BUCKET_NAME: ${{ inputs.bucket_name }}
+          EVERGREEN_BUCKET_KEY_PREFIX: ${{ inputs.bucket_key_prefix }}
+          DEV_VERSION_IDENTIFIER: ${{ inputs.version }}
+          HADRON_DISTRIBUTION: ${{ matrix.hadron-distribution }}
+          PLATFORM: ${{ matrix.hadron-platform }}
+          ARCH: ${{ matrix.arch }}
+          # Exposing token to prevent update server from being rate limited
+          GITHUB_TOKEN: ${{ github.token }}
+        working-directory: packages/compass-smoke-tests
+        run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }}

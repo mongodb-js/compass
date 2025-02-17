@@ -411,7 +411,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',
@@ -445,7 +445,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',

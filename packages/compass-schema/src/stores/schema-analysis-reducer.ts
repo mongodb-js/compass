@@ -14,11 +14,9 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaDepth,
-  type SchemaAccessor,
   schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
-import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
@@ -33,7 +31,6 @@ export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
-  schemaAccessor: SchemaAccessor | null;
   resultId: string;
 };
 
@@ -49,7 +46,6 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
-  schemaAccessor: SchemaAccessor | null;
   schema: Schema | null;
 };
 
@@ -73,7 +69,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       analysisState: ANALYSIS_STATE_ANALYZING,
       errorMessage: '',
       schema: null,
-      schemaAccessor: null,
     };
   }
 
@@ -89,7 +84,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
-      schemaAccessor: action.schemaAccessor,
       resultId: resultId(),
     };
   }
@@ -126,61 +120,10 @@ function resultId(): string {
   return new UUID().toString();
 }
 
-export const handleSchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    const hasSchema = schema !== null;
-    if (hasSchema) {
-      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
-    }
-    dispatch(_trackSchemaShared(hasSchema));
-    openToast(
-      'share-schema',
-      hasSchema
-        ? {
-            variant: 'success',
-            title: 'Schema Copied',
-            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
-            timeout: 5_000,
-          }
-        : {
-            variant: 'warning',
-            title: 'Analyze Schema First',
-            description: 'Please Analyze the Schema First from the Schema Tab.',
-            timeout: 5_000,
-          }
-    );
-  };
-};
-
-export const _trackSchemaShared = (
-  hasSchema: boolean
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = () => ({
-      has_schema: hasSchema,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-    });
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
-  };
-};
-
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
   schema: null,
-  schemaAccessor: null,
   resultId: resultId(),
 });
 
@@ -222,9 +165,9 @@ export const geoLayersDeleted = (
 };
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef.current) return;
-    abortControllerRef.current?.abort();
+  return (dispatch, getState, { analysisAbortControllerRef }) => {
+    if (!analysisAbortControllerRef.current) return;
+    analysisAbortControllerRef.current?.abort();
   };
 };
 
@@ -242,7 +185,8 @@ export const startAnalysis = (): SchemaThunkAction<
       dataService,
       logger,
       fieldStoreService,
-      abortControllerRef,
+      analysisAbortControllerRef,
+      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
@@ -272,8 +216,8 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
-    abortControllerRef.current = new AbortController();
-    const abortSignal = abortControllerRef.current.signal;
+    analysisAbortControllerRef.current = new AbortController();
+    const abortSignal = analysisAbortControllerRef.current.signal;
 
     try {
       debug('analysis started');
@@ -289,6 +233,7 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      schemaAccessorRef.current = schemaAccessor;
       let schema: Schema | null = null;
       if (schemaAccessor) {
         schema = await schemaAccessor.getInternalSchema();
@@ -305,7 +250,6 @@ export const startAnalysis = (): SchemaThunkAction<
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
         schema,
-        schemaAccessor,
       });
 
       // track schema analyzed
@@ -333,7 +277,7 @@ export const startAnalysis = (): SchemaThunkAction<
         error: err as Error,
       });
     } finally {
-      abortControllerRef.current = undefined;
+      analysisAbortControllerRef.current = undefined;
     }
   };
 };

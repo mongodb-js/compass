@@ -1,4 +1,7 @@
 import { once } from 'node:events';
+import type http from 'node:http';
+import { promisify } from 'node:util';
+
 import createDebug from 'debug';
 
 const debug = createDebug('compass:smoketests:update-server');
@@ -19,4 +22,8 @@ export async function startAutoUpdateServer() {
   await once(updateChecker, 'refreshed');
 
   return httpServer;
+}
+
+export async function stopAutoUpdateServer(server: http.Server) {
+  await promisify(server.close.bind(server))();
 }
