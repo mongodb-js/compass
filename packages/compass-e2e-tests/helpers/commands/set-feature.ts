@@ -11,21 +11,31 @@ export async function setFeature<K extends keyof UserPreferences>(
   value: UserPreferences[K]
 ): Promise<void> {
   if (isTestingWeb()) {
-    // When running in Compass web we cannot use the IPC to update the
-    // preferences so we use a global function.
-    await browser.execute(
-      async (_name, _value) => {
-        const attributes: Partial<AllPreferences> = {
-          [_name]: _value === null ? undefined : _value,
-        };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (globalThis as any).__compassWebE2ETestSavePreferences(
-          attributes
-        );
-      },
-      name,
-      value
-    );
+    await browser.waitUntil(async function () {
+      // When running in Compass web we cannot use the IPC to update the
+      // preferences so we use a global function.
+      const didSavePreference = await browser.execute(
+        async (_name, _value) => {
+          if (!(globalThis as any).__compassWebE2ETestSavePreferences) {
+            return false;
+          }
+
+          const attributes: Partial<AllPreferences> = {
+            [_name]: _value === null ? undefined : _value,
+          };
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (globalThis as any).__compassWebE2ETestSavePreferences(
+            attributes
+          );
+
+          return true;
+        },
+        name,
+        value
+      );
+
+      return didSavePreference;
+    });
     return;
   }
 
