@@ -90,7 +90,7 @@ function updateSubmenu(
         enabled: false,
       }
     : {
-        label: 'Restart',
+        label: 'Restart to Update',
         click() {
           compassApp.emit('menu-request-restart');
         },
