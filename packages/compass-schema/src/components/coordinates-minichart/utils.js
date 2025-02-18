@@ -12,7 +12,7 @@ export async function _getHereTileBoxes() {
   const rawTileBoxes = await fetch(COPYRIGHT_URL).then((response) =>
     response.json()
   );
-  const result = rawTileBoxes.copyrights.in
+  const result = [...rawTileBoxes.copyrights.in, ...rawTileBoxes.copyrights.jp, ...rawTileBoxes.copyrights.dtm]
     .map((notice) => ({
       alt: notice.copyrightText,
       label: notice.label,
