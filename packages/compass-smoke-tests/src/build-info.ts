@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
 import { pick } from 'lodash';
+
+const debug = createDebug('compass:smoketests:build-info');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
@@ -142,7 +145,6 @@ export type PackageDetails = {
   kind: PackageKind;
   filename: string;
   autoUpdatable: boolean;
-  appName: string;
 } & (
   | {
       kind: 'windows_setup' | 'windows_msi' | 'windows_zip';
@@ -179,7 +181,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.installerOptions.name,
       autoUpdatable: kind === 'windows_setup',
     };
   } else if (kind === 'osx_dmg' || kind === 'osx_zip') {
@@ -188,7 +189,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.installerOptions.title,
       autoUpdatable: true,
     };
   } else if (kind === 'linux_deb' || kind === 'linux_tar') {
@@ -197,7 +197,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else if (kind === 'linux_rpm' || kind === 'rhel_tar') {
@@ -206,7 +205,6 @@ export function getPackageDetails(
       kind,
       buildInfo,
       filename: buildInfo[`${kind}_filename`],
-      appName: buildInfo.productName,
       autoUpdatable: false,
     };
   } else {
@@ -242,11 +240,11 @@ export function writeAndReadPackageDetails(
     arch: context.arch,
     out: path.resolve(context.sandboxPath, 'target.json'),
   };
-  console.log({ infoArgs });
+  debug({ infoArgs });
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
-  console.log(
+  debug(
     'info env vars',
     pick(process.env, [
       'HADRON_DISTRIBUTION',

@@ -36,7 +36,10 @@ import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../stores/store';
-import { startAnalysis, stopAnalysis } from '../stores/reducer';
+import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
+import { openExportSchema } from '../stores/schema-export-reducer';
+import ExportSchemaModal from './export-schema-modal';
+import ExportSchemaLegacyBanner from './export-schema-legacy-banner';
 
 const rootStyles = css({
   width: '100%',
@@ -373,6 +376,7 @@ const Schema: React.FunctionComponent<{
   schema: MongodbSchema | null;
   count?: number;
   resultId?: string;
+  onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
 }> = ({
@@ -380,6 +384,7 @@ const Schema: React.FunctionComponent<{
   errorMessage,
   schema,
   resultId,
+  onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
 }) => {
@@ -393,47 +398,55 @@ const Schema: React.FunctionComponent<{
     'enablePerformanceAdvisorBanner'
   );
 
+  const enableExportSchema = usePreference('enableExportSchema');
+
   return (
-    <div className={rootStyles}>
-      <WorkspaceContainer
-        toolbar={
-          <SchemaToolbar
-            onAnalyzeSchemaClicked={onApplyClicked}
-            onResetClicked={onApplyClicked}
-            analysisState={analysisState}
-            errorMessage={errorMessage || ''}
-            isOutdated={!!outdated}
-            sampleSize={schema ? schema.count : 0}
-            schemaResultId={resultId || ''}
-          />
-        }
-      >
-        <div className={contentStyles}>
-          {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
-          {analysisState === ANALYSIS_STATE_INITIAL && (
-            <InitialScreen onApplyClicked={onApplyClicked} />
-          )}
-          {analysisState === ANALYSIS_STATE_ANALYZING && (
-            <AnalyzingScreen onCancelClicked={onStopAnalysis} />
-          )}
-          {analysisState === ANALYSIS_STATE_COMPLETE && (
-            <FieldList schema={schema} analysisState={analysisState} />
-          )}
-        </div>
-      </WorkspaceContainer>
-    </div>
+    <>
+      <div className={rootStyles}>
+        <WorkspaceContainer
+          toolbar={
+            <SchemaToolbar
+              onAnalyzeSchemaClicked={onApplyClicked}
+              onExportSchemaClicked={onExportSchemaClicked}
+              onResetClicked={onApplyClicked}
+              analysisState={analysisState}
+              errorMessage={errorMessage || ''}
+              isOutdated={!!outdated}
+              sampleSize={schema ? schema.count : 0}
+              schemaResultId={resultId || ''}
+            />
+          }
+        >
+          <div className={contentStyles}>
+            {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
+            {analysisState === ANALYSIS_STATE_INITIAL && (
+              <InitialScreen onApplyClicked={onApplyClicked} />
+            )}
+            {analysisState === ANALYSIS_STATE_ANALYZING && (
+              <AnalyzingScreen onCancelClicked={onStopAnalysis} />
+            )}
+            {analysisState === ANALYSIS_STATE_COMPLETE && (
+              <FieldList schema={schema} analysisState={analysisState} />
+            )}
+          </div>
+        </WorkspaceContainer>
+      </div>
+      {enableExportSchema && <ExportSchemaModal />}
+      {enableExportSchema && <ExportSchemaLegacyBanner />}
+    </>
   );
 };
 
 export default connect(
   (state: RootState) => ({
-    analysisState: state.analysisState,
-    errorMessage: state.errorMessage,
-    schema: state.schema,
-    resultId: state.resultId,
+    analysisState: state.schemaAnalysis.analysisState,
+    errorMessage: state.schemaAnalysis.errorMessage,
+    schema: state.schemaAnalysis.schema,
+    resultId: state.schemaAnalysis.resultId,
   }),
   {
     onStartAnalysis: startAnalysis,
     onStopAnalysis: stopAnalysis,
+    onExportSchemaClicked: openExportSchema,
   }
 )(Schema);

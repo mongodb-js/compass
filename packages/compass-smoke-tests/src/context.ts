@@ -11,6 +11,7 @@ export type SmokeTestsContext = {
   localPackage?: boolean;
   tests: TestName[];
   skipCleanup: boolean;
+  skipUninstall: boolean;
 };
 
 export type SmokeTestsContextWithSandbox = SmokeTestsContext & {

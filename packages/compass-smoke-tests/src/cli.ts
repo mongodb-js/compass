@@ -2,12 +2,16 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { pick } from 'lodash';
+import createDebug from 'debug';
 import { SUPPORTED_TESTS } from './tests/types';
 import { type SmokeTestsContext } from './context';
 import { SUPPORTED_PACKAGES } from './packages';
 import { testTimeToFirstQuery } from './tests/time-to-first-query';
 import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
+import { deleteSandboxesDirectory } from './directories';
+
+const debug = createDebug('compass:smoketests');
 
 const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 const SUPPORTED_ARCHS = ['x64', 'arm64'] as const;
@@ -89,7 +93,12 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('skipCleanup', {
     type: 'boolean',
-    description: 'Do not delete the sandbox after a run',
+    description: 'Do not delete the sandboxes after a run',
+    default: false,
+  })
+  .option('skipUninstall', {
+    type: 'boolean',
+    description: 'Do not uninstall after a run',
     default: false,
   })
   .option('tests', {
@@ -103,9 +112,30 @@ const argv = yargs(hideBin(process.argv))
 async function run() {
   const context: SmokeTestsContext = argv.parseSync();
 
-  console.log(`Running tests`);
+  function cleanupMaybe() {
+    if (context.skipCleanup) {
+      console.log('Skipped cleanup of sandboxes');
+    } else {
+      debug('Cleaning up sandboxes');
+      try {
+        deleteSandboxesDirectory();
+      } catch (err) {
+        if (err instanceof Error) {
+          console.warn(`Failed cleaning sandboxes: ${err.message}`);
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
 
-  console.log(
+  process.once('SIGTERM', cleanupMaybe);
+  process.once('SIGINT', cleanupMaybe);
+  process.once('exit', cleanupMaybe);
+
+  debug(`Running tests`);
+
+  debug(
     'context',
     pick(context, [
       'forceDownload',
@@ -119,7 +149,7 @@ async function run() {
   );
 
   for (const testName of context.tests) {
-    console.log(testName);
+    debug(`Running ${testName}`);
 
     if (testName === 'time-to-first-query') {
       await testTimeToFirstQuery(context);
@@ -133,7 +163,7 @@ async function run() {
 
 run()
   .then(function () {
-    console.log('done');
+    debug('done');
   })
   .catch(function (err) {
     console.error(err.stack);

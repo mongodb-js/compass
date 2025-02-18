@@ -1,8 +1,8 @@
-import { isInternalFieldPath } from 'hadron-document';
 import type { AggregateOptions, Filter, Document } from 'mongodb';
-import mongodbSchema from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 import type {
   Schema,
+  SchemaAccessor,
   ArraySchemaType,
   DocumentSchemaType,
   SchemaField,
@@ -49,7 +49,7 @@ export const analyzeSchema = async (
     | undefined,
   aggregateOptions: AggregateOptions,
   { log, mongoLogId, debug }: Logger
-): Promise<Schema | null> => {
+): Promise<SchemaAccessor | undefined> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
       ns,
@@ -67,14 +67,13 @@ export const analyzeSchema = async (
         fallbackReadPreference: 'secondaryPreferred',
       }
     );
-    const schemaData = await mongodbSchema(docs);
-    schemaData.fields = schemaData.fields.filter(
-      ({ path }) => !isInternalFieldPath(path[0])
-    );
+    const schemaAccessor = await analyzeDocuments(docs, {
+      signal: abortSignal,
+    });
     log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
       ns,
     });
-    return schemaData;
+    return schemaAccessor;
   } catch (err: any) {
     log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', {
       ns,
@@ -82,7 +81,7 @@ export const analyzeSchema = async (
     });
     if (dataService.isCancelError(err)) {
       debug('caught background operation terminated error', err);
-      return null;
+      return;
     }
 
     const error = promoteMongoErrorCode(err);

@@ -2,14 +2,19 @@ import { activateSchemaPlugin } from './store';
 import type { SchemaStore, SchemaPluginServices } from './store';
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { startAnalysis, stopAnalysis } from './reducer';
+import { startAnalysis, stopAnalysis } from './schema-analysis-reducer';
 import Sinon from 'sinon';
+import {
+  changeExportSchemaFormat,
+  openExportSchema,
+} from './schema-export-reducer';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();
@@ -89,24 +94,26 @@ describe('Schema Store', function () {
     });
 
     it('defaults analysis state to initial', function () {
-      expect(store.getState().analysisState).to.equal(ANALYSIS_STATE_INITIAL);
+      expect(store.getState().schemaAnalysis.analysisState).to.equal(
+        ANALYSIS_STATE_INITIAL
+      );
     });
 
     it('defaults the error to empty', function () {
-      expect(store.getState().errorMessage).to.equal('');
+      expect(store.getState().schemaAnalysis.errorMessage).to.equal('');
     });
 
     it('defaults the schema to null', function () {
-      expect(store.getState().schema).to.equal(null);
+      expect(store.getState().schemaAnalysis.schema).to.equal(null);
     });
 
     it('runs analysis', async function () {
-      const oldResultId = store.getState().resultId;
+      const oldResultId = store.getState().schemaAnalysis.resultId;
       sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
       await store.dispatch(startAnalysis());
       expect(sampleStub).to.have.been.called;
       const { analysisState, errorMessage, schema, resultId } =
-        store.getState();
+        store.getState().schemaAnalysis;
       expect(analysisState).to.equal('complete');
       expect(!!errorMessage).to.be.false;
       expect(schema).not.to.be.null;
@@ -115,12 +122,68 @@ describe('Schema Store', function () {
 
     it('analysis can be aborted', async function () {
       const analysisPromise = store.dispatch(startAnalysis());
-      expect(store.getState().analysisState).to.equal('analyzing');
+      expect(store.getState().schemaAnalysis.analysisState).to.equal(
+        'analyzing'
+      );
       sampleStub.rejects(new Error('abort'));
       store.dispatch(stopAnalysis());
       isCancelErrorStub.returns(true);
       await analysisPromise;
-      expect(store.getState().analysisState).to.equal('initial');
+      expect(store.getState().schemaAnalysis.analysisState).to.equal('initial');
+    });
+
+    describe('schema export', function () {
+      describe('with an analyzed schema', function () {
+        beforeEach(async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          await store.dispatch(startAnalysis());
+        });
+
+        it('runs schema export formatting with the analyzed schema when opened', async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          expect(sampleStub).to.have.been.called;
+          expect(store.getState().schemaExport.exportStatus).to.equal(
+            'inprogress'
+          );
+          store.dispatch(openExportSchema());
+          await waitFor(() => {
+            expect(store.getState().schemaExport.exportStatus).to.equal(
+              'complete'
+            );
+          });
+          const { exportStatus, errorMessage, exportedSchema } =
+            store.getState().schemaExport;
+          expect(exportStatus).to.equal('complete');
+          expect(!!errorMessage).to.be.false;
+          expect(exportedSchema).not.to.be.undefined;
+          expect(JSON.parse(exportedSchema!).type).to.equal('object');
+          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(
+            'https://json-schema.org/draft/2020-12/schema'
+          );
+          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
+          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+            name: { type: 'string' },
+          });
+        });
+
+        it('runs schema export formatting with a new format', async function () {
+          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
+          expect(sampleStub).to.have.been.called;
+          const { exportStatus, errorMessage, exportedSchema } =
+            store.getState().schemaExport;
+          expect(exportStatus).to.equal('complete');
+          expect(!!errorMessage).to.be.false;
+          expect(exportedSchema).not.to.be.undefined;
+          expect(JSON.parse(exportedSchema!).type).to.equal(undefined);
+          expect(JSON.parse(exportedSchema!).bsonType).to.equal('object');
+          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(undefined);
+          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
+          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+            name: { bsonType: 'string' },
+          });
+        });
+      });
     });
 
     it('runs the analysis with fallback read pref secondaryPreferred', async function () {

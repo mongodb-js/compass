@@ -11,12 +11,14 @@ import Code, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
+export type { GlyphName } from '@leafygreen-ui/icon';
 import {
   AtlasNavGraphic,
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
@@ -49,6 +51,7 @@ import {
   TableBody,
   flexRender,
   useLeafyGreenTable,
+  getExpandedRowModel,
   getFilteredRowModel,
 } from '@leafygreen-ui/table';
 import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
@@ -169,6 +172,7 @@ export {
   InfoSprinkle,
   flexRender,
   useLeafyGreenTable,
+  getExpandedRowModel,
   getFilteredRowModel,
   type LgTableRowType,
   Combobox,

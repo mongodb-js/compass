@@ -18,6 +18,8 @@ import {
   Button,
   Icon,
   ButtonVariant,
+  cx,
+  Placeholder,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -38,6 +40,7 @@ import type { RootState, SidebarThunkAction } from '../../modules';
 import {
   type useConnectionsWithStatus,
   ConnectionStatus,
+  useConnectionsListLoadingStatus,
 } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
@@ -89,6 +92,10 @@ const connectionCountStyles = css({
   marginLeft: spacing[100],
 });
 
+const connectionCountDisabledStyles = css({
+  opacity: 0.6,
+});
+
 const noDeploymentStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
@@ -126,6 +133,7 @@ type ConnectionsNavigationComponentProps = {
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
   onConnect(info: ConnectionInfo): void;
+  onConnectInNewWindow(info: ConnectionInfo): void;
   onNewConnection(): void;
   onEditConnection(info: ConnectionInfo): void;
   onRemoveConnection(info: ConnectionInfo): void;
@@ -171,6 +179,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   isPerformanceTabSupported,
   onFilterChange,
   onConnect,
+  onConnectInNewWindow,
   onNewConnection,
   onEditConnection,
   onRemoveConnection,
@@ -305,7 +314,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       }
 
       return actions;
-    }, [supportsConnectionImportExport]);
+    }, [supportsConnectionImportExport, enableCreatingNewConnections]);
 
   const onConnectionItemAction = useCallback(
     (
@@ -339,6 +348,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'connection-connect':
           onConnect(item.connectionInfo);
+          return;
+        case 'connection-connect-in-new-window':
+          onConnectInNewWindow(item.connectionInfo);
           return;
         case 'edit-connection':
           onEditConnection(item.connectionInfo);
@@ -376,6 +388,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenConnectionInfo,
       onDisconnect,
       onConnect,
+      onConnectInNewWindow,
       onEditConnection,
       onCopyConnectionString,
       onToggleFavoriteConnectionInfo,
@@ -491,6 +504,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const isAtlasConnectionStorage = useContext(AtlasClusterConnectionsOnly);
 
+  const { isInitialLoad: isInitialConnectionsLoad } =
+    useConnectionsListLoadingStatus();
+
+  const connectionsCount = isInitialConnectionsLoad ? (
+    <span className={cx(connectionCountStyles, connectionCountDisabledStyles)}>
+      (…)
+    </span>
+  ) : connections.length !== 0 ? (
+    <span className={connectionCountStyles}>({connections.length})</span>
+  ) : undefined;
+
   return (
     <div className={connectionsContainerStyles}>
       <div
@@ -499,11 +523,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       >
         <Subtitle className={connectionListHeaderTitleStyles}>
           {isAtlasConnectionStorage ? 'Clusters' : 'Connections'}
-          {connections.length !== 0 && (
-            <span className={connectionCountStyles}>
-              ({connections.length})
-            </span>
-          )}
+          {connectionsCount}
         </Subtitle>
         <ItemActionControls<ConnectionListTitleActions>
           iconSize="xsmall"
@@ -514,27 +534,25 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           collapseAfter={2}
         ></ItemActionControls>
       </div>
-      {connections.length > 0 && (
-        <>
-          <NavigationItemsFilter
-            placeholder={
-              isAtlasConnectionStorage
-                ? 'Search clusters'
-                : 'Search connections'
-            }
-            filter={filter}
-            onFilterChange={onFilterChange}
-          />
-          <ConnectionsNavigationTree
-            connections={filtered || connections}
-            activeWorkspace={activeWorkspace}
-            onItemAction={onItemAction}
-            onItemExpand={onItemExpand}
-            expanded={expanded}
-          />
-        </>
-      )}
-      {connections.length === 0 && (
+      <NavigationItemsFilter
+        placeholder={
+          isAtlasConnectionStorage ? 'Search clusters' : 'Search connections'
+        }
+        filter={filter}
+        onFilterChange={onFilterChange}
+        disabled={isInitialConnectionsLoad || connections.length === 0}
+      />
+      {isInitialConnectionsLoad ? (
+        <ConnectionsPlaceholder></ConnectionsPlaceholder>
+      ) : connections.length > 0 ? (
+        <ConnectionsNavigationTree
+          connections={filtered || connections}
+          activeWorkspace={activeWorkspace}
+          onItemAction={onItemAction}
+          onItemExpand={onItemExpand}
+          expanded={expanded}
+        />
+      ) : connections.length === 0 ? (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">
             You have not connected to any deployments.
@@ -550,10 +568,36 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             </Button>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
+
+const placeholderListStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  // placeholder height that visually matches font size (16px) + vertical
+  // spacing (12px) to align it visually with real items
+  gridAutoRows: spacing[400] + spacing[300],
+  alignItems: 'center',
+  // navigation list padding + "empty" caret icon space (4px) to align it
+  // visually with real items
+  paddingLeft: spacing[400] + spacing[100],
+  paddingRight: spacing[400],
+});
+
+function ConnectionsPlaceholder() {
+  return (
+    <div
+      data-testid="connections-placeholder"
+      className={placeholderListStyles}
+    >
+      {Array.from({ length: 3 }, (_, index) => (
+        <Placeholder key={index} height={spacing[400]}></Placeholder>
+      ))}
+    </div>
+  );
+}
 
 const onRefreshDatabases = (connectionId: string): SidebarThunkAction<void> => {
   return (_dispatch, getState, { globalAppRegistry }) => {

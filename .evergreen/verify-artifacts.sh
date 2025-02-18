@@ -34,6 +34,13 @@ verify_using_gpg() {
 verify_using_powershell() {
   echo "Verifying $1 using powershell"
   powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+
+  # Get-AuthenticodeSignature just outputs text, it doesn't exit with a non-zero
+  # code if the file is not signed
+  if grep -q NotSigned "$TMP_FILE"; then
+    echo "File $1 is not signed"
+    exit 1
+  fi
 }
 
 verify_using_codesign() {

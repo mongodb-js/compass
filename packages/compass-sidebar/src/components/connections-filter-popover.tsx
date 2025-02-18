@@ -43,6 +43,7 @@ type ConnectionsFilterPopoverProps = PropsWithChildren<{
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
+  disabled?: boolean;
 }>;
 
 export default function ConnectionsFilterPopover({
@@ -50,6 +51,7 @@ export default function ConnectionsFilterPopover({
   setOpen,
   filter,
   onFilterChange,
+  disabled = false,
 }: ConnectionsFilterPopoverProps) {
   const onExcludeInactiveChange = useCallback(
     (excludeInactive: boolean) => {
@@ -103,6 +105,7 @@ export default function ConnectionsFilterPopover({
               active={open}
               aria-label="Filter connections"
               ref={ref}
+              disabled={disabled}
             >
               <Icon glyph="Filter" />
               {isActivated && (

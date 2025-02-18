@@ -1,5 +1,8 @@
-import type { MongoLogEntry } from 'mongodb-log-writer';
-import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
+import type { MongoLogEntry } from 'mongodb-log-writer/mongo-log-writer';
+import {
+  MongoLogWriter,
+  mongoLogId,
+} from 'mongodb-log-writer/mongo-log-writer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { AllPreferences } from 'compass-preferences-model';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -27,28 +28,34 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
 
 const testErrorMessage =
   'An error occurred during schema analysis: test error msg';
-
-const renderSchemaToolbar = (
-  props: Partial<ComponentProps<typeof SchemaToolbar>> = {}
-) => {
-  const queryBarProps = {};
-  render(
-    <MockQueryBarPlugin {...(queryBarProps as any)}>
-      <SchemaToolbar
-        analysisState="complete"
-        errorMessage={''}
-        isOutdated={false}
-        onAnalyzeSchemaClicked={() => {}}
-        onResetClicked={() => {}}
-        sampleSize={10}
-        schemaResultId="123"
-        {...props}
-      />
-    </MockQueryBarPlugin>
-  );
-};
+const exportSchemaTestId = 'open-schema-export-button';
 
 describe('SchemaToolbar', function () {
+  const renderSchemaToolbar = (
+    props: Partial<ComponentProps<typeof SchemaToolbar>> = {},
+    preferences: Partial<AllPreferences> = {}
+  ) => {
+    const queryBarProps = {};
+    render(
+      <MockQueryBarPlugin {...(queryBarProps as any)}>
+        <SchemaToolbar
+          analysisState="complete"
+          errorMessage={''}
+          isOutdated={false}
+          onAnalyzeSchemaClicked={() => {}}
+          onResetClicked={() => {}}
+          sampleSize={10}
+          schemaResultId="123"
+          onExportSchemaClicked={() => {}}
+          {...props}
+        />
+      </MockQueryBarPlugin>,
+      {
+        preferences,
+      }
+    );
+  };
+
   afterEach(function () {
     sinon.restore();
   });
@@ -97,5 +104,31 @@ describe('SchemaToolbar', function () {
   it('renders the query bar role', function () {
     renderSchemaToolbar();
     expect(screen.getByTestId('query-bar')).to.be.visible;
+  });
+
+  it('does not render the export schema button', function () {
+    renderSchemaToolbar({
+      sampleSize: 100,
+    });
+    expect(screen.getByText(/documents/)).to.be.visible;
+
+    expect(screen.queryByTestId(exportSchemaTestId)).to.not.exist;
+  });
+
+  describe('when rendered with the enableExportSchema feature flag true', function () {
+    beforeEach(function () {
+      renderSchemaToolbar(
+        {
+          sampleSize: 100,
+        },
+        {
+          enableExportSchema: true,
+        }
+      );
+    });
+
+    it('renders the export schema button', function () {
+      expect(screen.getByTestId(exportSchemaTestId)).to.be.visible;
+    });
   });
 });

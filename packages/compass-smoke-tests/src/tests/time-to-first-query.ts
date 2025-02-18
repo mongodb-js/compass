@@ -1,57 +1,57 @@
-import fs from 'node:fs';
+import createDebug from 'debug';
 import { type SmokeTestsContext } from '../context';
 import { execute } from '../execute';
 import { getInstaller } from '../installers';
 import { createSandbox } from '../directories';
 import { getTestSubject } from '../test-subject';
 
+const debug = createDebug('compass:smoketests:time-to-first-query');
+
 export async function testTimeToFirstQuery(context: SmokeTestsContext) {
   const sandboxPath = createSandbox();
-  const { kind, appName, filepath } = await getTestSubject({
+  const subject = await getTestSubject({
     ...context,
+    sandboxPath,
+  });
+  const { kind } = subject;
+
+  const install = getInstaller(kind);
+
+  debug('Installing');
+  const { appPath, appName, uninstall } = install({
+    ...subject,
     sandboxPath,
   });
 
   try {
-    const install = getInstaller(kind);
-
-    const { appPath, uninstall } = install({
-      appName,
-      filepath,
-      destinationPath: sandboxPath,
-    });
-
-    try {
-      execute(
-        'npm',
-        [
-          'run',
-          '--unsafe-perm',
-          'test-packaged',
-          '--workspace',
-          'compass-e2e-tests',
-          '--',
-          '--test-filter=time-to-first-query',
-        ],
-        {
-          // We need to use a shell to get environment variables setup correctly
-          shell: true,
-          env: {
-            ...process.env,
-            COMPASS_APP_NAME: appName,
-            COMPASS_APP_PATH: appPath,
-          },
-        }
-      );
-    } finally {
-      await uninstall();
-    }
+    debug('Executing');
+    execute(
+      'npm',
+      [
+        'run',
+        '--unsafe-perm',
+        'test-packaged',
+        '--workspace',
+        'compass-e2e-tests',
+        '--',
+        '--test-filter=time-to-first-query',
+      ],
+      {
+        // We need to use a shell to get environment variables setup correctly
+        shell: true,
+        env: {
+          ...process.env,
+          COMPASS_APP_NAME: appName,
+          COMPASS_APP_PATH: appPath,
+        },
+      }
+    );
   } finally {
-    if (context.skipCleanup) {
-      console.log(`Skipped cleaning up sandbox: ${sandboxPath}`);
+    if (context.skipUninstall) {
+      debug('Skipped uninstalling');
     } else {
-      console.log(`Cleaning up sandbox: ${sandboxPath}`);
-      fs.rmSync(sandboxPath, { recursive: true });
+      debug('Uninstalling');
+      await uninstall();
     }
   }
 }

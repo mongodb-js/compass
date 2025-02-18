@@ -93,7 +93,12 @@ export async function removeConnection(
   connectionName: string
 ): Promise<boolean> {
   // make sure there's no filter because if the connection is not displayed then we can't remove it
-  if (await browser.$(Selectors.SidebarFilterInput).isExisting()) {
+  if (
+    (await browser.$(Selectors.SidebarFilterInput).isExisting()) &&
+    (await browser
+      .$(Selectors.SidebarFilterInput)
+      .getAttribute('aria-disabled')) !== 'true'
+  ) {
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
 

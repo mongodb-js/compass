@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write # To create the new branch and push it
+  actions: write # To trigger the codeql action for the commit from which we're releasing
 
 jobs:
   startRelease:

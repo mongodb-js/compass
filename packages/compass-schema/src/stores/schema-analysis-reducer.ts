@@ -1,5 +1,6 @@
 import type { Schema } from 'mongodb-schema';
-import type { Action, AnyAction, Reducer } from 'redux';
+import { isInternalFieldPath } from 'hadron-document';
+import type { Action, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
@@ -16,55 +17,53 @@ import {
   schemaContainsGeoData,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
-import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
 import { UUID } from 'bson';
+import { isAction } from '../utils';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
-
-export type SchemaState = {
+export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
   resultId: string;
 };
 
-export const enum SchemaActions {
-  analysisStarted = 'schema-service/schema/analysisStarted',
-  analysisFinished = 'schema-service/schema/analysisFinished',
-  analysisFailed = 'schema-service/schema/analysisFailed',
+export const enum SchemaAnalysisActions {
+  analysisStarted = 'schema-service/schema-analysis/analysisStarted',
+  analysisFinished = 'schema-service/schema-analysis/analysisFinished',
+  analysisFailed = 'schema-service/schema-analysis/analysisFailed',
 }
 
 export type AnalysisStartedAction = {
-  type: SchemaActions.analysisStarted;
+  type: SchemaAnalysisActions.analysisStarted;
 };
 
 export type AnalysisFinishedAction = {
-  type: SchemaActions.analysisFinished;
+  type: SchemaAnalysisActions.analysisFinished;
   schema: Schema | null;
 };
 
 export type AnalysisFailedAction = {
-  type: SchemaActions.analysisFailed;
+  type: SchemaAnalysisActions.analysisFailed;
   error: Error;
 };
 
-const reducer: Reducer<SchemaState, Action> = (
+export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   state = getInitialState(),
   action
 ) => {
-  if (isAction<AnalysisStartedAction>(action, SchemaActions.analysisStarted)) {
+  if (
+    isAction<AnalysisStartedAction>(
+      action,
+      SchemaAnalysisActions.analysisStarted
+    )
+  ) {
     return {
       ...state,
       analysisState: ANALYSIS_STATE_ANALYZING,
@@ -74,7 +73,10 @@ const reducer: Reducer<SchemaState, Action> = (
   }
 
   if (
-    isAction<AnalysisFinishedAction>(action, SchemaActions.analysisFinished)
+    isAction<AnalysisFinishedAction>(
+      action,
+      SchemaAnalysisActions.analysisFinished
+    )
   ) {
     return {
       ...state,
@@ -86,7 +88,9 @@ const reducer: Reducer<SchemaState, Action> = (
     };
   }
 
-  if (isAction<AnalysisFailedAction>(action, SchemaActions.analysisFailed)) {
+  if (
+    isAction<AnalysisFailedAction>(action, SchemaAnalysisActions.analysisFailed)
+  ) {
     return {
       ...state,
       ...getErrorState(action.error),
@@ -116,53 +120,7 @@ function resultId(): string {
   return new UUID().toString();
 }
 
-export const handleSchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const { schema } = getState();
-    const hasSchema = schema !== null;
-    if (hasSchema) {
-      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
-    }
-    dispatch(_trackSchemaShared(hasSchema));
-    openToast(
-      'share-schema',
-      hasSchema
-        ? {
-            variant: 'success',
-            title: 'Schema Copied',
-            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
-            timeout: 5_000,
-          }
-        : {
-            variant: 'warning',
-            title: 'Analyze Schema First',
-            description: 'Please Analyze the Schema First from the Schema Tab.',
-            timeout: 5_000,
-          }
-    );
-  };
-};
-
-export const _trackSchemaShared = (
-  hasSchema: boolean
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const { schema } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = () => ({
-      has_schema: hasSchema,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-    });
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
-  };
-};
-
-const getInitialState = (): SchemaState => ({
+const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   errorMessage: '',
   schema: null,
@@ -207,9 +165,9 @@ export const geoLayersDeleted = (
 };
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef.current) return;
-    abortControllerRef.current?.abort();
+  return (dispatch, getState, { analysisAbortControllerRef }) => {
+    if (!analysisAbortControllerRef.current) return;
+    analysisAbortControllerRef.current?.abort();
   };
 };
 
@@ -227,14 +185,17 @@ export const startAnalysis = (): SchemaThunkAction<
       dataService,
       logger,
       fieldStoreService,
-      abortControllerRef,
+      analysisAbortControllerRef,
+      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
       track,
     }
   ) => {
-    const { analysisState } = getState();
+    const {
+      schemaAnalysis: { analysisState },
+    } = getState();
     if (analysisState === ANALYSIS_STATE_ANALYZING) {
       debug('analysis already in progress. ignoring subsequent start');
       return;
@@ -255,16 +216,16 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
+    analysisAbortControllerRef.current = new AbortController();
+    const abortSignal = analysisAbortControllerRef.current.signal;
+
     try {
       debug('analysis started');
 
-      abortControllerRef.current = new AbortController();
-      const abortSignal = abortControllerRef.current.signal;
-
-      dispatch({ type: SchemaActions.analysisStarted });
+      dispatch({ type: SchemaAnalysisActions.analysisStarted });
 
       const analysisStartTime = Date.now();
-      const schema = await analyzeSchema(
+      const schemaAccessor = await analyzeSchema(
         dataService,
         abortSignal,
         namespace,
@@ -272,13 +233,24 @@ export const startAnalysis = (): SchemaThunkAction<
         driverOptions,
         logger
       );
+      schemaAccessorRef.current = schemaAccessor;
+      let schema: Schema | null = null;
+      if (schemaAccessor) {
+        schema = await schemaAccessor.getInternalSchema();
+        schema.fields = schema.fields.filter(
+          ({ path }) => !isInternalFieldPath(path[0])
+        );
+      }
       const analysisTime = Date.now() - analysisStartTime;
 
       if (schema !== null) {
         fieldStoreService.updateFieldsFromSchema(namespace, schema);
       }
 
-      dispatch({ type: SchemaActions.analysisFinished, schema });
+      dispatch({
+        type: SchemaAnalysisActions.analysisFinished,
+        schema,
+      });
 
       // track schema analyzed
       const trackEvent = () => ({
@@ -300,11 +272,12 @@ export const startAnalysis = (): SchemaThunkAction<
           error: err.stack,
         }
       );
-      dispatch({ type: SchemaActions.analysisFailed, error: err as Error });
+      dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: err as Error,
+      });
     } finally {
-      abortControllerRef.current = undefined;
+      analysisAbortControllerRef.current = undefined;
     }
   };
 };
-
-export default reducer;

@@ -84,8 +84,10 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     proxy: string;
   };
 
+/**
+ * Internally used preferences that are not configurable
+ */
 export type InternalUserPreferences = {
-  // These are internally used preferences that are not configurable
   // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
@@ -98,6 +100,8 @@ export type InternalUserPreferences = {
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
   userCreatedAt: number;
+  // TODO: Remove this as part of COMPASS-8970.
+  enableConnectInNewWindow: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -405,6 +409,18 @@ export const storedUserPreferencesProps: Required<{
     type: 'number',
   },
   /**
+   * Enables a dropdown in the connections sidebar to connect in a new window.
+   * TODO: Remove this as part of COMPASS-8970.
+   */
+  enableConnectInNewWindow: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
    * Enable/disable the AI services. This is currently set
    * in the atlas-service initialization where we make a request to the
    * ai endpoint to check what's enabled for the user (incremental rollout).
@@ -562,7 +578,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Default Sort for Query Bar',
-      long: "All queries executed from the query bar will apply the sort order '$natural: -1'.",
+      long: 'All queries executed from the query bar will apply this sort.',
       options: {
         '': {
           label: '$natural: 1 (MongoDB server default)',

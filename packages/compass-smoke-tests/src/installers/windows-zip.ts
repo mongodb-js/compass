@@ -1,22 +1,27 @@
+import assert from 'node:assert/strict';
 import path from 'node:path';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 
 export function installWindowsZIP({
-  appName,
+  kind,
   filepath,
-  destinationPath,
+  sandboxPath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
-  const appPath = path.resolve(destinationPath, `${appName}.exe`);
+  assert.equal(kind, 'windows_zip');
+  const appName = buildInfo.installerOptions.name;
+  const appPath = path.resolve(sandboxPath, `${appName}.exe`);
 
-  execute('unzip', [filepath, '-d', destinationPath]);
+  execute('unzip', [filepath, '-d', sandboxPath]);
 
   // see if the executable will run without being quarantined or similar
   execute(appPath, ['--version']);
 
   return {
-    appPath: destinationPath,
+    appName,
+    appPath: sandboxPath,
     uninstall: async function () {
       /* TODO */
     },

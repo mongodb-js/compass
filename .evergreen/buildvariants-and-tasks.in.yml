@@ -61,24 +61,24 @@ const PACKAGE_BUILD_VARIANTS = [
 ];
 
 const SMOKETEST_BUILD_VARIANTS = [
-//  {
-//    name: 'smoketest-ubuntu',
-//    display_name: 'Smoketest Ubuntu',
-//    run_on: 'ubuntu2004-large',
-//    depends_on: 'package-ubuntu',
-//  },
+  {
+    name: 'smoketest-ubuntu',
+    display_name: 'Smoketest Ubuntu',
+    run_on: 'ubuntu2004-large',
+    depends_on: 'package-ubuntu',
+  },
   {
     name: 'smoketest-windows',
     display_name: 'Smoketest Windows',
     run_on: 'windows-vsCurrent-large',
     depends_on: 'package-windows',
   },
-//  {
-//    name: 'smoketest-rhel',
-//    display_name: 'Smoketest RHEL',
-//    run_on: 'rhel80-large',
-//    depends_on: 'package-rhel',
-//  },
+  {
+    name: 'smoketest-rhel',
+    display_name: 'Smoketest RHEL',
+    run_on: 'rhel80-large',
+    depends_on: 'package-rhel',
+  },
   {
     name: 'smoketest-macos-x64',
     display_name: 'Smoketest MacOS Intel',
