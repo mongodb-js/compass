@@ -61,25 +61,24 @@ const PACKAGE_BUILD_VARIANTS = [
 ];
 
 const SMOKETEST_BUILD_VARIANTS = [
-//  {
-//    name: 'smoketest-ubuntu',
-//    display_name: 'Smoketest Ubuntu',
-//    run_on: 'ubuntu2004-large',
-//    depends_on: 'package-ubuntu',
-//  },
-  
-//  {
-//    name: 'smoketest-windows',
-//    display_name: 'Smoketest Windows',
-//    run_on: 'windows-vsCurrent-large',
-//    depends_on: 'package-windows',
-//  },
-//  {
-//    name: 'smoketest-rhel',
-//    display_name: 'Smoketest RHEL',
-//    run_on: 'rhel80-large',
-//    depends_on: 'package-rhel',
-//  },
+  {
+    name: 'smoketest-ubuntu',
+    display_name: 'Smoketest Ubuntu',
+    run_on: 'ubuntu2004-large',
+    depends_on: 'package-ubuntu',
+  },
+  {
+    name: 'smoketest-windows',
+    display_name: 'Smoketest Windows',
+    run_on: 'windows-vsCurrent-large',
+    depends_on: 'package-windows',
+  },
+  {
+    name: 'smoketest-rhel',
+    display_name: 'Smoketest RHEL',
+    run_on: 'rhel80-large',
+    depends_on: 'package-rhel',
+  },
   {
     name: 'smoketest-macos-x64',
     display_name: 'Smoketest MacOS Intel',
@@ -161,6 +160,9 @@ const MAINTAINED_SERVER_VERSIONS = [
   { name: '80x-enterprise', version: '8.0.x-enterprise' },
 ];
 
+const LATEST_MAINTAINED_SERVER_VERSION =
+  MAINTAINED_SERVER_VERSIONS[MAINTAINED_SERVER_VERSIONS.length - 1];
+
 const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise' };
 
 const SERVER_VERSIONS = [
@@ -223,7 +225,7 @@ buildvariants:
       - name: package-<%= distribution %>
         variant: <%= buildVariant.depends_on %>
     tasks:
-    - name: smoketest-<%= distribution %>
+      - name: smoketest-<%= distribution %>
 <% } %>
 <% } %>
 
@@ -288,7 +290,6 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: publish
-      - name: publish-packages-next
       - name: publish-dev-release-info
       - name: create_static_analysis_report
 
@@ -359,6 +360,7 @@ tasks:
       - func: test
         vars:
           debug: 'hadron*,mongo*'
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-electron
     tags: ['required-for-publish', 'run-on-pr']
@@ -369,6 +371,7 @@ tasks:
       - func: test-electron
         vars:
           debug: 'hadron*,mongo*'
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-connectivity
     tags: ['required-for-publish', 'run-on-pr']
@@ -377,6 +380,7 @@ tasks:
       - func: test-connectivity
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-csfle
     tags: ['required-for-publish', 'run-on-pr']
@@ -387,6 +391,7 @@ tasks:
       - func: test-csfle
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
 <% for(const group of E2E_TEST_GROUPS) { %>
   - name: e2e-coverage-<%= group.number %>
@@ -400,6 +405,7 @@ tasks:
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 <% } %>
 
   - name: generate-vulnerability-report
@@ -429,17 +435,6 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
-
-  - name: publish-packages-next
-    tags: []
-    depends_on:
-      - name: '.required-for-publish'
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: publish-packages-next
 
   - name: publish-dev-release-info
     tags: []
@@ -484,7 +479,7 @@ tasks:
           scope: 'compass-e2e-tests'
       - func: smoketest-packaged-app
         vars:
-          mongodb_version: latest-enterprise
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
           compass_distribution: <%= distribution %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
@@ -538,7 +533,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars:
-          mongodb_version: latest-enterprise
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
           compass_distribution: compass
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
@@ -564,7 +559,7 @@ tasks:
           compass_distribution: compass
       - func: test-web-sandbox
         vars:
-          mongodb_version: latest-enterprise
+          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
           browser_name: '<%= browser %>'
           compass_distribution: compass
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>

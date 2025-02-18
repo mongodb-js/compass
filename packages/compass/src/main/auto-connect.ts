@@ -5,6 +5,7 @@ import { hasDisallowedConnectionStringOptions } from './validate-connection-stri
 import COMPASS_ICON from './icon';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { UUID } from 'bson';
 const { log } = createLogger('COMPASS-AUTO-CONNECT-MAIN');
 
 export type AutoConnectPreferences = Partial<
@@ -22,7 +23,7 @@ export type AutoConnectPreferences = Partial<
 let autoConnectWindow: BrowserWindow['id'] | undefined = undefined;
 const browserWindowStates = new Map<
   BrowserWindow['id'],
-  { url?: string; disconnected?: boolean }
+  { url?: string; connectionId?: string; disconnected?: boolean }
 >();
 
 export function resetForTesting(): void {
@@ -73,6 +74,16 @@ export function registerMongoDbUrlForBrowserWindow(
   browserWindowStates.set(bw.id, { url });
 }
 
+export function registerConnectionIdForBrowserWindow(
+  bw: Pick<BrowserWindow, 'id'> | undefined | null,
+  connectionId: string
+): void {
+  if (!bw) {
+    return;
+  }
+  browserWindowStates.set(bw.id, { connectionId });
+}
+
 export const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
 
 const shouldPreventAutoConnect = async ({
@@ -111,6 +122,14 @@ export async function getWindowAutoConnectPreferences(
 
   const windowState = browserWindowStates.get(id);
 
+  // Auto connect to any connection ID, right away
+  if (windowState?.connectionId) {
+    return {
+      positionalArguments: [windowState.connectionId],
+      shouldAutoConnect: true,
+    };
+  }
+
   // Do not auto-connect in Compass windows other than the primary/first-created one.
   // Do auto-connect if this is a new window on macos that has been opened via open-url.
   if (autoConnectWindow !== id && !windowState?.url) {
@@ -133,10 +152,10 @@ export async function getWindowAutoConnectPreferences(
   }
 
   if (windowState?.url) {
-    return Promise.resolve({
+    return {
       positionalArguments: [windowState.url],
       shouldAutoConnect: true,
-    });
+    };
   }
 
   const {
@@ -147,6 +166,18 @@ export async function getWindowAutoConnectPreferences(
     password,
     trustedConnectionString,
   } = preferences.getPreferences();
+
+  // Auto connect to any connection ID, right away
+  if (
+    !file &&
+    positionalArguments?.length === 1 &&
+    UUID.isValid(positionalArguments[0])
+  ) {
+    return {
+      positionalArguments: [positionalArguments[0]],
+      shouldAutoConnect: true,
+    };
+  }
 
   // The about: accounts for webdriverio in the e2e tests appending the argument for every run
   if (

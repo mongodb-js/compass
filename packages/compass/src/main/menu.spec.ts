@@ -287,10 +287,7 @@ describe('CompassMenu', function () {
       }
     });
 
-    it('should generate a menu template for darwin', async function () {
-      await App.preferences.savePreferences({
-        enableMultipleConnectionSystem: true,
-      });
+    it('should generate a menu template for darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
       expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
         {
@@ -414,7 +411,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',
@@ -448,7 +445,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',

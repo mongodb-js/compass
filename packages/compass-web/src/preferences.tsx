@@ -37,7 +37,6 @@ export function useCompassWebPreferences(
 ): React.MutableRefObject<CompassWebPreferencesAccess> {
   const preferencesAccess = useRef(
     new CompassWebPreferencesAccess({
-      maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
@@ -47,7 +46,6 @@ export function useCompassWebPreferences(
       enableGenAIFeaturesAtlasProject: false,
       enableGenAISampleDocumentPassingOnAtlasProject: false,
       enableGenAIFeaturesAtlasOrg: false,
-      enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
@@ -58,6 +56,7 @@ export function useCompassWebPreferences(
       enableCreatingNewConnections: false,
       enableGlobalWrites: false,
       optInDataExplorerGenAIFeatures: false,
+      enableConnectInNewWindow: false,
       ...initialPreferences,
     })
   );

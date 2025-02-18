@@ -202,8 +202,8 @@ function CompassWorkspace({
             renderSidebar={() => {
               return (
                 <CompassSidebarPlugin
-                  showSidebarHeader={false}
                   onOpenConnectViaModal={onOpenConnectViaModal}
+                  isCompassWeb={true}
                 ></CompassSidebarPlugin>
               );
             }}

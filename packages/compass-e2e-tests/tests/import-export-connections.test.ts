@@ -118,7 +118,7 @@ describe('Connection Import / Export', function () {
 
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Selectors.Multiple.RemoveConnectionItem
+      Selectors.RemoveConnectionItem
     );
 
     await waitForConnections();
@@ -148,9 +148,7 @@ describe('Connection Import / Export', function () {
           const { browser } = compass;
 
           // open the connection modal so we can fill in the connection string
-          await browser.clickVisible(
-            Selectors.Multiple.SidebarNewConnectionButton
-          );
+          await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
           await browser.setValueVisible(
             Selectors.ConnectionFormStringInput,
@@ -197,7 +195,7 @@ describe('Connection Import / Export', function () {
           const { browser } = compass;
           await browser.selectConnectionMenuItem(
             favoriteName,
-            Selectors.Multiple.RemoveConnectionItem
+            Selectors.RemoveConnectionItem
           );
           await waitForConnections();
         } finally {
@@ -251,7 +249,7 @@ describe('Connection Import / Export', function () {
       browser = compass.browser;
 
       // open the connection modal so we can fill in the connection string
-      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+      await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
       await browser.setValueVisible(
         Selectors.ConnectionFormStringInput,
@@ -276,8 +274,6 @@ describe('Connection Import / Export', function () {
 
     for (const variant of variants) {
       it(`supports exporting and importing connections in ${variant} mode`, async function () {
-        const Sidebar = Selectors.Multiple;
-
         {
           // Make sure file exists so that the file picker works. We could also do work
           // similar to what we do for collection data export, where we add special listeners
@@ -290,7 +286,7 @@ describe('Connection Import / Export', function () {
         // Open export modal
         {
           await browser.selectConnectionsMenuItem(
-            Sidebar.ExportConnectionsModalOpen
+            Selectors.ExportConnectionsModalOpen
           );
           await browser.$(Selectors.ExportConnectionsModal).waitForDisplayed();
         }
@@ -352,7 +348,7 @@ describe('Connection Import / Export', function () {
         // Open import modal
         {
           await browser.selectConnectionsMenuItem(
-            Sidebar.ImportConnectionsModalOpen
+            Selectors.ImportConnectionsModalOpen
           );
           await browser.$(Selectors.ImportConnectionsModal).waitForDisplayed();
         }

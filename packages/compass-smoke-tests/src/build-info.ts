@@ -1,21 +1,27 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
-import { type SmokeTestsContext } from './context';
+import { type SmokeTestsContextWithSandbox } from './context';
 import { pick } from 'lodash';
 
-function assertObjectHasKeys(
-  obj: unknown,
-  name: string,
-  keys: readonly string[]
-) {
+const debug = createDebug('compass:smoketests:build-info');
+
+const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
+
+export type Channel = typeof SUPPORTED_CHANNELS[number];
+
+function assertObjectHasKeys<
+  Keys extends readonly string[],
+  Obj extends Record<Keys[number], unknown>
+>(obj: unknown, name: string, keys: Keys): asserts obj is Obj {
   assert(
     typeof obj === 'object' && obj !== null,
-    'Expected buildInfo to be an object'
+    `Expected ${name} to be an object`
   );
 
   for (const key of keys) {
@@ -25,13 +31,21 @@ function assertObjectHasKeys(
 
 // subsets of the hadron-build info result
 
-export const commonKeys = ['productName'] as const;
-export type CommonBuildInfo = Record<typeof commonKeys[number], string>;
+export const commonKeys = ['productName', 'version', 'channel'] as const;
+export type CommonBuildInfo = Record<typeof commonKeys[number], string> & {
+  channel: Channel;
+};
 
 export function assertCommonBuildInfo(
   buildInfo: unknown
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
+  assert(
+    SUPPORTED_CHANNELS.includes(buildInfo.channel as Channel),
+    `Expected ${JSON.stringify(
+      buildInfo.channel
+    )} to be in ${SUPPORTED_CHANNELS.join(',')}`
+  );
 }
 
 export const windowsFilenameKeys = [
@@ -41,13 +55,32 @@ export const windowsFilenameKeys = [
   'windows_nupkg_full_filename',
 ] as const;
 export type WindowsBuildInfo = CommonBuildInfo &
-  Record<typeof windowsFilenameKeys[number], string>;
+  Record<typeof windowsFilenameKeys[number], string> & {
+    installerOptions: {
+      name: string;
+    };
+  };
 
 export function assertBuildInfoIsWindows(
   buildInfo: unknown
 ): asserts buildInfo is WindowsBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', windowsFilenameKeys);
+  assert(typeof buildInfo === 'object', 'Expected buildInfo to be an object');
+  assert(buildInfo !== null, 'Expected buildInfo to be an object');
+  assert(
+    'installerOptions' in buildInfo &&
+      typeof buildInfo.installerOptions === 'object',
+    'Expected buildInfo.installerOptions to be an object'
+  );
+  const { installerOptions } = buildInfo;
+  assert(
+    typeof installerOptions === 'object' &&
+      installerOptions !== null &&
+      'name' in installerOptions &&
+      typeof installerOptions.name === 'string',
+    'Expected buildInfo.installerOptions.name to be a string'
+  );
 }
 
 export const osxFilenameKeys = [
@@ -55,13 +88,32 @@ export const osxFilenameKeys = [
   'osx_zip_filename',
 ] as const;
 export type OSXBuildInfo = CommonBuildInfo &
-  Record<typeof osxFilenameKeys[number], string>;
+  Record<typeof osxFilenameKeys[number], string> & {
+    installerOptions: {
+      title: string;
+    };
+  };
 
 export function assertBuildInfoIsOSX(
   buildInfo: unknown
 ): asserts buildInfo is OSXBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
   assertObjectHasKeys(buildInfo, 'buildInfo', osxFilenameKeys);
+  assert(typeof buildInfo === 'object', 'Expected buildInfo to be an object');
+  assert(buildInfo !== null, 'Expected buildInfo to be an object');
+  assert(
+    'installerOptions' in buildInfo &&
+      typeof buildInfo.installerOptions === 'object',
+    'Expected buildInfo.installerOptions to be an object'
+  );
+  const { installerOptions } = buildInfo;
+  assert(
+    typeof installerOptions === 'object' &&
+      installerOptions !== null &&
+      'title' in installerOptions &&
+      typeof installerOptions.title === 'string',
+    'Expected buildInfo.installerOptions.title to be a string'
+  );
 }
 
 export const ubuntuFilenameKeys = [
@@ -178,7 +230,7 @@ export function readPackageDetails(
 }
 
 export function writeAndReadPackageDetails(
-  context: SmokeTestsContext
+  context: SmokeTestsContextWithSandbox
 ): PackageDetails {
   const compassDir = path.resolve(__dirname, '../../compass');
   const infoArgs = {
@@ -188,11 +240,11 @@ export function writeAndReadPackageDetails(
     arch: context.arch,
     out: path.resolve(context.sandboxPath, 'target.json'),
   };
-  console.log({ infoArgs });
+  debug({ infoArgs });
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
-  console.log(
+  debug(
     'info env vars',
     pick(process.env, [
       'HADRON_DISTRIBUTION',

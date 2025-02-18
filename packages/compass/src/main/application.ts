@@ -160,9 +160,7 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
-    // toasts will obscure other things which we don't expect yet.
-    if (!process.env.CI) {
+    if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
       this.setupAutoUpdate();
     }
     await setupCSFLELibrary();
@@ -383,9 +381,6 @@ class CompassApplication {
     event: 'show-log-file-dialog',
     handler: () => void
   ): typeof CompassApplication;
-  // @ts-expect-error typescript is not happy with this overload even though it
-  //                  worked when it wasn't static and the implementation does
-  //                  match the overload declaration
   static on(
     event: 'new-window',
     handler: (bw: BrowserWindow) => void
@@ -404,7 +399,7 @@ class CompassApplication {
   ): typeof CompassApplication;
   static on(
     event: string,
-    handler: (...args: unknown[]) => void
+    handler: (...args: any[]) => void
   ): typeof CompassApplication {
     this.emitter.on(event, handler);
     return this;

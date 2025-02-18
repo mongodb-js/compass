@@ -71,6 +71,7 @@ export enum WorkspacesActions {
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
   ConnectionDisconnected = 'compass-workspaces/ConnectionDisconnected',
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
+  FetchDatabaseTabInfo = 'compass-workspaces/FetchDatabaseTabInfo',
   CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
 }
 
@@ -100,6 +101,11 @@ export type CollectionTabInfo = {
   isTimeSeries: boolean;
   isReadonly: boolean;
   sourceName?: string | null;
+  isNonExistent: boolean;
+};
+
+export type DatabaseTabInfo = {
+  isNonExistent: boolean;
 };
 
 export type WorkspacesState = {
@@ -116,6 +122,11 @@ export type WorkspacesState = {
    * icon)
    */
   collectionInfo: Record<string, CollectionTabInfo>;
+  /**
+   * Extra info for the collections tab namespace (where we show collections
+   * of a database)
+   */
+  databaseInfo: Record<string, DatabaseTabInfo>;
 };
 
 const getTabId = () => {
@@ -236,6 +247,7 @@ const getInitialState = () => {
     tabs: [] as WorkspaceTab[],
     activeTabId: null,
     collectionInfo: {},
+    databaseInfo: {},
   };
 };
 
@@ -568,7 +580,22 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...state,
       collectionInfo: {
         ...state.collectionInfo,
-        [action.namespace]: action.info,
+        [action.namespaceId]: action.info,
+      },
+    };
+  }
+
+  if (
+    isAction<FetchDatabaseInfoAction>(
+      action,
+      WorkspacesActions.FetchDatabaseTabInfo
+    )
+  ) {
+    return {
+      ...state,
+      databaseInfo: {
+        ...state.databaseInfo,
+        [action.namespaceId]: action.info,
       },
     };
   }
@@ -639,8 +666,16 @@ type OpenWorkspaceAction = {
 
 type FetchCollectionInfoAction = {
   type: WorkspacesActions.FetchCollectionTabInfo;
-  namespace: string;
+  // This uniquely identifies the collection tab for a given connection
+  namespaceId: string;
   info: CollectionTabInfo;
+};
+
+type FetchDatabaseInfoAction = {
+  type: WorkspacesActions.FetchDatabaseTabInfo;
+  // This uniquely identifies the database tab for a given connection
+  namespaceId: string;
+  info: DatabaseTabInfo;
 };
 
 export type TabOptions = {
@@ -652,6 +687,15 @@ export type TabOptions = {
   newTab?: boolean;
 };
 
+export const updateCollectionInfo = (
+  namespaceId: string,
+  info: CollectionTabInfo
+): FetchCollectionInfoAction => ({
+  type: WorkspacesActions.FetchCollectionTabInfo,
+  namespaceId,
+  info,
+});
+
 const fetchCollectionInfo = (
   workspaceOptions: Extract<OpenWorkspaceOptions, { type: 'Collection' }>
 ): WorkspacesThunkAction<Promise<void>, FetchCollectionInfoAction> => {
@@ -660,7 +704,8 @@ const fetchCollectionInfo = (
     getState,
     { connections, instancesManager, logger }
   ) => {
-    if (getState().collectionInfo[workspaceOptions.namespace]) {
+    const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
+    if (getState().collectionInfo[namespaceId]) {
       return;
     }
 
@@ -683,21 +728,71 @@ const fetchCollectionInfo = (
 
       if (coll) {
         await coll.fetch({ dataService });
-        dispatch({
-          type: WorkspacesActions.FetchCollectionTabInfo,
-          namespace: workspaceOptions.namespace,
-          info: {
-            isTimeSeries: coll.isTimeSeries,
-            isReadonly: coll.readonly ?? coll.isView,
-            sourceName: coll.sourceName,
-          },
-        });
+        const info = {
+          isTimeSeries: coll.isTimeSeries,
+          isReadonly: coll.readonly ?? coll.isView,
+          sourceName: coll.sourceName,
+          isNonExistent: coll.is_non_existent,
+        };
+        dispatch(updateCollectionInfo(namespaceId, info));
       }
     } catch (err) {
       logger.debug(
         'Collection Metadata',
         logger.mongoLogId(1_001_000_306),
         'Error fetching collection metadata for tab',
+        { namespace: workspaceOptions.namespace },
+        err
+      );
+    }
+  };
+};
+
+export const updateDatabaseInfo = (
+  namespaceId: string,
+  info: DatabaseTabInfo
+): FetchDatabaseInfoAction => ({
+  type: WorkspacesActions.FetchDatabaseTabInfo,
+  namespaceId,
+  info,
+});
+
+const fetchDatabaseInfo = (
+  workspaceOptions: Extract<OpenWorkspaceOptions, { type: 'Collections' }>
+): WorkspacesThunkAction<Promise<void>, FetchDatabaseInfoAction> => {
+  return async (
+    dispatch,
+    getState,
+    { connections, instancesManager, logger }
+  ) => {
+    const { databaseInfo } = getState();
+    const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
+    if (databaseInfo[namespaceId]) {
+      return;
+    }
+
+    try {
+      const dataService = connections.getDataServiceForConnection(
+        workspaceOptions.connectionId
+      );
+
+      const instance = instancesManager.getMongoDBInstanceForConnection(
+        workspaceOptions.connectionId
+      );
+
+      const db = instance.databases.get(workspaceOptions.namespace);
+      if (db) {
+        await db.fetch({ dataService });
+        const info = {
+          isNonExistent: db.is_non_existent,
+        };
+        dispatch(updateDatabaseInfo(namespaceId, info));
+      }
+    } catch (err) {
+      logger.debug(
+        'Database Metadata',
+        logger.mongoLogId(1_001_000_339),
+        'Error fetching database metadata for tab',
         { namespace: workspaceOptions.namespace },
         err
       );
@@ -715,6 +810,11 @@ export const openWorkspace = (
     if (workspaceOptions.type === 'Collection') {
       // Fetching extra metadata for collection should not block tab opening
       void dispatch(fetchCollectionInfo(workspaceOptions));
+    }
+
+    if (workspaceOptions.type === 'Collections') {
+      // Fetching extra metadata for database should not block tab opening
+      void dispatch(fetchDatabaseInfo(workspaceOptions));
     }
 
     dispatch({

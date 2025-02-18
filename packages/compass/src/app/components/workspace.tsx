@@ -36,7 +36,6 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import { usePreference } from 'compass-preferences-model/provider';
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
@@ -50,10 +49,6 @@ export default function Workspace({
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
-  const multiConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-
   const { getConnectionById } = useConnectionsListRef();
 
   const onWorkspaceTabChange = useCallback(
@@ -106,9 +101,7 @@ export default function Workspace({
         ]}
       >
         <WorkspacesPlugin
-          initialWorkspaceTabs={[
-            { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
-          ]}
+          initialWorkspaceTabs={[{ type: 'Welcome' }]}
           onActiveWorkspaceTabChange={onWorkspaceTabChange}
           renderSidebar={() => <CompassSidebarPlugin />}
           renderModals={() => (

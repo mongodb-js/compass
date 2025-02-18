@@ -55,6 +55,16 @@ describe('GeneralSettings', function () {
     });
   });
 
+  it('renders defaultSortOrder', function () {
+    expect(within(container).getByTestId('defaultSortOrder')).to.exist;
+  });
+
+  it('changes defaultSortOrder value when selecting an option', function () {
+    within(container).getByTestId('defaultSortOrder').click();
+    within(container).getByText('_id: 1').click();
+    expect(getSettings()).to.have.property('defaultSortOrder', '{ _id: 1 }');
+  });
+
   ['maxTimeMS'].forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;

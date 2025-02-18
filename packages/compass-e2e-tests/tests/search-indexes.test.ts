@@ -129,7 +129,12 @@ async function verifyIndexDetails(
   const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
   await browser.hover(indexRowSelector);
-  await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
+
+  // Expand the row if it's not already expanded
+  const expandButton = browser.$(Selectors.searchIndexExpandButton(indexName));
+  if (await expandButton.isDisplayed()) {
+    await expandButton.click();
+  }
 
   await browser.waitUntil(async () => {
     const text = await browser

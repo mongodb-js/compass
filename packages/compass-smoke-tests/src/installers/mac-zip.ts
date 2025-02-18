@@ -1,40 +1,31 @@
+import assert from 'node:assert/strict';
 import path from 'node:path';
-import fs from 'node:fs';
-
+import {
+  assertFileNotQuarantined,
+  removeApplicationSupportForApp,
+} from './mac-utils';
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 
 export function installMacZIP({
-  appName,
+  kind,
   filepath,
-  destinationPath,
+  sandboxPath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
+  assert.equal(kind, 'osx_zip');
+  const appName = buildInfo.productName;
   const appFilename = `${appName}.app`;
-  const appPath = path.resolve(destinationPath, appFilename);
+  const appPath = path.resolve(sandboxPath, appFilename);
 
-  execute('ditto', ['-xk', filepath, destinationPath]);
+  execute('ditto', ['-xk', filepath, sandboxPath]);
 
-  // TODO: Consider instrumenting the app to use a settings directory in the sandbox
-  // TODO: Move this somewhere shared between mac installers
-  if (process.env.HOME) {
-    const settingsDir = path.resolve(
-      process.env.HOME,
-      'Library',
-      'Application Support',
-      appName
-    );
+  removeApplicationSupportForApp(appName);
 
-    if (fs.existsSync(settingsDir)) {
-      console.log(`${settingsDir} already exists. Removing.`);
-      fs.rmSync(settingsDir, { recursive: true });
-    }
-  }
-
-  // see if the executable will run without being quarantined or similar
-  // TODO: Move this somewhere shared between mac installers
-  execute(path.resolve(appPath, 'Contents/MacOS', appName), ['--version']);
+  assertFileNotQuarantined(appPath);
 
   return {
+    appName,
     appPath: appPath,
     uninstall: async function () {
       /* TODO */

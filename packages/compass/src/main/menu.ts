@@ -132,18 +132,6 @@ function darwinCompassSubMenu(
   };
 }
 
-function newWindowItem(
-  app: typeof CompassApplication
-): MenuItemConstructorOptions {
-  return {
-    label: 'New &Window',
-    accelerator: 'CmdOrCtrl+N',
-    click() {
-      app.emit('show-connect-window');
-    },
-  };
-}
-
 function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
@@ -338,7 +326,7 @@ function collectionSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
-    label: '&Share Schema as JSON',
+    label: '&Share Schema as JSON (Legacy)',
     accelerator: 'Alt+CmdOrCtrl+S',
     click() {
       ipcMain?.broadcastFocused('window:menu-share-schema-json');
@@ -427,10 +415,14 @@ function viewSubMenu(
 function windowSubMenu(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const { enableMultipleConnectionSystem: isMultiConnectionsEnabled } =
-    app.preferences.getPreferences();
-
   const submenu: MenuTemplate = [
+    {
+      label: 'New &Window',
+      accelerator: 'CmdOrCtrl+N',
+      click() {
+        app.emit('show-connect-window');
+      },
+    },
     {
       label: 'Minimize',
       accelerator: 'Command+M',
@@ -447,8 +439,6 @@ function windowSubMenu(
       role: 'front',
     },
   ];
-
-  if (isMultiConnectionsEnabled) submenu.unshift(newWindowItem(app));
 
   return {
     label: 'Window',

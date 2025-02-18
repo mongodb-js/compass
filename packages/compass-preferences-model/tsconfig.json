@@ -2,8 +2,7 @@
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "dist",
-    "allowJs": true,
-    "moduleResolution": "node16"
+    "allowJs": true
   },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]

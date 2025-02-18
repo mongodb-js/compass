@@ -6,6 +6,7 @@ import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
+import { validate } from 'mongodb-query-parser';
 import HadronDocument from 'hadron-document';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
@@ -1614,8 +1615,16 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    let sort = query.sort;
+    if (!sort && this.preferences.getPreferences().defaultSortOrder) {
+      sort = validate(
+        'sort',
+        this.preferences.getPreferences().defaultSortOrder
+      );
+    }
+
     const findOptions = {
-      sort: query.sort,
+      sort,
       projection: query.project,
       skip: query.skip,
       limit: docsPerPage,

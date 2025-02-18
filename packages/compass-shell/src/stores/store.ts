@@ -6,7 +6,10 @@ import { ObjectId } from 'bson';
 import { createWorkerRuntime } from '../modules/worker-runtime';
 import type { ShellPluginExtraArgs } from '../plugin';
 
-const RuntimeMap = new Map<string, WorkerRuntime>();
+/**
+ * @internal exported for testing purposes
+ */
+export const RuntimeMap = new Map<string, WorkerRuntime>();
 
 type State = {
   // Reference to the shell runtime stored by id

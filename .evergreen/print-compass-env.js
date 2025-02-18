@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 'use strict';
+const path = require('path');
 
 /*
 This script writes a bash script that can be eval()'d in evergreen to modify the
@@ -79,18 +80,16 @@ function printCompassEnv() {
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
-  const npmCacheDir = `${newPWD}/.deps/.npm`;
-  const npmTmpDir = `${newPWD}/.deps/tmp`;
+  // not using `newPWD` here to avoid issues on windows where the value supposed
+  // to be a non-cygwin path
+  const npmCacheDir = path.resolve(__dirname, '..', '.deps', '.npm-cache');
 
   printVar('ARTIFACTS_PATH', `${newPWD}/.deps`);
   printVar('NPM_CACHE_DIR', npmCacheDir);
-  printVar('NPM_TMP_DIR', npmTmpDir);
 
   // all npm var names need to be lowercase
   // see: https://docs.npmjs.com/cli/v7/using-npm/config#environment-variables
   printVar('npm_config_cache', npmCacheDir);
-  // npm tmp is deprecated, but let's keep it around just in case
-  printVar('npm_config_tmp', npmTmpDir);
   // Also set in our .npmrc but that does not get picked up in the preinstall script.
   printVar('npm_config_registry', 'https://registry.npmjs.org/');
 
@@ -102,10 +101,7 @@ function printCompassEnv() {
   printVar('IS_RHEL', process.env.IS_RHEL);
   printVar('IS_UBUNTU', process.env.IS_UBUNTU);
   printVar('DEBUG', process.env.DEBUG);
-  printVar(
-    'MONGODB_VERSION',
-    process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION
-  );
+  printVar('MONGODB_VERSION', process.env.MONGODB_VERSION);
   printVar('DEV_VERSION_IDENTIFIER', process.env.DEV_VERSION_IDENTIFIER);
   printVar('EVERGREEN_REVISION', process.env.EVERGREEN_REVISION);
   printVar(

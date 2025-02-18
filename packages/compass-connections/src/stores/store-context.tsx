@@ -18,6 +18,7 @@ import type {
 import {
   cancelEditConnection,
   connect as connectionsConnect,
+  connectInNewWindow,
   saveAndConnect,
   connectionsEventEmitter,
   createNewConnection,
@@ -87,6 +88,9 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
   return {
     connect: (connectionInfo: ConnectionInfo) => {
       return dispatch(connectionsConnect(connectionInfo));
+    },
+    connectInNewWindow: (connectionInfo: ConnectionInfo) => {
+      return dispatch(connectInNewWindow(connectionInfo));
     },
     saveAndConnect: (connectionInfo: ConnectionInfo) => {
       return dispatch(saveAndConnect(connectionInfo));
@@ -362,5 +366,16 @@ export function useConnectionsColorList(): {
         color: connection.info.favorite?.color,
       };
     });
+  }, isEqual);
+}
+
+export function useConnectionsListLoadingStatus() {
+  return useSelector((state) => {
+    const status = state.connections.status;
+    return {
+      status,
+      error: state.connections.error?.message ?? null,
+      isInitialLoad: status === 'initial' || status === 'loading',
+    };
   }, isEqual);
 }

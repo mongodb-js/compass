@@ -3,7 +3,6 @@ import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
-import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionsColorList } from '../stores/store-context';
 
 type ThemeProvider = {
@@ -18,9 +17,6 @@ export function useTabConnectionTheme(): ThemeProvider {
     useConnectionColor();
   const connectionColorsList = useConnectionsColorList();
   const darkTheme = useDarkMode();
-  const isMultipleConnectionsEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
 
   const getThemeOf = useCallback(
     (connectionId: ConnectionInfo['id']) => {
@@ -30,12 +26,7 @@ export function useTabConnectionTheme(): ThemeProvider {
       const bgColor = connectionColorToHex(color);
       const activeBgColor = connectionColorToHexActive(color);
 
-      if (
-        !color ||
-        !bgColor ||
-        !activeBgColor ||
-        !isMultipleConnectionsEnabled
-      ) {
+      if (!color || !bgColor || !activeBgColor) {
         return;
       }
 
@@ -71,7 +62,6 @@ export function useTabConnectionTheme(): ThemeProvider {
       connectionColorToHex,
       connectionColorToHexActive,
       darkTheme,
-      isMultipleConnectionsEnabled,
     ]
   );
 

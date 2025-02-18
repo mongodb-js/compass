@@ -50,10 +50,10 @@ type MultipleConnectionSidebarProps = {
   activeWorkspace: WorkspaceTab | null;
   onConnectionCsfleModeChanged(connectionId: string, isEnabled: boolean): void;
   onSidebarAction(action: string, ...rest: any[]): void;
-  showSidebarHeader?: boolean;
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
+  isCompassWeb?: boolean;
 };
 
 const sidebarStyles = css({
@@ -92,8 +92,8 @@ export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
   onConnectionCsfleModeChanged,
-  showSidebarHeader = true,
   onOpenConnectViaModal,
+  isCompassWeb,
 }: MultipleConnectionSidebarProps) {
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
@@ -108,6 +108,7 @@ export function MultipleConnectionSidebar({
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
+    connectInNewWindow,
     disconnect,
     createNewConnection,
     editConnection,
@@ -167,13 +168,14 @@ export function MultipleConnectionSidebar({
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
-        {showSidebarHeader && (
-          <>
-            <SidebarHeader onAction={onSidebarAction} />
-            <Navigation currentLocation={activeWorkspace?.type ?? null} />
-            <HorizontalRule />
-          </>
-        )}
+        <>
+          <SidebarHeader
+            onAction={onSidebarAction}
+            isCompassWeb={isCompassWeb}
+          />
+          <Navigation currentLocation={activeWorkspace?.type ?? null} />
+          <HorizontalRule />
+        </>
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
@@ -182,6 +184,7 @@ export function MultipleConnectionSidebar({
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);
           }}
+          onConnectInNewWindow={connectInNewWindow}
           onNewConnection={createNewConnection}
           onEditConnection={(connectionInfo) => {
             editConnection(connectionInfo.id);

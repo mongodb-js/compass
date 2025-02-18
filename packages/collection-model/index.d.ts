@@ -78,9 +78,11 @@ interface CollectionProps {
   index_size: number;
   isTimeSeries: boolean;
   isView: boolean;
+  /** Only relevant for a view and identifies collection/view from which this view was created. */
   sourceName: string | null;
   source: Collection;
-  properties: { id: string; options?: unknown }[];
+  properties: { id: string; options?: Record<string, unknown> }[];
+  is_non_existent: boolean;
 }
 
 type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
