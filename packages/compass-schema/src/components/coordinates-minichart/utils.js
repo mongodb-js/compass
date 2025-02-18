@@ -12,12 +12,21 @@ export async function _getHereTileBoxes() {
   const rawTileBoxes = await fetch(COPYRIGHT_URL).then((response) =>
     response.json()
   );
-  return rawTileBoxes.normal.map((attr) => ({
-    ...attr,
-    boxes: attr.boxes.map((box) =>
-      L.latLngBounds(L.latLng(box[0], box[1]), L.latLng(box[2], box[3]))
-    ),
-  }));
+  const result = rawTileBoxes.copyrights.in
+    .map((notice) => ({
+      alt: notice.copyrightText,
+      label: notice.label,
+      maxLevel: notice.maxLevel,
+      minLevel: notice.minLevel,
+      boxes: notice.boundingBoxes.map((box) =>
+        L.latLngBounds(
+          L.latLng(box.south, box.west),
+          L.latLng(box.north, box.east)
+        )
+      ),
+    }))
+    .flat();
+  return result;
 }
 
 function cachedGetHereTileBoxes() {
