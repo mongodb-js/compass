@@ -139,11 +139,12 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
   let variableTypeCount = 0;
   let optionalFieldCount = 0;
   let unblockThreadCounter = 0;
+  let deepestPath = 0;
 
   async function traverseSchemaTree(
     fieldsOrTypes: SchemaField[] | SchemaType[],
-    isRoot = false
-  ): Promise<number> {
+    depth: number
+  ): Promise<void> {
     unblockThreadCounter++;
     if (unblockThreadCounter === UNBLOCK_INTERVAL_COUNT) {
       unblockThreadCounter = 0;
@@ -151,10 +152,10 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
     }
 
     if (!fieldsOrTypes || fieldsOrTypes.length === 0) {
-      return 0;
+      return;
     }
 
-    let deepestPath = 1;
+    deepestPath = Math.max(depth, deepestPath);
 
     for (const fieldOrType of fieldsOrTypes) {
       if (
@@ -170,9 +171,11 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
       }
 
       if (isSchemaType(fieldOrType)) {
-        fieldTypes[fieldOrType.bsonType] =
-          (fieldTypes[fieldOrType.bsonType] ?? 0) + 1;
-      } else if (isRoot) {
+        if (fieldOrType.bsonType !== 'Undefined') {
+          fieldTypes[fieldOrType.bsonType] =
+            (fieldTypes[fieldOrType.bsonType] ?? 0) + 1;
+        }
+      } else if (depth === 1 /* is root level */) {
         // Count variable types (more than one unique type excluding undefined).
         if (
           fieldOrType.types &&
@@ -188,41 +191,31 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
       }
 
       if ((fieldOrType as DocumentSchemaType).bsonType === 'Document') {
-        const deepestFieldPath =
-          (await traverseSchemaTree(
-            (fieldOrType as DocumentSchemaType).fields
-          )) + 1; /* Increment by one when we go a level deeper. */
-
-        deepestPath = Math.max(deepestFieldPath, deepestPath);
+        await traverseSchemaTree(
+          (fieldOrType as DocumentSchemaType).fields,
+          depth + 1 // Increment by one when we go a level deeper.
+        );
       } else if (
         (fieldOrType as ArraySchemaType).bsonType === 'Array' ||
         (fieldOrType as SchemaField).types
       ) {
-        // Increment by one when we go a level deeper.
         const increment =
           (fieldOrType as ArraySchemaType).bsonType === 'Array' ? 1 : 0;
-        const deepestFieldPath =
-          (await traverseSchemaTree(
-            (fieldOrType as ArraySchemaType | SchemaField).types
-          )) + increment;
-
-        deepestPath = Math.max(deepestFieldPath, deepestPath);
+        await traverseSchemaTree(
+          (fieldOrType as ArraySchemaType | SchemaField).types,
+          depth + increment // Increment by one when we go a level deeper.
+        );
       }
     }
-
-    return deepestPath;
   }
 
-  const schemaDepth = await traverseSchemaTree(
-    schema.fields,
-    true /* isRoot */
-  );
+  await traverseSchemaTree(schema.fields, 1);
 
   return {
     field_types: fieldTypes,
     geo_data: hasGeoData,
     optional_field_count: optionalFieldCount,
-    schema_depth: schemaDepth,
+    schema_depth: deepestPath,
     variable_type_count: variableTypeCount,
   };
 }

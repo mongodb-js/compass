@@ -112,10 +112,17 @@ describe('Schema Store', function () {
       sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
       await store.dispatch(startAnalysis());
       expect(sampleStub).to.have.been.called;
-      const { analysisState, errorMessage, schema, resultId } =
-        store.getState().schemaAnalysis;
+      const {
+        analysisState,
+        errorMessage,
+        schema,
+        resultId,
+        analysisStartTime,
+      } = store.getState().schemaAnalysis;
       expect(analysisState).to.equal('complete');
       expect(!!errorMessage).to.be.false;
+      expect(analysisStartTime).to.not.be.undefined;
+      expect(analysisStartTime).to.be.greaterThan(1000);
       expect(schema).not.to.be.null;
       expect(resultId).not.to.equal(oldResultId);
     });

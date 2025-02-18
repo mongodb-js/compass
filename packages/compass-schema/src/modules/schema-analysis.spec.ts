@@ -573,7 +573,6 @@ describe('schema-analysis', function () {
             Number: 1,
             Boolean: 1,
             String: 4,
-            Undefined: 3,
           });
         });
       });
@@ -604,7 +603,6 @@ describe('schema-analysis', function () {
           const { field_types } = await calculateSchemaMetadata(schema);
           expect(field_types).to.deep.equal({
             Number: 3,
-            Undefined: 1,
           });
         });
       });
@@ -636,7 +634,6 @@ describe('schema-analysis', function () {
             Array: 4,
             String: 2,
             Number: 3,
-            Undefined: 1,
           });
         });
       });

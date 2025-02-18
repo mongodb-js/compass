@@ -18,7 +18,10 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { SchemaAccessor } from 'mongodb-schema';
-import { schemaAnalysisReducer, stopAnalysis } from './schema-analysis-reducer';
+import {
+  schemaAnalysisReducer,
+  cleanupAnalysis,
+} from './schema-analysis-reducer';
 import {
   cancelExportSchema,
   confirmedExportLegacySchemaToClipboard,
@@ -88,7 +91,7 @@ export function activateSchemaPlugin(
     store.dispatch(confirmedExportLegacySchemaToClipboard());
   });
 
-  addCleanup(() => store.dispatch(stopAnalysis()));
+  addCleanup(() => store.dispatch(cleanupAnalysis()));
   addCleanup(() => store.dispatch(cancelExportSchema()));
 
   return {

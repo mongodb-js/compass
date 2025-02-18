@@ -29,6 +29,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
+  analysisStartTime?: number;
   errorMessage: string;
   schema: Schema | null;
   resultId: string;
@@ -42,6 +43,7 @@ export const enum SchemaAnalysisActions {
 
 export type AnalysisStartedAction = {
   type: SchemaAnalysisActions.analysisStarted;
+  analysisStartTime: number;
 };
 
 export type AnalysisFinishedAction = {
@@ -66,6 +68,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   ) {
     return {
       ...state,
+      analysisStartTime: action.analysisStartTime,
       analysisState: ANALYSIS_STATE_ANALYZING,
       errorMessage: '',
       schema: null,
@@ -164,19 +167,34 @@ export const geoLayersDeleted = (
   };
 };
 
-// We track when the user cancels the analysis. We use the userCancelled
-// flag to indicate if we should track, as we also automatically stop
-// analysis when deactivating the plugin.
-const userCancelledAnalysisAbortReason = 'Cancelled analysis';
+export const stopAnalysis = (): SchemaThunkAction<void> => {
+  return (
+    dispatch,
+    getState,
+    { analysisAbortControllerRef, connectionInfoRef, queryBar, track }
+  ) => {
+    if (!analysisAbortControllerRef.current) return;
+    const analysisTime =
+      Date.now() - (getState().schemaAnalysis.analysisStartTime ?? 0);
 
-export const stopAnalysis = (
-  userCancelled = false
-): SchemaThunkAction<void> => {
+    const query = queryBar.getLastAppliedQuery('schema');
+    track(
+      'Schema Analysis Cancelled',
+      {
+        analysis_time_ms: analysisTime,
+        with_filter: Object.entries(query.filter ?? {}).length > 0,
+      },
+      connectionInfoRef.current
+    );
+
+    analysisAbortControllerRef.current?.abort('Analysis cancelled');
+  };
+};
+
+export const cleanupAnalysis = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { analysisAbortControllerRef }) => {
     if (!analysisAbortControllerRef.current) return;
-    analysisAbortControllerRef.current?.abort(
-      userCancelled ? userCancelledAnalysisAbortReason : undefined
-    );
+    analysisAbortControllerRef.current?.abort();
   };
 };
 
@@ -271,7 +289,10 @@ export const startAnalysis = (): SchemaThunkAction<
     try {
       debug('analysis started');
 
-      dispatch({ type: SchemaAnalysisActions.analysisStarted });
+      dispatch({
+        type: SchemaAnalysisActions.analysisStarted,
+        analysisStartTime,
+      });
 
       const schemaAccessor = await analyzeSchema(
         dataService,
@@ -316,21 +337,6 @@ export const startAnalysis = (): SchemaThunkAction<
 
       geoLayersRef.current = {};
     } catch (err: any) {
-      if (
-        abortSignal.aborted &&
-        abortSignal.reason === userCancelledAnalysisAbortReason
-      ) {
-        const analysisTime = Date.now() - analysisStartTime;
-        track(
-          'Schema Analysis Cancelled',
-          {
-            analysis_time_ms: analysisTime,
-            with_filter: Object.entries(query.filter ?? {}).length > 0,
-          },
-          connectionInfoRef.current
-        );
-      }
-
       log.error(
         mongoLogId(1_001_000_188),
         'Schema analysis',

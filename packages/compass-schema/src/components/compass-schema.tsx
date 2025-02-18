@@ -446,7 +446,7 @@ export default connect(
   }),
   {
     onStartAnalysis: startAnalysis,
-    onStopAnalysis: () => stopAnalysis(true),
+    onStopAnalysis: () => stopAnalysis(),
     onExportSchemaClicked: openExportSchema,
   }
 )(Schema);
