@@ -15,7 +15,8 @@ export async function _getHereTileBoxes() {
   );
   const fields = copyrightData.resources.base.styles['lite.day'];
   const tileBoxes = Object.values(_.pick(copyrightData.copyrights, fields))
-    .flatMap((notice) => ({
+    .flat()
+    .map((notice) => ({
       alt: notice.copyrightText,
       label: notice.label,
       maxLevel: notice.maxLevel,
