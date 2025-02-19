@@ -543,7 +543,7 @@ type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 export type Annotation = Pick<
   Diagnostic,
-  'from' | 'to' | 'severity' | 'message'
+  'from' | 'to' | 'severity' | 'message' | 'actions'
 >;
 
 type EditorProps = {

@@ -411,10 +411,10 @@ class InsertDocumentDialog extends React.PureComponent<
             <p>
               This document contains keys such as{' '}
               <code>{showEJSONConversionBannerKeys[0]}</code> which indicate
-              that this document is supposed to be in
+              that this document is supposed to be in{' '}
               <Link href="https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/">
                 Extended JSON
-              </Link>
+              </Link>{' '}
               format, which was used by previous versions of Compass in this
               dialog.
             </p>
