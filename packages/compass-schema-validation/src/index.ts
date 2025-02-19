@@ -1,6 +1,6 @@
 import React from 'react';
 import { onActivated } from './stores';
-import CompassSchemaValidation from './components/compass-schema-validation';
+import { CompassSchemaValidation } from './components/compass-schema-validation';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   connectionInfoRefLocator,

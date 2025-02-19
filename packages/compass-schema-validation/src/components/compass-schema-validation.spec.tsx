@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 
-import CompassSchemaValidation from '.';
-import { configureStore } from '../../stores/store';
+import { CompassSchemaValidation } from './compass-schema-validation';
+import { configureStore } from '../stores/store';
 import { Provider } from 'react-redux';
 
 describe('CompassSchemaValidation [Component]', function () {
