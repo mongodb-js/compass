@@ -135,7 +135,6 @@ describe('Collection schema tab', function () {
 
       const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
       await exportSchemaContent.waitForDisplayed();
-
       const text = await browser.getCodemirrorEditorText(
         Selectors.ExportSchemaOutput
       );
