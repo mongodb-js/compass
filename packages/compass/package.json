@@ -168,7 +168,8 @@
     "depcheck": "depcheck",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "verify-package-contents": "ts-node ./scripts/verify-package-contents.ts"
   },
   "repository": {
     "type": "git",
@@ -190,6 +191,7 @@
   "devDependencies": {
     "@electron/rebuild": "^3.7.1",
     "@electron/remote": "^2.1.2",
+    "@types/minimatch": "^5.1.2",
     "@mongodb-js/atlas-service": "^0.35.1",
     "@mongodb-js/compass-aggregations": "^9.52.1",
     "@mongodb-js/compass-app-stores": "^7.36.1",
@@ -252,12 +254,14 @@
     "electron-squirrel-startup": "^1.0.1",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.4.1",
-    "hadron-build": "^25.7.1",
-    "hadron-ipc": "^3.4.1",
+    "glob": "^10.2.5",
     "local-links": "^1.4.0",
     "make-fetch-happen": "^10.2.1",
     "marky": "^1.2.1",
+    "hadron-app-registry": "^9.4.1",
+    "hadron-build": "^25.7.1",
+    "hadron-ipc": "^3.4.1",
+    "minimatch": "^10.0.1",
     "mongodb": "^6.12.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-cloud-info": "^2.1.2",
