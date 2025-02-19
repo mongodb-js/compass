@@ -1,5 +1,9 @@
 import type { Schema } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
+import {
+  openToast,
+  type ToastProperties,
+} from '@mongodb-js/compass-components';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
@@ -7,9 +11,7 @@ import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
-  ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_INITIAL,
-  ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
@@ -22,6 +24,14 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
 import { UUID } from 'bson';
 import { isAction } from '../utils';
+
+const ERROR_WARNING = 'An error occurred during schema analysis';
+const COMPLEXITY_ABORT_MESSAGE = `
+Analysis was aborted due to: Fields count above 1000.
+Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.
+`;
+const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -91,32 +101,34 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
     };
   }
 
-  if (
-    isAction<AnalysisFailedAction>(action, SchemaAnalysisActions.analysisFailed)
-  ) {
-    return {
-      ...state,
-      ...getErrorState(action.error),
-      resultId: resultId(),
-    };
-  }
-
   return state;
 };
 
-function getErrorState(err: Error & { code?: number }) {
+function getErrorDetails(
+  errorMessage: string,
+  errorCode?: number
+): Partial<ToastProperties> {
+  if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
+    return { description: INCREASE_MAX_TIME_MS_HINT_MESSAGE };
+  } else if (errorMessage.includes('Schema analysis aborted: Fields count')) {
+    return {
+      description: COMPLEXITY_ABORT_MESSAGE,
+      actionElement: `<a href="https://www.mongodb.com/cloud/atlas/lp/search-1">Learn more</a>`,
+    };
+  } else {
+    return { description: `${ERROR_WARNING}: ${errorMessage}` };
+  }
+}
+
+function handleError(err: Error & { code?: number }) {
   const errorMessage = (err && err.message) || 'Unknown error';
   const errorCode = err && err.code;
 
-  let analysisState: AnalysisState;
-
-  if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
-    analysisState = ANALYSIS_STATE_TIMEOUT;
-  } else {
-    analysisState = ANALYSIS_STATE_ERROR;
-  }
-
-  return { analysisState, errorMessage };
+  openToast('schema-analysis-error', {
+    variant: 'important',
+    title: 'Schema Analysis Failed',
+    ...getErrorDetails(errorMessage, errorCode),
+  });
 }
 
 function resultId(): string {
@@ -345,10 +357,8 @@ export const startAnalysis = (): SchemaThunkAction<
           error: err.stack,
         }
       );
-      dispatch({
-        type: SchemaAnalysisActions.analysisFailed,
-        error: err as Error,
-      });
+      dispatch({ type: SchemaAnalysisActions.analysisFinished, schema: null });
+      handleError(err as Error);
     } finally {
       analysisAbortControllerRef.current = undefined;
     }

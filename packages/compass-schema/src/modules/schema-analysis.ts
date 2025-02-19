@@ -19,6 +19,8 @@ function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
     return new Error('Unknown error');
   }
 
+  console.log({ name: err.name, code: err.code });
+
   if (err.name === 'MongoError' && err.code !== undefined) {
     err.code = JSON.parse(JSON.stringify(err.code));
   }
@@ -59,6 +61,8 @@ export const analyzeSchema = async (
     );
     const schemaAccessor = await analyzeDocuments(docs, {
       signal: abortSignal,
+      storedValuesLengthLimit: 100,
+      distinctFieldsAbortThreshold: 1000,
     });
     log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
       ns,
@@ -69,6 +73,7 @@ export const analyzeSchema = async (
       ns,
       error: err.message,
     });
+    console.log('FAILED', err);
     if (dataService.isCancelError(err)) {
       debug('caught background operation terminated error', err);
       return;

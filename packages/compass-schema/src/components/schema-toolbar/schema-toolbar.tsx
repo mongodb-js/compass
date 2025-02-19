@@ -11,11 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { AnalysisState } from '../../constants/analysis-states';
-import {
-  ANALYSIS_STATE_ERROR,
-  ANALYSIS_STATE_TIMEOUT,
-  ANALYSIS_STATE_COMPLETE,
-} from '../../constants/analysis-states';
+import { ANALYSIS_STATE_COMPLETE } from '../../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 
 const schemaToolbarStyles = css({
@@ -47,9 +43,6 @@ const schemaToolbarActionBarRightStyles = css({
   paddingLeft: spacing[2],
 });
 
-const ERROR_WARNING = 'An error occurred during schema analysis';
-const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
 const OUTDATED_WARNING_MESSAGE =
   'The schema content is outdated and no longer in sync' +
   ' with the documents view. Press "Analyze" again to see the schema for the' +
@@ -129,15 +122,6 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
             </Link>
           </div>
         </div>
-      )}
-      {analysisState === ANALYSIS_STATE_ERROR && (
-        <ErrorSummary
-          data-testid="schema-toolbar-error-message"
-          errors={[`${ERROR_WARNING}: ${errorMessage}`]}
-        />
-      )}
-      {analysisState === ANALYSIS_STATE_TIMEOUT && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
