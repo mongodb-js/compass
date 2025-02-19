@@ -1,4 +1,5 @@
 #!/usr/bin/env npx ts-node
+import cp from 'node:child_process';
 import assert from 'node:assert/strict';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -55,6 +56,15 @@ function getDefaultArch() {
   } else if (isSupportedArch(arch)) {
     return arch;
   }
+}
+
+function getDefaultRef() {
+  // TODO: Read this from an environment variable if possible
+  return cp
+    .spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      encoding: 'utf8',
+    })
+    .stdout.trim();
 }
 
 yargs(hideBin(process.argv))
@@ -128,6 +138,7 @@ yargs(hideBin(process.argv))
         .option('ref', {
           type: 'string',
           description: 'Git reference to dispatch the workflow from',
+          default: getDefaultRef(),
         })
         .option('version', {
           type: 'string',

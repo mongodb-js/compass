@@ -1,4 +1,3 @@
-import cp from 'node:child_process';
 import crypto from 'node:crypto';
 
 import * as github from '@actions/github';
@@ -48,18 +47,9 @@ async function getWorkflowRunRetrying(
   );
 }
 
-function getDefaultRef() {
-  // TODO: Read this from an environment variable if possible
-  return cp
-    .spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      encoding: 'utf8',
-    })
-    .stdout.trim();
-}
-
 type DispatchOptions = {
   githubToken: string;
-  ref: string | undefined;
+  ref: string;
   version: string;
   bucketName: string;
   bucketKeyPrefix: string;
@@ -72,7 +62,7 @@ type DispatchOptions = {
 
 export async function dispatchAndWait({
   githubToken,
-  ref = getDefaultRef(),
+  ref,
   version,
   bucketName,
   bucketKeyPrefix,
