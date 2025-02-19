@@ -146,7 +146,6 @@ const ExportSchemaModal: React.FunctionComponent<{
           {exportStatus === 'complete' && (
             <KeylineCard className={codeEditorContainerStyles}>
               <CodemirrorMultilineEditor
-                id="export-schema-content"
                 data-testid="export-schema-content"
                 language="json"
                 className={codeStyles}
