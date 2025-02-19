@@ -37,7 +37,7 @@ export function execute(
   }
 }
 
-type Kind = 'osx_zip' | 'windows_zip' | 'linux_tar' | 'rhel_tar';
+type Kind = 'osx_zip' | 'windows_zip' | 'linux_tar';
 
 function extractArchive(artifactsDir: string, destinationPath: string): Kind {
   if (process.env.IS_OSX && process.env.OSX_ZIP_NAME) {
@@ -78,13 +78,13 @@ function run() {
         execute('npx', [
           '@electron/asar',
           'extract',
-          basePath.replaceAll(path.sep, path.posix.sep),
+          basePath.replace(new RegExp(`/${path.sep}/g`), path.posix.sep),
           path
             .join(
               path.dirname(basePath),
               path.basename(basePath) + '.fully-unpacked'
             )
-            .replaceAll(path.sep, path.posix.sep),
+            .replace(new RegExp(`/${path.sep}/g`), path.posix.sep),
         ]);
       }
     }
