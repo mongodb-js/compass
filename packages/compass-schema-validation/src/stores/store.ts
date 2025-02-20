@@ -23,7 +23,7 @@ import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider'
  */
 const MIN_VERSION = '3.2.0';
 
-type SchemaValidationServices = {
+export type SchemaValidationServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<
     DataService,
