@@ -147,7 +147,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           Analysis was aborted due to: Fields count above 1000. Consider
           breaking up your data into more collections with smaller documents,
           and using references to consolidate the data you need.&nbsp;
-          <Link href="https://www.mongodb.com/cloud/atlas/lp/search-1">
+          <Link href="https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-document-size/">
             Learn more
           </Link>
         </Banner>
