@@ -144,6 +144,7 @@ class Socket extends Duplex {
     } else if (typeByte === MESSAGE_TYPE.BINARY) {
       return message.subarray(1);
     } else {
+      // eslint-disable-next-line no-console
       console.error('message does not have valid type byte "%s":', message);
     }
   }
