@@ -26,22 +26,12 @@ function createWebSocketProxy(port = 1337, logger = console) {
     });
     ws.on('message', async (data) => {
       if (socket) {
-        socket.write(data, 'binary');
+        socket.write(decodeMessageWithTypeByte(data), 'binary');
       } else {
         // First message before socket is created is with connection info
-        const dataView = new Uint8Array(data);
-        const messageByte = dataView[0];
-        if (messageByte !== 0x01) {
-          logger.log('first message should have type byte,(%s)', evt, err);
-          ws.close(evt === 'close' ? 1001 : 1011);
-        }
-        const jsonBytes = dataView.subarray(1);
-        const jsonStr = new TextDecoder('utf-8').decode(jsonBytes);
-        console.log('pre message received on backend: ', jsonStr);
         const { tls: useSecureConnection, ...connectOptions } =
-          JSON.parse(jsonStr);
+          decodeMessageWithTypeByte(data);
 
-        // const { tls: useSecureConnection, ...connectOptions } = JSON.parse(data.toString);
         logger.log(
           'setting up new%s connection to %s:%s',
           useSecureConnection ? ' secure' : '',
@@ -71,28 +61,50 @@ function createWebSocketProxy(port = 1337, logger = console) {
             connectOptions.port
           );
           socket.setTimeout(0);
-          const utf8Encoder = new TextEncoder();
-          const message = JSON.stringify({ preMessageOk: 1 });
-          const utf8Array = utf8Encoder.encode(message);
-
-          const encoded = new Uint8Array(utf8Array.length + 1);
-          encoded[0] = 0x01;
-          encoded.set(utf8Array, 1);
+          const encoded = encodeStringMessageWithTypeByte(
+            JSON.stringify({ preMessageOk: 1 })
+          );
           ws.send(encoded);
         });
         socket.on('data', async (data) => {
-          const encoded = new Uint8Array(data.length + 1);
-          encoded[0] = 0x02;
-          encoded.set(data, 1);
-          // ws.send(encoded);
-          logger.log(encoded);
-          ws.send(encoded);
+          ws.send(encodeBinaryMessageWithTypeByte(data));
         });
       }
     });
   });
 
   return wsServer;
+}
+
+function encodeStringMessageWithTypeByte(message) {
+  const utf8Encoder = new TextEncoder();
+  const utf8Array = utf8Encoder.encode(message);
+  return encodeMessageWithTypeByte(utf8Array, 0x01);
+}
+
+function encodeBinaryMessageWithTypeByte(message) {
+  return encodeMessageWithTypeByte(message, 0x02);
+}
+
+function encodeMessageWithTypeByte(message, type) {
+  const encoded = new Uint8Array(message.length + 1);
+  encoded[0] = type;
+  encoded.set(message, 1);
+  return encoded;
+}
+
+function decodeMessageWithTypeByte(message) {
+  const typeByte = message[0];
+  if (typeByte === 0x01) {
+    const jsonBytes = message.subarray(1);
+    const textDecoder = new TextDecoder('utf-8');
+    const jsonStr = textDecoder.decode(jsonBytes);
+    return JSON.parse(jsonStr);
+  } else if (typeByte === 0x02) {
+    return message.subarray(1);
+  } else {
+    console.error('message does not have valid type byte "%s":', message);
+  }
 }
 
 module.exports = { createWebSocketProxy };

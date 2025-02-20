@@ -59,7 +59,6 @@ class Socket extends Duplex {
         if (dataView[0] === 0x01) {
           try {
             const res = this.decodeMessageWithTypeByte(dataView);
-            // const res = JSON.parse(data) as { preMessageOk: 1 };
             if (res.preMessageOk) {
               setTimeout(() => {
                 this.emit(options.tls ? 'secureConnect' : 'connect');
@@ -82,7 +81,6 @@ class Socket extends Duplex {
     // noop
   }
   _write(chunk: ArrayBufferLike, _encoding: BufferEncoding, cb: () => void) {
-    // need this to change
     this._ws?.send(this.encodeBinaryMessageWithTypeByte(new Uint8Array(chunk)));
     setTimeout(() => {
       cb();
@@ -143,10 +141,10 @@ class Socket extends Duplex {
       const textDecoder = new TextDecoder('utf-8');
       const jsonStr = textDecoder.decode(jsonBytes);
       return JSON.parse(jsonStr);
-    }
-    // this has to change still too
-    else if (typeByte === MESSAGE_TYPE.BINARY) {
+    } else if (typeByte === MESSAGE_TYPE.BINARY) {
       return message.subarray(1);
+    } else {
+      console.error('message does not have valid type byte "%s":', message);
     }
   }
 }
