@@ -19,8 +19,8 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
   getWindowAutoConnectPreferences,
-  onCompassDisconnect,
   registerMongoDbUrlForBrowserWindow,
+  registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
 const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
@@ -96,16 +96,19 @@ async function showWindowWhenReady(bw: BrowserWindow) {
  */
 function showConnectWindow(
   compassApp: typeof CompassApplication,
-  opts: Partial<
+  {
+    rendererUrl = DEFAULT_URL,
+    mongodbUrl,
+    connectionId,
+    ...opts
+  }: Partial<
     BrowserWindowConstructorOptions & {
       rendererUrl: string;
       mongodbUrl: string;
+      connectionId: string;
     }
   > = {}
 ): BrowserWindow {
-  const rendererUrl = opts.rendererUrl ?? DEFAULT_URL;
-  const mongodbUrl = opts.mongodbUrl;
-
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
     height: Number(DEFAULT_HEIGHT),
@@ -127,6 +130,11 @@ function showConnectWindow(
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      nodeIntegrationInWorker: true,
+      // For local dev, electron can not load @mongosh/node-runtime-worker-thread
+      // worker (file:///) from the filesystem due to same-origin policy. For this
+      // reason we disable the webSecurity.
+      webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
       ...(opts && opts.webPreferences),
     },
   };
@@ -139,6 +147,9 @@ function showConnectWindow(
   if (mongodbUrl) {
     registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
   }
+  if (connectionId) {
+    registerConnectionIdForBrowserWindow(window, connectionId);
+  }
   if (networkTraffic !== true) {
     // https://github.com/electron/electron/issues/22995
     window.webContents.session.setSpellCheckerDictionaryDownloadURL(
@@ -147,12 +158,17 @@ function showConnectWindow(
   }
 
   enable(window.webContents);
+  const unsubscribeProxyListenerPromise = compassApp.setupProxySupport(
+    window.webContents.session,
+    'BrowserWindow'
+  );
 
   compassApp.emit('new-window', window);
 
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
     window = null;
+    void unsubscribeProxyListenerPromise.then((unsubscribe) => unsubscribe());
   };
 
   window.once('closed', onWindowClosed);
@@ -251,19 +267,25 @@ class CompassWindowManager {
       'compass:log'(_evt, meta) {
         ipcMain?.broadcast('compass:log', meta);
       },
-      'compass:disconnected': (evt) => {
-        const bw = BrowserWindow.fromWebContents(evt.sender);
-        return onCompassDisconnect(bw);
-      },
       'compass:get-window-auto-connect-preferences': (evt) => {
         const bw = BrowserWindow.fromWebContents(evt.sender);
         return getWindowAutoConnectPreferences(bw, compassApp.preferences);
       },
-      'test:show-connect-window': () => showConnectWindow(compassApp),
+      'test:show-connect-window': () => void showConnectWindow(compassApp),
+      'app:connect-in-new-window': (event, connectionId: string) =>
+        void showConnectWindow(compassApp, { connectionId }),
     });
 
     ipcMain?.on('show-file', (evt, filename: string) => {
       shell.showItemInFolder(filename);
+    });
+
+    // To resize an electron window you have to do it from the main process.
+    // This is here so that the e2e tests can resize the window from the
+    // renderer process.
+    ipcMain?.handle('compass:maximize', () => {
+      const first = BrowserWindow.getAllWindows()[0];
+      first.maximize();
     });
 
     await electronApp.whenReady();

@@ -20,7 +20,7 @@ tests:
         java: new Code("some code")
         csharp: new BsonJavaScript("some code")
         php: new Javascript('some code')
-        ruby: 'BSON::Code.new(''some code'')'
+        ruby: "BSON::Code.new('some code')"
         go: 'primitive.CodeWithScope{Code: primitive.JavaScript("some code")}'
         rust: 'Bson::JavaScriptCode("some code".to_string())'
     - description: string code
@@ -32,12 +32,12 @@ tests:
         java: new Code("some code")
         csharp: new BsonJavaScript("some code")
         php: new Javascript('some code')
-        ruby: 'BSON::Code.new(''some code'')'
+        ruby: "BSON::Code.new('some code')"
         go: 'primitive.CodeWithScope{Code: primitive.JavaScript("some code")}'
         rust: 'Bson::JavaScriptCode("some code".to_string())'
     - description: string code and object scope
       input:
-        shell: 'Code(''string'', {x: ''1''})'
+        shell: "Code('string', {x: '1'})"
       output:
         javascript: |-
           new Code('string', {
@@ -49,7 +49,7 @@ tests:
           })
         java: 'new CodeWithScope("string", new Document("x", "1"))'
         csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
-        php: 'new Javascript(''string'', [''x'' => ''1''])'
+        php: "new Javascript('string', ['x' => '1'])"
         ruby: |-
           BSON::CodeWithScope.new('string', {
             'x' => '1'
@@ -107,7 +107,7 @@ tests:
         java: new ObjectId("5a7382114ec1f67ae445f778")
         csharp: new ObjectId("5a7382114ec1f67ae445f778")
         php: new ObjectId('5a7382114ec1f67ae445f778')
-        ruby: 'BSON::ObjectId(''5a7382114ec1f67ae445f778'')'
+        ruby: "BSON::ObjectId('5a7382114ec1f67ae445f778')"
         go: |-
           var objectIDFromHex = func(hex string) primitive.ObjectID {
             objectID, err := primitive.ObjectIDFromHex(hex)
@@ -122,13 +122,13 @@ tests:
   DBRef:
     - description: 'NEW (string, ObjectID) args'
       input:
-        shell: 'new DBRef(''coll'', new ObjectId())'
+        shell: "new DBRef('coll', new ObjectId())"
       output:
-        javascript: 'new DBRef(''coll'', new ObjectId())'
-        python: 'DBRef(''coll'', ObjectId())'
+        javascript: "new DBRef('coll', new ObjectId())"
+        python: "DBRef('coll', ObjectId())"
         java: 'new DBRef("coll", new ObjectId())'
         csharp: 'new MongoDBRef("coll", new ObjectId())'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => null]'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
@@ -136,13 +136,13 @@ tests:
           )
     - description: '(string, ObjectID) args'
       input:
-        shell: 'DBRef(''coll'', new ObjectId())'
+        shell: "DBRef('coll', new ObjectId())"
       output:
-        javascript: 'new DBRef(''coll'', new ObjectId())'
-        python: 'DBRef(''coll'', ObjectId())'
+        javascript: "new DBRef('coll', new ObjectId())"
+        python: "DBRef('coll', ObjectId())"
         java: 'new DBRef("coll", new ObjectId())'
         csharp: 'new MongoDBRef("coll", new ObjectId())'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => null]'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
@@ -150,13 +150,13 @@ tests:
           )
     - description: '(string, ObjectId, string) args'
       input:
-        shell: 'new DBRef(''coll'', new ObjectId(), ''db'')'
+        shell: "new DBRef('coll', new ObjectId(), 'db')"
       output:
-        javascript: 'new DBRef(''coll'', new ObjectId(), ''db'')'
-        python: 'DBRef(''coll'', ObjectId(), ''db'')'
+        javascript: "new DBRef('coll', new ObjectId(), 'db')"
+        python: "DBRef('coll', ObjectId(), 'db')"
         java: 'new DBRef("db", "coll", new ObjectId())'
         csharp: 'new MongoDBRef("coll", new ObjectId(), "db")'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => ''db'']'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
@@ -197,7 +197,7 @@ tests:
         java: Integer.parseInt("3")
         csharp: Convert.ToInt32("3")
         php: (int) '3'
-        ruby: '''3''.to_i'
+        ruby: "'3'.to_i"
         go: |-
           var parseInt32 = func(str string) int32 {
           i64, err := strconv.ParseInt(str, 10, 32)
@@ -304,7 +304,7 @@ tests:
         java: Long.parseLong("9223372036854775807")
         csharp: Convert.ToInt64("9223372036854775807")
         php: (int) '9223372036854775807'
-        ruby: '''9223372036854775807''.to_i'
+        ruby: "'9223372036854775807'.to_i"
         go: |-
           var parseInt = func(str string) int64 {
             i64, err := strconv.ParseInt(str, 10, 64)
@@ -326,7 +326,7 @@ tests:
         java: Decimal128.parse("5")
         csharp: Decimal128.Parse("5")
         php: new Decimal128('5')
-        ruby: 'BSON::Decimal128.new(''5'')'
+        ruby: "BSON::Decimal128.new('5')"
     - description: NEW
       input:
         shell: new NumberDecimal('5.3E-6175')
@@ -335,7 +335,7 @@ tests:
         java: Decimal128.parse("5.3E-6175")
         csharp: Decimal128.Parse("5.3E-6175")
         php: new Decimal128('5.3E-6175')
-        ruby: 'BSON::Decimal128.new(''5.3E-6175'')'
+        ruby: "BSON::Decimal128.new('5.3E-6175')"
     - description: number arg
       input:
         shell: NumberDecimal(5)
@@ -345,7 +345,7 @@ tests:
         java: Decimal128.parse("5")
         csharp: Decimal128.Parse("5")
         php: new Decimal128('5')
-        ruby: 'BSON::Decimal128.new(''5'')'
+        ruby: "BSON::Decimal128.new('5')"
     - description: no arg
       input:
         shell: NumberDecimal()
@@ -355,7 +355,7 @@ tests:
         java: Decimal128.parse("0")
         csharp: Decimal128.Parse("0")
         php: new Decimal128('0')
-        ruby: 'BSON::Decimal128.new(''0'')'
+        ruby: "BSON::Decimal128.new('0')"
   MinKey/MaxKey:
     - description: MinKey
       input:
@@ -437,11 +437,11 @@ tests:
         shell: Symbol('abc')
       output:
         javascript: new BSONSymbol('abc')
-        python: '''abc'''
+        python: "'abc'"
         java: new Symbol("abc")
         csharp: '"abc"'
-        php: '''abc'''
-        ruby: ':''abc'''
+        php: "'abc'"
+        ruby: ":'abc'"
         go: primitive.Symbol("abc")
         rust: 'Bson::Symbol("abc")'
     - description: from shell symbol
@@ -449,10 +449,10 @@ tests:
         shell: Symbol('abc')
       output:
         javascript: new BSONSymbol('abc')
-        python: '''abc'''
+        python: "'abc'"
         java: new Symbol("abc")
         csharp: '"abc"'
-        php: '''abc'''
-        ruby: ':''abc'''
+        php: "'abc'"
+        ruby: ":'abc'"
         go: primitive.Symbol("abc")
         rust: 'Bson::Symbol("abc")'

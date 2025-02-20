@@ -1,31 +1,48 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { DropNamespacePlugin } from '../index';
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import toNS from 'mongodb-ns';
-import { render, cleanup, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import {
+  renderWithConnections,
+  cleanup,
+  screen,
+  waitFor,
+  userEvent,
+  createDefaultConnectionInfo,
+} from '@mongodb-js/testing-library-compass';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+
+const mockConnectionInfo = createDefaultConnectionInfo();
 
 describe('DropNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
-  const dataService = {
-    dropDatabase: sandbox.stub().resolves(true),
-    dropCollection: sandbox.stub().resolves(true),
-  };
-  const connectionsManager = {
-    getDataServiceForConnection: sandbox.stub().returns(dataService),
-  } as any;
+  let appRegistry: Sinon.SinonSpiedInstance<AppRegistry>;
+  let dataService: Sinon.SinonSpiedInstance<DataService>;
 
-  beforeEach(function () {
-    const Plugin = DropNamespacePlugin.withMockServices({
-      globalAppRegistry: appRegistry,
-      connectionsManager,
-      track: createNoopTrack(),
-    });
-    render(<Plugin></Plugin>);
+  beforeEach(async function () {
+    const result = renderWithConnections(
+      <DropNamespacePlugin></DropNamespacePlugin>,
+      {
+        connections: [mockConnectionInfo],
+        connectFn() {
+          return {
+            dropDatabase() {
+              return Promise.resolve(true);
+            },
+            dropCollection() {
+              return Promise.resolve(true);
+            },
+          };
+        },
+      }
+    );
+    await result.connectionsStore.actions.connect(mockConnectionInfo);
+    appRegistry = sandbox.spy(result.globalAppRegistry);
+    dataService = sandbox.spy(
+      result.getDataServiceForConnection(mockConnectionInfo.id)
+    );
   });
 
   afterEach(function () {
@@ -35,7 +52,7 @@ describe('DropNamespacePlugin', function () {
 
   it('should ask for confirmation and delete collection on `open-drop-collection` event', async function () {
     appRegistry.emit('open-drop-collection', toNS('test.to-drop'), {
-      connectionId: 'TEST',
+      connectionId: mockConnectionInfo.id,
     });
 
     expect(
@@ -66,13 +83,13 @@ describe('DropNamespacePlugin', function () {
     expect(appRegistry.emit).to.have.been.calledWithExactly(
       'collection-dropped',
       'test.to-drop',
-      { connectionId: 'TEST' }
+      { connectionId: mockConnectionInfo.id }
     );
   });
 
   it('should ask for confirmation and delete database on `open-drop-database` event', async function () {
     appRegistry.emit('open-drop-database', 'db-to-drop', {
-      connectionId: 'TEST',
+      connectionId: mockConnectionInfo.id,
     });
 
     expect(
@@ -101,7 +118,7 @@ describe('DropNamespacePlugin', function () {
     expect(appRegistry.emit).to.have.been.calledWithExactly(
       'database-dropped',
       'db-to-drop',
-      { connectionId: 'TEST' }
+      { connectionId: mockConnectionInfo.id }
     );
   });
 });

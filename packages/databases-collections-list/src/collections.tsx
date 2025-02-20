@@ -1,31 +1,10 @@
-/* eslint-disable react/prop-types */
-import React, { useMemo } from 'react';
-import {
-  type BreadcrumbItem,
-  Breadcrumbs,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import React from 'react';
+import { css, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
-
-type Collection = {
-  _id: string;
-  name: string;
-  type: string;
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  document_count: number;
-  document_size: number;
-  avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
-  index_count: number;
-  index_size: number;
-  properties: { id: string }[];
-  source?: Collection;
-};
+import type { CollectionProps } from 'mongodb-collection-model';
 
 const COLLECTION_CARD_WIDTH = spacing[6] * 4;
 
@@ -86,47 +65,25 @@ const pageContainerStyles = css({
   flexDirection: 'column',
 });
 
-const breadcrumbStyles = css({
-  paddingLeft: spacing[3],
-  paddingTop: spacing[3],
-  paddingBottom: spacing[2],
-});
-
 const CollectionsList: React.FunctionComponent<{
-  connectionTitle: string;
-  databaseName: string;
-  collections: Collection[];
+  namespace: string;
+  collections: CollectionProps[];
   onCollectionClick(id: string): void;
-  onClickConnectionBreadcrumb(): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
-  connectionTitle,
-  databaseName,
+  namespace,
   collections,
-  onClickConnectionBreadcrumb,
   onCollectionClick,
   onCreateCollectionClick,
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
-  const breadcrumbItems = useMemo(() => {
-    return [
-      {
-        name: connectionTitle,
-        onClick: () => onClickConnectionBreadcrumb(),
-      },
-      {
-        name: databaseName,
-      },
-    ] as BreadcrumbItem[];
-  }, [connectionTitle, databaseName, onClickConnectionBreadcrumb]);
-
   return (
     <div className={pageContainerStyles}>
-      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
       <ItemsGrid
+        namespace={namespace}
         items={collections}
         itemType="collection"
         itemGridWidth={COLLECTION_CARD_WIDTH}
@@ -204,6 +161,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
+              isNonExistent={coll.is_non_existent}
               data={data}
               badges={badges}
               onItemClick={onItemClick}

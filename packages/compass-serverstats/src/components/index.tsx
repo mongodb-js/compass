@@ -25,6 +25,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 
@@ -118,10 +119,14 @@ function PerformancePanelMsgs() {
  */
 function PerformanceComponent() {
   const eventDispatcher = useRef(realTimeDispatcher());
+  const connectionInfoRef = useConnectionInfoRef();
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'performance' });
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'performance' }, connectionInfoRef.current);
+    },
+    [connectionInfoRef]
+  );
 
   useEffect(() => {
     return () => {

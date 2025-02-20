@@ -5,7 +5,6 @@ import {
   resetForTesting,
   registerMongoDbUrlForBrowserWindow,
   getWindowAutoConnectPreferences,
-  onCompassDisconnect,
 } from './auto-connect';
 import { dialog } from 'electron';
 import type { MessageBoxReturnValue } from 'electron';
@@ -86,29 +85,6 @@ describe('auto connect management', function () {
     ).to.deep.equal({
       positionalArguments: ['mongodb://foo'],
       shouldAutoConnect: true,
-    });
-  });
-
-  it('should not indicate to a window that it should auto-connect if it has ever disconnected', async function () {
-    fakePreferences = {
-      file: '<filename>',
-      positionalArguments: ['<arg>'],
-      passphrase: '',
-      username: '',
-      password: '',
-    };
-    onCompassDisconnect({ id: 1 });
-    expect(
-      await getWindowAutoConnectPreferences({ id: 1 }, preferences)
-    ).to.deep.equal({
-      shouldAutoConnect: false,
-    });
-    registerMongoDbUrlForBrowserWindow({ id: 2 }, 'mongodb://foo');
-    onCompassDisconnect({ id: 2 });
-    expect(
-      await getWindowAutoConnectPreferences({ id: 2 }, preferences)
-    ).to.deep.equal({
-      shouldAutoConnect: false,
     });
   });
 

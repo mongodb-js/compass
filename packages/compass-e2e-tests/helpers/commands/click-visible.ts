@@ -2,25 +2,28 @@ import type { CompassBrowser } from '../compass-browser';
 import type { ChainablePromiseElement } from 'webdriverio';
 
 interface ClickOptions {
+  timeout?: number;
   scroll?: boolean;
   screenshot?: string;
 }
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
+  selector: string | ChainablePromiseElement,
   options?: ClickOptions
 ): Promise<void> {
+  const waitOptions = { timeout: options?.timeout };
+
   function getElement() {
     return typeof selector === 'string' ? browser.$(selector) : selector;
   }
 
   const displayElement = getElement();
 
-  await displayElement.waitForDisplayed();
+  await displayElement.waitForDisplayed(waitOptions);
 
   // Clicking a thing that's still animating is unreliable at best.
-  await browser.waitForAnimations(selector);
+  await browser.waitForAnimations(selector, waitOptions);
 
   if (options?.scroll) {
     const scrollElement = getElement();

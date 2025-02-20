@@ -1,25 +1,22 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
-import { expect } from 'chai';
 
+// TODO(COMPASS-8023): Provide a counterpart `browser.saveConnection` method to
+// be able to edit existing connection
 export async function saveFavorite(
   browser: CompassBrowser,
   favoriteName: string,
-  color: `color${number}`
+  color: string
 ): Promise<void> {
-  await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
-  await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-  await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
-  await browser.clickVisible(
-    `${Selectors.FavoriteColorSelector} [data-testid="color-pick-${color}"]`
+  // this assumes that the checkbox is unchecked
+  await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
+  await browser.setValueVisible(
+    Selectors.ConnectionFormConnectionName,
+    favoriteName
   );
-  await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-  expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
-    'Save'
-  );
+  await browser.selectOption(Selectors.ConnectionFormConnectionColor, color);
 
-  await browser.screenshot('save-favorite-modal.png');
-
-  await browser.clickVisible(Selectors.FavoriteSaveButton);
-  await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+  await browser.clickVisible(Selectors.ConnectionModalSaveButton);
+  await browser.$(Selectors.ConnectionModal).waitForExist({ reverse: true });
+  return;
 }

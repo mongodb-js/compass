@@ -7,9 +7,11 @@ import {
 import React from 'react';
 
 export type StatusMarker =
+  | 'initial'
   | 'connected'
   | 'disconnected'
   | 'connecting'
+  | 'canceled'
   | 'failed';
 export type StatusMarkerProps = {
   status: StatusMarker;
@@ -19,8 +21,8 @@ export type StatusMarkerProps = {
 function ConnectedStatusMarker(): React.ReactElement {
   return (
     <svg
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -47,8 +49,8 @@ function ConnectingStatusMarker(): React.ReactElement {
   return (
     <svg
       className={connectingIconStyle}
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -67,8 +69,8 @@ function ConnectingStatusMarker(): React.ReactElement {
 function FailedStatusMarker(): React.ReactElement {
   return (
     <svg
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 7 6"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +86,7 @@ function FailedStatusMarker(): React.ReactElement {
 }
 
 function NoMarker(): React.ReactElement {
-  return <div style={{ width: spacing[2], height: spacing[2] }}></div>;
+  return <div style={{ width: spacing[200], height: spacing[200] }}></div>;
 }
 
 const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
@@ -92,19 +94,21 @@ const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
   connecting: ConnectingStatusMarker,
   failed: FailedStatusMarker,
   disconnected: NoMarker,
+  initial: NoMarker,
+  canceled: NoMarker,
 } as const;
 
 const withStatusMarkerStyles = css({
   position: 'relative',
   display: 'flex',
-  minWidth: spacing[400],
 });
 
 const withStatusMarkerMarkerStyles = css({
   position: 'absolute',
   display: 'flex',
-  right: `-${spacing[50]}px`,
-  bottom: `-${spacing[50]}px`,
+  // Shows the marker in the bottom right corner of the parent element
+  right: '0px',
+  bottom: '0px',
 });
 
 export function WithStatusMarker({

@@ -227,8 +227,8 @@ describe('Preferences class', function () {
       },
       {
         networkTraffic: false,
-        enableGenAIFeatures: false,
         enableMaps: false,
+        enableGenAIFeatures: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
         autoUpdates: false,
@@ -250,6 +250,7 @@ describe('Preferences class', function () {
       },
       hardcoded: {
         networkTraffic: false,
+        enableGenAIFeatures: false,
       },
     });
     const result = preferences.getPreferences();

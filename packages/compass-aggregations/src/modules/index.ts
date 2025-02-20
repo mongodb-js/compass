@@ -42,11 +42,10 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -100,7 +99,6 @@ export type PipelineBuilderExtraArgs = {
   localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
-  atlasAuthService: AtlasAuthService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: Logger;
@@ -108,8 +106,10 @@ export type PipelineBuilderExtraArgs = {
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;
-  connectionInfoAccess: ConnectionInfoAccess;
-  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
+  connectionInfoRef: ConnectionInfoRef;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<
+    'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
+  >;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -12,11 +12,18 @@ echo "NPM_VERSION: $NPM_VERSION"
 echo "APPDATA: $APPDATA"
 echo "PATH: $PATH"
 
+# these are super useful if you want to run the smoke tests locally
+echo "export DEV_VERSION_IDENTIFIER=$DEV_VERSION_IDENTIFIER"
+echo "export EVERGREEN_BUCKET_KEY_PREFIX=$EVERGREEN_BUCKET_KEY_PREFIX"
+echo "export EVERGREEN_BUCKET_NAME=$EVERGREEN_BUCKET_NAME"
+
 echo "IS_OSX: $IS_OSX"
 echo "IS_LINUX: $IS_LINUX"
 echo "IS_WINDOWS: $IS_WINDOWS"
 echo "IS_RHEL: $IS_RHEL"
 echo "IS_UBUNTU: $IS_UBUNTU"
+
+echo "DOCKER_CONFIG: $DOCKER_CONFIG"
 
 SCRIPTDIR="$(cd $(dirname "$0"); pwd)"
 
@@ -39,9 +46,6 @@ if [ -n "$IS_WINDOWS" ]; then
     ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
-
-    cd ..
-    .evergreen/node-gyp-bug-workaround.sh
 else
     if command -v ldd &> /dev/null && `ldd $(which bash) | grep 'libc.so' | awk '{print $3}'` | grep -Eq 'release version 2.(1|2[0-7])'; then
         echo "Installing unofficial nodejs compiled for glibc 2.17 v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."

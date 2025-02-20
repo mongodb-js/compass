@@ -8,6 +8,7 @@ import {
   AppRegistryProvider,
   useGlobalAppRegistry,
   useLocalAppRegistry,
+  useIsTopLevelProvider,
 } from './react-context';
 
 class ActivateHelpersImpl {
@@ -54,8 +55,10 @@ class ActivateHelpersImpl {
   /**
    * Add an arbitrary callback to the cleanup set
    */
-  addCleanup = (fn: () => void) => {
-    this.cleanupFns.add(fn);
+  addCleanup = (fn?: () => void) => {
+    if (fn) {
+      this.cleanupFns.add(fn);
+    }
   };
 
   /**
@@ -124,7 +127,11 @@ type Services<S extends Record<string, () => unknown>> = {
   [SvcName in keyof S]: ReturnType<S[SvcName]>;
 };
 
-export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
+export type HadronPluginConfig<
+  T,
+  S extends Record<string, () => unknown>,
+  A extends Plugin
+> = {
   name: string;
   component: React.ComponentType<T>;
   /**
@@ -137,7 +144,7 @@ export type HadronPluginConfig<T, S extends Record<string, () => unknown>> = {
     initialProps: T,
     services: Registries & Services<S>,
     helpers: ActivateHelpers
-  ) => Plugin;
+  ) => A;
 };
 
 type MockOptions = {
@@ -147,17 +154,20 @@ type MockOptions = {
   disableChildPluginRendering: boolean;
 };
 
-const defaultMockOptions = {
+const DEFAULT_MOCK_OPTIONS = {
   pluginName: '$$root',
   mockedEnvironment: false,
   mockServices: {},
   disableChildPluginRendering: false,
 };
 
-const MockOptionsContext = React.createContext<MockOptions>(defaultMockOptions);
+const MockOptionsContext = React.createContext<MockOptions | null>(null);
 
-const useMockOption = <T extends keyof MockOptions>(key: T): MockOptions[T] => {
-  return useContext(MockOptionsContext)[key];
+const useMockOption = <T extends keyof MockOptions>(
+  key: T,
+  defaultMockOptions = DEFAULT_MOCK_OPTIONS
+): MockOptions[T] => {
+  return useContext(MockOptionsContext)?.[key] ?? defaultMockOptions[key];
 };
 
 let serviceLocationInProgress = false;
@@ -216,14 +226,19 @@ function isServiceLocator(val: any): boolean {
   return Object.prototype.hasOwnProperty.call(val, kLocator);
 }
 
-function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
-  config: HadronPluginConfig<T, S>,
+function useHadronPluginActivate<
+  T,
+  S extends Record<string, () => unknown>,
+  A extends Plugin
+>(
+  config: HadronPluginConfig<T, S, A>,
   services: S | undefined,
-  props: T
+  props: T,
+  mockOptions?: MockOptions
 ) {
   const registryName = `${config.name}.Plugin`;
-  const isMockedEnvironment = useMockOption('mockedEnvironment');
-  const mockServices = useMockOption('mockServices');
+  const isMockedEnvironment = useMockOption('mockedEnvironment', mockOptions);
+  const mockServices = useMockOption('mockServices', mockOptions);
 
   const globalAppRegistry = useGlobalAppRegistry();
   const localAppRegistry = useLocalAppRegistry();
@@ -293,7 +308,8 @@ function useHadronPluginActivate<T, S extends Record<string, () => unknown>>(
 
 export type HadronPluginComponent<
   T,
-  S extends Record<string, () => unknown>
+  S extends Record<string, () => unknown>,
+  A extends Plugin
 > = React.FunctionComponent<T> & {
   displayName: string;
 
@@ -315,7 +331,7 @@ export type HadronPluginComponent<
    *   return (pluginVisible && <Plugin />)
    * }
    */
-  useActivate(props: T): void;
+  useActivate(props: T): A;
 
   /**
    * Convenience method for testing: allows to override services and app
@@ -335,7 +351,7 @@ export type HadronPluginComponent<
   withMockServices(
     mocks: Partial<Registries & Services<S>>,
     options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-  ): React.FunctionComponent<T>;
+  ): HadronPluginComponent<T, S, A>;
 };
 
 /**
@@ -393,8 +409,12 @@ export type HadronPluginComponent<
  */
 export function registerHadronPlugin<
   T,
-  S extends Record<string, () => unknown>
->(config: HadronPluginConfig<T, S>, services?: S): HadronPluginComponent<T, S> {
+  S extends Record<string, () => unknown>,
+  A extends Plugin
+>(
+  config: HadronPluginConfig<T, S, A>,
+  services?: S
+): HadronPluginComponent<T, S, A> {
   const Component = config.component;
   const Plugin = (props: React.PropsWithChildren<T>) => {
     const isMockedEnvironment = useMockOption('mockedEnvironment');
@@ -439,13 +459,13 @@ export function registerHadronPlugin<
   };
   return Object.assign(Plugin, {
     displayName: config.name,
-    useActivate: (props: T) => {
-      useHadronPluginActivate(config, services, props);
+    useActivate: (props: T): A => {
+      return useHadronPluginActivate(config, services, props) as A;
     },
     withMockServices(
       mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-    ): React.FunctionComponent<T> {
+    ): HadronPluginComponent<T, S, A> {
       const {
         // In case globalAppRegistry mock is not provided, we use the one
         // created in scope so that plugins don't leak their events and
@@ -459,23 +479,51 @@ export function registerHadronPlugin<
       // These services will be passed to the plugin `activate` method second
       // argument
       const mockOptions = {
-        ...defaultMockOptions,
+        ...DEFAULT_MOCK_OPTIONS,
         mockedEnvironment: true,
         pluginName: config.name,
         mockServices,
         ...options,
       };
-      return function MockPluginWithContext(props: T) {
+      function MockPluginWithContext(props: T) {
+        const isTopLevelProvider = useIsTopLevelProvider();
+        const hasCustomAppRegistries =
+          !!mockServices.localAppRegistry || !!mockServices.globalAppRegistry;
+        // Only render these providers if there are no providers for app
+        // registry set up higher in the rendering tree or if user explicitly
+        // passed some mocks here. In other cases we're probably be interferring
+        // with some custom providers setup by the test code
+        const shouldRenderRegistryProviders =
+          isTopLevelProvider || hasCustomAppRegistries;
+
         return (
           <MockOptionsContext.Provider value={mockOptions}>
-            <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
-              <AppRegistryProvider localAppRegistry={localAppRegistry}>
-                <Plugin {...(props as any)}></Plugin>
-              </AppRegistryProvider>
-            </GlobalAppRegistryContext.Provider>
+            {shouldRenderRegistryProviders ? (
+              <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+                <AppRegistryProvider localAppRegistry={localAppRegistry}>
+                  <Plugin {...(props as any)}></Plugin>
+                </AppRegistryProvider>
+              </GlobalAppRegistryContext.Provider>
+            ) : (
+              <Plugin {...(props as any)}></Plugin>
+            )}
           </MockOptionsContext.Provider>
         );
-      };
+      }
+      return Object.assign(MockPluginWithContext, {
+        displayName: config.name,
+        useActivate: (props: T): A => {
+          return useHadronPluginActivate(
+            config,
+            services,
+            props,
+            mockOptions
+          ) as A;
+        },
+        withMockServices() {
+          return MockPluginWithContext as any;
+        },
+      });
     },
   });
 }

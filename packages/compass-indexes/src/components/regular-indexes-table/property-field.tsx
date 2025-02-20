@@ -1,15 +1,7 @@
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import {
-  spacing,
-  css,
-  Tooltip,
-  Body,
-  Badge,
-  BadgeVariant,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
@@ -24,19 +16,23 @@ const partialTooltip = (partialFilterExpression: unknown) => {
   return `partialFilterExpression: ${JSON.stringify(partialFilterExpression)}`;
 };
 
-const ttlTooltip = (expireAfterSeconds: number) => {
+const ttlTooltip = (expireAfterSeconds: string) => {
   return `expireAfterSeconds: ${expireAfterSeconds}`;
 };
 
 export const getPropertyTooltip = (
-  property: string | undefined,
+  property: string,
   extra: RegularIndex['extra']
 ): string | null => {
-  return property === 'ttl'
-    ? ttlTooltip(extra.expireAfterSeconds as number)
-    : property === 'partial'
-    ? partialTooltip(extra.partialFilterExpression)
-    : null;
+  if (property === 'ttl' && extra.expireAfterSeconds !== undefined) {
+    return ttlTooltip(extra.expireAfterSeconds as unknown as string);
+  }
+
+  if (property === 'partial' && extra.partialFilterExpression !== undefined) {
+    return partialTooltip(extra.partialFilterExpression);
+  }
+
+  return null;
 };
 
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
@@ -47,33 +43,7 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
   return (
     <Tooltip
       enabled={!!tooltip}
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <BadgeWithIconLink link={link} text={text} />
-        </span>
-      )}
-    >
-      <Body>{tooltip}</Body>
-    </Tooltip>
-  );
-};
-
-const ErrorBadgeWithTooltip: React.FunctionComponent<{
-  tooltip?: string | null;
-  darkMode?: boolean;
-}> = ({ tooltip, darkMode }) => {
-  return (
-    <Tooltip
-      enabled={!!tooltip}
-      darkMode={darkMode}
-      delay={500}
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <Badge variant={BadgeVariant.Red}>Failed</Badge>
-        </span>
-      )}
+      trigger={<BadgeWithIconLink link={link} text={text} />}
     >
       <Body>{tooltip}</Body>
     </Tooltip>
@@ -81,9 +51,9 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
-  extra: RegularIndex['extra'];
+  cardinality?: RegularIndex['cardinality'];
+  extra?: RegularIndex['extra'];
   properties: RegularIndex['properties'];
-  cardinality: RegularIndex['cardinality'];
 };
 
 const HIDDEN_INDEX_TEXT = 'HIDDEN';
@@ -93,39 +63,29 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   properties,
   cardinality,
 }) => {
-  const darkMode = useDarkMode();
-
   return (
     <div className={containerStyles}>
-      {properties?.map((property) => {
-        return (
-          <PropertyBadgeWithTooltip
-            key={property}
-            text={property}
-            link={getIndexHelpLink(property) ?? '#'}
-            tooltip={getPropertyTooltip(property, extra)}
-          />
-        );
-      })}
+      {extra &&
+        properties?.map((property) => {
+          return (
+            <PropertyBadgeWithTooltip
+              key={property}
+              text={property}
+              link={getIndexHelpLink(property) ?? '#'}
+              tooltip={getPropertyTooltip(property, extra)}
+            />
+          );
+        })}
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}
           link={getIndexHelpLink(cardinality) ?? '#'}
         />
       )}
-      {extra.hidden && (
+      {extra?.hidden && (
         <PropertyBadgeWithTooltip
           text={HIDDEN_INDEX_TEXT}
           link={getIndexHelpLink(HIDDEN_INDEX_TEXT) ?? '#'}
-        />
-      )}
-      {extra.status === 'inprogress' && (
-        <Badge variant={BadgeVariant.Blue}>In Progress ...</Badge>
-      )}
-      {extra.status === 'failed' && (
-        <ErrorBadgeWithTooltip
-          tooltip={extra.error ? String(extra.error) : ''}
-          darkMode={darkMode}
         />
       )}
     </div>

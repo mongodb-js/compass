@@ -1,7 +1,11 @@
 stepback: false
 exec_timeout_secs: 5400
 ignore:
+  - docs/**/*.md
   - AUTHORS
+  - CODE_OF_CONDUCT.md
+  - CONTRIBUTING.md
+  - README.md
   - THIRD-PARTY-NOTICES.md
 include:
   - filename: .evergreen/functions.yml

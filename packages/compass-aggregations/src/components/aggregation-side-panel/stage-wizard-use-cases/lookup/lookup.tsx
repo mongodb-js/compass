@@ -175,7 +175,11 @@ export const LookupForm = ({
         />
       </div>
       <div className={formGroup}>
-        <Body id="lookup-stage-as-input-label" className={titleStyles}>
+        <Body
+          aria-label="Name of the array"
+          id="lookup-stage-as-input-label"
+          className={titleStyles}
+        >
           as
         </Body>
         <div className={inputFieldStyles}>

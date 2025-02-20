@@ -30,6 +30,12 @@ const tsOverrides = {
 const tsxRules = {
   ...common.tsxRules,
   ...extraTsRules,
+  'react-hooks/exhaustive-deps': [
+    'warn',
+    {
+      additionalHooks: 'useTrackOnChange',
+    },
+  ],
 };
 
 const tsxOverrides = {
@@ -37,13 +43,28 @@ const tsxOverrides = {
   rules: { ...tsxRules },
 };
 
+const commonTestOverrides = {
+  '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+  '@typescript-eslint/no-restricted-imports': [
+    'error',
+    {
+      patterns: [
+        {
+          group: '@testing-library/*',
+          message: 'Use @mongodb-js/testing-library-compass instead',
+          allowTypeImports: false,
+        },
+      ],
+    },
+  ],
+};
+
 const testJsOverrides = {
   ...common.testOverrides,
   files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.test.js', '**/test/**/*.js'],
   rules: {
     ...common.testRules,
-    '@mongodb-js/compass/unique-mongodb-log-id': 'off',
-    '@typescript-eslint/no-restricted-imports': 'off',
+    ...commonTestOverrides,
   },
 };
 
@@ -58,8 +79,7 @@ const testTsOverrides = {
   rules: {
     ...common.testRules,
     ...extraTsRules,
-    '@mongodb-js/compass/unique-mongodb-log-id': 'off',
-    '@typescript-eslint/no-restricted-imports': 'off',
+    ...commonTestOverrides,
   },
 };
 

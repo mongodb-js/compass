@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
@@ -25,14 +25,14 @@ const formFields = [
     key: 'password',
     value: 'password',
   },
-];
+] as const;
 
 const sshTunnelOptions: SSHConnectionOptions = {
   host: 'old host',
   port: 22,
   username: 'old username',
   password: 'old password',
-};
+} as const;
 
 describe('SSHTunnelPassword', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -54,7 +54,7 @@ describe('SSHTunnelPassword', function () {
       const el = screen.getByTestId(key);
       expect(el, `renders ${key} field`).to.exist;
       expect(el.getAttribute('value'), `renders ${key} value`).to.equal(
-        sshTunnelOptions[key].toString()
+        sshTunnelOptions[key]?.toString()
       );
     });
   });
@@ -97,17 +97,23 @@ describe('SSHTunnelPassword', function () {
     );
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshHostname') as string
+      ),
       'renders sshHostname field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshUsername') as string
+      ),
       'renders sshUsername field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshPassword')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshPassword') as string
+      ),
       'renders sshPassword field error'
     ).to.exist;
   });

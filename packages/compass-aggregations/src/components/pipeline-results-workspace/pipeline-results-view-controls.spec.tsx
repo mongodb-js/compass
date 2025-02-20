@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 import PipelineResultsViewControls from './pipeline-results-view-controls';
 
@@ -13,7 +17,6 @@ describe('PipelineResultsViewControls', function () {
     );
     const container = screen.getByTestId('pipeline-results-view-controls');
     expect(container).to.exist;
-    expect(within(container).getByText('View')).to.exist;
     expect(within(container).getByLabelText('Document list')).to.exist;
     expect(within(container).getByLabelText('JSON list')).to.exist;
   });

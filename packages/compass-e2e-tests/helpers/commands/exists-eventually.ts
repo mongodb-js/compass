@@ -7,7 +7,7 @@ export async function existsEventually(
 ): Promise<boolean> {
   try {
     // return true if it exists before the timeout expires
-    const element = await browser.$(selector);
+    const element = browser.$(selector);
     await element.waitForDisplayed(
       typeof timeout !== 'undefined' ? { timeout } : undefined
     );

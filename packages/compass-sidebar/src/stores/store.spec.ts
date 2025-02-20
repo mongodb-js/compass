@@ -28,7 +28,6 @@ const ALL_EVENTS = [
   'remove:collections',
   'change:collections._id',
   'change:collections.status',
-  'change:genuineMongoDB.isGenuine',
 ];
 
 describe('SidebarStore [Store]', function () {
@@ -57,7 +56,7 @@ describe('SidebarStore [Store]', function () {
     ({ deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        connectionsManager: {
+        connections: {
           getDataServiceForConnection() {
             return {
               getConnectionOptions() {

@@ -7,14 +7,18 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import path from 'path';
 import os from 'os';
 import type { MongoClientOptions } from 'mongodb';
+import { UUID } from 'mongodb';
 
 import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
 import type DataService from './data-service';
 import { redactConnectionOptions } from './redact';
 import { runCommand } from './run-command';
+import { MongoLogWriter } from 'mongodb-log-writer';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
+const SHOULD_DEBUG =
+  IS_CI || process.env.DEBUG?.includes('data-service-connect');
 
 const SHOULD_RUN_DOCKER_TESTS = process.env.COMPASS_RUN_DOCKER_TESTS === 'true';
 
@@ -26,7 +30,7 @@ const {
   E2E_TESTS_SERVERLESS_HOST,
   E2E_TESTS_FREE_TIER_HOST,
   E2E_TESTS_ANALYTICS_NODE_HOST,
-  E2E_TESTS_ATLAS_X509_PEM,
+  E2E_TESTS_ATLAS_X509_PEM_BASE64,
 } = process.env;
 
 const buildConnectionString = (
@@ -200,7 +204,10 @@ describe('connect', function () {
     });
 
     it('connects to atlas with X509', async function () {
-      if (!IS_CI && !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM)) {
+      if (
+        !IS_CI &&
+        !(E2E_TESTS_ATLAS_HOST || E2E_TESTS_ATLAS_X509_PEM_BASE64)
+      ) {
         return this.skip();
       }
 
@@ -208,7 +215,11 @@ describe('connect', function () {
       try {
         tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
         const certPath = path.join(tempdir, 'x509.pem');
-        await fs.writeFile(certPath, E2E_TESTS_ATLAS_X509_PEM);
+        await fs.writeFile(
+          certPath,
+          process.env.E2E_TESTS_ATLAS_X509_PEM_BASE64 ?? '',
+          'base64'
+        );
 
         const url = new ConnectionStringUrl(
           `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`
@@ -637,7 +648,12 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
   let dataService: DataService | undefined;
 
   try {
-    dataService = await connect({ connectionOptions });
+    dataService = await connect({
+      connectionOptions,
+      logger: SHOULD_DEBUG
+        ? new MongoLogWriter(new UUID().toHexString(), null, process.stderr)
+        : undefined,
+    });
     const connectionStatus = await runCommand(
       dataService['_database']('admin', 'META'),
       { connectionStatus: 1 }

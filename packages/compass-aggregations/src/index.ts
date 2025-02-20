@@ -1,3 +1,4 @@
+import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { AggregationsPlugin } from './plugin';
 import { activateAggregationsPlugin } from './stores/store';
@@ -6,14 +7,14 @@ import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
 import {
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
-  connectionsManagerLocator,
+  connectionsLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
@@ -24,14 +25,16 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import { AggregationsTabTitle } from './plugin-title';
 
-export const CompassAggregationsHadronPlugin = registerHadronPlugin(
+const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassAggregations',
-    component: AggregationsPlugin,
+    component: function AggregationsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
+    },
     activate: activateAggregationsPlugin,
   },
   {
@@ -43,11 +46,10 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-AGGREGATIONS-UI'),
-    track: createTelemetryLocator(),
-    atlasAuthService: atlasAuthServiceLocator,
+    track: telemetryLocator,
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionInfoRef: connectionInfoRefLocator,
     collection: collectionModelLocator,
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<'open-export'>,
@@ -56,7 +58,9 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
 
 export const CompassAggregationsPlugin = {
   name: 'Aggregations' as const,
-  component: CompassAggregationsHadronPlugin,
+  provider: CompassAggregationsHadronPlugin,
+  content: AggregationsPlugin,
+  header: AggregationsTabTitle,
 };
 
 export const CreateViewPlugin = registerHadronPlugin(
@@ -66,9 +70,9 @@ export const CreateViewPlugin = registerHadronPlugin(
     activate: activateCreateViewPlugin,
   },
   {
-    connectionsManager: connectionsManagerLocator,
+    connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-CREATE-VIEW-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     workspaces: workspacesServiceLocator,
   }
 );

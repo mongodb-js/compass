@@ -2,9 +2,8 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { RootAction, SidebarThunkAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import throttle from 'lodash/throttle';
-import { type Database, changeDatabases } from './databases';
+import { type InstanceDatabase, changeDatabases } from './databases';
 import { changeConnectionOptions } from './connection-options';
-import { toggleIsGenuineMongoDBVisible } from './is-genuine-mongodb-visible';
 import { setIsPerformanceTabSupported } from './is-performance-tab-supported';
 import type { MongoServerError } from 'mongodb';
 
@@ -79,7 +78,7 @@ export const setupInstance =
     connectionId: ConnectionInfo['id'],
     instance: MongoDBInstance
   ): SidebarThunkAction<void, RootAction> =>
-  (dispatch, getState, { connectionsManager, logger: { log, mongoLogId } }) => {
+  (dispatch, getState, { connections, logger: { log, mongoLogId } }) => {
     const { instance: instanceList } = getState();
 
     if (instanceList[connectionId]) {
@@ -127,22 +126,24 @@ export const setupInstance =
       { leading: true, trailing: true }
     );
 
-    function getDatabaseInfo(db: Database) {
+    function getDatabaseInfo(db: InstanceDatabase) {
       return {
         _id: db._id,
         name: db.name,
         collectionsStatus: db.collectionsStatus,
         collectionsLength: db.collectionsLength,
+        isNonExistent: db.is_non_existent,
       };
     }
 
-    function getCollectionInfo(coll: Database['collections'][number]) {
+    function getCollectionInfo(coll: InstanceDatabase['collections'][number]) {
       return {
         _id: coll._id,
         name: coll.name,
         type: coll.type,
         sourceName: coll.sourceName,
         pipeline: coll.pipeline,
+        isNonExistent: coll.is_non_existent,
       };
     }
 
@@ -182,25 +183,10 @@ export const setupInstance =
     instance.on('change:collections._id', onDatabasesChange);
     instance.on('change:collections.status', onDatabasesChange);
 
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
+    const dataService = connections.getDataServiceForConnection(connectionId);
 
     const connectionOptions = dataService.getConnectionOptions();
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status
-
-    dispatch(
-      toggleIsGenuineMongoDBVisible(
-        connectionId,
-        !instance.genuineMongoDB.isGenuine
-      )
-    );
-
-    instance.on(
-      'change:genuineMongoDB.isGenuine',
-      (_model: unknown, isGenuine: boolean) => {
-        dispatch(toggleIsGenuineMongoDBVisible(connectionId, !isGenuine));
-      }
-    );
 
     void Promise.all([dataService.currentOp(), dataService.top()]).then(
       () => {

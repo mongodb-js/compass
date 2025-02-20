@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
@@ -16,6 +16,7 @@ import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -115,6 +116,7 @@ type FailedResponseTrackMessage = {
   log: Logger['log'];
   track: TrackFunction;
   requestId: string;
+  connectionInfo: ConnectionInfo;
 };
 
 function trackAndLogFailed({
@@ -125,6 +127,7 @@ function trackAndLogFailed({
   log,
   track,
   requestId,
+  connectionInfo,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
     statusCode,
@@ -133,13 +136,17 @@ function trackAndLogFailed({
     errorCode,
     requestId,
   });
-  track('AI Response Failed', () => ({
-    editor_view_type: 'find',
-    error_name: errorName,
-    status_code: statusCode,
-    error_code: errorCode ?? '',
-    request_id: requestId,
-  }));
+  track(
+    'AI Response Failed',
+    () => ({
+      editor_view_type: 'find' as const,
+      error_name: errorName,
+      status_code: statusCode,
+      error_code: errorCode ?? '',
+      request_id: requestId,
+    }),
+    connectionInfo
+  );
 }
 
 export const runAIQuery = (
@@ -157,6 +164,7 @@ export const runAIQuery = (
       preferences,
       atlasAiService,
       logger: { log },
+      connectionInfoRef,
       track,
     }
   ) => {
@@ -165,12 +173,18 @@ export const runAIQuery = (
     const abortController = new AbortController();
     const { id: requestId, signal } = getAbortSignal();
 
-    track('AI Prompt Submitted', () => ({
-      editor_view_type: 'find',
-      user_input_length: userInput.length,
-      has_sample_documents: provideSampleDocuments,
-      request_id: requestId,
-    }));
+    const connectionInfo = connectionInfoRef.current;
+
+    track(
+      'AI Prompt Submitted',
+      () => ({
+        editor_view_type: 'find' as const,
+        user_input_length: userInput.length,
+        has_sample_documents: provideSampleDocuments,
+        request_id: requestId,
+      }),
+      connectionInfo
+    );
 
     const {
       aiQuery: { aiQueryRequestId: existingRequestId },
@@ -207,20 +221,23 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasAiService.getQueryFromUserInput({
-        signal: abortController.signal,
-        userInput,
-        collectionName,
-        databaseName,
-        schema,
-        // Provide sample documents when the user has opted in in their settings.
-        ...(provideSampleDocuments
-          ? {
-              sampleDocuments,
-            }
-          : undefined),
-        requestId,
-      });
+      jsonResponse = await atlasAiService.getQueryFromUserInput(
+        {
+          signal: abortController.signal,
+          userInput,
+          collectionName,
+          databaseName,
+          schema,
+          // Provide sample documents when the user has opted in in their settings.
+          ...(provideSampleDocuments
+            ? {
+                sampleDocuments,
+              }
+            : undefined),
+          requestId,
+        },
+        connectionInfo
+      );
     } catch (err: any) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
@@ -234,6 +251,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -286,6 +304,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -314,6 +333,7 @@ export const runAIQuery = (
           log,
           track,
           requestId,
+          connectionInfo,
         });
         return;
       }
@@ -326,6 +346,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -351,11 +372,15 @@ export const runAIQuery = (
         shape: Object.keys(generatedFields),
       }
     );
-    track('AI Response Generated', () => ({
-      editor_view_type: 'find',
-      query_shape: Object.keys(generatedFields),
-      request_id: requestId,
-    }));
+    track(
+      'AI Response Generated',
+      () => ({
+        editor_view_type: 'find' as const,
+        query_shape: Object.keys(generatedFields),
+        request_id: requestId,
+      }),
+      connectionInfo
+    );
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
@@ -387,10 +412,10 @@ export const cancelAIQuery = (): QueryBarThunkAction<
 };
 
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService }) => {
+  return async (dispatch, _getState, { atlasAiService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
@@ -407,7 +432,7 @@ export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
   };
 };
 
-const aiQueryReducer: Reducer<AIQueryState> = (
+const aiQueryReducer: Reducer<AIQueryState, Action> = (
   state = initialState,
   action
 ) => {

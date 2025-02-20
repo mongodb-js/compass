@@ -25,6 +25,7 @@ import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -76,7 +77,7 @@ type StageEditorProps = {
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   num_stages: number;
-  editor_view_type: string;
+  editor_view_type: 'text' | 'stage' | 'focus';
   className?: string;
   onChange: (index: number, value: string) => void;
   editorRef?: React.Ref<EditorRef>;
@@ -97,6 +98,7 @@ export const StageEditor = ({
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorCurrentValueRef = useRef<string | null>(stageValue);
@@ -136,19 +138,31 @@ export const StageEditor = ({
       !!editorCurrentValueRef.current &&
       editorCurrentValueRef.current !== editorInitialValueRef.current
     ) {
-      track('Aggregation Edited', {
-        num_stages: num_stages,
-        stage_index: index + 1,
-        stage_action: 'stage_content_changed',
-        stage_name: stageOperator,
-        editor_view_type: editor_view_type,
-      });
+      track(
+        'Aggregation Edited',
+        {
+          num_stages: num_stages,
+          stage_index: index + 1,
+          stage_action: 'stage_content_changed',
+          stage_name: stageOperator,
+          editor_view_type: editor_view_type,
+        },
+        connectionInfoRef.current
+      );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [track, num_stages, index, stageOperator, editor_view_type]);
+  }, [
+    track,
+    num_stages,
+    index,
+    stageOperator,
+    editor_view_type,
+    connectionInfoRef,
+  ]);
 
   return (
     <div
+      data-testid="stage-editor"
       className={cx(
         editorContainerStyles,
         darkMode ? editorContainerStylesDark : editorContainerStylesLight,

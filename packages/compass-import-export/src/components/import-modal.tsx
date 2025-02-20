@@ -160,7 +160,7 @@ function ImportModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isOpen) {
-        track('Screen', { name: 'import_modal' });
+        track('Screen', { name: 'import_modal' }, undefined);
       }
     },
     [isOpen],
@@ -274,7 +274,7 @@ function ImportModal({
 const mapStateToProps = (state: RootImportState) => ({
   ns: state.import.namespace,
   isOpen: state.import.isOpen,
-  errors: state.import.errors,
+  errors: state.import.firstErrors,
   fileType: state.import.fileType,
   fileName: state.import.fileName,
   status: state.import.status,

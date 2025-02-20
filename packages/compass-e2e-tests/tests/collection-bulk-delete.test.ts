@@ -2,10 +2,16 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME_1,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { context } from '../helpers/test-runner-context';
 
 describe('Bulk Delete', function () {
   let compass: Compass;
@@ -16,6 +22,7 @@ describe('Bulk Delete', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   after(async function () {
@@ -25,8 +32,14 @@ describe('Bulk Delete', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   afterEach(async function () {
@@ -45,6 +58,10 @@ describe('Bulk Delete', function () {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Delete Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({});
 
     // Make sure the query is shown in the modal.
@@ -70,11 +87,17 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press delete in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Delete Executed');
+
+    // this id is always different, because the connection is not a saved one
+    // so we just check it exists for simplicity
+    expect(executedEvent.connection_id).to.exist;
+    delete executedEvent.connection_id;
+
     expect(executedEvent).to.deep.equal({});
 
     // The success toast is displayed
@@ -124,7 +147,7 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press cancel in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalCancelButton());
+    await browser.clickVisible(Selectors.confirmationModalCancelButton());
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
@@ -135,7 +158,7 @@ describe('Bulk Delete', function () {
   });
 
   it('can export a delete query', async function () {
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+    if (context.disableClipboardUsage) {
       this.skip();
     }
 
@@ -153,6 +176,10 @@ describe('Bulk Delete', function () {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Delete Export Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({});
 
     const text = await browser.exportToLanguage('Python', {

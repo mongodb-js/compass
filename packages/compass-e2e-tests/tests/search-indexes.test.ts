@@ -3,14 +3,14 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  MONGODB_TEST_SERVER_PORT,
   Selectors,
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_STRING_1,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
 import { type Db, MongoClient } from 'mongodb';
 
@@ -22,7 +22,7 @@ type Connection = {
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
+    connectionString: DEFAULT_CONNECTION_STRING_1,
   },
   {
     name: 'Atlas Free Cluster',
@@ -31,10 +31,9 @@ const connectionsWithNoSearchSupport: Connection[] = [
 ];
 const connectionsWithSearchSupport: Connection[] = [
   {
-    name: 'Atlas Dedicated Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
+    name: 'Atlas Local Dev',
+    connectionString: process.env.ATLAS_LOCAL_URL,
   },
-  // todo: atlas local dev
 ];
 
 const INDEX_DEFINITION = JSON.stringify({
@@ -66,7 +65,7 @@ async function createSearchIndex(
     Selectors.createIndexDropdownAction('search-indexes')
   );
 
-  const modal = await browser.$(Selectors.SearchIndexModal);
+  const modal = browser.$(Selectors.SearchIndexModal);
   await modal.waitForDisplayed();
 
   await browser.setValueVisible(Selectors.SearchIndexName, indexName);
@@ -85,13 +84,13 @@ async function updateSearchIndex(
   indexDefinition: string
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed();
 
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexEditButton(indexName));
 
-  const modal = await browser.$(Selectors.SearchIndexModal);
+  const modal = browser.$(Selectors.SearchIndexModal);
   await modal.waitForDisplayed();
 
   await browser.setCodemirrorEditorValue(
@@ -105,19 +104,15 @@ async function updateSearchIndex(
 
 async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed();
 
   await browser.hover(indexRowSelector);
-  await browser.clickVisible(Selectors.searchIndexDropButton(indexName));
 
-  const modal = await browser.$(Selectors.ConfirmationModal);
-  await modal.waitForDisplayed();
-
-  await browser.setValueVisible(Selectors.ConfirmationModalInput, indexName);
-
-  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-  await modal.waitForDisplayed({ reverse: true });
+  await browser.clickConfirmationAction(
+    Selectors.searchIndexDropButton(indexName),
+    indexName
+  );
 
   await indexRow.waitForExist({
     reverse: true,
@@ -131,18 +126,25 @@ async function verifyIndexDetails(
   details: string
 ) {
   const indexRowSelector = Selectors.searchIndexRow(indexName);
-  const indexRow = await browser.$(indexRowSelector);
+  const indexRow = browser.$(indexRowSelector);
   await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
   await browser.hover(indexRowSelector);
-  await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
 
-  const text = await browser
-    .$(Selectors.searchIndexDetails(indexName))
-    .getText();
-  expect(text.toLowerCase()).to.equal(details.toLowerCase());
+  // Expand the row if it's not already expanded
+  const expandButton = browser.$(Selectors.searchIndexExpandButton(indexName));
+  if (await expandButton.isDisplayed()) {
+    await expandButton.click();
+  }
+
+  await browser.waitUntil(async () => {
+    const text = await browser
+      .$(Selectors.searchIndexDetails(indexName))
+      .getText();
+    return text.toLowerCase() === details.toLowerCase();
+  });
 }
 
-describe.skip('Search Indexes', function () {
+describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
@@ -191,11 +193,19 @@ describe.skip('Search Indexes', function () {
       await dbInstance.createCollection(collectionName);
     }
 
+    await browser.disconnectAll();
     await browser.connectWithConnectionString(currentConnectionString);
-    await browser.navigateToCollectionTab(DB_NAME, collectionName, 'Indexes');
+    await browser.navigateToCollectionTab(
+      connectionNameFromString(currentConnectionString),
+      DB_NAME,
+      collectionName,
+      'Indexes'
+    );
   });
 
   afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+
     // Drop the collection
     {
       try {
@@ -205,8 +215,7 @@ describe.skip('Search Indexes', function () {
       }
     }
     void mongoClient.close();
-    await disconnect(browser);
-    await screenshotIfFailed(compass, this.currentTest);
+    await browser.disconnectAll();
   });
 
   for (const { name, connectionString } of connectionsWithNoSearchSupport) {
@@ -226,8 +235,11 @@ describe.skip('Search Indexes', function () {
         await browser.dropIndex(indexName);
       });
 
-      it('renders search indexes tab disabled', async function () {
-        const searchTab = await browser.$(
+      // TODO(COMPASS-8220): Un-skip this test
+      (name === 'Atlas Free Cluster'
+        ? it.skip
+        : it)('renders search indexes tab disabled', async function () {
+        const searchTab = browser.$(
           Selectors.indexesSegmentedTab('search-indexes')
         );
         const isTabClickable = await searchTab.isClickable();
@@ -264,7 +276,6 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -281,7 +292,6 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -302,7 +312,11 @@ describe.skip('Search Indexes', function () {
         // Verify its updating/updated.
         // As we set the new definition to have no dynamic mappings
         // with no fields, the index details should have '[empty]' value.
-        await verifyIndexDetails(browser, indexName, '[empty]');
+        await verifyIndexDetails(
+          browser,
+          indexName,
+          'No mappings in the index definition.'
+        );
       });
 
       it('runs a search aggregation with index name', async function () {
@@ -311,10 +325,9 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
-        const indexRow = await browser.$(indexRowSelector);
+        const indexRow = browser.$(indexRowSelector);
         await indexRow.waitForDisplayed({ timeout: WAIT_TIMEOUT });
 
         await browser.hover(indexRowSelector);

@@ -1,7 +1,7 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { CollectionsPlugin } from './collections-plugin';
 import {
@@ -38,8 +38,8 @@ export const CreateNamespacePlugin = registerHadronPlugin(
   },
   {
     logger: createLoggerLocator('COMPASS-CREATE-NAMESPACE-UI'),
-    track: createTelemetryLocator(),
-    connectionsManager: connectionsManagerLocator,
+    track: telemetryLocator,
+    connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     workspaces: workspacesServiceLocator,
   }
@@ -53,8 +53,8 @@ export const DropNamespacePlugin = registerHadronPlugin(
   },
   {
     logger: createLoggerLocator('COMPASS-DROP-NAMESPACE-UI'),
-    track: createTelemetryLocator(),
-    connectionsManager: connectionsManagerLocator,
+    track: telemetryLocator,
+    connections: connectionsLocator,
   }
 );
 
@@ -65,7 +65,7 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     activate: activateRenameCollectionPlugin,
   },
   {
-    connectionsManager: connectionsManagerLocator,
+    connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,

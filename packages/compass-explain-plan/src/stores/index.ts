@@ -9,7 +9,10 @@ import {
 import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type AppRegistry from 'hadron-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoRef,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
@@ -44,6 +47,7 @@ export type ExplainPlanModalServices = {
   >;
   logger: Logger;
   track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   localAppRegistry: AppRegistry;
 };

@@ -1,15 +1,18 @@
 import type { ComponentProps } from 'react';
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 import {
   parseSchema,
   type PrimitiveSchemaType,
   type SchemaType,
 } from 'mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
-import { configureActions } from '../actions';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -30,7 +33,6 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
   recentQueryStorageAccess: compassRecentQueryStorageAccess,
   atlasAiService: {} as any,
-  atlasAuthService: { on() {}, removeListener() {} } as any,
 });
 
 function renderField(
@@ -41,7 +43,6 @@ function renderField(
     <MockQueryBarPlugin {...(queryBarProps as any)}>
       <Field
         enableMaps={false}
-        actions={configureActions()}
         name="testFieldName"
         path={['test']}
         {...props}

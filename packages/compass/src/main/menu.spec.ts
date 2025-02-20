@@ -209,7 +209,7 @@ describe('CompassMenu', function () {
               const updateItem = (
                 menu[0].submenu as any
               )?.[1] as MenuItemConstructorOptions;
-              expect(updateItem.label).to.equal('Restart');
+              expect(updateItem.label).to.equal('Restart to Update');
             }
           });
         });
@@ -280,14 +280,14 @@ describe('CompassMenu', function () {
               const updateItem = (
                 menu[3].submenu as any
               )?.[8] as MenuItemConstructorOptions;
-              expect(updateItem.label).to.equal('Restart');
+              expect(updateItem.label).to.equal('Restart to Update');
             }
           });
         });
       }
     });
 
-    it('[single-connection] should generate a menu template for darwin', function () {
+    it('should generate a menu template for darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
       expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
         {
@@ -310,94 +310,7 @@ describe('CompassMenu', function () {
           ],
         },
         {
-          label: '&Connect',
-          submenu: [
-            { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
-            { label: '&Disconnect' },
-            { type: 'separator' },
-            { label: '&Import Saved Connections' },
-            { label: '&Export Saved Connections' },
-          ],
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { label: 'Undo', accelerator: 'Command+Z', role: 'undo' },
-            { label: 'Redo', accelerator: 'Shift+Command+Z', role: 'redo' },
-            { type: 'separator' },
-            { label: 'Cut', accelerator: 'Command+X', role: 'cut' },
-            { label: 'Copy', accelerator: 'Command+C', role: 'copy' },
-            { label: 'Paste', accelerator: 'Command+V', role: 'paste' },
-            {
-              label: 'Select All',
-              accelerator: 'Command+A',
-              role: 'selectAll',
-            },
-            { type: 'separator' },
-            { label: 'Find', accelerator: 'CmdOrCtrl+F' },
-          ],
-        },
-        {
-          label: '&View',
-          submenu: [
-            { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
-            { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
-            { type: 'separator' },
-            { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
-            { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
-            { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
-          ],
-        },
-        {
-          label: 'Window',
-          submenu: [
-            { label: 'Minimize', accelerator: 'Command+M', role: 'minimize' },
-            { label: 'Close', accelerator: 'Command+Shift+W', role: 'close' },
-            { type: 'separator' },
-            { label: 'Bring All to Front', role: 'front' },
-          ],
-        },
-        {
-          label: '&Help',
-          submenu: [
-            { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
-            { label: '&License' },
-            { label: `&View Source Code on GitHub` },
-            { label: `&Suggest a Feature` },
-            { label: `&Report a Bug` },
-            { label: '&Open Log File' },
-          ],
-        },
-      ]);
-    });
-
-    it('[multiple-connection] should generate a menu template for darwin', async function () {
-      await App.preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
-      });
-      sinon.stub(process, 'platform').value('darwin');
-      expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
-        {
-          label: app.getName(),
-          submenu: [
-            { label: `About ${app.getName()}`, role: 'about' },
-            { label: 'Check for updates…' },
-            { type: 'separator' },
-            { label: '&Settings', accelerator: 'CmdOrCtrl+,' },
-            { type: 'separator' },
-            { label: 'Hide', accelerator: 'Command+H', role: 'hide' },
-            {
-              label: 'Hide Others',
-              accelerator: 'Command+Shift+H',
-              role: 'hideOthers',
-            },
-            { label: 'Show All', role: 'unhide' },
-            { type: 'separator' },
-            { label: 'Quit', accelerator: 'CmdOrCtrl+Q' },
-          ],
-        },
-        {
-          label: '&Connect',
+          label: '&Connections',
           submenu: [
             { label: '&Import Saved Connections' },
             { label: '&Export Saved Connections' },
@@ -456,134 +369,21 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    ['linux', 'win32'].forEach((platform) => {
-      it(`[single-connection] should generate a menu template for ${platform}`, function () {
-        sinon.stub(process, 'platform').value(platform);
+    it('does not crash when rendering menu item with an accelerator', () => {
+      const window = new BrowserWindow({ show: false });
+      const template = CompassMenu.getTemplate(window.id);
 
-        expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
-          {
-            label: '&Connect',
-            submenu: [
-              { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
-              { label: '&Disconnect' },
-              { type: 'separator' },
-              { label: '&Import Saved Connections' },
-              { label: '&Export Saved Connections' },
-              { type: 'separator' },
-              { label: 'E&xit', accelerator: 'CmdOrCtrl+Q' },
-            ],
-          },
-          {
-            label: 'Edit',
-            submenu: [
-              { label: 'Undo', accelerator: 'Command+Z', role: 'undo' },
-              { label: 'Redo', accelerator: 'Shift+Command+Z', role: 'redo' },
-              { type: 'separator' },
-              { label: 'Cut', accelerator: 'Command+X', role: 'cut' },
-              { label: 'Copy', accelerator: 'Command+C', role: 'copy' },
-              { label: 'Paste', accelerator: 'Command+V', role: 'paste' },
-              {
-                label: 'Select All',
-                accelerator: 'Command+A',
-                role: 'selectAll',
-              },
-              { type: 'separator' },
-              { label: 'Find', accelerator: 'CmdOrCtrl+F' },
-              { type: 'separator' },
-              { label: '&Settings', accelerator: 'CmdOrCtrl+,' },
-            ],
-          },
-          {
-            label: '&View',
-            submenu: [
-              { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
-              { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
-              { type: 'separator' },
-              { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
-              { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
-              { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
-            ],
-          },
-          {
-            label: '&Help',
-            submenu: [
-              { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
-              { label: '&License' },
-              { label: `&View Source Code on GitHub` },
-              { label: `&Suggest a Feature` },
-              { label: `&Report a Bug` },
-              { label: '&Open Log File' },
-              { type: 'separator' },
-              { label: `&About ${app.getName()}` },
-              { label: 'Check for updates…' },
-            ],
-          },
-        ]);
-      });
-
-      it(`[multiple-connection] should generate a menu template for ${platform}`, async function () {
-        await App.preferences.savePreferences({
-          enableNewMultipleConnectionSystem: true,
-        });
-        sinon.stub(process, 'platform').value(platform);
-
-        expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
-          {
-            label: '&Connect',
-            submenu: [
-              { label: '&Import Saved Connections' },
-              { label: '&Export Saved Connections' },
-              { type: 'separator' },
-              { label: 'E&xit', accelerator: 'CmdOrCtrl+Q' },
-            ],
-          },
-          {
-            label: 'Edit',
-            submenu: [
-              { label: 'Undo', accelerator: 'Command+Z', role: 'undo' },
-              { label: 'Redo', accelerator: 'Shift+Command+Z', role: 'redo' },
-              { type: 'separator' },
-              { label: 'Cut', accelerator: 'Command+X', role: 'cut' },
-              { label: 'Copy', accelerator: 'Command+C', role: 'copy' },
-              { label: 'Paste', accelerator: 'Command+V', role: 'paste' },
-              {
-                label: 'Select All',
-                accelerator: 'Command+A',
-                role: 'selectAll',
-              },
-              { type: 'separator' },
-              { label: 'Find', accelerator: 'CmdOrCtrl+F' },
-              { type: 'separator' },
-              { label: '&Settings', accelerator: 'CmdOrCtrl+,' },
-            ],
-          },
-          {
-            label: '&View',
-            submenu: [
-              { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
-              { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
-              { type: 'separator' },
-              { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
-              { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
-              { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
-            ],
-          },
-          {
-            label: '&Help',
-            submenu: [
-              { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
-              { label: '&License' },
-              { label: `&View Source Code on GitHub` },
-              { label: `&Suggest a Feature` },
-              { label: `&Report a Bug` },
-              { label: '&Open Log File' },
-              { type: 'separator' },
-              { label: `&About ${app.getName()}` },
-              { label: 'Check for updates…' },
-            ],
-          },
-        ]);
-      });
+      // As the root menu items do not have accelerators, we test
+      // against each item's submenu.
+      for (const item of template) {
+        // for TS. compass menu has submenus
+        if (!Array.isArray(item.submenu)) {
+          continue;
+        }
+        const menu = Menu.buildFromTemplate(item.submenu);
+        menu.popup({ window });
+        menu.closePopup();
+      }
     });
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
@@ -611,7 +411,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',
@@ -645,7 +445,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',

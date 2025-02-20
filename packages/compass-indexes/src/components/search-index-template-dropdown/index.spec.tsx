@@ -3,47 +3,77 @@ import { expect } from 'chai';
 import { SearchIndexTemplateDropdown } from './';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
+
+const knnVectorText = 'KNN Vector field mapping';
 
 function templateNamed(name: string) {
   return ATLAS_SEARCH_TEMPLATES.find((t) => t.name === name);
 }
 
 describe('Search Index Template Dropdown', function () {
-  let onTemplateSpy: SinonSpy;
-
-  beforeEach(function () {
-    onTemplateSpy = sinon.spy();
-
-    render(
-      <SearchIndexTemplateDropdown
-        tooltip="Tooltip"
-        isVectorSearchSupported
-        onTemplate={onTemplateSpy}
-      />
-    );
-  });
-
   afterEach(cleanup);
 
-  it('notifies upwards with onTemplate when a new template is choosen', async function () {
-    const dropDown = screen
-      .getByText('Dynamic field mappings')
-      .closest('button')!;
+  describe('when rendered', function () {
+    let onTemplateSpy: SinonSpy;
 
-    userEvent.click(dropDown);
+    beforeEach(function () {
+      onTemplateSpy = sinon.spy();
 
-    const staticFieldMappingOption = await screen.findByText(
-      'Static field mappings'
-    );
-    userEvent.click(staticFieldMappingOption);
+      render(
+        <SearchIndexTemplateDropdown
+          tooltip="Tooltip"
+          isVectorSearchSupported
+          onTemplate={onTemplateSpy}
+        />
+      );
+    });
 
-    expect(onTemplateSpy).to.have.been.calledWith(
-      templateNamed('Static field mappings')
-    );
+    it('notifies upwards with onTemplate when a new template is chosen', async function () {
+      const dropDown = screen
+        .getByText('Dynamic field mappings')
+        .closest('button') as HTMLButtonElement;
+
+      userEvent.click(dropDown);
+
+      const staticFieldMappingOption = await screen.findByText(
+        'Static field mappings'
+      );
+      userEvent.click(staticFieldMappingOption);
+
+      expect(onTemplateSpy).to.have.been.calledWith(
+        templateNamed('Static field mappings')
+      );
+    });
+
+    it('does not shows the knn vector search template', function () {
+      userEvent.click(screen.getByRole('button', { name: 'Template' }));
+      expect(screen.queryByRole('option', { name: knnVectorText })).to.not
+        .exist;
+    });
+  });
+
+  describe('when rendered with vector search disabled', function () {
+    beforeEach(function () {
+      render(
+        <SearchIndexTemplateDropdown
+          tooltip="Tooltip"
+          isVectorSearchSupported={false}
+          onTemplate={() => {}}
+        />
+      );
+    });
+
+    it('shows the knn vector search template', function () {
+      userEvent.click(screen.getByRole('button', { name: 'Template' }));
+      expect(screen.getByRole('option', { name: knnVectorText })).to.be.visible;
+    });
   });
 });

@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
@@ -37,7 +37,10 @@ export type PipelineModeAction = PipelineModeToggledAction;
 
 export const INITIAL_STATE: PipelineModeState = 'builder-ui';
 
-const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<PipelineModeState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (
     isAction<PipelineModeToggledAction>(action, ActionTypes.PipelineModeToggled)
   ) {
@@ -65,7 +68,11 @@ const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     if (newMode === getState().pipelineBuilder.pipelineMode) {
       return;
     }
@@ -91,10 +98,14 @@ export const changePipelineMode = (
       pipelineBuilder
     ).length;
 
-    track('Editor Type Changed', {
-      num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    });
+    track(
+      'Editor Type Changed',
+      {
+        num_stages,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoRef.current
+    );
 
     dispatch(updatePipelinePreview());
   };

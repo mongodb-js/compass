@@ -1,14 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from 'hadron-app-registry';
-import {
-  ConnectionsManager,
-  ConnectionsManagerProvider,
-  type ConnectionInfo,
-  ConnectionInfoProvider,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
@@ -23,7 +19,10 @@ import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
 } from '@mongodb-js/compass-collection';
-import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import {
+  CompassSidebarPlugin,
+  AtlasClusterConnectionsOnlyProvider,
+} from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import {
@@ -31,12 +30,10 @@ import {
   CreateViewPlugin,
 } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
-import {
-  CompassIndexesPlugin,
-  DropIndexPlugin as DropIndexCollectionTabModal,
-  CreateIndexPlugin as CreateIndexCollectionTabModal,
-} from '@mongodb-js/compass-indexes';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
+import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
+import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
@@ -44,10 +41,7 @@ import {
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
-import {
-  PreferencesProvider,
-  ReadOnlyPreferenceAccess,
-} from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
@@ -64,13 +58,19 @@ import type {
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
+import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
+import { useCompassWebPreferences } from './preferences';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
-      <AtlasServiceProvider>
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
-      </AtlasServiceProvider>
+      <AtlasClusterConnectionsOnlyProvider value={true}>
+        <AtlasServiceProvider>
+          <AtlasAiServiceProvider apiURLPreset="cloud">
+            {children}
+          </AtlasAiServiceProvider>
+        </AtlasServiceProvider>
+      </AtlasClusterConnectionsOnlyProvider>
     </AtlasCloudAuthServiceProvider>
   );
 };
@@ -78,45 +78,99 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
-> & { connectionInfo: ConnectionInfo };
+> &
+  Pick<
+    React.ComponentProps<typeof CompassSidebarPlugin>,
+    'onOpenConnectViaModal'
+  >;
 
 type CompassWebProps = {
+  /**
+   * App name to be passed with the connection string when connection to a
+   * cluster (default: "Compass Web")
+   */
   appName?: string;
 
+  /**
+   * Atlas Cloud organization id
+   */
   orgId: string;
+  /**
+   * Atlas Cloud project id (sometimes called group id)
+   */
   projectId: string;
 
+  /**
+   * Whether or not darkMode should be active for the app
+   */
   darkMode?: boolean;
 
-  renderConnecting?: (connectionInfo: ConnectionInfo | null) => React.ReactNode;
-  renderError?: (
-    connectionInfo: ConnectionInfo | null,
-    err: any
-  ) => React.ReactNode;
-
-  initialWorkspace: Extract<
-    OpenWorkspaceOptions,
-    { type: 'Databases' | 'Collections' | 'Collection' }
-  >;
+  /**
+   * Optional. If passed, compass-web will try to find connection info with that
+   * id in connection storage and pass it as autoconnect info to the
+   * compass-connections
+   */
+  initialAutoconnectId?: string;
+  /**
+   * Optional. If passed, compass-web will open provided workspace right away.
+   * If workspace requires active connection, the connectionId from the
+   * workspace will be used for the autoconnect info getter. In that case
+   * connectionId from the workspace takes precedence over
+   * `initialAutoconnectId`
+   */
+  initialWorkspace?: OpenWorkspaceOptions;
+  /**
+   * Callback prop called when current active workspace changes. Can be used to
+   * communicate current workspace back to the parent component for example to
+   * sync router with the current active workspace
+   */
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 
+  /**
+   * Set of initial preferences to override default values
+   */
   initialPreferences?: Partial<AllPreferences>;
 
+  /**
+   * Callback prop called every time any code inside Compass logs something
+   */
   onLog?: LogFunction;
+  /**
+   * Callback prop called every time any code inside Compass prints a debug
+   * statement
+   */
   onDebug?: DebugFunction;
+  /**
+   * Callback prop called for every track event inside Compass
+   */
   onTrack?: TrackFunction;
+
+  /**
+   * Callback prop that will be called with atlas metadata for a certain cluster
+   * when the action is selected from the sidebar actions. Should be used to
+   * show the Atlas Cloud "Connect" modal
+   */
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
+
+  /**
+   * Callback prop called when connections fail to load
+   */
+  onFailToLoadConnections: (err: Error) => void;
 };
 
 function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
-  connectionInfo,
+  onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
   return (
     <WorkspacesProvider
       value={[
+        WelcomeWorkspaceTab,
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,
         CollectionWorkspace,
@@ -130,11 +184,10 @@ function CompassWorkspace({
           CompassSchemaPlugin,
           CompassIndexesPlugin,
           CompassSchemaValidationPlugin,
+          CompassGlobalWritesPlugin,
         ]}
         modals={[
           ExplainPlanCollectionTabModal,
-          DropIndexCollectionTabModal,
-          CreateIndexCollectionTabModal,
           ExportToLanguageCollectionTabModal,
         ]}
       >
@@ -144,15 +197,13 @@ function CompassWorkspace({
         >
           <WorkspacesPlugin
             initialWorkspaceTabs={initialWorkspaceTabs}
-            openOnEmptyWorkspace={{
-              type: 'Databases',
-              connectionId: connectionInfo.id,
-            }}
+            openOnEmptyWorkspace={{ type: 'Welcome' }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => {
               return (
                 <CompassSidebarPlugin
-                  showConnectionInfo={false}
+                  onOpenConnectViaModal={onOpenConnectViaModal}
+                  isCompassWeb={true}
                 ></CompassSidebarPlugin>
               );
             }}
@@ -173,6 +224,21 @@ function CompassWorkspace({
   );
 }
 
+const WithConnectionsStore: React.FunctionComponent<{
+  children: React.ReactElement;
+}> = ({ children }) => {
+  const actions = useConnectionActions();
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      void actions.refreshConnections();
+    }, /* Matches default polling intervals in mms codebase */ 60_000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [actions]);
+  return <>{children}</>;
+};
+
 const LINK_PROPS = {
   utmSource: 'DE',
   utmMedium: 'product',
@@ -189,17 +255,15 @@ const CompassWeb = ({
   orgId,
   projectId,
   darkMode,
+  initialAutoconnectId,
   initialWorkspace,
   onActiveWorkspaceTabChange,
   initialPreferences,
-  renderConnecting = () => null,
-  renderError = () => null,
   onLog,
   onDebug,
   onTrack,
-  // @ts-expect-error not an interface we want to expose in any way, only for
-  // testing purposes, should never be used otherwise
-  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+  onOpenConnectViaModal,
+  onFailToLoadConnections,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
@@ -207,76 +271,19 @@ const CompassWeb = ({
     onDebug,
   });
 
-  const connectionsManager = useRef(
-    new ConnectionsManager({
-      appName,
-      logger: logger.log.unbound,
-      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-    })
-  );
+  const preferencesAccess = useCompassWebPreferences(initialPreferences);
 
-  const [{ connectionInfo, isConnected, connectionError }, setConnectedState] =
-    useState<{
-      connectionInfo: ConnectionInfo | null;
-      isConnected: boolean;
-      connectionError: any | null;
-    }>({ connectionInfo: null, isConnected: false, connectionError: null });
-
-  const onConnected = useCallback((connectionInfo: ConnectionInfo) => {
-    setConnectedState({
-      isConnected: true,
-      connectionInfo,
-      connectionError: null,
-    });
-  }, []);
-
-  const onConnectionFailed = useCallback(
-    (connectionInfo: ConnectionInfo | null, error: Error) => {
-      setConnectedState((prevState) => {
-        return {
-          isConnected: false,
-          connectionInfo: connectionInfo ?? prevState.connectionInfo,
-          connectionError: error,
-        };
-      });
-    },
-    []
-  );
-
-  const onConnectionAttemptStarted = useCallback(
-    (connectionInfo: ConnectionInfo) => {
-      setConnectedState({
-        isConnected: false,
-        connectionInfo,
-        connectionError: null,
-      });
-    },
-    []
-  );
-
-  const preferencesAccess = useRef(
-    new ReadOnlyPreferenceAccess({
-      maxTimeMS: 10_000,
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableImportExport: false,
-      enableGenAIFeatures: false,
-      enableNewMultipleConnectionSystem: false,
-      enablePerformanceAdvisorBanner: true,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
-      },
-      maximumNumberOfActiveConnections: 1,
-      trackUsageStatistics: true,
-      ...initialPreferences,
-    })
-  );
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
   );
-  const autoConnectConnectionId = initialWorkspaceRef.current?.connectionId;
+
+  const autoconnectId =
+    initialWorkspaceRef.current &&
+    initialWorkspaceRef.current.type !== 'Welcome' &&
+    initialWorkspaceRef.current?.type !== 'My Queries'
+      ? initialWorkspaceRef.current.connectionId
+      : initialAutoconnectId ?? undefined;
 
   const onTrackRef = useRef(onTrack);
 
@@ -296,6 +303,37 @@ const CompassWeb = ({
           // Making sure that compass-web modals and tooltips are definitely not
           // hidden by Cloud UI sidebar and page header
           stackedElementsZIndex={10_000}
+          onNextGuideGue={(cue) => {
+            onTrackRef.current?.('Guide Cue Dismissed', {
+              groupId: cue.groupId,
+              cueId: cue.cueId,
+              step: cue.step,
+            });
+          }}
+          onNextGuideCueGroup={(cue) => {
+            if (cue.groupSteps !== cue.step) {
+              onTrackRef.current?.('Guide Cue Group Dismissed', {
+                groupId: cue.groupId,
+                cueId: cue.cueId,
+                step: cue.step,
+              });
+            }
+          }}
+          onSignalMount={(id) => {
+            onTrackRef.current?.('Signal Shown', { id });
+          }}
+          onSignalOpen={(id) => {
+            onTrackRef.current?.('Signal Opened', { id });
+          }}
+          onSignalPrimaryActionClick={(id) => {
+            onTrackRef.current?.('Signal Action Button Clicked', { id });
+          }}
+          onSignalLinkClick={(id) => {
+            onTrackRef.current?.('Signal Link Clicked', { id });
+          }}
+          onSignalClose={(id) => {
+            onTrackRef.current?.('Signal Closed', { id });
+          }}
           {...LINK_PROPS}
         >
           <PreferencesProvider value={preferencesAccess.current}>
@@ -305,46 +343,57 @@ const CompassWeb = ({
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}
                     projectId={projectId}
-                    autoConnectConnectionId={autoConnectConnectionId}
                   >
-                    <ConnectionsManagerProvider
-                      value={connectionsManager.current}
+                    <CompassConnections
+                      appName={appName ?? 'Compass Web'}
+                      onFailToLoadConnections={onFailToLoadConnections}
+                      onExtraConnectionDataRequest={() => {
+                        return Promise.resolve([{}, null] as [
+                          Record<string, unknown>,
+                          null
+                        ]);
+                      }}
+                      onAutoconnectInfoRequest={(connectionStore) => {
+                        if (autoconnectId) {
+                          return connectionStore.loadAll().then(
+                            (connections) => {
+                              return connections.find(
+                                (connectionInfo) =>
+                                  connectionInfo.id === autoconnectId
+                              );
+                            },
+                            (err) => {
+                              const { log, mongoLogId } = logger;
+                              log.warn(
+                                mongoLogId(1_001_000_329),
+                                'Compass Web',
+                                'Could not load connections when trying to autoconnect',
+                                { err: err.message }
+                              );
+                              return undefined;
+                            }
+                          );
+                        }
+                        return Promise.resolve(undefined);
+                      }}
                     >
-                      <CompassConnections
-                        onConnectionAttemptStarted={onConnectionAttemptStarted}
-                        onConnectionFailed={onConnectionFailed}
-                        onConnected={onConnected}
-                      >
-                        <CompassInstanceStorePlugin>
-                          <FieldStorePlugin>
-                            {isConnected && connectionInfo ? (
-                              <AppRegistryProvider
-                                key={connectionInfo.id}
-                                scopeName="Connected Application"
-                              >
-                                <ConnectionInfoProvider
-                                  connectionInfoId={connectionInfo.id}
-                                >
-                                  <CompassWorkspace
-                                    connectionInfo={connectionInfo}
-                                    initialWorkspaceTabs={
-                                      initialWorkspaceTabsRef.current
-                                    }
-                                    onActiveWorkspaceTabChange={
-                                      onActiveWorkspaceTabChange
-                                    }
-                                  />
-                                </ConnectionInfoProvider>
-                              </AppRegistryProvider>
-                            ) : connectionError ? (
-                              renderError(connectionInfo, connectionError)
-                            ) : (
-                              renderConnecting(connectionInfo)
-                            )}
-                          </FieldStorePlugin>
-                        </CompassInstanceStorePlugin>
-                      </CompassConnections>
-                    </ConnectionsManagerProvider>
+                      <CompassInstanceStorePlugin>
+                        <FieldStorePlugin>
+                          <WithConnectionsStore>
+                            <CompassWorkspace
+                              initialWorkspaceTabs={
+                                initialWorkspaceTabsRef.current
+                              }
+                              onActiveWorkspaceTabChange={
+                                onActiveWorkspaceTabChange
+                              }
+                              onOpenConnectViaModal={onOpenConnectViaModal}
+                            ></CompassWorkspace>
+                          </WithConnectionsStore>
+                        </FieldStorePlugin>
+                        <CompassGenerativeAIPlugin projectId={projectId} />
+                      </CompassInstanceStorePlugin>
+                    </CompassConnections>
                   </AtlasCloudConnectionStorageProvider>
                 </WithAtlasProviders>
               </TelemetryProvider>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   InfoModal,
@@ -23,6 +23,7 @@ import { countAggregationStagesInString } from '../modules/count-aggregation-sta
 import { usePreference } from 'compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
 import { closeModal } from '../stores';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type LanguageOption = {
   displayName: string;
@@ -100,6 +101,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
   const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
@@ -144,43 +146,65 @@ const ExportToLanguageModal: React.FunctionComponent<
   const [wasOpen, setWasOpen] = useState(false);
 
   useEffect(() => {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Export Opened'
-        : mode === 'Delete Query'
-        ? 'Delete Export Opened'
-        : mode === 'Query'
-        ? 'Query Export Opened'
-        : 'Aggregation Export Opened';
-
     if (modalOpen && !wasOpen) {
-      track(trackingEvent, {
-        ...stageCountForTelemetry(inputExpression),
-      });
-      track('Screen', { name: 'export_to_language_modal' });
+      const connectionInfo = connectionInfoRef.current;
+
+      if (mode === 'Query') {
+        track('Query Export Opened', {}, connectionInfo);
+      } else if (mode === 'Delete Query') {
+        track('Delete Export Opened', {}, connectionInfo);
+      } else if (mode === 'Update Query') {
+        track('Update Export Opened', {}, connectionInfo);
+      } else if (mode === 'Pipeline') {
+        track(
+          'Aggregation Export Opened',
+          {
+            ...stageCountForTelemetry(inputExpression),
+          },
+          connectionInfo
+        );
+      }
+
+      track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
 
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track]);
+  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
 
-  function trackCopiedOutput() {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Exported'
-        : mode === 'Delete Query'
-        ? 'Delete Exported'
-        : mode === 'Query'
-        ? 'Query Exported'
-        : 'Aggregation Exported';
-
-    track(trackingEvent, {
+  const trackCopiedOutput = useCallback(() => {
+    const commonProps = {
       language: outputLanguage,
       with_import_statements: includeImports,
       with_drivers_syntax: includeDrivers,
       with_builders: useBuilders,
-      ...stageCountForTelemetry(inputExpression),
-    });
-  }
+    };
+
+    if (mode === 'Update Query') {
+      track('Update Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Delete Query') {
+      track('Delete Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Query') {
+      track('Query Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Pipeline') {
+      track(
+        'Aggregation Exported',
+        {
+          ...commonProps,
+          ...stageCountForTelemetry(inputExpression),
+        },
+        connectionInfoRef.current
+      );
+    }
+  }, [
+    track,
+    connectionInfoRef,
+    outputLanguage,
+    includeImports,
+    includeDrivers,
+    useBuilders,
+    inputExpression,
+    mode,
+  ]);
 
   const prettyInput = useMemo(() => {
     return prettify(input, 'javascript-expression');

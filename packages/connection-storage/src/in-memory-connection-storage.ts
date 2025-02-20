@@ -1,23 +1,10 @@
-import { EventEmitter } from 'events';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import {
-  ConnectionStorageEvents,
-  type ConnectionStorage,
-} from './connection-storage';
+import { type ConnectionStorage } from './connection-storage';
 
-export class InMemoryConnectionStorage
-  extends EventEmitter
-  implements ConnectionStorage
-{
+export class InMemoryConnectionStorage implements ConnectionStorage {
   private connections: ConnectionInfo[];
-  private legacyConnections: { name: string }[];
-  constructor(
-    connections: ConnectionInfo[] = [],
-    legacyConnections: { name: string }[] = []
-  ) {
-    super();
+  constructor(connections: ConnectionInfo[] = []) {
     this.connections = [...connections];
-    this.legacyConnections = [...legacyConnections];
   }
 
   static async createAsync(
@@ -54,7 +41,6 @@ export class InMemoryConnectionStorage
 
   save({ connectionInfo }: { connectionInfo: ConnectionInfo }): Promise<void> {
     this._save({ connectionInfo });
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
     return Promise.resolve();
   }
 
@@ -65,16 +51,11 @@ export class InMemoryConnectionStorage
     if (existingConnectionIdx !== -1) {
       this.connections.splice(existingConnectionIdx, 1);
     }
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
     return Promise.resolve();
   }
 
-  getAutoConnectInfo(): Promise<ConnectionInfo | undefined> {
-    return Promise.resolve(undefined);
-  }
-
   getLegacyConnections(): Promise<{ name: string }[]> {
-    return Promise.resolve(this.legacyConnections);
+    return Promise.resolve([]);
   }
 
   importConnections(): Promise<void> {

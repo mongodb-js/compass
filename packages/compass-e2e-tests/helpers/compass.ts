@@ -11,12 +11,9 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import type { ConsoleMessageType } from 'puppeteer';
-import {
-  run as packageCompass,
-  compileAssets,
-} from 'hadron-build/commands/release';
+import { run as packageCompass } from 'hadron-build/commands/release';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -24,38 +21,66 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
+import {
+  DEFAULT_CONNECTION_STRINGS,
+  DEFAULT_CONNECTION_NAMES,
+  DEFAULT_CONNECTIONS_SERVER_INFO,
+  isTestingWeb,
+  isTestingDesktop,
+  context,
+  assertTestingWeb,
+  isTestingAtlasCloudExternal,
+} from './test-runner-context';
+import {
+  ELECTRON_CHROMIUM_VERSION,
+  LOG_PATH,
+  LOG_COVERAGE_PATH,
+  COMPASS_DESKTOP_PATH,
+  LOG_OUTPUT_PATH,
+  LOG_SCREENSHOTS_PATH,
+  ELECTRON_PATH,
+} from './test-runner-paths';
+import treeKill from 'tree-kill';
+
+const killAsync = async (pid: number, signal?: string) => {
+  return new Promise<void>((resolve, reject) => {
+    treeKill(pid, signal ?? 'SIGTERM', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 const debug = Debug('compass-e2e-tests');
 
 const { gunzip } = zlib;
 const { Z_SYNC_FLUSH } = zlib.constants;
 
-const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
 
-export const COMPASS_PATH = path.dirname(
-  require.resolve('mongodb-compass/package.json')
-);
-export const LOG_PATH = path.resolve(__dirname, '..', '.log');
-const OUTPUT_PATH = path.join(LOG_PATH, 'output');
-export const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
-const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
-
-let MONGODB_VERSION = '';
-let MONGODB_USE_ENTERPRISE =
-  (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
-
 // should we test compass-web (true) or compass electron (false)?
-export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+export const TEST_COMPASS_WEB = isTestingWeb();
 
-/*
-A helper so we can easily find all the tests we're skipping in compass-web.
-Reason is there so you can fill it in and have it show up in search results
-in a scannable manner. It is not being output at present because the tests will
-be logged as pending anyway.
-*/
+// Extending the WebdriverIO's types to allow a verbose option to the chromedriver
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace WebdriverIO {
+    interface ChromedriverOptions {
+      verbose?: boolean;
+    }
+  }
+}
+
+/**
+ * A helper so we can easily find all the tests we're skipping in compass-web.
+ * Reason is there so you can fill it in and have it show up in search results
+ * in a scannable manner. It is not being output at present because the tests will
+ * be logged as pending anyway.
+ */
 export function skipForWeb(
   test: Mocha.Runnable | Mocha.Context,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -66,74 +91,33 @@ export function skipForWeb(
   }
 }
 
-function getBrowserName() {
-  return process.env.BROWSER_NAME ?? 'chrome';
-}
+export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
+// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
+// explicit name, so it gets a calculated one based off the connection string
+export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTION_NAMES[0];
 
-export const BROWSER_NAME = getBrowserName();
-
-export const MONGODB_TEST_SERVER_PORT = Number(
-  process.env.MONGODB_TEST_SERVER_PORT ?? 27091
-);
-
-export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
-
-export function updateMongoDBServerInfo() {
-  try {
-    const { stdout, stderr } = crossSpawn.sync(
-      'npm',
-      [
-        'run',
-        '--silent',
-        /**
-         * The server info update is done through a separate script and not by
-         * using a MongoClient directly because doing so causes an unexplainable
-         * segfault crash in e2e-coverage task in evergreen CI. Moving this
-         * logic to a separate script seems to solve this problem, but if at any
-         * point the issue returns, feel free to revert this whole change
-         **/
-        'server-info',
-        '--',
-        '--connectionString',
-        `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
-      ],
-      { encoding: 'utf-8' }
-    );
-    if (stderr?.length) {
-      throw new Error(stderr);
-    }
-    const { version, enterprise } = JSON.parse(stdout);
-    MONGODB_VERSION = version;
-    MONGODB_USE_ENTERPRISE = enterprise ? 'yes' : 'no';
-    debug(
-      `Got server info: v${String(version)} (${
-        enterprise ? 'enterprise' : 'community'
-      })`
-    );
-  } catch (err) {
-    (err as Error).message =
-      'Failed trying to get MongoDB server info:\n\n' + (err as Error).message;
-    throw err;
-  }
-}
+// for testing multiple connections
+export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
+// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
+export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTION_NAMES[1];
 
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
+  const { version, enterprise } = DEFAULT_CONNECTIONS_SERVER_INFO[0];
   return (
-    semver.satisfies(MONGODB_VERSION, semverCondition, {
+    semver.satisfies(version, semverCondition, {
       includePrerelease: true,
     }) &&
     (typeof enterpriseExact === 'boolean'
-      ? (enterpriseExact && MONGODB_USE_ENTERPRISE === 'yes') ||
-        (!enterpriseExact && MONGODB_USE_ENTERPRISE !== 'yes')
+      ? (enterpriseExact && enterprise) || (!enterpriseExact && !enterprise)
       : true)
   );
 };
 
-// For the user data dirs
-let i = 0;
+// For the user data dirs and logs
+let runCounter = 0;
 
 interface Coverage {
   main?: string;
@@ -142,7 +126,7 @@ interface Coverage {
 
 interface RenderLogEntry {
   timestamp: string;
-  type: ConsoleMessageType;
+  type: string;
   text: string;
   args: unknown;
 }
@@ -199,9 +183,6 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    // TS infers the type of `message` correctly here, which would conflict with
-    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
-    // leave out an explicit type annotation.
     page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
@@ -380,13 +361,13 @@ export class Compass {
       });
       if (coverage.main) {
         await fs.writeFile(
-          path.join(COVERAGE_PATH, `main.${this.name}.log`),
+          path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
           coverage.main
         );
       }
       if (coverage.renderer) {
         await fs.writeFile(
-          path.join(COVERAGE_PATH, `renderer.${this.name}.log`),
+          path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
           coverage.renderer
         );
       }
@@ -414,7 +395,8 @@ export class Compass {
 
   async stopBrowser(): Promise<void> {
     const logging: any[] = await this.browser.execute(function () {
-      return (window as any).logging;
+      // eslint-disable-next-line no-restricted-globals
+      return 'logging' in window && (window.logging as any);
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
@@ -437,7 +419,6 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
-  noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
 }
@@ -464,12 +445,10 @@ async function getCompassExecutionParameters(): Promise<{
   testPackagedApp: boolean;
   binary: string;
 }> {
-  const testPackagedApp = ['1', 'true'].includes(
-    process.env.TEST_PACKAGED_APP ?? ''
-  );
+  const testPackagedApp = isTestingDesktop(context) && context.testPackagedApp;
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
+    : ELECTRON_PATH;
   return { testPackagedApp, binary };
 }
 
@@ -497,7 +476,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
     binary,
-    COMPASS_PATH,
+    COMPASS_DESKTOP_PATH,
     defaultUserDataDir,
     args,
     timeout,
@@ -510,7 +489,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
-      COMPASS_PATH,
+      COMPASS_DESKTOP_PATH,
       // When running binary without webdriver, we need to pass the same flags
       // as we pass when running with webdriverio to have similar behaviour.
       ...CHROME_STARTUP_FLAGS,
@@ -530,13 +509,16 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function processCommonOpts(opts: StartCompassOptions = {}) {
+async function processCommonOpts({
+  // true unless otherwise specified
+  firstRun = true,
+}: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
-  if (defaultUserDataDir && opts.firstRun) {
+  if (defaultUserDataDir && firstRun) {
     removeUserDataDir();
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
@@ -546,7 +528,7 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
     // Need to close the welcome modal if firstRun is undefined or true, because
     // in those cases we do not pass --showed-network-opt-in=true, but only
     // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
-    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
+    needsCloseWelcomeModal = !defaultUserDataDir && firstRun;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
@@ -554,7 +536,7 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
   if (!defaultUserDataDir) {
     defaultUserDataDir = path.join(
       os.tmpdir(),
-      `user-data-dir-${Date.now().toString(32)}-${++i}`
+      `user-data-dir-${Date.now().toString(32)}-${runCounter}`
     );
   }
   const chromedriverLogPath = path.join(
@@ -570,26 +552,20 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
-  await fs.mkdir(OUTPUT_PATH, { recursive: true });
-  await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
-  await fs.mkdir(COVERAGE_PATH, { recursive: true });
+  await fs.mkdir(LOG_OUTPUT_PATH, { recursive: true });
+  await fs.mkdir(LOG_SCREENSHOTS_PATH, { recursive: true });
+  await fs.mkdir(LOG_COVERAGE_PATH, { recursive: true });
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'warn' as const, // info is super verbose right now
+    logLevel: 'trace' as const,
     outputDir: webdriverLogPath,
   };
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    // default is 3000ms
-    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
-      : 120_000, // shorter than the test timeout so the exact line will fail, not the test
-    // default is 500ms
-    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
-      : 100,
+    waitforTimeout: context.webdriverWaitforTimeout,
+    waitforInterval: context.webdriverWaitforInterval,
   };
 
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
@@ -615,6 +591,7 @@ async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  runCounter++;
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
 
   const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
@@ -622,12 +599,23 @@ async function startCompassElectron(
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
-    chromeArgs.push(`--app=${COMPASS_PATH}`);
+    chromeArgs.push(`--app=${COMPASS_DESKTOP_PATH}`);
   }
 
   if (opts.firstRun === false) {
     chromeArgs.push('--showed-network-opt-in=true');
   }
+
+  // Logging output from Electron, even before the app loads any JavaScript
+  const electronLogFile = path.join(LOG_PATH, `electron-${runCounter}.log`);
+  chromeArgs.push(
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--enable-loggingfile
+    '--enable-logging=file',
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
+    `--log-file=${electronLogFile}`,
+    // See https://chromium.googlesource.com/chromium/src/+/master/docs/chrome_os_logging.md
+    '--log-level=0'
+  );
 
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
@@ -648,8 +636,10 @@ async function startCompassElectron(
 
   process.env.APP_ENV = 'webdriverio';
   // For webdriverio env we are changing appName so that keychain records do not
-  // overlap with anything else
-  process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  // overlap with anything else. But leave it alone when testing auto-update.
+  if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
+    process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
+  }
 
   // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
   // clicks from working on elements. Dealing with this case-by-case is way too much work, so
@@ -660,11 +650,20 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: process.env.CHROME_VERSION,
+      browserVersion: ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
         args: chromeArgs,
+      },
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
+      'wdio:chromedriverOptions': {
+        // enable logging so we don't have to debug things blindly
+        // This goes in .log/webdriver/wdio-chromedriver-*.log. It is the
+        // chromedriver log and since this is verbose it also contains the
+        // stdout of the electron main process.
+        verbose: true,
       },
     },
     ...webdriverOptions,
@@ -698,7 +697,7 @@ async function startCompassElectron(
       return (
         p.ppid === process.pid &&
         (p.cmd?.startsWith(binary) ||
-          /(MongoDB Compass|Electron|electron)/.test(p.name))
+          /(MongoDB Compass|Electron|electron|chromedriver)/.test(p.name))
       );
     });
 
@@ -720,7 +719,7 @@ async function startCompassElectron(
     );
 
     for (const p of filteredProcesses) {
-      tryKillProcess(p.pid, p.name);
+      await killAsync(p.pid);
     }
     throw err;
   }
@@ -736,32 +735,101 @@ async function startCompassElectron(
   return compass;
 }
 
+export type StoredAtlasCloudCookies = {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  secure: boolean;
+  httpOnly: boolean;
+  expirationDate: number;
+}[];
+
 export async function startBrowser(
   name: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
+  assertTestingWeb(context);
+
+  runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const browser: CompassBrowser = (await remote({
+  // webdriverio removed RemoteOptions. It is now
+  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
+  const options = {
     capabilities: {
-      browserName: BROWSER_NAME, // 'chrome' or 'firefox'
-      // https://webdriver.io/docs/driverbinaries/
-      // If you leave out browserVersion it will try and find the browser binary
-      // on your system. If you specify it it will download that version. The
-      // main limitation then is that 'latest' is the only 'semantic' version
-      // that is supported for Firefox.
-      // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
-      // Alternatively we can download it ourselves and specify the path to the
-      // binary or we can even start and stop chromedriver/geckodriver manually.
-      // NOTE: The version of chromedriver or geckodriver in play might also be
-      // relevant.
-      browserVersion: 'latest',
+      browserName: context.browserName,
+      ...(context.browserVersion && {
+        browserVersion: context.browserVersion,
+      }),
+
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
     },
     ...webdriverOptions,
     ...wdioOptions,
-  })) as CompassBrowser;
-  await browser.navigateTo('http://localhost:7777/');
+  };
+
+  debug('Starting browser via webdriverio with the following configuration:');
+  debug(JSON.stringify(options, null, 2));
+
+  const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
+
+  if (isTestingAtlasCloudExternal(context)) {
+    const {
+      atlasCloudExternalCookiesFile,
+      atlasCloudExternalUrl,
+      atlasCloudExternalProjectId,
+    } = context;
+
+    // To be able to use `setCookies` method, we need to first open any page on
+    // the same domain as the cookies we are going to set
+    // https://webdriver.io/docs/api/browser/setCookies/
+    await browser.navigateTo(`${atlasCloudExternalUrl}/404`);
+
+    type StoredAtlasCloudCookies = {
+      name: string;
+      value: string;
+      domain: string;
+      path: string;
+      secure: boolean;
+      httpOnly: boolean;
+      expirationDate: number;
+    }[];
+
+    const cookies: StoredAtlasCloudCookies = JSON.parse(
+      await fs.readFile(atlasCloudExternalCookiesFile, 'utf8')
+    );
+
+    await browser.setCookies(
+      cookies
+        .filter((cookie) => {
+          // These are the relevant cookies for auth:
+          // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
+          return (
+            cookie.name.includes('mmsa-') ||
+            cookie.name.includes('mdb-sat') ||
+            cookie.name.includes('mdb-srt')
+          );
+        })
+        .map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+        }))
+    );
+
+    await browser.navigateTo(
+      `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
+    );
+  } else {
+    await browser.navigateTo(context.sandboxUrl);
+  }
+
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
@@ -769,21 +837,6 @@ export async function startBrowser(
   });
 
   return compass;
-}
-
-function tryKillProcess(pid: number, name = '<unknown>'): void {
-  try {
-    debug(`Killing process ${name} with PID ${pid}`);
-    if (process.platform === 'win32') {
-      crossSpawn.sync('taskkill', ['/PID', String(pid), '/F', '/T']);
-    } else {
-      process.kill(pid);
-    }
-  } catch (err) {
-    debug(`Failed to kill process ${name} with PID ${pid}`, {
-      error: (err as Error).stack,
-    });
-  }
 }
 
 /**
@@ -840,7 +893,7 @@ function formattedDate(): string {
 }
 
 export async function rebuildNativeModules(
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
   const fullCompassPath = require.resolve(
     path.join(compassPath, 'package.json')
@@ -867,11 +920,9 @@ export async function rebuildNativeModules(
 }
 
 export async function compileCompassAssets(
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore some weirdness from util-callbackify
-  await compileAssetsAsync({ dir: compassPath });
+  await promisify(execFile)('npm', ['run', 'compile'], { cwd: compassPath });
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {
@@ -900,18 +951,20 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
 }
 
 export async function buildCompass(
-  force = false,
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  if (!force) {
-    try {
-      await getCompassBuildMetadata();
-      return;
-    } catch (e) {
-      // No compass build found, let's build it
-    }
+  try {
+    await getCompassBuildMetadata();
+    return;
+  } catch (e) {
+    /* ignore */
   }
 
+  if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
+    throw new Error('We did not expect to have to build Compass');
+  }
+
+  debug("No Compass build found, let's build it");
   await packageCompassAsync({
     dir: compassPath,
     skip_installer: true,
@@ -996,27 +1049,33 @@ export async function init(
   // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
   await browser.setTimeout({ script: 5_000 });
 
-  // larger window for more consistent results
-  const [width, height] = await browser.execute(() => {
-    // in case setWindowSize() below doesn't work
-    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
-
-    return [window.screen.availWidth, window.screen.availHeight];
-  });
-  debug(`available width=${width}, height=${height}`);
-  try {
-    // window.resizeTo() doesn't work on firefox
-    await browser.setWindowSize(width, height);
-  } catch (err: any) {
-    console.error(err?.stack);
+  if (TEST_COMPASS_WEB) {
+    // larger window for more consistent results
+    const [width, height] = await browser.execute(() => {
+      // in case setWindowSize() below doesn't work
+      // eslint-disable-next-line no-restricted-globals
+      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+      // eslint-disable-next-line no-restricted-globals
+      return [window.screen.availWidth, window.screen.availHeight];
+    });
+    // getting available width=1512, height=944 in electron on mac which is arbitrary
+    debug(`available width=${width}, height=${height}`);
+    try {
+      // window.resizeTo() doesn't work on firefox
+      await browser.setWindowSize(width, height);
+    } catch (err) {
+      console.error(err instanceof Error ? err.stack : err);
+    }
+  } else {
+    await browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { ipcRenderer } = require('electron');
+      void ipcRenderer.invoke('compass:maximize');
+    });
   }
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
-  }
-
-  if (!opts.noWaitForConnectionScreen) {
-    await browser.waitForConnectionScreen();
   }
 
   return compass;
@@ -1061,7 +1120,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       // this only works for the electron use case
       try {
         debug(`Trying to manually kill Compass [${compass.name}]`);
-        tryKillProcess(compass.mainProcessPid, compass.name);
+        await killAsync(compass.mainProcessPid);
       } catch {
         /* already logged ... */
       }
@@ -1075,7 +1134,7 @@ function pathName(text: string) {
     .replace(/[^a-z0-9-_]/gi, ''); // strip everything non-ascii (for now)
 }
 
-function screenshotPathName(text: string) {
+export function screenshotPathName(text: string) {
   return `screenshot-${pathName(text)}.png`;
 }
 
@@ -1083,7 +1142,7 @@ function screenshotPathName(text: string) {
  * @param {string} filename
  */
 export function outputFilename(filename: string): string {
-  return path.join(OUTPUT_PATH, filename);
+  return path.join(LOG_OUTPUT_PATH, filename);
 }
 
 export async function screenshotIfFailed(
@@ -1168,4 +1227,8 @@ export function positionalArgs(positionalArgs: string[]) {
 
     return wrapperPath;
   };
+}
+
+export function connectionNameFromString(connectionString: string): string {
+  return getConnectionTitle({ connectionOptions: { connectionString } });
 }

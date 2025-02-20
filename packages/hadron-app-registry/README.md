@@ -163,7 +163,12 @@ child plugins can be disabled, which can be used to speed up tests or avoid
 having to specify service dependencies for those child plugins.
 
 ```tsx
-import { render, cleanup, screen, waitFor } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 const PluginWithMockServices = WorkspacesPlugin.withMockServices(
   {

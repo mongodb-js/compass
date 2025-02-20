@@ -1,24 +1,106 @@
 import React, { useCallback, useMemo } from 'react';
-import { isLocalhost } from 'mongodb-build-info';
-import { Icon, ServerIcon } from '@mongodb-js/compass-components';
+import {
+  cx,
+  css,
+  palette,
+  ItemActionControls,
+  type ItemAction,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
 import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
-import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
-import { WithStatusMarker } from './with-status-marker';
 import type { Actions } from './constants';
+import { NavigationItemIcon } from './navigation-item-icon';
+
+const nonGenuineBtnStyles = css({
+  color: palette.yellow.dark2,
+  background: palette.yellow.light3,
+  border: `1px solid ${palette.yellow.light2}`,
+  '&:focus': {
+    color: palette.yellow.dark2,
+  },
+  '&:focus::before': {
+    background: palette.yellow.light3,
+  },
+  '&:hover': {
+    color: palette.yellow.dark2,
+  },
+  '&:hover::before': {
+    background: palette.yellow.light3,
+  },
+});
+
+const nonGenuineBtnStylesDarkMode = css({
+  color: palette.yellow.light2,
+  background: palette.yellow.dark3,
+  border: `1px solid ${palette.yellow.dark2}`,
+  '&:focus': {
+    color: palette.yellow.light2,
+  },
+  '&:focus::before': {
+    background: palette.yellow.dark3,
+  },
+  '&:hover': {
+    color: palette.yellow.light2,
+  },
+  '&:hover::before': {
+    background: palette.yellow.dark3,
+  },
+});
+
+const csfleBtnStyles = css({
+  color: palette.gray.dark1,
+  background: palette.gray.light3,
+  border: `1px solid ${palette.gray.light2}`,
+  '&:focus': {
+    color: palette.gray.dark1,
+  },
+  '&:focus::before': {
+    background: palette.gray.light3,
+  },
+  '&:hover': {
+    color: palette.gray.dark1,
+  },
+  '&:hover::before': {
+    background: palette.gray.light3,
+  },
+});
+
+const csfleBtnStylesDarkMode = css({
+  color: palette.gray.light3,
+  background: palette.gray.dark1,
+  border: `1px solid ${palette.gray.base}`,
+  '&:focus': {
+    color: palette.gray.light3,
+  },
+  '&:focus::before': {
+    background: palette.gray.dark1,
+  },
+  '&:hover': {
+    color: palette.gray.light3,
+  },
+  '&:hover::before': {
+    background: palette.gray.dark1,
+  },
+});
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
   isActive: boolean;
   isFocused: boolean;
-  getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
+  getItemActions: (item: SidebarTreeItem) => {
+    actions: NavigationItemActions;
+    config?: {
+      collapseAfter: number;
+    };
+  };
   onItemAction: (item: SidebarActionableItem, action: Actions) => void;
-  onItemExpand: OnExpandedChange<SidebarActionableItem>;
+  onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
 };
 
 export function NavigationItem({
@@ -29,43 +111,7 @@ export function NavigationItem({
   onItemExpand,
   getItemActions,
 }: NavigationItemProps) {
-  const itemIcon = useMemo(() => {
-    if (item.type === 'database') {
-      return <Icon glyph="Database" />;
-    }
-    if (item.type === 'collection') {
-      return <Icon glyph="Folder" />;
-    }
-    if (item.type === 'view') {
-      return <Icon glyph="Visibility" />;
-    }
-    if (item.type === 'timeseries') {
-      return <Icon glyph="TimeSeries" />;
-    }
-    if (item.type === 'connection') {
-      const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isFavorite) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Favorite" />
-          </WithStatusMarker>
-        );
-      }
-      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Laptop" />
-          </WithStatusMarker>
-        );
-      }
-      return (
-        <WithStatusMarker status={item.connectionStatus}>
-          <ServerIcon />
-        </WithStatusMarker>
-      );
-    }
-  }, [item]);
-
+  const isDarkMode = useDarkMode();
   const onAction = useCallback(
     (action: Actions) => {
       if (item.type !== 'placeholder') {
@@ -78,25 +124,13 @@ export function NavigationItem({
   const style = useMemo(() => getTreeItemStyles(item), [item]);
 
   const actionProps = useMemo(() => {
-    const collapseAfter = (() => {
-      if (item.type === 'connection') {
-        if (
-          item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.hasWriteActionsDisabled
-        ) {
-          return 1;
-        }
-        // when connected connection is readonly we don't show the create-database action
-        // so the whole action menu is collapsed
-        return 0;
-      }
-    })();
+    const { actions, config: actionsConfig } = getItemActions(item);
 
     return {
-      actions: getItemActions(item),
+      actions: actions,
       onAction: onAction,
-      ...(typeof collapseAfter === 'number' && {
-        collapseAfter,
+      ...(typeof actionsConfig?.collapseAfter === 'number' && {
+        collapseAfter: actionsConfig?.collapseAfter,
       }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
@@ -110,21 +144,67 @@ export function NavigationItem({
     }
     if (item.type === 'connection') {
       return {
+        'data-is-active': isActive.toString(),
         'data-connection-id': item.connectionInfo.id,
-        'data-connection-name': item.connectionInfo.favorite?.name,
+        'data-connection-name': item.name,
+        'data-is-connected': (item.connectionStatus === 'connected').toString(),
       };
     }
     if (item.type === 'database') {
       return {
+        'data-is-active': isActive.toString(),
         'data-connection-id': item.connectionId,
         'data-database-name': item.dbName,
       };
     }
     return {
+      'data-is-active': isActive.toString(),
       'data-connection-id': item.connectionId,
       'data-namespace': item.namespace,
     };
-  }, [item]);
+  }, [item, isActive]);
+
+  const connectionStaticActions = useMemo(() => {
+    if (
+      item.type !== 'connection' ||
+      item.connectionStatus !== ConnectionStatus.Connected
+    ) {
+      return [];
+    }
+
+    const actions: ItemAction<Actions>[] = [];
+    if (!item.isGenuineMongoDB) {
+      actions.push({
+        action: 'open-non-genuine-mongodb-modal',
+        label: 'Non-Genuine MongoDB',
+        tooltip: 'Non-Genuine MongoDB detected',
+        icon: 'Warning',
+        className: cx(nonGenuineBtnStyles, {
+          [nonGenuineBtnStylesDarkMode]: isDarkMode,
+        }),
+      });
+    }
+
+    if (item.csfleMode && item.csfleMode !== 'unavailable') {
+      actions.push({
+        action: 'open-csfle-modal',
+        label: 'In-Use Encryption',
+        tooltip: 'Configure In-Use Encryption',
+        icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
+        className: cx(csfleBtnStyles, {
+          [csfleBtnStylesDarkMode]: isDarkMode,
+        }),
+      });
+    }
+
+    return actions;
+  }, [item, isDarkMode]);
+
+  const toggleExpand = useCallback(() => {
+    if (item.type !== 'placeholder') {
+      onItemExpand(item, !item.isExpanded);
+    }
+  }, [onItemExpand, item]);
 
   return (
     <StyledNavigationItem item={item}>
@@ -135,16 +215,31 @@ export function NavigationItem({
           isActive={isActive}
           isFocused={isFocused}
           isExpanded={!!item.isExpanded}
-          icon={itemIcon}
+          hasDefaultAction={
+            item.type !== 'connection' || item.connectionStatus === 'connected'
+          }
+          icon={<NavigationItemIcon item={item} />}
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={item.isExpandable}
-          onExpand={(isExpanded: boolean) => {
-            onItemExpand(item, isExpanded);
-          }}
+          isExpandVisible={item.isExpandable}
+          isExpandDisabled={
+            item.type === 'connection' && item.connectionStatus !== 'connected'
+          }
+          toggleExpand={toggleExpand}
           actionProps={actionProps}
-        ></NavigationBaseItem>
+        >
+          {!!connectionStaticActions.length && (
+            <ItemActionControls
+              iconSize="xsmall"
+              actions={connectionStaticActions}
+              onAction={onAction}
+              // these are static buttons that we want visible always on the
+              // sidebar, not as menu item but as action group
+              collapseAfter={connectionStaticActions.length}
+            />
+          )}
+        </NavigationBaseItem>
       )}
     </StyledNavigationItem>
   );

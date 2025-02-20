@@ -7,6 +7,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -21,6 +22,7 @@ describe('Bulk Update', () => {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   after(async function () {
@@ -30,8 +32,14 @@ describe('Bulk Update', () => {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   afterEach(async function () {
@@ -50,6 +58,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Update Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -112,12 +124,16 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Update Executed');
+
+    expect(executedEvent.connection_id).to.exist;
+    delete executedEvent.connection_id; // connection_id varies
+
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
-    const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
+    const modifiedDocument = browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
     const doc = await getFormattedDocument(browser);
     return /^_id: ObjectId\('[a-f0-9]{24}'\) i: 5 j: 0 foo: "bar"$/.test(doc);
@@ -156,6 +172,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
+
+    expect(favoritedEvent.connection_id).to.exist;
+    delete favoritedEvent.connection_id; // connection_id varies
+
     expect(favoritedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -179,10 +199,8 @@ describe('Bulk Update', () => {
 
     // Wait for the favourite to show and click it
     await browser.waitUntil(async () => {
-      const favouriteElements = await browser.$$(
-        Selectors.FavouriteQueryListItem
-      );
-      for (const element of favouriteElements) {
+      const favouriteElements = browser.$$(Selectors.FavouriteQueryListItem);
+      for await (const element of favouriteElements) {
         const favouriteName = await element
           .$(Selectors.FavouriteQueryTitle)
           .getText();
@@ -211,7 +229,7 @@ describe('Bulk Update', () => {
 });
 
 async function getFormattedDocument(browser: CompassBrowser): Promise<string> {
-  const document = await browser.$(Selectors.DocumentListEntry);
+  const document = browser.$(Selectors.DocumentListEntry);
   await document.waitForDisplayed();
   return (await document.getText())
     .replace(/\n/g, ' ')

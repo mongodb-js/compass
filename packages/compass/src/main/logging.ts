@@ -12,6 +12,7 @@ import type { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId, MongoLogManager } from 'mongodb-log-writer';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
+import { missingOptionalDeps } from './optional-deps';
 
 const debug = createDebug('mongodb-compass:main:logging');
 
@@ -90,6 +91,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
         arch: os.arch(),
         ...osReleaseInfo,
         pendingEarlyLogEventCount: earlyLogEvents.length,
+        missingOptionalDeps: missingOptionalDeps(),
       }
     );
 
@@ -145,12 +147,11 @@ async function setupLogging(compassApp: typeof CompassApplication) {
     process.on('compass:log', (meta) => {
       writer.target.write(meta.line);
     });
-    // @ts-expect-error electron types are conflicting with Node.js ones here
-    // not allowing anything but defined events on the process
     process.off('compass:log', earlyLoggingListener);
 
     for (const ev of earlyLogEvents) {
-      // @ts-expect-error see above, same reason
+      // @ts-expect-error electron types are conflicting with Node.js ones here
+      // not allowing anything but defined events on the process
       process.emit('compass:log', ev);
     }
 
@@ -167,7 +168,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       return app.getPath('userData');
     });
 
-    await manager.cleanupOldLogfiles();
+    await manager.cleanupOldLogFiles();
 
     return writer;
   } catch (err) {

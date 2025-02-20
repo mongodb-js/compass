@@ -6,48 +6,50 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: none # We use the github app token to push the changes
+
 jobs:
   update_generated_files:
     name: Update Electron
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ steps.app-token.outputs.token }}
 
-          # this is important so git log can pick up on
-          # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
-
-      - name: Setup git
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.19.1
-          cache: 'npm'
+          node-version: 20.16.0
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |
           npm install -g npm@10.2.4
+
       - name: Install Dependencies
-        run: |
-          npm -v
-          npm ci
+        run: npm ci
+
       - name: Bump packages
-        run: |
-          node scripts/update-electron.js
-          git add .
-          git commit --no-allow-empty -m "chore: update electron" || true
+        run: node scripts/update-electron.js
+
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
-          commit-message: 'chore: update electron'
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore(deps): update electron"
           branch: ci/update-electron
-          title: 'chore: update electron'
+          title: "chore(deps): update electron"
+          labels: no-title-validation
+          author: "${{ steps.app-token.outputs.app-slug}}[bot] <${{ steps.app-token.outputs.app-email }}>"
           body: |
             - Update electron

@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import { Placeholder, css } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';
 import { getTreeItemStyles } from './utils';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const placeholderItem = css({
   display: 'flex',
@@ -13,19 +12,16 @@ const placeholderItem = css({
   color: 'var(--item-color)',
 });
 
-const MULTIPLE_CONNECTION_PROPS = {
+const PLACEHOLDER_PROPS = {
   gradientStart: 'var(--item-bg-color-active)',
   gradientEnd: 'var(--item-bg-color)',
   style: { filter: 'brightness(0.98)' },
-} as const;
+};
 
 export const PlaceholderItem: React.FunctionComponent<{
   level: number;
   style?: CSSProperties;
 }> = ({ level, style }) => {
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
   const itemPaddingStyles = useMemo(
     () => getTreeItemStyles({ level, isExpandable: false }),
     [level]
@@ -33,7 +29,7 @@ export const PlaceholderItem: React.FunctionComponent<{
 
   return (
     <div className={placeholderItem} style={{ ...style, ...itemPaddingStyles }}>
-      <Placeholder {...(isSingleConnection ? {} : MULTIPLE_CONNECTION_PROPS)} />
+      <Placeholder {...PLACEHOLDER_PROPS} />
     </div>
   );
 };

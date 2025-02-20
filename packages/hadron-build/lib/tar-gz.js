@@ -10,7 +10,7 @@ module.exports = async function tarGz(srcDirectory, dest) {
       portable: true,
       gzip: true,
     },
-    ['.']
+    [path.basename(srcDirectory)]
   );
 
   return dest;

@@ -32,7 +32,7 @@ import {
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
@@ -45,6 +45,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -118,7 +119,7 @@ type BaseSearchIndexModalProps = {
   initialIndexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
-  isVectorSearchSupported?: boolean;
+  isVectorSearchSupported: boolean;
   error: string | undefined;
   onSubmit: (index: {
     name: string;
@@ -157,6 +158,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onClose,
 }) => {
   const editorRef = useRef<EditorRef>(null);
+  const connectionInfoRef = useConnectionInfoRef();
 
   const [indexName, setIndexName] = useState(initialIndexName);
   const [searchIndexType, setSearchIndexType] = useState<string>(
@@ -190,15 +192,20 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isModalOpen) {
-        track('Screen', { name: `${mode}_search_index_modal` });
+        const connectionInfo = connectionInfoRef.current;
+        track('Screen', { name: `${mode}_search_index_modal` }, connectionInfo);
         if (mode === 'create') {
-          track('Index Create Opened', {
-            atlas_search: true,
-          });
+          track(
+            'Index Create Opened',
+            {
+              atlas_search: true,
+            },
+            connectionInfo
+          );
         }
       }
     },
-    [isModalOpen, mode],
+    [isModalOpen, mode, connectionInfoRef],
     undefined
   );
 

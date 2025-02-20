@@ -11,6 +11,7 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
+import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
 import {
   VisuallyHidden,
   css,
@@ -19,26 +20,19 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
   connectedConnectionItemActions,
   databaseItemActions,
   notConnectedConnectionItemActions,
 } from './item-actions';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const MCContainer = css({
+const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
   flex: '1 0 auto',
   height: `calc(100% - ${spacing[1600]}px - ${spacing[200]}px)`,
 });
-
-const SCContainer = css({
-  display: 'flex',
-  flex: '1 0 auto',
-  height: 0,
-});
-
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   activeWorkspace: WorkspaceTab | null;
@@ -56,51 +50,28 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onItemExpand,
   onItemAction,
 }) => {
+  const preferencesShellEnabled = usePreference('enableShell');
   const preferencesReadOnly = usePreference('readOnly');
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
-  const maxAllowedActiveConnections = usePreference(
-    'maximumNumberOfActiveConnections'
-  ) as number;
-  const { isConnectDisabled, connectDisabledDescription } = useMemo(() => {
-    const numberOfActiveConnections = connections.filter(
-      (connection) => connection.connectionStatus === ConnectionStatus.Connected
-    ).length;
-    return {
-      isConnectDisabled:
-        numberOfActiveConnections >= maxAllowedActiveConnections,
-      connectDisabledDescription: `Only ${maxAllowedActiveConnections} connection${
-        numberOfActiveConnections > 1 ? 's' : ''
-      } can be open at the same time. First disconnect from another cluster.`,
-    };
-  }, [maxAllowedActiveConnections, connections]);
 
   const id = useId();
 
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
       connections,
-      isSingleConnection,
       expandedItems: expanded,
       preferencesReadOnly,
+      preferencesShellEnabled,
     });
-  }, [connections, isSingleConnection, expanded, preferencesReadOnly]);
+  }, [connections, expanded, preferencesReadOnly, preferencesShellEnabled]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        if (item.connectionStatus === ConnectionStatus.Connected) {
+        if (item.connectionStatus === 'connected') {
           onItemAction(item, 'select-connection');
-        } else if (
-          (item.connectionStatus === ConnectionStatus.Disconnected ||
-            item.connectionStatus === ConnectionStatus.Failed) &&
-          !isConnectDisabled
-        ) {
-          onItemAction(item, 'connection-connect');
         }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
@@ -112,7 +83,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isConnectDisabled]
+    [onItemAction]
   );
 
   const activeItemId = useMemo(() => {
@@ -125,53 +96,115 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
+      if (activeWorkspace.type === 'Databases') {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace, isSingleConnection]);
+  }, [activeWorkspace]);
 
-  const getItemActions = useCallback(
+  const getCollapseAfterForConnectedItem = useCallback(
+    (actions: NavigationItemActions) => {
+      const [firstAction, secondAction] = actions;
+
+      const actionCanBeShownInline = (
+        action: NavigationItemActions[number]
+      ): boolean => {
+        if (typeof (action as ItemSeparator).separator !== 'undefined') {
+          return false;
+        }
+
+        return ['create-database', 'open-shell'].includes(
+          (action as ItemAction<Actions>).action
+        );
+      };
+
+      // this is the normal case for a connection that is writable and when we
+      // also have shell enabled
+      if (
+        actionCanBeShownInline(firstAction) &&
+        actionCanBeShownInline(secondAction)
+      ) {
+        return 2;
+      }
+
+      // this will happen when the either the connection is not writable or the
+      // preference is readonly, or shell is not enabled in which case we either
+      // do not show create-database action or open-shell action
+      if (
+        actionCanBeShownInline(firstAction) ||
+        actionCanBeShownInline(secondAction)
+      ) {
+        return 1;
+      }
+
+      return 0;
+    },
+    []
+  );
+
+  const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
       switch (item.type) {
         case 'placeholder':
-          return [];
+          return {
+            actions: [],
+          };
         case 'connection': {
-          if (item.connectionStatus === ConnectionStatus.Connected) {
-            return connectedConnectionItemActions({
+          if (item.connectionStatus === 'connected') {
+            const actions = connectedConnectionItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
+              isPerformanceTabAvailable: item.isPerformanceTabAvailable,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
+            return {
+              actions: actions,
+              config: {
+                collapseAfter: getCollapseAfterForConnectedItem(actions),
+              },
+            };
           } else {
-            return notConnectedConnectionItemActions({
-              connectionInfo: item.connectionInfo,
-              isConnectDisabled,
-              connectDisabledTooltip: connectDisabledDescription,
-            });
+            return {
+              actions: notConnectedConnectionItemActions({
+                connectionInfo: item.connectionInfo,
+                connectionStatus: item.connectionStatus,
+              }),
+              config: {
+                collapseAfter: 1,
+              },
+            };
           }
         }
         case 'database':
-          return databaseItemActions({
-            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-          });
+          return {
+            actions: databaseItemActions({
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+            }),
+          };
         default:
-          return collectionItemActions({
-            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-            type: item.type,
-            isRenameCollectionEnabled,
-          });
+          return {
+            actions: collectionItemActions({
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+              type: item.type,
+              isRenameCollectionEnabled,
+            }),
+          };
       }
     },
-    [isRenameCollectionEnabled, isConnectDisabled, connectDisabledDescription]
+    [isRenameCollectionEnabled, getCollapseAfterForConnectedItem]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
-    <div className={isSingleConnection ? SCContainer : MCContainer}>
+    <div className={ConnectionsNavigationContainerStyles}>
       <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
+      {/* AutoSizer types does not allow both width and height to be disabled
+        considering that to be a pointless usecase and hence the type
+        definitions are pretty strict. We require these disabled to avoid
+        tests flaking out hence ignoring the usage here.
+        @ts-ignore */}
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width = isTestEnv ? 1024 : '', height = isTestEnv ? 768 : '' }) => (
           <VirtualTree<SidebarTreeItem>
@@ -182,9 +215,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             height={height}
             itemHeight={ROW_HEIGHT}
             onDefaultAction={onDefaultAction}
-            onExpandedChange={onItemExpand}
+            onItemAction={onItemAction}
+            onItemExpand={onItemExpand}
+            getItemActions={getItemActionsAndConfig}
             getItemKey={(item) => item.id}
-            renderItem={({ item, isActive, isFocused }) => {
+            renderItem={({
+              item,
+              isActive,
+              isFocused,
+              onItemAction,
+              onItemExpand,
+              getItemActions,
+            }) => {
               return (
                 <NavigationItem
                   item={item}

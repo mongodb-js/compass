@@ -6,8 +6,8 @@ import {
   cleanup,
   within,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
@@ -77,7 +77,9 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: true,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: true,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
   },
   {
@@ -98,7 +100,9 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: false,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: false,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
   },
   {
@@ -138,7 +142,6 @@ describe('ConnectionsNavigationTree', function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
       ...preferencesOverrides,
     });
     return render(
@@ -238,6 +241,92 @@ describe('ConnectionsNavigationTree', function () {
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
+  describe('connection markers', function () {
+    it('should not render non-genuine marker for the connection item when connection genuine', function () {
+      expect(() => screen.getAllByLabelText('Non-Genuine MongoDB')).to.throw;
+    });
+
+    it('should render non-genuine marker for the connection item when connection is not genuine', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          isGenuineMongoDB: false,
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getAllByLabelText('Non-Genuine MongoDB')).to.have.lengthOf(
+        1
+      );
+
+      userEvent.click(screen.getByLabelText('Non-Genuine MongoDB'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-non-genuine-mongodb-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is enabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'enabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getByLabelText('Lock Icon')).to.be.visible;
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+
+      userEvent.click(screen.getByLabelText('In-Use Encryption'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-csfle-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is disabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'disabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(screen.getByLabelText('Unlock Icon')).to.be.visible;
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+    });
+
+    it('should not render csfle marker for the connection item when csfle is unavailable', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'unavailable',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(() => screen.getAllByLabelText('In-Use Encryption')).to.throw;
+    });
+  });
+
   it('should make current active namespace tabbable', async function () {
     await renderConnectionsNavigationTree({
       expanded: {
@@ -305,16 +394,13 @@ describe('ConnectionsNavigationTree', function () {
       const connection = screen.getByTestId('connection_ready');
 
       expect(within(connection).getByTitle('Create database')).to.be.visible;
+      expect(within(connection).getByTitle('Open MongoDB shell')).to.be.visible;
 
       const otherActions = within(connection).getByTitle('Show actions');
       expect(otherActions).to.exist;
 
       userEvent.click(otherActions);
 
-      expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-      expect(
-        screen.getByTestId('sidebar-navigation-item-actions-open-shell-action')
-      ).not.to.have.attribute('disabled');
       expect(screen.getByText('View performance metrics')).to.be.visible;
       expect(screen.getByText('Show connection info')).to.be.visible;
       expect(screen.getByText('Copy connection string')).to.be.visible;
@@ -477,26 +563,19 @@ describe('ConnectionsNavigationTree', function () {
         const connection = screen.getByTestId('connection_ready');
 
         expect(within(connection).queryByTitle('Create database')).not.to.exist;
+        if (name !== 'when preferences is readonly') {
+          expect(within(connection).getByLabelText('Open MongoDB shell')).to.be
+            .visible;
+        } else {
+          expect(within(connection).queryByLabelText('Open MongoDB shell')).not
+            .to.exist;
+        }
 
         const otherActions = within(connection).getByTitle('Show actions');
         expect(otherActions).to.exist;
 
         userEvent.click(otherActions);
 
-        expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-        if (name !== 'when connection is datalake') {
-          expect(
-            screen.getByTestId(
-              'sidebar-navigation-item-actions-open-shell-action'
-            )
-          ).to.have.attribute('disabled');
-        } else {
-          expect(
-            screen.getByTestId(
-              'sidebar-navigation-item-actions-open-shell-action'
-            )
-          ).not.to.have.attribute('disabled');
-        }
         expect(screen.getByText('View performance metrics')).to.be.visible;
         expect(screen.getByText('Show connection info')).to.be.visible;
         expect(screen.getByText('Copy connection string')).to.be.visible;
@@ -541,13 +620,46 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
+  describe('shell action', function () {
+    it('should show shell action in the sidebar on hover of connected item', async function () {
+      await renderConnectionsNavigationTree();
+      userEvent.hover(screen.getByText('turtles'));
+      expect(screen.getByLabelText('Open MongoDB shell')).to.be.visible;
+    });
+
+    context('when preferences is readonly', function () {
+      it('should not render shell action at all', async function () {
+        await renderConnectionsNavigationTree(
+          {},
+          {
+            readOnly: true,
+          }
+        );
+        userEvent.hover(screen.getByText('turtles'));
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
+      });
+    });
+
+    context('when shell is disabled', function () {
+      it('should not render shell action at all', async function () {
+        await renderConnectionsNavigationTree(
+          {},
+          {
+            enableShell: false,
+          }
+        );
+        userEvent.hover(screen.getByText('turtles'));
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
+      });
+    });
+  });
+
   describe('onItemAction', function () {
     let preferences: PreferencesAccess;
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
-        enableNewMultipleConnectionSystem: true,
       });
     });
 
@@ -621,60 +733,6 @@ describe('ConnectionsNavigationTree', function () {
         expect(action).to.equal('create-database');
       });
 
-      it('should render the connect action for a disconnected connection', async function () {
-        const spy = Sinon.spy();
-        await renderConnectionsNavigationTree({
-          expanded: { connection_ready: { db_ready: true } },
-          onItemAction: spy,
-        });
-
-        userEvent.hover(screen.getByText('connection_disconnected'));
-
-        const connectButton = screen.getByTestId('connection_disconnected');
-        expect(within(connectButton).getByLabelText('Connect')).to.exist;
-
-        userEvent.click(connectButton);
-
-        expect(spy).to.be.calledOnce;
-        const [[item, action]] = spy.args;
-        expect(item.type).to.equal('connection');
-        expect(item.connectionInfo.id).to.equal('connection_disconnected');
-        expect(action).to.equal('connection-connect');
-      });
-
-      context(
-        'when number of active connections are equal to max allowed active connections',
-        function () {
-          it('should render the connect action disabled', async function () {
-            const spy = Sinon.spy();
-            await renderConnectionsNavigationTree(
-              {
-                expanded: { connection_ready: { db_ready: true } },
-                onItemAction: spy,
-              },
-              {
-                maximumNumberOfActiveConnections: 2,
-              }
-            );
-
-            userEvent.hover(screen.getByText('connection_disconnected'));
-
-            const disconnectConnectionNavItem = screen.getByTestId(
-              'connection_disconnected'
-            );
-            const connectBtn = within(
-              disconnectConnectionNavItem
-            ).getByLabelText('Connect');
-            expect(connectBtn).to.exist;
-            expect(connectBtn).to.have.attribute('aria-disabled', 'true');
-
-            userEvent.click(connectBtn);
-
-            expect(spy).to.not.be.called;
-          });
-        }
-      );
-
       context('when performance tab is supported', function () {
         it('should show performance action for connection item and activate callback with `connection-performance-metrics` when clicked', async function () {
           const spy = Sinon.spy();
@@ -702,6 +760,7 @@ describe('ConnectionsNavigationTree', function () {
             connections: [
               {
                 ...(connections[0] as ConnectedConnection),
+                isPerformanceTabSupported: true,
                 isPerformanceTabSupported: false,
               },
               { ...connections[1] },

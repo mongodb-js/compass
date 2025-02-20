@@ -6,10 +6,9 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { BSONValueContainer } from '../bson-value';
-import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
-import { Icon } from '../leafygreen';
+import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 
 const maxWidth = css({
@@ -80,9 +79,7 @@ export const KeyEditor: React.FunctionComponent<{
       {editing ? (
         <Tooltip
           darkMode
-          isDisabled={valid}
-          delay={600}
-          usePortal={false}
+          enabled={!valid}
           trigger={({
             className,
             children,
@@ -193,6 +190,7 @@ export const ValueEditor: React.FunctionComponent<{
   onBlur,
 }) => {
   const val = String(value);
+  const darkMode = useDarkMode();
 
   const inputStyle = useMemo(() => {
     if (type === 'String') {
@@ -229,9 +227,7 @@ export const ValueEditor: React.FunctionComponent<{
       {editing ? (
         <Tooltip
           darkMode
-          isDisabled={valid}
-          delay={600}
-          usePortal={false}
+          enabled={!valid}
           trigger={({
             className,
             children,
@@ -290,7 +286,11 @@ export const ValueEditor: React.FunctionComponent<{
                     className={cx(
                       editorReset,
                       editorOutline,
-                      !valid && editorInvalid
+                      !valid && editorInvalid,
+                      !valid &&
+                        (darkMode
+                          ? editorInvalidDarkMode
+                          : editorInvalidLightMode)
                     )}
                     style={inputStyle}
                     spellCheck="false"

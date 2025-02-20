@@ -1,7 +1,12 @@
 import React from 'react';
 import { EventEmitter } from 'events';
-import { screen, cleanup, render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  screen,
+  cleanup,
+  render,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import Sinon from 'sinon';
@@ -200,9 +205,7 @@ describe('AtlasLoginSettings', function () {
 
   it('should not reset sign in state if there is no sign in attempt in progress', async function () {
     const atlasAuthService = {
-      signIn: sandbox
-        .stub()
-        .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
+      signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     };
 
     const { store } = renderAtlasLoginSettings(atlasAuthService);

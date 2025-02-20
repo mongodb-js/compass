@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -22,20 +22,23 @@ const formFields = [
     key: 'proxyPassword',
     value: 'password',
   },
-];
+] as const;
 
 const proxyParams = {
   proxyHost: 'hello-world.com',
-  proxyPort: 1080,
+  proxyPort: '1080',
   proxyUsername: 'cosmo',
   proxyPassword: 'kramer',
-};
+} as const;
 const connectionStringUrl = new ConnectionStringUrl(
   'mongodb+srv://0ranges:p!neapp1es@localhost/'
 );
 
 for (const key in proxyParams) {
-  connectionStringUrl.searchParams.set(key, proxyParams[key]);
+  connectionStringUrl.searchParams.set(
+    key,
+    proxyParams[key as keyof typeof proxyParams]
+  );
 }
 
 describe('TunnelSocks', function () {

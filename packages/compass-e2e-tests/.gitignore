@@ -2,5 +2,5 @@
 .log
 fixtures/*.csv
 fixtures/*.json
-write-electron-versions.js
-electron-versions.json
+hadron-build-info.json
+

@@ -14,18 +14,18 @@ import {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const dropdownLabelStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
   alignItems: 'center',
 });
 
 type SearchIndexTemplateDropdownProps = {
   tooltip: string;
-  isVectorSearchSupported?: boolean;
+  isVectorSearchSupported: boolean;
   onTemplate: (template: SearchTemplate) => void;
 };
 

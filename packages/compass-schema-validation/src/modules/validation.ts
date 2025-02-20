@@ -456,7 +456,11 @@ export function validationFromCollection(
 export const saveValidation = (
   validation: Validation
 ): SchemaValidationThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService, track }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, track, connectionInfoRef }
+  ) => {
     const state = getState();
     const namespace = state.namespace;
     const checkedValidator = checkValidator(validation.validator);
@@ -471,7 +475,7 @@ export const saveValidation = (
       validation_action: validation.validationAction,
       validation_level: validation.validationLevel,
     };
-    track('Schema Validation Updated', trackEvent);
+    track('Schema Validation Updated', trackEvent, connectionInfoRef.current);
     try {
       await dataService.updateCollection(
         `${namespace.database}.${namespace.collection}`,

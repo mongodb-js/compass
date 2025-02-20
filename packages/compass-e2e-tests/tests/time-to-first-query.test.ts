@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME_1,
+  TEST_COMPASS_WEB,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
 
@@ -22,16 +28,6 @@ describe('Time to first query', function () {
   });
 
   it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
-    // Starting the application with the webdriver.io fails on the first run
-    // sometimes due to devtools / selenium server failing to start in time.
-    // While the root cause is unknown, it usually passes just fine on a re-run
-    // or next application start, so we are just retrying the test here to
-    // work around the flake.
-    //
-    // We re-run the whole test to make sure that the timings for the test run
-    // are not skewed by waiting for the application to restart multiple times.
-    this.retries(5);
-
     // start compass inside the test so that the time is measured together
     compass = await init(this.test?.fullTitle(), { firstRun: true });
 
@@ -39,11 +35,16 @@ describe('Time to first query', function () {
 
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
-    const documentElementValue = await browser.$(
+    const documentElementValue = browser.$(
       '[data-testid="document-list"] [data-testid="editable-document"] .element-value-is-int32'
     );
     const text = await documentElementValue.getText();
@@ -57,13 +58,22 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString();
+    if (TEST_COMPASS_WEB) {
+      await browser.connectWithConnectionString();
+    } else {
+      await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+    }
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
-    const documentElementValue = await browser.$(
+    const documentElementValue = browser.$(
       '[data-testid="document-list"] [data-testid="editable-document"] .element-value-is-int32'
     );
     const text = await documentElementValue.getText();

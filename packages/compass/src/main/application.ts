@@ -1,7 +1,7 @@
 import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
-import type { BrowserWindow, Event } from 'electron';
+import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
@@ -15,7 +15,10 @@ import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
 } from 'compass-preferences-model';
-import { setupPreferencesAndUser } from 'compass-preferences-model';
+import {
+  proxyPreferenceToProxyOptions,
+  setupPreferencesAndUser,
+} from 'compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
@@ -25,6 +28,17 @@ import {
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import type {
+  AgentWithInitialize,
+  RequestInit,
+  Response,
+} from '@mongodb-js/devtools-proxy-support';
+import {
+  createAgent,
+  createFetch,
+  extractProxySecrets,
+  translateToElectronProxyConfig,
+} from '@mongodb-js/devtools-proxy-support';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -32,7 +46,7 @@ const track = createIpcTrack();
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
 
-const getContext = () => {
+const getContext = (): 'terminal' | 'desktop_app' => {
   return process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY
     ? 'terminal'
     : 'desktop_app';
@@ -41,7 +55,7 @@ const getContext = () => {
 const getLaunchConnectionSource = (
   file?: string,
   positionalArguments?: string[]
-) => {
+): 'JSON_file' | 'string' | 'none' => {
   if (file) return 'JSON_file';
   if (positionalArguments?.length) return 'string';
   return 'none';
@@ -54,6 +68,12 @@ const hasConfig = (
   return !!Object.keys(globalPreferences[source]).length;
 };
 
+// The properties of this object are changed when proxy options change
+interface CompassProxyClient {
+  agent: AgentWithInitialize | undefined;
+  fetch: (url: string, fetchOptions?: RequestInit) => Promise<Response>;
+}
+
 class CompassApplication {
   private constructor() {
     // marking constructor as private to disallow usage
@@ -64,6 +84,7 @@ class CompassApplication {
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
   public static preferences: PreferencesAccess;
+  public static httpClient: CompassProxyClient;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -76,10 +97,23 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    const { preferences } = await setupPreferencesAndUser(globalPreferences);
+    const enablePlainTextEncryption =
+      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
+    if (enablePlainTextEncryption) {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
+
+    const { preferences } = await setupPreferencesAndUser(
+      globalPreferences,
+      safeStorage
+    );
     this.preferences = preferences;
     await this.setupLogging();
-    // need to happen after setupPreferencesAndUser
+    await this.setupProxySupport(app, 'Application');
+    // need to happen after setupPreferencesAndUser and setupProxySupport
     await this.setupTelemetry();
     await setupProtocolHandlers(
       process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install',
@@ -92,15 +126,9 @@ class CompassApplication {
       return;
     }
 
-    const enablePlainTextEncryption =
-      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
-    if (enablePlainTextEncryption) {
-      // When testing we want to use plain text encryption to avoid having to
-      // deal with keychain popups or setting up keychain for test on CI (Linux env).
-      // This method is only available on Linux and is no-op on other platforms.
-      safeStorage.setUsePlainTextEncryption(true);
-    }
-
+    // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+    // https://github.com/electron/electron/issues/33640
+    await app.whenReady();
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
@@ -132,9 +160,7 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
-    // toasts will obscure other things which we don't expect yet.
-    if (!process.env.CI) {
+    if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
       this.setupAutoUpdate();
     }
     await setupCSFLELibrary();
@@ -153,7 +179,7 @@ class CompassApplication {
   }
 
   private static async setupCompassAuthService() {
-    await CompassAuthService.init(this.preferences);
+    await CompassAuthService.init(this.preferences, this.httpClient);
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
@@ -223,6 +249,12 @@ class CompassApplication {
         debug('Did not agree to license, quitting app.');
         app.quit();
       },
+      'compass:check-secret-storage-is-available': async function () {
+        // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+        // https://github.com/electron/electron/issues/33640
+        await app.whenReady();
+        return safeStorage.isEncryptionAvailable();
+      },
     });
 
     ipcMain?.handle('coverage', () => {
@@ -252,6 +284,72 @@ class CompassApplication {
     await CompassLogging.init(this);
   }
 
+  public static async setupProxySupport(
+    target: { setProxy(config: ProxyConfig): Promise<void> | void },
+    logContext: string
+  ): Promise<() => void> {
+    const onChange = async (value: string) => {
+      try {
+        const proxyOptions = proxyPreferenceToProxyOptions(value);
+        await app.whenReady();
+
+        try {
+          const electronProxyConfig =
+            translateToElectronProxyConfig(proxyOptions);
+          await target.setProxy(electronProxyConfig);
+        } catch (err) {
+          const headline = String(
+            err && typeof err === 'object' && 'message' in err
+              ? err.message
+              : err ||
+                  'Currently Compass does not support authenticated or ssh proxies.'
+          );
+
+          log.warn(
+            mongoLogId(1_001_000_332),
+            logContext,
+            'Unable to set proxy configuration',
+            {
+              error: headline,
+            }
+          );
+          await target.setProxy({});
+        }
+
+        const agent = createAgent(proxyOptions);
+        const fetch = createFetch(agent || {});
+        this.httpClient?.agent?.destroy();
+        this.httpClient = Object.assign(this.httpClient ?? {}, {
+          agent,
+          fetch,
+        });
+
+        log.info(mongoLogId(1_001_000_327), logContext, 'Configured proxy', {
+          options: extractProxySecrets(proxyOptions).proxyOptions,
+        });
+      } catch (err) {
+        log.warn(
+          mongoLogId(1_001_000_326),
+          logContext,
+          'Unable to set proxy configuration',
+          {
+            error: String(
+              err && typeof err === 'object' && 'message' in err
+                ? err.message
+                : err
+            ),
+          }
+        );
+      }
+    };
+    const unsubscribe = this.preferences.onPreferenceValueChanged(
+      'proxy',
+      (value) => void onChange(value)
+    );
+    await onChange(this.preferences.getPreferences().proxy);
+    return unsubscribe;
+  }
+
   private static async setupTelemetry(): Promise<void> {
     await CompassTelemetry.init(this);
   }
@@ -276,9 +374,6 @@ class CompassApplication {
     event: 'show-log-file-dialog',
     handler: () => void
   ): typeof CompassApplication;
-  // @ts-expect-error typescript is not happy with this overload even though it
-  //                  worked when it wasn't static and the implementation does
-  //                  match the overload declaration
   static on(
     event: 'new-window',
     handler: (bw: BrowserWindow) => void
@@ -297,7 +392,7 @@ class CompassApplication {
   ): typeof CompassApplication;
   static on(
     event: string,
-    handler: (...args: unknown[]) => void
+    handler: (...args: any[]) => void
   ): typeof CompassApplication {
     this.emitter.on(event, handler);
     return this;

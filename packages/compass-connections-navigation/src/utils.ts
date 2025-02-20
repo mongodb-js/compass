@@ -1,15 +1,18 @@
-import { SIDEBAR_COLLAPSE_ICON_WIDTH } from './constants';
+import { spacing } from '@mongodb-js/compass-components';
 import type { SidebarTreeItem } from './tree-data';
 
 export const getTreeItemStyles = ({
   level,
   isExpandable,
 }: Pick<SidebarTreeItem, 'isExpandable' | 'level'>): React.CSSProperties => {
-  const defaultPadding = 20;
-  const paddingLeft =
-    (level - 1) * defaultPadding +
-    (!isExpandable ? SIDEBAR_COLLAPSE_ICON_WIDTH : 0);
+  const DEFAULT_PADDING = spacing[400];
+  const EXPAND_ICON_WIDTH = spacing[400];
+  const EXPAND_ICON_GAP = spacing[50];
+  const EXPAND_ICON_SIZE = EXPAND_ICON_WIDTH + EXPAND_ICON_GAP;
   return {
-    paddingLeft,
+    paddingLeft:
+      DEFAULT_PADDING +
+      (!isExpandable ? EXPAND_ICON_SIZE : 0) +
+      (level - 1) * EXPAND_ICON_SIZE,
   };
 };

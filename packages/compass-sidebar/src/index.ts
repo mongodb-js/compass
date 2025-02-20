@@ -1,41 +1,32 @@
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
-import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {
   type MongoDBInstancesManager,
   mongoDBInstancesManagerLocator,
 } from '@mongodb-js/compass-app-stores/provider';
-import {
-  type ConnectionsManager,
-  connectionsManagerLocator,
-} from '@mongodb-js/compass-connections/provider';
+
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
 
-export const CompassSidebarPlugin = registerHadronPlugin<
-  SidebarPluginProps,
-  {
-    connectionsManager: () => ConnectionsManager;
-    instancesManager: () => MongoDBInstancesManager;
-    logger: () => Logger;
-  }
->(
+export const CompassSidebarPlugin = registerHadronPlugin(
   {
     name: 'CompassSidebar',
     component: SidebarPlugin,
     activate(
-      // @eslint-ignore-next-line
-      _,
+      _initialProps,
       {
         globalAppRegistry,
-        connectionsManager,
+        connections,
         instancesManager,
         logger,
       }: {
         globalAppRegistry: AppRegistry;
-        connectionsManager: ConnectionsManager;
+        connections: ConnectionsService;
         instancesManager: MongoDBInstancesManager;
         logger: Logger;
       },
@@ -44,7 +35,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
       const { store, deactivate } = createSidebarStore(
         {
           globalAppRegistry,
-          connectionsManager,
+          connections,
           instancesManager,
           logger,
         },
@@ -57,8 +48,11 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     },
   },
   {
-    connectionsManager: connectionsManagerLocator,
+    connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     logger: createLoggerLocator('COMPASS-SIDEBAR-UI'),
   }
 );
+
+export const AtlasClusterConnectionsOnlyProvider =
+  AtlasClusterConnectionsOnly.Provider;

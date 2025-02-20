@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Subtitle,
   Icon,
@@ -10,7 +10,7 @@ import {
   SignalPopover,
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
-import { find } from 'lodash';
+import { debounce, find } from 'lodash';
 import { withPreferences } from 'compass-preferences-model/provider';
 import type {
   ArraySchemaType,
@@ -21,7 +21,6 @@ import type {
 import { FieldType, sortTypes } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
-import type { configureActions } from '../actions';
 import { useQueryBarQuery } from '@mongodb-js/compass-query-bar';
 import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
@@ -110,7 +109,6 @@ const nestedFieldStyles = css({
 });
 
 type FieldProps = {
-  actions: ReturnType<typeof configureActions>;
   name: string;
   path: string[];
   types: SchemaType[];
@@ -196,7 +194,7 @@ export function shouldShowUnboundArrayInsight(
   );
 }
 
-function Field({ actions, name, path, types, enableMaps }: FieldProps) {
+function Field({ name, path, types, enableMaps }: FieldProps) {
   const query = useQueryBarQuery();
   const changeQuery = useChangeQueryBarQuery();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -207,6 +205,22 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
       ? getSemanticType(sortedTypes[0], enableMaps)
       : undefined;
   });
+
+  // In some cases charts can call the change callback too often (for examlpe
+  // when selecting from a very tightly rendered list of timeline items, like
+  // ObjectIds), to avoid application hanging trying to process them all
+  // syncronously and sequentially causing non-stop re-renders, we're debouncing
+  // change call a bit and only applying the last selected change to the actual
+  // query bar
+  const debouncedChangeQuery = useMemo(() => {
+    return debounce(changeQuery, 100);
+  }, [changeQuery]);
+
+  useEffect(() => {
+    return () => {
+      debouncedChangeQuery.cancel();
+    };
+  }, [debouncedChangeQuery]);
 
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
   const nestedDocType = useMemo(() => getNestedDocType(types), [types]);
@@ -292,8 +306,7 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
               fieldValue={query.filter?.[fieldName]}
               type={activeType}
               nestedDocType={nestedDocType}
-              actions={actions}
-              onQueryChanged={changeQuery}
+              onQueryChanged={debouncedChangeQuery}
             />
           </div>
         </div>
@@ -310,7 +323,7 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
             {(getNestedDocType(types)?.fields || []).map(
               (field: SchemaField) => (
                 <div className={nestedFieldStyles} key={field.name}>
-                  <Field actions={actions} enableMaps={enableMaps} {...field} />
+                  <Field enableMaps={enableMaps} {...field} />
                 </div>
               )
             )}

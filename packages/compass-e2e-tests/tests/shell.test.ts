@@ -7,10 +7,12 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { expect } from 'chai';
+import chai from 'chai';
+const { expect } = chai;
 
 describe('Shell', function () {
   let compass: Compass;
@@ -23,6 +25,12 @@ describe('Shell', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
+    await browser.setupDefaultConnections();
+  });
+
+  beforeEach(async function () {
+    await browser.disconnectAll();
   });
 
   after(async function () {
@@ -40,29 +48,32 @@ describe('Shell', function () {
   });
 
   it('has an info modal', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
-    await browser.showShell();
+    await browser.openShell(DEFAULT_CONNECTION_NAME_1);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
-    const infoModalElement = await browser.$(Selectors.ShellInfoModal);
+    const infoModalElement = browser.$(Selectors.ShellInfoModal);
     await infoModalElement.waitForDisplayed();
 
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.hideShell();
+    await browser.closeShell(DEFAULT_CONNECTION_NAME_1);
   });
 
   it('shows and hides shell based on settings', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
-    let shellSection = await browser.$(Selectors.ShellSection);
-    let isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(true);
+    expect(
+      await browser.hasConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.OpenShellItem
+      )
+    ).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = await browser.$(Selectors.SettingsModal);
+    const settingsModal = browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -72,8 +83,11 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    shellSection = await browser.$(Selectors.ShellSection);
-    isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(false);
+    expect(
+      await browser.hasConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.OpenShellItem
+      )
+    ).to.be.equal(false);
   });
 });

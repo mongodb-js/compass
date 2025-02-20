@@ -6,8 +6,9 @@ import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
+import { validate } from 'mongodb-query-parser';
 import HadronDocument from 'hadron-document';
-import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -52,7 +53,10 @@ import {
   openBulkUpdateSuccessToast,
 } from '../components/bulk-actions-toasts';
 import type { DataService } from '../utils/data-service';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  Collection,
+  MongoDBInstance,
+} from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -60,7 +64,7 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
@@ -169,10 +173,24 @@ export const fetchDocuments: (
   }
 };
 
+type CollectionStats = Pick<
+  Collection,
+  'document_count' | 'storage_size' | 'free_storage_size' | 'avg_document_size'
+>;
+const extractCollectionStats = (collection: Collection): CollectionStats => {
+  const coll = collection.toJSON();
+  return {
+    document_count: coll.document_count,
+    storage_size: coll.storage_size,
+    free_storage_size: coll.free_storage_size,
+    avg_document_size: coll.avg_document_size,
+  };
+};
+
 /**
- * Number of docs per page.
+ * Default number of docs per page.
  */
-const NUM_PAGE_DOCS = 20;
+const DEFAULT_NUM_PAGE_DOCS = 25;
 
 /**
  * Error constant.
@@ -220,6 +238,13 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  * long after docs are returned.
  */
 const COUNT_MAX_TIME_MS_CAP = 5000;
+
+/**
+ * The key we use to persist the user selected maximum documents per page for
+ * other tabs or for the next application start.
+ * Exported only for test purpose
+ */
+export const MAX_DOCS_PER_PAGE_STORAGE_KEY = 'compass_crud-max_docs_per_page';
 
 export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,
@@ -308,6 +333,8 @@ type CrudState = {
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
+  docsPerPage: number;
+  collectionStats: CollectionStats | null;
 };
 
 type CrudStoreActionsOptions = {
@@ -335,9 +362,11 @@ class CrudStoreImpl
   fieldStoreService: FieldStoreService;
   logger: Logger;
   track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -349,9 +378,11 @@ class CrudStoreImpl
       | 'preferences'
       | 'logger'
       | 'track'
+      | 'connectionInfoRef'
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
       | 'queryBar'
+      | 'collection'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -366,10 +397,12 @@ class CrudStoreImpl
     this.preferences = services.preferences;
     this.logger = services.logger;
     this.track = services.track;
+    this.connectionInfoRef = services.connectionInfoRef;
     this.instance = services.instance;
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
     this.queryBar = services.queryBar;
+    this.collection = services.collection;
   }
 
   getInitialState(): CrudState {
@@ -406,7 +439,19 @@ class CrudStoreImpl
       isSearchIndexesSupported: this.options.isSearchIndexesSupported,
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
+      docsPerPage: this.getInitialDocsPerPage(),
+      collectionStats: extractCollectionStats(this.collection),
     };
+  }
+
+  getInitialDocsPerPage(): number {
+    const lastUsedDocsPerPageString = localStorage.getItem(
+      MAX_DOCS_PER_PAGE_STORAGE_KEY
+    );
+    const lastUsedDocsPerPage = lastUsedDocsPerPageString
+      ? parseInt(lastUsedDocsPerPageString)
+      : null;
+    return lastUsedDocsPerPage ?? DEFAULT_NUM_PAGE_DOCS;
   }
 
   /**
@@ -467,7 +512,7 @@ class CrudStoreImpl
    * to update if the labels change at some point.
    */
   modeForTelemetry() {
-    return this.state.view.toLowerCase();
+    return this.state.view.toLowerCase() as Lowercase<DocumentView>;
   }
 
   /**
@@ -478,10 +523,25 @@ class CrudStoreImpl
    * @returns {Boolean} If the copy succeeded.
    */
   copyToClipboard(doc: Document) {
-    this.track('Document Copied', { mode: this.modeForTelemetry() });
+    this.track(
+      'Document Copied',
+      { mode: this.modeForTelemetry() },
+      this.connectionInfoRef.current
+    );
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
+  }
+
+  updateMaxDocumentsPerPage(docsPerPage: number) {
+    const previousDocsPerPage = this.state.docsPerPage;
+    localStorage.setItem(MAX_DOCS_PER_PAGE_STORAGE_KEY, String(docsPerPage));
+    this.setState({
+      docsPerPage,
+    });
+    if (previousDocsPerPage !== docsPerPage) {
+      void this.refreshDocuments();
+    }
   }
 
   /**
@@ -490,30 +550,38 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async removeDocument(doc: Document) {
-    this.track('Document Deleted', { mode: this.modeForTelemetry() });
+    this.track(
+      'Document Deleted',
+      { mode: this.modeForTelemetry() },
+      this.connectionInfoRef.current
+    );
     const id = doc.getId();
     if (id !== undefined) {
-      doc.emit('remove-start');
+      doc.onRemoveStart();
       try {
         await this.dataService.deleteOne(this.state.ns, { _id: id } as any);
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-success');
+        doc.onRemoveSuccess();
         const payload = { view: this.state.view, ns: this.state.ns };
         this.localAppRegistry.emit('document-deleted', payload);
         this.connectionScopedAppRegistry.emit('document-deleted', payload);
         const index = this.findDocumentIndex(doc);
-        this.state.docs?.splice(index, 1);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1);
         this.setState({
+          docs: newDocs,
           count: this.state.count === null ? null : this.state.count - 1,
           end: Math.max(this.state.end - 1, 0),
         });
       } catch (error) {
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-error', (error as Error).message);
+        doc.onRemoveError(error as Error);
         this.trigger(this.state);
       }
     } else {
-      doc.emit('remove-error', DELETE_ERROR);
+      doc.onRemoveError(DELETE_ERROR);
       this.trigger(this.state);
     }
   }
@@ -540,9 +608,10 @@ class CrudStoreImpl
         doc.generateOriginalObject()
       );
       if (!isAllowed) {
-        doc.emit(
-          'update-error',
-          'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+        doc.onUpdateError(
+          new Error(
+            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+          )
         );
         return false;
       }
@@ -558,9 +627,13 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async updateDocument(doc: Document) {
-    this.track('Document Updated', { mode: this.modeForTelemetry() });
+    this.track(
+      'Document Updated',
+      { mode: this.modeForTelemetry() },
+      this.connectionInfoRef.current
+    );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
       // We add the shard keys here, if there are any, because that is
       // required for updated documents in sharded collections.
       const { query, updateDoc } =
@@ -575,7 +648,7 @@ class CrudStoreImpl
       this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
-        doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
+        doc.onUpdateError(EMPTY_UPDATE_ERROR);
         return;
       }
 
@@ -599,21 +672,27 @@ class CrudStoreImpl
           const nbsp = '\u00a0';
           error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
         }
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else if (d) {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       } else {
-        doc.emit('update-blocked');
+        doc.onUpdateBlocked();
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
@@ -624,9 +703,13 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async replaceDocument(doc: Document) {
-    this.track('Document Updated', { mode: this.modeForTelemetry() });
+    this.track(
+      'Document Updated',
+      { mode: this.modeForTelemetry() },
+      this.connectionInfoRef.current
+    );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
 
       if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
         // _verifyUpdateAllowed emitted update-error
@@ -687,19 +770,25 @@ class CrudStoreImpl
         'replace'
       );
       if (error) {
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
@@ -733,7 +822,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
 
     if (page < 0) {
       return;
@@ -753,10 +842,10 @@ class CrudStoreImpl
       skip: _skip = 0,
     } = this.queryBar.getLastAppliedQuery('crud');
 
-    const skip = _skip + page * NUM_PAGE_DOCS;
+    const skip = _skip + page * docsPerPage;
 
     // nextPageCount will be the number of docs to load
-    let nextPageCount = NUM_PAGE_DOCS;
+    let nextPageCount = docsPerPage;
 
     // Make sure we don't go past the limit if a limit is set
     if (limit) {
@@ -863,7 +952,11 @@ class CrudStoreImpl
     const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
-      this.track('Document Cloned', { mode: this.modeForTelemetry() });
+      this.track(
+        'Document Cloned',
+        { mode: this.modeForTelemetry() },
+        this.connectionInfoRef.current
+      );
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
       for (const element of hadronDoc.elements) {
@@ -922,9 +1015,13 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateModal(updateText?: string) {
-    this.track('Bulk Update Opened', {
-      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
-    });
+    this.track(
+      'Bulk Update Opened',
+      {
+        isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+      },
+      this.connectionInfoRef.current
+    );
 
     await this.updateBulkUpdatePreview(updateText ?? INITIAL_BULK_UPDATE_TEXT);
     this.setState({
@@ -1068,9 +1165,13 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
-    this.track('Bulk Update Executed', {
-      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
-    });
+    this.track(
+      'Bulk Update Executed',
+      {
+        isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+      },
+      this.connectionInfoRef.current
+    );
 
     this.closeBulkUpdateModal();
 
@@ -1247,10 +1348,14 @@ class CrudStoreImpl
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
-    this.track('Document Inserted', {
-      mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-      multiple: docs.length > 1,
-    });
+    this.track(
+      'Document Inserted',
+      {
+        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+        multiple: docs.length > 1,
+      },
+      this.connectionInfoRef.current
+    );
 
     try {
       await this.dataService.insertMany(this.state.ns, docs);
@@ -1297,10 +1402,14 @@ class CrudStoreImpl
    * view to insert.
    */
   async insertDocument() {
-    this.track('Document Inserted', {
-      mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-      multiple: false,
-    });
+    this.track(
+      'Document Inserted',
+      {
+        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+        multiple: false,
+      },
+      this.connectionInfoRef.current
+    );
 
     let doc: BSONObject;
 
@@ -1430,6 +1539,12 @@ class CrudStoreImpl
     );
   }
 
+  collectionStatsFetched(model: Collection) {
+    this.setState({
+      collectionStats: extractCollectionStats(model),
+    });
+  }
+
   /**
    * This function is called when the collection filter changes.
    */
@@ -1443,7 +1558,7 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
     const query = this.queryBar.getLastAppliedQuery('crud');
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
@@ -1452,21 +1567,25 @@ class CrudStoreImpl
 
     if (onApply) {
       const { isTimeSeries, isReadonly } = this.state;
-      this.track('Query Executed', {
-        has_projection:
-          !!query.project && Object.keys(query.project).length > 0,
-        has_skip: (query.skip ?? 0) > 0,
-        has_sort: !!query.sort && Object.keys(query.sort).length > 0,
-        has_limit: (query.limit ?? 0) > 0,
-        has_collation: !!query.collation,
-        changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
-        collection_type: isTimeSeries
-          ? 'time-series'
-          : isReadonly
-          ? 'readonly'
-          : 'collection',
-        used_regex: objectContainsRegularExpression(query.filter ?? {}),
-      });
+      this.track(
+        'Query Executed',
+        {
+          has_projection:
+            !!query.project && Object.keys(query.project).length > 0,
+          has_skip: (query.skip ?? 0) > 0,
+          has_sort: !!query.sort && Object.keys(query.sort).length > 0,
+          has_limit: (query.limit ?? 0) > 0,
+          has_collation: !!query.collation,
+          changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
+          collection_type: isTimeSeries
+            ? 'time-series'
+            : isReadonly
+            ? 'readonly'
+            : 'collection',
+          used_regex: objectContainsRegularExpression(query.filter ?? {}),
+        },
+        this.connectionInfoRef.current
+      );
     }
 
     // pass the signal so that the queries can close their own cursors and
@@ -1497,11 +1616,19 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    let sort = query.sort;
+    if (!sort && this.preferences.getPreferences().defaultSortOrder) {
+      sort = validate(
+        'sort',
+        this.preferences.getPreferences().defaultSortOrder
+      );
+    }
+
     const findOptions = {
-      sort: query.sort,
+      sort,
       projection: query.project,
       skip: query.skip,
-      limit: NUM_PAGE_DOCS,
+      limit: docsPerPage,
       collation: query.collation,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
         this.preferences,
@@ -1514,7 +1641,7 @@ class CrudStoreImpl
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
     if (query.limit && query.limit > 0) {
       countOptions.limit = query.limit;
-      findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
+      findOptions.limit = Math.min(docsPerPage, query.limit);
     }
 
     this.logger.log.info(
@@ -1702,7 +1829,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    this.track('Bulk Delete Opened');
+    this.track('Bulk Delete Opened', {}, this.connectionInfoRef.current);
 
     const PREVIEW_DOCS = 5;
 
@@ -1767,7 +1894,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.track('Bulk Delete Executed');
+    this.track('Bulk Delete Executed', {}, this.connectionInfoRef.current);
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1778,7 +1905,7 @@ class CrudStoreImpl
         affected !== 1 ? 's' : ''
       }`,
       description: `This action can not be undone. This will permanently delete ${
-        affected || 0
+        affected ?? 'an unknown number of'
       } document${affected !== 1 ? 's' : ''}.`,
       variant: 'danger',
     });
@@ -1807,9 +1934,13 @@ class CrudStoreImpl
   }
 
   async saveUpdateQuery(name: string): Promise<void> {
-    this.track('Bulk Update Favorited', {
-      isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
-    });
+    this.track(
+      'Bulk Update Favorited',
+      {
+        isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+      },
+      this.connectionInfoRef.current
+    );
 
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
     let update;
@@ -1850,9 +1981,10 @@ export type DocumentsPluginServices = {
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1867,9 +1999,10 @@ export function activateDocumentsPlugin(
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
     fieldStoreService,
-    connectionInfoAccess,
+    connectionInfoRef,
     connectionScopedAppRegistry,
     queryBar,
+    collection,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1884,11 +2017,13 @@ export function activateDocumentsPlugin(
         preferences,
         logger,
         track,
+        connectionInfoRef,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
         fieldStoreService,
         connectionScopedAppRegistry,
         queryBar,
+        collection,
       }
     )
   ) as CrudStore;
@@ -1925,13 +2060,18 @@ export function activateDocumentsPlugin(
       { ns }: { ns: string },
       { connectionId }: { connectionId?: string } = {}
     ) => {
-      const { id: currentConnectionId } =
-        connectionInfoAccess.getCurrentConnectionInfo();
+      const { id: currentConnectionId } = connectionInfoRef.current;
       if (currentConnectionId === connectionId && ns === store.state.ns) {
         void store.refreshDocuments();
       }
     }
   );
+
+  on(collection, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.collectionStatsFetched(model);
+    }
+  });
 
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {

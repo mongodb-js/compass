@@ -1,11 +1,17 @@
-import type { Reducer, AnyAction } from 'redux';
+import type { Reducer, AnyAction, Action } from 'redux';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type Collection from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   R,
@@ -21,65 +27,34 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
 export type CollectionState = {
   workspaceTabId: string;
   namespace: string;
-  stats: Pick<
-    Collection,
-    | 'document_count'
-    | 'index_count'
-    | 'index_size'
-    | 'status'
-    | 'avg_document_size'
-    | 'storage_size'
-    | 'free_storage_size'
-  > | null;
   metadata: CollectionMetadata | null;
   editViewName?: string;
 };
 
-export function pickCollectionStats(
-  collection: Collection
-): CollectionState['stats'] {
-  const {
-    document_count,
-    index_count,
-    index_size,
-    status,
-    avg_document_size,
-    storage_size,
-    free_storage_size,
-  } = collection.toJSON();
-  return {
-    document_count,
-    index_count,
-    index_size,
-    status,
-    avg_document_size,
-    storage_size,
-    free_storage_size,
-  };
-}
-
 enum CollectionActions {
-  CollectionStatsFetched = 'compass-collection/CollectionStatsFetched',
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
 }
 
-const reducer: Reducer<CollectionState> = (
+interface CollectionMetadataFetchedAction {
+  type: CollectionActions.CollectionMetadataFetched;
+  metadata: CollectionMetadata;
+}
+
+const reducer: Reducer<CollectionState, Action> = (
   state = {
     // TODO(COMPASS-7782): use hook to get the workspace tab id instead
     workspaceTabId: '',
     namespace: '',
-    stats: null,
     metadata: null,
   },
   action
 ) => {
-  if (action.type === CollectionActions.CollectionStatsFetched) {
-    return {
-      ...state,
-      stats: pickCollectionStats(action.collection),
-    };
-  }
-  if (action.type === CollectionActions.CollectionMetadataFetched) {
+  if (
+    isAction<CollectionMetadataFetchedAction>(
+      action,
+      CollectionActions.CollectionMetadataFetched
+    )
+  ) {
     return {
       ...state,
       metadata: action.metadata,
@@ -88,11 +63,9 @@ const reducer: Reducer<CollectionState> = (
   return state;
 };
 
-export const collectionStatsFetched = (collection: Collection) => {
-  return { type: CollectionActions.CollectionStatsFetched, collection };
-};
-
-export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
+export const collectionMetadataFetched = (
+  metadata: CollectionMetadata
+): CollectionMetadataFetchedAction => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
 };
 

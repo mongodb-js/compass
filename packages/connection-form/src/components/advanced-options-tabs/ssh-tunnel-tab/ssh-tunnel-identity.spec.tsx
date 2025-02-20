@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
@@ -7,8 +7,13 @@ import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler
 import SSHTunnelIdentity from './ssh-tunnel-identity';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
+import { FileInputBackendProvider } from '@mongodb-js/compass-components';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
 
-const formFields = [
+const formFields: {
+  key: keyof SSHConnectionOptions;
+  value: string;
+}[] = [
   {
     key: 'host',
     value: 'host',
@@ -46,11 +51,15 @@ describe('SSHTunnelIdentity', function () {
     updateConnectionFormFieldSpy = sinon.spy();
 
     render(
-      <SSHTunnelIdentity
-        errors={[]}
-        sshTunnelOptions={sshTunnelOptions}
-        updateConnectionFormField={updateConnectionFormFieldSpy}
-      />
+      <FileInputBackendProvider
+        createFileInputBackend={createJSDomFileInputDummyBackend()}
+      >
+        <SSHTunnelIdentity
+          errors={[]}
+          sshTunnelOptions={sshTunnelOptions}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
+        />
+      </FileInputBackendProvider>
     );
   });
 
@@ -61,7 +70,7 @@ describe('SSHTunnelIdentity', function () {
 
       if (key !== 'identityKeyFile') {
         expect(el.getAttribute('value'), `renders ${key} value`).to.equal(
-          sshTunnelOptions[key].toString()
+          sshTunnelOptions[key]?.toString()
         );
       }
     });
@@ -92,14 +101,17 @@ describe('SSHTunnelIdentity', function () {
       {
         fieldName: 'sshHostname',
         message: 'Invalid host',
+        fieldTab: 'authentication',
       },
       {
         fieldName: 'sshUsername',
         message: 'Invalid username',
+        fieldTab: 'authentication',
       },
       {
         fieldName: 'sshIdentityKeyFile',
         message: 'Invalid file',
+        fieldTab: 'authentication',
       },
     ];
 
@@ -112,17 +124,23 @@ describe('SSHTunnelIdentity', function () {
     );
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshHostname') as string
+      ),
       'renders sshHostname field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshUsername') as string
+      ),
       'renders sshUsername field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshIdentityKeyFile')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshIdentityKeyFile') as string
+      ),
       'renders sshIdentityKeyFile field error'
     ).to.exist;
   });

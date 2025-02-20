@@ -13,7 +13,7 @@ import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
-import { useImportConnections } from '../hooks/use-import';
+import { useImportConnections } from '../hooks/use-import-connections';
 
 const TOAST_TIMEOUT_MS = 5000;
 
@@ -34,7 +34,7 @@ export function ImportConnectionsModal({
   trackingProps,
 }: {
   open: boolean;
-  setOpen: (newOpen: boolean) => void;
+  setOpen: (newOpen: boolean, trackingProps?: Record<string, unknown>) => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const { openToast } = useToast('compass-connection-import-export');
@@ -53,7 +53,15 @@ export function ImportConnectionsModal({
     [openToast, setOpen]
   );
 
-  useOpenModalThroughIpc(open, setOpen, 'compass:open-import-connections');
+  const openModalThroughIpc = useCallback(() => {
+    setOpen(true, { context: 'menuBar' });
+  }, [setOpen]);
+
+  useOpenModalThroughIpc(
+    open,
+    openModalThroughIpc,
+    'compass:open-import-connections'
+  );
 
   const {
     onSubmit,
@@ -82,19 +90,19 @@ export function ImportConnectionsModal({
         displayName: (
           <>
             {conn.name}
-            {conn.isExistingFavorite && (
+            {conn.isExistingConnection && (
               <Badge
                 className={existingFavoriteBadgeStyles}
                 variant={conn.selected ? 'yellow' : 'lightgray'}
                 data-testid={`existing-favorite-badge-${conn.id}`}
               >
-                Existing Favorite
+                Existing Connection
               </Badge>
             )}
           </>
         ),
       })),
-      connectionList.some((conn) => conn.isExistingFavorite && conn.selected),
+      connectionList.some((conn) => conn.isExistingConnection && conn.selected),
     ];
   }, [connectionList]);
 

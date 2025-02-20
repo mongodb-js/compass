@@ -4,7 +4,7 @@ import type { ChainablePromiseElement } from 'webdriverio';
 
 export async function setValueVisible(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>,
+  selector: string | ChainablePromiseElement,
   value: string
 ): Promise<void> {
   // The hardest thing in computer science? Reliably setting a text form field's
@@ -28,10 +28,6 @@ export async function setValueVisible(
     await element.setValue(value); // basically clearValue() then addValue()
 
     const actualValue = (await element.getValue()) ?? '';
-    if (actualValue !== value) {
-      console.log(actualValue, '!==', value);
-      await browser.screenshot('setValueVisible.png');
-    }
     return actualValue === value;
   });
 }

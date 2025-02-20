@@ -1,6 +1,11 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import { GeneralSettings } from './general';
@@ -48,6 +53,16 @@ describe('GeneralSettings', function () {
       });
       expect(getSettings()).to.have.property(option, !initialValue);
     });
+  });
+
+  it('renders defaultSortOrder', function () {
+    expect(within(container).getByTestId('defaultSortOrder')).to.exist;
+  });
+
+  it('changes defaultSortOrder value when selecting an option', function () {
+    within(container).getByTestId('defaultSortOrder').click();
+    within(container).getByText('_id: 1').click();
+    expect(getSettings()).to.have.property('defaultSortOrder', '{ _id: 1 }');
   });
 
   ['maxTimeMS'].forEach((option) => {

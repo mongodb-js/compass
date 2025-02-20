@@ -1,36 +1,41 @@
 # Contributing to bson-transpilers
 
 ## Setting up your environment
+
 The `bson-transpilers` package uses
 [ANTLR4](https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md)
 to create a parse tree. As `ANTLR` is written in Java, you will need to set up a
 few tools before being able to compile this locally.
 
 Make sure you have Java installed:
+
 ```shell
 $ brew cask install java
 ```
 
 _I strongly suggest using an IDE that will help you visualize ANTLR trees (JetBrains has a good plugin).
- Otherwise you can use the java version of the grammar and compile it with
- `javac <Language>*.java && grun <Language> <StartRule> -gui`.
- [This might be helpful](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)._
+Otherwise you can use the java version of the grammar and compile it with
+`javac <Language>*.java && grun <Language> <StartRule> -gui`.
+[This might be helpful](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)._
 
 Make sure you have run the following from the root directory:
+
 ```shell
 $ npm run bootstrap
 ```
 
 Then compile and run tests locally with:
+
 ```shell
 $ npm run compile && npm run test
 ```
 
 You can provide a few environmental variables to help you test your specific
 output and input languages. If none are provided, everything will run.
-- __INPUT=:__ comma-separated input languages you want to test
-- __OUTPUT=:__ comma-separated output languages you want to test. Also called "target" language.
-- __MODE=:__ comma-separated names of the test files (without .yaml) that you want to run
+
+- **INPUT=:** comma-separated input languages you want to test
+- **OUTPUT=:** comma-separated output languages you want to test. Also called "target" language.
+- **MODE=:** comma-separated names of the test files (without .yaml) that you want to run
 
 ```shell
 OUTPUT=csharp INPUT=shell MODE=native,bson npm run test
@@ -39,12 +44,15 @@ OUTPUT=csharp INPUT=shell MODE=native,bson npm run test
 # How it works
 
 See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
+
 ## Compilation Stages
+
 Similar to how many transpilers work, this package parses the input
 string into a tree and then generates code from the tree using the [Visitor
 pattern](https://en.wikipedia.org/wiki/Visitor_pattern).
 
 ### Step 1: Parsing
+
 Parsing and tree generation is handled by ANTLR4.
 The grammar files are located in the `grammars` folder, and the javascript
 parser/lexer/etc. generated from the grammar are located in `lib/antlr`. To make
@@ -60,8 +68,8 @@ ANTLR generates a "shell" visitor class for each tree in
 `lib/antlr/<grammar name>Visitor.js`. It contains an empty method
 for each node in the parse tree.
 
-
 ### Step 2: Visitor
+
 <img alt="visiting-tree" width="60%" align="right" src="/img-docs/visiting-tree.png"/>
 
 Because the project is designed to handle multiple input languages and multiple
@@ -91,17 +99,18 @@ that provide a layer of indirection around the tree so that the generic visitor 
 care about what tree it's visiting. The CodeGenerationVisitor also includes
 helper methods that every input language may use.
 
-
 ### Step 3: Generator
+
 The other half of the tree visitation stage. Each ouput language will
 have a Generator class defined in `codegeneration/<ouput language>/Generator.js`.
 The Generator class generates code, so it is <b> specific to the ouput language.
 </b> The Generator class is a subclass of the input language's visitor class.
 So for example, translating between JS and Python, the order of inheritance will be:
-   1. `lib/antlr/ECMAScriptVisitor.js` ["empty" superclass, specific to the tree built by ANTLR]
-   2. `codegeneration/CodeGenerationVisitor.js` ["generic" visitor, shared between all languages]
-   3. `codegeneration/javascript/Visitor.js` [specific to input language]
-   4. `codegeneration/python/Generator.js` [specific to output language]
+
+1.  `lib/antlr/ECMAScriptVisitor.js` ["empty" superclass, specific to the tree built by ANTLR]
+2.  `codegeneration/CodeGenerationVisitor.js` ["generic" visitor, shared between all languages]
+3.  `codegeneration/javascript/Visitor.js` [specific to input language]
+4.  `codegeneration/python/Generator.js` [specific to output language]
 
 For nodes that cannot be translated using
 templates, the Generator class will define a method called `emit<type>` which
@@ -115,6 +124,7 @@ When the visitor in [step #1](#step-1:-parsing) reaches a function call, variabl
 expression it needs a way of knowing what that symbol evaluates to in order to know if it is valid.
 
 ### Symbols
+
 Each input language has it's own set of symbols that are part of the
 language. The majority of symbols supported in the input languages are BSON types
 (i.e. `Int32`, `ObjectId`, etc) but there are a few native types like `RegExp` and
@@ -123,11 +133,11 @@ is undefined, we store symbol information in a
 [Symbol Table](https://en.wikipedia.org/wiki/Symbol_table).
 
 #### Symbol Metadata
+
 The visitor uses the symbol table to determine if a symbol is undefined, but the
 symbol table also stores some metadata so the visitor can do type and other validity checks. The symbols
 are defined in [YAML](https://en.wikipedia.org/wiki/YAML) in the
 `symbols/<input language>/symbols.yaml` file. A symbol definition looks like:
-
 
 ```yml
     Decimal128:
@@ -149,27 +159,27 @@ are defined in [YAML](https://en.wikipedia.org/wiki/YAML) in the
         template: *Decimal128SymbolTemplate
         argsTemplate: *Decimal128SymbolArgsTemplate
 ```
+
 <br>
 
-| Field     | Data         |
-| ----------|:-------------|
-| id        | The name of the attribute. Mostly used for error reporting and the `emit` or `process` method names. |
-| callable  | Used for determining if the symbol can be part of a function call. There are three types of symbols: <br><br>`*func`: a function call. If the symbol is found as the "left-hand-side" of a function call, it is valid. <br><br>`*constructor`: also a function call, but may require a `new` keyword if the output language requires it. <br><br>`*var`: a variable. Indicates to the transpiler that the symbol cannot be invoked, i.e. `<symbol>()`  is invalid.|
-| args      | Used for type checking. If the symbol is callable, i.e. a `*func` or `*constructor`, then the expected arguments are defined here as an array. So for example, if the function takes in a string as the first arg, and an optional second arg that can be a object or array, args will look like <br>`[ [*StringType], [*ObjectType, *ArrayType, null] ]`. Null indicates optional.|
-| type      | The type that the symbol evaluates to. If it is a variable, it will be the type of the variable. If it is a function, it will be the return type. See the [Types](#types) section.|
-| attr      | Used for determining if attribute access is valid. This field is also a symbol table, but a namespace-prefixed one. So for the example above, `Decimal128.fromString` is a valid attribute, so we need to define the symbol `fromString` in the same way we defined the `Decimal128` symbol.|
-| template  | Used for code generation. See the [Templates](#templates) section.|
-| argsTemplate | Used for code generation. See the [Templates](#templates) section.|
-
+| Field        | Data                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id           | The name of the attribute. Mostly used for error reporting and the `emit` or `process` method names.                                                                                                                                                                                                                                                                                                                                                              |
+| callable     | Used for determining if the symbol can be part of a function call. There are three types of symbols: <br><br>`*func`: a function call. If the symbol is found as the "left-hand-side" of a function call, it is valid. <br><br>`*constructor`: also a function call, but may require a `new` keyword if the output language requires it. <br><br>`*var`: a variable. Indicates to the transpiler that the symbol cannot be invoked, i.e. `<symbol>()` is invalid. |
+| args         | Used for type checking. If the symbol is callable, i.e. a `*func` or `*constructor`, then the expected arguments are defined here as an array. So for example, if the function takes in a string as the first arg, and an optional second arg that can be a object or array, args will look like <br>`[ [*StringType], [*ObjectType, *ArrayType, null] ]`. Null indicates optional.                                                                               |
+| type         | The type that the symbol evaluates to. If it is a variable, it will be the type of the variable. If it is a function, it will be the return type. See the [Types](#types) section.                                                                                                                                                                                                                                                                                |
+| attr         | Used for determining if attribute access is valid. This field is also a symbol table, but a namespace-prefixed one. So for the example above, `Decimal128.fromString` is a valid attribute, so we need to define the symbol `fromString` in the same way we defined the `Decimal128` symbol.                                                                                                                                                                      |
+| template     | Used for code generation. See the [Templates](#templates) section.                                                                                                                                                                                                                                                                                                                                                                                                |
+| argsTemplate | Used for code generation. See the [Templates](#templates) section.                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Types
+
 Each input language also has a set of types that are part of the language.
 The set of types that are universal for all languages (i.e. "primitives",
 "literals", like `string`, `integer`, etc) are defined in the file
 `symbols/basic_types.yaml`.
 
-Types that are specific to the input language are defined in `symbols/<input
-language>/types.yaml`. These include BSON types, i.e. classes like `ObjectId`, and
+Types that are specific to the input language are defined in `symbols/<input language>/types.yaml`. These include BSON types, i.e. classes like `ObjectId`, and
 language-specific types like `RegExp` and `Date`. The types are defined in the same
 pattern as the symbols and contain the same metadata as the symbols.
 
@@ -178,13 +188,14 @@ the same identifier and are basically the same thing but we have to make a disti
 because otherwise we will end up with invalid code.
 The **symbol** `ObjectId` has attributes like `ObjectId.fromString(...)`
 and is a constructor, so `ObjectId()` is valid. The **type** `ObjectId` has
-attributes like `ObjectId().toString()` and is *a variable*, so `ObjectId()()`
+attributes like `ObjectId().toString()` and is _a variable_, so `ObjectId()()`
 is not valid and will error with `ObjectId() is not callable` or similar error.
 You can kind of think of types as instantiated symbols, if that's helpful.
 So: `ObjectId.toString() and ObjectId().fromString('x')` are both invalid, while
 `ObjectId().toString() and ObjectId.fromString('x')` are both valid.
 
 ## Templates
+
 The symbol table includes an additional piece of metadata, called a `template`.
 These are functions that accept strings and return strings, and are responsible for
 doing the string transformations from one language syntax to another language's syntax.
@@ -197,6 +208,7 @@ calls, the `argsTemplate` is a function that gets applied to the arguments in ca
 need rearranging between languages.
 
 ## Project Structure
+
 <img alt="indexjs" width="60%" align="right" src="/img-docs/indexjs.jpg"/>
 
 Entry point to the project is `index.js`. It currently exports [two
@@ -205,36 +217,39 @@ given `inputLang` and `outputLang`, and accessing language's import statements
 you might need.
 
 To construct a transpiler, `index.js` needs 4 components:
+
 - `lib/antlr/<ANTLR tree visitor` The ANTLR-generated visitor for the generated parse tree.
 - `codegeneration/CodeGenerationVisitor.js` The "generic" visitor for all input languages.
 - `codegeneration/<input language>/Visitor.js` The visitor for the specific input language.
 - `codegeneration/<ouput language>/Generator.js` - The generator for the specific output language.
 - `lib/symbol-table/<input language>to<ouput language>.js` - The symbol table for
-the input+output combination.
+  the input+output combination.
 
 #### TL;DR
-- __CodeGenerationVisitor:__ place to store repeated code between all visitors.
-- __Visitor:__ visits nodes; processes input language via
-  `processs` methods and sends information to either output language's template found in the `Symbol
-Template` or an `emit` method in the Generator`.
-- __Generator:__ processes output language via `emit` methods, which take in tree nodes and return strings.
-- __Symbol Table:__ a directory of the defined symbols, types and their metadata, including templates.
-- __Symbol Template:__ does string manipulation to provide output.
+
+- **CodeGenerationVisitor:** place to store repeated code between all visitors.
+- **Visitor:** visits nodes; processes input language via
+  `processs` methods and sends information to either output language's template found in the `Symbol Template` or an `emit` method in the Generator`.
+- **Generator:** processes output language via `emit` methods, which take in tree nodes and return strings.
+- **Symbol Table:** a directory of the defined symbols, types and their metadata, including templates.
+- **Symbol Template:** does string manipulation to provide output.
 
 The class hierarchy of any transpiler is
 ANTLRVisitor <-- CodeGenerationVisitor <-- [input-language-specific] Visitor <-- [output-language-specific] Generator.
 
 ## A primer on the different types of methods
-| Method name | Summary |
-|--------------|-----------|
-| `visit<*>` | Always auto-generated by ANTLR, overridden by language-specific visitors. Controls the flow of the tree visitation. |
-| `get<*>` | Wrapper methods around nodes, defined by language-specific visitors. They exist because different grammars call equivalent nodes different names. |
-| `generate<*>` | Shared logic between all input languages. Defined in `CodeGenerationVisitor` and called from language-specific visitor methods. |
-| `return<*>` | Separates string generation from object generation. Defined in `CodeGenerationVisitor` or `object/Generator`. |
-| `process<*>` | Special case for entire input language. Defined in visitors, called programmatically within the visitor. |
-| `emit<*>` | Special case for entire output language. Defined in generators, called programmatically by the visitors. |
+
+| Method name   | Summary                                                                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `visit<*>`    | Always auto-generated by ANTLR, overridden by language-specific visitors. Controls the flow of the tree visitation.                               |
+| `get<*>`      | Wrapper methods around nodes, defined by language-specific visitors. They exist because different grammars call equivalent nodes different names. |
+| `generate<*>` | Shared logic between all input languages. Defined in `CodeGenerationVisitor` and called from language-specific visitor methods.                   |
+| `return<*>`   | Separates string generation from object generation. Defined in `CodeGenerationVisitor` or `object/Generator`.                                     |
+| `process<*>`  | Special case for entire input language. Defined in visitors, called programmatically within the visitor.                                          |
+| `emit<*>`     | Special case for entire output language. Defined in generators, called programmatically by the visitors.                                          |
 
 ### Tests
+
 Tests are written in YAML. Each yaml file requires two keys, first 'runner' which is a
 function that runs each individual test. The function signature is always `(it, expect, input, output, transpiler, test)`
 where `test` is a copy of a single YAML test. The second key is 'tests' which is an array
@@ -250,23 +265,37 @@ Although I doubt that will end up being needed.
 ## Adding an Output Language
 
 1. Create a directory in `symbols` directory for your output language:
+
 ```shell
 mkdir symbols/<output lang>
 ```
+
 2. Create a `templates.yaml` file to store your language's templates. Inside
    you'll probably want to copy the contents from the `symbols/sample_templates.yaml` file.
    That file also includes comments on which template functions require unusual arguments.
+
 ```shell
 cp symbols/sample_template.yaml symbols/<output lang>/templates.yaml
 ```
+
 3. Add your new language to the `compile-symbol-table.js` file:
+
 ```js
-const outputLangs = ['java', 'shell', 'python', 'csharp', 'javascript', 'mylanguage'];
+const outputLangs = [
+  'java',
+  'shell',
+  'python',
+  'csharp',
+  'javascript',
+  'mylanguage',
+];
 ```
+
 4. You should now run `npm run compile` to generate a complete symbol table.
    This will be generated in `lib/symbol-table/javascriptto<output lang>` and
-`lib/symbol-table/shellto<output lang>`.
+   `lib/symbol-table/shellto<output lang>`.
 5. You will have to require the generated symbol tables in `index.js`:
+
 ```js
 const javascript<output lang>symbols = require('lib/symbol-table/javascriptto<output lang>')
 const get<output lang>Generator = require('./codegeneration/<output lang>/Generator.js');
@@ -285,22 +314,28 @@ module.exports = {
    * specific visitor and the ANTLR visitor to match the input lang. */
 }
 ```
+
 6. We still don't have a `Generator.js` file required above, so that won't
    quite work yet. So next, create a new directory in `codegeneration` for your
-output language:
+   output language:
+
 ```shell
 mkidr codegeneration/<output lang>
 ```
+
 7. And create a generator file:
+
 ```shell
 touch codegeneration/<output lang>/Generator.js
 ```
+
 8. Most of the Generators are empty nowadays because the work has been moved into
-the templates. I would expect that 90% of the time, what you're trying to do can
-be done in the templates without changing the template signature. However, if you
-really can't do it in the templates, you can copy any of the generators that exist
-and fill in any emit methods you require. The class should be created with a super
-class that is passed to the function, like so:
+   the templates. I would expect that 90% of the time, what you're trying to do can
+   be done in the templates without changing the template signature. However, if you
+   really can't do it in the templates, you can copy any of the generators that exist
+   and fill in any emit methods you require. The class should be created with a super
+   class that is passed to the function, like so:
+
 ```js
 /*
  * Class for handling edge cases for node code generation. Defines "emit" methods.
@@ -315,23 +350,28 @@ module.exports = (Visitor) => class Generator extends Visitor {
 };
 ``
 ```
+
 9. Next thing is tests! You must go through each test file and add the results of
-compiling each input into your output language under the `output` field.
+   compiling each input into your output language under the `output` field.
+
 ```yaml
-    Document:
-    - input:
-          javascript: "{x: '1'}"
-          shell: "{x: '1'}"
-          python: "{'x': '1'}"
-      output:
-          javascript: "{\n  'x': '1'\n}"
-          python: "{\n    'x': '1'\n}"
-          java: "eq(\"x\", \"1\")"
-          csharp: "new BsonDocument(\"x\", \"1\")"
-          shell: "{\n  'x': '1'\n}"
-          <your output language>: ...
+Document:
+  - input:
+      javascript: "{x: '1'}"
+      shell: "{x: '1'}"
+      python: "{'x': '1'}"
+    output:
+      javascript: "{\n  'x': '1'\n}"
+      python: "{\n    'x': '1'\n}"
+      java: 'eq("x", "1")'
+      csharp: 'new BsonDocument("x", "1")'
+      shell: "{\n  'x': '1'\n}"
+      <your output language>: ...
 ```
+
 Make sure to add your output language in the outputLanguages array at the beginning
 of `run-yaml.test.js`, and to the list near the end of `functions.test.js`.
+
 ## Adding an Input Language
+
 TODO!

@@ -15,16 +15,15 @@ const describe = 'Download all `release` assets from evergreen bucket';
 const builder = {
   dir: {
     description: 'Project root directory',
-    default: process.cwd()
+    default: process.cwd(),
   },
   version: {
     description: 'Target version',
-    default: require(path.join(process.cwd(), 'package.json')).version
-  }
+    default: require(path.join(process.cwd(), 'package.json')).version,
+  },
 };
 
-const handler = function handler(argv) {
-  cli.argv = argv;
+const run = async function run (argv) {
   argv.version = argv.version.replace(/^v/, '');
 
   const assets = Target.getAssetsForVersion(argv.dir, argv.version);
@@ -34,7 +33,7 @@ const handler = function handler(argv) {
     return assets;
   });
 
-  const downloads = assetsToDownload.map(async(asset) => {
+  const downloads = assetsToDownload.map(async (asset) => {
     const shortPath = path.relative(root, asset.path);
     cli.info(
       `${asset.name}: download from evg bucket started (path: ${shortPath})`
@@ -43,12 +42,18 @@ const handler = function handler(argv) {
     cli.info(`${asset.name}: download from evg bucket complete`);
   });
 
-  Promise.all(downloads).catch(abortIfError);
-};
+  return Promise.all(downloads)
+}
+
+const handler = function handler(argv) {
+  cli.argv = argv;
+  run(argv).catch(abortIfError);
+}
 
 module.exports = {
   command,
   describe,
   builder,
-  handler
+  run,
+  handler,
 };

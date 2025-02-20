@@ -21,6 +21,7 @@ import type {
 } from './components/file-input';
 import FileInput, {
   createElectronFileInputBackend,
+  createJSDomFileInputDummyBackend,
   FileInputBackendProvider,
 } from './components/file-input';
 import { OptionsToggle } from './components/options-toggle';
@@ -42,18 +43,20 @@ import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
+
 import type {
   ItemAction,
-  GroupedItemAction,
-  MenuAction,
+  ItemComponentProps,
   ItemSeparator,
-} from './components/item-action-controls';
-import {
-  ItemActionControls,
-  ItemActionGroup,
-  ItemActionMenu,
-  DropdownMenuButton,
-} from './components/item-action-controls';
+} from './components/actions/types';
+import type { GroupedItemAction } from './components/actions/item-action-group';
+import type { MenuAction } from './components/actions/item-action-menu';
+
+import { ItemActionControls } from './components/actions/item-action-controls';
+import { ItemActionGroup } from './components/actions/item-action-group';
+import { ItemActionMenu } from './components/actions/item-action-menu';
+import { DropdownMenuButton } from './components/actions/dropdown-menu-button';
+
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
@@ -65,6 +68,7 @@ export {
   Size as ButtonSize,
   Variant as ButtonVariant,
 } from '@leafygreen-ui/button';
+export { SplitButton } from '@leafygreen-ui/split-button';
 
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
@@ -79,7 +83,6 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
@@ -93,6 +96,7 @@ export { InfoModal } from './components/modals/info-modal';
 export type {
   FileInputBackend,
   ItemAction,
+  ItemComponentProps,
   GroupedItemAction,
   MenuAction,
   ItemSeparator,
@@ -120,6 +124,7 @@ export {
   DropdownMenuButton,
   defaultSidebarWidth,
   createElectronFileInputBackend,
+  createJSDomFileInputDummyBackend,
 };
 export {
   useFocusState,
@@ -139,14 +144,13 @@ export {
   FadeInPlaceholder,
 } from './components/content-with-fallback';
 export { InlineDefinition } from './components/inline-definition';
-import type { glyphs } from '@leafygreen-ui/icon';
+export type { GlyphName } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
   SignalHooksProvider,
 } from './components/signal-popover';
 export type { Signal } from './components/signal-popover';
-export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';
@@ -172,7 +176,6 @@ export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
-export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
 export {
   useConfirmationModal,
   ConfirmationModalVariant,
@@ -199,3 +202,10 @@ export {
   useRequiredURLSearchParams,
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
+export { formatDate } from './utils/format-date';
+export {
+  VirtualList,
+  type VirtualListRef,
+  type VirtualListProps,
+  type ItemRenderer as VirtualListItemRenderer,
+} from './components/virtual-list';

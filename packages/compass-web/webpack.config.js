@@ -6,8 +6,6 @@ const {
   isServe,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
-const { startElectronProxy } = require('./scripts/start-electron-proxy');
-const { createWebSocketProxy } = require('./scripts/ws-proxy');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 
@@ -17,7 +15,14 @@ function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
 }
 
-module.exports = async (env, args) => {
+/**
+ * Atlas Cloud uses in-flight compression that doesn't compress anything that is
+ * bigger than 10MB, we want to make sure that compass-web assets stay under the
+ * limit so that they are compressed when served
+ */
+const MAX_COMPRESSION_FILE_SIZE = 10_000_000;
+
+module.exports = (env, args) => {
   const serve = isServe({ env });
 
   let config = createWebConfig({
@@ -29,11 +34,16 @@ module.exports = async (env, args) => {
   delete config.externals;
 
   config = merge(config, {
+    context: __dirname,
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
-        '@mongodb-js/ssh-tunnel': false,
-        ssh2: false,
+        '@mongodb-js/devtools-proxy-support/proxy-options': require.resolve(
+          '@mongodb-js/devtools-proxy-support/proxy-options'
+        ),
+        '@mongodb-js/devtools-proxy-support': localPolyfill(
+          '@mongodb-js/devtools-proxy-support'
+        ),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
@@ -86,16 +96,18 @@ module.exports = async (env, args) => {
         vm: require.resolve('vm-browserify'),
 
         // TODO(NODE-5408): requires a polyfill to be able to parse connection
-        // string correctly at the moment, but we should also omit some
-        // depdendencies that might not be required for this to work in the
-        // browser
+        // string correctly at the moment
         url: require.resolve('whatwg-url'),
         // Make sure we're not getting multiple versions included
         'whatwg-url': require.resolve('whatwg-url'),
+        // Heavy dependency of whatwg-url that we can replace in the browser
+        // environment
+        tr46: localPolyfill('tr46'),
 
         // Polyfills that are required for the driver to function in browser
         // environment
         net: localPolyfill('net'),
+        'timers/promises': require.resolve('timers-browserify'),
         timers: require.resolve('timers-browserify'),
         os: require.resolve('os-browserify/browser'),
         crypto: require.resolve('crypto-browserify'),
@@ -123,19 +135,26 @@ module.exports = async (env, args) => {
       },
     },
     plugins: [
+      new webpack.DefinePlugin({
+        // Can be either `web` or `webdriverio`, helpful if we need special
+        // behavior for tests in sandbox
+        'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+      }),
+
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         // Required by the driver to function in browser environment
         process: [localPolyfill('process'), 'process'],
       }),
     ],
+    performance: {
+      hints: serve ? 'warning' : 'error',
+      maxEntrypointSize: MAX_COMPRESSION_FILE_SIZE,
+      maxAssetSize: MAX_COMPRESSION_FILE_SIZE,
+    },
   });
 
   if (serve) {
-    startElectronProxy();
-    // TODO: logs are pretty rough here, should make it better
-    createWebSocketProxy();
-
     config.output = {
       path: config.output.path,
       filename: config.output.filename,
@@ -169,6 +188,18 @@ module.exports = async (env, args) => {
           tls: localPolyfill('tls'),
         },
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          // Matches the electron-proxy.js default value
+          'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
+            process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
+          ),
+          'process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING':
+            JSON.stringify(
+              process.env.E2E_TEST_CLOUD_WEB_ENABLE_PREFERENCE_SAVING ?? 'false'
+            ),
+        }),
+      ],
     });
   }
 

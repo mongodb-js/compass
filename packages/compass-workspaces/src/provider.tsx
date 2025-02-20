@@ -12,6 +12,8 @@ import {
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { CollectionSubtab } from './types';
+import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
+import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 
 function useWorkspacesStore() {
   try {
@@ -46,7 +48,11 @@ export type WorkspacesService = {
   openShellWorkspace(
     this: void,
     connectionId: string,
-    tabOptions?: TabOptions
+    options?: TabOptions &
+      Pick<
+        Extract<OpenWorkspaceOptions, { type: 'Shell' }>,
+        'initialInput' | 'initialEvaluate'
+      >
   ): void;
   /**
    * Open "Databases" workspace showing list of all databases in the cluster
@@ -86,7 +92,7 @@ export type WorkspacesService = {
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace' | 'editViewName' | 'initialSubtab' | 'connectionId'
+        'type' | 'namespace' | 'editViewName' | 'connectionId'
       >
   ): void;
   /**
@@ -107,6 +113,75 @@ export type WorkspacesService = {
     viewNamespace: string,
     options: { sourceName: string; sourcePipeline: unknown[] } & TabOptions
   ): void;
+  /**
+   * A method that registers a tab close handler. Before closing the tab, this
+   * handler will be called and can return either `true` to allow the tab to be
+   * closed, or `false`, preventing tab to be closed before user confirms the
+   * tab closure.
+   *
+   * Multiple handlers can be registered for one tab, they will be called in
+   * order of registration and any one of them returning `false` will prevent
+   * the tab from closing.
+   *
+   * Method might be undefined when using workspace service outside of workspace
+   * tab context.
+   *
+   * @returns A clean-up method that will un-register the handler
+   *
+   * @example
+   * function activatePlugin(
+   *   initialProps,
+   *   { workspaces },
+   *   { addCleanup, cleanup }
+   * ) {
+   *   const store = createStore();
+   *
+   *   addCleanup(workspaces.onTabClose?.(() => {
+   *     return store.getState().modified === false;
+   *   }));
+   *
+   *   return { store, deactivate: cleanup }
+   * }
+   */
+  onTabClose?: (handler: WorkspaceDestroyHandler) => () => void;
+  /**
+   *
+   * A method that registers a tab replace handler. By default when opening a new
+   * workspace, it will be opened in the same tab, destroying the content of the
+   * current workspace. In that case, the registered handler can return either
+   * `true` to allow the workspace to be destroyed, or `false` to prevent the
+   * tab from being destroyed and forcing the new workspace to open in the new
+   * tab.
+   *
+   * Multiple handlers can be registered for one tab, they will be called in
+   * order of registration and any one of them returning `false` will prevent
+   * the tab from being replaced.
+   *
+   * Method might be undefined when using workspace service outside of workspace
+   * tab context.
+   *
+   * @returns A clean-up method that will un-register the handler
+   *
+   * @example
+   * function activatePlugin(
+   *   initialProps,
+   *   { workspaces },
+   *   { addCleanup, cleanup }
+   * ) {
+   *   const store = createStore();
+   *
+   *   addCleanup(workspaces.onTabReplace?.(() => {
+   *     return store.getState().modified === false;
+   *   }));
+   *
+   *   return { store, deactivate: cleanup }
+   * }
+   */
+  onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
+};
+
+// Separate type to avoid exposing internal prop in exported types
+type WorkspacesServiceImpl = WorkspacesService & {
   /**
    * useActiveWorkspace hook, exposed through the service interface so that it
    * can be mocked in the test environment
@@ -142,7 +217,7 @@ const noopWorkspacesService = {
   },
 };
 
-const WorkspacesServiceContext = React.createContext<WorkspacesService>(
+const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
   noopWorkspacesService
 );
 
@@ -157,32 +232,36 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
   /* eslint-disable react-hooks/rules-of-hooks */
   value ??= (() => {
     const store = useWorkspacesStore();
-    const service = useRef<WorkspacesService>({
+    const service = useRef<WorkspacesServiceImpl>({
       getActiveWorkspace: () => {
         return getActiveTab(store.getState());
       },
       openMyQueriesWorkspace: (tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openShellWorkspace(connectionId, tabOptions) {
-        return store.dispatch(
-          openWorkspaceAction({ type: 'Shell', connectionId }, tabOptions)
+      openShellWorkspace(connectionId, options = {}) {
+        const { newTab, ...workspaceOptions } = options;
+        return void store.dispatch(
+          openWorkspaceAction(
+            { type: 'Shell', connectionId, ...workspaceOptions },
+            { newTab }
+          )
         );
       },
       openDatabasesWorkspace: (connectionId, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'Databases', connectionId }, tabOptions)
         );
       },
       openPerformanceWorkspace: (connectionId, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'Performance', connectionId }, tabOptions)
         );
       },
       openCollectionsWorkspace: (connectionId, namespace, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             { type: 'Collections', connectionId, namespace },
             tabOptions
@@ -191,7 +270,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openCollectionWorkspace: (connectionId, namespace, options) => {
         const { newTab, ...collectionOptions } = options ?? {};
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
@@ -208,7 +287,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openEditViewWorkspace: (connectionId, viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
@@ -241,7 +320,8 @@ function useWorkspacesService() {
       "Can't find Workspaces service in React context. Make sure you are using workspaces service and hooks inside Workspaces scope"
     );
   }
-  return service;
+  const handlers = useRegisterTabDestroyHandler();
+  return { ...service, ...handlers };
 }
 
 export function useOpenWorkspace() {
@@ -278,9 +358,16 @@ export function useActiveWorkspace() {
 }
 
 export const workspacesServiceLocator = createServiceLocator(
-  useWorkspacesService,
+  useWorkspacesService as () => WorkspacesService,
   'workspacesServiceLocator'
 );
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
-export { useTabState } from './components/workspace-tab-state-provider';
+export {
+  useWorkspaceTabId,
+  useTabState,
+} from './components/workspace-tab-state-provider';
+export {
+  useOnTabClose,
+  useOnTabReplace,
+} from './components/workspace-close-handler';

@@ -2,9 +2,6 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export type AddCollectionOptions = {
-  capped?: {
-    size: number;
-  };
   customCollation?: {
     locale: string;
     strength: number;
@@ -37,7 +34,7 @@ export async function addCollection(
   collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
 ): Promise<void> {
-  const createModalElement = await browser.$(Selectors.CreateCollectionModal);
+  const createModalElement = browser.$(Selectors.CreateCollectionModal);
   await createModalElement.waitForDisplayed();
 
   await browser.setValueVisible(
@@ -48,15 +45,6 @@ export async function addCollection(
   if (collectionOptions) {
     await browser.clickVisible(
       Selectors.CreateCollectionCollectionOptionsAccordion
-    );
-  }
-
-  if (collectionOptions && collectionOptions.capped) {
-    await browser.clickVisible(Selectors.CreateCollectionCappedCheckboxLabel);
-
-    await browser.setValueVisible(
-      Selectors.CreateCollectionCappedSizeInput,
-      collectionOptions.capped.size.toString()
     );
   }
 
@@ -137,13 +125,11 @@ export async function addCollection(
           timeoutMsg: `Failed to select a value "${valStr}" for "${key}" in Select after ${clickAttempt} attempt(s)`,
         }
       );
-
-      await browser.screenshot(`custom-collation-${key}-${valStr}.png`);
     }
 
     // scroll to the locale one so the screenshot will include it.
     // (for debugging)
-    const localeButton = await browser.$(
+    const localeButton = browser.$(
       Selectors.createCollectionCustomCollationFieldButton('locale')
     );
     await localeButton.scrollIntoView();
@@ -170,13 +156,11 @@ export async function addCollection(
       await browser.clickVisible(
         Selectors.CreateCollectionTimeseriesGranularityButton
       );
-      const menu = await browser.$(
+      const menu = browser.$(
         Selectors.CreateCollectionTimeseriesGranularityMenu
       );
       await menu.waitForDisplayed();
-      const span = await menu.$(
-        `span=${collectionOptions.timeseries.granularity}`
-      );
+      const span = menu.$(`span=${collectionOptions.timeseries.granularity}`);
       await span.waitForDisplayed();
       await span.click();
     }

@@ -51,7 +51,8 @@ export const confirmDeleteItem = (
       {
         id: item.id,
         screen: 'my_queries',
-      }
+      },
+      undefined // this event is connection scoped when triggered from the aggregation or query screen
     );
 
     if (item.type === 'query') {

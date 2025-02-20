@@ -7,13 +7,17 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoRef,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
+  fetchSavedQueries,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -23,7 +27,6 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
   FavoriteQueryStorageAccess,
@@ -44,7 +47,7 @@ type QueryBarServices = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
-  atlasAuthService: AtlasAuthService;
+  connectionInfoRef: ConnectionInfoRef;
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
@@ -53,7 +56,7 @@ type QueryBarServices = {
 // TODO(COMPASS-7412): this doesn't have service injector
 // implemented yet, so we're keeping it separate from the type above
 type QueryBarExtraServices = {
-  atlasAuthService?: AtlasAuthService;
+  atlasAIService?: AtlasAiService;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
 };
@@ -71,12 +74,12 @@ export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasAuthService: AtlasAuthService;
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
   logger: Logger;
   track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
   atlasAiService: AtlasAiService;
 };
 
@@ -119,7 +122,7 @@ export function activatePlugin(
     preferences,
     logger,
     track,
-    atlasAuthService,
+    connectionInfoRef,
     atlasAiService,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
@@ -149,10 +152,10 @@ export function activatePlugin(
       globalAppRegistry,
       recentQueryStorage,
       favoriteQueryStorage,
-      atlasAuthService,
       preferences,
       logger,
       track,
+      connectionInfoRef,
       atlasAiService,
     }
   );
@@ -163,6 +166,8 @@ export function activatePlugin(
       readonly: !instance.isWritable,
     });
   });
+
+  store.dispatch(fetchSavedQueries());
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };
 }

@@ -1,11 +1,8 @@
 import React, { useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import {
-  createTrack,
-  type TelemetryServiceOptions,
-  type TrackFunction,
-} from './generic-track';
+import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from './types';
 
 const noop = () => {
   // noop
@@ -36,12 +33,10 @@ export const TelemetryProvider: React.FC<{
   );
 };
 
-export function createTelemetryLocator() {
-  return createServiceLocator(
-    useTelemetry.bind(null),
-    'createTelemetryLocator'
-  );
-}
+export const telemetryLocator = createServiceLocator(
+  useTelemetry.bind(null),
+  'telemetryLocator'
+);
 
 export function useTelemetry(): TrackFunction {
   const track = React.useContext(TelemetryContext);
@@ -57,7 +52,11 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
-export function withTelemetry<
+/**
+ * @deprecated instead of using HOC, refactor class component to functional
+ * component
+ */
+function withTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
   const WithTelemetry = (
@@ -69,6 +68,8 @@ export function withTelemetry<
   return WithTelemetry;
 }
 
+export { withTelemetry };
+
 /**
  * Hook that allows to track telemetry events as a side effect of dependencies changing.
  *
@@ -79,7 +80,7 @@ export function withTelemetry<
  *
  * @example
  * useTrackOnChange((track) => {
- *   if (isShellOpen) { track('Shell Opened') }
+ *   if (isShellOpen) { track('Shell Opened', {}, { id: 'connection123' }) }
  * }, [isShellOpen], { skipOnMount: true });
  */
 export function useTrackOnChange(

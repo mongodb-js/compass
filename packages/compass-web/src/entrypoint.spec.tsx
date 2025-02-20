@@ -1,32 +1,25 @@
 import React from 'react';
-import { screen, render, cleanup, waitFor } from '@testing-library/react';
+import {
+  screen,
+  render,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
 import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
-import EventEmitter from 'events';
-import ConnectionString from 'mongodb-connection-string-url';
-import { SandboxAutoconnectProvider } from './connection-storage';
+import { ConnectFnProvider } from '@mongodb-js/compass-connections';
+import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
 
 function mockDb(name: string) {
   return { _id: name, name };
 }
 
-class MockDataService extends EventEmitter {
-  constructor(private connectionOptions: ConnectionOptions) {
-    super();
-  }
-  getConnectionString() {
-    return new ConnectionString(this.connectionOptions.connectionString);
-  }
-  getConnectionOptions() {
-    return { connectionString: 'mongodb://localhost:27017' };
-  }
-  getLastSeenTopology() {
-    return { type: 'Unknown', servers: new Map([]) };
-  }
-  instance() {
-    return Promise.resolve({});
+class MockDataService extends TestHelpersMockDataService {
+  constructor(connectionOptions: ConnectionOptions) {
+    super(connectionOptions);
   }
   currentOp() {
     return Promise.resolve({});
@@ -40,8 +33,6 @@ class MockDataService extends EventEmitter {
   listDatabases() {
     return Promise.resolve([mockDb('foo'), mockDb('bar'), mockDb('buz')]);
   }
-  disconnect() {}
-  addReauthenticationHandler() {}
 }
 
 describe('CompassWeb', function () {
@@ -59,91 +50,74 @@ describe('CompassWeb', function () {
     }
   );
 
-  function renderCompassWeb(
+  const onTrackSpy = Sinon.spy();
+
+  afterEach(function () {
+    cleanup();
+    Sinon.resetHistory();
+  });
+
+  async function renderCompassWebAndConnect(
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
   ) {
-    return render(
-      <SandboxAutoconnectProvider
-        value={{
-          id: 'foo',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
-          },
-        }}
-      >
+    const result = render(
+      <ConnectFnProvider connect={connectFn as any}>
         <CompassWeb
+          orgId=""
+          projectId=""
+          initialWorkspace={undefined as any}
           onActiveWorkspaceTabChange={() => {}}
-          renderConnecting={(connectionInfo) => {
-            let host = 'cluster';
-            if (connectionInfo) {
-              [host] = new ConnectionString(
-                connectionInfo.connectionOptions.connectionString
-              ).hosts;
-            }
-            return <div>Connecting to {host}…</div>;
-          }}
+          onTrack={onTrackSpy}
           {...props}
-          // @ts-expect-error see component props description
-          __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
+          initialPreferences={{
+            enableCreatingNewConnections: true,
+            ...props.initialPreferences,
+          }}
+          onFailToLoadConnections={() => {}}
         ></CompassWeb>
-      </SandboxAutoconnectProvider>
+      </ConnectFnProvider>
     );
+    userEvent.click(
+      screen.getAllByRole('button', { name: 'Add new connection' })[0]
+    );
+    await waitFor(() => {
+      screen.getByRole('button', { name: 'Save & Connect' });
+    });
+    userEvent.click(screen.getByRole('button', { name: 'Save & Connect' }));
+    return result;
   }
 
   afterEach(cleanup);
 
   it('should render CompassWeb and connect using provided connection string', async function () {
-    renderCompassWeb();
+    await renderCompassWebAndConnect();
 
     await waitFor(() => {
-      screen.getByText('Connecting to localhost:27017…');
+      screen.getByText('Connecting to localhost:27017');
     });
 
     expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
       'connectionString',
-      'mongodb://localhost:27017/'
-    );
-
-    // Wait for connection to happen and navigation tree to render
-    await waitFor(
-      () => {
-        screen.getByTestId('compass-web-connected');
-        screen.getByRole('button', { name: 'Databases' });
-        screen.getAllByRole('tree');
-      },
-      { timeout: 10_000 }
-    );
-
-    // TODO(COMPASS-7551): These are not rendered in tests because of the
-    // navigation virtualization. We should make it possible to render those
-    // here either by modifying the dom observer mock or by providing some way
-    // to pass the test value to the virtualized component
-    // expect(screen.getByRole('treeitem', {name: 'foo'})).to.exist;
-    // expect(screen.getByRole('treeitem', {name: 'bar'})).to.exist;
-    // expect(screen.getByRole('treeitem', {name: 'buz'})).to.exist;
-  });
-
-  it('should render error state if connection fails', async function () {
-    renderCompassWeb(
-      {
-        renderError(_connectionInfo, err) {
-          return (
-            <>Failed to connect because of the following error: {err.message}</>
-          );
-        },
-      },
-      (() => {
-        return Promise.reject(new Error('Whoops!'));
-      }) as any
+      'mongodb://localhost:27017/?appName=Compass+Web'
     );
 
     await waitFor(() => {
-      screen.getByText(
-        'Failed to connect because of the following error: Whoops!'
-      );
+      screen.getByText('Connected to localhost:27017');
     });
+
+    expect(onTrackSpy).to.have.been.calledWith('New Connection');
   });
 
-  // TODO: add tests for onTrack COMPASS-8019
+  it('should render error state if connection fails', async function () {
+    await renderCompassWebAndConnect({}, (() => {
+      return Promise.reject(new Error('Failed to connect'));
+    }) as any);
+
+    await waitFor(() => {
+      screen.getByText('There was a problem connecting to localhost:27017');
+    });
+
+    expect(onTrackSpy).to.have.been.calledWith('Connection Failed');
+  });
 });

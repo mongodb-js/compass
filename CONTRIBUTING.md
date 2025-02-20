@@ -3,10 +3,10 @@
 
 ## Getting Started
 
-You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally.
+You'll need node `^20` and npm `^10` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
-After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
+After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally. Alternatively you can start a web version of the app by running `npm run start-web`.
 
 Compass uses a monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
@@ -35,7 +35,11 @@ This repository includes a few recommended plugins for your convenience:
 - ESLint extension highlights possible issues in your code following our common eslint configuration.
 - ANTLR4 grammar support extension helps to work with the `bson-transpilers` package that is implemented with the help of antlr (.g and .g4 files).
 
-### Working on Plugins
+## Enabling Chrome DevTools
+
+To enable the Chrome DevTools for the Electron renderer processes, click "Settings" under "MongoDB Compass Dev Local" in the top menu (or press <kbd>⌘</kbd> + <kbd>,</kbd>) and click "Enable DevTools" followed by "Save", which will enable a "Toggle DevTools" item in the "View" top menu. Click this to toggle the DevTools panel (or press <kbd>⌥</kbd> + <kbd>⌘</kbd> + <kbd>I</kbd>).
+
+## Working on Plugins
 
 > [!NOTE]
 > For documentation regarding how to write plugin packages, check out the
@@ -51,15 +55,15 @@ In addition to running lerna commands directly, there are a few convenient npm s
 - `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`.
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
-### Building Compass Locally
+## Building Compass Locally
 
 To build compass you can run `package-compass` script:
 
 ```sh
-npm run package-compass
+HADRON_DISTRIBUTION='compass' npm run package-compass
 ```
 
-You can change the type of distribution you are building with `HADRON_DISTRIBUTION` environmental variable:
+It is required to provide `HADRON_DISTRIBUTION` env variable explicitly. You can change the type of distribution you are building by setting a different `HADRON_DISTRIBUTION` value:
 
 ```sh
 HADRON_DISTRIBUTION='compass-readonly' npm run package-compass
@@ -80,10 +84,10 @@ DEBUG=hadron* npm run package-compass
 To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
 
 ```sh
-HADRON_SKIP_INSTALLER=true npm run test-package-compass
+HADRON_SKIP_INSTALLER=true npm run package-compass
 ```
 
-### Publishing Packages
+## Publishing Packages
 
 Compass is built out of a number of different NPM packages. Since all the relevant code is bundled in the packaged version of Compass with webpack, it is not necessary to publish any package to build and run the Compass application.
 
@@ -93,15 +97,15 @@ In particular each change to the `main` branch is analyzed to calculate a new ve
 
 Merging that PR will trigger another CI job that will publish to NPM any package which version is not yet present on the registry.
 
-The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/bump-monorepo-packages for details.
+The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/monorepo-tools for details.
 
-### Add / Update / Remove Dependencies in Packages
+## Add / Update / Remove Dependencies in Packages
 
 To add, remove, or update a dependency in any workspace you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-aggregations and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-aggregations --workspace @mongodb-js/compass-query-bar`.
 
 Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
 
-### Creating a New Workspace / Package
+## Creating a New Workspace / Package
 
 To create a new package please use the `create-workspace` npm script:
 
@@ -111,9 +115,17 @@ npm run create-workspace [workspace name]
 
 This will do all the initial workspace bootstrapping for you, ensuring that your package has all the standard configs set up and ready, and all the npm scripts aligned with other packages in the monorepo, which is important to get the most out of all the provided helpers in this repository (like `npm run check-changed` commands or to make sure that your tests will not immediately fail in CI because of the test timeout being too small)
 
-### Caveats
+## Using Github Actions
 
-#### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
+Github actions offers an easy way to create workflows that run various automated checks. While our main CI system is Evergreen, we have a number of auxiliary workflows configured to run using github actions. While adding new workflows or updating existing ones, it's important that we follow [the security hardening guidelines](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) by Github. Those can change over time, so be sure to periodically review them to make sure we're not using insecure workflows. Some notable highlights to pay special attention to are:
+1. Avoid using tag or branch refs for untrusted 3rd party actions. Those can easily be recreated by malicious actors and introduce supply chain attacks. As a rule of thumb, first party actions are considered actions by MongoDB, Github, Microsoft, or the primary maintainer of a particular ecosystem - e.g. Amazon for AWS. When using a 3rd party action, always use the full git commit sha as the ref to checkout.
+2. Be extra vigilant when using user-supplied data, such as branch name or PR title in scripts as that opens up the possibility of script injection attacks. Instead, prefer to use js actions to achieve the same result or sanitize the input before using it in a script.
+3. Never commit secrets in the workflow file directly - instead use github secrets to store them securely at the repo/org level.
+4. Avoid using repo-level secrets that grant access to deployment/publishing resources. Instead prefer to store these as environment secrets and ensure the correct environments protections are in place.
+
+## Caveats
+
+### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
 
 <!-- TODO: might go away after https://jira.mongodb.org/browse/COMPASS-4947 -->
 
@@ -123,7 +135,7 @@ Sometimes when trying to package compass on macOS you can run into the said erro
 HADRON_SKIP_INSTALLER=true npm run test-package-compass
 ```
 
-#### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
+### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
 
 <!-- TODO: should go away after https://jira.mongodb.org/browse/COMPASS-4896 -->
 
@@ -145,3 +157,7 @@ The root cause is native modules compiled for a different version of the runtime
 This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `@mongodb-js/connection-storage` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
 
 If you run into this issue, make sure that native modules are rebuilt for whatever runtime you are planning to use at the moment. To help with that we provide two npm scripts: `npm run electron-rebuild` will recompile native modules to work with Electron and `npm run node-rebuild` will recompile them to work with Node.js.
+
+### The React Developer Tools extension is not working?
+
+To inspect the React component hierarchies in the Chrome DevTools panel, use the [React Developer Tools](https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi), which is already installed when running a local development build. For a reason, yet to be determined, you must reload (<kbd>⌘</kbd> + <kbd>R</kbd>) the DevTools window to see the "⚛️ Components" and "⚛️ Profiler" tabs.

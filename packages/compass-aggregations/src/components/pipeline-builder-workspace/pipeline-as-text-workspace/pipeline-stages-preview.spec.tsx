@@ -1,36 +1,32 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('OutputStagePreview', function () {
   let preferences: PreferencesAccess;
   const renderStageBanner = (
     props: Partial<ComponentProps<typeof OutputStagePreview>> = {}
   ) => {
-    render(
-      <PreferencesProvider value={preferences}>
-        <Provider store={configureStore()}>
-          <OutputStagePreview
-            stageOperator="$out"
-            isComplete={false}
-            isLoading={false}
-            onOpenCollection={() => {}}
-            onSaveCollection={() => {}}
-            {...props}
-          />
-        </Provider>
-      </PreferencesProvider>
+    return renderWithStore(
+      <OutputStagePreview
+        stageOperator="$out"
+        isComplete={false}
+        isLoading={false}
+        onOpenCollection={() => {}}
+        onSaveCollection={() => {}}
+        {...props}
+      />,
+      undefined,
+      undefined,
+      { preferences }
     );
   };
 
@@ -40,8 +36,8 @@ describe('OutputStagePreview', function () {
 
   (['$out', '$merge'] as const).forEach((stageOperator) => {
     describe(`${stageOperator} with run aggregation enabled`, function () {
-      it('renders stage banner', function () {
-        renderStageBanner({ stageOperator });
+      it('renders stage banner', async function () {
+        await renderStageBanner({ stageOperator });
         expect(screen.getByTestId(`${stageOperator}-preview-banner`)).to.exist;
         expect(() => {
           screen.getByRole('button', {
@@ -58,15 +54,15 @@ describe('OutputStagePreview', function () {
         });
       });
 
-      it(`renders stage banner`, function () {
-        renderStageBanner({
+      it(`renders stage banner`, async function () {
+        await renderStageBanner({
           stageOperator,
         });
         expect(screen.getByTestId(`${stageOperator}-preview-banner`)).to.exist;
       });
 
-      it(`renders stage action`, function () {
-        renderStageBanner({
+      it(`renders stage action`, async function () {
+        await renderStageBanner({
           stageOperator,
         });
         expect(
@@ -76,9 +72,9 @@ describe('OutputStagePreview', function () {
         ).to.exist;
       });
 
-      it(`calls stage action on click`, function () {
+      it(`calls stage action on click`, async function () {
         const onSaveCollection = sinon.spy();
-        renderStageBanner({
+        await renderStageBanner({
           stageOperator,
           onSaveCollection,
         });
@@ -90,8 +86,8 @@ describe('OutputStagePreview', function () {
         expect(onSaveCollection.calledOnce).to.be.true;
       });
 
-      it('renders loading state', function () {
-        renderStageBanner({
+      it('renders loading state', async function () {
+        await renderStageBanner({
           stageOperator,
           isLoading: true,
         });
@@ -101,8 +97,8 @@ describe('OutputStagePreview', function () {
         expect(button.getAttribute('aria-disabled')).to.equal('true');
       });
 
-      it('renders complete state', function () {
-        renderStageBanner({
+      it('renders complete state', async function () {
+        await renderStageBanner({
           stageOperator,
           isComplete: true,
         });
@@ -110,8 +106,8 @@ describe('OutputStagePreview', function () {
           .exist;
       });
 
-      it('renders complete state action button', function () {
-        renderStageBanner({
+      it('renders complete state action button', async function () {
+        await renderStageBanner({
           stageOperator,
           isComplete: true,
         });
@@ -121,9 +117,9 @@ describe('OutputStagePreview', function () {
         expect(button).to.exist;
       });
 
-      it('calls complete state action button', function () {
+      it('calls complete state action button', async function () {
         const onOpenCollection = sinon.spy();
-        renderStageBanner({
+        await renderStageBanner({
           stageOperator,
           isComplete: true,
           onOpenCollection,

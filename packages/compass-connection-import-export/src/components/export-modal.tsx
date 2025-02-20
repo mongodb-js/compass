@@ -12,7 +12,7 @@ import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
-import { useExportConnections } from '../hooks/use-export';
+import { useExportConnections } from '../hooks/use-export-connections';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
@@ -30,7 +30,7 @@ export function ExportConnectionsModal({
   trackingProps,
 }: {
   open: boolean;
-  setOpen: (newOpen: boolean) => void;
+  setOpen: (newOpen: boolean, trackingProps?: Record<string, unknown>) => void;
   afterExport?: () => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
@@ -51,7 +51,15 @@ export function ExportConnectionsModal({
     [afterExport, openToast, setOpen]
   );
 
-  useOpenModalThroughIpc(open, setOpen, 'compass:open-export-connections');
+  const openModalThroughIpc = useCallback(() => {
+    setOpen(true, { context: 'menuBar' });
+  }, [setOpen]);
+
+  useOpenModalThroughIpc(
+    open,
+    openModalThroughIpc,
+    'compass:open-export-connections'
+  );
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const {

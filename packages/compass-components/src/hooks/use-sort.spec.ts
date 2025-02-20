@@ -1,7 +1,10 @@
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  render,
+  screen,
+  userEvent,
+  renderHook,
+} from '@mongodb-js/testing-library-compass';
 import { useSortControls, useSortedItems } from './use-sort';
 
 const sortBy = [
@@ -54,7 +57,7 @@ describe('use-sort', function () {
     expect(
       screen
         .getByRole('button', {
-          name: /title/i,
+          name: 'Sort by',
         })
         .getAttribute('aria-disabled')
     ).to.equal('true');
@@ -67,7 +70,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {
@@ -108,7 +111,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {
@@ -138,7 +141,7 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i,
+        name: 'Sort by',
       }),
       undefined,
       {

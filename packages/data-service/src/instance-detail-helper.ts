@@ -54,7 +54,7 @@ type DataLakeDetails = {
   version: string | null;
 };
 
-type CollectionDetails = {
+export type CollectionDetails = {
   _id: string;
   name: string;
   database: string;
@@ -76,9 +76,10 @@ type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
+  is_non_existent: boolean;
 };
 
-type DatabaseDetails = {
+export type DatabaseDetails = {
   _id: string;
   name: string;
   collection_count: number;
@@ -88,6 +89,7 @@ type DatabaseDetails = {
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
+  is_non_existent: boolean;
 };
 
 export type InstanceDetails = {
@@ -121,22 +123,34 @@ export async function getInstance(
     atlasVersionResult,
     isLocalAtlas,
   ] = await Promise.all([
-    runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
-      ignoreNotAuthorized(null)
+    runCommand(
+      adminDb,
+      { connectionStatus: 1, showPrivileges: true },
+      { enableUtf8Validation: false }
+    ).catch(ignoreNotAuthorized(null)),
+    runCommand(adminDb, { hostInfo: 1 }, { enableUtf8Validation: false }).catch(
+      ignoreNotAuthorized({})
     ),
-    runCommand(adminDb, { hostInfo: 1 }).catch(ignoreNotAuthorized({})),
     // This command should always pass, if it throws, somethings is really off.
     // This is why it's the only one where we are not ignoring any types of
     // errors
-    runCommand(adminDb, { buildInfo: 1 }),
+    runCommand(adminDb, { buildInfo: 1 }, { enableUtf8Validation: false }),
     // This command is only here to get data for the logs and telemetry, if it
     // failed (e.g., not authorised or not supported) we should just ignore the
     // failure
-    runCommand<{ featureCompatibilityVersion: { version: string } }>(adminDb, {
-      getParameter: 1,
-      featureCompatibilityVersion: 1,
-    }).catch(() => null),
-    runCommand(adminDb, { atlasVersion: 1 }).catch(() => {
+    runCommand<{ featureCompatibilityVersion: { version: string } }>(
+      adminDb,
+      {
+        getParameter: 1,
+        featureCompatibilityVersion: 1,
+      },
+      { enableUtf8Validation: false }
+    ).catch(() => null),
+    runCommand(
+      adminDb,
+      { atlasVersion: 1 },
+      { enableUtf8Validation: false }
+    ).catch(() => {
       return { atlasVersion: '', gitVersion: '' };
     }),
     checkIsLocalAtlas(
@@ -346,7 +360,7 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 
 export function adaptDatabaseInfo(
   databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name'> {
+): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existent'> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -364,7 +378,9 @@ export function adaptCollectionInfo({
   options,
   type,
 }: CollectionInfoNameOnly &
-  Partial<CollectionInfo> & { db: string }): CollectionDetails {
+  Partial<CollectionInfo> & {
+    db: string;
+  }): Omit<CollectionDetails, 'is_non_existent'> {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,

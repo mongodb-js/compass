@@ -3,18 +3,26 @@ on:
   workflow_dispatch:
   schedule:
     # Each Tuesday at 5 AM UTC
-    - cron: '0 5 * * 2'
+    - cron: "0 5 * * 2"
+
+permissions:
+  contents: none # We use the github app token to merge the PR
 
 jobs:
   merge_bump_packages_pr:
     name: Merge bump packages PR
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
       - name: Merge PR
         env:
-          GITHUB_TOKEN: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -e
           PR_NUMBER=$(gh pr list -s open --head=ci/bump-packages --limit=1 --json number | jq '.[0].number')

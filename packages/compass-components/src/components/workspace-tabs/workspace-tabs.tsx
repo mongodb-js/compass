@@ -8,7 +8,7 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { glyphs } from '@leafygreen-ui/icon';
+import type { GlyphName } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
 import {
@@ -170,11 +170,12 @@ type WorkspaceTabsProps = {
 
 export type TabProps = {
   id: string;
+  type: string;
   title: string;
-  subtitle?: string;
+  tooltip?: [string, string][];
   connectionId?: string;
-  iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo';
-} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
+  iconGlyph: GlyphName | 'Logo' | 'Server';
+} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,

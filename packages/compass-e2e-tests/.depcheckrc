@@ -2,6 +2,11 @@ ignores:
   - '@mongodb-js/prettier-config-compass'
   - '@mongodb-js/tsconfig-compass'
   - '@wdio/types'
-  - 'mongodb-compass'
   - 'ps-list'
-  - 'mongodb-runner'
+# Avoiding recursive deps on monorepo workspaces
+  - 'mongodb-compass'
+  - '@mongodb-js/mocha-config-compass'
+  - 'compass-e2e-tests'
+  - '@mongodb-js/compass-web'
+# needed for getPuppeteer() to work
+  - 'puppeteer-core'

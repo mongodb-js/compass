@@ -4,6 +4,7 @@
     "direct-write": true,
     "nodeIntegration": true,
     "contextIsolation": false,
-    "enableRemoteModule": true
+    "enableRemoteModule": true,
+    "nodeIntegrationInWorker": true
   }
 }

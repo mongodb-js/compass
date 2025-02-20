@@ -17,8 +17,12 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
+  enableExportSchema: boolean;
   enableRenameCollectionModal: boolean;
-  enableNewMultipleConnectionSystem: boolean;
+  enableQueryHistoryAutocomplete: boolean;
+  enableProxySupport: boolean;
+  enableRollingIndexes: boolean;
+  enableGlobalWrites: boolean;
 };
 
 export const featureFlags: Required<{
@@ -63,14 +67,48 @@ export const featureFlags: Required<{
   },
 
   /**
-   * Feature flag for the new multiple connection UI.
-   * Epic: COMPASS-6410
+   * Feature flag for adding query history items to the query bar autocompletion. COMPASS-8096
    */
-  enableNewMultipleConnectionSystem: {
+  enableQueryHistoryAutocomplete: {
+    stage: 'released',
+    description: {
+      short:
+        'Enables showing query history items in the query bar autocomplete.',
+    },
+  },
+
+  /**
+   * Feature flag for explicit proxy configuration support.
+   */
+  enableProxySupport: {
+    stage: 'released',
+    description: {
+      short: 'Enables support for explicit proxy configuration.',
+      long: 'Allows users to specify proxy configuration for the entire Compass application.',
+    },
+  },
+
+  enableRollingIndexes: {
     stage: 'development',
     description: {
-      short: 'Enables support for multiple connections.',
-      long: 'Allows users to open multiple connections in the same window.',
+      short: 'Enable creating indexes with the rolling build in Atlas Cloud',
+    },
+  },
+
+  enableGlobalWrites: {
+    stage: 'development',
+    description: {
+      short: 'Enable Global Writes tab in Atlas Cloud',
+    },
+  },
+
+  /**
+   * Feature flag for export schema. Epic: COMPASS-6862.
+   */
+  enableExportSchema: {
+    stage: 'development',
+    description: {
+      short: 'Enable schema export',
     },
   },
 };

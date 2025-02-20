@@ -15,10 +15,12 @@ import type { RootState } from '../../modules';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLogger('AI-PIPELINE-UI');
   const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
       const { log, mongoLogId } = logger;
@@ -33,11 +35,15 @@ const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
         }
       );
 
-      track('PipelineAI Feedback', () => ({
-        feedback,
-        request_id: lastAIPipelineRequestId,
-        text,
-      }));
+      track(
+        'PipelineAI Feedback',
+        () => ({
+          feedback,
+          request_id: lastAIPipelineRequestId,
+          text,
+        }),
+        connectionInfoRef.current
+      );
 
       openToast('pipeline-ai-feedback-submitted', {
         variant: 'success',
@@ -45,7 +51,7 @@ const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
         timeout: 10_000,
       });
     },
-    [logger, track, lastAIPipelineRequestId]
+    [logger, track, lastAIPipelineRequestId, connectionInfoRef]
   );
 };
 

@@ -1,12 +1,11 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './store/atlas-signin-store';
 import { atlasAuthServiceLocator } from './provider';
-import { AtlasSignIn } from './components';
 
 export const AtlasAuthPlugin = registerHadronPlugin(
   {
     name: 'AtlasAuth',
-    component: AtlasSignIn,
+    component: () => null,
     activate: activatePlugin,
   },
   {

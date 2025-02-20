@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -56,7 +56,10 @@ const INITIAL_STATE: OutputStageState = {
   serverError: null,
 };
 
-const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<OutputStageState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (
     isAction<EditorValueChangeAction>(
       action,
@@ -131,7 +134,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, preferences, globalAppRegistry }
+    { pipelineBuilder, preferences, connectionScopedAppRegistry }
   ) => {
     const {
       autoPreview,
@@ -173,7 +176,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
       });
-      globalAppRegistry.emit(
+      connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
         getDestinationNamespaceFromStage(
           namespace,

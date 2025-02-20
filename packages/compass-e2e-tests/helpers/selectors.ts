@@ -1,41 +1,44 @@
+export type WorkspaceTabSelectorOptions = {
+  id?: string;
+  connectionName?: string;
+  namespace?: string;
+  type?: string;
+  active?: boolean;
+};
+
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
 export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
 export const SettingsModalTabSelector = (name: string) =>
   `${SettingsModal} [data-testid="sidebar-${name}-item"]`;
-export const GeneralSettingsButton = SettingsModalTabSelector('General');
+export const GeneralSettingsButton = SettingsModalTabSelector('general');
 export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
 
+// LG Modals
+export const LGModal = '[data-testid="lg-modal"]';
+export const LGModalClose = '[data-testid="lg-modal-close_button"]';
+
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
 export const LGToastCloseButton = '[data-testid="lg-toast-dismiss-button"]';
+export const LGToastTitle = '[data-testid="toast-title"]';
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
 export const CloseWelcomeModalButton =
   '[data-testid="welcome-modal"] [aria-label="Close modal"]';
 
-// Connection screen
-export const ConnectSection = '[data-testid="connections-wrapper"]';
-export const ConnectButton = '[data-testid="connect-button"]';
-export const ConnectionFormSaveAndConnectButton =
-  '[data-testid="save-and-connect-button"]';
-export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
-export const ConnectionFormEditFavouriteButton =
-  '[data-testid="edit-favorite-icon-button"]';
-export const ConnectionTitle = '[data-testid="connection-form"] h3';
-export const CancelConnectionButton =
-  '[data-testid="cancel-connection-button"]';
-export const ConnectionStatusModalContent =
-  '[data-testid="connecting-modal-content"]';
-export const ShowConnectionFormButton =
-  '[data-testid="advanced-connection-options"]';
+// Connection form
 export const ConnectionForm = '[data-testid="connection-form"]';
+export const ConnectionFormStringInput =
+  'textarea[data-testid="connectionString"]';
+export const ConnectionFormAdvancedToggle =
+  '[data-testid="advanced-connection-options"]';
 export const ConnectionFormGeneralTabButton =
   '[data-testid="connection-general-tab"]';
 export const ConnectionFormAuthenticationTabButton =
@@ -56,6 +59,15 @@ export const ConnectionFormInputPassword =
   '[data-testid="connection-password-input"]';
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
+export const ConnectionFormConnectionName =
+  '[data-testid="personalization-name-input"]';
+export const ConnectionFormConnectionColor =
+  '[data-testid="personalization-color-input"]';
+export const ConnectionFormFavoriteCheckbox =
+  '[data-testid="personalization-favorite-checkbox"]';
+export const ConnectionFormConnectButton = '[data-testid="connect-button"]';
+export const ConnectionFormSaveAndConnectButton =
+  '[data-testid="save-and-connect-button"]';
 
 export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
 export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
@@ -88,6 +100,10 @@ export const ConnectionFormInputPlainPassword =
   '[data-testid="connection-plain-password-input"]';
 export const ConnectionFormInputOIDCUsername =
   '[data-testid="connection-oidc-username-input"]';
+export const ConnectionFormOIDCAdvancedToggle =
+  '[data-testid="oidc-advanced-options"]';
+export const ConnectionFormOIDCUseApplicationProxyCheckbox =
+  '[data-testid="oidc-use-application-level-proxy"]';
 export const ConnectionFormInputAWSAccessKeyId =
   '[data-testid="connection-form-aws-access-key-id-input"]';
 export const ConnectionFormInputAWSSecretAccessKey =
@@ -101,8 +117,14 @@ export const ConnectionFormInputFLEStoreCredentialsCheckbox =
   '[data-testid="csfle-store-credentials-input"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
-export const ConnectionFormInputFLELocalKey =
-  '[data-testid="csfle-kms-local-key"]';
+export const connectionFormEditFLEName = (index = 0) =>
+  `[data-card-index="${index}"] [data-testid="csfle-edit-kms-name"]`;
+export const connectionFormInputFLELocalName = (index = 0) =>
+  `[data-card-index="${index}"] [data-testid="csfle-kms-card-name"]`;
+export const connectionFormInputFLELocalKey = (index = 0) =>
+  `[data-card-index="${index}"] [data-testid="csfle-kms-local-key"]`;
+export const ConnectionFormAddNewKMSProviderButton =
+  '[data-testid="csfle-add-new-kms-provider-button"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
   '[data-testid="connection-csfle-encrypted-fields-map"]';
 export const ConnectionFormInputFLEEncryptedFieldsMapEditor =
@@ -123,8 +145,6 @@ export const ConnectionFormTlsAllowInvalidHostnamesCheckbox =
   '[data-testid="tlsAllowInvalidHostnames-input"]';
 export const ConnectionFormTlsAllowInvalidCertificatesCheckbox =
   '[data-testid="tlsAllowInvalidCertificates-input"]';
-export const ConnectionFormTlsUseSystemCACheckbox =
-  '[data-testid="useSystemCA-input"]';
 export const ConnectionFormProxyMethodRadios =
   '#ssh-options-radio-box-group input[type="radio"]';
 export const ConnectionFormInputSshPasswordHost =
@@ -158,9 +178,9 @@ export const ConnectionFormInputSocksPassword =
 export const ConnectionFormReadPreferenceRadios =
   '#read-preferences input[type="radio"]';
 export const ConnectionFormInputReplicaset =
-  '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="replica-set"]';
 export const ConnectionFormInputDefaultDatabase =
-  '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
+  '[data-testid="connection-advanced-tab-panel"] [data-testid="default-database"]';
 export const ConnectionFormUrlOptionKeys =
   '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
@@ -170,7 +190,7 @@ export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
 };
 export const advancedOptionsTabPanel = (tabName: string): string => {
-  return `[role="tabpanel"][aria-label="${tabName}"]`;
+  return `[role="tabpanel"] [aria-label="${tabName}"]`;
 };
 export const connectionFormSchemeRadio = (value: string): string => {
   return `#connection-scheme-radio-box-group input[value="${value}"]`;
@@ -204,21 +224,83 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
   return `[data-testid="url-options"] [data-testid="url-option-entry-${index}"] input`;
 };
 
-// Connection Sidebar
-export const ConnectionsTitle = '[data-testid="connections-title"]';
-export const SidebarNewConnectionButton =
-  '[data-testid="new-connection-button"]';
-export const FavoriteConnections = '[data-testid="favorite-connection"]';
-export const FavoriteConnectionsHeader =
-  '[data-testid="favorite-connections-list-header"]';
-export const FavoriteConnectionsMenuButton = `${FavoriteConnectionsHeader} button[title="Show actions"]`;
-export const FavoriteConnectionsMenu = '[data-testid="favorites-menu"]';
-export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-remove-connection-action"]`;
-export const RecentConnectionsHeader = '[data-testid="recents-header"]';
-export const RecentConnections = '[data-testid="recent-connection"]';
+// Connections modal
+export const ConnectionModal = '[data-testid="connection-form-modal"]';
+export const ConnectionModalTitle = `${ConnectionModal} h3`;
+export const ConnectionModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
+export const ConnectionModalConnectButton = '[data-testid="connect-button"]';
+export const ConnectionModalSaveButton = '[data-testid="save-button"]';
+
+// Connection process toast
+export const connectionToastById = (connectionId: string) => {
+  return `[data-testid="toast-connection-status--${connectionId}"]`;
+};
+export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
+export const ConnectionToastErrorReviewButton =
+  '[data-testid="connection-error-review"]';
+export const ConenctionToastCancelConnectionButton =
+  '[data-testid="cancel-connection-button"]';
+
+// Connections sidebar
+export const ConnectionsTitle = '[data-testid="connections-header"]';
+export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
+export const ConnectButton =
+  '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
+export const ConnectDropdownButton = `${ConnectButton} [data-testid="lg-split_button-trigger"]`;
+export const ConnectInNewWindowButton =
+  '[data-action="connection-connect-in-new-window"]';
+export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
+export const CreateDatabaseButton =
+  '[data-testid="sidebar-navigation-item-actions-create-database-action"]';
+export const OpenShellItem =
+  '[data-testid="sidebar-navigation-item-actions-open-shell-action"]';
+export const ViewPerformanceItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-performance-metrics-action"]';
+export const ShowConnectionInfoItem =
+  '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]';
+export const DisconnectConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-disconnect-action"]';
+export const EditConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-edit-connection-action"]';
+export const CopyConnectionStringItem =
+  '[data-testid="sidebar-navigation-item-actions-copy-connection-string-action"]';
+export const UnfavoriteConnectionItem =
+  '[data-testid="sidebar-navigation-item-actions-connection-toggle-favorite-action"]';
+export const DuplicateConnectionItem = `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`;
+export const RemoveConnectionItem = `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`;
+export const RefreshDatabasesItem =
+  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
+export const ClusterInfoItem =
+  '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]';
+export const ConnectionsMenuButton =
+  '[data-testid="connections-list-title-actions-show-actions"]';
+export const ConnectionsMenu = '[data-testid="connections-list-title-actions"]';
+export const ExportConnectionsModalOpen =
+  '[data-testid="connections-list-title-actions-export-saved-connections-action"]';
+export const ImportConnectionsModalOpen =
+  '[data-testid="connections-list-title-actions-import-saved-connections-action"]';
+
+export const InUseEncryptionMarker = '[data-action="open-csfle-modal"]';
+
+export const ConnectionItems =
+  '[role="treeitem"][aria-level="1"] [data-is-connected]';
+export const ConnectedConnectionItems =
+  '[role="treeitem"][aria-level="1"] [data-is-connected=true]';
+
+export const NoDeploymentsText = '[data-testid="no-deployments-text"]';
+export const AddNewConnectionButton =
+  '[data-testid="add-new-connection-button"]';
+
+export const connectionItemByName = (
+  connectionName: string,
+  { connected }: { connected?: boolean } = {}
+) => {
+  const connectedFilter =
+    connected !== undefined
+      ? `[data-is-connected="${connected.toString()}"]`
+      : '';
+  return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
+};
 
 // Rename Collection Modal
 export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
@@ -240,55 +322,79 @@ export const SidebarNavigationTree = '[data-testid="sidebar-navigation-tree"]';
 export const SidebarTreeItems = `${SidebarNavigationTree} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
-export const SidebarShowActions =
-  '[data-testid="sidebar-title-actions-show-actions"]';
-export const SidebarActionClusterInfo =
-  '[data-testid="sidebar-title-actions-open-connection-info-action"]';
-export const SidebarCreateDatabaseButton =
-  '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
-export const SidebarRefreshDatabasesButton =
-  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const SidebarNavigationItemShowActionsButton =
   '[data-testid="sidebar-navigation-item-actions-show-actions"]';
-export const DropDatabaseButton = '[data-action="drop-database"]';
-export const CreateCollectionButton = '[data-action="create-collection"]';
 export const RenameCollectionButton =
   '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
-export const DropCollectionButton = '[data-action="drop-collection"]';
-export const FleConnectionConfigurationBanner =
-  '[data-testid="fle-connection-configuration"]';
-export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
-export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
-export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
-export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
-export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
+export const DropDatabaseButton = '[data-action="drop-database"]';
+export const CreateCollectionButton = '[data-action="create-collection"]';
+export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
+export const CollapseConnectionsButton =
+  '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
-export const sidebarDatabase = (dbName: string): string => {
+export const sidebarDatabase = (
+  connectionId: string,
+  dbName: string
+): string => {
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-database-name="${dbName}"]`;
+  }
   return `${Sidebar} [data-database-name="${dbName}"]`;
 };
 
-export const sidebarDatabaseToggle = (dbName: string): string => {
-  return `${sidebarDatabase(dbName)} button[type=button]`;
+export const sidebarDatabaseToggle = (
+  connectionId: string,
+  dbName: string
+): string => {
+  return `${sidebarDatabase(connectionId, dbName)} button[type=button]`;
 };
 
 export const sidebarCollection = (
+  connectionId: string,
   dbName: string,
   collectionName: string
 ): string => {
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
+  }
   return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
 };
 
-export const sidebarFavorite = (favoriteName: string): string => {
-  return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
+export const sidebarConnection = (connectionName: string): string => {
+  return `${Sidebar} [data-connection-name="${connectionName}"]`;
 };
 
-export const sidebarFavoriteButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(favoriteName)} > div > button`;
+export const sidebarConnectionButton = (connectionName: string): string => {
+  return `${sidebarConnection(
+    connectionName
+  )} [data-action="connection-connect"]`;
 };
 
-export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(favoriteName)}  button[title="Show actions"]`;
+export const sidebarConnectionDropdownButton = (
+  connectionName: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${ConnectDropdownButton}`;
 };
+
+export const sidebarConnectionActionButton = (
+  connectionName: string,
+  selector: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${selector}`;
+};
+
+export const sidebarConnectionMenuButton = (connectionName: string): string => {
+  return `${sidebarConnection(connectionName)} button[title="Show actions"]`;
+};
+
+// CSFLE modal
+export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
+export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
+export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
+
+// Connection Info modal
+export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
+export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 // Favorite modal
 export const FavoriteModal = '[data-testid="favorite-modal"]';
@@ -317,10 +423,6 @@ export const CreateCollectionCreateButton =
   '[data-testid="create-collection-modal"] [data-testid="submit-button"]';
 export const CreateCollectionCancelButton =
   '[data-testid="create-collection-modal"] [data-testid="cancel-button"]';
-export const CreateCollectionCappedCheckboxLabel =
-  '[data-testid="capped-collection-fields"] [data-testid="capped-collection-fields-label"]';
-export const CreateCollectionCappedSizeInput =
-  '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create-collection-modal"] [data-testid="additional-collection-preferences"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
@@ -388,14 +490,15 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
+export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
-  '[data-testid="database-grid"] [data-testid="create-controls"] button';
+  '[data-testid="create-controls"] button';
 export const InstanceRefreshDatabaseButton =
-  '[data-testid="database-grid"] [data-testid="refresh-controls"] button';
+  '[data-testid="refresh-controls"] button';
 export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
@@ -416,9 +519,9 @@ export const databaseCardClickable = (dbName: string): string => {
 // Database screen
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
-  '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+  '[data-testid="create-controls"] button';
 export const DatabaseRefreshCollectionButton =
-  '[data-testid="collection-grid"] [data-testid="refresh-controls"] button';
+  '[data-testid="refresh-controls"] button';
 export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
@@ -448,7 +551,7 @@ export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionTabStats = (
   tabName: 'documents' | 'indexes'
 ): string => {
-  return `[data-testid="${tabName}-tab-with-stats"] [data-testid="collection-stats"]`;
+  return `[data-testid="${tabName}-tab-title"] [data-testid="collection-stats"]`;
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
@@ -591,8 +694,6 @@ export const BulkDeleteSuccessToast = `[data-testid="toast-bulk-delete-toast"]`;
 export const BulkDeleteSuccessToastDismissButton = `[data-testid="toast-bulk-delete-toast"] [data-testid="lg-toast-dismiss-button"]`;
 
 // Connection import/export modals
-export const ExportConnectionsModalOpen =
-  '[data-testid="favorites-menu-export-favorites-action"]';
 export const ExportConnectionsModal = '[data-testid="connection-export-modal"]';
 export const ExportConnectionsSubmit = `${ExportConnectionsModal} [data-testid="submit-button"]`;
 export const ExportConnectionsPassphrase =
@@ -601,8 +702,6 @@ export const ExportConnectionsRemoveSecrets =
   '[data-testid="connection-export-remove-secrets"]';
 export const ExportConnectionsSucceededToast =
   '[data-testid="toast-compass-connection-import-export--export-succeeded"]';
-export const ImportConnectionsModalOpen =
-  '[data-testid="favorites-menu-import-favorites-action"]';
 export const ImportConnectionsModal = '[data-testid="connection-import-modal"]';
 export const ImportConnectionsPassphrase =
   '[data-testid="conn-import-export-passphrase-input"]';
@@ -719,8 +818,8 @@ export const AggregationResultsCancelButton =
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 export const AggregationWriteOperationConfirmationModal =
   '[data-testid="write-operation-confirmation-modal"]';
-export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm-button"]`;
-export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel-button"]`;
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm_button"]`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel_button"]`;
 export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} [data-testid="confirmation-description"]`;
 
 export const AggregationSettingsButton =
@@ -784,7 +883,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="option"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -793,40 +892,46 @@ export const stagePreview = (stageIndex: number): string => {
   return `[data-testid="stage-preview-${stageIndex}"]`;
 };
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-preview-toolbar-tooltip"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="stage-preview-empty"]`;
 };
 export const stageCollapseButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Collapse"]`;
 };
 export const stageExpandButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
+  return `${StageCardAtIndex(stageIndex)} button[title="Expand"]`;
 };
 export const stageFocusModeButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="focus-mode-button"]`;
 };
 export const stagePickerComboboxInput = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
 export const stagePickerListBox = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
+  return `${StageCardAtIndex(stageIndex)} [role="listbox"]`;
 };
 export const stageValueEditor = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] .cm-content`;
+  return `${StageCardAtIndex(stageIndex)} .cm-content`;
 };
 export const stageContent = (stageIndex: number): string => {
   return stageValueEditor(stageIndex);
 };
 export const stageAdd = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="add-after-stage"]`;
+  return `${StageCardAtIndex(stageIndex)} [data-testid="add-after-stage"]`;
 };
 export const stageToggle = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
+  return `${StageCardAtIndex(stageIndex)} #toggle-stage-button`;
 };
 export const stageMoreOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-option-menu-button"]`;
 };
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
@@ -852,10 +957,14 @@ export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-con
 export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
 
 export const stageEditorErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-error-message"]`;
 };
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
+  return `${StageCardAtIndex(
+    stageIndex
+  )} [data-testid="stage-editor-syntax-error"]`;
 };
 
 export const aggregationPipelineModeToggle = (
@@ -913,6 +1022,10 @@ export const AggregationWizardSortFormDirectionSelect = (idx: number) =>
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
+export const ExportSchemaButton = '[data-testid="open-schema-export-button"]';
+export const ExportSchemaFormatOptions =
+  '[data-testid="export-schema-format-type-box-group"]';
+export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
@@ -945,6 +1058,7 @@ export const indexComponent = (name: string): string => {
 };
 export const IndexFieldName = '[data-testid="indexes-name-field"]';
 export const IndexFieldType = '[data-testid="indexes-type-field"]';
+export const IndexPropertyInProgress = '[data-testid="index-in-progress"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const indexToggleOption = (fieldName: string) => {
@@ -972,7 +1086,7 @@ export const SearchIndexConfirmButton =
 export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
 export const searchIndexExpandButton = (name: string) =>
-  `${searchIndexRow(name)} button:first-child`;
+  `${searchIndexRow(name)} button[aria-label="Expand row"]`;
 export const searchIndexAggregateButton = (name: string) =>
   `${searchIndexRow(
     name
@@ -1090,50 +1204,49 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
-export const QueryBarAIEntryButton =
-  '[data-testid="open-ai-query-entry-button"]';
-export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
-export const QueryBarAIGenerateQueryButton =
-  '[data-testid="ai-generate-button"]';
-export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIEntryButton = '[data-testid="open-ai-query-entry-button"]';
+export const GenAITextInput = '[data-testid="ai-user-text-input"]';
+export const GenAIGenerateQueryButton = '[data-testid="ai-generate-button"]';
+export const GenAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
+export const GenAIOpenButton = '[data-testid="open-gen-ai-button"]';
 
 // Workspace tabs
+export const WorkspaceTabsContainer =
+  '[data-testid="workspace-tabs-container"]';
+export const WorkspaceTabTooltip = '[data-testid=workspace-tab-tooltip]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
-  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
+  tabName: 'Performance' | 'Databases'
 ) => {
   return `${Sidebar} [aria-label="${tabName}"]`;
 };
-export const workspaceTab = (
-  title: string | null,
-  active: boolean | null = null
-) => {
-  const _active = active === null ? '' : `[aria-selected="${String(active)}"]`;
-  const _title =
-    title === null
-      ? ''
-      : ['My Queries', 'Performance', 'Databases'].includes(title)
-      ? `[title="${title}"]`
-      : `[data-namespace="${title}"]`;
-  return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
-};
-export const instanceWorkspaceTab = (
-  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
-  active: boolean | null = null
-) => {
-  return workspaceTab(tabName, active);
-};
-export const databaseWorkspaceTab = (
-  dbName: string,
-  active: boolean | null = null
-) => {
-  return workspaceTab(dbName, active);
-};
-export const collectionWorkspaceTab = (
-  namespace: string,
-  active: boolean | null = null
-) => {
-  return workspaceTab(namespace, active);
+export const SidebarMyQueriesTab = `${Sidebar} [aria-label="My Queries"]`;
+export const WorkspaceTab =
+  '[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]';
+export const workspaceTab = ({
+  id,
+  connectionName,
+  namespace,
+  type,
+  active,
+}: WorkspaceTabSelectorOptions = {}) => {
+  const parts: string[] = [WorkspaceTab];
+  if (id !== undefined) {
+    parts.push(`[id="${id}"]`);
+  }
+  if (connectionName !== undefined) {
+    parts.push(`[data-connection-name="${connectionName}"]`);
+  }
+  if (namespace !== undefined) {
+    parts.push(`[data-namespace="${namespace}"]`);
+  }
+  if (type !== undefined) {
+    parts.push(`[data-type="${type}"]`);
+  }
+  if (active !== undefined) {
+    parts.push(`[aria-selected="${String(active)}"]`);
+  }
+  return parts.join('');
 };
 
 // Export modal
@@ -1182,13 +1295,14 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalInput =
-  '[data-testid="confirmation-modal"] input';
-export const ConfirmationModalConfirmButton = (
+export const ConfirmationModalHeading = `${ConfirmationModal} h1`;
+export const ConfirmationModalInput = `${ConfirmationModal} input`;
+
+export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
-export const ConfirmationModalCancelButton = (
+export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 
@@ -1221,9 +1335,17 @@ export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
+export const OpenSavedItemConnectionField = `${OpenSavedItemModal} [data-testid="connection-select-field"]`;
 export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
 export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
 export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
+
+// Select connection
+export const SelectConnectionModal = '[data-testid="select-connection-modal"]';
+export const selectConnectionRadioButton = function (connectionId: string) {
+  return `${SelectConnectionModal} input[data-testid="connection-item-${connectionId}"]`;
+};
+export const SelectConnectionModalConfirmButton = `${SelectConnectionModal} [data-testid="submit-button"]`;
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="create-view-modal"]';
@@ -1244,3 +1366,41 @@ export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
 export const AgreeAndContinueButton = 'button=Agree and continue';
+
+// Proxy settings
+export const ProxyUrl =
+  '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
+export const ProxyCustomButton =
+  '[data-testid="proxy-settings"] [data-testid="custom-radio"]';
+
+// Close tab confirmation
+export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';
+
+export const GlobalWrites = {
+  tabStatus: (status: string) =>
+    `[data-testid="globalwrites-content"] > [data-status="${status.toLowerCase()}"]`,
+
+  ShardKeyFormSecondKeyInputCombobox:
+    '[data-testid="second-shard-key"] [role="combobox"] input',
+  ShardKeyFormAdvancedOptionsToggle:
+    '[data-testid="advanced-shard-key-configuration"]',
+  shardKeyFormIndexType: (type: 'UNIQUE' | 'HASHED') =>
+    `[data-testid="${type.toLowerCase()}-index"]`,
+  ShardKeyFormSubmitButton: '[data-testid="shard-collection-button"]',
+
+  CancelShardingButton: '[data-testid="cancel-sharding-btn"]',
+  UnmanageNamespaceButton: '[data-testid="unmanage-collection-button"]',
+  ManageNamespaceButton: '[data-testid="manage-collection-button"]',
+
+  SampleFindingDocuments: '[data-testid="sample-finding-documents"]',
+  SampleInsertingDocuments: '[data-testid="sample-inserting-documents"]',
+};
+
+// Auto-update toasts
+export const AutoUpdateToast = '[data-testid="toast-compass-update"]';
+export const AutoUpdateRestartButton =
+  '[data-testid="auto-update-restart-button"]';
+export const AutoUpdateDownloadLink =
+  '[data-testid="auto-update-download-link"]';
+export const AutoUpdateReleaseNotesLink =
+  '[data-testid="auto-update-release-notes-link"]';

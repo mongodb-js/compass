@@ -2,7 +2,12 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import ProjectForm, { mapProjectFormStateToStageValue } from './project';
 import type { ProjectionType } from './project';
-import { render, screen, within, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -67,9 +72,10 @@ describe('project', function () {
       'street',
       'city',
     ]);
-    const selectedOptions = within(
+    const comboboxInput = within(
       screen.getByTestId('project-form-field')
-    ).getAllByRole('option');
+    ).getByRole('combobox');
+    const selectedOptions = within(comboboxInput).getAllByRole('option');
 
     expect(selectedOptions).to.have.lengthOf(2);
     expect(within(selectedOptions[0]).getByText(/street/i)).to.exist;

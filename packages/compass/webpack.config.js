@@ -57,6 +57,12 @@ module.exports = (_env, args) => {
     },
   };
 
+  const snapshot = {
+    unmanagedPaths: [
+      path.resolve('..', '..', 'node_modules', '@mongosh', 'browser-repl'),
+    ],
+  };
+
   // Having runtime outside of entries means less rebuilding when dependencies
   // change (default is runtime is part of the entry and the whole entry needs
   // a rebuild when dependency tree changes)
@@ -121,14 +127,24 @@ module.exports = (_env, args) => {
   return [
     merge(mainConfig, {
       cache,
+      snapshot,
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // In local dev mode, this flag is used to disable web security when
+        // creating windows. It allows @mongosh/node-runtime-worker-thread
+        // worker to load itself from the file path on the localhost
+        new webpack.DefinePlugin({
+          'process.env.DISABLE_ELECTRON_WEB_SECURITY': JSON.stringify(
+            isServe(opts) ? '1' : '0'
+          ),
+        }),
         ...compileOnlyPlugins,
       ],
     }),
     merge(rendererConfig, {
       cache,
+      snapshot,
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,

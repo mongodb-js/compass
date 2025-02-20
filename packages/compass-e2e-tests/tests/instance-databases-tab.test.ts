@@ -5,7 +5,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_STRING_1,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -23,13 +24,18 @@ describe('Instance databases tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    await browser.navigateToInstanceTab('Databases');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
   });
 
   after(async function () {
@@ -41,7 +47,7 @@ describe('Instance databases tab', function () {
   });
 
   it('contains a list of databases', async function () {
-    const dbTable = await browser.$(Selectors.DatabasesTable);
+    const dbTable = browser.$(Selectors.DatabasesTable);
     await dbTable.waitForDisplayed();
 
     const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
@@ -99,7 +105,10 @@ describe('Instance databases tab', function () {
       'add-database-modal-basic.png'
     );
 
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     const selector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(
@@ -107,7 +116,7 @@ describe('Instance databases tab', function () {
       selector,
       'grid'
     );
-    const databaseCard = await browser.$(selector);
+    const databaseCard = browser.$(selector);
     await databaseCard.waitForDisplayed();
 
     await databaseCard.scrollIntoView(false);
@@ -115,7 +124,7 @@ describe('Instance databases tab', function () {
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
       await browser.hover(`${selector} [title="${dbName}"]`);
-      const el = await browser.$(Selectors.DatabaseCardDrop);
+      const el = browser.$(Selectors.DatabaseCardDrop);
       if (await el.isDisplayed()) {
         return true;
       }
@@ -134,7 +143,10 @@ describe('Instance databases tab', function () {
     await databaseCard.waitForExist({ reverse: true });
 
     // the app should stay on the instance Databases tab.
-    await browser.waitUntilActiveInstanceTab('Databases');
+    await browser.waitUntilActiveConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
@@ -142,7 +154,10 @@ describe('Instance databases tab', function () {
     const dbSelector = Selectors.databaseCard(db);
 
     // Browse to the databases tab
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     // Make sure the db card we're going to drop is in there.
     await browser.scrollToVirtualItem(
@@ -154,12 +169,13 @@ describe('Instance databases tab', function () {
 
     // Wait for the page to finish loading as best as we can
     await browser.waitUntil(async () => {
-      const placeholders = await browser.$$(Selectors.DatabaseStatLoader);
-      return placeholders.length === 0;
+      const numPlaceholders = await browser.$$(Selectors.DatabaseStatLoader)
+        .length;
+      return numPlaceholders === 0;
     });
 
     // Drop the database using the driver
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);

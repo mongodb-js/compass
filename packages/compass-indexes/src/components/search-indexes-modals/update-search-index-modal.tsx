@@ -1,9 +1,13 @@
 import React from 'react';
-import { closeUpdateModal, updateIndex } from '../../modules/search-indexes';
+import {
+  updateSearchIndexClosed,
+  updateIndex,
+} from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
+import { isAtlasVectorSearchSupportedForServerVersion } from '../../utils/vector-search-indexes';
 
 type UpdateSearchIndexModalProps = {
   namespace: string;
@@ -12,13 +16,14 @@ type UpdateSearchIndexModalProps = {
   indexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
+  isVectorSearchSupported: boolean;
   error: string | undefined;
-  onUpdateIndex: (index: {
+  onUpdateIndexClick: (index: {
     name: string;
     type?: string;
     definition: Document;
   }) => void;
-  onCloseModal: () => void;
+  onCloseModalClick: () => void;
 };
 
 export const UpdateSearchIndexModal: React.FunctionComponent<
@@ -30,13 +35,15 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   indexType,
   isModalOpen,
   isBusy,
+  isVectorSearchSupported,
   error,
-  onUpdateIndex,
-  onCloseModal,
+  onUpdateIndexClick,
+  onCloseModalClick,
 }) => {
   return (
     <BaseSearchIndexModal
       namespace={namespace}
+      isVectorSearchSupported={isVectorSearchSupported}
       mode={'update'}
       initialIndexName={indexName}
       initialIndexType={indexType}
@@ -44,13 +51,14 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      onSubmit={onUpdateIndex}
-      onClose={onCloseModal}
+      onSubmit={onUpdateIndexClick}
+      onClose={onCloseModalClick}
     />
   );
 };
 
 const mapState = ({
+  serverVersion,
   namespace,
   searchIndexes: {
     indexes,
@@ -59,6 +67,8 @@ const mapState = ({
 }: RootState) => {
   const index = indexes.find((x) => x.name === indexName);
   return {
+    isVectorSearchSupported:
+      isAtlasVectorSearchSupportedForServerVersion(serverVersion),
     namespace,
     isModalOpen,
     isBusy,
@@ -70,8 +80,8 @@ const mapState = ({
 };
 
 const mapDispatch = {
-  onCloseModal: closeUpdateModal,
-  onUpdateIndex: updateIndex,
+  onCloseModalClick: updateSearchIndexClosed,
+  onUpdateIndexClick: updateIndex,
 };
 
 export default connect(mapState, mapDispatch)(UpdateSearchIndexModal);

@@ -1,50 +1,11 @@
-import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
-import { EventEmitter } from 'events';
 import type { DataService } from 'mongodb-data-service';
-import { ConnectionsManager } from './connections-manager';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { getDataServiceForConnection } from './stores/connections-store-redux';
 
 export type { DataService };
-export * from './connections-manager';
-export { useConnections } from './components/connections-provider';
 export { useConnectionsWithStatus } from './hooks/use-connections-with-status';
 export { useActiveConnections } from './hooks/use-active-connections';
-
-class TestConnectionsManager extends EventEmitter {
-  getDataServiceForConnection() {
-    return new EventEmitter() as unknown as DataService;
-  }
-}
-
-const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
-  process.env.NODE_ENV === 'test'
-    ? (new TestConnectionsManager() as unknown as ConnectionsManager)
-    : null
-);
-export const ConnectionsManagerProvider = ConnectionsManagerContext.Provider;
-
-export const useConnectionsManagerContext = (): ConnectionsManager => {
-  const connectionsManager = useContext(ConnectionsManagerContext);
-
-  if (!connectionsManager) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error(
-        'ConnectionsManager not available in context. Did you forget to setup ConnectionsManagerProvider'
-      );
-    }
-    return new ConnectionsManager({
-      logger: createNoopLogger().log.unbound,
-    });
-  }
-  return connectionsManager;
-};
-
-export const connectionsManagerLocator = createServiceLocator(
-  useConnectionsManagerContext,
-  'connectionsManagerLocator'
-);
 
 export type DataServiceLocator<
   K extends keyof DataService = keyof DataService,
@@ -67,30 +28,60 @@ export const dataServiceLocator = createServiceLocator(
         'ConnectionInfo for an active connection not available in context. Did you forget to setup ConnectionInfoProvider'
       );
     }
-    const connectionsManager = useConnectionsManagerContext();
-    const ds = connectionsManager.getDataServiceForConnection(
-      connectionInfo.id
-    );
-    return ds;
+    return getDataServiceForConnection(connectionInfo.id);
   }
 );
 
-export { useConnectionStatus } from './hooks/use-connection-status';
 export {
   connectionScopedAppRegistryLocator,
   ConnectionScopedAppRegistryImpl,
   type ConnectionScopedAppRegistry,
   type ConnectionScopedAppRegistryLocator,
 } from './connection-scoped-app-registry';
+
+export type {
+  ConnectionInfoRef,
+  ConnectionInfo,
+} from './connection-info-provider';
+
 export {
-  type CanNotOpenConnectionReason,
-  useCanOpenNewConnections,
-} from './hooks/use-can-open-new-connections';
-export {
-  type ConnectionRepository,
-  useConnectionRepository,
-  areConnectionsEqual,
-} from './components/connections-provider';
-export * from './connection-info-provider';
+  ConnectionInfoProvider,
+  useConnectionInfo,
+  useConnectionInfoRef,
+  connectionInfoRefLocator,
+} from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
+
+export {
+  useConnectionActions,
+  useConnectionForId,
+  useConnectionIds,
+  useConnectionInfoForId,
+  useConnectionInfoRefForId,
+  useConnectionsList,
+  useConnectionsListRef,
+  connectionsLocator,
+  useConnectionsListLoadingStatus,
+} from './stores/store-context';
+
+export type { ConnectionsService } from './stores/store-context';
+
+export { useConnectionSupports } from './hooks/use-connection-supports';
+
+const ConnectionStatus = {
+  /**
+   * @deprecated use a string literal directly
+   */
+  Connected: 'connected',
+  /**
+   * @deprecated use a string literal directly
+   */
+  Disconnected: 'disconnected',
+  /**
+   * @deprecated use a string literal directly
+   */
+  Failed: 'failed',
+} as const;
+
+export { ConnectionStatus };

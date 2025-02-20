@@ -3,10 +3,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, {
-  collectionMetadataFetched,
-  collectionStatsFetched,
-  pickCollectionStats,
   selectTab,
+  collectionMetadataFetched,
 } from '../modules/collection-tab';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
@@ -59,7 +57,6 @@ export function activatePlugin(
       workspaceTabId: tabId,
       namespace,
       metadata: null,
-      stats: pickCollectionStats(collectionModel),
       editViewName,
     },
     applyMiddleware(
@@ -83,10 +80,8 @@ export function activatePlugin(
     store.dispatch(selectTab('Aggregations'));
   });
 
-  on(collectionModel, 'change:status', (model: Collection, status: string) => {
-    if (status === 'ready') {
-      store.dispatch(collectionStatsFetched(model));
-    }
+  on(localAppRegistry, 'menu-share-schema-json', () => {
+    store.dispatch(selectTab('Schema'));
   });
 
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {

@@ -71,7 +71,7 @@ export const INITIAL_STATE: ExplainPlanModalState = {
   explainPlanFetchId: -1,
 };
 
-export const reducer: Reducer<ExplainPlanModalState> = (
+export const reducer: Reducer<ExplainPlanModalState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -176,9 +176,17 @@ export const openExplainPlanModal = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, track, logger: { log, mongoLogId } }
+    {
+      dataService,
+      preferences,
+      track,
+      connectionInfoRef,
+      logger: { log, mongoLogId },
+    }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
+
+    const connectionInfo = connectionInfoRef.current;
 
     let rawExplainPlan = null;
     let explainPlan = null;
@@ -190,13 +198,13 @@ export const openExplainPlanModal = (
 
     const { isDataLake, namespace } = getState();
 
+    const explainVerbosity = isDataLake
+      ? 'queryPlannerExtended'
+      : 'executionStats';
+
     try {
       if (event.aggregation) {
         const { collation, maxTimeMS } = event.aggregation;
-        const explainVerbosity = isDataLake
-          ? 'queryPlannerExtended'
-          : 'allPlansExecution';
-
         const pipeline = event.aggregation.pipeline.filter((stage) => {
           // Getting explain plan for a pipeline with an out / merge stage can
           // cause data corruption issues in non-genuine MongoDB servers, for
@@ -233,18 +241,18 @@ export const openExplainPlanModal = (
           throw err;
         }
 
-        track('Aggregation Explained', {
-          num_stages: pipeline.length,
-          index_used: explainPlan.usedIndexes.length > 0,
-        });
+        track(
+          'Aggregation Explained',
+          {
+            num_stages: pipeline.length,
+            index_used: explainPlan.usedIndexes.length > 0,
+          },
+          connectionInfo
+        );
       }
 
       if (event.query) {
         const { filter, ...options } = event.query;
-
-        const explainVerbosity = isDataLake
-          ? 'queryPlannerExtended'
-          : 'allPlansExecution';
 
         const explainOptions = {
           ...options,
@@ -273,10 +281,14 @@ export const openExplainPlanModal = (
           throw err;
         }
 
-        track('Explain Plan Executed', {
-          with_filter: Object.entries(filter).length > 0,
-          index_used: explainPlan.usedIndexes.length > 0,
-        });
+        track(
+          'Explain Plan Executed',
+          {
+            with_filter: Object.entries(filter).length > 0,
+            index_used: explainPlan.usedIndexes.length > 0,
+          },
+          connectionInfo
+        );
       }
 
       dispatch({

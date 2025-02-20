@@ -44,7 +44,6 @@ const BUCKET_ROUNDING_SECONDS_DESCRIPTION =
   'The time interval that determines the starting timestamp for a new bucket.';
 
 function TimeSeriesFields({
-  isCapped,
   isTimeSeries,
   isClustered,
   isFLE2,
@@ -72,7 +71,7 @@ function TimeSeriesFields({
 
   return (
     <CollapsibleFieldSet
-      disabled={isCapped || isClustered || isFLE2}
+      disabled={isClustered || isFLE2}
       onToggle={(checked) => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
@@ -113,7 +112,6 @@ function TimeSeriesFields({
           placeholder="Select a value [optional]"
           description={GRANULARITY_DESCRIPTION}
           onChange={(val) => onChangeField('timeSeries.granularity', val)}
-          usePortal={false}
           allowDeselect={true}
           value={granularity}
           disabled={!!(bucketMaxSpanSeconds || bucketRoundingSeconds)}
@@ -175,7 +173,6 @@ function TimeSeriesFields({
 }
 
 TimeSeriesFields.propTypes = {
-  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
   isFLE2: PropTypes.bool.isRequired,

@@ -193,9 +193,8 @@ function FieldType({
       }}
     >
       <Tooltip
-        trigger={({ children, ...props }) => (
+        trigger={
           <button
-            {...props}
             className={cx(
               fieldButtonStyles,
               isUndefined && fieldButtonUndefinedStyles
@@ -210,9 +209,8 @@ function FieldType({
                 isUndefined && schemaFieldTypeBarUndefinedStyles
               )}
             />
-            {children}
           </button>
-        )}
+        }
       >
         {tooltipText}
       </Tooltip>

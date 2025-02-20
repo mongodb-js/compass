@@ -1,32 +1,8 @@
 'use strict';
-var fs = require('fs');
-var { format, promisify } = require('util');
+var { promisify } = require('util');
 var spawn = require('child_process').spawn;
-var which = require('which');
 var debug = require('debug')('hadron-build:run');
-
-/**
- * Gets the absolute path for a `cmd`.
- * @param {String} cmd - e.g. `codesign`.
- * @param {Function} fn - Callback which receives `(err, binPath)`.
- * @return {void}
- */
-function getBinPath(cmd, fn) {
-  which(cmd, function(err, bin) {
-    if (err) {
-      return fn(err);
-    }
-
-    fs.exists(bin, function(exists) {
-      if (!exists) {
-        return fn(new Error(format(
-          'Expected file for `%s` does not exist at `%s`',
-          cmd, bin)));
-      }
-      fn(null, bin);
-    });
-  });
-}
+var util = require('util');
 
 /**
  * Use me when you want to run an external command instead
@@ -61,44 +37,52 @@ function run(cmd, args, opts, fn) {
     opts = {};
   }
 
-  getBinPath(cmd, function(err, bin) {
-    if (err) {
-      return fn(err);
+  debug('running', { cmd, args });
+
+  var output = [];
+  var proc = spawn(cmd, args, opts);
+  proc.stdout.on('data', function (buf) {
+    buf
+      .toString('utf-8')
+      .split('\n')
+      .map(function (line) {
+        debug('  %s> %s', cmd, line);
+      });
+    output.push(buf);
+  });
+  proc.stderr.on('data', function (buf) {
+    buf
+      .toString('utf-8')
+      .split('\n')
+      .map(function (line) {
+        debug('  %s> %s', cmd, line);
+      });
+    output.push(buf);
+  });
+
+  proc.on('exit', function (code) {
+    const _output = Buffer.concat(output).toString('utf-8');
+    if (code !== 0) {
+      debug('command failed!', { cmd, output: _output });
+      const error = new Error(
+        `Command failed with exit code ${code}: ${cmd} ${args.join(
+          ' '
+        )} [enable line-by-line output via 'DEBUG=hadron*']`
+      );
+      error.output = {
+        output: _output,
+        [util.inspect.custom]() {
+          return util.inspect(_output, { maxStringLength: Infinity });
+        },
+      };
+      fn(error);
+      return;
     }
-
-    debug('running', { cmd, args });
-
-    var output = [];
-    var proc = spawn(bin, args, opts);
-    proc.stdout.on('data', function(buf) {
-      buf.toString('utf-8').split('\n').map(function(line) {
-        debug('  %s> %s', cmd, line);
-      });
-      output.push(buf);
-    });
-    proc.stderr.on('data', function(buf) {
-      buf.toString('utf-8').split('\n').map(function(line) {
-        debug('  %s> %s', cmd, line);
-      });
-      output.push(buf);
+    debug('completed! %j', {
+      cmd: cmd,
     });
 
-    proc.on('exit', function(code) {
-      if (code !== 0) {
-        debug('command failed!', {
-          cmd: cmd,
-          output: Buffer.concat(output).toString('utf-8')
-        });
-        fn(new Error('Command failed!  '
-          + 'Please try again with debugging enabled.'), Buffer.concat(output).toString('utf-8'));
-        return;
-      }
-      debug('completed! %j', {
-        cmd: cmd
-      });
-
-      fn(null, Buffer.concat(output).toString('utf-8'));
-    });
+    fn(null, _output);
   });
 }
 

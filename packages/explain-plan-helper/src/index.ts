@@ -2,6 +2,7 @@ import convertExplainCompat from 'mongodb-explain-compat';
 import { getPlannerInfo } from './get-planner-info';
 import { getExecutionStats } from './get-execution-stats';
 import type { ExecutionStats } from './get-execution-stats';
+import { getStageIndexFields } from './utils';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
@@ -50,10 +51,12 @@ export class ExplainPlan {
 
   get usedIndexes(): IndexInformation[] {
     const ixscan = this.findAllStagesByName('IXSCAN');
+    const expressIxscan = this.findAllStagesByName('EXPRESS_IXSCAN');
+    const countScan = this.findAllStagesByName('COUNT_SCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
     const ret: IndexInformation[] = this.executionStats?.stageIndexes ?? [];
-    for (const stage of [...ixscan, idhack]) {
+    for (const stage of [...ixscan, ...expressIxscan, ...countScan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;
       if (this.isSharded) {
@@ -65,7 +68,7 @@ export class ExplainPlan {
         }
       }
       const index: string = stage === idhack ? '_id_' : stage.indexName;
-      const fields = stage === idhack ? { _id: 1 } : stage.keyPattern ?? {};
+      const fields = stage === idhack ? { _id: 1 } : getStageIndexFields(stage);
       ret.push({ index, shard, fields });
     }
     if (this.isSharded) {
@@ -89,7 +92,9 @@ export class ExplainPlan {
       return false;
     }
     const ixscan = this.findStageByName('IXSCAN');
-    return ixscan?.parentName !== 'FETCH';
+    const expressIxscan = this.findStageByName('EXPRESS_IXSCAN');
+    const stage = ixscan || expressIxscan;
+    return stage?.parentName !== 'FETCH';
   }
 
   get isMultiKey(): boolean {
@@ -114,8 +119,22 @@ export class ExplainPlan {
       : 0;
   }
 
+  get isClusteredScan(): boolean {
+    return Boolean(
+      this.findStageByName('EXPRESS_CLUSTERED_IXSCAN') ||
+        this.findStageByName('CLUSTERED_IXSCAN')
+    );
+  }
+
   get indexType() {
     const indexes = this.usedIndexes;
+
+    // Currently the CLUSTERED_IXSCAN and EXPRESS_CLUSTERED_IXSCAN do not report
+    // any indexes in the winning stage. Even though the query clearly uses
+    // an index. And since we can't determine the index used, we will return CLUSTER.
+    if (this.isClusteredScan) {
+      return 'CLUSTERED';
+    }
 
     if (indexes.length === 0) {
       return 'UNAVAILABLE';

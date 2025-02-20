@@ -8,7 +8,7 @@ export async function setValidation(
   await browser.setCodemirrorEditorValue(Selectors.ValidationEditor, value);
 
   // it should eventually detect that the text changed
-  const validationActionMessageElement = await browser.$(
+  const validationActionMessageElement = browser.$(
     Selectors.ValidationActionMessage
   );
   await validationActionMessageElement.waitForDisplayed();
@@ -20,7 +20,7 @@ export async function setValidation(
     reverse: true,
   });
 
-  const updateValidationButtonElement = await browser.$(
+  const updateValidationButtonElement = browser.$(
     Selectors.UpdateValidationButton
   );
   await updateValidationButtonElement.waitForDisplayed({

@@ -8,25 +8,37 @@ on:
     branches:
       - main
 
+permissions:
+  contents: none # We use the github app token to push the changes
+
 jobs:
   update_generated_files:
     name: Update automatically generated files
     runs-on: ubuntu-latest
+    env:
+      HADRON_DISTRIBUTION: compass
     steps:
-      - uses: actions/checkout@v3
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          fetch-depth: '0'
+          fetch-depth: "0"
+          token: ${{ steps.app-token.outputs.token }}
 
-
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.19.1
-          cache: 'npm'
+          node-version: 20.16.0
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |
@@ -38,33 +50,26 @@ jobs:
           npm run bootstrap-ci
 
       - name: Update AUTHORS
-        run: npm run update-authors
+        run: |
+          npm run update-authors
+          git add AUTHORS
 
       - name: Update THIRD-PARTY-NOTICES.md
-        run: npm run update-third-party-notices
+        run: |
+          npm run update-third-party-notices
+          git add THIRD-PARTY-NOTICES.md
 
       - name: Update Security Test Summary
         run: |
           npm run update-security-test-summary
+          git add docs/security-test-summary.md
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: Update report
-          branch: ci/update-3rd-party-notices-and-authors
-          title: 'chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary'
-          add-paths: |
-            THIRD-PARTY-NOTICES.md
-            AUTHORS
-            docs/security-test-summary.md
-          body: |
-            - Update `AUTHORS`, `THIRD-PARTY-NOTICES` and `docs/security-test-summary.md`
-
-      - name: Merge PR
-        env:
-          PULL_REQUEST_NUMBER: ${{steps.cpr.outputs.pull-request-number}}
-          # NOTE: we don't use a PAT so to not trigger further automation
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update tracking-plan.md
         run: |
-          gh pr merge $PULL_REQUEST_NUMBER --squash --delete-branch
+          npm run update-tracking-plan
+          git add docs/tracking-plan.md
+
+      - name: Commit and push
+        run: |
+          git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary" || true
+          git push

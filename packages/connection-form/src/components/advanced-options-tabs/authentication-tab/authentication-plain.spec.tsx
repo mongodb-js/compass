@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -83,6 +83,7 @@ describe('AuthenticationAws Component', function () {
         {
           fieldName: 'username',
           message: 'username error',
+          fieldTab: 'general',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,
@@ -97,6 +98,7 @@ describe('AuthenticationAws Component', function () {
         {
           fieldName: 'password',
           message: 'password error',
+          fieldTab: 'general',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,

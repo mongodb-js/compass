@@ -40,15 +40,20 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    # WARN: This version is behind our electron runtime, but updating it will
-    # drop support for some older linux platforms, so we are keeping them out of
-    # sync for now
-    # TODO: https://jira.mongodb.org/browse/COMPASS-6915
-    NODE_JS_VERSION: '18.19.1'
+    NODE_JS_VERSION: '20.16.0'
     NPM_VERSION: '10.2.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+    GITHUB_TOKEN: ${devtoolsbot_github_token}
+    DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
+    DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    EVERGREEN_BUCKET_NAME: mciuploads
+    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
+    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
+    DOCKERHUB_USERNAME: ${dockerhub_username}
+    DOCKERHUB_PASSWORD: ${dockerhub_password}
+  - &compass-e2e-secrets
     E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
     E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
     E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
@@ -57,7 +62,7 @@ variables:
     E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
     E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
     E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
-    E2E_TESTS_ATLAS_X509_PEM: ${e2e_tests_atlas_x509_pem}
+    E2E_TESTS_ATLAS_X509_PEM_BASE64: ${e2e_tests_atlas_x509_pem_base64}
     E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID: ${e2e_tests_atlas_iam_aws_access_key_id}
     E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY: ${e2e_tests_atlas_iam_aws_secret_access_key}
     E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN: ${e2e_tests_atlas_iam_temp_role_arn}
@@ -66,31 +71,17 @@ variables:
     E2E_TESTS_ATLAS_READANYDATABASE_STRING: ${e2e_tests_atlas_readanydatabase_string}
     E2E_TESTS_ATLAS_CUSTOMROLE_STRING: ${e2e_tests_atlas_customrole_string}
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
-    MACOS_NOTARY_KEY: ${macos_notary_key}
-    MACOS_NOTARY_SECRET: ${macos_notary_secret}
-    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
-    MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
-    GITHUB_TOKEN: ${devtoolsbot_github_token}
-    DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
-    DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
-    EVERGREEN_BUCKET_NAME: mciuploads
-    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
-    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
     E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
-    GARASIGN_USERNAME: ${garasign_username}
-    GARASIGN_PASSWORD: ${garasign_password}
-    ARTIFACTORY_USERNAME: ${artifactory_username}
-    ARTIFACTORY_PASSWORD: ${artifactory_password}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
-  - command: shell.exec
+  - command: archive.targz_pack
     params:
-      working_dir: src
-      shell: bash
-      script: |
-        tar czf all-e2e-logs.tgz packages/compass-e2e-tests/.log
+      target: src/all-e2e-logs.tgz
+      source_dir: src/packages/compass-e2e-tests/.log
+      include:
+        - '**'
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -161,8 +152,6 @@ functions:
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
-          mkdir -p $NPM_CACHE_DIR
-          mkdir -p $NPM_TMP_DIR
 
     - command: shell.exec
       type: setup
@@ -204,7 +193,7 @@ functions:
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          # Install dependencies
+          # Install and check dependencies
           bash ".evergreen/retry-with-backoff.sh" .evergreen/npm_ci.sh
 
   bootstrap:
@@ -232,7 +221,11 @@ functions:
             --stream \
             --scope "${scope}" \
             --include-dependencies
-
+          # If scope is not provided, we're bootstrapping the whole monorepo and
+          # should follow the logic in bootstrap npm scripts
+          if [ -z "${scope}" ]; then
+            npm run compile --workspace=@mongodb-js/testing-library-compass
+          fi
   check:
     command: shell.exec
     params:
@@ -294,7 +287,7 @@ functions:
           echo "Running tests in Electron runtime"
 
           # Preparing native addons for electron runtime
-          npm run --unsafe-perm electron-rebuild
+          DEBUG=electron-rebuild* npm run --unsafe-perm electron-rebuild
 
           npm run --unsafe-perm test-ci-electron -- --stream
 
@@ -305,12 +298,13 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          HADRON_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
-          npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.raw.yml
+          npm run --workspace mongodb-compass build-info -- --format=yaml --flatten --out expansions.raw.yml
           # the 'author' key conflicts with evergreen's own expansion
           grep -v '^author:' < packages/compass/expansions.raw.yml > packages/compass/expansions.yml
     - command: expansions.update
@@ -409,20 +403,16 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          COMPASS_DISTRIBUTION: ${compass_distribution}
-          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
-          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
-          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
-          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
-          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
-          GITHUB_PR_NUMBER: ${github_pr_number}
-          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
-          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
+          HADRON_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
+
+          # Ensure .sbom is always created with fresh data
+          rm -rvf .sbom && mkdir -pv .sbom
+
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/compass_package.sh
+          cd packages/compass && npm run prepackage-compass
     - command: shell.exec
       params:
         working_dir: src
@@ -442,7 +432,43 @@ functions:
         script: |
           set -e
 
-          .evergreen/create-sbom.sh
+          bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+
+          # macOS signing secrets
+          MACOS_NOTARY_KEY: ${macos_notary_key}
+          MACOS_NOTARY_SECRET: ${macos_notary_secret}
+          MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/latest/darwin_amd64.zip'
+          MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
+
+          # linux / windows signing secrets
+          GARASIGN_USERNAME: ${garasign_username}
+          GARASIGN_PASSWORD: ${garasign_password}
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
+          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
+          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
+          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+
+          HADRON_DISTRIBUTION: ${compass_distribution}
+          GITHUB_PR_NUMBER: ${github_pr_number}
+          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
+          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
+          COMPASS_WAS_COMPILED_AND_HAS_SBOM: '1'
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/compass_package.sh
 
   get_first_party_dependency_list:
     - command: s3.get
@@ -565,15 +591,20 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Start atlas local to test Atlas Search
+          source .evergreen/start-atlas-local.sh
 
           echo "Running E2E tests while collecting coverage..."
 
@@ -590,13 +621,14 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
@@ -616,6 +648,60 @@ functions:
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  smoketest-packaged-app:
+    - command: github.generate_token
+      params:
+        owner: 10gen
+        repo: compass-mongodb-com
+        expansion_name: generated_token
+        permissions:  # optional
+          contents: read
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          <<: *compass-e2e-secrets
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          HADRON_DISTRIBUTION: ${compass_distribution}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          npm i -w packages/compass-smoke-tests https://x-access-token:${generated_token}@github.com/10gen/compass-mongodb-com --engine-strict=false
+
+          if [[ "$IS_WINDOWS" == "true" ]]; then
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_setup --tests time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_zip --tests auto-update-from
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=windows_msi --tests auto-update-from
+          fi
+
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
+            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
+            # NOTE: We're also skipping auto-update of the macOS app in CI
+            # because it doesn't work. Running a different test to make sure it
+            # can install and run successfully at least.
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_zip --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=osx_dmg --tests=time-to-first-query
+          fi
+
+          if [[ "$IS_UBUNTU" == "true" ]]; then
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_deb --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+          fi
+
+          if [[ "$IS_RHEL" == "true" ]]; then
+            # npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_rpm --tests=time-to-first-query
+            npm run --unsafe-perm --workspace @mongodb-js/compass-smoke-tests start -- --package=linux_tar --tests=time-to-first-query
+          fi
+
   test-web-sandbox:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
@@ -625,19 +711,53 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          BROWSER_NAME: ${browser_name}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_BROWSER_NAME: ${browser_name}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          npm run --unsafe-perm --workspace compass-e2e-tests test-web
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci web
+
+  test-web-sandbox-atlas-cloud:
+    - command: shell.exec
+      # It can take a very long time for Atlas cluster to get deployed
+      timeout_secs: 2400
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          <<: *compass-e2e-secrets
+          DEBUG: ${debug|}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME: ${e2e_tests_compass_web_atlas_username}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD: ${e2e_tests_compass_web_atlas_password}
+          MCLI_PUBLIC_API_KEY: ${e2e_tests_mcli_public_api_key}
+          MCLI_PRIVATE_API_KEY: ${e2e_tests_mcli_private_api_key}
+          MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
+          MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
+          MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          # Create Atlas cluster for test project
+          source .evergreen/start-atlas-cloud-cluster.sh
+          # Run the tests
+          echo "Starting e2e tests..."
+          # We're only running a special subset of tests as provisioning atlas
+          # clusters in CI is both pricey and flakey, so we want to limit the
+          # coverage to reduce those factors (at least for now)
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
+            --test-atlas-cloud-sandbox \
+            --test-filter="atlas-cloud/**/*"
 
   test-connectivity:
     - command: shell.exec
@@ -648,6 +768,7 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          <<: *compass-e2e-secrets
           COMPASS_SKIP_KERBEROS_TESTS: 'true'
           COMPASS_RUN_DOCKER_TESTS: 'true'
           DEBUG: ${debug}
@@ -674,7 +795,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           rm -rf mongodb-crypt && mkdir -p mongodb-crypt
           (cd mongodb-crypt && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 7.0.0-rc0') | \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version continuous) | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
@@ -862,37 +983,6 @@ functions:
           echo "Downloading release assets from evergreen bucket..."
           npm run --workspace mongodb-compass download
 
-  generate-tasks:
-    - command: generate.tasks
-      params:
-        files:
-          - tasks.json
-
-  publish-packages-next:
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          NPM_TOKEN: ${devtoolsbot_npm_token}
-        script: |
-          # Only package publish for commits on the main evergreen project.
-          if [[ "${requester}" == "commit" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
-            set -e
-            # Load environment variables
-            eval $(.evergreen/print-compass-env.sh)
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
-            npm config list
-            echo "Publishing packages as $(npm whoami)"
-            npm run version-packages-next
-            # unstage after lerna staged version
-            git reset
-            # mark files as unchanged so that lerna can publish
-            git update-index --assume-unchanged $(git diff --name-only HEAD)
-            bash ".evergreen/retry-with-backoff.sh" npm run publish-packages-next
-          fi
-
   generate-vulnerability-report:
     - command: shell.exec
       params:
@@ -903,6 +993,7 @@ functions:
           DEBUG: ${debug}
           SNYK_TOKEN: ${snyk_token}
           JIRA_API_TOKEN: ${jira_api_token}
+          HADRON_DISTRIBUTION: compass
         script: |
           set -e
           # Load environment variables
@@ -915,16 +1006,7 @@ functions:
 
           echo
 
-          # Runs for all the commits on main, including nightly builds:
-          if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
-            export JIRA_BASE_URL="https://jira.mongodb.org"
-            export JIRA_PROJECT="COMPASS"
-            export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
-
-            npm run create-vulnerability-tickets
-          else
-            cat .sbom/vulnerability-report.md
-          fi
+          cat .sbom/vulnerability-report.md
 
           echo
 
@@ -934,28 +1016,3 @@ functions:
             # Fails if the report failed and is not a patch, including release branches:
             exit $return_code
           fi
-
-  generative-ai-accuracy-tests:
-    - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          ATLAS_PUBLIC_KEY: ${atlas_public_key}
-          ATLAS_PRIVATE_KEY: ${atlas_private_key}
-          AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING: ${accuracy_results_mdb_connection_string}
-        script: |
-          set -e
-          # Load environment variables
-          eval $(.evergreen/print-compass-env.sh)
-
-          set +e
-          npm run --workspace @mongodb-js/compass-generative-ai ai-accuracy-tests
-          return_code=$?
-          set -e
-
-          # Fail when the accuracy tests fail:
-          exit $return_code

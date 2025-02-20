@@ -83,7 +83,7 @@ type FieldType = FieldFromJSON | FieldFromCSV;
 type ImportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
-  errors: Error[];
+  firstErrors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
   errorLogFilePath: string;
@@ -119,7 +119,7 @@ type ImportState = {
 export const INITIAL_STATE: ImportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
-  errors: [],
+  firstErrors: [],
   fileName: '',
   errorLogFilePath: '',
   fileIsMultilineJSON: false,
@@ -157,14 +157,14 @@ export const onStarted = ({
 
 const onFinished = ({
   aborted,
-  errors,
+  firstErrors,
 }: {
   aborted: boolean;
-  errors: Error[];
+  firstErrors: Error[];
 }) => ({
   type: FINISHED,
   aborted,
-  errors,
+  firstErrors,
 });
 
 const onFailed = (error: Error) => ({ type: FAILED, error });
@@ -190,7 +190,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     dispatch,
     getState,
     {
-      connectionsManager,
+      connections,
       globalAppRegistry: appRegistry,
       workspaces,
       track,
@@ -227,7 +227,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     }
     const input = fs.createReadStream(fileName, 'utf8');
 
-    const errors: ErrorJSON[] = [];
+    const firstErrors: ErrorJSON[] = [];
 
     let errorLogFilePath: string | undefined;
     let errorLogWriteStream: fs.WriteStream | undefined;
@@ -241,7 +241,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       (err as Error).message = `unable to create import error log file: ${
         (err as Error).message
       }`;
-      errors.push(err as Error);
+      firstErrors.push(err as Error);
     }
 
     log.info(
@@ -279,16 +279,13 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     let numErrors = 0;
     const errorCallback = (err: ErrorJSON) => {
-      // For bulk write errors we'll get one callback for the whole batch and
-      // then numErrors is the number of documents that failed for that batch.
-      // Usually but not necessarily the entire batch.
-      numErrors += err.numErrors ?? 1;
-      if (errors.length < 5) {
+      numErrors += 1;
+      if (firstErrors.length < 5) {
         // Only store the first few errors in memory.
         // The log file tracks all of them.
         // If we are importing a massive file with many errors we don't
         // want to run out of memory. We show the first few errors in the UI.
-        errors.push(err);
+        firstErrors.push(err);
       }
     };
 
@@ -317,8 +314,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         throw new Error('ConnectionId not provided');
       }
 
-      dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      dataService = connections.getDataServiceForConnection(connectionId);
 
       if (fileType === 'csv') {
         result = await importCSV({
@@ -351,23 +347,27 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       progressCallback.flush();
     } catch (err: any) {
-      track('Import Completed', {
-        duration: Date.now() - startTime,
-        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
-        newline: fileType === 'csv' ? newline : undefined,
-        file_type: fileType,
-        all_fields: exclude.length === 0,
-        stop_on_error_selected: stopOnErrors,
-        number_of_docs: err.result.docsWritten,
-        success: !err,
-        aborted: abortSignal.aborted,
-        ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-      });
+      track(
+        'Import Completed',
+        {
+          duration: Date.now() - startTime,
+          delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+          newline: fileType === 'csv' ? newline : undefined,
+          file_type: fileType,
+          all_fields: exclude.length === 0,
+          stop_on_error_selected: stopOnErrors,
+          number_of_docs: err.result?.docsWritten,
+          success: !err,
+          aborted: abortSignal.aborted,
+          ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
+        },
+        connections.getConnectionById(connectionId)?.info
+      );
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
         ns,
         errorLogFilePath,
-        docsWritten: err.result.docsWritten,
+        docsWritten: err.result?.docsWritten,
         error: err.message,
       });
       debug('Error while importing:', err.stack);
@@ -381,18 +381,22 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       errorLogWriteStream?.close();
     }
 
-    track('Import Completed', {
-      duration: Date.now() - startTime,
-      delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
-      newline: fileType === 'csv' ? newline : undefined,
-      file_type: fileType,
-      all_fields: exclude.length === 0,
-      stop_on_error_selected: stopOnErrors,
-      number_of_docs: result.docsWritten,
-      success: true,
-      aborted: result.aborted,
-      ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-    });
+    track(
+      'Import Completed',
+      {
+        duration: Date.now() - startTime,
+        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+        newline: fileType === 'csv' ? newline : undefined,
+        file_type: fileType,
+        all_fields: exclude.length === 0,
+        stop_on_error_selected: stopOnErrors,
+        number_of_docs: result.docsWritten,
+        success: true,
+        aborted: result.aborted,
+        ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
+      },
+      connections.getConnectionById(connectionId)?.info
+    );
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
       ns,
@@ -403,9 +407,13 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     const openErrorLogFilePathActionHandler = errorLogFilePath
       ? () => {
           if (errorLogFilePath) {
-            track('Import Error Log Opened', {
-              errorCount: errors.length,
-            });
+            track(
+              'Import Error Log Opened',
+              {
+                errorCount: numErrors,
+              },
+              connections.getConnectionById(connectionId)?.info
+            );
             void openFile(errorLogFilePath);
           }
         }
@@ -413,7 +421,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     if (result.aborted) {
       showCancelledToast({
-        errors,
+        errors: firstErrors,
         actionHandler: openErrorLogFilePathActionHandler,
       });
     } else {
@@ -433,10 +441,10 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         showUnboundArraySignalToast({ onReviewDocumentsClick });
       }
 
-      if (errors.length > 0) {
+      if (firstErrors.length > 0) {
         showCompletedWithErrorsToast({
           docsWritten: result.docsWritten,
-          errors,
+          errors: firstErrors,
           docsProcessed: result.docsProcessed,
           actionHandler: openErrorLogFilePathActionHandler,
         });
@@ -450,7 +458,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     dispatch(
       onFinished({
         aborted: !!result.aborted,
-        errors,
+        firstErrors,
       })
     );
 
@@ -472,6 +480,18 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       appRegistry.emit('import-finished', payload, {
         connectionId,
       });
+    }
+  };
+};
+
+export const connectionDisconnected = (
+  connectionId: string
+): ImportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().import.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      dispatch(cancelImport());
     }
   };
 };
@@ -820,7 +840,7 @@ export const setDelimiter = (
  * by the user attempting to resume from a previous import without
  * removing all documents sucessfully imported.
  *
- * @see utils/collection-stream.js
+ * @see import/import-writer.ts, import-utils.ts
  * @see https://www.mongodb.com/docs/database-tools/mongoimport/#std-option-mongoimport.--stopOnError
  */
 export const setStopOnErrors = (stopOnErrors: boolean) => ({
@@ -855,7 +875,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, connections }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({
@@ -863,9 +883,11 @@ export const openImport = ({
       });
       return;
     }
-    track('Import Opened', {
-      origin,
-    });
+    track(
+      'Import Opened',
+      { origin },
+      connections.getConnectionById(connectionId)?.info
+    );
     dispatch({ type: OPEN, namespace, connectionId });
   };
 };
@@ -891,6 +913,7 @@ function csvFields(fields: (FieldFromCSV | FieldFromJSON)[]): FieldFromCSV[] {
 /**
  * The import module reducer.
  */
+// TODO: Use Recuder<ImportState, Action> + isAction
 export const importReducer: Reducer<ImportState> = (
   state = INITIAL_STATE,
   action
@@ -905,7 +928,7 @@ export const importReducer: Reducer<ImportState> = (
       fileStats: action.fileStats,
       fileIsMultilineJSON: action.fileIsMultilineJSON,
       status: PROCESS_STATUS.UNSPECIFIED,
-      errors: [],
+      firstErrors: [],
       abortController: undefined,
       analyzeAbortController: undefined,
       fields: [],
@@ -1030,7 +1053,7 @@ export const importReducer: Reducer<ImportState> = (
   if (action.type === FILE_SELECT_ERROR) {
     return {
       ...state,
-      errors: [action.error],
+      firstErrors: [action.error],
     };
   }
 
@@ -1040,7 +1063,7 @@ export const importReducer: Reducer<ImportState> = (
   if (action.type === FAILED) {
     return {
       ...state,
-      errors: [action.error],
+      firstErrors: [action.error],
       status: PROCESS_STATUS.FAILED,
       abortController: undefined,
     };
@@ -1050,7 +1073,7 @@ export const importReducer: Reducer<ImportState> = (
     return {
       ...state,
       isOpen: false,
-      errors: [],
+      firstErrors: [],
       status: PROCESS_STATUS.STARTED,
       abortController: action.abortController,
       errorLogFilePath: action.errorLogFilePath,
@@ -1065,7 +1088,7 @@ export const importReducer: Reducer<ImportState> = (
     return {
       ...state,
       status,
-      errors: action.errors,
+      firstErrors: action.firstErrors,
       abortController: undefined,
     };
   }

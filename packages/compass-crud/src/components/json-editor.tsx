@@ -45,8 +45,7 @@ const editorDarkModeStyles = css({
 });
 
 const actionsGroupStyles = css({
-  paddingTop: spacing[2],
-  paddingRight: spacing[2],
+  padding: spacing[200],
 });
 
 export type JSONEditorProps = {
@@ -59,7 +58,6 @@ export type JSONEditorProps = {
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  isExpanded?: boolean;
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
@@ -71,41 +69,32 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
-  isExpanded = false,
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
-  const [editing, setEditing] = useState<boolean>(false);
-  const [deleting, setDeleting] = useState<boolean>(false);
-  const [value, setValue] = useState<string>(() => doc.toEJSON());
+  const [expanded, setExpanded] = useState<boolean>(doc.expanded);
+  const [editing, setEditing] = useState<boolean>(doc.editing);
+  const [deleting, setDeleting] = useState<boolean>(doc.markedForDeletion);
+  const [value, setValue] = useState<string>(
+    () => doc.modifiedEJSONString ?? doc.toEJSON()
+  );
   const [initialValue] = useState<string>(() => doc.toEJSON());
   const [containsErrors, setContainsErrors] = useState<boolean>(false);
-
-  const handleUpdateSuccess = useCallback(() => {
-    if (editing) {
-      setTimeout(() => {
-        setEditing(false);
-      }, 500);
-    }
-  }, [editing]);
-
-  const handleRemoveSuccess = useCallback(() => {
-    if (deleting) {
-      setTimeout(() => {
-        setDeleting(false);
-      }, 500);
-    }
-  }, [deleting]);
+  const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
+    doc.setModifiedEJSONString.bind(doc)
+  );
+  setModifiedEJSONStringRef.current = doc.setModifiedEJSONString.bind(doc);
 
   useEffect(() => {
-    doc.on('remove-success', handleRemoveSuccess);
-    doc.on('update-success', handleUpdateSuccess);
-
+    const setModifiedEJSONString = setModifiedEJSONStringRef.current;
     return () => {
-      doc.removeListener('remove-success', handleRemoveSuccess);
-      doc.removeListener('update-success', handleUpdateSuccess);
+      // When this component is used in virtualized list, the editor is
+      // unmounted on scroll and if the user is editing the document, the
+      // editor value is lost. This is a way to keep track of the editor
+      // value when the it's unmounted and is restored on next mount.
+      setModifiedEJSONString(editing ? value : null);
     };
-  }, [doc, handleRemoveSuccess, handleUpdateSuccess]);
+  }, [value, editing]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc);
@@ -118,21 +107,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     openInsertDocumentDialog?.(clonedDoc, true);
   }, [doc, openInsertDocumentDialog]);
 
-  const onCancel = useCallback(() => {
-    setEditing(false);
-    setDeleting(false);
-    setValue(doc.toEJSON());
-  }, [doc]);
-
-  const onUpdate = useCallback(() => {
-    doc.apply(HadronDocument.FromEJSON(value || ''));
-    replaceDocument?.(doc);
-  }, [doc, replaceDocument, value]);
-
-  const onDelete = useCallback(() => {
-    removeDocument?.(doc);
-  }, [doc, removeDocument]);
-
   const onChange = useCallback((value: string) => {
     let containsErrors = false;
     try {
@@ -144,17 +118,55 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     setValue(value);
   }, []);
 
-  useEffect(() => {
-    if (!editorRef.current) {
-      return;
+  const onCancel = useCallback(() => {
+    if (editing) {
+      doc.finishEditing();
+    } else if (deleting) {
+      doc.finishDeletion();
     }
+    setValue(doc.toEJSON());
+  }, [doc, editing, deleting]);
 
-    if (isExpanded) {
-      editorRef.current.unfoldAll();
-    } else {
-      editorRef.current.foldAll();
-    }
-  }, [isExpanded]);
+  const onEdit = useCallback(() => {
+    doc.startEditing();
+  }, [doc]);
+
+  const onEditingStarted = useCallback(() => {
+    setEditing(true);
+  }, []);
+
+  const onUpdate = useCallback(() => {
+    doc.apply(HadronDocument.FromEJSON(value || ''));
+    replaceDocument?.(doc);
+  }, [doc, replaceDocument, value]);
+
+  const onEditingFinished = useCallback(() => {
+    setEditing(false);
+  }, []);
+
+  const onMarkForDeletion = useCallback(() => {
+    doc.markForDeletion();
+  }, [doc]);
+
+  const onDeletionStarted = useCallback(() => {
+    setDeleting(true);
+  }, []);
+
+  const onDelete = useCallback(() => {
+    removeDocument?.(doc);
+  }, [doc, removeDocument]);
+
+  const onDeletionFinished = useCallback(() => {
+    setDeleting(false);
+  }, []);
+
+  const onExpanded = useCallback(() => {
+    setExpanded(true);
+  }, []);
+
+  const onCollapsed = useCallback(() => {
+    setExpanded(false);
+  }, []);
 
   const fields = useAutocompleteFields(namespace);
 
@@ -178,7 +190,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         icon: 'Edit',
         label: 'Edit',
         action() {
-          setEditing(true);
+          onEdit();
         },
       },
       {
@@ -198,11 +210,82 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         icon: 'Trash',
         label: 'Delete',
         action() {
-          setDeleting(true);
+          onMarkForDeletion();
         },
       },
     ].filter(Boolean) as Action[];
-  }, [editing, handleClone, handleCopy, isEditable]);
+  }, [editing, onEdit, onMarkForDeletion, handleClone, handleCopy, isEditable]);
+
+  useEffect(() => {
+    doc.on(HadronDocument.Events.Cancel, onCancel);
+    doc.on(HadronDocument.Events.Expanded, onExpanded);
+    doc.on(HadronDocument.Events.Collapsed, onCollapsed);
+    doc.on(HadronDocument.Events.EditingStarted, onEditingStarted);
+    doc.on(HadronDocument.Events.EditingFinished, onEditingFinished);
+    doc.on(HadronDocument.Events.MarkedForDeletion, onDeletionStarted);
+    doc.on(HadronDocument.Events.DeletionFinished, onDeletionFinished);
+
+    return () => {
+      doc.removeListener(HadronDocument.Events.Cancel, onCancel);
+      doc.removeListener(HadronDocument.Events.Expanded, onExpanded);
+      doc.removeListener(HadronDocument.Events.Collapsed, onCollapsed);
+      doc.removeListener(
+        HadronDocument.Events.EditingStarted,
+        onEditingStarted
+      );
+      doc.removeListener(
+        HadronDocument.Events.EditingFinished,
+        onEditingFinished
+      );
+      doc.removeListener(
+        HadronDocument.Events.MarkedForDeletion,
+        onDeletionStarted
+      );
+      doc.removeListener(
+        HadronDocument.Events.DeletionFinished,
+        onDeletionFinished
+      );
+    };
+  }, [
+    doc,
+    onCancel,
+    onExpanded,
+    onCollapsed,
+    onEditingStarted,
+    onEditingFinished,
+    onDeletionStarted,
+    onDeletionFinished,
+  ]);
+
+  const toggleExpandCollapse = useCallback(() => {
+    if (doc.expanded) {
+      doc.collapse();
+    } else {
+      doc.expand();
+    }
+  }, [doc]);
+
+  // Trying to change CodeMirror editor state when an update "effect" is in
+  // progress results in an error which is why we timeout the code mirror update
+  // itself.
+  const editorFoldUnfoldTimeoutRef = useRef<NodeJS.Timeout | undefined>();
+  useEffect(() => {
+    if (editorFoldUnfoldTimeoutRef.current) {
+      clearTimeout(editorFoldUnfoldTimeoutRef.current);
+    }
+
+    editorFoldUnfoldTimeoutRef.current = setTimeout(() => {
+      if (!editorRef.current) {
+        return;
+      }
+
+      if (expanded) {
+        editorRef.current.unfoldAll();
+      } else {
+        editorRef.current.foldAll();
+      }
+    }, 0);
+  }, [expanded]);
 
   return (
     <div data-testid="editable-json">
@@ -221,6 +304,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         className={cx(editorStyles, darkMode && editorDarkModeStyles)}
         actionsClassName={actionsGroupStyles}
         completer={completer}
+        onExpand={editing ? undefined : toggleExpandCollapse}
+        expanded={expanded}
       />
       <DocumentList.DocumentEditActionsFooter
         doc={doc}

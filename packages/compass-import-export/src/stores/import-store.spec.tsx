@@ -1,42 +1,26 @@
-import { createActivateHelpers } from 'hadron-app-registry';
-import AppRegistry from 'hadron-app-registry';
-import { activatePlugin } from './import-store';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
-import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import {
+  createPluginTestHelpers,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
+import type { ImportStore } from './import-store';
+import { ImportPlugin } from '..';
+
+const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 
 describe('ImportStore [Store]', function () {
-  let store: any;
-  let deactivate: any;
+  let store: ImportStore;
   let globalAppRegistry: AppRegistry;
-  let connectionsManager: ConnectionsManager;
-  let workspaces: WorkspacesService;
 
   beforeEach(function () {
-    const logger = createNoopLogger();
-    const track = createNoopTrack();
-    globalAppRegistry = new AppRegistry();
-    connectionsManager = new ConnectionsManager({
-      logger: logger.log.unbound,
-    });
-
-    ({ store, deactivate } = activatePlugin(
-      {},
-      {
-        globalAppRegistry,
-        connectionsManager,
-        logger,
-        track,
-        workspaces,
-      },
-      createActivateHelpers()
-    ));
+    const result = activatePluginWithConnections();
+    globalAppRegistry = result.globalAppRegistry;
+    store = result.plugin.store;
   });
 
   afterEach(function () {
-    deactivate();
+    cleanup();
   });
 
   it(`throws when 'open-import' is emitted without connection metadata`, function () {
@@ -45,7 +29,7 @@ describe('ImportStore [Store]', function () {
         namespace: 'test.coll',
         origin: 'menu',
       });
-    }).to.throw;
+    }).to.throw();
   });
 
   it('opens the import modal with properly set state', function () {

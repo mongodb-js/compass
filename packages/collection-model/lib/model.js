@@ -102,8 +102,9 @@ function pickCollectionInfo({
   validation,
   clustered,
   fle2,
+  is_non_existent,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2 };
+  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2, is_non_existent };
 }
 
 /**
@@ -124,6 +125,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     statusError: { type: 'string', default: null },
 
     // Normalized values from collectionInfo command
+    is_non_existent: 'boolean',
     readonly: 'boolean',
     clustered: 'boolean',
     fle2: 'boolean',
@@ -222,7 +224,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       },
     },
     properties: {
-      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle2'],
+      deps: ['collation', 'type', 'is_capped', 'clustered', 'readonly', 'fle2'],
       fn() {
         return getProperties(this);
       },
@@ -250,6 +252,16 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         ...collStats,
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
+      // If the collection is not unprovisioned `is_non_existent` anymore,
+      // let's update the parent database model to reflect the change.
+      // This happens when a user tries to insert first document into a
+      // collection that doesn't exist yet or creates a new collection 
+      // for an unprovisioned database.
+      if (!this.is_non_existent) {
+        getParentByType(this, 'Database').set({
+          is_non_existent: false,
+        });
+      }
     } catch (err) {
       this.set({ status: 'error', statusError: err.message });
       throw err;

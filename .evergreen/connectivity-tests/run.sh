@@ -7,7 +7,7 @@ MONOREPO_ROOT_DIR="$(cd $(dirname "$0")/../..; pwd)"
 cd $MONOREPO_ROOT_DIR
 
 echo "building connectivity tests image from ${PWD}"
-docker build -t devtools-connectivity-tests -f "./.evergreen/connectivity-tests/Dockerfile" .
+docker build -t devtools-connectivity-tests --build-arg "NODE_JS_VERSION=$NODE_JS_VERSION" -f "./.evergreen/connectivity-tests/Dockerfile" .
 echo "connectivity tests image built"
 
 echo running connectivity tests image
@@ -22,7 +22,7 @@ docker run \
   -e E2E_TESTS_FREE_TIER_HOST="${E2E_TESTS_FREE_TIER_HOST}" \
   -e E2E_TESTS_ATLAS_USERNAME="${E2E_TESTS_ATLAS_USERNAME}" \
   -e E2E_TESTS_ATLAS_PASSWORD="${E2E_TESTS_ATLAS_PASSWORD}" \
-  -e E2E_TESTS_ATLAS_X509_PEM="${E2E_TESTS_ATLAS_X509_PEM}" \
+  -e E2E_TESTS_ATLAS_X509_PEM_BASE64="${E2E_TESTS_ATLAS_X509_PEM_BASE64}" \
   -e MONGODB_VERSION="${MONGODB_VERSION}" \
   --add-host mongodb-kerberos-1.example.com:0.0.0.0 \
   --add-host mongodb-kerberos-2.example.com:0.0.0.0 \

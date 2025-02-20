@@ -23,6 +23,7 @@ import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import type { BaseQuery } from '../../constants/query-properties';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
@@ -43,6 +44,7 @@ const RecentItem = ({
   isReadonly: boolean;
 }) => {
   const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
@@ -61,9 +63,13 @@ const RecentItem = ({
       onUpdateRecentChoosen();
     }
 
-    track('Query History Recent Used', {
-      isUpdateQuery,
-    });
+    track(
+      'Query History Recent Used',
+      {
+        isUpdateQuery,
+      },
+      connectionInfoRef.current
+    );
     onApply(attributes);
   }, [
     isDisabled,
@@ -72,6 +78,7 @@ const RecentItem = ({
     onApply,
     attributes,
     onUpdateRecentChoosen,
+    connectionInfoRef,
   ]);
 
   const onCardClick = useCallback(
@@ -88,10 +95,14 @@ const RecentItem = ({
 
   const onSaveQuery = useCallback(
     (name: string) => {
-      track('Query History Favorite Added', { isUpdateQuery });
+      track(
+        'Query History Favorite Added',
+        { isUpdateQuery },
+        connectionInfoRef.current
+      );
       void onFavorite(query, name);
     },
-    [track, isUpdateQuery, onFavorite, query]
+    [track, isUpdateQuery, onFavorite, query, connectionInfoRef]
   );
 
   return (

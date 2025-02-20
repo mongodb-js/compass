@@ -1,11 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 
 import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
@@ -13,31 +12,29 @@ import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {}
 ) => {
-  render(
-    <Provider store={configureStore()}>
-      <PipelineEditor
-        namespace="test.test"
-        pipelineText="[{$match: {}}]"
-        syntaxErrors={[]}
-        serverError={null}
-        serverVersion="4.2"
-        onChangePipelineText={() => {}}
-        num_stages={1}
-        {...props}
-      />
-    </Provider>
+  return renderWithStore(
+    <PipelineEditor
+      namespace="test.test"
+      pipelineText="[{$match: {}}]"
+      syntaxErrors={[]}
+      serverError={null}
+      serverVersion="4.2"
+      onChangePipelineText={() => {}}
+      num_stages={1}
+      {...props}
+    />
   );
 };
 
 describe('PipelineEditor', function () {
-  it('renders editor workspace', function () {
-    renderPipelineEditor({});
+  it('renders editor workspace', async function () {
+    await renderPipelineEditor({});
     const container = screen.getByTestId('pipeline-as-text-editor');
     expect(container).to.exist;
   });
 
-  it('renders server error', function () {
-    renderPipelineEditor({
+  it('renders server error', async function () {
+    await renderPipelineEditor({
       serverError: new MongoServerError({ message: 'Can not use out' }),
     });
     const container = screen.getByTestId('pipeline-as-text-editor');
@@ -46,8 +43,8 @@ describe('PipelineEditor', function () {
     expect(within(container).findByText(/Can not use out/)).to.exist;
   });
 
-  it('renders syntax error', function () {
-    renderPipelineEditor({
+  it('renders syntax error', async function () {
+    await renderPipelineEditor({
       syntaxErrors: [new PipelineParserError('invalid pipeline')],
     });
     const container = screen.getByTestId('pipeline-as-text-editor');

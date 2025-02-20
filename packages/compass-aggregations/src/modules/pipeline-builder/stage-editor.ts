@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -389,7 +389,7 @@ export const runStage = (
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, preferences, globalAppRegistry }
+    { pipelineBuilder, preferences, connectionScopedAppRegistry }
   ) => {
     const {
       dataService: { dataService },
@@ -442,7 +442,7 @@ export const runStage = (
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
-      globalAppRegistry.emit(
+      connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
         getDestinationNamespaceFromStage(
           namespace,
@@ -534,7 +534,11 @@ export const changeStageOperator = (
   string | undefined,
   ChangeStageOperatorAction
 > => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     const {
       env,
       comments,
@@ -569,13 +573,17 @@ export const changeStageOperator = (
 
     stage.changeOperator(newVal);
 
-    track('Aggregation Edited', {
-      num_stages: pipelineFromStore(stages).length,
-      stage_action: 'stage_renamed',
-      stage_name: stage.operator,
-      stage_index: idxInPipeline + 1,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    });
+    track(
+      'Aggregation Edited',
+      {
+        num_stages: pipelineFromStore(stages).length,
+        stage_action: 'stage_renamed',
+        stage_name: stage.operator,
+        stage_index: idxInPipeline + 1,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoRef.current
+    );
 
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
@@ -643,7 +651,11 @@ export const changeStageCollapsed = (
 export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -657,12 +669,16 @@ export const addStage = (
     });
 
     const stage = pipelineBuilder.addStage(addAfterIdxInPipeline);
-    track('Aggregation Edited', {
-      num_stages: pipelineFromStore(stages).length,
-      stage_action: 'stage_added',
-      stage_index: stage.id + 1,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    });
+    track(
+      'Aggregation Edited',
+      {
+        num_stages: pipelineFromStore(stages).length,
+        stage_action: 'stage_added',
+        stage_index: stage.id + 1,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoRef.current
+    );
     dispatch({
       type: StageEditorActionTypes.StageAdded,
       after: addAfter,
@@ -674,7 +690,11 @@ export const addStage = (
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -689,13 +709,17 @@ export const removeStage = (
 
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
     const stage = pipelineBuilder.removeStage(idxInPipeline);
-    track('Aggregation Edited', {
-      num_stages: pipelineFromStore(stages).length,
-      stage_action: 'stage_deleted',
-      stage_name: stage.operator,
-      stage_index: idxInPipeline + 1,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    });
+    track(
+      'Aggregation Edited',
+      {
+        num_stages: pipelineFromStore(stages).length,
+        stage_action: 'stage_deleted',
+        stage_name: stage.operator,
+        stage_index: idxInPipeline + 1,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoRef.current
+    );
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
     void dispatch(fetchExplainForPipeline());
@@ -706,7 +730,11 @@ export const moveStage = (
   from: number,
   to: number
 ): PipelineBuilderThunkAction<void, StageMoveAction> => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     if (from === to) {
       return;
     }
@@ -742,13 +770,17 @@ export const moveStage = (
     if (pipelineWasNotModified) {
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     } else {
-      track('Aggregation Edited', {
-        num_stages: pipelineFromStore(stages).length,
-        stage_action: 'stage_reordered',
-        stage_name: stageAtFromIdx.stageOperator,
-        stage_index: stageAtFromIdx.idxInPipeline + 1,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      });
+      track(
+        'Aggregation Edited',
+        {
+          num_stages: pipelineFromStore(stages).length,
+          stage_action: 'stage_reordered',
+          stage_name: stageAtFromIdx.stageOperator,
+          stage_index: stageAtFromIdx.idxInPipeline + 1,
+          editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        },
+        connectionInfoRef.current
+      );
 
       pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
@@ -872,7 +904,11 @@ export const convertWizardToStage = (
   void,
   WizardChangeAction | WizardToStageAction
 > => {
-  return (dispatch, getState, { pipelineBuilder, track }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, track, connectionInfoRef }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -903,16 +939,25 @@ export const convertWizardToStage = (
 
     stage.changeValue(formatWizardValue(itemAtIdx.value as string));
 
-    track('Aggregation Edited', {
-      num_stages: pipelineFromStore(stages).length + 1,
-      stage_action: 'stage_added',
-      stage_name: stage.operator,
-      stage_index: afterStageIndex + 1,
-      editor_view_type: 'stage',
-    });
-    track('Aggregation Use Case Saved', {
-      stage_name: stage.operator,
-    });
+    const connectionInfo = connectionInfoRef.current;
+    track(
+      'Aggregation Edited',
+      {
+        num_stages: pipelineFromStore(stages).length + 1,
+        stage_action: 'stage_added',
+        stage_name: stage.operator,
+        stage_index: afterStageIndex + 1,
+        editor_view_type: 'stage',
+      },
+      connectionInfo
+    );
+    track(
+      'Aggregation Use Case Saved',
+      {
+        stage_name: stage.operator,
+      },
+      connectionInfo
+    );
 
     dispatch({
       type: StageEditorActionTypes.WizardToStageClicked,
@@ -982,7 +1027,7 @@ export function mapStoreStagesToStageIdAndType(
   return stages.map(({ id, type }) => ({ id, type }));
 }
 
-const reducer: Reducer<StageEditorState> = (
+const reducer: Reducer<StageEditorState, Action> = (
   state: StageEditorState = { stagesIdAndType: [], stages: [] },
   action
 ) => {

@@ -1,46 +1,31 @@
 import { expect } from 'chai';
-import { createSandbox } from 'sinon';
 import type { Workspace } from '../index';
-import { activateWorkspacePlugin } from '../index';
+import WorkspacesPlugin from '../index';
+import type { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
 import { _bulkTabsClose } from './workspaces';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '../../../connection-info/dist';
-import type { WorkspaceTab } from '../../dist';
+import type { WorkspaceTab } from '../stores/workspaces';
+import { setTabDestroyHandler } from '../components/workspace-close-handler';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
+
+type WorkspacesStore = ReturnType<typeof activateWorkspacePlugin>['store'];
 
 describe('tabs behavior', function () {
-  const instance = {
-    on() {},
-    removeListener() {},
-    getNamespace() {
-      return Promise.resolve(null);
-    },
-  } as any;
-  const globalAppRegistry = { on() {}, removeListener() {} } as any;
-  const helpers = { on() {}, cleanup() {}, addCleanup() {} } as any;
-  const dataService = {} as any;
-  const instancesManager = new TestMongoDBInstanceManager();
-  const connectionsManager = new ConnectionsManager({
-    logger: (() => {}) as any,
-  });
-  const sandbox = createSandbox();
-
   function configureStore() {
-    return activateWorkspacePlugin(
-      {},
-      {
-        globalAppRegistry,
-        instancesManager,
-        connectionsManager,
-        logger: {} as any,
-      },
-      helpers
-    ).store;
+    const { activatePluginWithConnections } = createPluginTestHelpers(
+      WorkspacesPlugin.withMockServices({
+        instancesManager: new TestMongoDBInstanceManager(),
+      }),
+      { onActiveWorkspaceTabChange: () => undefined }
+    );
+    const result = activatePluginWithConnections();
+    return result.plugin.store;
   }
 
   function openTabs(
-    store: ReturnType<typeof configureStore>,
+    store: WorkspacesStore,
     connectionNamespaces: Record<ConnectionInfo['id'], string[]> = {
       connection1: ['test.foo', 'test.bar', 'test.buz'],
     }
@@ -72,22 +57,9 @@ describe('tabs behavior', function () {
     databaseRemoved,
     connectionDisconnected,
     collectionSubtabSelected,
-    openFallbackTab,
+    openFallbackWorkspace: openFallbackTab,
     getActiveTab,
   } = workspacesSlice;
-
-  beforeEach(function () {
-    sandbox
-      .stub(connectionsManager, 'getDataServiceForConnection')
-      .returns(dataService);
-    sandbox
-      .stub(instancesManager, 'getMongoDBInstanceForConnection')
-      .returns(instance);
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
 
   describe('openWorkspace', function () {
     it('should open a tab and make it active', function () {
@@ -97,6 +69,37 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('tabs').have.lengthOf(1);
       expect(state).to.have.nested.property('tabs[0].type', 'My Queries');
       expect(state).to.have.property('activeTabId', state.tabs[0].id);
+    });
+
+    it('should open the workspace over existing tab by default', function () {
+      const store = configureStore();
+      for (const ns of ['foo', 'bar', 'buz', 'bla']) {
+        store.dispatch(
+          openWorkspace({
+            type: 'Collections',
+            namespace: ns,
+            connectionId: 'abc',
+          })
+        );
+      }
+      expect(store.getState()).to.have.property('tabs').have.lengthOf(1);
+    });
+
+    it('should open the workspace in new tab if any `replace` handlers returned `false`', function () {
+      const store = configureStore();
+      for (const ns of ['foo', 'bar', 'buz', 'bla']) {
+        store.dispatch(
+          openWorkspace({
+            type: 'Collections',
+            namespace: ns,
+            connectionId: 'abc',
+          })
+        );
+        setTabDestroyHandler('replace', store.getState().activeTabId!, () => {
+          return false;
+        });
+      }
+      expect(store.getState()).to.have.property('tabs').have.lengthOf(4);
     });
 
     it('when `newTab` is `true` should open a workspace in new tab even if another exists', function () {
@@ -110,21 +113,19 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
 
-    it('when `newTab` is `false` should always open a workspace in the same tab', function () {});
-
-    it('should open workspace in the same tab if type is the same, but other workspace options are different', function () {
+    it('when the connection differs from the active tab, it should open a workspace in new tab', function () {
       const store = configureStore();
-      openTabs(store);
       store.dispatch(
-        openWorkspace({
-          type: 'Collection',
-          connectionId: '1',
-          namespace: 'test.bar',
-        })
+        openWorkspace({ type: 'Databases', connectionId: 'connectionA' })
+      );
+      store.dispatch(
+        openWorkspace({ type: 'Databases', connectionId: 'connectionB' })
       );
       const state = store.getState();
-      expect(state).to.have.property('tabs').have.lengthOf(3);
-      expect(state).to.have.nested.property('tabs[2].namespace', 'test.bar');
+      expect(state).to.have.property('tabs').have.lengthOf(2);
+      expect(state).to.have.nested.property('tabs[0].type', 'Databases');
+      expect(state).to.have.nested.property('tabs[1].type', 'Databases');
+      expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
 
     it('should select already opened tab when trying to open a new one with the same attributes', function () {
@@ -140,6 +141,7 @@ describe('tabs behavior', function () {
           connectionId: 'connection1',
         })
       );
+
       expect(store.getState()).to.eq(currentState1);
 
       // opening "My Queries" so that the current active workspace type is
@@ -259,18 +261,18 @@ describe('tabs behavior', function () {
   });
 
   describe('closeTab', function () {
-    it('should close tab and make another tab active if needed', function () {
+    it('should close tab and make another tab active if needed', async function () {
       const store = configureStore();
       openTabs(store);
       const currentActiveTab = workspacesSlice.getActiveTab(store.getState());
       // closing inactive tab
-      store.dispatch(closeTab(0));
+      await store.dispatch(closeTab(0));
       const state1 = store.getState();
       expect(state1).to.have.property('tabs').have.lengthOf(2);
       // active tab didn't change
       expect(state1).to.have.property('activeTabId', currentActiveTab?.id);
       // closing active tab
-      store.dispatch(closeTab(1));
+      await store.dispatch(closeTab(1));
       const state2 = store.getState();
       expect(state2).to.have.property('tabs').have.lengthOf(1);
       // another tab was selected
@@ -406,10 +408,9 @@ describe('tabs behavior', function () {
         type: 'Databases',
         connectionId,
       };
-      openTabs(store, {});
       store.dispatch(openWorkspace(connectionTab));
-      store.dispatch(openWorkspace({ type: 'My Queries' }));
-      store.dispatch(openWorkspace(connectionTab)); // this is to make the first tab active
+      store.dispatch(openWorkspace({ type: 'My Queries' }, { newTab: true }));
+      store.dispatch(selectPrevTab());
 
       expect(getActiveTab(store.getState())).to.have.property(
         'type',
@@ -481,9 +482,7 @@ describe('tabs behavior', function () {
       );
 
       // Replace collection tab with collections list one
-      store.dispatch(
-        openFallbackTab(getActiveTab(store.getState())!, '1', 'foo')
-      );
+      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, 'foo'));
       expect(store.getState().tabs).to.have.lengthOf(1);
       expect(getActiveTab(store.getState())).to.have.property(
         'type',
@@ -495,9 +494,7 @@ describe('tabs behavior', function () {
       );
 
       // Replace collections list tab with the databases list
-      store.dispatch(
-        openFallbackTab(getActiveTab(store.getState())!, '1', null)
-      );
+      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, null));
       expect(store.getState().tabs).to.have.lengthOf(1);
       expect(getActiveTab(store.getState())).to.have.property(
         'type',
@@ -519,6 +516,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
     });
@@ -543,6 +541,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'My Queries',
     });
@@ -576,6 +575,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
     });
@@ -602,6 +602,7 @@ describe('_bulkTabsClose', function () {
         ],
         activeTabId: 'active',
         collectionInfo: {},
+        databaseInfo: {},
       },
       isToBeClosed: () => true,
     });

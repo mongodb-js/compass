@@ -8,7 +8,6 @@ import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
 import { useDarkMode } from '../hooks/use-theme';
 import { useHotkeys } from '../hooks/use-hotkeys';
-import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
 
@@ -42,12 +41,12 @@ const closeButtonStyles = css({
   right: spacing[2],
 });
 
-type InteractivePopoverProps = {
+type InteractivePopoverProps<TriggerElement extends HTMLElement> = {
   className?: string;
   children: React.ReactNode;
   trigger: (triggerProps: {
-    onClick: React.MouseEventHandler<HTMLButtonElement>;
-    ref: React.LegacyRef<HTMLButtonElement>;
+    onClick: React.MouseEventHandler<TriggerElement>;
+    ref: React.Ref<TriggerElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
   hideCloseButton?: boolean;
@@ -65,7 +64,7 @@ type InteractivePopoverProps = {
   'align' | 'justify' | 'spacing' | 'popoverZIndex'
 >;
 
-function InteractivePopover({
+function InteractivePopover<TriggerElement extends HTMLElement>({
   className,
   children,
   trigger,
@@ -80,9 +79,9 @@ function InteractivePopover({
   popoverZIndex,
   containerClassName,
   closeButtonClassName,
-}: InteractivePopoverProps): React.ReactElement {
+}: InteractivePopoverProps<TriggerElement>): React.ReactElement {
   const darkMode = useDarkMode();
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<TriggerElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
@@ -162,7 +161,7 @@ function InteractivePopover({
 
   useHotkeys('Escape', onClose, { enabled: open }, [onClose]);
 
-  const closeButtonId = useId('close-button-id');
+  const closeButtonId = 'close-button-id';
 
   return trigger({
     onClick: onClickTrigger,
@@ -173,7 +172,7 @@ function InteractivePopover({
         justify={justify ?? 'start'}
         active={open}
         adjustOnMutation
-        usePortal
+        renderMode="portal"
         spacing={spacing ?? 0}
         className={className}
         refEl={triggerRef}

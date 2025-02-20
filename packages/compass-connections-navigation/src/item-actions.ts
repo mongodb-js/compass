@@ -1,104 +1,132 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { type Actions } from './constants';
 import { type ItemSeparator } from '@mongodb-js/compass-components';
+import { type NotConnectedConnectionStatus } from './tree-data';
+import { ConnectButton } from './connect-button';
+import type { Actions } from './constants';
 
-export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
+export type NavigationItemAction = ItemAction<Actions> | ItemSeparator;
+export type NavigationItemActions = NavigationItemAction[];
+export type NullableNavigationItemActions = (NavigationItemAction | null)[];
 
-export const notConnectedConnectionItemActions = ({
+function stripNullActions(
+  actions: NullableNavigationItemActions
+): NavigationItemActions {
+  return actions.filter(
+    (action): action is Exclude<typeof action, null> => action !== null
+  );
+}
+
+export const commonConnectionItemActions = ({
   connectionInfo,
-  isEditDisabled,
-  isConnectDisabled,
-  connectDisabledTooltip,
 }: {
   connectionInfo: ConnectionInfo;
-  isEditDisabled?: boolean;
-  isConnectDisabled?: boolean;
-  connectDisabledTooltip?: string;
-}): NavigationItemActions => {
-  return [
-    {
-      action: 'connection-connect',
-      icon: 'Connect',
-      label: 'Connect',
-      isDisabled: isConnectDisabled,
-      // we surface disabled description via the tooltip hence we would like to
-      // have tooltip rendered only if this action is disabled
-      tooltip: isConnectDisabled ? connectDisabledTooltip : undefined,
-    },
-    {
-      action: 'edit-connection',
-      label: 'Edit connection',
-      icon: 'Edit',
-      isDisabled: isEditDisabled,
-      disabledDescription: 'Cannot edit an active connection',
-    },
-    {
-      action: 'copy-connection-string',
-      label: 'Copy connection string',
-      icon: 'Copy',
-    },
-    {
-      action: 'connection-toggle-favorite',
-      label:
-        connectionInfo.savedConnectionType === 'favorite'
-          ? 'Unfavorite'
-          : 'Favorite',
-      icon: 'Favorite',
-    },
-    {
-      action: 'duplicate-connection',
-      label: 'Duplicate',
-      icon: 'Clone',
-    },
-    {
-      action: 'remove-connection',
-      label: 'Remove',
-      icon: 'Trash',
-      variant: 'destructive',
-    },
-  ];
+}): NavigationItemAction[] => {
+  const isAtlas = !!connectionInfo.atlasMetadata;
+  return stripNullActions([
+    isAtlas
+      ? null
+      : {
+          action: 'edit-connection',
+          label: 'Edit connection',
+          icon: 'Edit',
+          disabledDescription: 'Cannot edit an active connection',
+        },
+    isAtlas
+      ? {
+          action: 'show-connect-via-modal',
+          label: 'Connect via …',
+          icon: 'Connect',
+        }
+      : {
+          action: 'copy-connection-string',
+          label: 'Copy connection string',
+          icon: 'Copy',
+        },
+    isAtlas
+      ? null
+      : {
+          action: 'connection-toggle-favorite',
+          label:
+            connectionInfo.savedConnectionType === 'favorite'
+              ? 'Unfavorite'
+              : 'Favorite',
+          icon: 'Favorite',
+        },
+    isAtlas
+      ? null
+      : {
+          action: 'duplicate-connection',
+          label: 'Duplicate',
+          icon: 'Clone',
+        },
+    isAtlas
+      ? null
+      : {
+          action: 'remove-connection',
+          label: 'Remove',
+          icon: 'Trash',
+          variant: 'destructive',
+        },
+  ]);
 };
 
 export const connectedConnectionItemActions = ({
-  hasWriteActionsDisabled,
   connectionInfo,
+  hasWriteActionsDisabled,
+  isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isShellEnabled,
 }: {
-  hasWriteActionsDisabled: boolean;
   connectionInfo: ConnectionInfo;
+  hasWriteActionsDisabled: boolean;
+  // Indicates whether or not performance workspace is available in the
+  // environment (currently will be false for mms)
+  isPerformanceTabAvailable: boolean;
+  // Indicates whether or not cluster supports commands required to use
+  // performance workspace
   isPerformanceTabSupported: boolean;
   isShellEnabled: boolean;
 }): NavigationItemActions => {
-  const connectionManagementActions = notConnectedConnectionItemActions({
+  const isAtlas = !!connectionInfo.atlasMetadata;
+  const connectionManagementActions = commonConnectionItemActions({
     connectionInfo,
-    isEditDisabled: true,
-  }).slice(1); // for connected connections we don't show connect action
-  const actions: NavigationItemActions = [
+  });
+  return stripNullActions([
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'create-database',
+          icon: 'Plus',
+          label: 'Create database',
+        },
+    isShellEnabled
+      ? {
+          action: 'open-shell',
+          icon: 'Shell',
+          label: 'Open MongoDB shell',
+        }
+      : null,
+    isPerformanceTabAvailable
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: !isPerformanceTabSupported,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    isAtlas
+      ? null
+      : {
+          action: 'open-connection-info',
+          icon: 'InfoWithCircle',
+          label: 'Show connection info',
+        },
     {
-      action: 'create-database',
-      icon: 'Plus',
-      label: 'Create database',
-    },
-    {
-      action: 'open-shell',
-      icon: 'Shell',
-      label: 'Open MongoDB shell',
-      isDisabled: !isShellEnabled,
-      disabledDescription: 'Not available',
-    },
-    {
-      action: 'connection-performance-metrics',
-      icon: 'Gauge',
-      label: 'View performance metrics',
-      isDisabled: !isPerformanceTabSupported,
-      disabledDescription: 'Not supported',
-    },
-    {
-      action: 'open-connection-info',
-      icon: 'InfoWithCircle',
-      label: 'Show connection info',
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
     },
     {
       action: 'connection-disconnect',
@@ -108,14 +136,30 @@ export const connectedConnectionItemActions = ({
     },
     { separator: true },
     ...connectionManagementActions,
-  ];
+  ]);
+};
 
-  // when connection is readonly we don't want to show create-database action
-  // and hence we splice it out here
-  if (hasWriteActionsDisabled) {
-    actions.splice(0, 1);
+export const notConnectedConnectionItemActions = ({
+  connectionInfo,
+  connectionStatus,
+}: {
+  connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
+}): NavigationItemActions => {
+  const commonActions = commonConnectionItemActions({ connectionInfo });
+  if (connectionStatus === 'connecting') {
+    return commonActions;
+  } else {
+    return [
+      {
+        action: 'connection-connect',
+        label: 'Connect',
+        icon: 'Connect',
+        expandedAs: ConnectButton,
+      },
+      ...commonActions,
+    ];
   }
-  return actions;
 };
 
 export const databaseItemActions = ({

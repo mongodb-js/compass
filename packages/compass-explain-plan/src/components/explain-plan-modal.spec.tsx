@@ -1,6 +1,10 @@
 import React from 'react';
 import { expect } from 'chai';
-import { cleanup, screen, render as _render } from '@testing-library/react';
+import {
+  cleanup,
+  screen,
+  render as _render,
+} from '@mongodb-js/testing-library-compass';
 import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';

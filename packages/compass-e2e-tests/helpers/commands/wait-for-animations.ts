@@ -4,7 +4,8 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
   browser: CompassBrowser,
-  selector: string | ChainablePromiseElement<WebdriverIO.Element>
+  selector: string | ChainablePromiseElement,
+  options?: { timeout?: number }
 ): Promise<void> {
   function getElement() {
     return typeof selector === 'string' ? browser.$(selector) : selector;
@@ -31,7 +32,7 @@ export async function waitForAnimations(
       const stopped = _.isEqual(result, previousResult);
       previousResult = result;
       return stopped;
-    });
+    }, options);
   } catch (err: any) {
     if (err.name !== 'stale element reference') {
       throw err;

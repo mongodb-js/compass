@@ -39,16 +39,21 @@ export type DatabasesAction =
   | FetchAllCollectionsAction
   | ExpandDatabaseAction;
 
-type DatabaseRaw = MongoDBInstance['databases'][number];
+export type InstanceDatabase = MongoDBInstance['databases'][number];
 
 export type Database = Pick<
-  DatabaseRaw,
+  InstanceDatabase,
   '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
-  collections: Pick<
-    DatabaseRaw['collections'][number],
-    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
-  >[];
+  isNonExistent: boolean;
+  collections: Array<
+    Pick<
+      InstanceDatabase['collections'][number],
+      '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
+    > & {
+      isNonExistent: boolean;
+    }
+  >;
 };
 export type AllDatabasesState = Record<
   ConnectionInfo['id'],
@@ -118,10 +123,12 @@ export const changeDatabases = (
   databases,
 });
 
+// Receives connectionId only to support filtering for single connections
+// navigation tree
 export const fetchAllCollections =
-  (): SidebarThunkAction<void, DatabasesAction> =>
+  (connectionId?: string): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('sidebar-filter-navigation-list');
+    globalAppRegistry.emit('sidebar-filter-navigation-list', { connectionId });
     dispatch({ type: FETCH_ALL_COLLECTIONS });
   };
 
@@ -131,6 +138,8 @@ export const onDatabaseExpand =
     databaseId: string
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('sidebar-expand-database', connectionId, databaseId);
+    globalAppRegistry.emit('sidebar-expand-database', databaseId, {
+      connectionId,
+    });
     dispatch({ type: EXPAND_DATABASE, connectionId, databaseId });
   };

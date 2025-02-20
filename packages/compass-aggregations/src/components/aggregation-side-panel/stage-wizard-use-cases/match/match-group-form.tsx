@@ -258,8 +258,8 @@ const MatchGroupForm = ({
           align="top"
           justify="middle"
           enabled={disableAddNestedGroupBtn}
-          trigger={({ children, ...props }) => (
-            <div {...props} style={{ display: 'inherit' }}>
+          trigger={
+            <div style={{ display: 'inherit' }}>
               <Button
                 size="xsmall"
                 disabled={disableAddNestedGroupBtn}
@@ -268,11 +268,10 @@ const MatchGroupForm = ({
                 data-testid={TEST_IDS.addNestedGroupBtn(group.id)}
                 onClick={handleAddNestedGroupClick}
               >
-                {children}
                 Nested Group
               </Button>
             </div>
-          )}
+          }
         >
           Compass does not support more than three nested match conditions.
         </Tooltip>

@@ -2,55 +2,71 @@ import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import {
-  render,
   screen,
   cleanup,
-  fireEvent,
+  userEvent,
   waitFor,
-} from '@testing-library/react';
-
+  renderWithConnections,
+  createDefaultConnectionInfo,
+} from '@mongodb-js/testing-library-compass';
 import { RenameCollectionPlugin } from '../..';
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 
 describe('RenameCollectionModal [Component]', function () {
+  const connectionId = '12345';
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
-  const dataService = {
-    renameCollection: sandbox.stub().resolves({}),
-  };
-  const instanceModel = {
-    databases: {
-      get: function () {
-        return {
-          collections: [{ name: 'my-collection' }],
-        };
-      },
-    },
-  };
-  const connectionsManager = {
-    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  let appRegistry: AppRegistry;
+  const mockConnection = {
+    ...createDefaultConnectionInfo(),
+    id: connectionId,
   };
   const instancesManager = {
-    getMongoDBInstanceForConnection: sandbox.stub().returns(instanceModel),
-  };
-  const favoriteQueries = {
-    getStorage: () => ({
-      loadAll: sandbox.stub().resolves([]),
+    getMongoDBInstanceForConnection: sandbox.stub().returns({
+      databases: {
+        get: function () {
+          return {
+            collections: [{ name: 'my-collection' }],
+          };
+        },
+      },
     }),
   };
-  const pipelineStorage = {
-    loadAll: sandbox.stub().resolves([]),
-  };
+  let renameCollectionSpy: Sinon.SinonSpy;
+
   context('when the modal is visible', function () {
     beforeEach(async function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
-        globalAppRegistry: appRegistry,
-        connectionsManager: connectionsManager as any,
         instancesManager: instancesManager as any,
-        queryStorage: favoriteQueries as any,
-        pipelineStorage: pipelineStorage as any,
       });
-      render(<Plugin> </Plugin>);
+      const {
+        globalAppRegistry,
+        getDataServiceForConnection,
+        connectionsStore,
+      } = renderWithConnections(<Plugin></Plugin>, {
+        connections: [mockConnection],
+        connectFn() {
+          return {
+            renameCollection() {
+              return Promise.resolve({} as any);
+            },
+            createDataKey() {
+              return Promise.resolve({});
+            },
+            configuredKMSProviders() {
+              return [];
+            },
+          };
+        },
+      });
+
+      await connectionsStore.actions.connect(mockConnection);
+
+      appRegistry = globalAppRegistry;
+
+      renameCollectionSpy = sandbox.spy(
+        getDataServiceForConnection(connectionId),
+        'renameCollection'
+      );
       appRegistry.emit(
         'open-rename-collection',
         {
@@ -87,11 +103,14 @@ describe('RenameCollectionModal [Component]', function () {
     it('disables the submit button when the value is equal to the initial collection name', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
+
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
-      fireEvent.change(input, { target: { value: 'baz' } });
+      userEvent.clear(input);
+      userEvent.type(input, 'baz');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
-      fireEvent.change(input, { target: { value: 'bar' } });
+      userEvent.clear(input);
+      userEvent.type(input, 'bar');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
@@ -100,16 +119,17 @@ describe('RenameCollectionModal [Component]', function () {
       const input = screen.getByTestId('rename-collection-name-input');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
-      fireEvent.change(input, { target: { value: '' } });
+      userEvent.clear(input);
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
-    it('disables the submit button when the value is exists as a collection in the current database', () => {
+    it('disables the submit button when the value exists as a collection in the current database', () => {
       const submitButton = screen.getByTestId('submit-button');
       const input = screen.getByTestId('rename-collection-name-input');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
-      fireEvent.change(input, { target: { value: 'my-collection' } });
+      userEvent.clear(input);
+      userEvent.type(input, 'my-collection');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
@@ -117,8 +137,9 @@ describe('RenameCollectionModal [Component]', function () {
       beforeEach(() => {
         const submitButton = screen.getByTestId('submit-button');
         const input = screen.getByTestId('rename-collection-name-input');
-        fireEvent.change(input, { target: { value: 'baz' } });
-        fireEvent.click(submitButton);
+        userEvent.clear(input);
+        userEvent.type(input, 'baz');
+        userEvent.click(submitButton);
 
         expect(screen.getByTestId('rename-collection-modal')).to.exist;
       });
@@ -157,51 +178,113 @@ describe('RenameCollectionModal [Component]', function () {
           );
         });
       });
+    });
 
-      describe('when the user has saved aggregations or queries for the old namespace', function () {
-        beforeEach(async function () {
-          cleanup();
-          pipelineStorage.loadAll.resolves([{ namespace: 'foo.bar' }]);
-          connectionsManager.getDataServiceForConnection.returns(dataService);
-          instancesManager.getMongoDBInstanceForConnection.returns(
-            instanceModel
-          );
-
-          const Plugin = RenameCollectionPlugin.withMockServices({
-            globalAppRegistry: appRegistry,
-            connectionsManager: connectionsManager as any,
-            instancesManager: instancesManager as any,
-            queryStorage: favoriteQueries as any,
-            pipelineStorage: pipelineStorage as any,
-          });
-          render(<Plugin> </Plugin>);
-          appRegistry.emit(
-            'open-rename-collection',
-            {
-              database: 'foo',
-              collection: 'bar',
-            },
-            { connectionId: '12345' }
-          );
-
-          await waitFor(() => screen.getByText('Rename collection'));
-
+    context(
+      'when the user has submitted the form with extra whitespaces',
+      () => {
+        beforeEach(() => {
           const submitButton = screen.getByTestId('submit-button');
           const input = screen.getByTestId('rename-collection-name-input');
-          fireEvent.change(input, { target: { value: 'baz' } });
-          fireEvent.click(submitButton);
+          userEvent.clear(input);
+          userEvent.type(input, '  baz  ');
+          userEvent.click(submitButton);
 
           expect(screen.getByTestId('rename-collection-modal')).to.exist;
-        });
-        it('does not display the saved queries and aggregations warning', () => {
-          const renameCollectionWarningBanner = screen.getByTestId(
-            'rename-collection-modal-warning'
+
+          const confirmationButton = screen.getByTestId('submit-button');
+          expect(confirmationButton.textContent).to.equal(
+            'Yes, rename collection'
           );
-          expect(renameCollectionWarningBanner.textContent).to.include(
-            'Additionally, any saved queries or aggregations targeting this collection will need to be remapped to the new namespace.'
+
+          userEvent.click(confirmationButton);
+        });
+
+        it('trims the white spaces on submit', () => {
+          expect(renameCollectionSpy).to.have.been.calledWithExactly(
+            'foo.bar',
+            'baz'
           );
         });
-      });
-    });
+      }
+    );
   });
+
+  context(
+    'when the user has saved aggregations or queries for the old namespace',
+    function () {
+      beforeEach(async function () {
+        const queryStorage = {
+          getStorage: () => ({
+            loadAll: sandbox.stub().resolves([]),
+          }),
+        };
+        const pipelineStorage = {
+          loadAll: sandbox.stub().resolves([{ namespace: 'foo.bar' }]),
+        };
+        const Plugin = RenameCollectionPlugin.withMockServices({
+          instancesManager: instancesManager as any,
+          queryStorage: queryStorage as any,
+          pipelineStorage: pipelineStorage as any,
+        });
+        const {
+          globalAppRegistry,
+          getDataServiceForConnection,
+          connectionsStore,
+        } = renderWithConnections(<Plugin></Plugin>, {
+          connections: [mockConnection],
+          connectFn() {
+            return {
+              renameCollection() {
+                return Promise.resolve({} as any);
+              },
+              createDataKey() {
+                return Promise.resolve({});
+              },
+              configuredKMSProviders() {
+                return [];
+              },
+            };
+          },
+        });
+
+        await connectionsStore.actions.connect(mockConnection);
+
+        appRegistry = globalAppRegistry;
+
+        renameCollectionSpy = sandbox.spy(
+          getDataServiceForConnection(connectionId),
+          'renameCollection'
+        );
+        appRegistry.emit(
+          'open-rename-collection',
+          {
+            database: 'foo',
+            collection: 'bar',
+          },
+          { connectionId: '12345' }
+        );
+
+        await waitFor(() =>
+          screen.getByRole('heading', { name: 'Rename collection' })
+        );
+
+        const submitButton = screen.getByTestId('submit-button');
+        const input = screen.getByTestId('rename-collection-name-input');
+        userEvent.clear(input);
+        userEvent.type(input, 'baz');
+        userEvent.click(submitButton);
+
+        expect(screen.getByTestId('rename-collection-modal')).to.exist;
+      });
+      it('does not display the saved queries and aggregations warning', () => {
+        const renameCollectionWarningBanner = screen.getByTestId(
+          'rename-collection-modal-warning'
+        );
+        expect(renameCollectionWarningBanner.textContent).to.include(
+          'Additionally, any saved queries or aggregations targeting this collection will need to be remapped to the new namespace.'
+        );
+      });
+    }
+  );
 });

@@ -12,7 +12,7 @@ const chai = require('chai');
 const expect = chai.expect;
 
 function skipUnlessRunningOn(platform) {
-  before(function() {
+  before(function () {
     if (process.platform !== platform) {
       this.skip();
     }
@@ -44,18 +44,18 @@ async function getTargetZipEntries(target) {
   const file = fsExtra.readFileSync(getTargetZipPath(target));
   const zipContent = await JSZip.loadAsync(file);
 
-  return Object.values(zipContent.files).map(entry => _.pick(entry, [
-    'name', 'dir'
-  ]));
+  return Object.values(zipContent.files).map((entry) =>
+    _.pick(entry, ['name', 'dir'])
+  );
 }
 
-describe('zip', function() {
+describe('zip', function () {
   context('on linux', () => {
     skipUnlessRunningOn('linux');
 
     const target = getTarget({
       version: '1.2.0',
-      platform: 'linux'
+      platform: 'linux',
     });
 
     setupAndZipFakeTarget(target);
@@ -78,22 +78,22 @@ describe('zip', function() {
 
     const target = getTarget({
       version: '1.2.0',
-      platform: 'darwin'
+      platform: 'darwin',
     });
 
     setupAndZipFakeTarget(target);
 
-    it('creates a zip with the right entries', async() => {
+    it('creates a zip with the right entries', async () => {
       const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'MongoDB Compass Enterprise super long test name.app/',
-          dir: true
+          dir: true,
         },
         {
           name: 'MongoDB Compass Enterprise super long test name.app/file',
-          dir: false
-        }
+          dir: false,
+        },
       ]);
     });
   });
@@ -103,18 +103,18 @@ describe('zip', function() {
 
     const target = getTarget({
       version: '1.2.0',
-      platform: 'win32'
+      platform: 'win32',
     });
 
     setupAndZipFakeTarget(target);
 
-    it('creates a zip with the right entries', async() => {
+    it('creates a zip with the right entries', async () => {
       const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'file',
-          dir: false
-        }
+          dir: false,
+        },
       ]);
     });
   });

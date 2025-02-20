@@ -11,4 +11,5 @@ export default {
   Valid: 'Element::Valid',
   Expanded: 'Element::Expanded',
   Collapsed: 'Element::Collapsed',
+  VisibleElementsChanged: 'Element::VisibleElementsChanged',
 } as const;

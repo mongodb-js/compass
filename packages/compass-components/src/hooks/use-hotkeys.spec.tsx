@@ -1,6 +1,5 @@
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, renderHook } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { renderHook } from '@testing-library/react-hooks';
 
 import { useHotkeys, formatHotkey } from './use-hotkeys';
 import sinon from 'sinon';

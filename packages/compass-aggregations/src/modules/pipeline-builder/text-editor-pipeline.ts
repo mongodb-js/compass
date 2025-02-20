@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
@@ -84,7 +84,10 @@ const INITIAL_STATE: TextEditorState = {
   isPreviewStale: false,
 };
 
-const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<TextEditorState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
   // NB: Anything that this action handling reacts to should probably be also
   // accounted for in text-editor-output-stage slice. If you are changing this
   // code, don't forget to change the other reducer

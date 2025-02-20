@@ -4,20 +4,20 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { context } from '../helpers/test-runner-context';
 
 async function expectCopyConnectionStringToClipboard(
   browser: CompassBrowser,
   favoriteName: string,
   expected: string
 ): Promise<void> {
-  if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+  if (!context.disableClipboardUsage) {
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.CopyConnectionStringItem
@@ -25,7 +25,9 @@ async function expectCopyConnectionStringToClipboard(
     let actual = '';
     await browser.waitUntil(
       async () => {
-        return (actual = await clipboard.read()) === expected;
+        actual = await clipboard.read();
+        console.log({ actual, expected });
+        return actual === expected;
       },
       {
         timeoutMsg: `Expected copy to clipboard to contain '${expected}', saw '${actual}'`,
@@ -46,7 +48,10 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connection form not available in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -54,12 +59,10 @@ describe('protectConnectionStrings', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
+    if (compass) {
+      await browser.setFeature('protectConnectionStrings', false);
+      await cleanup(compass);
     }
-
-    await browser.setFeature('protectConnectionStrings', false);
-    await cleanup(compass);
   });
 
   afterEach(async function () {
@@ -75,18 +78,15 @@ describe('protectConnectionStrings', function () {
       defaultPassword: 'bar',
     };
     await browser.setConnectFormState(state);
-    await browser.saveFavorite(favoriteName, 'color4');
-    await browser.selectFavorite(favoriteName);
+    await browser.saveFavorite(favoriteName, 'Yellow');
+    await browser.selectConnection(favoriteName);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
     );
 
     // Enter edit connection string mode
-    await browser.clickVisible(Selectors.EditConnectionStringToggle);
-    const confirmModal = await browser.$(Selectors.ConfirmationModal);
-    await confirmModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickConfirmationAction(Selectors.EditConnectionStringToggle);
 
     expect(
       await browser.getConnectFormConnectionString(),
@@ -96,33 +96,29 @@ describe('protectConnectionStrings', function () {
       await browser.getConnectFormConnectionString(true),
       'shows password when input is focused'
     ).to.equal('mongodb://foo:bar@localhost:12345/');
+
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+
     await expectCopyConnectionStringToClipboard(
       browser,
       favoriteName,
       'mongodb://foo:bar@localhost:12345/'
     );
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: false });
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: false });
+
+    await browser.selectConnection(favoriteName);
 
     await browser.setFeature('protectConnectionStrings', true);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
     );
+
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+
     await expectCopyConnectionStringToClipboard(
       browser,
       favoriteName,
       'mongodb://<credentials>@localhost:12345/'
     );
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: true });
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: true });
   });
 });

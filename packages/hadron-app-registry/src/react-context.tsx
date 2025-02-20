@@ -18,7 +18,7 @@ type AppRegistryProviderProps =
   | {
       localAppRegistry?: never;
       deactivateOnUnmount?: never;
-      children: React.ReactNode;
+      children?: React.ReactNode;
       scopeName?: string;
     }
   | {
@@ -65,6 +65,10 @@ export function GlobalAppRegistryProvider({
   );
 }
 
+export function useIsTopLevelProvider() {
+  return useContext(LocalAppRegistryContext) === null;
+}
+
 export function AppRegistryProvider({
   children,
   ...props
@@ -76,7 +80,7 @@ export function AppRegistryProvider({
   } = initialPropsRef.current;
 
   const globalAppRegistry = useGlobalAppRegistry();
-  const isTopLevelProvider = useContext(LocalAppRegistryContext) === null;
+  const isTopLevelProvider = useIsTopLevelProvider();
   const [localAppRegistry] = useState(() => {
     return (
       initialLocalAppRegistry ??

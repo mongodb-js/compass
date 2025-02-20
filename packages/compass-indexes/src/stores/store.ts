@@ -6,26 +6,33 @@ import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
+import { createIndexOpened } from '../modules/create-index';
 import {
-  fetchIndexes,
-  inProgressIndexAdded,
-  inProgressIndexRemoved,
-  inProgressIndexFailed,
-  type InProgressIndex,
+  fetchRegularIndexes,
+  stopPollingRegularIndexes,
 } from '../modules/regular-indexes';
 import {
-  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
-  refreshSearchIndexes,
-  SearchIndexesStatuses,
-  showCreateModal,
+  fetchSearchIndexes,
+  createSearchIndexOpened,
+  stopPollingSearchIndexes,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  MongoDBInstance,
+  Collection,
+} from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  collectionStatsFetched,
+  extractCollectionStats,
+} from '../modules/collection-stats';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import { RollingIndexesService } from '../modules/rolling-indexes-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -36,16 +43,25 @@ export type IndexesDataServiceProps =
   | 'getSearchIndexes'
   | 'createSearchIndex'
   | 'updateSearchIndex'
-  | 'dropSearchIndex';
+  | 'dropSearchIndex'
+  // Required for collection model (fetching stats)
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
 export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 
 export type IndexesPluginServices = {
   dataService: IndexesDataService;
+  connectionInfoRef: ConnectionInfoRef;
   instance: MongoDBInstance;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
+  collection: Collection;
   track: TrackFunction;
+  atlasService: AtlasService;
+  preferences: PreferencesAccess;
 };
 
 export type IndexesPluginOptions = {
@@ -62,29 +78,35 @@ export type IndexesStore = Store<RootState> & {
 export function activateIndexesPlugin(
   options: IndexesPluginOptions,
   {
-    dataService,
+    connectionInfoRef,
     instance,
     localAppRegistry,
     globalAppRegistry,
     logger,
     track,
+    dataService,
+    collection: collectionModel,
+    atlasService,
+    preferences,
   }: IndexesPluginServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
+  const pollingIntervalRef = {
+    regularIndexes: null,
+    searchIndexes: null,
+  };
+
   const store: IndexesStore = createStore(
     reducer,
     {
-      dataService,
+      isWritable: instance.isWritable,
+      description: instance.description,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      isSearchIndexesSupported: options.isSearchIndexesSupported,
       indexView: INDEX_LIST_INITIAL_STATE,
-      searchIndexes: {
-        ...SEARCH_INDEXES_INITIAL_STATE,
-        status: options.isSearchIndexesSupported
-          ? SearchIndexesStatuses.NOT_READY
-          : SearchIndexesStatuses.NOT_AVAILABLE,
-      },
+      collectionStats: extractCollectionStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -92,50 +114,33 @@ export function activateIndexesPlugin(
         globalAppRegistry,
         logger,
         track,
+        connectionInfoRef,
+        dataService,
+        collection: collectionModel,
+        rollingIndexesService: new RollingIndexesService(
+          atlasService,
+          connectionInfoRef
+        ),
+        pollingIntervalRef,
+        preferences,
       })
     )
   );
 
-  on(localAppRegistry, 'refresh-regular-indexes', () => {
-    void store.dispatch(fetchIndexes());
+  on(localAppRegistry, 'open-create-index-modal', () => {
+    store.dispatch(createIndexOpened());
   });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-added',
-    (index: InProgressIndex) => {
-      store.dispatch(inProgressIndexAdded(index));
-      // we have to merge the in-progress indexes with the regular indexes, so
-      // just fetch them again which will perform the merge
-      void store.dispatch(fetchIndexes());
-      store.dispatch(switchToRegularIndexes());
-    }
-  );
-
-  on(localAppRegistry, 'in-progress-indexes-removed', (id: string) => {
-    store.dispatch(inProgressIndexRemoved(id));
-  });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-failed',
-    (data: { inProgressIndexId: string; error: string }) => {
-      store.dispatch(inProgressIndexFailed(data));
-    }
-  );
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
-    store.dispatch(showCreateModal());
+    store.dispatch(createSearchIndexOpened());
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.dispatch(fetchIndexes());
-    void store.dispatch(refreshSearchIndexes());
+    void store.dispatch(fetchRegularIndexes());
+    if (options.isSearchIndexesSupported) {
+      void store.dispatch(fetchRegularIndexes());
+    }
   });
-
-  // set the initial values
-  store.dispatch(writeStateChanged(instance.isWritable));
-  store.dispatch(getDescription(instance.description));
 
   // these can change later
   on(instance, 'change:isWritable', () => {
@@ -143,6 +148,22 @@ export function activateIndexesPlugin(
   });
   on(instance, 'change:description', () => {
     store.dispatch(getDescription(instance.description));
+  });
+
+  void store.dispatch(fetchRegularIndexes());
+  if (options.isSearchIndexesSupported) {
+    void store.dispatch(fetchSearchIndexes());
+  }
+
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  });
+
+  addCleanup(() => {
+    store.dispatch(stopPollingRegularIndexes());
+    store.dispatch(stopPollingSearchIndexes());
   });
 
   return { store, deactivate: () => cleanup() };

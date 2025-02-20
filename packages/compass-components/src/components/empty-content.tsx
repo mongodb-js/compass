@@ -46,7 +46,7 @@ const callToActionLinkContainerStyles = css({
 type EmptyContentProps = {
   icon: React.FunctionComponent;
   title: string;
-  subTitle: string;
+  subTitle: React.ReactNode;
   callToAction?: React.ReactNode;
   callToActionLink?: React.ReactNode;
 };
@@ -57,7 +57,7 @@ const EmptyContent: React.FunctionComponent<
   const darkMode = useDarkMode();
 
   return (
-    <div className={containerStyles}>
+    <div data-testid="empty-content" className={containerStyles}>
       <div className={iconStyles}>
         <Icon />
       </div>

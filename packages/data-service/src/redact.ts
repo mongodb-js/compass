@@ -1,4 +1,3 @@
-import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import type { ConnectionOptions } from './connection-options';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 export { redactConnectionString };
@@ -25,26 +24,6 @@ export function redactConnectionOptions(
 
   if (redacted.sshTunnel?.identityKeyPassphrase) {
     redacted.sshTunnel.identityKeyPassphrase = '<redacted>';
-  }
-
-  return redacted;
-}
-
-export function redactSshTunnelOptions<T extends Partial<SshTunnelConfig>>(
-  options: T
-): T {
-  const redacted = { ...options };
-
-  if (redacted.password) {
-    redacted.password = '<redacted>';
-  }
-
-  if (redacted.privateKey) {
-    redacted.privateKey = '<redacted>';
-  }
-
-  if (redacted.passphrase) {
-    redacted.passphrase = '<redacted>';
   }
 
   return redacted;

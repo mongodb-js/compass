@@ -8,7 +8,9 @@ describe('InfoModal [Component]', function () {
   let component;
 
   beforeEach(function () {
-    component = mount(<ShellInfoModal show hideInfoModal={() => {}} />);
+    component = mount(
+      <ShellInfoModal show hideInfoModal={() => {}} mongoshVersion="v2.3.456" />
+    );
   });
 
   afterEach(function () {

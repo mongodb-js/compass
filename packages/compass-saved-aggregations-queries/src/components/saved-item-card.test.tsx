@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 
@@ -118,41 +122,36 @@ describe('SavedItemCard', function () {
     ]);
   });
 
-  context('when multi connections is enabled', function () {
-    it('should render an "Open in" action', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
-      });
-      const onAction = Sinon.spy();
+  it('should render an "Open in" action', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    const onAction = Sinon.spy();
 
-      render(
-        <PreferencesProvider value={preferences}>
-          <SavedItemCard
-            id="123"
-            name="My Awesome Query"
-            type="query"
-            database="sample_airbnb"
-            collection="listingsAndReviews"
-            onAction={onAction}
-            lastModified={now}
-            tabIndex={0}
-          ></SavedItemCard>
-        </PreferencesProvider>
-      );
+    render(
+      <PreferencesProvider value={preferences}>
+        <SavedItemCard
+          id="123"
+          name="My Awesome Query"
+          type="query"
+          database="sample_airbnb"
+          collection="listingsAndReviews"
+          onAction={onAction}
+          lastModified={now}
+          tabIndex={0}
+        ></SavedItemCard>
+      </PreferencesProvider>
+    );
 
-      userEvent.hover(screen.getByText('My Awesome Query'));
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /show actions/i,
-        })
-      );
-      userEvent.click(screen.getByText('Open in'));
+    userEvent.hover(screen.getByText('My Awesome Query'));
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /show actions/i,
+      })
+    );
+    userEvent.click(screen.getByText('Open in'));
 
-      expect(onAction).to.have.callCount(1);
-      expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
-        ['123', 'open-in'],
-      ]);
-    });
+    expect(onAction).to.have.callCount(1);
+    expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
+      ['123', 'open-in'],
+    ]);
   });
 });

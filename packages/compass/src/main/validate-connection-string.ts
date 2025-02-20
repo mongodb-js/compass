@@ -13,6 +13,8 @@ const allowedConnectionStringOptions = [
   'authMechanism',
   'authMechanismProperties', // Partially. See allowed and disallowed AuthMechanismProperties below.
   'authSource',
+  'autoSelectFamily',
+  'autoSelectFamilyAttemptTimeout',
   'bsonRegExp',
   'cert',
   'checkKeys',
@@ -62,6 +64,7 @@ const allowedConnectionStringOptions = [
   'srvMaxHosts',
   'srvServiceName',
   'ssl', // Only if value is `true` or target host is local.
+  'timeoutMS',
   'tls', // Only if value is `true` or target host is local.
   'tlsCertificateKeyFile',
   'tlsCertificateKeyFilePassword',
@@ -75,6 +78,7 @@ const allowedConnectionStringOptions = [
 ] as const;
 
 const disallowedConnectionStringOptions = [
+  'allowPartialTrustChain',
   'ALPNProtocols',
   'auth',
   'autoEncryption',
@@ -104,8 +108,8 @@ const disallowedConnectionStringOptions = [
 const allowedAuthMechanismProperties = [
   'CANONICALIZE_HOST_NAME',
   'AWS_SESSION_TOKEN',
-  'PROVIDER_NAME',
-  'TOKEN_AUDIENCE',
+  'ENVIRONMENT',
+  'TOKEN_RESOURCE',
 ] as const;
 
 const disallowedAuthMechanismProperties = [
@@ -113,8 +117,8 @@ const disallowedAuthMechanismProperties = [
   'SERVICE_NAME',
   'SERVICE_REALM',
   'ALLOWED_HOSTS',
-  'REQUEST_TOKEN_CALLBACK',
-  'REFRESH_TOKEN_CALLBACK',
+  'OIDC_CALLBACK',
+  'OIDC_HUMAN_CALLBACK',
 ] as const;
 
 // Ensure that all connection string options known to the Node.js driver

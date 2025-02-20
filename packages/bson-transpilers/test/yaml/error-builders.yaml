@@ -27,112 +27,112 @@ runner: !<tag:yaml.org,2002:js/function> |-
 tests:
   wrong type:
     - input:
-        shell: '{''$project'': ''invalid''}'
+        shell: "{'$project': 'invalid'}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$project'': {}}'
+        shell: "{'$project': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$not'': ''1''}}'
+        shell: "{'x': {'$not': '1'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$mod'': 1}}'
+        shell: "{'x': {'$mod': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$mod'': [1]}}'
+        shell: "{'x': {'$mod': [1]}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$mod'': {}}}'
+        shell: "{'x': {'$mod': {}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$sort'': {}}'
+        shell: "{'$sort': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$sort'': 1}'
+        shell: "{'$sort': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$sort'': {''x'': 1, ''y'': ''not 1/-1''}}'
+        shell: "{'$sort': {'x': 1, 'y': 'not 1/-1'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$sort'': {''x'': 1, ''y'': {}}}'
+        shell: "{'$sort': {'x': 1, 'y': {}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$sort'': {''x'': 1, ''y'': {''$meta'': 1}}}'
+        shell: "{'$sort': {'x': 1, 'y': {'$meta': 1}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$project'': {}}'
+        shell: "{'$project': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$project'': 1}'
+        shell: "{'$project': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$sample'': {}}}'
+        shell: "{'x': {'$sample': {}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$sample'': {''notSize'': 1}}}'
+        shell: "{'x': {'$sample': {'notSize': 1}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$sample'': {''size'': 10, ''other'': 1}}}'
+        shell: "{'x': {'$sample': {'size': 10, 'other': 1}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$replaceRoot'': {}}}'
+        shell: "{'x': {'$replaceRoot': {}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$replaceRoot'': {''notNewRoot'': 1}}}'
+        shell: "{'x': {'$replaceRoot': {'notNewRoot': 1}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''x'': {''$replaceRoot'': {''newRoot'': 10, ''other'': 1}}}'
+        shell: "{'x': {'$replaceRoot': {'newRoot': 10, 'other': 1}}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$graphLookup'': {}}'
+        shell: "{'$graphLookup': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$graphLookup'': 1}'
+        shell: "{'$graphLookup': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$graphLookup'': {''from'': ''x''}}'
+        shell: "{'$graphLookup': {'from': 'x'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
@@ -145,12 +145,12 @@ tests:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$lookup'': {}}'
+        shell: "{'$lookup': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$lookup'': {''from'': ''x''}}'
+        shell: "{'$lookup': {'from': 'x'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
@@ -162,98 +162,98 @@ tests:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucket'': {}}'
+        shell: "{'$bucket': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucket'': {''groupBy'': ''x''}}'
+        shell: "{'$bucket': {'groupBy': 'x'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucket'': {''groupBy'': ''x'', ''boundaries'': 1, ''extra'': 1}}'
+        shell: "{'$bucket': {'groupBy': 'x', 'boundaries': 1, 'extra': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucketAuto'': {}}'
+        shell: "{'$bucketAuto': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucketAuto'': {''groupBy'': ''x''}}'
+        shell: "{'$bucketAuto': {'groupBy': 'x'}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$bucketAuto'': {''groupBy'': ''x'', ''buckets'': 1, ''extra'': 1}}'
+        shell: "{'$bucketAuto': {'groupBy': 'x', 'buckets': 1, 'extra': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$text'': {}}'
+        shell: "{'$text': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$text'': {''$search'': ''x'', ''extra'': 1}}'
+        shell: "{'$text': {'$search': 'x', 'extra': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$unwind'': {}}'
+        shell: "{'$unwind': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$unwind'': 1}'
+        shell: "{'$unwind': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$unwind'': {''path'': ''x'', ''extra'': 1}}'
+        shell: "{'$unwind': {'path': 'x', 'extra': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$group'': {''x'': 1}}'
+        shell: "{'$group': {'x': 1}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$group'': {}}'
+        shell: "{'$group': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$group'': 1}'
+        shell: "{'$group': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$facet'': {}}'
+        shell: "{'$facet': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$facet'': 1}'
+        shell: "{'$facet': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$addFields'': {}}'
+        shell: "{'$addFields': {}}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
     - input:
-        shell: '{''$addFields'': 1}'
+        shell: "{'$addFields': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME
   wrong shape:
     - input:
-        shell: '{''$sum'': 1}'
+        shell: "{'$sum': 1}"
       output:
         java: true
       errorCode: E_BSONTRANSPILERS_RUNTIME

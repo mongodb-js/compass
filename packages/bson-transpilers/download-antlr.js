@@ -16,4 +16,6 @@ if (fs.existsSync(outputFile)) {
 
 console.info('downloading antlr');
 
-https.get(downloadUrl, (response) => response.pipe(fs.createWriteStream(outputFile)));
+https.get(downloadUrl, (response) =>
+  response.pipe(fs.createWriteStream(outputFile))
+);

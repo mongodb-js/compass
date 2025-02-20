@@ -1,58 +1,40 @@
-import { renderHook, cleanup } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
 import FieldStorePlugin from './';
 import { useAutocompleteFields } from './';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
-import { useDispatch } from './stores/context';
-import { createFieldStoreService } from './stores/field-store-service';
-
-export const useFieldStoreServiceForTests = () => {
-  const dispatch = useDispatch();
-  const connectionInfoAccess = useConnectionInfoAccess();
-  return createFieldStoreService(dispatch, connectionInfoAccess);
-};
+import { useFieldStoreService } from './stores/field-store-service';
+import {
+  createPluginTestHelpers,
+  cleanup,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 describe('useAutocompleteFields', function () {
-  let appRegistry: AppRegistry;
-  let Plugin: ReturnType<typeof FieldStorePlugin['withMockServices']>;
-
-  beforeEach(function () {
-    appRegistry = new AppRegistry();
-    Plugin = FieldStorePlugin.withMockServices({
-      globalAppRegistry: appRegistry,
-    });
-  });
-
   afterEach(cleanup);
 
-  it('returns empty list when namespace schema is not available', function () {
-    const { result } = renderHook(() => useAutocompleteFields('foo.bar'), {
-      wrapper: Plugin,
-    });
+  const { renderHookWithActiveConnection } =
+    createPluginTestHelpers(FieldStorePlugin);
+
+  it('returns empty list when namespace schema is not available', async function () {
+    const { result } = await renderHookWithActiveConnection(() =>
+      useAutocompleteFields('foo.bar')
+    );
 
     expect(result.current).to.deep.eq([]);
   });
 
   it('updates when fields are added', async function () {
-    const { result } = renderHook(
-      () => {
-        const autoCompleteFields = useAutocompleteFields('foo.bar');
-        const fieldStoreService = useFieldStoreServiceForTests();
-        return {
-          getAutoCompleteFields() {
-            return autoCompleteFields;
-          },
-          getFieldStoreService() {
-            return fieldStoreService;
-          },
-        };
-      },
-      {
-        wrapper: Plugin,
-      }
-    );
+    const { result } = await renderHookWithActiveConnection(() => {
+      const autoCompleteFields = useAutocompleteFields('foo.bar');
+      const fieldStoreService = useFieldStoreService();
+      return {
+        getAutoCompleteFields() {
+          return autoCompleteFields;
+        },
+        getFieldStoreService() {
+          return fieldStoreService;
+        },
+      };
+    });
 
     await result.current
       .getFieldStoreService()

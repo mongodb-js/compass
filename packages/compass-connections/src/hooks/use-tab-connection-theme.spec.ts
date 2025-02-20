@@ -1,21 +1,8 @@
 import { expect } from 'chai';
-import { renderHook } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
-import { createElement } from 'react';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useTabConnectionTheme } from '../provider';
-import {
-  type ConnectionStorage,
-  ConnectionStorageProvider,
-  InMemoryConnectionStorage,
-} from '@mongodb-js/connection-storage/provider';
-import {
-  type PreferencesAccess,
-  createSandboxFromDefaultPreferences,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { renderHookWithConnections } from '@mongodb-js/testing-library-compass';
 
-const CONNECTION_INFO: ConnectionInfo = {
+const CONNECTION_INFO = {
   id: '1234',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
@@ -26,7 +13,7 @@ const CONNECTION_INFO: ConnectionInfo = {
   },
 };
 
-const CONNECTION_INFO_NO_COLOR: ConnectionInfo = {
+const CONNECTION_INFO_NO_COLOR = {
   id: '1234',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
@@ -36,7 +23,7 @@ const CONNECTION_INFO_NO_COLOR: ConnectionInfo = {
   },
 };
 
-const CONNECTION_INFO_INVALID_COLOR: ConnectionInfo = {
+const CONNECTION_INFO_INVALID_COLOR = {
   id: '1234',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
@@ -48,84 +35,77 @@ const CONNECTION_INFO_INVALID_COLOR: ConnectionInfo = {
 };
 
 describe('useTabConnectionTheme', function () {
-  let renderHookWithContext: typeof renderHook;
-  let mockStorage: ConnectionStorage;
-  let preferencesAccess: PreferencesAccess;
-
-  beforeEach(async function () {
-    preferencesAccess = await createSandboxFromDefaultPreferences();
-    await preferencesAccess.savePreferences({
-      enableNewMultipleConnectionSystem: true,
-    });
-
-    mockStorage = new InMemoryConnectionStorage([CONNECTION_INFO]);
-    renderHookWithContext = (callback, options) => {
-      const wrapper: React.FC = ({ children }) =>
-        createElement(PreferencesProvider, {
-          value: preferencesAccess,
-          children: createElement(ConnectionStorageProvider, {
-            value: mockStorage,
-            children,
-          }),
-        });
-      return renderHook(callback, { wrapper, ...options });
-    };
-  });
-
   describe('when a connection does not exist', function () {
     it('should not return a theme', function () {
-      const { result } = renderHookWithContext(() => {
-        const { getThemeOf } = useTabConnectionTheme();
-        return getThemeOf('NON_EXISTING');
-      });
+      const { result } = renderHookWithConnections(useTabConnectionTheme);
 
-      expect(result.current).to.be.undefined;
+      expect(result.current.getThemeOf('NON_EXISTING')).to.be.undefined;
     });
   });
 
   describe('when a connection exists', function () {
-    it('should return the theme with the connection colors', async function () {
-      const { result } = renderHookWithContext(() => {
-        const { getThemeOf } = useTabConnectionTheme();
-        return getThemeOf(CONNECTION_INFO.id);
+    it('should return the theme with the connection colors', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        connections: [CONNECTION_INFO],
       });
 
-      await waitFor(() => {
-        expect(result.current).to.deep.equal({
-          '&:focus-visible': {
-            '--workspace-tab-border-color': '#016BF8',
-            '--workspace-tab-selected-color': '#016BF8',
-          },
-          '--workspace-tab-background-color': '#FFDFB5',
-          '--workspace-tab-border-color': '#E8EDEB',
-          '--workspace-tab-color': '#5C6C75',
-          '--workspace-tab-selected-background-color': '#FFFFFF',
-          '--workspace-tab-selected-border-color': '#FFD19A',
-          '--workspace-tab-selected-color': '#1C2D38',
-        });
+      expect(result.current.getThemeOf(CONNECTION_INFO.id)).to.deep.equal({
+        '&:focus-visible': {
+          '--workspace-tab-border-color': '#016BF8',
+          '--workspace-tab-selected-color': '#016BF8',
+        },
+        '--workspace-tab-background-color': '#D5EFFF',
+        '--workspace-tab-border-color': '#E8EDEB',
+        '--workspace-tab-color': '#5C6C75',
+        '--workspace-tab-selected-background-color': '#FFFFFF',
+        '--workspace-tab-selected-color': '#1C2D38',
+        '--workspace-tab-selected-top-border-color': '#C2E5FF',
+        '--workspace-tab-top-border-color': '#D5EFFF',
       });
     });
 
-    it('should not return a theme when there is no color', async function () {
-      const { result } = renderHookWithContext(() => {
-        const { getThemeOf } = useTabConnectionTheme();
-        return getThemeOf(CONNECTION_INFO_NO_COLOR.id);
+    it('should not return a theme when there is no color', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        connections: [CONNECTION_INFO_NO_COLOR],
       });
 
-      await waitFor(() => {
-        expect(result.current).to.equal(undefined);
-      });
+      expect(result.current.getThemeOf(CONNECTION_INFO_NO_COLOR.id)).to.equal(
+        undefined
+      );
     });
 
-    it('should not return a theme when the color is invalid', async function () {
-      const { result } = renderHookWithContext(() => {
-        const { getThemeOf } = useTabConnectionTheme();
-        return getThemeOf(CONNECTION_INFO_INVALID_COLOR.id);
+    it('should not return a theme when the color is invalid', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        connections: [CONNECTION_INFO_INVALID_COLOR],
       });
 
-      await waitFor(() => {
-        expect(result.current).to.equal(undefined);
-      });
+      expect(
+        result.current.getThemeOf(CONNECTION_INFO_INVALID_COLOR.id)
+      ).to.equal(undefined);
     });
+  });
+
+  it('tracks updates of connection color state and returns a new method when they are changed', async function () {
+    const { result, connectionsStore } = renderHookWithConnections(
+      useTabConnectionTheme,
+      {
+        connections: [CONNECTION_INFO],
+      }
+    );
+
+    const getThemeOf = result.current.getThemeOf;
+
+    await connectionsStore.actions.saveEditedConnection({
+      ...CONNECTION_INFO,
+      favorite: {
+        ...CONNECTION_INFO.favorite,
+        color: 'color1',
+      },
+    });
+
+    expect(result.current.getThemeOf).to.not.eq(getThemeOf);
+    expect(result.current.getThemeOf(CONNECTION_INFO.id)).to.not.eq(
+      getThemeOf(CONNECTION_INFO.id)
+    );
   });
 });

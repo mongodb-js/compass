@@ -9,21 +9,24 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
+import type { ConnectFormState } from '../helpers/connect-form-state';
 
 const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
-async function refresh(browser: CompassBrowser) {
+async function refresh(browser: CompassBrowser, connectionName: string) {
   // We refresh immediately after running commands, so there is an opportunity
   // for race conditions. Ideally we'd wait for something to become true, then
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.RefreshDatabasesItem
+  );
 }
 
 /**
@@ -40,6 +43,11 @@ async function refresh(browser: CompassBrowser) {
  * and never sent in plaintext.
  */
 describe('CSFLE / QE', function () {
+  // reuse the same connectionName so that connectWithConnectionForm (or
+  // connectWithConnectionString for that matter) will remove the connection
+  // every time before connecting
+  const connectionName = 'fle';
+
   before(function () {
     skipForWeb(this, 'not available in compass-web');
   });
@@ -64,10 +72,7 @@ describe('CSFLE / QE', function () {
     });
 
     beforeEach(async function () {
-      const sidebar = await browser.$(Selectors.SidebarTitle);
-      if (await sidebar.isDisplayed()) {
-        await browser.disconnect();
-      }
+      await browser.disconnectAll();
     });
 
     afterEach(async function () {
@@ -83,11 +88,16 @@ describe('CSFLE / QE', function () {
     });
 
     it('does not store KMS settings if the checkbox is not set', async function () {
-      const favoriteName = 'My FLE Favorite';
-      const options = {
+      const options: ConnectFormState = {
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
-        fleKey: 'A'.repeat(128),
+        kmsProviders: {
+          local: [
+            {
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
         fleEncryptedFieldsMap: `{
           '${databaseName}.${collectionName}': {
             fields: [
@@ -102,54 +112,60 @@ describe('CSFLE / QE', function () {
         }`,
       };
 
+      // Save & Connect
+
+      // in the multiple connections world the favorite form fields are just
+      // part of the connection form
+      options.connectionName = connectionName;
+      options.connectionColor = 'color1';
+      options.connectionFavorite = true;
+
       await browser.setConnectFormState(options);
 
-      // Save & Connect
-      await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
-      await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-      await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
-      await browser.clickVisible(
-        `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-      );
-
-      // The modal's button text should read Save & Connect and not the default Save
-      expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
-        'Save & Connect'
-      );
-
-      await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-      await browser.clickVisible(Selectors.FavoriteSaveButton);
-      await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+      await browser.clickVisible(Selectors.ConnectionModalConnectButton);
 
       // Wait for it to connect
-      const element = await browser.$(Selectors.MyQueriesList);
-      await element.waitForDisplayed();
+      await browser.waitForConnectionResult(connectionName, {
+        connectionStatus: 'success',
+      });
 
+      // extra pause to make very sure that it saved the connection before we disconnect
       await delay(10000);
 
       try {
-        await browser.disconnect();
+        await browser.disconnectAll();
       } catch (err) {
         console.error('Error during disconnect:');
         console.error(err);
       }
 
+      // extra pause to make very sure that it loaded the connections
       await delay(10000);
-      await browser.screenshot('saved-connections-after-disconnect.png');
 
-      await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
+      // in the multiple connections world, if we clicked the connection it
+      // would connect and that's not what we want in this case. So we select
+      // edit from the menu.
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.EditConnectionItem
+      );
+
+      // The modal should appear and the title of the modal should be the favorite name
       await browser.waitUntil(async () => {
-        const text = await browser.$(Selectors.ConnectionTitle).getText();
-        return text === favoriteName;
+        const connectionTitleSelector = Selectors.ConnectionModalTitle;
+        const text = await browser.$(connectionTitleSelector).getText();
+        return text === connectionName;
       });
 
+      // The form should have the relevant field values
       const state = await browser.getConnectFormState();
-
       expect(state.connectionString).to.be.equal(CONNECTION_STRING);
-      expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
+      expect(state.fleKeyVaultNamespace).to.be.equal(
+        `${databaseName}.keyvault`
+      );
       expect(state.fleStoreCredentials).to.be.equal(false);
       expect(state.fleEncryptedFieldsMap).to.include(
-        'fle-test.my-another-collection'
+        `${databaseName}.${collectionName}`
       );
     });
   });
@@ -167,6 +183,7 @@ describe('CSFLE / QE', function () {
       const collectionName = 'my-encrypted-collection';
       let compass: Compass;
       let browser: CompassBrowser;
+      const connectionName = 'fle';
 
       before(async function () {
         compass = await init(this.test?.fullTitle());
@@ -174,21 +191,29 @@ describe('CSFLE / QE', function () {
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
-          fleKey: 'A'.repeat(128),
+          kmsProviders: {
+            local: [
+              {
+                name: 'local',
+                key: 'A'.repeat(128),
+              },
+            ],
+          },
+          connectionName,
         });
+
+        // create a collection so we can navigate to the database
+        await browser.shellEval(
+          connectionName,
+          `db.getMongo().getDB('${databaseName}').createCollection('default')`
+        );
+        await refresh(browser, connectionName);
       });
 
       after(async function () {
         if (compass) {
           await cleanup(compass);
         }
-      });
-
-      beforeEach(async function () {
-        await browser.shellEval(
-          `db.getMongo().getDB('${databaseName}').createCollection('default')`
-        );
-        await refresh(browser);
       });
 
       afterEach(async function () {
@@ -198,7 +223,10 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
@@ -217,9 +245,12 @@ describe('CSFLE / QE', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
 
-        const collectionListFLE2BadgeElement = await browser.$(
+        const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge
         );
         const collectionListFLE2BadgeElementText =
@@ -229,12 +260,13 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
         );
 
-        const collectionHeaderLE2BadgeElement = await browser.$(
+        const collectionHeaderLE2BadgeElement = browser.$(
           Selectors.CollectionHeaderFLE2Badge
         );
         const collectionHeaderLE2BadgeElementText =
@@ -260,10 +292,18 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        await browser.disconnectAll();
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
-          fleKey: 'A'.repeat(128),
+          kmsProviders: {
+            local: [
+              {
+                name: 'local',
+                key: 'A'.repeat(128),
+              },
+            ],
+          },
           fleEncryptedFieldsMap: `{
             '${databaseName}.${collectionName}': {
               fields: [
@@ -291,7 +331,7 @@ describe('CSFLE / QE', function () {
                   keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
                   bsonType: 'date',
                   queries: [{
-                    queryType: 'rangePreview',
+                    queryType: "range",
                     contention: 4,
                     sparsity: 1,
                     min: new Date('1970'),
@@ -301,19 +341,22 @@ describe('CSFLE / QE', function () {
               ]
             }
           }`,
+          connectionName,
         });
-        await browser.shellEval(`use ${databaseName}`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
           'db.keyvault.insertOne({' +
             '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
             '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
             '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"status": 0,' +
-            '"masterKey": { "provider" : "local" }' +
-            '})'
-        );
-        await refresh(browser);
+            '"masterKey": { "provider" : "local:local" }' +
+            '})',
+          // make sure there is a collection so we can navigate to the database
+          `db.getMongo().getDB('${databaseName}').createCollection('default')`,
+        ]);
+        await refresh(browser, connectionName);
 
         plainMongo = await MongoClient.connect(CONNECTION_STRING);
       });
@@ -333,11 +376,17 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection without encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
 
         const selector = Selectors.collectionCard(databaseName, collectionName);
         await browser.scrollToVirtualItem(
@@ -346,10 +395,10 @@ describe('CSFLE / QE', function () {
           'grid'
         );
 
-        const collectionCard = await browser.$(selector);
+        const collectionCard = browser.$(selector);
         await collectionCard.waitForDisplayed();
 
-        const collectionListFLE2BadgeElement = await browser.$(
+        const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge
         );
         const collectionListFLE2BadgeElementText =
@@ -359,12 +408,13 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
         );
 
-        const collectionHeaderLE2BadgeElement = await browser.$(
+        const collectionHeaderLE2BadgeElement = browser.$(
           Selectors.CollectionHeaderFLE2Badge
         );
         const collectionHeaderLE2BadgeElementText =
@@ -375,10 +425,14 @@ describe('CSFLE / QE', function () {
       });
 
       it('can insert a document with an encrypted field and a non-encrypted field', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await refresh(browser);
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
+        ]);
+        await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -386,14 +440,12 @@ describe('CSFLE / QE', function () {
 
         // browse to the "Insert to Collection" modal
         await browser.clickVisible(Selectors.AddDataButton);
-        const insertDocumentOption = await browser.$(
-          Selectors.InsertDocumentOption
-        );
+        const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
         await insertDocumentOption.waitForDisplayed();
         await browser.clickVisible(Selectors.InsertDocumentOption);
 
         // wait for the modal to appear
-        const insertDialog = await browser.$(Selectors.InsertDialog);
+        const insertDialog = browser.$(Selectors.InsertDialog);
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
@@ -402,7 +454,7 @@ describe('CSFLE / QE', function () {
           '{ "phoneNumber": "30303030", "name": "Person X" }'
         );
 
-        const insertCSFLEHasKnownSchemaMsg = await browser.$(
+        const insertCSFLEHasKnownSchemaMsg = browser.$(
           Selectors.insertCSFLEHasKnownSchemaMsg
         );
         const insertCSFLEHasKnownSchemaMsgText =
@@ -410,14 +462,14 @@ describe('CSFLE / QE', function () {
         expect(insertCSFLEHasKnownSchemaMsgText).to.include('phoneNumber');
 
         // confirm
-        const insertConfirm = await browser.$(Selectors.InsertConfirm);
+        const insertConfirm = browser.$(Selectors.InsertConfirm);
         await insertConfirm.waitForEnabled();
         await browser.clickVisible(Selectors.InsertConfirm);
 
         // wait for the modal to go away
         await insertDialog.waitForDisplayed({ reverse: true });
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         expect(result._id).to.exist;
         expect(result.__safeContent__).to.exist;
@@ -431,22 +483,24 @@ describe('CSFLE / QE', function () {
       });
 
       it('shows a decrypted field icon', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
           `db[${JSON.stringify(
             collectionName
-          )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
-        );
-        await refresh(browser);
+          )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`,
+        ]);
+        await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
         );
-        const document = await browser.$(Selectors.DocumentListEntry);
+        const document = browser.$(Selectors.DocumentListEntry);
 
-        const documentPhoneNumberDecryptedIcon = await document.$(
+        const documentPhoneNumberDecryptedIcon = document.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isDocumentPhoneNumberDecryptedIconExisting =
@@ -460,8 +514,9 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
-          // TODO(COMPASS-7760): re-enable after 7.3/8.0 support is ready
-          if (mode === 'range' && serverSatisfies('>= 8.0.0-alpha')) {
+          if (mode === 'range' && serverSatisfies('< 7.99.99', true)) {
+            // We are using latest crypt libraries which only support range algorithm.
+            console.log('Skipping range test for server version < 7.99.99');
             return this.skip();
           }
           const [field, oldValue, newValue] =
@@ -477,25 +532,27 @@ describe('CSFLE / QE', function () {
           const toString = (v: any) =>
             v?.toISOString?.()?.replace(/Z$/, '+00:00') ?? JSON.stringify(v);
 
-          await browser.shellEval(`db.createCollection('${coll}')`);
-          await browser.shellEval(
+          await browser.shellEval(connectionName, [
+            `use ${databaseName}`,
+            `db.createCollection('${coll}')`,
             `db[${JSON.stringify(
               coll
-            )}].insertOne({ "${field}": ${oldValue}, "name": "Person X" })`
-          );
-          await refresh(browser);
+            )}].insertOne({ "${field}": ${oldValue}, "name": "Person X" })`,
+          ]);
+          await refresh(browser, connectionName);
 
           await browser.navigateToCollectionTab(
+            connectionName,
             databaseName,
             coll,
             'Documents'
           );
 
-          const result = await getFirstListDocument(browser);
+          const result = await browser.getFirstListDocument();
           expect(result[field]).to.be.equal(toString(oldValueJS));
 
-          const document = await browser.$(Selectors.DocumentListEntry);
-          const value = await document.$(
+          const document = browser.$(Selectors.DocumentListEntry);
+          const value = document.$(
             `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentClickableValue}`
           );
           await value.doubleClick();
@@ -508,10 +565,10 @@ describe('CSFLE / QE', function () {
             typeof newValueJS === 'string' ? newValueJS : toString(newValueJS)
           );
 
-          const footer = await document.$(Selectors.DocumentFooterMessage);
+          const footer = document.$(Selectors.DocumentFooterMessage);
           expect(await footer.getText()).to.equal('Document modified.');
 
-          const button = await document.$(Selectors.UpdateDocumentButton);
+          const button = document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
             // Prompt failure is required here and so the timeout should be
@@ -538,29 +595,31 @@ describe('CSFLE / QE', function () {
               : `{ ${field}: ${newValue} }`
           );
 
-          const modifiedResult = await getFirstListDocument(browser);
+          const modifiedResult = await browser.getFirstListDocument();
           expect(modifiedResult[field]).to.be.equal(toString(newValueJS));
           expect(modifiedResult._id).to.be.equal(result._id);
         });
       }
 
       it('can edit and query the encrypted field in the JSON view', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
           `db[${JSON.stringify(
             collectionName
-          )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
-        );
-        await refresh(browser);
+          )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`,
+        ]);
+        await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
         );
         await browser.clickVisible(Selectors.SelectJSONView);
 
-        const document = await browser.$(Selectors.DocumentJSONEntry);
+        const document = browser.$(Selectors.DocumentJSONEntry);
         await document.waitForDisplayed();
 
         const json = await browser.getCodemirrorEditorText(
@@ -582,10 +641,10 @@ describe('CSFLE / QE', function () {
           newjson
         );
 
-        const footer = await document.$(Selectors.DocumentFooterMessage);
+        const footer = document.$(Selectors.DocumentFooterMessage);
         expect(await footer.getText()).to.equal('Document modified.');
 
-        const button = await document.$(Selectors.UpdateDocumentButton);
+        const button = document.$(Selectors.UpdateDocumentButton);
         await button.click();
         await footer.waitForDisplayed({ reverse: true });
 
@@ -594,18 +653,19 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
-        const modifiedResult = await getFirstListDocument(browser);
+        const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
 
       it('can not edit the copied encrypted field', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
           `db[${JSON.stringify(
             collectionName
-          )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
-        );
-        await refresh(browser);
+          )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`,
+        ]);
+        await refresh(browser, connectionName);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -618,8 +678,9 @@ describe('CSFLE / QE', function () {
           name: 'La La',
         });
 
-        await refresh(browser);
+        await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -627,12 +688,12 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Person Z' }");
 
-        const originalDocument = await browser.$(Selectors.DocumentListEntry);
-        const originalValue = await originalDocument.$(
+        const originalDocument = browser.$(Selectors.DocumentListEntry);
+        const originalValue = originalDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
         );
         await originalValue.doubleClick();
-        const originalDocumentPhoneNumberEditor = await originalDocument.$(
+        const originalDocumentPhoneNumberEditor = originalDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isOriginalDocumentPhoneNumberEditorExisting =
@@ -641,12 +702,12 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'La La' }");
 
-        const copiedDocument = await browser.$(Selectors.DocumentListEntry);
-        const copiedValue = await copiedDocument.$(
+        const copiedDocument = browser.$(Selectors.DocumentListEntry);
+        const copiedValue = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
         );
         await copiedValue.doubleClick();
-        const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
+        const copiedDocumentPhoneNumberEditor = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
         );
         const isCopiedDocumentPhoneNumberEditorExisting =
@@ -659,7 +720,7 @@ describe('CSFLE / QE', function () {
           await copiedDocumentFaxNumberEditor.isExisting();
         expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
 
-        const copiedDocumentFaxNumberDecryptedIcon = await copiedDocument.$(
+        const copiedDocumentFaxNumberDecryptedIcon = copiedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isCopiedDocumentFaxNumberDecryptedIconExisting =
@@ -670,23 +731,24 @@ describe('CSFLE / QE', function () {
 
         await browser.setValueVisible(copiedDocumentFaxNumberEditor, '0');
 
-        const button = await copiedDocument.$(Selectors.UpdateDocumentButton);
+        const button = copiedDocument.$(Selectors.UpdateDocumentButton);
         await button.click();
 
-        const footer = await copiedDocument.$(Selectors.DocumentFooterMessage);
+        const footer = copiedDocument.$(Selectors.DocumentFooterMessage);
         expect(await footer.getText()).to.equal(
           'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
         );
       });
 
       it('shows incomplete schema for cloned document banner', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
           `db[${JSON.stringify(
             collectionName
-          )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
-        );
-        await refresh(browser);
+          )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`,
+        ]);
+        await refresh(browser, connectionName);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -699,8 +761,9 @@ describe('CSFLE / QE', function () {
           name: 'Second',
         });
 
-        await refresh(browser);
+        await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -708,14 +771,14 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Second' }");
 
-        const document = await browser.$(Selectors.DocumentListEntry);
+        const document = browser.$(Selectors.DocumentListEntry);
         await document.waitForDisplayed();
 
         await browser.hover(Selectors.DocumentListEntry);
         await browser.clickVisible(Selectors.CloneDocumentButton);
 
         // wait for the modal to appear
-        const insertDialog = await browser.$(Selectors.InsertDialog);
+        const insertDialog = browser.$(Selectors.InsertDialog);
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
@@ -724,7 +787,7 @@ describe('CSFLE / QE', function () {
           '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
         );
 
-        const incompleteSchemaForClonedDocMsg = await browser.$(
+        const incompleteSchemaForClonedDocMsg = browser.$(
           Selectors.incompleteSchemaForClonedDocMsg
         );
         const incompleteSchemaForClonedDocMsgText =
@@ -732,7 +795,7 @@ describe('CSFLE / QE', function () {
         expect(incompleteSchemaForClonedDocMsgText).to.include('phoneNumber');
 
         // confirm
-        const insertConfirm = await browser.$(Selectors.InsertConfirm);
+        const insertConfirm = browser.$(Selectors.InsertConfirm);
         await insertConfirm.waitForEnabled();
         await browser.clickVisible(Selectors.InsertConfirm);
 
@@ -741,7 +804,7 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         delete result._id;
         delete result.__safeContent__;
@@ -752,9 +815,9 @@ describe('CSFLE / QE', function () {
           name: '"Third"',
         });
 
-        const clonedDocument = await browser.$(Selectors.DocumentListEntry);
+        const clonedDocument = browser.$(Selectors.DocumentListEntry);
 
-        const clonedDocumentPhoneNumberDecryptedIcon = await clonedDocument.$(
+        const clonedDocumentPhoneNumberDecryptedIcon = clonedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isClonedDocumentPhoneNumberDecryptedIconExisting =
@@ -763,7 +826,7 @@ describe('CSFLE / QE', function () {
           true
         );
 
-        const clonedDocumentFaxNumberDecryptedIcon = await clonedDocument.$(
+        const clonedDocumentFaxNumberDecryptedIcon = clonedDocument.$(
           `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
         );
         const isClonedDocumentFaxNumberDecryptedIconExisting =
@@ -774,21 +837,23 @@ describe('CSFLE / QE', function () {
       });
 
       it('can enable and disable in-use encryption from the sidebar', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
-        await browser.shellEval(
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${collectionName}')`,
           `db[${JSON.stringify(
             collectionName
-          )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
-        );
-        await refresh(browser);
+          )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`,
+        ]);
+        await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
         );
 
-        let decryptedResult = await getFirstListDocument(browser);
+        let decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -798,19 +863,23 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.InUseEncryptionMarker
+          )
+        );
 
-        let modal = await browser.$(Selectors.CSFLEConnectionModal);
-        await modal.waitForDisplayed();
+        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
-        await browser.screenshot('csfle-connection-modal.png');
-
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await modal.waitForDisplayed({ reverse: true });
+        await browser
+          .$(Selectors.CSFLEConnectionModal)
+          .waitForDisplayed({ reverse: true });
 
-        const encryptedResult = await getFirstListDocument(browser);
+        const encryptedResult = await browser.getFirstListDocument();
 
         delete encryptedResult._id;
         delete encryptedResult.__safeContent__;
@@ -820,17 +889,23 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.InUseEncryptionMarker
+          )
+        );
 
-        modal = await browser.$(Selectors.CSFLEConnectionModal);
-        await modal.waitForDisplayed();
+        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await modal.waitForDisplayed({ reverse: true });
+        await browser
+          .$(Selectors.CSFLEConnectionModal)
+          .waitForDisplayed({ reverse: true });
 
-        decryptedResult = await getFirstListDocument(browser);
+        decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -839,6 +914,157 @@ describe('CSFLE / QE', function () {
           phoneNumber: '"30303030"',
           name: '"Person Z"',
         });
+      });
+    });
+
+    describe('multiple kms providers of the same type', function () {
+      const databaseName = 'fle-test';
+      const collection1 = 'collection-1';
+      const collection2 = 'collection-2';
+      const phoneNumber1 = '1234567890';
+      const phoneNumber2 = '0987654321';
+      let compass: Compass;
+      let browser: CompassBrowser;
+      let plainMongo: MongoClient;
+
+      before(async function () {
+        compass = await init(this.test?.fullTitle());
+        browser = compass.browser;
+      });
+
+      beforeEach(async function () {
+        await browser.disconnectAll();
+        await browser.connectWithConnectionForm({
+          hosts: [CONNECTION_HOSTS],
+          fleKeyVaultNamespace: `${databaseName}.keyvault`,
+          fleEncryptedFieldsMap: `{
+            '${databaseName}.${collection1}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' }
+                }
+              ]
+            },
+            '${databaseName}.${collection2}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' }
+                }
+              ]
+            },
+          }`,
+          kmsProviders: {
+            local: [
+              {
+                name: 'localA',
+                key: 'A'.repeat(128),
+              },
+              {
+                name: 'localB',
+                key: 'B'.repeat(128),
+              },
+            ],
+          },
+          connectionName,
+        });
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          'db.keyvault.insertOne({' +
+            '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
+            '"keyMaterial": Binary.createFromBase64("fqZuVyi6ThsSNbgUWtn9MCFDxOQtL3dibMa2P456l+1xJUvAkqzZB2SZBr5Zd2xLDua45IgYAagWFeLhX+hpi0KkdVgdIZu2zlZ+mJSbtwZrFxcuyQ3oPCPnp7l0YH1fSfxeoEIQNVMFpnHzfbu2CgZ/nC8jp6IaB9t+tcszTDdJRLeHnzPuHIKzblFGP8CfuQHJ81B5OA0PrBJr+HbjJg==", 0),' +
+            '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+            '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+            '"status": 0,' +
+            '"masterKey": { "provider" : "local:localA" }' +
+            '})',
+          'db.keyvault.insertOne({' +
+            '"_id": UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),' +
+            '"keyMaterial": Binary.createFromBase64("TymoH++xeTsaiIl498fviLaklY4xTM/baQydmVUABphJzvBsitjWfkoiKlGod/J45Vwoou1VfDRsFaiVHNth7aiFBvEsqvto5ETDFC9hSzP17c1ZrQI1nqrOfI0VGJm+WBALB7IMVFuyd9LV2i6KDIslxBfchOGR4q05Gm1Vgb/cTTUPJpvYLxmduyNSjxqH6lBAJ2ut9TgmUxCC+dMQRQ==", 0),' +
+            '"creationDate": ISODate("2022-05-27T18:28:34.925Z"),' +
+            '"updateDate": ISODate("2022-05-27T18:28:34.925Z"),' +
+            '"status": 0,' +
+            '"masterKey": { "provider" : "local:localB" }' +
+            '})',
+          // make sure there is a collection so we can navigate to the database
+          `db.getMongo().getDB('${databaseName}').createCollection('default')`,
+        ]);
+        await refresh(browser, connectionName);
+
+        plainMongo = await MongoClient.connect(CONNECTION_STRING);
+      });
+
+      after(async function () {
+        if (compass) {
+          await cleanup(compass);
+        }
+      });
+
+      afterEach(async function () {
+        if (compass) {
+          await screenshotIfFailed(compass, this.currentTest);
+        }
+        await plainMongo.db(databaseName).dropDatabase();
+        await plainMongo.close();
+      });
+
+      it('allows setting multiple kms providers of the same type', async function () {
+        async function verifyCollectionHasValue(
+          collection: string,
+          value: string
+        ) {
+          await browser.navigateToCollectionTab(
+            connectionName,
+            databaseName,
+            collection,
+            'Documents'
+          );
+          const result = await browser.getFirstListDocument();
+          expect(result.phoneNumber).to.be.equal(JSON.stringify(value));
+        }
+
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection("${collection1}")`,
+          `db.createCollection("${collection2}")`,
+          `db["${collection1}"].insertOne({ "phoneNumber": "${phoneNumber1}", "name": "LocalA" })`,
+          `db["${collection2}"].insertOne({ "phoneNumber": "${phoneNumber2}", "name": "LocalB" })`,
+        ]);
+        await refresh(browser, connectionName);
+
+        await verifyCollectionHasValue(collection1, phoneNumber1);
+        await verifyCollectionHasValue(collection2, phoneNumber2);
+
+        // create a new encrypted collection using keyId for local:localB
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
+        const collection3 = 'collection-3';
+        const phoneNumber3 = '1111111111';
+        await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+        await browser.addCollection(collection3, {
+          encryptedFields: `{
+            fields: [{
+              path: 'phoneNumber',
+              keyId: UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
+              bsonType: 'string',
+              queries: { queryType: 'equality' }
+            }]
+          }`,
+        });
+
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db["${collection3}"].insertOne({ "phoneNumber": "${phoneNumber3}", "name": "LocalB" })`,
+        ]);
+
+        await verifyCollectionHasValue(collection3, phoneNumber3);
       });
     });
   });
@@ -859,6 +1085,10 @@ describe('CSFLE / QE', function () {
       browser = compass.browser;
     });
 
+    beforeEach(async function () {
+      await browser.disconnectAll();
+    });
+
     afterEach(async function () {
       if (compass) {
         await screenshotIfFailed(compass, this.currentTest);
@@ -875,99 +1105,103 @@ describe('CSFLE / QE', function () {
       // connect without QE and insert some fixture data that we generated against a 6.x database using the shell
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
+        connectionName,
       });
 
-      await browser.shellEval(`use ${databaseName}`);
-
-      // insert the dataKey that was used to encrypt the payloads used below
-      await browser.shellEval(
-        'dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");'
-      );
-      await browser.shellEval(`db.getCollection("keyvault").insertOne({
-        _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
-        keyMaterial: Binary.createFromHexString("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", 0),
-        creationDate: ISODate("2023-05-05T10:58:12.473Z"),
-        updateDate: ISODate("2023-05-05T10:58:12.473Z"),
-        status: 0,
-        masterKey: { provider: 'local' }
-      });`);
-
-      await browser.shellEval(`db.runCommand({
-        create: '${collectionName}',
-        encryptedFields: {
-          fields: [{
-            keyId: dataKey,
-            path: 'v',
-            bsonType: 'string',
-            queries: [{ queryType: 'equality' }]
-          }]
-        }
-      });`);
-
-      // these payloads were encrypted using dataKey
-      await browser.shellEval(`db.runCommand({
-        insert: '${collectionName}',
-        documents: [
-          {
-            _id: 'asdf',
-            v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b1025438da7f9034a7d6bf03452c9b910381a16b4a0d52592ed6eafc64cc45dde441ac136269b4606f197e939fd54dd9fb257ce2c5afe94853b3b150a9101d65a3063f948ce05350fc4a5811eb5f29793dfd5a9cab77c680bba17f91845895cfd080c123e02a3f1c7e5d5c8c6448a0ac7d624669d0306be6fdcea35106062e742bec39a9873de969196ad95960d4bc247e98dc88a33d9c974646c8283178f3198749c7f24dbd66dc5e7ecf42efc08f64b6a646aa50e872a6f30907b54249039f3226af503d2e2e947323", 6),
-            __safeContent__: [
-              Binary.createFromHexString("91865d04a1a1719e2ef89d66eeb8a35515f22470558831fe9494f011e9a209c3", 0)
-            ]
-          },
-          {
-            _id: 'ghjk',
-            v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b10299f34210f149673b61f0d369f89290577c410b800ff38ed10eec235aef3677d3594c6371dd5b8f8d4c34769228bf7aea00b1754036a5850a4fef25c40969451151695614ae6142e954bab6c72080b5f43ccac774f6a1791bcc2ca4ca8998b9d5148441180631c7d8136034ff5019ca31a082464ec2fdcf212460a121d14dec3b8ee313541dc46689c79636929f0828dfdef7dfd4d53e1a924bbf70be34b1668d9352f6102a32265ec45d9c5cc0d7cf5f9266cf161497ee5b4a9495e16926b09282c6e4029d22d88e", 6),
-            __safeContent__: [
-              Binary.createFromHexString("b04e26633d569cb47b9cbec650d812a597ffdadacb9a61ee7b1661f52228d661", 0)
-            ]
+      await browser.shellEval(connectionName, [
+        `use ${databaseName}`,
+        // insert the dataKey that was used to encrypt the payloads used below
+        'dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");',
+        `db.getCollection("keyvault").insertOne({
+          _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
+          keyMaterial: Binary.createFromHexString("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", 0),
+          creationDate: ISODate("2023-05-05T10:58:12.473Z"),
+          updateDate: ISODate("2023-05-05T10:58:12.473Z"),
+          status: 0,
+          masterKey: { provider: 'local' }
+        });`,
+        `db.runCommand({
+          create: '${collectionName}',
+          encryptedFields: {
+            fields: [{
+              keyId: dataKey,
+              path: 'v',
+              bsonType: 'string',
+              queries: [{ queryType: 'equality' }]
+            }]
           }
-        ],
-        bypassDocumentValidation: true
-      });`);
+        });`,
+        // these payloads were encrypted using dataKey
+        `db.runCommand({
+          insert: '${collectionName}',
+          documents: [
+            {
+              _id: 'asdf',
+              v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b1025438da7f9034a7d6bf03452c9b910381a16b4a0d52592ed6eafc64cc45dde441ac136269b4606f197e939fd54dd9fb257ce2c5afe94853b3b150a9101d65a3063f948ce05350fc4a5811eb5f29793dfd5a9cab77c680bba17f91845895cfd080c123e02a3f1c7e5d5c8c6448a0ac7d624669d0306be6fdcea35106062e742bec39a9873de969196ad95960d4bc247e98dc88a33d9c974646c8283178f3198749c7f24dbd66dc5e7ecf42efc08f64b6a646aa50e872a6f30907b54249039f3226af503d2e2e947323", 6),
+              __safeContent__: [
+                Binary.createFromHexString("91865d04a1a1719e2ef89d66eeb8a35515f22470558831fe9494f011e9a209c3", 0)
+              ]
+            },
+            {
+              _id: 'ghjk',
+              v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b10299f34210f149673b61f0d369f89290577c410b800ff38ed10eec235aef3677d3594c6371dd5b8f8d4c34769228bf7aea00b1754036a5850a4fef25c40969451151695614ae6142e954bab6c72080b5f43ccac774f6a1791bcc2ca4ca8998b9d5148441180631c7d8136034ff5019ca31a082464ec2fdcf212460a121d14dec3b8ee313541dc46689c79636929f0828dfdef7dfd4d53e1a924bbf70be34b1668d9352f6102a32265ec45d9c5cc0d7cf5f9266cf161497ee5b4a9495e16926b09282c6e4029d22d88e", 6),
+              __safeContent__: [
+                Binary.createFromHexString("b04e26633d569cb47b9cbec650d812a597ffdadacb9a61ee7b1661f52228d661", 0)
+              ]
+            }
+          ],
+          bypassDocumentValidation: true
+        });`,
+        `db.runCommand({
+          insert: 'enxcol_.${collectionName}.ecoc',
+          documents: [
+            {
+              _id: ObjectId("6454e14689ef42f381f7336b"),
+              fieldName: 'v',
+              value: Binary.createFromHexString("3eb89d3a95cf955ca0c8c56e54018657a45daaf465dd967d9b24895a188d7e3055734f3c0af88302ceab460874f3806fe52fa4541c9f4b32b5cee6c5a6df9399da664f576dd9bde23bce92f5deea0cb3", 0)
+            },
+            {
+              _id: ObjectId("6454e14689ef42f381f73385"),
+              fieldName: 'v',
+              value: Binary.createFromHexString("2299cd805a28efb6503120e0250798f1b19137d8234690d12eb7e3b7fa74edd28e80c26022c00d53f5983f16e7b5abb7c3b95e30f265a7ba36adb290eda39370b30cedba960a4002089eb5de2fd118fc", 0)
+            }
+          ],
+          bypassDocumentValidation: true
+        });`,
+        `db.runCommand({
+          insert: 'enxcol_.${collectionName}.esc',
+          documents: [
+            {
+              _id: Binary.createFromHexString("51db700df02cbbfa25498921f858d3a9d5568cabb97f7283e7b3c9d0e3520ac4", 0),
+              value: Binary.createFromHexString("dc7169f28df2c990551b098b8dec8f5b1bfeb65d3f40d0fdb241a518310674a6", 0)
+            },
+            {
+              _id: Binary.createFromHexString("948b3d29e335485b0503ffc6ade6bfa6fce664c2a1d14790a523c09223da3f09", 0),
+              value: Binary.createFromHexString("7622097476c59c0ca5bf9d05a52fe725517e03ad811f6c073b0d0184a9d26131", 0)
+            }
+          ],
+          bypassDocumentValidation: true
+        });`,
+      ]);
 
-      await browser.shellEval(`db.runCommand({
-        insert: 'enxcol_.${collectionName}.ecoc',
-        documents: [
-          {
-            _id: ObjectId("6454e14689ef42f381f7336b"),
-            fieldName: 'v',
-            value: Binary.createFromHexString("3eb89d3a95cf955ca0c8c56e54018657a45daaf465dd967d9b24895a188d7e3055734f3c0af88302ceab460874f3806fe52fa4541c9f4b32b5cee6c5a6df9399da664f576dd9bde23bce92f5deea0cb3", 0)
-          },
-          {
-            _id: ObjectId("6454e14689ef42f381f73385"),
-            fieldName: 'v',
-            value: Binary.createFromHexString("2299cd805a28efb6503120e0250798f1b19137d8234690d12eb7e3b7fa74edd28e80c26022c00d53f5983f16e7b5abb7c3b95e30f265a7ba36adb290eda39370b30cedba960a4002089eb5de2fd118fc", 0)
-          }
-        ],
-        bypassDocumentValidation: true
-      });`);
-
-      await browser.shellEval(`db.runCommand({
-        insert: 'enxcol_.${collectionName}.esc',
-        documents: [
-          {
-            _id: Binary.createFromHexString("51db700df02cbbfa25498921f858d3a9d5568cabb97f7283e7b3c9d0e3520ac4", 0),
-            value: Binary.createFromHexString("dc7169f28df2c990551b098b8dec8f5b1bfeb65d3f40d0fdb241a518310674a6", 0)
-          },
-          {
-            _id: Binary.createFromHexString("948b3d29e335485b0503ffc6ade6bfa6fce664c2a1d14790a523c09223da3f09", 0),
-            value: Binary.createFromHexString("7622097476c59c0ca5bf9d05a52fe725517e03ad811f6c073b0d0184a9d26131", 0)
-          }
-        ],
-        bypassDocumentValidation: true
-      });`);
-
-      await browser.disconnect();
+      await browser.disconnectAll();
 
       // now connect with QE and check that we can query the data stored in a 6.x database
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
-        fleKey: 'A'.repeat(128),
+        kmsProviders: {
+          local: [
+            {
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
+        connectionName,
       });
 
       await browser.navigateToCollectionTab(
+        connectionName,
         databaseName,
         collectionName,
         'Documents'
@@ -976,13 +1210,13 @@ describe('CSFLE / QE', function () {
       // { v: "123", _id: 'asdf' }
       // { v: "456", _id: 'ghjk' }
 
-      let decryptedResult = await getFirstListDocument(browser);
+      let decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"123"', _id: '"asdf"' });
 
       // We can't search for the encrypted value, but it does get decrypted
       await browser.runFindOperation('Documents', '{ _id: "ghjk" }');
-      decryptedResult = await getFirstListDocument(browser);
+      decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
     });

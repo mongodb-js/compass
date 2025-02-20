@@ -1,67 +1,74 @@
 'use strict';
 const debug = require('debug')('hadron-build:zip');
-
 const { execFileSync } = require('child_process');
-var fs = require('fs-extra');
-var path = require('path');
-var zipFolder = require('zip-folder');
-var series = require('async').series;
+const fs = require('fs-extra');
+const path = require('path');
+const zipFolder = require('zip-folder');
+const { promisify } = require('util');
 
-function zip(_opts, done) {
-  var opts = Object.assign({}, _opts);
+async function zip(_opts, done) {
+  const opts = Object.assign({}, _opts);
   opts.dir = path.resolve(opts.dir);
   opts.out = path.resolve(opts.out);
   opts.platform = opts.platform || process.platform;
+
   if (path.extname(opts.out).toLowerCase() === '.zip') {
     opts.outPath = opts.out;
     opts.out = path.dirname(opts.out);
   } else {
-    opts.outPath = path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
+    opts.outPath =
+      path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
   }
 
-  function runZip(cb) {
+  const runZip = async () => {
     if (opts.platform !== 'darwin') {
-      zipFolder(opts.dir, opts.outPath, cb);
-      return;
+      await promisify(zipFolder)(opts.dir, opts.outPath);
+    } else {
+      const args = [
+        '-V', // Print a line  for every file copied
+        '-c', // Create an archive at the destination path
+        '-k', // PKZip archive
+        '--sequesterRsrc', // Preserve resource forks and HFS meta-data in the subdirectory __MACOSX
+        './',
+        opts.outPath,
+      ];
+      execFileSync('ditto', args, {
+        env: process.env,
+        cwd: path.join(opts.dir, '..'),
+        stdio: 'inherit',
+      });
     }
+  };
 
-    var args = [
-      '-r',
-      '--symlinks',
-      opts.outPath,
-      './'
-    ];
-
-    execFileSync('zip', args, {
-      env: process.env,
-      cwd: path.join(opts.dir, '..'),
-      stdio: 'inherit'
-    });
-
-    cb(null, opts.outPath);
-  }
+  const removeZipIfExists = async () => {
+    try {
+      const stats = await fs.stat(opts.outPath);
+      if (!stats.isFile()) {
+        throw new Error(
+          'Refusing to wipe path "' +
+            opts.outPath +
+            '" as it is ' +
+            (stats.isDirectory() ? 'a directory' : 'not a file')
+        );
+      }
+      await fs.unlink(opts.outPath);
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        throw err;
+      }
+    }
+  };
 
   debug('creating zip', opts);
 
-  series([
-    function removeZipIfExists(cb) {
-      fs.stat(opts.outPath, function(err, stats) {
-        if (err) return cb(null);
-
-        if (!stats.isFile()) {
-          return cb(new Error('Refusing to wipe path "' + opts.outPath + '" as it is ' + (stats.isDirectory() ? 'a directory' : 'not a file')));
-        }
-        return fs.unlink(opts.outPath, cb);
-      });
-    },
-    fs.mkdirs.bind(null, opts.out),
-    runZip
-  ], function(err) {
-    if (err) {
-      return done(err);
-    }
+  try {
+    await removeZipIfExists();
+    await fs.mkdirs(opts.out);
+    await runZip();
     done(null, opts.outPath);
-  });
+  } catch (err) {
+    done(err);
+  }
 }
 
 /**
@@ -76,7 +83,7 @@ function zip(_opts, done) {
  * @param {Function} done
  * @return {void}
  */
-module.exports = function(target, done) {
+module.exports = function (target, done) {
   if (target.platform === 'linux') {
     debug('.zip releases assets for linux disabled');
     return done();
@@ -84,7 +91,7 @@ module.exports = function(target, done) {
   zip(module.exports.getOptions(target), done);
 };
 
-module.exports.getOptions = function(target) {
+module.exports.getOptions = function (target) {
   const asset = target.getAssetWithExtension('.zip');
   if (!asset) {
     debug('no asset w extension .zip!');
@@ -94,7 +101,7 @@ module.exports.getOptions = function(target) {
   const res = {
     dir: target.appPath,
     out: asset.path,
-    platform: target.platform
+    platform: target.platform,
   };
 
   debug('options', res);

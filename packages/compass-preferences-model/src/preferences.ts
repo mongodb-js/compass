@@ -83,7 +83,7 @@ export class Preferences {
     }
   }
 
-  setupStorage() {
+  setupStorage(): Promise<void> {
     return this._preferencesStorage.setup();
   }
 

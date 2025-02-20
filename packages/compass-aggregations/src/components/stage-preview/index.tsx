@@ -9,13 +9,12 @@ import {
   Body,
   KeylineCard,
   useDarkMode,
-  Subtitle,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../../modules';
 import {
-  isAtlasOnlyStage,
+  isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
@@ -25,6 +24,8 @@ import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+
+import SearchNoResults from '../search-no-results';
 
 const centeredContent = css({
   display: 'flex',
@@ -52,7 +53,7 @@ const emptyStylesLight = css({
   stroke: palette.gray.base,
 });
 
-function EmptyIcon() {
+function NoPreviewDocuments() {
   const darkMode = useDarkMode();
 
   return (
@@ -97,14 +98,6 @@ const documentStyles = css({
   padding: 0,
 });
 
-const missingAtlasIndexLightStyles = css({
-  color: palette.green.dark2,
-});
-
-const missingAtlasIndexDarkStyles = css({
-  color: palette.green.base,
-});
-
 type StagePreviewProps = {
   index: number;
   isLoading: boolean;
@@ -123,9 +116,8 @@ function StagePreviewBody({
   shouldRenderStage,
   isLoading,
 }: StagePreviewProps) {
-  const darkMode = useDarkMode();
   if (!shouldRenderStage) {
-    return <EmptyIcon />;
+    return <NoPreviewDocuments />;
   }
 
   if (isMissingAtlasOnlyStageSupport) {
@@ -153,24 +145,8 @@ function StagePreviewBody({
     );
   }
 
-  if (isAtlasOnlyStage(stageOperator ?? '') && documents?.length === 0) {
-    return (
-      <div className={centeredContent}>
-        <Subtitle
-          className={css(
-            darkMode
-              ? missingAtlasIndexDarkStyles
-              : missingAtlasIndexLightStyles
-          )}
-        >
-          No results found
-        </Subtitle>
-        <Body>
-          This may be because your search has no results or your search index
-          does not exist.
-        </Body>
-      </div>
-    );
+  if (isSearchStage(stageOperator) && documents?.length === 0) {
+    return <SearchNoResults />;
   }
 
   if (documents && documents.length > 0) {
@@ -186,7 +162,7 @@ function StagePreviewBody({
     return <div className={documentsStyles}>{docs}</div>;
   }
 
-  return <EmptyIcon />;
+  return <NoPreviewDocuments />;
 }
 
 const containerStyles = css({
@@ -208,7 +184,7 @@ export function StagePreview(props: StagePreviewProps) {
   if (props.isDisabled) {
     return (
       <div className={containerStyles}>
-        <EmptyIcon />
+        <NoPreviewDocuments />
       </div>
     );
   }

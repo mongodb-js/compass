@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { Double } from 'bson';
 import type { TypeCastTypes } from 'hadron-type-checker';

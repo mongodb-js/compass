@@ -11,6 +11,7 @@ import {
   changeField,
   explainQuery,
   resetQuery,
+  saveRecentAsFavorite,
   setQuery,
 } from './query-bar-reducer';
 import { configureStore } from './query-bar-store';
@@ -22,6 +23,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -41,6 +43,10 @@ describe('queryBarReducer', function () {
       logger: createNoopLogger(),
       track: createNoopTrack(),
     } as QueryBarExtraArgs);
+  });
+
+  afterEach(function () {
+    Sinon.restore();
   });
 
   describe('changeField', function () {
@@ -162,6 +168,56 @@ describe('queryBarReducer', function () {
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
       );
+    });
+
+    it('should not re-save favorite query in recents', async function () {
+      const updateAttributesStub = Sinon.stub();
+      const saveQueriesStub = Sinon.stub().resolves();
+      const loadAllStub = Sinon.stub().resolves([
+        { filter: { _id: '123' }, limit: 10 },
+      ]);
+      const favoriteQueriesStorage = {
+        updateAttributes: updateAttributesStub,
+        loadAll: loadAllStub,
+      };
+      const recentQueriesStorage = {
+        saveQuery: saveQueriesStub,
+      };
+      preferences = await createSandboxFromDefaultPreferences();
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        favoriteQueryStorage: favoriteQueriesStorage,
+        recentQueryStorage: recentQueriesStorage,
+      } as any);
+
+      const queryAction = setQuery({ filter: { _id: '123' }, limit: 10 });
+      store.dispatch(queryAction);
+      store.dispatch(applyQuery('test'));
+      await waitFor(() => {
+        expect(saveQueriesStub.calledOnce).to.be.true;
+      });
+      await store.dispatch(
+        saveRecentAsFavorite(saveQueriesStub.firstCall.firstArg, 'favorite')
+      );
+      await waitFor(() => {
+        expect(loadAllStub.called).to.be.true;
+      });
+      const appliedQuery = store.dispatch(applyQuery('test'));
+
+      expect(appliedQuery).to.deep.eq({
+        ...DEFAULT_QUERY_VALUES,
+        filter: { _id: '123' },
+        limit: 10,
+      });
+      expect(store.getState().queryBar)
+        .to.have.nested.property('lastAppliedQuery.query.test')
+        .deep.eq(appliedQuery);
+
+      // updateAttributes is called in saveRecentAsFavorite and updateFavoriteQuery
+      expect(updateAttributesStub).to.have.been.calledTwice;
+      expect(saveQueriesStub).not.to.have.been.calledTwice;
     });
   });
 

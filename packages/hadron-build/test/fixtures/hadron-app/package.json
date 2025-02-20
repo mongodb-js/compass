@@ -30,7 +30,9 @@
             "dev": "resources/linux/Icon.png"
           },
           "deb_section": "productivity",
-          "rpm_categories": ["IDE"]
+          "rpm_categories": [
+            "IDE"
+          ]
         }
       },
       "distributions": {
@@ -41,7 +43,12 @@
           "bundleId": "com.mongodb.hadron-testing",
           "productName": "MongoDB Compass Enterprise super long test name",
           "plugins": [],
-          "styles": [ "index" ]
+          "styles": [
+            "index"
+          ]
+        },
+        "foo-bar": {
+          "name": "foo-bar"
         }
       },
       "endpoint": "https://hadron-app.herokuapp.com",
@@ -56,12 +63,8 @@
     }
   },
   "scripts": {
-    "start": "hadron-build develop",
     "prepublish": "hadron-build release",
-    "postuninstall": "hadron-build clean",
     "test-check-ci": "npm run test",
-    "clean": "hadron-build clean",
-    "compile-ui": "hadron-build ui",
     "release": "hadron-build release",
     "upload": "hadron-build upload"
   },

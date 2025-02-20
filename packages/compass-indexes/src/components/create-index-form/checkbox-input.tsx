@@ -5,15 +5,14 @@ import {
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { RootState } from '../../modules/create-index';
-import type { CheckboxOptions } from '../../modules/create-index/options';
-import { changeOption } from '../../modules/create-index/options';
-import { OPTIONS } from '../../modules/create-index/options';
+import type { RootState } from '../../modules';
+import type { CheckboxOptions } from '../../modules/create-index';
+import { OPTIONS, optionChanged } from '../../modules/create-index';
 
 type CheckboxInputProps = {
   name: CheckboxOptions;
-  label: string;
-  description: string;
+  label: React.ReactNode;
+  description: React.ReactNode;
   disabled?: boolean;
   checked: boolean;
   onChange(name: CheckboxOptions, newVal: boolean): void;
@@ -27,17 +26,24 @@ export const CheckboxInput: React.FunctionComponent<CheckboxInputProps> = ({
   checked,
   onChange,
 }) => {
-  const labelId = `create-index-modal-${name}-checkbox`;
+  const labelId = `create-index-modal-${name}`;
   return (
     <FormFieldContainer>
       <Checkbox
         id={labelId}
-        data-testid={labelId}
+        data-testid={`${labelId}-checkbox`}
         checked={checked}
         onChange={(event) => {
           onChange(name, event.target.checked);
         }}
-        label={<Label htmlFor={labelId}>{label}</Label>}
+        label={
+          <Label htmlFor={labelId} data-testid={`${labelId}-label`}>
+            {label}
+          </Label>
+        }
+        // @ts-expect-error leafygreen types only allow strings here, but can
+        // render a ReactNode too (and we use that to render links inside
+        // descriptions)
         description={description}
         disabled={disabled}
       />
@@ -50,8 +56,8 @@ export default connect(
     return {
       label: OPTIONS[name].label,
       description: OPTIONS[name].description,
-      checked: state.options[name].value,
+      checked: state.createIndex.options[name].value,
     };
   },
-  { onChange: changeOption }
+  { onChange: optionChanged }
 )(CheckboxInput);

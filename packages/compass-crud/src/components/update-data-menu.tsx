@@ -31,6 +31,7 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
       data-testid="crud-update"
+      title="Update"
     >
       <span className={hiddenOnNarrowStyles}>Update</span>
     </Button>
@@ -64,9 +65,8 @@ const UpdateMenu: React.FunctionComponent<UpdateMenuProps> = ({
         </div>
       )}
       // Disable the tooltip when the instance is in a writable state.
-      isDisabled={isWritable}
+      enabled={!isWritable}
       justify="middle"
-      delay={500}
     >
       {disabledTooltip}
     </Tooltip>

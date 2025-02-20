@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
-import { Tooltip } from '../tooltip';
+import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
 
@@ -10,11 +9,11 @@ const actionsGroupContainer = css({
   position: 'absolute',
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   width: '100%',
-  top: spacing[2] + spacing[1],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  top: spacing[300],
+  paddingLeft: spacing[300],
+  paddingRight: spacing[300],
   pointerEvents: 'none',
 });
 
@@ -43,6 +42,13 @@ const actionsGroupHovered = css({
 // Insight icon is always visible, even when action buttons are not
 const actionsGroupSignalPopover = css({
   display: 'block !important',
+});
+
+const expandButton = css({
+  '& > div:has(svg)': {
+    paddingLeft: 3,
+    paddingRight: 3,
+  },
 });
 
 function useElementParentHoverState<T extends HTMLElement>(
@@ -87,16 +93,12 @@ function ActionButton({
       // the container isn't hovered, which causes the tooltips to reset
       // their position to 0,0 and glitch visually without enabled.
       enabled={tooltipEnabled}
-      trigger={({ children, ...tooltipProps }) => {
-        return (
-          <div data-action-item {...tooltipProps}>
-            <Button {...props} />
-            {children}
-          </div>
-        );
-      }}
+      trigger={
+        <div data-action-item>
+          <Button {...props} />
+        </div>
+      }
       justify="middle"
-      delay={200} // The copy and clone buttons look alike so we keep the delay short.
     >
       {tooltipText}
     </Tooltip>
@@ -164,7 +166,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
-          className={actionsGroupItem}
+          className={cx(actionsGroupItem, expandButton)}
           tooltipText={expanded ? 'Collapse all' : 'Expand all'}
         />
       )}
@@ -195,7 +197,7 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onCopy && (
         <Tooltip
           open={showCopyButtonTooltip}
-          trigger={({ children }) => (
+          trigger={
             <div data-action-item>
               <ActionButton
                 tooltipEnabled={isActive}
@@ -210,9 +212,8 @@ const DocumentActionsGroup: React.FunctionComponent<
                 className={actionsGroupItem}
                 tooltipText="Copy to clipboard"
               />
-              {children}
             </div>
-          )}
+          }
           justify="middle"
         >
           Copied!

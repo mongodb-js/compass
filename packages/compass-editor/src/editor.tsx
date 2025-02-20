@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useImperativeHandle,
   useRef,
   useState,
@@ -32,6 +31,7 @@ import {
   foldEffect,
 } from '@codemirror/language';
 import {
+  cursorDocEnd,
   defaultKeymap,
   history,
   historyKeymap,
@@ -47,8 +47,8 @@ import {
   closeBrackets,
   closeBracketsKeymap,
   snippetCompletion,
+  startCompletion,
 } from '@codemirror/autocomplete';
-import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -72,7 +72,14 @@ import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 
 import { prettify as _prettify } from './prettify';
-import { ActionButton, FormatIcon } from './actions';
+import type { Action } from './action-button';
+import { ActionsContainer } from './actions-container';
+import type { EditorRef } from './types';
+
+// TODO(COMPASS-8453): Re-enable this once the linked tickets are resolved
+// https://github.com/codemirror/dev/issues/1458
+// https://issues.chromium.org/issues/375711382?pli=1
+(EditorView as any).EDIT_CONTEXT = false;
 
 const editorStyle = css({
   fontSize: 13,
@@ -143,7 +150,7 @@ const tabKeymap: KeyBinding[] = [
   indentWithTab,
 ];
 
-type CodemirrorThemeType = 'light' | 'dark';
+export type CodemirrorThemeType = 'light' | 'dark';
 
 export const editorPalette = {
   light: {
@@ -245,6 +252,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-gutter-lint .cm-gutterElement': {
         padding: '0',
       },
+      '& .cm-lineNumbers .cm-gutterElement': {
+        userSelect: 'none',
+      },
       '& .cm-gutter-lint .cm-lint-marker': {
         width: `${spacing[3]}px`,
         height: `${spacing[3]}px`,
@@ -320,27 +330,120 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip.cm-tooltip-autocomplete > ul': {
         fontFamily: fontFamilies.code,
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
+      },
+      '& .cm-tooltip-autocomplete ul li': {
+        display: 'flex',
       },
       '& .cm-tooltip-autocomplete ul li[aria-selected]': {
         color: editorPalette[theme].autocompleteColor,
         backgroundColor:
           editorPalette[theme].autocompleteSelectedBackgroundColor,
       },
-      '& .cm-completionIcon': {
-        display: 'none',
+      '& .cm-completionIcon-query-history': {
+        marginRight: `${spacing[200]}px`,
+        '&:after': {
+          content: '""',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM7.25 4.75C7.25 4.33579 7.58579 4 8 4C8.41421 4 8.75 4.33579 8.75 4.75V7.90966L10.4939 9.43556C10.8056 9.70832 10.8372 10.1821 10.5644 10.4939C10.2917 10.8056 9.81786 10.8372 9.50613 10.5644L7.51059 8.81833C7.5014 8.8104 7.4924 8.80226 7.48361 8.79391C7.41388 8.7278 7.35953 8.65117 7.32087 8.56867C7.27541 8.47195 7.25 8.36394 7.25 8.25V4.75Z' fill='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionIcon-favorite': {
+        marginRight: `${spacing[200]}px`,
+        '&:after': {
+          content: '""',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.65373 0.832474C5.78183 0.524491 6.21813 0.52449 6.34622 0.832474L7.49904 3.60417C7.55301 3.73401 7.67511 3.82272 7.81528 3.83396L10.8076 4.07385C11.1401 4.1005 11.2749 4.51545 11.0216 4.73244L8.74176 6.68534C8.63496 6.77682 8.58839 6.92036 8.62101 7.05714L9.31746 9.9771C9.39486 10.3015 9.04191 10.558 8.75729 10.3841L6.19545 8.8194C6.07544 8.74612 5.92451 8.74612 5.80451 8.8194L3.2427 10.3841C2.95804 10.558 2.60507 10.3015 2.68246 9.9771L3.37898 7.05714C3.41161 6.92036 3.36497 6.77682 3.25817 6.68534L0.978375 4.73244C0.725048 4.51545 0.859867 4.1005 1.19236 4.07385L4.18464 3.83396C4.32481 3.82272 4.44691 3.73401 4.50092 3.60417L5.65373 0.832474Z' fill='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionIcon-field': {
+        marginRight: `${spacing[50]}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '16px',
+        height: '16px',
+        '&:after': {
+          content: '""',
+          display: 'block',
+          width: '13px',
+          height: '11px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='13' height='11' viewBox='0 0 13 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4.06383L4.96 5.78723M1 4.06383L7.18333 1.19342C7.44783 1.07064 7.75273 1.06942 8.0182 1.19009L12 3M1 4.06383V7.29287C1 7.66257 1.20398 8.00212 1.53039 8.17574L4.96 10M4.96 5.78723L12 3M4.96 5.78723V10M12 3V6.45563C12 6.86203 11.7541 7.22801 11.3778 7.38153L4.96 10' stroke='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}' stroke-width='1.3'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionIcon-method': {
+        marginRight: `${spacing[50]}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '16px',
+        height: '16px',
+        '&:after': {
+          content: '""',
+          display: 'block',
+          width: '13px',
+          height: '13px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='13' height='13' viewBox='0 0 13 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_914_100226)'%3E%3Cpath d='M1.5 4.13357L6.45 7.11111M1.5 4.13357L5.92043 1.33524C6.2443 1.13022 6.65686 1.12836 6.98256 1.33046L11.5 4.13357M1.5 4.13357V8.26879C1.5 8.60888 1.67284 8.92565 1.95883 9.1097L6.45 12M6.45 7.11111L11.5 4.13357M6.45 7.11111V12M11.5 4.13357V8.26289C11.5 8.6062 11.3239 8.92551 11.0335 9.10868L6.45 12' stroke='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}' stroke-width='1.3'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_914_100226'%3E%3Crect width='13' height='13' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionLabel': {
+        flex: 1,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        lineHeight: '110%',
+        verticalAlign: 'middle',
       },
       '& .cm-completionDetail': {
         color: rgba(editorPalette[theme].autocompleteColor, 0.5),
         fontStyle: 'normal',
         marginRight: '1em',
+        marginLeft: '1em',
       },
       '& .cm-completionMatchedText': {
         color: editorPalette[theme].autocompleteMatchColor,
         fontWeight: 'bold',
         textDecoration: 'none',
       },
+      '.cm-tooltip.cm-completionInfo': {
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
+        overflow: 'auto',
+        marginTop: 0,
+        paddingTop: 0,
+        fontSize: '12px',
+        maxHeight: `${spacing[1600] * 5}px`,
+      },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
+        marginRight: `${spacing[2]}px`,
         marginTop: `${spacing[2]}px`,
         marginBottom: `${spacing[2]}px`,
       },
@@ -594,17 +697,6 @@ function useCodemirrorExtensionCompartment<T>(
   return initialExtensionRef.current;
 }
 
-export type EditorRef = {
-  foldAll: () => boolean;
-  unfoldAll: () => boolean;
-  copyAll: () => boolean;
-  prettify: () => boolean;
-  applySnippet: (template: string) => boolean;
-  focus: () => boolean;
-  readonly editorContents: string | null;
-  readonly editor: EditorView | null;
-};
-
 const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   {
     initialText: _initialText,
@@ -709,6 +801,18 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        cursorDocEnd() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return cursorDocEnd(editorViewRef.current);
+        },
+        startCompletion() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return startCompletion(editorViewRef.current);
         },
         get editorContents() {
           if (!editorViewRef.current) {
@@ -825,6 +929,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         ? autocompletion({
             activateOnTyping: true,
             override: [completer],
+            maxRenderedOptions: 50,
           })
         : [];
     },
@@ -1284,23 +1389,16 @@ const multilineEditorContainerWithActionsStyle = css({
   minHeight: spacing[5] - 2,
 });
 
+const multilineEditorContainerWithExpandStyle = css({
+  ['& .cm-gutters']: {
+    // Offset to prevent the "expand" button from overlapping with fold / unfold icons
+    paddingLeft: spacing[500],
+  },
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
-
-const actionsContainerStyle = css({
-  position: 'absolute',
-  top: spacing[1],
-  right: spacing[2],
-  display: 'none',
-  gap: spacing[2],
-});
-
-export type Action = {
-  icon: IconGlyph;
-  label: string;
-  action: (editor: EditorView) => boolean | void;
-};
 
 type MultilineEditorProps = EditorProps & {
   customActions?: Action[];
@@ -1308,6 +1406,8 @@ type MultilineEditorProps = EditorProps & {
   formattable?: boolean;
   editorClassName?: string;
   actionsClassName?: string;
+  onExpand?: () => void;
+  expanded?: boolean;
 };
 
 const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
@@ -1320,8 +1420,10 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onExpand,
+      expanded,
       ...props
-    },
+    }: MultilineEditorProps,
     ref
   ) {
     const darkMode = useDarkMode(_darkMode);
@@ -1350,6 +1452,12 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
           },
+          cursorDocEnd() {
+            return editorRef.current?.cursorDocEnd() ?? false;
+          },
+          startCompletion() {
+            return editorRef.current?.startCompletion() ?? false;
+          },
           get editorContents() {
             return editorRef.current?.editorContents ?? null;
           },
@@ -1361,50 +1469,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       []
     );
 
-    const actions = useMemo(() => {
-      return [
-        copyable && (
-          <ActionButton
-            key="Copy"
-            label="Copy"
-            icon="Copy"
-            onClick={() => {
-              return editorRef.current?.copyAll() ?? false;
-            }}
-          ></ActionButton>
-        ),
-        formattable && (
-          <ActionButton
-            key="Format"
-            label="Format"
-            icon={
-              <FormatIcon
-                size={/* leafygreen small */ 14}
-                role="presentation"
-              ></FormatIcon>
-            }
-            onClick={() => {
-              return editorRef.current?.prettify() ?? false;
-            }}
-          ></ActionButton>
-        ),
-        ...(customActions ?? []).map((action) => {
-          return (
-            <ActionButton
-              key={action.label}
-              icon={action.icon}
-              label={action.label}
-              onClick={() => {
-                if (!editorRef.current?.editor) {
-                  return false;
-                }
-                return action.action(editorRef.current.editor);
-              }}
-            ></ActionButton>
-          );
-        }),
-      ];
-    }, [copyable, formattable, customActions]);
+    const hasCustomActions = customActions && customActions.length > 0;
+    const hasActions = copyable || formattable || hasCustomActions;
 
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
@@ -1413,7 +1479,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         className={cx(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
-          !!actions.length && multilineEditorContainerWithActionsStyle,
+          hasActions && multilineEditorContainerWithActionsStyle,
+          onExpand && multilineEditorContainerWithExpandStyle,
           className
         )}
         // We want folks to be able to click into the container element
@@ -1435,16 +1502,16 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           minLines={10}
           {...props}
         ></BaseEditor>
-        {actions.length > 0 && (
-          <div
-            className={cx(
-              'multiline-editor-actions',
-              actionsContainerStyle,
-              actionsClassName
-            )}
-          >
-            {actions}
-          </div>
+        {hasActions && (
+          <ActionsContainer
+            onExpand={onExpand}
+            expanded={expanded}
+            copyable={copyable}
+            formattable={formattable}
+            editorRef={editorRef}
+            className={actionsClassName}
+            customActions={customActions}
+          />
         )}
       </div>
     );
@@ -1460,7 +1527,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
  * ```
  */
 async function setCodemirrorEditorValue(
-  element: HTMLElement | string | null,
+  element: Element | string | null,
   text: string
 ): Promise<void> {
   if (typeof element === 'string') {
@@ -1487,9 +1554,7 @@ async function setCodemirrorEditorValue(
  * getCodemirrorEditorValue(screen.getByTestId('editor-test-id'));
  * ```
  */
-function getCodemirrorEditorValue(
-  element: HTMLElement | string | null
-): string {
+function getCodemirrorEditorValue(element: Element | string | null): string {
   if (typeof element === 'string') {
     element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
   }
@@ -1506,3 +1571,4 @@ export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
 export type { CompletionSource as Completer };
+export { highlightStyles };

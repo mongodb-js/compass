@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { expect } from 'chai';
-import { render, cleanup, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  cleanup,
+  screen,
+  within,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import HadronDocument from 'hadron-document';
 import Document from './document';
 
@@ -243,5 +249,53 @@ describe('Document', function () {
     hadronDoc.collapse();
     expect(() => screen.getByText('firstName')).to.throw;
     expect(() => screen.getByText('lastName')).to.throw;
+  });
+
+  it('should render "Show more" toggle when number of fields are more than allowed visible fields', async function () {
+    const hadronDoc = new HadronDocument({
+      prop1: 'prop1',
+      prop2: 'prop2',
+      prop3: 'prop3',
+      prop4: 'prop4',
+    });
+    hadronDoc.setMaxVisibleElementsCount(2);
+    render(<Document value={hadronDoc}></Document>);
+    expect(screen.getByText('prop1')).to.exist;
+    expect(screen.getByText('prop2')).to.exist;
+    expect(() => screen.getByText('prop3')).to.throw;
+    expect(() => screen.getByText('prop4')).to.throw;
+    expect(screen.getByText('Show 2 more fields')).to.exist;
+
+    hadronDoc.setMaxVisibleElementsCount(25);
+    await waitFor(() => {
+      expect(screen.getByText('prop3')).to.exist;
+      expect(screen.getByText('prop4')).to.exist;
+    });
+  });
+
+  it('should render "Show more" toggle on element when its nested fields are more than allowed visible fields', async function () {
+    const hadronDoc = new HadronDocument({
+      nested: {
+        prop1: 'prop1',
+        prop2: 'prop2',
+        prop3: 'prop3',
+        prop4: 'prop4',
+      },
+    });
+    const [nestedElement] = [...hadronDoc.elements];
+    hadronDoc.expand();
+    render(<Document value={hadronDoc}></Document>);
+    expect(screen.getByText('nested')).to.exist;
+    expect(screen.getByText('prop1')).to.exist;
+    expect(screen.getByText('prop2')).to.exist;
+    expect(screen.getByText('prop3')).to.exist;
+    expect(screen.getByText('prop4')).to.exist;
+
+    nestedElement.setMaxVisibleElementsCount(2);
+    await waitFor(() => {
+      expect(() => screen.getByText('prop3')).to.throw;
+      expect(() => screen.getByText('prop4')).to.throw;
+    });
+    expect(screen.getByText('Show 2 more fields in nested')).to.exist;
   });
 });

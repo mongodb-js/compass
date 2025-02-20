@@ -17,6 +17,7 @@ import {
   findAndModifyWithFLEFallback,
   fetchDocuments,
   activateDocumentsPlugin as _activate,
+  MAX_DOCS_PER_PAGE_STORAGE_KEY,
 } from './crud-store';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -31,12 +32,14 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {
-  type ConnectionInfoAccess,
-  TEST_CONNECTION_INFO,
+  type ConnectionInfoRef,
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import type { TableHeaderType } from './grid-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 chai.use(chaiAsPromised);
 
@@ -116,6 +119,31 @@ const mockQueryBar = {
   changeQuery: sinon.stub(),
 };
 
+const defaultMetadata = {
+  namespace: 'test.foo',
+  isReadonly: false,
+  isTimeSeries: false,
+  isClustered: false,
+  isFLE: false,
+  isSearchIndexesSupported: false,
+  sourceName: 'test.bar',
+};
+const mockCollection = {
+  _id: defaultMetadata.namespace,
+  avg_document_size: 1,
+  document_count: 10,
+  free_storage_size: 10,
+  storage_size: 20,
+  fetchMetadata() {
+    return Promise.resolve(defaultMetadata);
+  },
+  toJSON() {
+    return this;
+  },
+  on: sinon.spy(),
+  removeListener: sinon.spy(),
+};
+
 describe('store', function () {
   const cluster = mochaTestServer({
     topology: 'replset',
@@ -128,14 +156,12 @@ describe('store', function () {
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo() {
-      return TEST_CONNECTION_INFO;
-    },
-  } as ConnectionInfoAccess;
+  const connectionInfoRef = {
+    current: TEST_CONNECTION_INFO,
+  } as ConnectionInfoRef;
   const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
     globalAppRegistry.emit.bind(globalAppRegistry),
-    connectionInfoAccess
+    connectionInfoRef
   );
 
   function activatePlugin(
@@ -162,9 +188,10 @@ describe('store', function () {
         favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
         recentQueryStorageAccess: compassRecentQueryStorageAccess,
         fieldStoreService: mockFieldStoreService,
-        connectionInfoAccess,
+        connectionInfoRef,
         connectionScopedAppRegistry,
         queryBar: mockQueryBar,
+        collection: mockCollection as any,
         ...services,
       },
       createActivateHelpers()
@@ -260,6 +287,7 @@ describe('store', function () {
         collection: 'test',
         count: 0,
         docs: [],
+        docsPerPage: 25,
         end: 0,
         error: null,
         insert: {
@@ -302,6 +330,12 @@ describe('store', function () {
         isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
+        collectionStats: {
+          avg_document_size: 1,
+          document_count: 10,
+          free_storage_size: 10,
+          storage_size: 20,
+        },
       });
     });
   });
@@ -1629,7 +1663,8 @@ describe('store', function () {
         const plugin = activatePlugin();
         store = plugin.store;
         deactivate = () => plugin.deactivate();
-        await dataService.insertOne('compass-crud.test', { name: 'testing' });
+        await dataService.insertOne('compass-crud.test', { name: 'testing1' });
+        await dataService.insertOne('compass-crud.test', { name: 'testing2' });
       });
 
       afterEach(function () {
@@ -1646,9 +1681,36 @@ describe('store', function () {
 
             (state) => {
               expect(state.error).to.equal(null);
-              expect(state.docs).to.have.length(1);
+              expect(state.docs).to.have.length(2);
+              expect(state.docs[0].doc.name).to.equal('testing1');
               expect(state.debouncingLoad).to.equal(false);
-              expect(state.count).to.equal(1);
+              expect(state.count).to.equal(2);
+              expect(state.start).to.equal(1);
+              expect(state.shardKeys).to.deep.equal({});
+            },
+          ]);
+
+          void store.refreshDocuments();
+
+          await listener;
+        });
+
+        it('uses the sort order from preferences', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const listener = waitForStates(store, [
+            (state) => {
+              expect(state.debouncingLoad).to.equal(true);
+              expect(state.count).to.equal(null);
+            },
+
+            (state) => {
+              expect(state.error).to.equal(null);
+              expect(state.docs).to.have.length(2);
+              expect(state.docs[0].doc.name).to.equal('testing2');
+              expect(state.debouncingLoad).to.equal(false);
+              expect(state.count).to.equal(2);
               expect(state.start).to.equal(1);
               expect(state.shardKeys).to.deep.equal({});
             },
@@ -1836,14 +1898,14 @@ describe('store', function () {
     });
 
     it('does nothing if the page being requested is past the end', async function () {
-      mockQueryBar.getLastAppliedQuery.returns({ limit: 20 });
-      await store.getPage(1); // there is only one page of 20
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 25 });
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.false;
     });
 
     it('does not ask for documents past the end', async function () {
-      mockQueryBar.getLastAppliedQuery.returns({ limit: 21 });
-      await store.getPage(1); // there is only one page of 20
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 26 });
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       const opts = findSpy.args[0][2];
       // the second page should only have 1 due to the limit
@@ -1851,14 +1913,14 @@ describe('store', function () {
     });
 
     it('sets status fetchedPagination if it succeeds with no filter', async function () {
-      await store.getPage(1); // there is only one page of 20
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
     it('sets status fetchedPagination if it succeeds with a filter', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { i: { $gt: 1 } } });
-      await store.getPage(1); // there is only one page of 20
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
@@ -2534,6 +2596,60 @@ describe('store', function () {
           $set: { anotherField: 2 },
         },
       });
+    });
+  });
+
+  describe('#updateMaxDocumentsPerPage', function () {
+    let store: CrudStore;
+    let fakeLocalStorage: sinon.SinonStub;
+    let fakeGetItem: (key: string) => string | null;
+    let fakeSetItem: (key: string, value: string) => void;
+
+    beforeEach(function () {
+      const localStorageValues: Record<string, string> = {};
+      fakeGetItem = sinon.fake((key: string) => {
+        return localStorageValues[key];
+      });
+      fakeSetItem = sinon.fake((key: string, value: any) => {
+        localStorageValues[key] = value.toString();
+      });
+
+      fakeLocalStorage = sinon.stub(global, 'localStorage').value({
+        getItem: fakeGetItem,
+        setItem: fakeSetItem,
+      });
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    afterEach(function () {
+      fakeLocalStorage.restore();
+    });
+
+    it('should update the number of documents per page in the state and in localStorage', async function () {
+      let listener = waitForState(store, (state) => {
+        expect(state).to.have.property('docsPerPage', 50);
+        expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('50');
+      });
+      store.updateMaxDocumentsPerPage(50);
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.property('docsPerPage', 75);
+        expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('75');
+      });
+      store.updateMaxDocumentsPerPage(75);
+      await listener;
+    });
+
+    it('should trigger refresh of documents when documents per page changes', function () {
+      const refreshSpy = sinon.spy(store, 'refreshDocuments');
+      store.updateMaxDocumentsPerPage(50);
+      // calling it twice with the same count but the refresh should be
+      // triggered only once
+      store.updateMaxDocumentsPerPage(50);
+      expect(refreshSpy).to.be.calledOnce;
     });
   });
 });

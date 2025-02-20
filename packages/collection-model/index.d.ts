@@ -78,19 +78,23 @@ interface CollectionProps {
   index_size: number;
   isTimeSeries: boolean;
   isView: boolean;
+  /** Only relevant for a view and identifies collection/view from which this view was created. */
   sourceName: string | null;
   source: Collection;
-  properties: { id: string; options?: unknown }[];
+  properties: { id: string; options?: Record<string, unknown> }[];
+  is_non_existent: boolean;
 }
+
+type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
 
 interface Collection extends CollectionProps {
   fetch(opts: {
-    dataService: DataService;
+    dataService: CollectionDataService;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchMetadata(opts: {
-    dataService: DataService;
+    dataService: CollectionDataService;
   }): Promise<CollectionMetadata>;
   on(evt: string, fn: (...args: any) => void);
   off(evt: string, fn: (...args: any) => void);
@@ -102,7 +106,7 @@ interface Collection extends CollectionProps {
 }
 
 interface CollectionCollection extends Array<Collection> {
-  fetch(opts: { dataService: DataService; fetchInfo?: boolean }): Promise<void>;
+  fetch(opts: { dataService: CollectionDataService; fetchInfo?: boolean }): Promise<void>;
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;

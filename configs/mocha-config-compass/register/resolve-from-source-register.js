@@ -4,18 +4,27 @@ const path = require('path');
 const Module = require('module');
 
 const workspacesDirPath = path.resolve(__dirname, '..', '..', '..', 'packages');
-if (!fs.existsSync(workspacesDirPath)) {
+const configsDirPath = path.resolve(__dirname, '..', '..', '..', 'configs');
+
+if (!fs.existsSync(workspacesDirPath) || !fs.existsSync(configsDirPath)) {
   // Not running inside the Compass monorepo
   return;
 }
 
-const workspaces = fs
-  .readdirSync(workspacesDirPath)
-  .filter((workspacesDir) => {
-    // Unexpected but seems to be a thing that happens? Ignore hidden files
-    return !workspacesDir.startsWith('.');
-  })
-  .map((workspaceName) => path.join(workspacesDirPath, workspaceName));
+const getPackagePathsFromDir = (dirPath) => {
+  return fs
+    .readdirSync(dirPath)
+    .filter((dir) => {
+      // Unexpected but seems to be a thing that happens? Ignore hidden files
+      return !dir.startsWith('.');
+    })
+    .map((name) => path.join(dirPath, name));
+};
+
+const workspaces = [
+  ...getPackagePathsFromDir(workspacesDirPath),
+  ...getPackagePathsFromDir(configsDirPath),
+];
 
 const sourcePaths = Object.fromEntries(
   workspaces

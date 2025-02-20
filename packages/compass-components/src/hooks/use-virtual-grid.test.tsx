@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { useVirtualGridArrowNavigation } from './use-virtual-grid';
 
@@ -37,6 +41,7 @@ const TestGrid: React.FunctionComponent<{
                 role="cell"
                 data-vlist-item-idx={idx}
                 tabIndex={currentTabbable === idx ? 0 : -1}
+                key={`${row}-${col}`}
               >
                 {row + 1}-{col + 1}
               </div>

@@ -9,11 +9,12 @@ import {
 } from '@mongodb-js/compass-components';
 
 import QueryHistory from './query-history';
-import { fetchSavedQueries } from '../stores/query-bar-reducer';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { fetchSavedQueries } from '../stores/query-bar-reducer';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const openQueryHistoryButtonStyles = css(
   {
@@ -42,16 +43,18 @@ const QueryHistoryButtonPopover = ({
   onOpenPopover: () => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const connectionInfoRef = useConnectionInfoRef();
 
   useTrackOnChange(
     (track: TrackFunction) => {
+      const connectionInfo = connectionInfoRef.current;
       if (isOpen) {
-        track('Query History Opened');
+        track('Query History Opened', {}, connectionInfo);
       } else {
-        track('Query History Closed');
+        track('Query History Closed', {}, connectionInfo);
       }
     },
-    [isOpen],
+    [isOpen, connectionInfoRef],
     undefined
   );
 
@@ -70,7 +73,7 @@ const QueryHistoryButtonPopover = ({
   }, [setIsOpen]);
 
   return (
-    <InteractivePopover
+    <InteractivePopover<HTMLButtonElement>
       className={queryHistoryPopoverStyles}
       trigger={({ onClick, ref, children }) => (
         <>

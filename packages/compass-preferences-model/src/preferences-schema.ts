@@ -5,9 +5,25 @@ import {
   featureFlags,
 } from './feature-flags';
 import { parseRecord } from './parse-record';
+import {
+  extractProxySecrets,
+  mergeProxySecrets,
+} from '@mongodb-js/devtools-proxy-support/proxy-options';
+import {
+  proxyOptionsToProxyPreference,
+  proxyPreferenceToProxyOptions,
+} from './utils';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
+
+export const SORT_ORDER_VALUES = [
+  '',
+  '{ $natural: -1 }',
+  '{ _id: 1 }',
+  '{ _id: -1 }',
+] as const;
+export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -44,10 +60,13 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     atlasServiceBackendPreset:
       | 'atlas-local'
       | 'atlas-dev'
+      | 'atlas-qa'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
+      | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
+    optInDataExplorerGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -58,11 +77,17 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableGenAISampleDocumentPassing: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
+    defaultSortOrder: SORT_ORDERS;
     enableShowDialogOnQuit: boolean;
+    enableCreatingNewConnections: boolean;
+    enableProxySupport: boolean;
+    proxy: string;
   };
 
+/**
+ * Internally used preferences that are not configurable
+ */
 export type InternalUserPreferences = {
-  // These are internally used preferences that are not configurable
   // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
@@ -75,11 +100,15 @@ export type InternalUserPreferences = {
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
   userCreatedAt: number;
+  // TODO: Remove this as part of COMPASS-8970.
+  enableConnectInNewWindow: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
 export type UserPreferences = UserConfigurablePreferences &
-  InternalUserPreferences;
+  InternalUserPreferences &
+  AtlasOrgPreferences &
+  AtlasProjectPreferences;
 
 export type CliOnlyPreferences = {
   exportConnections?: string;
@@ -97,6 +126,15 @@ export type NonUserPreferences = {
   file?: string;
   username?: string;
   password?: string;
+};
+
+export type AtlasProjectPreferences = {
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+};
+
+export type AtlasOrgPreferences = {
+  enableGenAIFeaturesAtlasOrg: boolean;
 };
 
 export type AllPreferences = UserPreferences &
@@ -139,6 +177,11 @@ export type DeriveValueFunction<T> = (
   getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
 ) => { value: T; state: PreferenceState };
 
+type SecretsConfiguration<T> = {
+  extract(original: T): { remainder: string; secrets: string };
+  merge(extracted: { remainder: string; secrets: string }): T;
+};
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
@@ -157,7 +200,13 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** A description used for the --help text and the Settings UI */
   description: K extends keyof InternalUserPreferences
     ? null
-    : { short: string; long?: string };
+    : {
+        short: string;
+        long?: string;
+        options?: AllPreferences[K] extends string
+          ? { [k in AllPreferences[K]]: { label: string; description: string } }
+          : never;
+      };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
@@ -169,12 +218,18 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       ? boolean
       : false
     : boolean;
+
   validator: z.Schema<
     AllPreferences[K],
     z.ZodTypeDef,
     AllPreferences[K] | undefined
   >;
   type: PreferenceType<AllPreferences[K]>;
+  secrets?: K extends keyof UserPreferences
+    ? AllPreferences[K] extends string
+      ? SecretsConfiguration<AllPreferences[K]>
+      : undefined
+    : undefined;
 };
 
 export type PreferenceStateInformation = Partial<
@@ -193,7 +248,7 @@ const featureFlagsProps: Required<{
 }> = Object.fromEntries(
   Object.entries(featureFlags).map(([key, value]) => [
     key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(value),
+    featureFlagToPreferenceDefinition(key, value),
   ])
 ) as unknown as Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -354,6 +409,18 @@ export const storedUserPreferencesProps: Required<{
     type: 'number',
   },
   /**
+   * Enables a dropdown in the connections sidebar to connect in a new window.
+   * TODO: Remove this as part of COMPASS-8970.
+   */
+  enableConnectInNewWindow: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
    * Enable/disable the AI services. This is currently set
    * in the atlas-service initialization where we make a request to the
    * ai endpoint to check what's enabled for the user (incremental rollout).
@@ -503,6 +570,39 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   /**
+   * Set the default sort.
+   */
+  defaultSortOrder: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Default Sort for Query Bar',
+      long: 'All queries executed from the query bar will apply this sort.',
+      options: {
+        '': {
+          label: '$natural: 1 (MongoDB server default)',
+          description: 'in natural order of documents',
+        },
+        '{ $natural: -1 }': {
+          label: '$natural: -1',
+          description: 'in reverse natural order of documents',
+        },
+        '{ _id: 1 }': {
+          label: '_id: 1',
+          description: 'in ascending order by id',
+        },
+        '{ _id: -1 }': {
+          label: '_id: -1',
+          description: 'in descending order by id',
+        },
+      },
+    },
+    validator: z.enum(SORT_ORDER_VALUES).default(''),
+    type: 'string',
+  },
+
+  /**
    * Switch to enable DevTools in Electron.
    */
   enableDevTools: {
@@ -635,6 +735,7 @@ export const storedUserPreferencesProps: Required<{
    * Chooses atlas service backend configuration from preset
    *  - atlas-local: local mms backend (http://localhost:8080)
    *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
    *  - atlas:       mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
@@ -646,15 +747,27 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum([
-        'atlas-dev',
         'atlas-local',
+        'atlas-dev',
+        'atlas-qa',
         'atlas',
-        'web-sandbox-atlas-dev',
         'web-sandbox-atlas-local',
+        'web-sandbox-atlas-dev',
+        'web-sandbox-atlas-qa',
         'web-sandbox-atlas',
       ])
       .default('atlas'),
     type: 'string',
+  },
+  optInDataExplorerGenAIFeatures: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'User Opt-in for Data Explorer Gen AI Features',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   enableAtlasSearchIndexes: {
@@ -755,6 +868,94 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Quit Confirmation Dialog',
       long: 'Toggle whether confirmation dialog is shown when quitting Compass (cmd/ctrl-Q).',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  proxy: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a proxy for Compass to use',
+      long: 'Specify a HTTP, HTTPS or Socks5 proxy to use for connecting to external services (default is picking proxies from environment variables)',
+    },
+    // Internally either a URL or a DevtoolsProxyOptions object as JSON
+    validator: z
+      .union([
+        z.string().url(),
+        z.literal(''),
+        z.custom<string>((val) => {
+          if (typeof val !== 'string') return false;
+          try {
+            JSON.parse(val);
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ])
+      .default(''),
+    type: 'string',
+    secrets: {
+      extract(original) {
+        const { secrets, ...remainder } = extractProxySecrets(
+          proxyPreferenceToProxyOptions(original)
+        );
+        return {
+          remainder: JSON.stringify(remainder),
+          secrets: JSON.stringify(secrets),
+        };
+      },
+      merge({ remainder, secrets }) {
+        return proxyOptionsToProxyPreference(
+          mergeProxySecrets({
+            ...JSON.parse(remainder),
+            secrets: JSON.parse(secrets),
+          })
+        );
+      },
+    },
+  },
+
+  enableCreatingNewConnections: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Enables creating new connection (accessing connection editing form) in Compass UI',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAIFeaturesAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAISampleDocumentPassingOnAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAIFeaturesAtlasOrg: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Org Level',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -960,6 +1161,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 
 // Helper to convert feature flag definitions to preference definitions
 function featureFlagToPreferenceDefinition(
+  key: string,
   featureFlag: FeatureFlagDefinition
 ): PreferenceDefinition<keyof FeatureFlags> {
   return {
@@ -997,6 +1199,18 @@ export function getDefaultsForStoredPreferences(): StoredPreferences {
       .map(([key, value]) => [key, value.validator.parse(undefined)])
       .filter(([, value]) => value !== undefined)
   );
+}
+
+export function listEncryptedStoredPreferences(): [
+  keyof StoredPreferences,
+  SecretsConfiguration<string>
+][] {
+  return Object.entries(storedUserPreferencesProps)
+    .filter(([, value]) => value.secrets)
+    .map(([key, { secrets }]) => [
+      key as keyof typeof storedUserPreferencesProps,
+      secrets!,
+    ]);
 }
 
 export function getSettingDescription<

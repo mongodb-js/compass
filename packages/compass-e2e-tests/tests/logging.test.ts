@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -20,13 +21,20 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await init(this.test?.fullTitle(), { firstRun: true });
+      const compass = await init(this.test?.fullTitle());
       const { browser } = compass;
 
       try {
         await browser.connectWithConnectionString();
-        await browser.shellEval('use test');
-        await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
+
+        // make sure we generate the screen event that the tests expect
+        await browser.navigateToMyQueries();
+
+        await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
+        await browser.shellEval(
+          DEFAULT_CONNECTION_NAME_1,
+          'db.runCommand({ connectionStatus: 1 })'
+        );
       } finally {
         await cleanup(compass);
         await telemetry.stop();
@@ -78,7 +86,6 @@ describe('Logging and Telemetry integration', function () {
           .events()
           .find((entry) => entry.event === 'Connection Attempt');
         expect(connectionAttempt.properties.is_favorite).to.equal(false);
-        expect(connectionAttempt.properties.is_recent).to.equal(false);
         expect(connectionAttempt.properties.is_new).to.equal(true);
       });
 
@@ -106,11 +113,11 @@ describe('Logging and Telemetry integration', function () {
 
         expect(connectionAttempt.properties.is_csfle).to.equal(false);
         expect(connectionAttempt.properties.has_csfle_schema).to.equal(false);
-        expect(connectionAttempt.properties.has_kms_local).to.equal(false);
-        expect(connectionAttempt.properties.has_kms_azure).to.equal(false);
-        expect(connectionAttempt.properties.has_kms_kmip).to.equal(false);
-        expect(connectionAttempt.properties.has_kms_gcp).to.equal(false);
-        expect(connectionAttempt.properties.has_kms_aws).to.equal(false);
+        expect(connectionAttempt.properties.count_kms_local).to.equal(0);
+        expect(connectionAttempt.properties.count_kms_azure).to.equal(0);
+        expect(connectionAttempt.properties.count_kms_kmip).to.equal(0);
+        expect(connectionAttempt.properties.count_kms_gcp).to.equal(0);
+        expect(connectionAttempt.properties.count_kms_aws).to.equal(0);
       });
 
       it('tracks an event for screens that were accessed', function () {
@@ -130,6 +137,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.match(/^(x64|arm64)$/);
+            expect(actual.missingOptionalDeps).to.deep.equal([]);
           },
         },
         {
@@ -297,6 +305,16 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'repl',
           msg: 'Evaluating input',
           attr: {
+            input: 'version()',
+          },
+        },
+        {
+          s: 'I',
+          c: 'MONGOSH',
+          id: 1_000_000_007,
+          ctx: 'repl',
+          msg: 'Evaluating input',
+          attr: {
             input: 'db.runCommand({ connectionStatus: 1 })',
           },
         },
@@ -399,8 +417,9 @@ describe('Logging and Telemetry integration', function () {
     before(async function () {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
+      const { browser } = compass;
 
-      await compass.browser.setFeature('telemetryAtlasUserId', auid);
+      await browser.setFeature('telemetryAtlasUserId', auid);
     });
 
     afterEach(async function () {
@@ -459,7 +478,7 @@ describe('Logging and Telemetry integration', function () {
       }
 
       uncaughtEntry.attr.stack = uncaughtEntry.attr.stack
-        .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
+        .replace(/(file|eval \(webpack):\/\/\/?.+:\d+:\d+\)?/g, '<filename>')
         .split('\n')
         .slice(0, 2)
         .join('\n');

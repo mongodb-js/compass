@@ -86,7 +86,7 @@ const aiEntryLightModeStyles = css(
 );
 
 function AIExperienceEntry({
-  'data-testid': dataTestId,
+  'data-testid': dataTestId = 'open-gen-ai-button',
   type,
   onClick,
 }: {
@@ -105,6 +105,7 @@ function AIExperienceEntry({
       onClick={onClick}
       data-testid={dataTestId}
       type="button"
+      title={`Generate ${type}`}
     >
       <span className={hiddenOnNarrowStyles}>Generate {type}</span>
       <AIEntrySVG darkMode={darkMode} />

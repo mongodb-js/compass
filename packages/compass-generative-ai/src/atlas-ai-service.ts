@@ -3,14 +3,15 @@ import {
   type PreferencesAccess,
   isAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
-import type {
-  AtlasAuthService,
-  AtlasService,
-} from '@mongodb-js/atlas-service/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
-import { EJSON } from 'bson';
+import { EJSON, UUID } from 'bson';
+import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
+import { getStore } from './store/atlas-ai-store';
+import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -24,11 +25,8 @@ type GenerativeAiInput = {
 
 // The size/token validation happens on the server, however, we do
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
-const AI_MAX_REQUEST_SIZE = 100000;
+const AI_MAX_REQUEST_SIZE = 5120000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
-const USER_AI_URI = (userId: string) => `unauth/ai/api/v1/hello/${userId}`;
-const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
-const QUERY_URI = 'ai/api/v1/mql-query';
 
 type AIAggregation = {
   content: {
@@ -195,19 +193,88 @@ export function validateAIAggregationResponse(
   }
 }
 
+const aiURLConfig = {
+  // There are two different sets of endpoints we use for our requests.
+  // Down the line we'd like to only use the admin api, however,
+  // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
+  'admin-api': {
+    'user-access': (userId: string) => `unauth/ai/api/v1/hello/${userId}`,
+    aggregation: 'ai/api/v1/mql-aggregation',
+    query: 'ai/api/v1/mql-query',
+  },
+  cloud: {
+    'user-access': (userId: string) => `ai/v1/hello/${userId}`,
+    aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
+    query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
+  },
+} as const;
+type AIEndpoint = 'user-access' | 'query' | 'aggregation';
+
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
 
-  constructor(
-    private atlasService: AtlasService,
-    private atlasAuthService: AtlasAuthService,
-    private preferences: PreferencesAccess,
-    private logger: Logger
-  ) {
+  private apiURLPreset: 'admin-api' | 'cloud';
+  private atlasService: AtlasService;
+  private preferences: PreferencesAccess;
+  private logger: Logger;
+
+  constructor({
+    apiURLPreset,
+    atlasService,
+    preferences,
+    logger,
+  }: {
+    apiURLPreset: 'admin-api' | 'cloud';
+    atlasService: AtlasService;
+    preferences: PreferencesAccess;
+    logger: Logger;
+  }) {
+    this.apiURLPreset = apiURLPreset;
+    this.atlasService = atlasService;
+    this.preferences = preferences;
+    this.logger = logger;
+
     this.initPromise = this.setupAIAccess();
   }
 
-  private async throwIfAINotEnabled() {
+  private getUrlForEndpoint(
+    urlId: AIEndpoint,
+    connectionInfo?: ConnectionInfo
+  ) {
+    if (this.apiURLPreset === 'cloud') {
+      if (urlId === 'user-access') {
+        return this.atlasService.cloudEndpoint(
+          aiURLConfig[this.apiURLPreset][urlId](
+            this.preferences.getPreferences().telemetryAtlasUserId ??
+              new UUID().toString()
+          )
+        );
+      }
+
+      const atlasMetadata = connectionInfo?.atlasMetadata;
+      if (!atlasMetadata) {
+        throw new Error(
+          "Can't perform generative ai request: atlasMetadata is not available"
+        );
+      }
+
+      return this.atlasService.cloudEndpoint(
+        aiURLConfig[this.apiURLPreset][urlId](atlasMetadata.projectId)
+      );
+    }
+    const urlConfig = aiURLConfig[this.apiURLPreset][urlId];
+    const urlPath =
+      typeof urlConfig === 'function'
+        ? urlConfig(
+            this.preferences.getPreferences().telemetryAtlasUserId ??
+              new UUID().toString()
+          )
+        : urlConfig;
+
+    return this.atlasService.adminApiEndpoint(urlPath);
+  }
+
+  private throwIfAINotEnabled() {
     if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
       return;
     }
@@ -216,18 +283,11 @@ export class AtlasAiService {
         "Compass' AI functionality is not currently enabled. Please try again later."
       );
     }
-    // Only throw if we actually have userInfo / logged in. Otherwise allow
-    // request to fall through so that we can get a proper network error
-    if (
-      (await this.atlasAuthService.getUserInfo()).enabledAIFeature === false
-    ) {
-      throw new Error("Can't use AI before accepting terms and conditions");
-    }
   }
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    const userId = this.preferences.getPreferencesUser().id;
-    const url = this.atlasService.adminApiEndpoint(USER_AI_URI(userId));
+    const url = this.getUrlForEndpoint('user-access');
+
     const res = await this.atlasService.fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -271,18 +331,39 @@ export class AtlasAiService {
     }
   }
 
+  async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
+    // When the ai feature is attempted to be opened we make sure
+    // the user is signed into Atlas and opted in.
+
+    if (this.apiURLPreset === 'cloud') {
+      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+    }
+    return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
+  }
+
   private getQueryOrAggregationFromUserInput = async <T>(
-    uri: string,
-    input: GenerativeAiInput,
+    {
+      urlId,
+      input,
+      connectionInfo,
+    }: {
+      urlId: 'query' | 'aggregation';
+      input: GenerativeAiInput;
+
+      connectionInfo?: ConnectionInfo;
+    },
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
     await this.initPromise;
-    await this.throwIfAINotEnabled();
+    this.throwIfAINotEnabled();
 
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);
 
-    const url = this.atlasService.adminApiEndpoint(uri, requestId);
+    const url = `${this.getUrlForEndpoint(
+      urlId,
+      connectionInfo
+    )}?request_id=${encodeURIComponent(requestId)}`;
 
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_308),
@@ -337,20 +418,52 @@ export class AtlasAiService {
     return data;
   };
 
-  async getAggregationFromUserInput(input: GenerativeAiInput) {
+  async getAggregationFromUserInput(
+    input: GenerativeAiInput,
+    connectionInfo: ConnectionInfo
+  ) {
     return this.getQueryOrAggregationFromUserInput(
-      AGGREGATION_URI,
-      input,
+      {
+        connectionInfo,
+        urlId: 'aggregation',
+        input,
+      },
       validateAIAggregationResponse
     );
   }
 
-  async getQueryFromUserInput(input: GenerativeAiInput) {
+  async getQueryFromUserInput(
+    input: GenerativeAiInput,
+    connectionInfo: ConnectionInfo
+  ) {
     return this.getQueryOrAggregationFromUserInput(
-      QUERY_URI,
-      input,
+      {
+        urlId: 'query',
+        input,
+        connectionInfo,
+      },
       validateAIQueryResponse
     );
+  }
+
+  // Performs a post request to atlas to set the user opt in preference to true.
+  async optIntoGenAIFeaturesAtlas() {
+    await this.atlasService.authenticatedFetch(
+      this.atlasService.cloudEndpoint(
+        '/settings/optInDataExplorerGenAIFeatures'
+      ),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: new URLSearchParams([['value', 'true']]),
+      }
+    );
+    await this.preferences.savePreferences({
+      optInDataExplorerGenAIFeatures: true,
+    });
   }
 
   private validateAIFeatureEnablementResponse(

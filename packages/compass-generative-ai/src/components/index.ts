@@ -3,3 +3,4 @@ export {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
 } from './ai-experience-entry';
+export { AtlasAiPlugin } from './plugin';

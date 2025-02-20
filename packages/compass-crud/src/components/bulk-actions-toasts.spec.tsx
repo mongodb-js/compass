@@ -1,7 +1,12 @@
 import React from 'react';
 import { ToastArea } from '@mongodb-js/compass-components';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import {
   openBulkDeleteSuccessToast,
   openBulkDeleteProgressToast,

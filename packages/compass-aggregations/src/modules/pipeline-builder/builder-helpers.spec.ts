@@ -3,16 +3,20 @@ import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
 import { addStage } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import configureStore from '../../../test/configure-store';
+import type { AggregationsStore } from '../../stores/store';
 
-function createStore(pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`) {
-  return configureStore({ pipelineText });
+async function createStore(
+  pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`
+) {
+  const result = await configureStore({ pipelineText });
+  return result.plugin.store;
 }
 
 describe('builder-helpers', function () {
   describe('getPipelineStageOperatorsFromBuilderState', function () {
-    let store: ReturnType<typeof createStore>;
-    beforeEach(function () {
-      store = createStore();
+    let store: AggregationsStore;
+    beforeEach(async function () {
+      store = await createStore();
     });
     describe('in stage editor mode', function () {
       it('should return filtered stage names', function () {

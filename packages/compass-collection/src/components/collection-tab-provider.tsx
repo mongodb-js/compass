@@ -5,13 +5,15 @@ import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 export interface CollectionTabPlugin {
   name: CollectionSubtab;
-  component: HadronPluginComponent<CollectionTabPluginMetadata, any>;
+  provider: HadronPluginComponent<CollectionTabPluginMetadata, any, any>;
+  content: React.FunctionComponent<CollectionTabPluginMetadata>;
+  header: React.FunctionComponent;
 }
 
 type CollectionTabComponentsProviderValue = {
   tabs: CollectionTabPlugin[];
-  modals: CollectionTabPlugin['component'][];
-  queryBar: CollectionTabPlugin['component'];
+  modals: CollectionTabPlugin['content'][];
+  queryBar: CollectionTabPlugin['content'];
 };
 
 const defaultComponents: CollectionTabComponentsProviderValue = {

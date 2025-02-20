@@ -11,7 +11,11 @@ import type {
   Element as HadronElementType,
   Editor as EditorType,
 } from 'hadron-document';
-import { ElementEvents, ElementEditor } from 'hadron-document';
+import {
+  ElementEvents,
+  ElementEditor,
+  DEFAULT_VISIBLE_ELEMENTS,
+} from 'hadron-document';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
@@ -23,6 +27,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import VisibleFieldsToggle from './visible-field-toggle';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -87,6 +92,17 @@ function useHadronElement(el: HadronElementType) {
     [el, forceUpdate]
   );
 
+  const onElementReverted = useCallback(
+    (changedElement: HadronElementType) => {
+      if (el.uuid === changedElement.uuid) {
+        // When an element is reverted we check again if the key is a duplicate.
+        setIsDuplicateKey(el.isDuplicateKey(el.key));
+        forceUpdate();
+      }
+    },
+    [el, forceUpdate]
+  );
+
   useEffect(() => {
     if (prevEl && prevEl !== el) {
       forceUpdate();
@@ -96,25 +112,27 @@ function useHadronElement(el: HadronElementType) {
   useEffect(() => {
     el.on(ElementEvents.Converted, onElementChanged);
     el.on(ElementEvents.Edited, onElementChanged);
-    el.on(ElementEvents.Reverted, onElementChanged);
+    el.on(ElementEvents.Reverted, onElementReverted);
     el.on(ElementEvents.Invalid, onElementChanged);
     el.on(ElementEvents.Valid, onElementChanged);
     el.on(ElementEvents.Added, onElementAddedOrRemoved);
     el.on(ElementEvents.Removed, onElementAddedOrRemoved);
     el.on(ElementEvents.Expanded, onElementChanged);
     el.on(ElementEvents.Collapsed, onElementChanged);
+    el.on(ElementEvents.VisibleElementsChanged, onElementChanged);
 
     return () => {
       el.off(ElementEvents.Converted, onElementChanged);
       el.off(ElementEvents.Edited, onElementChanged);
-      el.off(ElementEvents.Reverted, onElementChanged);
+      el.off(ElementEvents.Reverted, onElementReverted);
       el.off(ElementEvents.Valid, onElementChanged);
       el.off(ElementEvents.Added, onElementAddedOrRemoved);
       el.off(ElementEvents.Removed, onElementAddedOrRemoved);
       el.off(ElementEvents.Expanded, onElementChanged);
       el.off(ElementEvents.Collapsed, onElementChanged);
+      el.off(ElementEvents.VisibleElementsChanged, onElementChanged);
     };
-  }, [el, onElementChanged, onElementAddedOrRemoved]);
+  }, [el, onElementChanged, onElementAddedOrRemoved, onElementReverted]);
 
   const isValid = el.isCurrentTypeValid();
 
@@ -162,6 +180,7 @@ function useHadronElement(el: HadronElementType) {
     remove: el.isNotActionable() ? null : el.remove.bind(el),
     expandable: Boolean(el.elements),
     children: el.elements ? [...el.elements] : [],
+    visibleChildren: el.getVisibleElements(),
     level: el.level,
     parentType: el.parent?.currentType,
     removed: el.isRemoved(),
@@ -184,8 +203,8 @@ const expandButton = css({
 
 const hadronElement = css({
   display: 'flex',
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[50],
+  paddingRight: spacing[50],
   marginTop: 1,
 });
 
@@ -231,7 +250,7 @@ const elementRemovedDarkMode = css({
 
 const elementActions = css({
   flex: 'none',
-  width: spacing[3],
+  width: spacing[300],
   position: 'relative',
 });
 
@@ -355,6 +374,41 @@ const elementKeyDarkMode = css({
   color: palette.gray.light2,
 });
 
+const calculateElementSpacerWidth = (
+  editable: boolean,
+  level: number,
+  extra: number
+) => {
+  return (editable ? spacing[100] : 0) + extra + spacing[400] * level;
+};
+
+export const calculateShowMoreToggleOffset = ({
+  editable,
+  level,
+  alignWithNestedExpandIcon,
+  extraGutterWidth = 0,
+}: {
+  editable: boolean;
+  level: number;
+  alignWithNestedExpandIcon: boolean;
+  extraGutterWidth: number | undefined;
+}) => {
+  const spacerWidth = calculateElementSpacerWidth(
+    editable,
+    level,
+    extraGutterWidth
+  );
+  const editableOffset = editable
+    ? // space taken by element actions
+      spacing[300] +
+      // space and margin taken by line number element
+      spacing[400] +
+      spacing[100]
+    : 0;
+  const expandIconSize = alignWithNestedExpandIcon ? spacing[400] : 0;
+  return spacerWidth + editableOffset + expandIconSize;
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -362,6 +416,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
+  extraGutterWidth?: number;
 }> = ({
   value: element,
   editable,
@@ -369,6 +424,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart,
   lineNumberSize,
   onAddElement,
+  extraGutterWidth = 0,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -381,6 +437,7 @@ export const HadronElement: React.FunctionComponent<{
     remove,
     expandable,
     children,
+    visibleChildren,
     level,
     parentType,
     removed,
@@ -400,8 +457,26 @@ export const HadronElement: React.FunctionComponent<{
       const charCount = String(lineNumberSize).length;
       return charCount > 2 ? `${charCount}.5ch` : spacing[3];
     }
-    return spacing[3];
+    return spacing[400];
   }, [lineNumberSize, editingEnabled]);
+
+  const elementSpacerWidth = useMemo(
+    () => calculateElementSpacerWidth(editable, level, extraGutterWidth),
+    [editable, level, extraGutterWidth]
+  );
+
+  // To render the "Show more" toggle for the nested expandable elements we need
+  // to calculate a proper offset so that it aligns with the nesting level
+  const nestedElementsVisibilityToggleOffset = useMemo(
+    () =>
+      calculateShowMoreToggleOffset({
+        editable,
+        level,
+        alignWithNestedExpandIcon: true,
+        extraGutterWidth,
+      }),
+    [editable, level, extraGutterWidth]
+  );
 
   const isValid = key.valid && value.valid;
   const shouldShowActions = editingEnabled;
@@ -436,6 +511,14 @@ export const HadronElement: React.FunctionComponent<{
   const lineNumberInvalid = darkMode
     ? lineNumberInvalidDarkMode
     : lineNumberInvalidLightMode;
+
+  const handleVisibleElementsChanged = useCallback(
+    (totalVisibleFields: number) => {
+      element.setMaxVisibleElementsCount(totalVisibleFields);
+    },
+    [element]
+  );
+
   return (
     <>
       <div
@@ -501,10 +584,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        <div
-          className={elementSpacer}
-          style={{ width: (editable ? spacing[2] : 0) + spacing[3] * level }}
-        >
+        <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
           {/* spacer for nested documents */}
         </div>
         <div className={elementExpand}>
@@ -636,21 +716,43 @@ export const HadronElement: React.FunctionComponent<{
           </div>
         )}
       </div>
-      {expandable &&
-        expanded &&
-        children.map((el, idx) => {
-          return (
-            <HadronElement
-              key={idx}
-              value={el}
-              editable={editable}
-              editingEnabled={editingEnabled}
-              onEditStart={onEditStart}
-              lineNumberSize={lineNumberSize}
-              onAddElement={onAddElement}
-            ></HadronElement>
-          );
-        })}
+      {expandable && expanded && (
+        <>
+          {visibleChildren.map((el, idx) => {
+            return (
+              <HadronElement
+                key={idx}
+                value={el}
+                editable={editable}
+                editingEnabled={editingEnabled}
+                onEditStart={onEditStart}
+                lineNumberSize={lineNumberSize}
+                onAddElement={onAddElement}
+                extraGutterWidth={extraGutterWidth}
+              ></HadronElement>
+            );
+          })}
+          <VisibleFieldsToggle
+            parentFieldName={key.value}
+            // TODO: (Same as that for Document) "Hide items" button will only
+            // be shown when document is not edited because it's not decided how
+            // to handle changes to the fields that are changed but then hidden
+            // https://jira.mongodb.org/browse/COMPASS-5587
+            showHideButton={!editingEnabled}
+            currentSize={element.maxVisibleElementsCount}
+            totalSize={children.length}
+            minSize={DEFAULT_VISIBLE_ELEMENTS}
+            // Same as that for Document renderer, in the editing mode we allow
+            // to show / hide less fields because historically Compass was doing
+            // this for "performance" reasons
+            step={editingEnabled ? DEFAULT_VISIBLE_ELEMENTS : 1000}
+            onSizeChange={handleVisibleElementsChanged}
+            style={{
+              paddingLeft: nestedElementsVisibilityToggleOffset,
+            }}
+          ></VisibleFieldsToggle>
+        </>
+      )}
     </>
   );
 };

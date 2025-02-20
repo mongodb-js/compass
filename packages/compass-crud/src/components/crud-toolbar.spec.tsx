@@ -1,15 +1,14 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import {
   fireEvent,
   render,
   screen,
   cleanup,
   within,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
@@ -40,7 +39,6 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
   recentQueryStorageAccess: compassRecentQueryStorageAccess,
   atlasAiService: {} as any,
-  atlasAuthService: { on() {}, removeListener() {} } as any,
 });
 
 const addDataText = 'Add Data';
@@ -53,7 +51,6 @@ describe('CrudToolbar Component', function () {
   function renderCrudToolbar(
     props?: Partial<React.ComponentProps<typeof CrudToolbar>>
   ) {
-    const appRegistry = new AppRegistry();
     const queryBarProps = {};
 
     return render(
@@ -66,13 +63,16 @@ describe('CrudToolbar Component', function () {
             getPage={noop}
             insertDataHandler={noop}
             loadingCount={false}
-            localAppRegistry={appRegistry}
+            isFetching={false}
+            docsPerPage={25}
             isWritable
             instanceDescription=""
             onApplyClicked={noop}
             onResetClicked={noop}
             onUpdateButtonClicked={noop}
             onDeleteButtonClicked={noop}
+            onExpandAllClicked={noop}
+            onCollapseAllClicked={noop}
             openExportFileDialog={noop}
             outdated={false}
             page={0}
@@ -81,6 +81,7 @@ describe('CrudToolbar Component', function () {
             resultId="123"
             start={0}
             viewSwitchHandler={noop}
+            updateMaxDocumentsPerPage={noop}
             queryLimit={0}
             querySkip={0}
             {...props}
@@ -151,24 +152,47 @@ describe('CrudToolbar Component', function () {
     expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.be.visible;
   });
 
-  it('should have the next page button disabled when on the first page without more than a page of documents', function () {
-    const getPageSpy = sinon.spy();
-    renderCrudToolbar({
-      getPage: getPageSpy,
-      count: 5,
-      page: 0,
-      start: 1,
-      end: 5,
+  context('respecting the docsPerPage setting', () => {
+    it('should have the next page button disabled when on the first page without more than a page of documents', function () {
+      const getPageSpy = sinon.spy();
+      renderCrudToolbar({
+        getPage: getPageSpy,
+        docsPerPage: 50,
+        count: 50,
+        page: 0,
+        start: 1,
+        end: 50,
+      });
+      expect(getPageSpy.called).to.be.false;
+      fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+
+      expect(
+        screen.getByTestId('docs-toolbar-next-page-btn')
+      ).to.have.attribute('aria-disabled', 'true');
+
+      expect(getPageSpy.calledOnce).to.be.false;
     });
-    expect(getPageSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
-    expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
+    it('should have the next page button disabled when on the first page with more than a page of documents', function () {
+      const getPageSpy = sinon.spy();
+      renderCrudToolbar({
+        getPage: getPageSpy,
+        docsPerPage: 25,
+        count: 50,
+        page: 0,
+        start: 1,
+        end: 25,
+      });
+      expect(getPageSpy.called).to.be.false;
+      fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
-    expect(getPageSpy.calledOnce).to.be.false;
+      expect(
+        screen.getByTestId('docs-toolbar-next-page-btn')
+      ).to.have.attribute('aria-disabled', 'false');
+
+      expect(getPageSpy.calledOnce).to.be.true;
+      expect(getPageSpy.firstCall.args[0]).to.equal(1);
+    });
   });
 
   it('should call to get the next page when the prev button is hit on a non-first page', function () {
@@ -346,6 +370,51 @@ describe('CrudToolbar Component', function () {
     });
   });
 
+  describe('Output Options', function () {
+    describe('table view', function () {
+      it('should be disabled', function () {
+        renderCrudToolbar({
+          activeDocumentView: 'Table',
+        });
+
+        expect(screen.getByTitle('Output Options')).to.have.attribute(
+          'aria-disabled',
+          'true'
+        );
+      });
+    });
+
+    describe('other views', function () {
+      it('should provide "Expand all documents"', function () {
+        const onExpandAllClicked = sinon.spy();
+        renderCrudToolbar({
+          activeDocumentView: 'JSON',
+          onExpandAllClicked,
+        });
+
+        userEvent.click(screen.getByTitle('Output Options'));
+        const expandAllBtn = screen.getByText('Expand all documents');
+        expect(expandAllBtn).to.be.visible;
+        userEvent.click(expandAllBtn);
+        expect(onExpandAllClicked).to.have.been.called;
+      });
+
+      it('should provide "Collapse all documents"', function () {
+        const onCollapseAllClicked = sinon.spy();
+        renderCrudToolbar({
+          activeDocumentView: 'JSON',
+          onCollapseAllClicked,
+        });
+
+        userEvent.click(screen.getByTitle('Output Options'));
+        const collapseAllBtn = screen.getByText('Collapse all documents');
+        expect(collapseAllBtn).to.be.visible;
+        userEvent.click(collapseAllBtn);
+        expect(onCollapseAllClicked).to.have.been.called;
+      });
+    });
+  });
+
   it('should not render the outdated message', function () {
     renderCrudToolbar();
 
@@ -436,6 +505,26 @@ describe('CrudToolbar Component', function () {
           'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
         )
       ).to.be.visible;
+    });
+  });
+
+  describe('documents per page select', function () {
+    it('should render a select to update documents fetched per page', function () {
+      renderCrudToolbar();
+      expect(screen.getByLabelText('Update number of documents per page')).to.be
+        .visible;
+    });
+
+    it('should call updateDocumentsPerPage when select value changes', function () {
+      const stub = sinon.stub();
+      renderCrudToolbar({
+        updateMaxDocumentsPerPage: stub,
+      });
+      userEvent.click(
+        screen.getByLabelText('Update number of documents per page')
+      );
+      userEvent.click(screen.getByText('75'));
+      expect(stub).to.be.calledWithExactly(75);
     });
   });
 });

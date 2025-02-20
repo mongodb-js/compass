@@ -5,7 +5,6 @@ import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
 import { app, dialog, BrowserWindow, autoUpdater, shell } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
-import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
 import dl from 'electron-dl';
@@ -15,6 +14,7 @@ import semver from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import type { Response } from '@mongodb-js/devtools-proxy-support';
 
 const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
 const track = createIpcTrack();
@@ -478,7 +478,10 @@ const STATE_UPDATE: Record<
         mongoLogId(1001000129),
         'AutoUpdateManager',
         'Error Downloading Update',
-        { message: error.message }
+        {
+          message: error.message,
+          attr: { code: error.code, domain: error.domain },
+        }
       );
     },
   },
@@ -493,7 +496,9 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      track('Application Restart Accepted');
+      track('Application Restart Accepted', {
+        //
+      });
 
       this.maybeInterrupt();
 
@@ -579,6 +584,7 @@ class CompassAutoUpdateManager {
 
   private static initCalled = false;
   private static state = AutoUpdateManagerState.Initial;
+  private static fetch: (url: string) => Promise<Response>;
 
   static autoUpdateOptions: AutoUpdateManagerOptions;
   static preferences: PreferencesAccess;
@@ -618,12 +624,12 @@ class CompassAutoUpdateManager {
     to: string;
   } | null> {
     try {
-      const response = await fetch(await this.getUpdateCheckURL());
+      const response = await this.fetch((await this.getUpdateCheckURL()).href);
       if (response.status !== 200) {
         return null;
       }
       try {
-        return await response.json();
+        return (await response.json()) as any;
       } catch (err) {
         log.warn(
           mongoLogId(1_001_000_163),
@@ -713,6 +719,7 @@ class CompassAutoUpdateManager {
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
   ): void {
+    this.fetch = (url: string) => compassApp.httpClient.fetch(url);
     compassApp.addExitHandler(() => {
       this.stop();
       return Promise.resolve();
@@ -735,7 +742,9 @@ class CompassAutoUpdateManager {
     }
 
     this.autoUpdateOptions = {
-      endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
+      endpoint:
+        process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE ??
+        process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       product: product,
       channel: process.env.HADRON_CHANNEL,
       platform: process.platform,
@@ -801,12 +810,16 @@ class CompassAutoUpdateManager {
       );
 
       if (enabled) {
-        track('Autoupdate Enabled');
+        track('Autoupdate Enabled', {
+          //
+        });
         this.setState(
           AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
         );
       } else {
-        track('Autoupdate Disabled');
+        track('Autoupdate Disabled', {
+          //
+        });
         this.setState(AutoUpdateManagerState.Disabled);
       }
     });

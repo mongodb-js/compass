@@ -5,21 +5,25 @@ on:
     inputs:
       mergeBranch:
         description: 'mergeBranch (optional, default="main"): the branch to merge from, useful to perform quick fixes outside of main.'
-        default: 'main'
+        default: "main"
         required: false
       overrideNextGa:
-        description: 'overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one.'
+        description: "overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one."
         required: false
   schedule:
     # Each Monday at 5 AM UTC
-    - cron: '0 5 * * 1'
+    - cron: "0 5 * * 1"
+
+permissions:
+  contents: write # To create the new branch and push it
+  actions: write # To trigger the codeql action for the commit from which we're releasing
 
 jobs:
   startRelease:
     name: Start new Beta release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup git
@@ -27,10 +31,10 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.19.1
-          cache: 'npm'
+          node-version: 20.16.0
+          cache: "npm"
 
       - name: Install npm@10.2.4
         run: |

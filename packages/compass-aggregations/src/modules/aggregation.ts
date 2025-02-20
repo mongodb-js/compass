@@ -1,5 +1,5 @@
 import HadronDocument from 'hadron-document';
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -125,7 +125,7 @@ export const INITIAL_STATE: State = {
   resultsViewType: 'document',
 };
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<WorkspaceChangedAction>(
       action,
@@ -289,7 +289,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService, track }
+    { pipelineBuilder, instance, dataService, track, connectionInfoRef }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
@@ -309,10 +309,15 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       type: ActionTypes.RunAggregation,
       pipeline,
     });
-    track('Aggregation Executed', () => ({
-      num_stages: pipeline.length,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    }));
+    track(
+      'Aggregation Executed',
+      () => ({
+        num_stages: pipeline.length,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        stage_operators: pipeline.map((stage) => getStageOperator(stage)),
+      }),
+      connectionInfoRef.current
+    );
     return dispatch(fetchAggregationData());
   };
 };
@@ -363,8 +368,8 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState, { track }) => {
-    track('Aggregation Canceled');
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    track('Aggregation Canceled', {}, connectionInfoRef.current);
     const {
       aggregation: { abortController },
     } = getState();
@@ -387,7 +392,13 @@ const fetchAggregationData = (
   return async (
     dispatch,
     getState,
-    { preferences, logger: { log, mongoLogId }, track, globalAppRegistry }
+    {
+      preferences,
+      logger: { log, mongoLogId },
+      track,
+      connectionInfoRef,
+      connectionScopedAppRegistry,
+    }
   ) => {
     const {
       namespace,
@@ -438,7 +449,7 @@ const fetchAggregationData = (
       });
 
       if (isMergeOrOut) {
-        globalAppRegistry.emit(
+        connectionScopedAppRegistry.emit(
           'agg-pipeline-out-executed',
           getDestinationNamespaceFromStage(
             namespace,
@@ -470,7 +481,11 @@ const fetchAggregationData = (
           page,
         });
         if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
-          track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
+          track(
+            'Aggregation Timed Out',
+            { max_time_ms: maxTimeMS ?? null },
+            connectionInfoRef.current
+          );
         }
         log.warn(
           mongoLogId(1001000106),

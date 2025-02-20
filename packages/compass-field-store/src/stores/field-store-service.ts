@@ -1,8 +1,8 @@
 import { type Schema } from 'mongodb-schema';
 import { createServiceLocator } from 'hadron-app-registry';
 import {
-  connectionInfoAccessLocator,
-  type ConnectionInfoAccess,
+  useConnectionInfoRef,
+  type ConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { useDispatch } from './context';
 import { documentsUpdated, schemaUpdated } from '../modules';
@@ -15,44 +15,35 @@ export type FieldStoreService = {
   updateFieldsFromSchema(ns: string, schema: Schema): void;
 };
 
-export function createFieldStoreService(
+function createFieldStoreService(
   dispatch: ReturnType<typeof useDispatch>,
-  connectionInfoAccess: ConnectionInfoAccess
+  connectionInfoRef: ConnectionInfoRef
 ): FieldStoreService {
   return {
     async updateFieldsFromDocuments(
       ns: string,
       documents: Record<string, any>[]
     ) {
-      try {
-        dispatch(
-          await documentsUpdated(
-            connectionInfoAccess.getCurrentConnectionInfo().id,
-            ns,
-            documents
-          )
-        );
-      } catch (error) {
-        // ignore errors
-      }
+      await dispatch(
+        documentsUpdated(connectionInfoRef.current.id, ns, documents)
+      );
     },
     updateFieldsFromSchema(ns: string, schema: Schema) {
-      dispatch(
-        schemaUpdated(
-          connectionInfoAccess.getCurrentConnectionInfo().id,
-          ns,
-          schema
-        )
-      );
+      dispatch(schemaUpdated(connectionInfoRef.current.id, ns, schema));
     },
   };
 }
 
+/**
+ * @internal exported for test purposes only
+ */
+export function useFieldStoreService() {
+  const dispatch = useDispatch();
+  const connectionInfoRef = useConnectionInfoRef();
+  return createFieldStoreService(dispatch, connectionInfoRef);
+}
+
 export const fieldStoreServiceLocator = createServiceLocator(
-  function fieldStoreServiceLocator() {
-    const dispatch = useDispatch();
-    const connectionInfoAccess = connectionInfoAccessLocator();
-    return createFieldStoreService(dispatch, connectionInfoAccess);
-  },
+  useFieldStoreService,
   'fieldStoreServiceLocator'
 );

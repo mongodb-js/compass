@@ -1,9 +1,15 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import PropertyField, { getPropertyTooltip } from './property-field';
 import getIndexHelpLink from '../../utils/index-link-helper';
+import type { HELP_URL_KEY } from '../../utils/index-link-helper';
 
 describe('PropertyField', function () {
   before(cleanup);
@@ -21,7 +27,8 @@ describe('PropertyField', function () {
         />
       );
 
-      ['ttl', 'partial'].forEach((type) => {
+      const helpFields = ['ttl', 'partial'];
+      for (const type of helpFields) {
         const badge = screen.getByTestId(`${type}-badge`);
         expect(badge).to.exist;
         expect(badge.textContent).to.equal(type);
@@ -30,9 +37,9 @@ describe('PropertyField', function () {
         });
         expect(infoIcon).to.exist;
         expect(infoIcon.closest('a')?.href).to.equal(
-          getIndexHelpLink(type.toUpperCase() as any)
+          getIndexHelpLink(type.toUpperCase() as HELP_URL_KEY)
         );
-      });
+      }
     });
 
     it('does not render cardinality badge when its single', function () {
@@ -64,7 +71,7 @@ describe('PropertyField', function () {
       render(
         <PropertyField
           cardinality={'single'}
-          extra={{ hidden: 'true' }}
+          extra={{ hidden: true }}
           properties={[]}
         />
       );

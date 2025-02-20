@@ -72,11 +72,7 @@ const WorkspaceTabIdContext = React.createContext<string | null>(null);
  * Exported for testing purposes only
  * @internal
  */
-export const TabStoreProvider = ({
-  children,
-}: {
-  children: React.ReactChild;
-}) => {
+export const TabStoreProvider: React.FunctionComponent = ({ children }) => {
   return (
     <Provider context={TabStateStoreContext} store={tabStateStore}>
       {children}
@@ -98,7 +94,7 @@ export const WorkspaceTabStateProvider = ({
   );
 };
 
-function useWorkspaceTabId() {
+export function useWorkspaceTabId() {
   let tabId = useContext(WorkspaceTabIdContext);
   if (!tabId) {
     if (process.env.NODE_ENV !== 'test') {

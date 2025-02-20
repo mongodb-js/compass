@@ -38,10 +38,10 @@ describe('connection-string-helpers', function () {
         'mongodb://outerspace:27099?directConnection=true'
       );
 
-      expect(connectionString.toString()).to.equal(
+      expect(connectionString?.toString()).to.equal(
         'mongodb://outerspace:27099/?directConnection=true'
       );
-      expect(connectionString.hosts[0]).to.equal('outerspace:27099');
+      expect(connectionString?.hosts[0]).to.equal('outerspace:27099');
     });
 
     it('should return without an error when successfully parsed', function () {
@@ -59,7 +59,7 @@ describe('connection-string-helpers', function () {
       );
 
       expect(connectionString).to.equal(undefined);
-      expect(error.message).to.equal(
+      expect(error?.message).to.equal(
         'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
       );
     });
@@ -69,7 +69,7 @@ describe('connection-string-helpers', function () {
         'mongos://pineapple:27099/?directConnection=true'
       );
 
-      expect(connectionString.href).to.equal(
+      expect(connectionString?.href).to.equal(
         'mongos://pineapple:27099/?directConnection=true'
       );
       expect(error).to.equal(undefined);

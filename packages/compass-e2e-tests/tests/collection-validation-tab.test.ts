@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME_1,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -17,12 +22,19 @@ describe('Collection validation tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Validation'
+    );
   });
 
   after(async function () {
@@ -35,7 +47,7 @@ describe('Collection validation tab', function () {
 
   async function addValidation(validation: string) {
     await browser.clickVisible(Selectors.AddRuleButton);
-    const element = await browser.$(Selectors.ValidationEditor);
+    const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
     await browser.setValidation(validation);
@@ -46,11 +58,11 @@ describe('Collection validation tab', function () {
       await addValidation(PASSING_VALIDATOR);
 
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -70,11 +82,11 @@ describe('Collection validation tab', function () {
 
       // nothing passed, everything failed
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -95,11 +107,11 @@ describe('Collection validation tab', function () {
 
       // nothing failed, everything passed
       await browser.waitUntil(async () => {
-        const matchTextElement = await browser.$(
+        const matchTextElement = browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await browser.$(
+        const notMatchingTextElement = browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();

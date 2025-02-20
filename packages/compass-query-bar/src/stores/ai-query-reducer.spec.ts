@@ -36,6 +36,12 @@ describe('aiQueryReducer', function () {
   }
 
   describe('runAIQuery', function () {
+    const connectionInfoRef = {
+      current: {
+        id: 'TEST',
+      },
+    };
+
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasAiService = {
@@ -54,7 +60,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
-            atlasAuthService: { on: sandbox.stub() },
+            connectionInfoRef,
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
@@ -97,8 +103,8 @@ describe('aiQueryReducer', function () {
         };
 
         const store = createStore({}, {
-          atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
+          connectionInfoRef,
           dataService: {
             sample() {
               return Promise.resolve([]);
@@ -124,13 +130,13 @@ describe('aiQueryReducer', function () {
           getQueryFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({}, {
-          atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
           dataService: {
             sample() {
               return Promise.resolve([]);
             },
           },
+          connectionInfoRef,
           preferences,
           logger: createNoopLogger(),
           track: createNoopTrack(),
@@ -172,7 +178,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
-            atlasAuthService: { on: sandbox.stub() },
+            connectionInfoRef,
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
@@ -212,7 +218,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
-            atlasAuthService: { on: sandbox.stub() },
+            connectionInfoRef,
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),

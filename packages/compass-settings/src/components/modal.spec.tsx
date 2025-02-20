@@ -6,12 +6,12 @@ import {
   within,
   waitFor,
   cleanup,
-} from '@testing-library/react';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { spy, stub } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 
 import configureStore from '../../test/configure-store';
 import { SettingsModal } from './modal';
@@ -20,6 +20,7 @@ describe('SettingsModal', function () {
   let onCloseSpy: SinonSpy;
   let fetchSettingsSpy: SinonSpy;
   let onSaveSpy: SinonSpy;
+  let onSelectTabSpy: SinonSpy;
   let renderSettingsModal: (
     props?: Partial<ComponentProps<typeof SettingsModal>>
   ) => void;
@@ -28,6 +29,7 @@ describe('SettingsModal', function () {
     onCloseSpy = spy();
     fetchSettingsSpy = stub().resolves();
     onSaveSpy = spy();
+    onSelectTabSpy = spy();
 
     const store = configureStore();
     renderSettingsModal = (
@@ -40,6 +42,7 @@ describe('SettingsModal', function () {
             onClose={onCloseSpy}
             fetchSettings={fetchSettingsSpy}
             onSave={onSaveSpy}
+            onSelectTab={onSelectTabSpy}
             loadingState="ready"
             hasChangedSettings={false}
             {...props}
@@ -78,22 +81,27 @@ describe('SettingsModal', function () {
   it('navigates between settings', async function () {
     renderSettingsModal({ isOpen: true });
 
-    let sidebar;
+    let sidebar!: HTMLElement;
     await waitFor(() => {
       const container = screen.getByTestId('settings-modal');
       sidebar = within(container).getByTestId('settings-modal-sidebar');
       expect(sidebar).to.exist;
     });
 
-    ['Privacy'].forEach((option) => {
+    for (const option of ['privacy']) {
       const button = within(sidebar).getByTestId(`sidebar-${option}-item`);
       expect(button, `it renders ${option} button`).to.exist;
       userEvent.click(button);
+
+      const selectedTab = onSelectTabSpy.lastCall.args[0];
+      expect(selectedTab).to.equal(option);
+      cleanup();
+      renderSettingsModal({ isOpen: true, selectedTab });
       const tab = screen.getByTestId('settings-modal-content');
       expect(
         tab.getAttribute('aria-labelledby'),
         `it renders ${option} tab`
-      ).to.equal(`${option} Tab`);
-    });
+      ).to.equal(`${option}-tab`);
+    }
   });
 });

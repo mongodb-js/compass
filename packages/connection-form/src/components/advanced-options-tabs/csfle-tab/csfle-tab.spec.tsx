@@ -8,13 +8,18 @@ import {
   screen,
   waitFor,
   fireEvent,
-} from '@testing-library/react';
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
+import { getNextKmsProviderName } from './kms-provider-content';
+import { FileInputBackendProvider } from '@mongodb-js/compass-components';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'
@@ -44,14 +49,16 @@ const setFileInputValue = (testId: string, value: string) =>
   });
 
 describe('In-Use Encryption', function () {
-  let expectToConnectWith;
-  let expectConnectionError;
+  let expectToConnectWith: (
+    expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
+  ) => Promise<void>;
+  let expectConnectionError: (expectedErrorText: string) => Promise<void>;
 
   beforeEach(async function () {
     const connectSpy = sinon.spy();
 
     expectToConnectWith = async (
-      expected: ConnectionOptions | ((ConnectionOptions) => void)
+      expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
@@ -80,17 +87,24 @@ describe('In-Use Encryption', function () {
     };
 
     render(
-      <ConnectionForm
-        initialConnectionInfo={{
-          id: 'conn-1',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
-          },
-        }}
-        onConnectClicked={(connectionInfo) => {
-          connectSpy(connectionInfo.connectionOptions);
-        }}
-      />
+      <FileInputBackendProvider
+        createFileInputBackend={createJSDomFileInputDummyBackend()}
+      >
+        <ConnectionForm
+          initialConnectionInfo={{
+            id: 'conn-1',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          }}
+          onSaveAndConnectClicked={(connectionInfo) => {
+            connectSpy(connectionInfo.connectionOptions);
+          }}
+          onSaveClicked={() => {
+            return Promise.resolve();
+          }}
+        />
+      </FileInputBackendProvider>
     );
 
     expect(connectSpy).not.to.have.been.called;
@@ -191,6 +205,10 @@ describe('In-Use Encryption', function () {
     const generatedLocalKey = screen
       .getByTestId('csfle-kms-local-key')
       .closest('input')?.value;
+
+    if (!generatedLocalKey) {
+      throw new Error('expected generatedLocalKey');
+    }
 
     expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
 
@@ -349,5 +367,204 @@ describe('In-Use Encryption', function () {
         },
       },
     });
+  });
+
+  context('supports multiple kms providers from same type', function () {
+    function renameKMSProvider(name: string, value: string) {
+      const card = screen.getByTestId(`${name}-kms-card-item`);
+
+      const editButton = within(card).queryByRole('button', {
+        name: /edit kms provider name/i,
+      });
+
+      if (editButton) {
+        userEvent.click(
+          within(card).getByRole('button', {
+            name: /edit kms provider name/i,
+          })
+        );
+      }
+
+      const selector = within(card).getByTestId('csfle-kms-card-name');
+      userEvent.clear(selector);
+      if (value !== '') {
+        userEvent.type(selector, value);
+      }
+      userEvent.keyboard('{enter}');
+    }
+
+    it('allows to have multiple KMS providers from same type', async function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      const kmsProviders: Record<string, any> = {};
+
+      for (const kmsProviderName of ['local', 'local:1'] as const) {
+        const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
+
+        expect(
+          within(kmsCard).getByTestId('csfle-kms-local-key').closest('input')
+            ?.value
+        ).to.equal('');
+
+        fireEvent.click(
+          within(kmsCard).getByTestId('generate-local-key-button')
+        );
+
+        const generatedLocalKey = within(kmsCard)
+          .getByTestId('csfle-kms-local-key')
+          .closest('input')?.value;
+
+        if (!generatedLocalKey) {
+          throw new Error('expected generatedLocalKey');
+        }
+
+        expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
+
+        kmsProviders[kmsProviderName] = {
+          key: generatedLocalKey,
+        };
+      }
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders,
+          },
+        },
+      });
+    });
+
+    it('allows rename of KMS provider', async function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      renameKMSProvider('local', 'new_name_1');
+      renameKMSProvider('local:1', 'new_name_2');
+
+      const kmsProviders: Record<string, any> = {};
+
+      for (const kmsProviderName of [
+        'local:new_name_1',
+        'local:new_name_2',
+      ] as const) {
+        const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
+
+        expect(
+          within(kmsCard).getByTestId('csfle-kms-local-key').closest('input')
+            ?.value
+        ).to.equal('');
+
+        fireEvent.click(
+          within(kmsCard).getByTestId('generate-local-key-button')
+        );
+
+        const generatedLocalKey = within(kmsCard)
+          .getByTestId('csfle-kms-local-key')
+          .closest('input')?.value;
+
+        if (!generatedLocalKey) {
+          throw new Error('expected generatedLocalKey');
+        }
+
+        expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
+
+        kmsProviders[kmsProviderName] = {
+          key: generatedLocalKey,
+        };
+      }
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders,
+          },
+        },
+      });
+    });
+
+    it('shows name validation errors', function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      // By default the first name is local
+
+      // Check validation errors for the second name
+      renameKMSProvider('local:1', '');
+      expect(screen.getByText('Name cannot be empty')).to.exist;
+
+      renameKMSProvider('local:1', 'local 1');
+      expect(
+        screen.getByText(
+          'Name must be alphanumeric and may contain underscores'
+        )
+      ).to.exist;
+
+      renameKMSProvider('local', 'name1');
+      renameKMSProvider('local:1', 'name1');
+      expect(screen.getByText('Name already exists')).to.exist;
+    });
+
+    it('allows user to remove a kms provider', function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+
+      const card1 = screen.getByTestId('local-kms-card-item');
+      userEvent.hover(card1);
+      // When its only one card, we do not show the delete button
+      expect(() =>
+        within(card1).getByRole('button', {
+          name: /Remove KMS provider/i,
+        })
+      ).to.throw;
+
+      fireEvent.click(screen.getByText('Add item'));
+
+      expect(within(card1).findByTestId('kms-card-header')).to.exist;
+      expect(
+        within(screen.getByTestId('local:1-kms-card-item')).findByTestId(
+          'kms-card-header'
+        )
+      ).to.exist;
+
+      // we show remove button on hover
+      userEvent.hover(card1);
+      fireEvent.click(
+        within(card1).getByRole('button', {
+          name: /Remove KMS provider/i,
+        })
+      );
+
+      expect(() => card1).to.throw;
+    });
+  });
+
+  it('getNextKmsProviderName', function () {
+    const usecases = [
+      {
+        providerNames: [],
+        expected: 'local',
+      },
+      {
+        providerNames: ['local'],
+        expected: 'local:1',
+      },
+      {
+        providerNames: ['local:9'],
+        expected: 'local:10',
+      },
+      {
+        providerNames: ['local:what', 'local:this'],
+        expected: 'local:1',
+      },
+    ];
+    for (const { providerNames, expected } of usecases) {
+      expect(getNextKmsProviderName('local', providerNames)).to.equal(expected);
+    }
   });
 });

@@ -2,7 +2,12 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { fireEvent, render, screen, cleanup } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 
 import { OptionsToggle } from './options-toggle';
 

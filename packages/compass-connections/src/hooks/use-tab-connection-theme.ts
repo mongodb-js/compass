@@ -1,45 +1,38 @@
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { useConnectionRepository } from '../provider';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionsColorList } from '../stores/store-context';
 
 type ThemeProvider = {
   getThemeOf(
     this: void,
     connectionId: ConnectionInfo['id']
-  ): TabTheme | undefined;
+  ): Partial<TabTheme> | undefined;
 };
 
 export function useTabConnectionTheme(): ThemeProvider {
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
-  const { getConnectionInfoById } = useConnectionRepository();
+  const connectionColorsList = useConnectionsColorList();
   const darkTheme = useDarkMode();
-  const isMultipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
 
   const getThemeOf = useCallback(
     (connectionId: ConnectionInfo['id']) => {
-      const connectionInfo = getConnectionInfoById(connectionId);
-      const color = connectionInfo?.favorite?.color;
+      const color = connectionColorsList.find((connection) => {
+        return connection.id === connectionId;
+      })?.color;
       const bgColor = connectionColorToHex(color);
       const activeBgColor = connectionColorToHexActive(color);
 
-      if (
-        !color ||
-        !bgColor ||
-        !activeBgColor ||
-        !isMultipleConnectionsEnabled
-      ) {
+      if (!color || !bgColor || !activeBgColor) {
         return;
       }
 
       return {
         '--workspace-tab-background-color': bgColor,
+        '--workspace-tab-top-border-color': bgColor,
         '--workspace-tab-border-color': darkTheme
           ? palette.gray.dark2
           : palette.gray.light2,
@@ -49,7 +42,7 @@ export function useTabConnectionTheme(): ThemeProvider {
         '--workspace-tab-selected-background-color': darkTheme
           ? palette.black
           : palette.white,
-        '--workspace-tab-selected-border-color': activeBgColor,
+        '--workspace-tab-selected-top-border-color': activeBgColor,
         '--workspace-tab-selected-color': darkTheme
           ? palette.white
           : palette.gray.dark3,
@@ -65,11 +58,10 @@ export function useTabConnectionTheme(): ThemeProvider {
     },
     [
       palette,
-      getConnectionInfoById,
+      connectionColorsList,
       connectionColorToHex,
       connectionColorToHexActive,
       darkTheme,
-      isMultipleConnectionsEnabled,
     ]
   );
 

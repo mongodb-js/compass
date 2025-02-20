@@ -6,46 +6,45 @@ import type {
 
 import TLSCertificateAuthority from '../tls-ssl-tab/tls-certificate-authority';
 import TLSClientCertificate from '../tls-ssl-tab/tls-client-certificate';
+import type {
+  KMSTLSProviderName,
+  KMSTLSProviderType,
+} from '../../../utils/csfle-kms-fields';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-function KMSTLSOptions({
+function KMSTLSOptions<T extends KMSTLSProviderType>({
   updateConnectionFormField,
   autoEncryptionOptions,
-  kmsProvider,
+  kmsProviderName,
   clientCertIsOptional,
 }: {
   updateConnectionFormField: UpdateConnectionFormField;
   autoEncryptionOptions: AutoEncryptionOptions;
-  kmsProvider: keyof NonNullable<AutoEncryptionOptions['tlsOptions']>;
+  kmsProviderName: KMSTLSProviderName<T>;
   clientCertIsOptional?: boolean;
 }): React.ReactElement {
   const currentOptions: ClientEncryptionTlsOptions =
-    autoEncryptionOptions.tlsOptions?.[kmsProvider] ?? {};
+    autoEncryptionOptions.tlsOptions?.[kmsProviderName] ?? {};
 
   const handleFieldChanged = useCallback(
     (key: keyof ClientEncryptionTlsOptions, value?: string) => {
       return updateConnectionFormField({
         type: 'update-csfle-kms-tls-param',
-        kmsProvider,
+        kmsProviderName,
         key,
         value,
       });
     },
-    [updateConnectionFormField, kmsProvider]
+    [updateConnectionFormField, kmsProviderName]
   );
 
   return (
     <>
       <TLSCertificateAuthority
         tlsCAFile={currentOptions.tlsCAFile}
-        useSystemCA={false /* TODO(COMPASS-5635) */}
-        hideUseSystemCA={true /* TODO(COMPASS-5635) */}
         disabled={false}
         handleTlsOptionChanged={(key, value) =>
-          handleFieldChanged(
-            key as 'tlsCAFile' /* COMPASS-5635 */,
-            value ?? undefined
-          )
+          handleFieldChanged(key, value ?? undefined)
         }
         displayDatabaseConnectionUserHints={false}
       />

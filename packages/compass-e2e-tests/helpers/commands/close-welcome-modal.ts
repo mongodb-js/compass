@@ -8,10 +8,8 @@ export async function closeWelcomeModal(
     return;
   }
 
-  const welcomeModalElement = await browser.$(Selectors.WelcomeModal);
+  const welcomeModalElement = browser.$(Selectors.WelcomeModal);
   await welcomeModalElement.waitForDisplayed();
-
-  await browser.screenshot('welcome-modal.png');
 
   await browser.clickVisible(Selectors.CloseWelcomeModalButton);
   await welcomeModalElement.waitForDisplayed({

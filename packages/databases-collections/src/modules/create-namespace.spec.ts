@@ -32,7 +32,12 @@ describe('create collection module', function () {
           storeAction = action;
         },
         () => INITIAL_STATE,
-        { track: createNoopTrack() } as any
+        {
+          track: createNoopTrack(),
+          connections: {
+            getConnectionById: () => ({ info: { id: 'TEST' } }),
+          },
+        } as any
       );
       const state = reducer(undefined, storeAction);
       expect(state).to.deep.equal({
@@ -54,7 +59,12 @@ describe('create collection module', function () {
           storeAction = action;
         },
         () => INITIAL_STATE,
-        { track: createNoopTrack() } as any
+        {
+          track: createNoopTrack(),
+          connections: {
+            getConnectionById: () => ({ info: { id: 'TEST' } }),
+          },
+        } as any
       );
       const state = reducer(undefined, storeAction);
       expect(state).to.deep.equal({

@@ -6,14 +6,19 @@ const path = require('path');
 const { forEachPackage } = require('@mongodb-js/monorepo-tools');
 const { runInDir } = require('./run-in-dir');
 
-async function cleanAndBootstrap(electronVersion) {
+async function cleanAndBootstrap(newVersions) {
   try {
     await runInDir("npx lerna exec 'rm -Rf node_modules'");
     await runInDir('rm -Rf node_modules');
     const packageJsonBkp = fs.readFileSync('./package.json');
     await runInDir('npm i');
-    // Make sure electron is hoisted on the root
-    await runInDir(`npm i electron@${electronVersion}`);
+    // Make sure all new deps are hoisted on the root
+    const versionsToInstall = Object.entries(newVersions)
+      .map(([name, version]) => {
+        return `${name}@${version}`;
+      })
+      .join(' ');
+    await runInDir(`npm i ${versionsToInstall}`);
     await runInDir('npm run bootstrap');
     fs.writeFileSync('./package.json', packageJsonBkp);
     // Run install again to make sure root level electron is removed from
@@ -104,12 +109,16 @@ async function main() {
   );
 
   const latestBrowserslistVersion = await getLatestVersion('browserslist');
+  const latestElectronToChromiumVersion = await getLatestVersion(
+    'electron-to-chromium'
+  );
 
   const newVersions = {
     'node-abi': `^${latestNodeAbiVersion}`,
     '@electron/remote': `^${latestElectronRemoteVersion}`,
     '@electron/rebuild': `^${latestElectronRebuildVersion}`,
     electron: `^${latestElectronVersion}`,
+    'electron-to-chromium': `^${latestElectronToChromiumVersion}`,
     browserslist: `^${latestBrowserslistVersion}`,
   };
 
@@ -122,7 +131,7 @@ async function main() {
   });
 
   console.log('Cleaning node_modules and rebootstrapping');
-  cleanAndBootstrap(latestElectronVersion);
+  cleanAndBootstrap(newVersions);
 }
 
 main();

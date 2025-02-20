@@ -1,41 +1,92 @@
-import { TEST_COMPASS_WEB } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
-import delay from '../delay';
 import * as Selectors from '../selectors';
 
-export async function disconnect(browser: CompassBrowser): Promise<void> {
-  if (TEST_COMPASS_WEB) {
-    const url = new URL(await browser.getUrl());
-    url.pathname = '/';
-    await browser.navigateTo(url.toString());
-    const element = await browser.$(Selectors.ConnectionStringInput);
-    await element.waitForDisplayed();
-    return;
+async function resetForDisconnect(
+  browser: CompassBrowser,
+  {
+    closeToasts = true,
+  }: {
+    closeToasts?: boolean;
+  } = {}
+) {
+  await browser.hideVisibleModal();
+
+  // Collapse all the connections so that they will all hopefully fit on screen
+  // and therefore be rendered.
+  await browser.clickVisible(Selectors.CollapseConnectionsButton);
+
+  if (
+    (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
+    (await browser
+      .$(Selectors.SidebarFilterInput)
+      .getAttribute('aria-disabled')) !== 'true'
+  ) {
+    // Clear the filter to make sure every connection shows
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
   }
 
-  const cancelConnectionButtonElement = await browser.$(
-    Selectors.CancelConnectionButton
+  if (closeToasts) {
+    await browser.hideAllVisibleToasts();
+  }
+}
+
+export async function disconnectAll(
+  browser: CompassBrowser,
+  {
+    closeToasts = true,
+  }: {
+    closeToasts?: boolean;
+  } = {}
+): Promise<void> {
+  // This command is mostly intended for use inside a beforeEach() hook,
+  // probably in conjunction with browser.connectToDefaults() so that each test
+  // will start off with multiple connections already connected.
+
+  // The previous test could have ended with modals and/or toasts left open and
+  // a search filter in the sidebar. Reset those so we can get to a known state.
+  await resetForDisconnect(browser, { closeToasts });
+
+  // The potential problem here is that the list is virtual, so it is possible
+  // that not every connection is rendered. Collapsing them all helps a little
+  // bit, though.
+  const connectionItems = browser.$$(Selectors.ConnectedConnectionItems);
+  for await (const connectionItem of connectionItems) {
+    const connectionName = await connectionItem.getAttribute(
+      'data-connection-name'
+    );
+    await browser.disconnectByName(connectionName);
+  }
+
+  if (closeToasts) {
+    // If we disconnected "too soon" and we get an error like "Failed to
+    // retrieve server info" or similar, there might be an error or warning
+    // toast by now. If so, just close it otherwise the next test or connection
+    // attempt will be confused by it.
+    await browser.hideAllVisibleToasts();
+  }
+
+  // NOTE: This doesn't make sure the New Connection modal is open after
+  // disconnecting. This also doesn't remove all connections from the sidebar so
+  // the connection will still be there, just disconnected.
+}
+
+export async function disconnectByName(
+  browser: CompassBrowser,
+  connectionName: string
+) {
+  await resetForDisconnect(browser, { closeToasts: false });
+
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.DisconnectConnectionItem
   );
-  // If we are still connecting, let's try cancelling the connection first
-  if (await cancelConnectionButtonElement.isDisplayed()) {
-    try {
-      await browser.closeConnectModal();
-    } catch (e) {
-      // If that failed, the button was probably gone before we managed to
-      // click it. Let's go through the whole disconnecting flow now
-    }
-  }
 
-  await delay(100);
-
-  await browser.execute(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('electron').ipcRenderer.emit('app:disconnect');
-  });
-
-  const element = await browser.$(Selectors.ConnectSection);
-  await element.waitForDisplayed();
-
-  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-  await delay(100);
+  await browser
+    .$(
+      Selectors.connectionItemByName(connectionName, {
+        connected: false,
+      })
+    )
+    .waitForDisplayed();
 }

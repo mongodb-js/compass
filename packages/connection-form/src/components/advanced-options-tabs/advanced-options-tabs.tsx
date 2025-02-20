@@ -20,7 +20,7 @@ import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
-import { useConnectionFormPreference } from '../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../hooks/use-connect-form-settings';
 
 const tabsStyles = css({
   marginTop: spacing[2],
@@ -56,6 +56,7 @@ interface TabObject {
     connectionStringUrl: ConnectionStringUrl;
     updateConnectionFormField: UpdateConnectionFormField;
     connectionOptions: ConnectionOptions;
+    openSettingsModal?: (tab?: string) => void;
   }>;
 }
 
@@ -63,13 +64,15 @@ function AdvancedOptionsTabs({
   errors,
   updateConnectionFormField,
   connectionOptions,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
-  const showCSFLE = useConnectionFormPreference('showCSFLE');
+  const showCSFLE = useConnectionFormSetting('showCSFLE');
 
   const tabs: TabObject[] = [
     { name: 'General', id: 'general', component: GeneralTab },
@@ -139,12 +142,13 @@ function AdvancedOptionsTabs({
             data-testid={`connection-${tabObject.id}-tab`}
             data-has-error={showTabErrorIndicator}
           >
-            <div className={tabContentStyles}>
+            <div aria-label={tabObject.name} className={tabContentStyles}>
               <TabComponent
                 errors={errors}
                 connectionStringUrl={connectionStringUrl}
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                openSettingsModal={openSettingsModal}
               />
             </div>
           </Tab>

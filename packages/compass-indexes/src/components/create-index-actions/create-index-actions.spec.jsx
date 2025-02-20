@@ -5,42 +5,36 @@ import sinon from 'sinon';
 import {
   render,
   screen,
-  cleanup,
-  fireEvent,
+  userEvent,
   within,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 
 import CreateIndexActions from '../create-index-actions';
 
-const noop = () => {};
-
 describe('CreateIndexActions Component', function () {
   let clearErrorSpy;
-  let createIndexSpy;
+  let onCreateIndexClickSpy;
   let closeCreateIndexModalSpy;
 
   beforeEach(function () {
     clearErrorSpy = sinon.spy();
-    createIndexSpy = sinon.spy();
+    onCreateIndexClickSpy = sinon.spy();
     closeCreateIndexModalSpy = sinon.spy();
   });
 
   afterEach(function () {
     clearErrorSpy = null;
-    createIndexSpy = null;
+    onCreateIndexClickSpy = null;
     closeCreateIndexModalSpy = null;
-
-    cleanup();
   });
 
   it('renders a cancel button', function () {
     render(
       <CreateIndexActions
         error={null}
-        clearError={clearErrorSpy}
-        inProgress={false}
-        createIndex={createIndexSpy}
-        closeCreateIndexModal={closeCreateIndexModalSpy}
+        onErrorBannerCloseClick={clearErrorSpy}
+        onCreateIndexClick={onCreateIndexClickSpy}
+        onCancelCreateIndexClick={closeCreateIndexModalSpy}
       />
     );
 
@@ -53,36 +47,34 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
       const button = screen.getByTestId('create-index-actions-cancel-button');
-      fireEvent.click(button);
+      userEvent.click(button);
       expect(closeCreateIndexModalSpy).to.have.been.calledOnce;
     });
   });
 
   context('onConfirm', function () {
-    it('calls the createIndex function', function () {
+    it('calls the onCreateIndexClick function', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
       const button = screen.getByTestId(
         'create-index-actions-create-index-button'
       );
-      fireEvent.click(button);
-      expect(createIndexSpy).to.have.been.calledOnce;
+      userEvent.click(button);
+      expect(onCreateIndexClickSpy).to.have.been.calledOnce;
     });
   });
 
@@ -90,10 +82,9 @@ describe('CreateIndexActions Component', function () {
     render(
       <CreateIndexActions
         error={null}
-        clearError={clearErrorSpy}
-        inProgress={false}
-        createIndex={createIndexSpy}
-        closeCreateIndexModal={closeCreateIndexModalSpy}
+        onErrorBannerCloseClick={clearErrorSpy}
+        onCreateIndexClick={onCreateIndexClickSpy}
+        onCancelCreateIndexClick={closeCreateIndexModalSpy}
       />
     );
 
@@ -108,10 +99,9 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -125,10 +115,9 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -137,25 +126,8 @@ describe('CreateIndexActions Component', function () {
       );
       const closeIcon = within(errorBanner).getByLabelText('X Icon');
 
-      fireEvent.click(closeIcon);
+      userEvent.click(closeIcon);
       expect(clearErrorSpy).to.have.been.calledOnce;
-    });
-
-    it('does not render in progress banner', function () {
-      render(
-        <CreateIndexActions
-          error={'Some error happened!'}
-          clearError={clearErrorSpy}
-          inProgress={true}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
-        />
-      );
-
-      const inProgressBanner = screen.queryByTestId(
-        'create-index-actions-in-progress-banner-wrapper'
-      );
-      expect(inProgressBanner).to.not.exist;
     });
   });
 
@@ -164,10 +136,9 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -175,43 +146,6 @@ describe('CreateIndexActions Component', function () {
         'create-index-actions-error-banner-wrapper'
       );
       expect(errorBanner).to.not.exist;
-    });
-
-    context('when in progress', function () {
-      beforeEach(function () {
-        render(
-          <CreateIndexActions
-            error={null}
-            clearError={noop}
-            inProgress={true}
-            createIndex={noop}
-            closeCreateIndexModal={noop}
-          />
-        );
-      });
-
-      afterEach(cleanup);
-
-      it('renders in progress banner', function () {
-        const inProgressBanner = screen.getByTestId(
-          'create-index-actions-in-progress-banner-wrapper'
-        );
-        expect(inProgressBanner).to.contain.text('Index creation in progress');
-      });
-
-      it('hides the create index button', function () {
-        const createIndexButton = screen.queryByTestId(
-          'create-index-actions-create-index-button'
-        );
-        expect(createIndexButton).to.not.exist;
-      });
-
-      it('renames the cancel button to close', function () {
-        const cancelButton = screen.getByTestId(
-          'create-index-actions-cancel-button'
-        );
-        expect(cancelButton.textContent).to.be.equal('Close');
-      });
     });
   });
 });

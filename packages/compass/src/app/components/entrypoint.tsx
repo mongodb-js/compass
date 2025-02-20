@@ -24,9 +24,11 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
-import Home, { type HomeProps } from './home';
-import { createIpcSendTrack } from '@mongodb-js/compass-telemetry';
-import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry/dist/generic-track';
+import Home from './home';
+import {
+  type TelemetryServiceOptions,
+  createIpcSendTrack,
+} from '@mongodb-js/compass-telemetry';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -59,7 +61,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
           },
         }}
       >
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+        <AtlasAiServiceProvider apiURLPreset="admin-api">
+          {children}
+        </AtlasAiServiceProvider>
       </AtlasServiceProvider>
     </AtlasAuthServiceProvider>
   );
@@ -88,12 +92,7 @@ export const WithStorageProviders: React.FC = ({ children }) => {
   );
 };
 
-export const CompassElectron = (
-  props: Omit<
-    HomeProps,
-    '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN' | '__TEST_INITIAL_CONNECTION_INFO'
-  >
-) => {
+export const CompassElectron = (props: React.ComponentProps<typeof Home>) => {
   return (
     <WithPreferencesAndLoggerProviders>
       <WithAtlasProviders>

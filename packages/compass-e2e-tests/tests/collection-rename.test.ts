@@ -4,18 +4,16 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
+import { createDummyCollections } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
 
-import { setFeature } from '../helpers/commands';
-const initialName = 'numbers';
-const newName = 'renamed';
-
-const databaseName = 'rename-collection';
+const databaseName = 'test';
+const initialCollectionName = 'numbers';
+const newCollectionName = 'renamed';
 
 class RenameCollectionModal {
   constructor(private browser: CompassBrowser) {}
@@ -39,60 +37,34 @@ class RenameCollectionModal {
   }
 
   async isVisible() {
-    const modal = await this.browser.$(Selectors.RenameCollectionModal);
+    const modal = this.browser.$(Selectors.RenameCollectionModal);
     await modal.waitForDisplayed();
   }
 
   async isNotVisible() {
-    const modal = await this.browser.$(Selectors.RenameCollectionModal);
+    const modal = this.browser.$(Selectors.RenameCollectionModal);
     return modal.waitForDisplayed({
       reverse: true,
     });
   }
 
-  async enterNewCollectionName(newName: string) {
-    const input = await this.browser.$(Selectors.RenameCollectionModalInput);
+  async enterNewCollectionName(newCollectionName: string) {
+    const input = this.browser.$(Selectors.RenameCollectionModalInput);
     await input.clearValue();
-    await input.addValue(newName);
+    await input.addValue(newCollectionName);
   }
-}
-
-async function navigateToCollectionInSidebar(browser: CompassBrowser) {
-  const sidebar = await browser.$(Selectors.SidebarNavigationTree);
-  await sidebar.waitForDisplayed();
-
-  // open the database in the sidebar
-  const dbElement = await browser.$(Selectors.sidebarDatabase(databaseName));
-  await dbElement.waitForDisplayed();
-  const button = await browser.$(Selectors.sidebarDatabaseToggle(databaseName));
-
-  await button.waitForDisplayed();
-  await button.click();
-
-  // wait for the collection to become displayed
-  const collectionSelector = Selectors.sidebarCollection(
-    databaseName,
-    initialName
-  );
-  await browser.scrollToVirtualItem(
-    Selectors.SidebarNavigationTree,
-    collectionSelector,
-    'tree'
-  );
-  const collectionElement = await browser.$(collectionSelector);
-  await collectionElement.waitForDisplayed();
 }
 
 async function renameCollectionSuccessFlow(
   browser: CompassBrowser,
-  newName: string
+  newCollectionName: string
 ) {
   const page = new RenameCollectionModal(browser);
   // wait for the collection modal to appear
   await page.isVisible();
 
   // enter the new name
-  await page.enterNewCollectionName(newName);
+  await page.enterNewCollectionName(newCollectionName);
 
   // submit the form and confirm submission
   await page.submitButton.click();
@@ -107,23 +79,23 @@ async function renameCollectionSuccessFlow(
 describe('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
+  let connectionId: string;
 
   before(async function () {
-    skipForWeb(this, 'feature flags not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-
-    await setFeature(browser, 'enableRenameCollectionModal', true);
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
-    await dropDatabase(databaseName);
+    await createDummyCollections();
 
-    await createBlankCollection(databaseName, initialName);
-    await createBlankCollection(databaseName, 'bar');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
 
-    await browser.connectWithConnectionString();
+    connectionId = await browser.getConnectionIdByName(
+      DEFAULT_CONNECTION_NAME_1
+    );
   });
 
   after(async function () {
@@ -135,78 +107,67 @@ describe('Collection Rename Modal', () => {
   });
 
   afterEach(async function () {
-    await dropDatabase(databaseName);
     await screenshotIfFailed(compass, this.currentTest);
   });
 
   describe('from the sidebar', () => {
-    it('a collection can be renamed', async () => {
-      await navigateToCollectionInSidebar(browser);
-
-      // open the rename collection modal
-      await browser.hover(
-        Selectors.sidebarCollection(databaseName, initialName)
-      );
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
-      );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
-
-      // go through
-      await renameCollectionSuccessFlow(browser, newName);
-
-      // confirm that the new collection name is shown in the sidebar
-      await browser
-        .$(Selectors.sidebarCollection(databaseName, newName))
-        .waitForDisplayed();
-    });
-
     it('collection rename shows up on collection view', async () => {
-      await navigateToCollectionInSidebar(browser);
       // open a collection tab
-      const collectionSelector = Selectors.sidebarCollection(
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
         databaseName,
-        initialName
+        initialCollectionName
       );
-      const collectionElement = await browser.$(collectionSelector);
-      await collectionElement.waitForDisplayed();
-      await collectionElement.click();
 
       const headerSelector = Selectors.CollectionHeader;
       // wait until the collection tab has loaded
       await browser.$(headerSelector).waitForDisplayed();
 
-      // open the rename collection flow from the sidebar
-      await browser.hover(collectionSelector);
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
+      await browser.selectCollectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        databaseName,
+        initialCollectionName,
+        'rename-collection'
       );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
-      await renameCollectionSuccessFlow(browser, newName);
 
+      await renameCollectionSuccessFlow(browser, newCollectionName);
+
+      // confirm that the new collection name is shown in the sidebar
+      await browser.clickVisible(Selectors.SidebarFilterInput);
+      await browser.setValueVisible(
+        Selectors.SidebarFilterInput,
+        `^(${databaseName}|${newCollectionName})$`
+      );
+      await browser
+        .$(
+          Selectors.sidebarCollection(
+            connectionId,
+            databaseName,
+            newCollectionName
+          )
+        )
+        .waitForDisplayed();
+
+      // confirm that the header in the workspace changes
       await browser.$(headerSelector).waitForDisplayed();
       await browser.waitUntil(async () => {
         const collectionHeaderContent = await browser
           .$(headerSelector)
           .getText();
         return (
-          collectionHeaderContent.includes(newName) &&
-          !collectionHeaderContent.includes(initialName)
+          collectionHeaderContent.includes(newCollectionName) &&
+          !collectionHeaderContent.includes(initialCollectionName)
         );
       });
     });
 
     it('collection rename can be retried after an error renaming the collection', async () => {
-      await navigateToCollectionInSidebar(browser);
-
-      // open the rename collection modal
-      await browser.hover(
-        Selectors.sidebarCollection(databaseName, initialName)
+      await browser.selectCollectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        databaseName,
+        initialCollectionName,
+        'rename-collection'
       );
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
-      );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // wait for the collection modal to appear
       const modal = new RenameCollectionModal(browser);
@@ -224,7 +185,7 @@ describe('Collection Rename Modal', () => {
       await modal.errorBanner.waitForDisplayed();
 
       // try again, expecting success
-      await modal.enterNewCollectionName(newName);
+      await modal.enterNewCollectionName(newCollectionName);
       await modal.submitButton.click();
       await modal.confirmationScreen.waitForDisplayed();
       await modal.submitButton.click();
@@ -235,34 +196,13 @@ describe('Collection Rename Modal', () => {
   });
 
   describe('modal dismiss', () => {
-    it('the modal can be dismissed', async () => {
-      await navigateToCollectionInSidebar(browser);
-      // open the rename collection modal
-      await browser.hover(
-        Selectors.sidebarCollection(databaseName, initialName)
-      );
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
-      );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
-      // wait for the collection modal to appear
-      const modal = new RenameCollectionModal(browser);
-      await modal.isVisible();
-
-      await browser.clickVisible(modal.dismissButton);
-      await modal.isNotVisible();
-    });
-
     it('clears modal state when dismissed', async () => {
-      await navigateToCollectionInSidebar(browser);
-      // open the rename collection modal
-      await browser.hover(
-        Selectors.sidebarCollection(databaseName, initialName)
+      await browser.selectCollectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        databaseName,
+        initialCollectionName,
+        'rename-collection'
       );
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
-      );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // wait for the collection modal to appear
       const modal = new RenameCollectionModal(browser);
@@ -274,17 +214,17 @@ describe('Collection Rename Modal', () => {
       await modal.isNotVisible();
 
       // re-open the modal
-      // open the drop collection modal from the sidebar
-      await browser.hover(
-        Selectors.sidebarCollection(databaseName, initialName)
+      await browser.selectCollectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        databaseName,
+        initialCollectionName,
+        'rename-collection'
       );
-      await browser.clickVisible(
-        Selectors.SidebarNavigationItemShowActionsButton
-      );
-      await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // assert that the form state has reset
-      expect(await modal.collectionNameInput.getValue()).to.equal(initialName);
+      expect(await modal.collectionNameInput.getValue()).to.equal(
+        initialCollectionName
+      );
     });
   });
 });

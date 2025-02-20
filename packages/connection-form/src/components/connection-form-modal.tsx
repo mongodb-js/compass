@@ -47,13 +47,22 @@ export default function ConnectionFormModal({
     <Modal
       open={isOpen}
       setOpen={setOpen}
+      data-testid="connection-form-modal"
       className={modalStyles}
       contentClassName={cx(
         modalContentStyles,
         advancedOpen && modalContentFullHeightStyles
       )}
     >
-      <ConnectionForm onAdvancedOptionsToggle={setAdvancedOpen} {...rest} />
+      <ConnectionForm
+        // Key is not applied to the Modal itself or the upper component so that
+        // the animation stays smooth, otherwise React will hard unmount the
+        // modal when connection info changes, for our case it's enough for this
+        // to happen only for the connection form itself
+        key={rest.initialConnectionInfo.id}
+        onAdvancedOptionsToggle={setAdvancedOpen}
+        {...rest}
+      />
     </Modal>
   );
 }

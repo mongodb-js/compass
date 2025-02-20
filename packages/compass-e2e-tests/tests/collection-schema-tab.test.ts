@@ -5,6 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -22,12 +23,14 @@ describe('Collection schema tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
     await createGeospatialCollection();
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
   });
 
   after(async function () {
@@ -39,20 +42,25 @@ describe('Collection schema tab', function () {
   });
 
   it('analyzes a schema', async function () {
-    await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Schema'
+    );
     await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-    const element = await browser.$(Selectors.SchemaFieldList);
+    const element = browser.$(Selectors.SchemaFieldList);
     await element.waitForDisplayed();
-    const analysisMessageElement = await browser.$(Selectors.AnalysisMessage);
+    const analysisMessageElement = browser.$(Selectors.AnalysisMessage);
     const message = await analysisMessageElement.getText();
     // message contains non-breaking spaces
     expect(message.replace(/\s/g, ' ')).to.equal(
       'This report is based on a sample of 1000 documents.'
     );
 
-    const fields = await browser.$$(Selectors.SchemaField);
-    expect(fields).to.have.lengthOf(3);
+    const numFields = await browser.$$(Selectors.SchemaField).length;
+    expect(numFields).to.equal(3);
 
     const fieldNames = await browser
       .$$(Selectors.SchemaFieldName)
@@ -70,10 +78,15 @@ describe('Collection schema tab', function () {
       skipForWeb(this, "can't toggle features in compass-web");
 
       await browser.setFeature('enableMaps', enableMaps);
-      await browser.navigateToCollectionTab('test', 'geospatial', 'Schema');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'geospatial',
+        'Schema'
+      );
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-      const element = await browser.$(Selectors.SchemaFieldList);
+      const element = browser.$(Selectors.SchemaFieldList);
       await element.waitForDisplayed();
 
       const fieldNames = (
@@ -95,6 +108,54 @@ describe('Collection schema tab', function () {
         .waitForDisplayed({ reverse: !enableMaps });
     });
   }
+
+  describe('with the enableExportSchema feature flag enabled', function () {
+    beforeEach(async function () {
+      // TODO(COMPASS-8819): remove web skip when defaulted true.
+      skipForWeb(this, "can't toggle features in compass-web");
+      await browser.setFeature('enableExportSchema', true);
+    });
+
+    it('shows an exported schema to copy', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Schema'
+      );
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const element = browser.$(Selectors.SchemaFieldList);
+      await element.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.ExportSchemaButton);
+
+      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+      await exportModal.waitForDisplayed();
+
+      const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
+      await exportSchemaContent.waitForDisplayed();
+      const text = await browser.$(Selectors.ExportSchemaOutput).getText();
+      const parsedText = JSON.parse(text);
+      delete parsedText.$defs;
+      expect(parsedText).to.deep.equal({
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
+        required: ['_id', 'i', 'j'],
+        properties: {
+          _id: {
+            $ref: '#/$defs/ObjectId',
+          },
+          i: {
+            type: 'integer',
+          },
+          j: {
+            type: 'integer',
+          },
+        },
+      });
+    });
+  });
 
   it('analyzes the schema with a query');
   it('can reset the query');

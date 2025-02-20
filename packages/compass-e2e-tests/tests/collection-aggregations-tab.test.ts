@@ -8,6 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -15,8 +16,9 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { getStageOperators } from '../helpers/read-stage-operators';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
+import type { ChainablePromiseElement } from 'webdriverio';
+import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 
 const { expect } = chai;
 
@@ -28,7 +30,7 @@ const STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY = 'has_seen_stage_wizard_guide_cue';
 
 async function waitForAnyText(
   browser: CompassBrowser,
-  element: WebdriverIO.Element
+  element: ChainablePromiseElement
 ) {
   await browser.waitUntil(async () => {
     const text = await element.getText();
@@ -40,9 +42,7 @@ async function goToRunAggregation(browser: CompassBrowser) {
   if (await browser.$(Selectors.AggregationBuilderWorkspace).isDisplayed()) {
     await browser.clickVisible(Selectors.RunPipelineButton);
   }
-  const resultsWorkspace = await browser.$(
-    Selectors.AggregationResultsWorkspace
-  );
+  const resultsWorkspace = browser.$(Selectors.AggregationResultsWorkspace);
   await resultsWorkspace.waitForDisplayed();
 }
 
@@ -50,9 +50,7 @@ async function goToEditPipeline(browser: CompassBrowser) {
   if (await browser.$(Selectors.AggregationResultsWorkspace).isDisplayed()) {
     await browser.clickVisible(Selectors.EditPipelineButton);
   }
-  const builderWorkspace = await browser.$(
-    Selectors.AggregationBuilderWorkspace
-  );
+  const builderWorkspace = browser.$(Selectors.AggregationBuilderWorkspace);
   await builderWorkspace.waitForDisplayed();
 }
 
@@ -69,49 +67,6 @@ async function getDocuments(browser: CompassBrowser) {
   });
 }
 
-async function chooseCollectionAction(
-  browser: CompassBrowser,
-  dbName: string,
-  collectionName: string,
-  actionName: string
-) {
-  // search for the view in the sidebar
-  await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
-
-  const collectionSelector = Selectors.sidebarCollection(
-    dbName,
-    collectionName
-  );
-
-  // scroll to the collection if necessary
-  await browser.scrollToVirtualItem(
-    Selectors.SidebarNavigationTree,
-    collectionSelector,
-    'tree'
-  );
-
-  const collectionElement = await browser.$(collectionSelector);
-  await collectionElement.waitForDisplayed();
-
-  // hover over the collection
-  await browser.hover(collectionSelector);
-
-  // click the show collections button
-  // NOTE: This assumes it is currently closed
-  await browser.clickVisible(Selectors.SidebarNavigationItemShowActionsButton);
-
-  const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
-
-  const actionButton = await browser.$(actionSelector);
-
-  // click the action
-  await browser.clickVisible(actionSelector);
-
-  // make sure the menu closed
-  await actionButton.waitForDisplayed({ reverse: true });
-}
-
 async function waitForTab(browser: CompassBrowser, namespace: string) {
   await browser.waitUntil(
     async function () {
@@ -124,20 +79,12 @@ async function waitForTab(browser: CompassBrowser, namespace: string) {
   );
 }
 
-async function switchPipelineMode(
-  browser: CompassBrowser,
-  mode: 'as-text' | 'builder-ui'
-) {
-  await browser.clickVisible(Selectors.aggregationPipelineModeToggle(mode));
-  await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
-}
-
 async function deleteStage(
   browser: CompassBrowser,
   index: number
 ): Promise<void> {
   await browser.clickVisible(Selectors.stageMoreOptions(index));
-  const menuElement = await browser.$(Selectors.StageMoreOptionsContent);
+  const menuElement = browser.$(Selectors.StageMoreOptionsContent);
   await menuElement.waitForDisplayed();
   await browser.clickVisible(Selectors.StageDelete);
 }
@@ -147,14 +94,12 @@ function getStageContainers(browser: CompassBrowser) {
 }
 
 async function addStage(browser: CompassBrowser, expectedStages: number) {
-  expect(await getStageContainers(browser)).to.have.lengthOf(
-    expectedStages - 1
-  );
+  expect(await getStageContainers(browser).length).to.equal(expectedStages - 1);
 
   await browser.clickVisible(Selectors.AddStageButton);
   await browser.$(Selectors.stageEditor(expectedStages - 1)).waitForDisplayed();
 
-  expect(await getStageContainers(browser)).to.have.lengthOf(expectedStages);
+  expect(await getStageContainers(browser).length).to.equal(expectedStages);
 }
 
 describe('Collection aggregations tab', function () {
@@ -164,18 +109,27 @@ describe('Collection aggregations tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await createNestedDocumentsCollection('nestedDocs', 10);
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
     // set guide cue to not show up
     await browser.execute((key) => {
+      // eslint-disable-next-line no-restricted-globals
       localStorage.setItem(key, 'true');
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
     // Some tests navigate away from the numbers collection aggregations tab
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'numbers',
+      'Aggregations'
+    );
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -195,7 +149,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    const options = await getStageOperators(browser, 0);
+    const options = await browser.getStageOperators(0);
 
     const expectedAggregations = [
       '$addFields',
@@ -261,9 +215,7 @@ describe('Collection aggregations tab', function () {
     );
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.stagePreviewToolbarTooltip(0)
-      );
+      const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
       const text = await textElement.getText();
       return text === '(Sample of 1 document)';
     });
@@ -277,7 +229,7 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(Selectors.stagePreview(0));
+      const textElement = browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
         'The $search stage is only available with MongoDB Atlas.'
@@ -292,7 +244,7 @@ describe('Collection aggregations tab', function () {
       '"listings"'
     );
 
-    const preview = await browser.$(Selectors.stagePreview(0));
+    const preview = browser.$(Selectors.stagePreview(0));
     const text = await preview.getText();
 
     expect(text).to.include('Documents will be saved to test.listings.');
@@ -311,7 +263,7 @@ describe('Collection aggregations tab', function () {
       '"listings"'
     );
 
-    const preview = await browser.$(Selectors.stagePreview(0));
+    const preview = browser.$(Selectors.stagePreview(0));
     const text = await preview.getText();
 
     expect(text).to.include('Documents will be saved to test.listings.');
@@ -322,7 +274,7 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$addFields');
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(Selectors.stagePreviewEmpty(0));
+      const textElement = browser.$(Selectors.stagePreviewEmpty(0));
       const text = await textElement.getText();
       return text === 'No Preview Documents';
     });
@@ -339,7 +291,7 @@ describe('Collection aggregations tab', function () {
     // select $match
     await browser.selectStageOperator(0, '$match');
     // check that it included the comment by default
-    const contentElement0 = await browser.$(Selectors.stageContent(0));
+    const contentElement0 = browser.$(Selectors.stageContent(0));
 
     // It starts out empty
     await waitForAnyText(browser, contentElement0);
@@ -383,7 +335,7 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(1, '$project');
 
     // check that it has no comment
-    const contentElement1 = await browser.$(Selectors.stageContent(1));
+    const contentElement1 = browser.$(Selectors.stageContent(1));
 
     // starts empty
     await waitForAnyText(browser, contentElement1);
@@ -401,7 +353,7 @@ describe('Collection aggregations tab', function () {
 
     await browser.waitUntil(
       async () => {
-        const stageToggle = await browser.$(Selectors.stageToggle(1));
+        const stageToggle = browser.$(Selectors.stageToggle(1));
         return (await stageToggle.getAttribute('aria-checked')) === 'false';
       },
       { timeoutMsg: 'Expected stage toggle to be turned off' }
@@ -422,9 +374,7 @@ describe('Collection aggregations tab', function () {
 
     // check that the preview is using 100 docs
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.stagePreviewToolbarTooltip(0)
-      );
+      const textElement = browser.$(Selectors.stagePreviewToolbarTooltip(0));
       const text = await textElement.getText();
       return text === '(Sample of 100 documents)';
     });
@@ -433,7 +383,7 @@ describe('Collection aggregations tab', function () {
     // and the "Create view" action is available in the Save button menu.
     await browser.waitUntil(async () => {
       await browser.clickVisible(Selectors.SavePipelineMenuButton);
-      const savePipelineCreateViewAction = await browser.$(
+      const savePipelineCreateViewAction = browser.$(
         Selectors.SavePipelineCreateViewAction
       );
       const savePipelineCreateViewActionExisting =
@@ -445,7 +395,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
-    const createViewModal = await browser.$(Selectors.CreateViewModal);
+    const createViewModal = browser.$(Selectors.CreateViewModal);
     await createViewModal.waitForDisplayed();
 
     // set view name
@@ -454,10 +404,8 @@ describe('Collection aggregations tab', function () {
       'my-view-from-pipeline'
     );
 
-    await browser.screenshot('create-view-modal.png');
-
     // click create button
-    const createButton = await browser
+    const createButton = browser
       .$(Selectors.CreateViewModal)
       .$('button=Create');
 
@@ -467,13 +415,13 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.my-view-from-pipeline');
 
     // choose Duplicate view
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
     );
-    const duplicateModal = await browser.$(Selectors.DuplicateViewModal);
+    const duplicateModal = browser.$(Selectors.DuplicateViewModal);
 
     // wait for the modal, fill out the modal, confirm
     await duplicateModal.waitForDisplayed();
@@ -481,12 +429,10 @@ describe('Collection aggregations tab', function () {
       Selectors.DuplicateViewModalTextInput,
       'duplicated-view'
     );
-    const confirmDuplicateButton = await browser.$(
+    const confirmDuplicateButton = browser.$(
       Selectors.DuplicateViewModalConfirmButton
     );
     await confirmDuplicateButton.waitForEnabled();
-
-    await browser.screenshot('duplicate-view-modal.png');
 
     await confirmDuplicateButton.click();
     await duplicateModal.waitForDisplayed({ reverse: true });
@@ -495,8 +441,8 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.duplicated-view');
 
     // now select modify view of the non-duplicate
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'my-view-from-pipeline',
       'modify-view'
@@ -506,8 +452,9 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.numbers');
 
     // make sure we're on the aggregations tab, in edit mode
-    const modifyBanner = await browser.$(Selectors.ModifySourceBanner);
+    const modifyBanner = browser.$(Selectors.ModifySourceBanner);
     await modifyBanner.waitForDisplayed();
+
     expect(await modifyBanner.getText()).to.equal(
       'MODIFYING PIPELINE BACKING "TEST.MY-VIEW-FROM-PIPELINE"'
     );
@@ -548,7 +495,7 @@ describe('Collection aggregations tab', function () {
 
         if (maxTimeMSMode === 'preference') {
           await browser.openSettingsModal();
-          const settingsModal = await browser.$(Selectors.SettingsModal);
+          const settingsModal = browser.$(Selectors.SettingsModal);
           await settingsModal.waitForDisplayed();
           await browser.clickVisible(Selectors.GeneralSettingsButton);
 
@@ -563,14 +510,14 @@ describe('Collection aggregations tab', function () {
         await browser.selectStageOperator(0, '$match');
 
         await browser.waitUntil(async function () {
-          const textElement = await browser.$(
+          const textElement = browser.$(
             Selectors.stagePreviewToolbarTooltip(0)
           );
           const text = await textElement.getText();
           return text === '(Sample of 0 documents)';
         });
 
-        const syntaxMessageElement = await browser.$(
+        const syntaxMessageElement = browser.$(
           Selectors.stageEditorSyntaxErrorMessage(0)
         );
         await syntaxMessageElement.waitForDisplayed();
@@ -594,9 +541,7 @@ describe('Collection aggregations tab', function () {
         );
 
         // make sure we got the timeout error
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(0)
-        );
+        const messageElement = browser.$(Selectors.stageEditorErrorMessage(0));
         await messageElement.waitForDisplayed();
         // The exact error we get depends on the version of mongodb
         /*
@@ -615,7 +560,7 @@ describe('Collection aggregations tab', function () {
       "'my-out-collection'"
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
 
     await addStage(browser, 2);
 
@@ -626,7 +571,7 @@ describe('Collection aggregations tab', function () {
       `{ i: 5 }`
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
     await deleteStage(browser, 1);
@@ -635,7 +580,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
+    const writeOperationConfirmationModal = browser.$(
       Selectors.AggregationWriteOperationConfirmationModal
     );
     await writeOperationConfirmationModal.waitForDisplayed();
@@ -654,9 +599,7 @@ describe('Collection aggregations tab', function () {
     await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
 
     // go to the new collection
-    const goToCollectionButton = await browser.$(
-      Selectors.GoToCollectionButton
-    );
+    const goToCollectionButton = browser.$(Selectors.GoToCollectionButton);
     await goToCollectionButton.waitForDisplayed();
     await browser.clickVisible(Selectors.GoToCollectionButton);
 
@@ -679,7 +622,7 @@ describe('Collection aggregations tab', function () {
       "'numbers'"
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
 
     await addStage(browser, 2);
 
@@ -690,7 +633,7 @@ describe('Collection aggregations tab', function () {
       `{ i: 5 }`
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
     await deleteStage(browser, 1);
@@ -699,7 +642,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
+    const writeOperationConfirmationModal = browser.$(
       Selectors.AggregationWriteOperationConfirmationModal
     );
     await writeOperationConfirmationModal.waitForDisplayed();
@@ -715,7 +658,7 @@ describe('Collection aggregations tab', function () {
     await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
 
     // the pipeline can be futher edited
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
   });
 
   it('supports $merge as the last stage', async function () {
@@ -731,7 +674,7 @@ describe('Collection aggregations tab', function () {
 }`
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
 
     await browser.clickVisible(Selectors.AddStageButton);
 
@@ -742,7 +685,7 @@ describe('Collection aggregations tab', function () {
       `{ i: 5 }`
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
     await deleteStage(browser, 1);
@@ -751,7 +694,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
+    const writeOperationConfirmationModal = browser.$(
       Selectors.AggregationWriteOperationConfirmationModal
     );
     await writeOperationConfirmationModal.waitForDisplayed();
@@ -770,9 +713,7 @@ describe('Collection aggregations tab', function () {
     await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
 
     // go to the new collection
-    const goToCollectionButton = await browser.$(
-      Selectors.GoToCollectionButton
-    );
+    const goToCollectionButton = browser.$(Selectors.GoToCollectionButton);
     await goToCollectionButton.waitForDisplayed();
     await browser.clickVisible(Selectors.GoToCollectionButton);
 
@@ -799,7 +740,7 @@ describe('Collection aggregations tab', function () {
       "'numbers'"
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
 
     await browser.clickVisible(Selectors.AddStageButton);
 
@@ -810,7 +751,7 @@ describe('Collection aggregations tab', function () {
       `{ i: 5 }`
     );
 
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
     await deleteStage(browser, 1);
@@ -819,7 +760,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.RunPipelineButton);
 
     // confirm the write operation
-    const writeOperationConfirmationModal = await browser.$(
+    const writeOperationConfirmationModal = browser.$(
       Selectors.AggregationWriteOperationConfirmationModal
     );
     await writeOperationConfirmationModal.waitForDisplayed();
@@ -835,7 +776,7 @@ describe('Collection aggregations tab', function () {
     await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
 
     // the pipeline can be futher edited
-    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+    await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
   });
 
   it('supports running and editing aggregation', async function () {
@@ -905,7 +846,7 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AggregationRestultsNextPageButton);
     await browser.waitUntil(async () => {
-      const paginationDescription = await browser.$(
+      const paginationDescription = browser.$(
         Selectors.AggregationRestultsPaginationDescription
       );
       return (await paginationDescription.getText()) === 'Showing 21 – 25';
@@ -946,9 +887,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationResultsCancelButton);
     // Wait for the empty results banner (this is our indicator that we didn't
     // load anything and dismissed "Loading" banner)
-    const emptyResultsBanner = await browser.$(
-      Selectors.AggregationEmptyResults
-    );
+    const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
     await emptyResultsBanner.waitForDisplayed();
   });
 
@@ -963,7 +902,7 @@ describe('Collection aggregations tab', function () {
     // Run and wait for results
     await goToRunAggregation(browser);
 
-    const errorBanner = await browser.$(Selectors.AggregationErrorBanner);
+    const errorBanner = browser.$(Selectors.AggregationErrorBanner);
     await errorBanner.waitForDisplayed();
     const errorText = await errorBanner.getText();
 
@@ -984,13 +923,11 @@ describe('Collection aggregations tab', function () {
 
     // Open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
-    const exportModal = await browser.$(Selectors.ExportModal);
+    const exportModal = browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 
-    await browser.screenshot('export-modal.png');
-
     // Make sure the aggregation is shown in the modal.
-    const exportModalAggregationTextElement = await browser.$(
+    const exportModalAggregationTextElement = browser.$(
       Selectors.ExportModalCodePreview
     );
     expect(await exportModalAggregationTextElement.getText()).to
@@ -1006,7 +943,7 @@ describe('Collection aggregations tab', function () {
     await browser.setExportFilename(filename);
 
     // Wait for the modal to go away.
-    const exportModalElement = await browser.$(Selectors.ExportModal);
+    const exportModalElement = browser.$(Selectors.ExportModal);
     await exportModalElement.waitForDisplayed({
       reverse: true,
     });
@@ -1034,13 +971,11 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
-    const modal = await browser.$(Selectors.AggregationExplainModal);
+    const modal = browser.$(Selectors.AggregationExplainModal);
     await modal.waitForDisplayed();
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
     expect(await modal.getText()).to.contain('Query Performance Summary');
-
-    await browser.screenshot('aggregation-explain-modal.png');
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });
@@ -1048,13 +983,7 @@ describe('Collection aggregations tab', function () {
 
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
     await browser.selectStageOperator(0, '$match');
-
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
-    const modalElement = await browser.$(Selectors.ConfirmationModal);
-    await modalElement.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-    await modalElement.waitForDisplayed({ reverse: true });
+    await browser.clickConfirmationAction(Selectors.CreateNewPipelineButton);
   });
 
   describe('aggregation builder in text mode', function () {
@@ -1067,7 +996,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await switchPipelineMode(browser, 'as-text');
-      const textContent = await browser.$(Selectors.AggregationAsTextEditor);
+      const textContent = browser.$(Selectors.AggregationAsTextEditor);
       expect(await textContent.getText()).to.contain(`[
   {
     $match: {
@@ -1077,7 +1006,7 @@ describe('Collection aggregations tab', function () {
 ]`);
 
       await switchPipelineMode(browser, 'builder-ui');
-      const stageContent = await browser.$(Selectors.stageContent(0));
+      const stageContent = browser.$(Selectors.stageContent(0));
       expect(await stageContent.getText()).to.equal(`{
   i: 5
 }`);
@@ -1096,9 +1025,7 @@ describe('Collection aggregations tab', function () {
         '[{$count: "count"}]'
       );
 
-      const docsPreview = await browser.$(
-        Selectors.AggregationAsTextPreviewDocument
-      );
+      const docsPreview = browser.$(Selectors.AggregationAsTextPreviewDocument);
       await docsPreview.waitForDisplayed();
       const text = (await docsPreview.getText())
         .replace(/\n/g, ' ')
@@ -1120,7 +1047,7 @@ describe('Collection aggregations tab', function () {
         '[{$out: "somewhere"}]'
       );
 
-      const preview = await browser.$(Selectors.AggregationAsTextPreviewOut);
+      const preview = browser.$(Selectors.AggregationAsTextPreviewOut);
       await preview.waitForDisplayed();
       const text = await preview.getText();
       expect(text).to.contain(
@@ -1141,7 +1068,7 @@ describe('Collection aggregations tab', function () {
         '[{$merge: "somewhere"}]'
       );
 
-      const preview = await browser.$(Selectors.AggregationAsTextPreviewMerge);
+      const preview = browser.$(Selectors.AggregationAsTextPreviewMerge);
       await preview.waitForDisplayed();
       const text = await preview.getText();
       expect(text).to.contain(
@@ -1162,7 +1089,7 @@ describe('Collection aggregations tab', function () {
         '[{$search: {}}]'
       );
 
-      const preview = await browser.$(
+      const preview = browser.$(
         Selectors.AggregationAsTextPreviewAtlasOperator
       );
       await preview.waitForDisplayed();
@@ -1184,7 +1111,7 @@ describe('Collection aggregations tab', function () {
         '[{$searchMeta: {}}]'
       );
 
-      const preview = await browser.$(
+      const preview = browser.$(
         Selectors.AggregationAsTextPreviewAtlasOperator
       );
       await preview.waitForDisplayed();
@@ -1206,7 +1133,7 @@ describe('Collection aggregations tab', function () {
         '[{$out: "somewhere"]'
       );
 
-      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
+      const errors = browser.$(Selectors.AggregationAsTextErrorContainer);
       expect(await errors.getText()).to.include('Unexpected token');
     });
 
@@ -1222,7 +1149,7 @@ describe('Collection aggregations tab', function () {
         Selectors.AggregationAsTextEditor,
         '[{$out: "somewhere"]'
       );
-      const toggle = await browser.$(
+      const toggle = browser.$(
         Selectors.aggregationPipelineModeToggle('builder-ui')
       );
       await toggle.waitForEnabled({ reverse: true });
@@ -1236,7 +1163,7 @@ describe('Collection aggregations tab', function () {
       );
       await switchPipelineMode(browser, 'as-text');
 
-      const preview = await browser.$(Selectors.AggregationAsTextPreview);
+      const preview = browser.$(Selectors.AggregationAsTextPreview);
       await preview.waitForDisplayed();
 
       await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
@@ -1275,7 +1202,7 @@ describe('Collection aggregations tab', function () {
         Selectors.AggregationSavedPipelineCardOpenButton(name)
       );
 
-      const content = await browser.$(Selectors.stageContent(0));
+      const content = browser.$(Selectors.stageContent(0));
       await waitForAnyText(browser, content);
       expect(await content.getText()).to.equal(`{
   i: 0
@@ -1295,14 +1222,9 @@ describe('Collection aggregations tab', function () {
       );
       await browser.hover(Selectors.AggregationSavedPipelineCard(name));
 
-      await browser.clickVisible(
+      await browser.clickConfirmationAction(
         Selectors.AggregationSavedPipelineCardOpenButton(name)
       );
-
-      const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
-      await confirmOpenModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-      await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
     it('deletes an aggregation', async function () {
@@ -1315,14 +1237,9 @@ describe('Collection aggregations tab', function () {
       );
       await browser.hover(Selectors.AggregationSavedPipelineCard(name));
 
-      await browser.clickVisible(
+      await browser.clickConfirmationAction(
         Selectors.AggregationSavedPipelineCardDeleteButton(name)
       );
-
-      const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
-      await confirmDeleteModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
-      await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });
 
@@ -1334,7 +1251,7 @@ describe('Collection aggregations tab', function () {
         '{ i: 5 }'
       );
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
@@ -1367,13 +1284,11 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
-      const nextButton = await browser.$(Selectors.FocusModeNextStageButton);
-      const previousButton = await browser.$(
-        Selectors.FocusModePreviousStageButton
-      );
+      const nextButton = browser.$(Selectors.FocusModeNextStageButton);
+      const previousButton = browser.$(Selectors.FocusModePreviousStageButton);
 
       await nextButton.waitForDisplayed();
       await previousButton.waitForDisplayed();
@@ -1381,25 +1296,19 @@ describe('Collection aggregations tab', function () {
       await browser.waitForAriaDisabled(previousButton, true);
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
 
       await nextButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 2: $limit';
       });
 
       await nextButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 3: $sort';
       });
 
@@ -1407,23 +1316,19 @@ describe('Collection aggregations tab', function () {
 
       await previousButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 2: $limit';
       });
 
       await previousButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
-
       await browser.waitForAriaDisabled(previousButton, true);
 
-      await browser.keys('Escape');
+      await browser.clickVisible(Selectors.FocusModeCloseModalButton);
+
       await modal.waitForDisplayed({ reverse: true });
     });
 
@@ -1435,48 +1340,42 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
 
-      const addStageMenu = await browser.$(
-        Selectors.FocusModeAddStageMenuButton
-      );
+      const addStageMenu = browser.$(Selectors.FocusModeAddStageMenuButton);
       await addStageMenu.waitForDisplayed();
 
       // Add a stage before the current stage.
       await addStageMenu.click();
 
-      const addStageBeforeButton = await browser.$(
+      const addStageBeforeButton = browser.$(
         Selectors.FocusModeAddStageBeforeMenuItem
       );
       await addStageBeforeButton.waitForDisplayed();
       await addStageBeforeButton.click();
 
       await browser.waitUntil(async () => {
-        const labelElem = await browser.$(Selectors.FocusModeActiveStageLabel);
+        const labelElem = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await labelElem.getText()) === 'Stage 1: select';
       });
 
       // Add a stage after the current stage.
       await addStageMenu.click();
 
-      const addStageAfterButton = await browser.$(
+      const addStageAfterButton = browser.$(
         Selectors.FocusModeAddStageAfterMenuItem
       );
       await addStageAfterButton.waitForDisplayed();
       await addStageAfterButton.click();
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(
-          Selectors.FocusModeActiveStageLabel
-        );
+        const activeStage = browser.$(Selectors.FocusModeActiveStageLabel);
         return (await activeStage.getText()) === 'Stage 2: select';
       });
 
@@ -1495,7 +1394,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser
@@ -1515,11 +1414,11 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const outputElem = browser.$(Selectors.FocusModeStageOutput);
         const text = await outputElem.getText();
         return text.includes(OUT_STAGE_PREVIEW_TEXT);
       });
@@ -1537,11 +1436,11 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const outputElem = browser.$(Selectors.FocusModeStageOutput);
         const text = await outputElem.getText();
         return text.includes(MERGE_STAGE_PREVIEW_TEXT);
       });
@@ -1556,11 +1455,11 @@ describe('Collection aggregations tab', function () {
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
-      const modal = await browser.$(Selectors.FocusModeModal);
+      const modal = browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const outputElem = browser.$(Selectors.FocusModeStageOutput);
         const text = await outputElem.getText();
         return text.includes(
           'The $search stage is only available with MongoDB Atlas.'
@@ -1572,21 +1471,22 @@ describe('Collection aggregations tab', function () {
   describe('aggregation wizard', function () {
     it('should toggle the aggregation side panel', async function () {
       await browser.toggleAggregationSidePanel('opened');
-      const useCases = await browser.$$(Selectors.AggregationWizardUseCases);
-      expect(useCases).to.have.length.greaterThan(0);
+      const numUseCases = await browser.$$(Selectors.AggregationWizardUseCases)
+        .length;
+      expect(numUseCases).to.be.greaterThan(0);
       await browser.toggleAggregationSidePanel('closed');
     });
 
     it('should add a stage wizard in the end of the list of the stages when a usecase is clicked in the aggregation side panel', async function () {
-      const stages = await browser.$$(Selectors.StageCard);
-      await browser.addWizard('sort', stages.length);
+      const numStages = await browser.$$(Selectors.StageCard).length;
+      await browser.addWizard('sort', numStages);
     });
 
     it('should dismiss the stage wizard when clicked on "Cancel" button on stage wizard', async function () {
-      const stages = await browser.$$(Selectors.StageCard);
-      await browser.addWizard('sort', stages.length);
-      const wizardCard = await browser.$(
-        Selectors.AggregationWizardCardAtIndex(stages.length)
+      const numStages = await browser.$$(Selectors.StageCard).length;
+      await browser.addWizard('sort', numStages);
+      const wizardCard = browser.$(
+        Selectors.AggregationWizardCardAtIndex(numStages)
       );
 
       await browser.clickVisible(Selectors.AggregationWizardDismissButton);
@@ -1594,8 +1494,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it("should be able to convert a wizard ($sort wizard) to a stage, inserted at the wizard's index", async function () {
-      const stages = await browser.$$(Selectors.StageCard);
-      const oldLength = stages.length;
+      const oldLength = await browser.$$(Selectors.StageCard).length;
       await browser.addWizard('sort', oldLength);
 
       await browser.setComboBoxValue(
@@ -1605,13 +1504,13 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.selectOption(
-        Selectors.AggregationWizardSortFormDirectionSelect(0),
+        `${Selectors.AggregationWizardSortFormDirectionSelect(0)} button`,
         'Ascending'
       );
 
       await browser.clickVisible(Selectors.AggregationWizardApplyButton);
 
-      const stageCard = await browser.$(Selectors.StageCardAtIndex(oldLength));
+      const stageCard = browser.$(Selectors.StageCardAtIndex(oldLength));
       await stageCard.waitForDisplayed();
 
       const stageContent = await browser
@@ -1625,9 +1524,8 @@ describe('Collection aggregations tab', function () {
 
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
-      await createNestedDocumentsCollection('nestedDocs', 10);
-      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'nestedDocs',
         'Aggregations'
@@ -1653,23 +1551,23 @@ describe('Collection aggregations tab', function () {
           0,
           Selectors.StagePreviewDocsExpand
         );
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
             Selectors.HadronDocumentElement
           }`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.selectStageMenuOption(
           0,
           Selectors.StagePreviewDocsCollapse
         );
-        const collapsedHadronElements = await browser.$$(
+        const numCollapsedHadronElements = await browser.$$(
           `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
             Selectors.HadronDocumentElement
           }`
-        );
-        expect(collapsedHadronElements).to.have.lengthOf(4);
+        ).length;
+        expect(numCollapsedHadronElements).to.equal(4);
       });
 
       it('should retain the docs expanded / collapsed state even after switching tabs', async function () {
@@ -1688,21 +1586,21 @@ describe('Collection aggregations tab', function () {
           0,
           Selectors.StagePreviewDocsExpand
         );
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
             Selectors.HadronDocumentElement
           }`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.navigateWithinCurrentCollectionTabs('Documents');
         await browser.navigateWithinCurrentCollectionTabs('Aggregations');
-        const expandedHadronElementsPostSwitch = await browser.$$(
+        const numExpandedHadronElementsPostSwitch = await browser.$$(
           `${Selectors.stagePreview(0)} ${Selectors.HadronDocument} ${
             Selectors.HadronDocumentElement
           }`
-        );
-        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElementsPostSwitch).to.equal(14);
       });
     });
 
@@ -1713,7 +1611,7 @@ describe('Collection aggregations tab', function () {
           Selectors.AggregationAsTextEditor,
           '[{$match: { "names.firstName": "1-firstName" }}]'
         );
-        const docsPreview = await browser.$(
+        const docsPreview = browser.$(
           Selectors.AggregationAsTextPreviewDocument
         );
         await docsPreview.waitForDisplayed();
@@ -1721,31 +1619,31 @@ describe('Collection aggregations tab', function () {
 
       it('should be able to expand / collapse all the preview documents for the pipeline', async function () {
         await browser.selectTextPipelineOutputOption('expand');
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.selectTextPipelineOutputOption('collapse');
-        const collapsedHadronElements = await browser.$$(
+        const numCollapsedHadronElements = await browser.$$(
           `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
-        );
-        expect(collapsedHadronElements).to.have.lengthOf(4);
+        ).length;
+        expect(numCollapsedHadronElements).to.equal(4);
       });
 
       it('should be able to retain the expanded / collapsed state when switching between views', async function () {
         await browser.selectTextPipelineOutputOption('expand');
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.navigateWithinCurrentCollectionTabs('Documents');
         await browser.navigateWithinCurrentCollectionTabs('Aggregations');
-        const expandedHadronElementsPostSwitch = await browser.$$(
+        const numExpandedHadronElementsPostSwitch = await browser.$$(
           `${Selectors.AggregationAsTextPreview} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElementsPostSwitch).to.equal(14);
       });
     });
 
@@ -1763,7 +1661,7 @@ describe('Collection aggregations tab', function () {
         await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '1');
 
         await browser.clickVisible(Selectors.stageFocusModeButton(0));
-        const modal = await browser.$(Selectors.FocusModeModal);
+        const modal = browser.$(Selectors.FocusModeModal);
         await modal.waitForDisplayed();
 
         await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
@@ -1773,59 +1671,59 @@ describe('Collection aggregations tab', function () {
 
       it('should be able to expand/collapse input preview', async function () {
         await browser.selectFocusModeStageOutputOption('stage-input', 'expand');
-        const expandedInputElements = await browser.$$(
+        const numExpandedInputElements = await browser.$$(
           `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedInputElements).to.have.lengthOf(140); // We insert 10 docs and each has 14 hadron elements
+        ).length;
+        expect(numExpandedInputElements).to.equal(140); // We insert 10 docs and each has 14 hadron elements
 
         await browser.selectFocusModeStageOutputOption(
           'stage-input',
           'collapse'
         );
-        const collapsedInputElements = await browser.$$(
+        const numCollapsedInputElements = await browser.$$(
           `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(collapsedInputElements).to.have.lengthOf(40);
+        ).length;
+        expect(numCollapsedInputElements).to.equal(40);
 
         await browser.selectFocusModeStageOutputOption(
           'stage-output',
           'expand'
         );
-        const expandedOutputElements = await browser.$$(
+        const numExpandedOutputElements = await browser.$$(
           `${Selectors.FocusModeStageOutput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedOutputElements).to.have.lengthOf(14); // There's only doc as output from the stage
+        ).length;
+        expect(numExpandedOutputElements).to.equal(14); // There's only doc as output from the stage
 
         await browser.selectFocusModeStageOutputOption(
           'stage-output',
           'collapse'
         );
-        const collapsedOutputElements = await browser.$$(
+        const numCollapsedOutputElements = await browser.$$(
           `${Selectors.FocusModeStageOutput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(collapsedOutputElements).to.have.lengthOf(4);
+        ).length;
+        expect(numCollapsedOutputElements).to.equal(4);
       });
 
       it('should be able to retain the expanded/collapsed even after stage switch', async function () {
         await browser.selectFocusModeStageOutputOption('stage-input', 'expand');
-        const expandedInputElements = await browser.$$(
+        const numExpandedInputElements = await browser.$$(
           `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedInputElements).to.have.lengthOf(140);
+        ).length;
+        expect(numExpandedInputElements).to.equal(140);
 
         await browser.clickVisible(Selectors.FocusModeNextStageButton);
         await browser.clickVisible(Selectors.FocusModePreviousStageButton);
 
-        const expandedInputElementsPostSwitch = await browser.$$(
+        const numExpandedInputElementsPostSwitch = await browser.$$(
           `${Selectors.FocusModeStageInput} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedInputElementsPostSwitch).to.have.lengthOf(140);
+        ).length;
+        expect(numExpandedInputElementsPostSwitch).to.equal(140);
       });
     });
 
     context('when on pipeline results', function () {
       beforeEach(async function () {
-        expect(await getStageContainers(browser)).to.have.lengthOf(1);
+        expect(await getStageContainers(browser).length).to.equal(1);
 
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
@@ -1838,32 +1736,32 @@ describe('Collection aggregations tab', function () {
 
       it('should be able to expand / collapse pipeline results', async function () {
         await browser.selectPipelineResultsOutputOption('expand');
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.selectPipelineResultsOutputOption('collapse');
-        const collapsedHadronElements = await browser.$$(
+        const numCollapsedHadronElements = await browser.$$(
           `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
-        );
-        expect(collapsedHadronElements).to.have.lengthOf(4);
+        ).length;
+        expect(numCollapsedHadronElements).to.equal(4);
       });
 
       it('should retain the expanded / collapsed state even after switching tabs', async function () {
         await browser.selectPipelineResultsOutputOption('expand');
-        const expandedHadronElements = await browser.$$(
+        const numExpandedHadronElements = await browser.$$(
           `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElements).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElements).to.equal(14);
 
         await browser.navigateWithinCurrentCollectionTabs('Documents');
         await browser.navigateWithinCurrentCollectionTabs('Aggregations');
 
-        const expandedHadronElementsPostSwitch = await browser.$$(
+        const numExpandedHadronElementsPostSwitch = await browser.$$(
           `${Selectors.HadronDocument} ${Selectors.HadronDocumentElement}`
-        );
-        expect(expandedHadronElementsPostSwitch).to.have.lengthOf(14);
+        ).length;
+        expect(numExpandedHadronElementsPostSwitch).to.equal(14);
       });
     });
   });

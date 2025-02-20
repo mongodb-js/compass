@@ -1,5 +1,6 @@
 import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 export function getActiveUserId(
   preferences: Pick<PreferencesAccess, 'getPreferences'>
@@ -29,25 +30,36 @@ export function getActiveUser(
 export function isAIFeatureEnabled(
   preferences: Pick<
     AllPreferences,
-    'enableGenAIFeatures' | 'cloudFeatureRolloutAccess'
+    | 'enableGenAIFeatures'
+    | 'cloudFeatureRolloutAccess'
+    | 'enableGenAIFeaturesAtlasOrg'
   >
 ) {
   const {
     // a "kill switch" property from configuration file to be able to disable
     // feature in global config
     enableGenAIFeatures,
+    enableGenAIFeaturesAtlasOrg,
     // based on mms backend rollout response
     cloudFeatureRolloutAccess,
   } = preferences;
-  return enableGenAIFeatures && !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
+  return (
+    enableGenAIFeatures &&
+    enableGenAIFeaturesAtlasOrg &&
+    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
+  );
 }
 
 export function useIsAIFeatureEnabled() {
   const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIFeaturesAtlasOrg = usePreference(
+    'enableGenAIFeaturesAtlasOrg'
+  );
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
 
   return isAIFeatureEnabled({
     enableGenAIFeatures,
+    enableGenAIFeaturesAtlasOrg,
     cloudFeatureRolloutAccess,
   });
 }
@@ -55,4 +67,24 @@ export function useIsAIFeatureEnabled() {
 export function useHasAIFeatureCloudRolloutAccess() {
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
   return !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
+}
+
+export function proxyPreferenceToProxyOptions(
+  proxy: string
+): DevtoolsProxyOptions {
+  if (!proxy)
+    return {
+      useEnvironmentVariableProxies: true,
+    };
+  try {
+    return JSON.parse(proxy);
+  } catch {
+    return { proxy: new URL(proxy).href, useEnvironmentVariableProxies: true };
+  }
+}
+
+export function proxyOptionsToProxyPreference(
+  proxyOptions: DevtoolsProxyOptions
+): string {
+  return JSON.stringify(proxyOptions);
 }

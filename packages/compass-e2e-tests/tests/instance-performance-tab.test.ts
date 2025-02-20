@@ -5,6 +5,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -18,9 +19,14 @@ describe('Instance performance tab', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
 
-    await browser.connectWithConnectionString();
-    await browser.navigateToInstanceTab('Performance');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Performance'
+    );
   });
 
   after(async function () {
@@ -36,7 +42,7 @@ describe('Instance performance tab', function () {
   });
 
   it('loads up without issue', async function () {
-    const stats = await browser.$(Selectors.ServerStats);
+    const stats = browser.$(Selectors.ServerStats);
     await stats.waitForDisplayed();
   });
 });

@@ -1,9 +1,13 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 import type { SearchIndex } from 'mongodb-data-service';
 
 import SearchIndexActions from './search-index-actions';

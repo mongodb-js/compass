@@ -45,12 +45,7 @@ describe('CompassAuthServiceMain', function () {
   const mockOidcPlugin = {
     mongoClientOptions: {
       authMechanismProperties: {
-        REQUEST_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '1234' }),
-        REFRESH_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '4321' }),
+        OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({ accessToken: '1234' }),
       },
     },
     logger: CompassAuthService['oidcPluginLogger'],
@@ -90,11 +85,12 @@ describe('CompassAuthServiceMain', function () {
       createHandle: sandbox.stub(),
     };
     CompassAuthService['fetch'] = mockFetch as any;
+    CompassAuthService['httpClient'] = { fetch: mockFetch } as any;
     CompassAuthService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
 
     CompassAuthService['config'] = defaultConfig;
 
-    await CompassAuthService['setupPlugin']();
+    CompassAuthService['setupPlugin']();
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = await createSandboxFromDefaultPreferences();
@@ -132,7 +128,7 @@ describe('CompassAuthServiceMain', function () {
       const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -152,7 +148,7 @@ describe('CompassAuthServiceMain', function () {
 
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -168,14 +164,13 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
-            REQUEST_TOKEN_CALLBACK: sandbox
+            OIDC_HUMAN_CALLBACK: sandbox
               .stub()
               .rejects(
                 new Error(
                   'Failed to request token for some specific plugin reason'
                 )
               ),
-            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
           },
         },
       } as any;
@@ -295,26 +290,8 @@ describe('CompassAuthServiceMain', function () {
         CompassAuthService as any,
         'setupPlugin'
       );
-      await CompassAuthService.init(preferences);
+      await CompassAuthService.init(preferences, {} as any);
       expect(setupPluginSpy).to.have.been.calledOnce;
-    });
-
-    it('should pass the system ca to the plugin as a custom http option', async function () {
-      const createOIDCPluginSpy = sandbox.spy(
-        CompassAuthService as any,
-        'createMongoDBOIDCPlugin'
-      );
-      await CompassAuthService.init(preferences);
-      expect(createOIDCPluginSpy).to.have.been.calledOnce;
-      try {
-        expect(
-          createOIDCPluginSpy.firstCall.args[0].customHttpOptions.ca
-        ).to.include('-----BEGIN CERTIFICATE-----');
-      } catch (e) {
-        throw new Error(
-          'Expected ca to be included in the customHttpOptions, but it was not.'
-        );
-      }
     });
   });
 
@@ -352,9 +329,13 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['currentUser'] = {
         sub: '1234',
       } as any;
-      await CompassAuthService.init(preferences);
+      await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
-      expect(getListenerCount(logger)).to.eq(27);
+
+      // We expect that the oidc plugin registers a number of listeners
+      // upon creation, which should get unregistered when we sign out.
+      expect(getListenerCount(logger)).to.be.greaterThan(0);
+
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 

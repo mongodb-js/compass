@@ -442,6 +442,7 @@ function GenerativeAIInput({
                 )}
                 ref={promptTextInputRef}
                 data-testid="ai-user-text-input"
+                aria-labelledby=""
                 aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
                 placeholder={placeholder}
                 value={aiPromptText}
@@ -568,7 +569,7 @@ const AIError = ({
     // able to fix the issue on their own it cases where the schema is too big.
     return (
       <>
-        Sorry, your collections have too many fields to process. Please try
+        Sorry, your request is too large. Please use a smaller prompt or try
         using this feature on a collection with smaller documents.
       </>
     );

@@ -1,4 +1,7 @@
-import type SshTunnel from '@mongodb-js/ssh-tunnel';
+import type {
+  DevtoolsProxyOptions,
+  Tunnel,
+} from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -48,6 +51,7 @@ import type {
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
   SearchIndexDescription,
+  ReadPreferenceMode,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -55,7 +59,11 @@ import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import type { InstanceDetails } from './instance-detail-helper';
+import type {
+  CollectionDetails,
+  DatabaseDetails,
+  InstanceDetails,
+} from './instance-detail-helper';
 import {
   isNotAuthorized,
   isNotSupportedPipelineStage,
@@ -119,6 +127,12 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
+function isReadPreferenceSet(connectionString: string): boolean {
+  return !!new ConnectionStringUrl(connectionString).searchParams.get(
+    'readPreference'
+  );
+}
+
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -137,8 +151,10 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
   connectionInfoSecretsChanged: () => void;
   close: () => void;
+  oidcAuthFailed: (error: string) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -307,7 +323,7 @@ export interface DataService {
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
     }
-  ): Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+  ): Promise<CollectionDetails[]>;
 
   /**
    * Returns normalized collection info provided by listCollection command for a
@@ -414,7 +430,7 @@ export interface DataService {
     roles?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
-  }): Promise<{ _id: string; name: string }[]>;
+  }): Promise<Omit<DatabaseDetails, 'collections'>[]>;
 
   /**
    * Get the stats for a database.
@@ -656,7 +672,9 @@ export interface DataService {
     ns: string,
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
     options?: AggregateOptions,
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]>;
 
   /*** Insert ***/
@@ -925,6 +943,7 @@ function op<T extends unknown[], K>(
 
 class DataServiceImpl extends WithLogContext implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
+  private readonly _proxyOptions: Readonly<DevtoolsProxyOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -941,7 +960,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
-  private _tunnel?: SshTunnel;
+  private _tunnel?: Tunnel;
   private _state?: DevtoolsConnectionState;
   private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 
@@ -969,11 +988,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   constructor(
     connectionOptions: Readonly<ConnectionOptions>,
-    logger?: DataServiceImplLogger
+    logger?: DataServiceImplLogger,
+    proxyOptions?: DevtoolsProxyOptions
   ) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
+    this._proxyOptions = proxyOptions ?? {};
     const logComponent = 'COMPASS-DATA-SERVICE';
     const logCtx = `Connection ${this._id}`;
     this._logger = {
@@ -1032,7 +1053,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._mongoClientConnectionOptions,
       'options.oidc.notifyDeviceFlow',
       'options.oidc.signal',
-      'options.oidc.allowedFlows'
+      'options.oidc.allowedFlows',
+      'options.oidc.customHttpOptions.agent'
     );
   }
 
@@ -1075,49 +1097,52 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll
-        .aggregate([
-          { $collStats: { storageStats: {} } },
-          {
-            $group: {
-              _id: null,
-              capped: { $first: '$storageStats.capped' },
-              count: { $sum: '$storageStats.count' },
-              size: { $sum: { $toDouble: '$storageStats.size' } },
-              storageSize: {
-                $sum: { $toDouble: '$storageStats.storageSize' },
-              },
-              totalIndexSize: {
-                $sum: { $toDouble: '$storageStats.totalIndexSize' },
-              },
-              freeStorageSize: {
-                $sum: { $toDouble: '$storageStats.freeStorageSize' },
-              },
-              unscaledCollSize: {
-                $sum: {
-                  $multiply: [
-                    { $toDouble: '$storageStats.avgObjSize' },
-                    { $toDouble: '$storageStats.count' },
-                  ],
+        .aggregate(
+          [
+            { $collStats: { storageStats: {} } },
+            {
+              $group: {
+                _id: null,
+                capped: { $first: '$storageStats.capped' },
+                count: { $sum: '$storageStats.count' },
+                size: { $sum: { $toDouble: '$storageStats.size' } },
+                storageSize: {
+                  $sum: { $toDouble: '$storageStats.storageSize' },
                 },
-              },
-              nindexes: { $max: '$storageStats.nindexes' },
-            },
-          },
-          {
-            $addFields: {
-              // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-              avgObjSize: {
-                $cond: {
-                  if: { $ne: ['$count', 0] },
-                  then: {
-                    $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                totalIndexSize: {
+                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
+                },
+                freeStorageSize: {
+                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
+                },
+                unscaledCollSize: {
+                  $sum: {
+                    $multiply: [
+                      { $toDouble: '$storageStats.avgObjSize' },
+                      { $toDouble: '$storageStats.count' },
+                    ],
                   },
-                  else: 0,
+                },
+                nindexes: { $max: '$storageStats.nindexes' },
+              },
+            },
+            {
+              $addFields: {
+                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+                avgObjSize: {
+                  $cond: {
+                    if: { $ne: ['$count', 0] },
+                    then: {
+                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                    },
+                    else: 0,
+                  },
                 },
               },
             },
-          },
-        ])
+          ],
+          { enableUtf8Validation: false }
+        )
         .toArray();
 
       if (!collStats || collStats[0] === undefined) {
@@ -1133,11 +1158,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
     } catch (error) {
       const message = (error as Error).message;
-      // We ignore errors for fetching collStats when requesting on an
-      // unsupported collection type: either a view or a ADF
       if (
+        // We ignore errors for fetching collStats when requesting on an
+        // unsupported collection type: either a view or a ADF
         message.includes('not valid for Data Lake') ||
-        message.includes('is a view, not a collection')
+        message.includes('is a view, not a collection') ||
+        // When trying to fetch collectionStats for a collection whose db
+        // does not exist or the collection itself does not exist, the
+        // server throws an error. This happens because we show collections
+        // to the user from their privileges.
+        message.includes(`Database [${databaseName}] not found`) ||
+        message.includes(
+          `Collection [${databaseName}.${collectionName}] not found`
+        )
       ) {
         return this._buildCollectionStats(databaseName, collectionName, {});
       }
@@ -1151,13 +1184,22 @@ class DataServiceImpl extends WithLogContext implements DataService {
     collName: string
   ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
     const [collInfo] = await this._listCollections(dbName, { name: collName });
-    return adaptCollectionInfo({ db: dbName, ...collInfo }) ?? null;
+    return (
+      adaptCollectionInfo({
+        db: dbName,
+        ...collInfo,
+      }) ?? null
+    );
   }
 
   @op(mongoLogId(1_001_000_031))
   async killOp(id: number, comment?: string): Promise<Document> {
     const db = this._database('admin', 'META');
-    return runCommand(db, { killOp: 1, id, comment });
+    return runCommand(
+      db,
+      { killOp: 1, id, comment },
+      { enableUtf8Validation: false }
+    );
   }
 
   isWritable(): boolean {
@@ -1175,10 +1217,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_100))
   private async _connectionStatus(): Promise<ConnectionStatusWithPrivileges> {
     const adminDb = this._database('admin', 'META');
-    return await runCommand(adminDb, {
-      connectionStatus: 1,
-      showPrivileges: true,
-    });
+    return await runCommand(
+      adminDb,
+      {
+        connectionStatus: 1,
+        showPrivileges: true,
+      },
+      { enableUtf8Validation: false }
+    );
   }
 
   private async _getPrivilegesOrFallback(
@@ -1271,7 +1317,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
     } = {}
-  ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
+  ): Promise<CollectionDetails[]> {
+    const listCollections = async () => {
+      const colls = await this._listCollections(databaseName, filter, {
+        nameOnly,
+      });
+      return colls.map((coll) => ({
+        is_non_existent: false,
+        ...coll,
+      }));
+    };
     const getCollectionsFromPrivileges = async () => {
       const databases = getPrivilegesByDatabaseAndCollection(
         await this._getPrivilegesOrFallback(privileges),
@@ -1287,11 +1342,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // those registered as "real" collection names
           Boolean
         )
-        .map((name) => ({ name }));
+        .map((name) => ({ name, is_non_existent: true }));
     };
 
     const [listedCollections, collectionsFromPrivileges] = await Promise.all([
-      this._listCollections(databaseName, filter, { nameOnly }),
+      listCollections(),
       // If the filter is not empty, we can't meaningfully derive collections
       // from privileges and filter them as the criteria might include any key
       // from the listCollections result object and there is no such info in
@@ -1305,7 +1360,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
+    ).map(({ is_non_existent, ...coll }) => ({
+      is_non_existent,
+      ...adaptCollectionInfo({ db: databaseName, ...coll }),
+    }));
 
     return collections;
   }
@@ -1328,18 +1386,25 @@ class DataServiceImpl extends WithLogContext implements DataService {
     roles?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
-  } = {}): Promise<{ _id: string; name: string }[]> {
+  } = {}): Promise<Omit<DatabaseDetails, 'collections'>[]> {
     const adminDb = this._database('admin', 'CRUD');
 
     const listDatabases = async () => {
       try {
-        const { databases } = await runCommand(adminDb, {
-          listDatabases: 1,
-          nameOnly,
-        } as {
-          listDatabases: 1;
-        });
-        return databases;
+        const { databases } = await runCommand(
+          adminDb,
+          {
+            listDatabases: 1,
+            nameOnly,
+          } as {
+            listDatabases: 1;
+          },
+          { enableUtf8Validation: false }
+        );
+        return databases.map((x) => ({
+          ...x,
+          is_non_existent: false,
+        }));
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
         // possible reason to preserve current behavior. We probably want this
@@ -1371,7 +1436,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // out
           Boolean
         )
-        .map((name) => ({ name }));
+        .map((name) => ({ name, is_non_existent: true }));
     };
 
     const getDatabasesFromRoles = async () => {
@@ -1386,7 +1451,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // have custom privileges that we can't currently fetch.
         ['read', 'readWrite', 'dbAdmin', 'dbOwner']
       );
-      return databases.map((name) => ({ name }));
+      return databases.map((name) => ({ name, is_non_existent: true }));
     };
 
     const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
@@ -1401,8 +1466,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map((db) => {
-      return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
+    ).map(({ name, is_non_existent, ...db }) => {
+      return {
+        _id: name,
+        name,
+        is_non_existent,
+        ...adaptDatabaseInfo(db),
+      };
     });
 
     return databases;
@@ -1463,6 +1533,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const [metadataClient, crudClient, tunnel, state, connectionOptions] =
         await connectMongoClient({
           connectionOptions: this._connectionOptions,
+          proxyOptions: this._proxyOptions,
           setupListeners: this._setupListeners.bind(this),
           signal,
           logger: this._unboundLogger,
@@ -1483,6 +1554,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
         this._emitter.emit('connectionInfoSecretsChanged');
       });
+
+      state.oidcPlugin.logger.on(
+        'mongodb-oidc-plugin:auth-failed',
+        ({ error }) => {
+          this._emitter.emit('oidcAuthFailed', error);
+        }
+      );
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
@@ -1845,8 +1923,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainFind(
@@ -1856,7 +1933,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.allPlansExecution;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: FindCursor;
     return this._cancellableOperation(
@@ -1878,8 +1955,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainAggregate(
@@ -1889,7 +1965,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.queryPlanner;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(
@@ -2098,7 +2174,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async serverStatus(): Promise<Document> {
     const admin = this._database('admin', 'META');
-    return await runCommand(admin, { serverStatus: 1 });
+    return await runCommand(
+      admin,
+      { serverStatus: 1 },
+      { enableUtf8Validation: false }
+    );
   }
 
   @op(mongoLogId(1_001_000_062), (_, result) => {
@@ -2106,7 +2186,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async top(): Promise<{ totals: Record<string, unknown> }> {
     const adminDb = this._database('admin', 'META');
-    return await runCommand(adminDb, { top: 1 });
+    return await runCommand(
+      adminDb,
+      { top: 1 },
+      { enableUtf8Validation: false }
+    );
   }
 
   @op(
@@ -2144,7 +2228,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
     options: AggregateOptions = {},
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
@@ -2171,6 +2257,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       pipeline,
       {
         allowDiskUse: true,
+        // When the read preference isn't set in the connection string explicitly,
+        // then we allow consumers to default to a read preference, for instance
+        // secondaryPreferred to avoid using the primary for analyzing documents.
+        ...(executionOptions?.fallbackReadPreference &&
+        !isReadPreferenceSet(this._connectionOptions.connectionString)
+          ? {
+              readPreference: executionOptions?.fallbackReadPreference,
+            }
+          : {}),
         ...options,
       },
       executionOptions
@@ -2377,6 +2472,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
             }
           );
         }
+        this._emitter.emit('serverHeartbeatFailed', evt);
       });
 
       client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
@@ -2443,7 +2539,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
     const db = this._database(name, 'META');
-    const stats = await runCommand(db, { dbStats: 1 });
+    const stats = await runCommand(
+      db,
+      { dbStats: 1 },
+      { enableUtf8Validation: false }
+    );
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
   }

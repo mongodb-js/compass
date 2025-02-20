@@ -1,6 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { VirtualItem } from './use-virtual-navigation-tree';
 import { VirtualTree } from './virtual-list';
@@ -91,7 +96,9 @@ function NavigationTree({
       height={400}
       itemHeight={30}
       onDefaultAction={() => {}}
-      onExpandedChange={onExpandedChange}
+      onItemExpand={onExpandedChange}
+      onItemAction={() => {}}
+      getItemActions={() => []}
       width={100}
       renderItem={({ item }) => item.name}
       __TEST_OVER_SCAN_COUNT={Infinity}

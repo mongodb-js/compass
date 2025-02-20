@@ -5,14 +5,13 @@ import {
   screen,
   fireEvent,
   within,
-  waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Document } from 'mongodb';
 import { SearchIndexesTable } from './search-indexes-table';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
@@ -30,10 +29,11 @@ const renderIndexList = (
       status="READY"
       isWritable={true}
       readOnly={false}
-      onDropIndex={noop}
-      onEditIndex={noop}
-      onPollIndexes={noop}
-      openCreateModal={noop}
+      onDropIndexClick={noop}
+      onEditIndexClick={noop}
+      onOpenCreateModalClick={noop}
+      onSearchIndexesOpened={noop}
+      onSearchIndexesClosed={noop}
       {...props}
     />
   );
@@ -43,10 +43,7 @@ describe('SearchIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
-  for (const status of [
-    SearchIndexesStatuses.READY,
-    SearchIndexesStatuses.REFRESHING,
-  ]) {
+  for (const status of [FetchStatuses.READY, FetchStatuses.REFRESHING]) {
     it(`renders indexes list if the status is ${status}`, function () {
       renderIndexList({ status });
 
@@ -55,7 +52,9 @@ describe('SearchIndexesTable Component', function () {
 
       // Renders indexes list (table rows)
       for (const index of indexes) {
-        const indexRow = screen.getByText(index.name).closest('tr')!;
+        const indexRow = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
         expect(indexRow, 'it renders each index in a row').to.exist;
 
         // Renders index fields (table cells)
@@ -98,10 +97,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  for (const status of [
-    SearchIndexesStatuses.FETCHING,
-    SearchIndexesStatuses.NOT_READY,
-  ]) {
+  for (const status of [FetchStatuses.FETCHING, FetchStatuses.NOT_READY]) {
     it(`does not render the list if the status is ${status}`, function () {
       renderIndexList({
         status,
@@ -117,7 +113,7 @@ describe('SearchIndexesTable Component', function () {
     const openCreateSpy = sinon.spy();
     renderIndexList({
       indexes: [],
-      openCreateModal: openCreateSpy,
+      onOpenCreateModalClick: openCreateSpy,
     });
 
     expect(() => {
@@ -136,7 +132,7 @@ describe('SearchIndexesTable Component', function () {
     it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();
 
-      renderIndexList({ onDropIndex: onDropIndexSpy });
+      renderIndexList({ onDropIndexClick: onDropIndexSpy });
       const dropIndexActions = screen.getAllByTestId(
         'search-index-actions-drop-action'
       );
@@ -149,7 +145,7 @@ describe('SearchIndexesTable Component', function () {
     it('renders edit action and shows modal when clicked', function () {
       const onEditIndexSpy = sinon.spy();
 
-      renderIndexList({ onEditIndex: onEditIndexSpy });
+      renderIndexList({ onEditIndexClick: onEditIndexSpy });
       const editIndexActions = screen.getAllByTestId(
         'search-index-actions-edit-action'
       );
@@ -166,7 +162,9 @@ describe('SearchIndexesTable Component', function () {
         indexes: vectorSearchIndexes,
       });
 
-      const indexRow = screen.getByText('vectorSearching123').closest('tr')!;
+      const indexRow = screen
+        .getByText('vectorSearching123')
+        .closest('tr') as HTMLTableRowElement;
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
       expect(expandButton).to.exist;
@@ -183,29 +181,10 @@ describe('SearchIndexesTable Component', function () {
     });
   });
 
-  describe('connectivity', function () {
-    it('does poll the index for changes in online mode', async function () {
-      const onPollIndexesSpy = sinon.spy();
-      const testPollingInterval = 50;
-      renderIndexList({
-        onPollIndexes: onPollIndexesSpy,
-        isWritable: true,
-        pollingInterval: testPollingInterval,
-      });
-
-      await waitFor(
-        () => {
-          expect(onPollIndexesSpy.callCount).to.equal(1);
-        },
-        { timeout: testPollingInterval * 1.5 }
-      );
-    });
-  });
-
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('search-indexes-name-field').map((el) => {
-        return el.textContent!.trim();
+        return (el.textContent as string).trim();
       });
     }
 

@@ -8,10 +8,6 @@ import {
   BannerVariant,
   Checkbox,
   Description,
-  FavoriteIcon,
-  Icon,
-  IconButton,
-  Overline,
   H3,
   spacing,
   Select,
@@ -23,31 +19,29 @@ import {
   cx,
   palette,
   useDarkMode,
+  Button,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
-import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionFormActions, {
-  ConnectionFormModalActions,
-} from './connection-form-actions';
+import { ConnectionFormModalActions } from './connection-form-modal-actions';
 import {
   useConnectForm,
   type ConnectionPersonalizationOptions,
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import SaveConnectionModal from './save-connection-modal';
-import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
+import type { ConnectionFormSettings } from '../hooks/use-connect-form-settings';
 import {
-  ConnectionFormPreferencesContext,
-  useConnectionFormPreference,
-} from '../hooks/use-connect-form-preferences';
+  ConnectionFormSettingsContext,
+  useConnectionFormSetting,
+} from '../hooks/use-connect-form-settings';
 import { useConnectionColor } from '../hooks/use-connection-color';
 import FormHelp from './form-help/form-help';
 
 const descriptionStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const formStyles = css({
@@ -124,22 +118,6 @@ const formFooterBorderLightModeStyles = css({
   borderTop: `1px solid ${palette.gray.light2}`,
 });
 
-const favoriteButtonStyles = css({
-  position: 'absolute',
-  top: -spacing[400],
-  right: 0,
-  cursor: 'pointer',
-  width: spacing[7],
-  height: spacing[7],
-});
-
-const favoriteButtonContentStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
 const headingWithHiddenButtonStyles = css({
   button: {
     visibility: 'hidden',
@@ -151,16 +129,18 @@ const headingWithHiddenButtonStyles = css({
   },
 });
 
-const editFavoriteButtonStyles = css({
-  verticalAlign: 'text-top',
+const bannerStyles = css({
+  marginTop: spacing[400],
+  paddingRight: 0,
 });
-
-const favoriteButtonLabelStyles = css({
-  paddingTop: spacing[1],
+const disabledConnectedConnectionContentStyles = css({
+  display: 'flex',
+  gap: spacing[400],
+  alignItems: 'center',
 });
 
 const connectionStringErrorStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const colorPreviewStyles = css({
@@ -217,8 +197,8 @@ const personalizationSectionLayoutStyles = css({
     'name-input color-input'
     'favorite-marker favorite-marker'
   `,
-  gap: spacing[4],
-  marginBottom: spacing[4],
+  gap: spacing[600],
+  marginBottom: spacing[600],
 });
 
 const personalizationNameInputStyles = css({
@@ -242,9 +222,7 @@ function ConnectionPersonalizationForm({
   updateConnectionFormField,
   personalizationOptions,
 }: ConnectionPersonalizationFormProps): React.ReactElement {
-  const showFavoriteActions = useConnectionFormPreference(
-    'showFavoriteActions'
-  );
+  const showFavoriteActions = useConnectionFormSetting('showFavoriteActions');
 
   const onChangeName = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -333,35 +311,51 @@ function ConnectionPersonalizationForm({
   );
 }
 
-type ConnectionFormPropsWithoutPreferences = {
+type ConnectionFormPropsWithoutSettings = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
-  onCancel?: () => void;
-  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
+  disableEditingConnectedConnection?: boolean;
+  onDisconnectClicked?: () => void;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
+  openSettingsModal?: (tab?: string) => void;
+
+  // form action buttons:
+
+  onCancel?: () => void;
+
+  // If onSaveClicked is specified, a Save button will show up. It will be the
+  // primary button if there is no onSaveAndConnectClick.
+  onSaveClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+
+  // If onConnectClicked is specified, a Connect button will show up.
+  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+
+  // If onSaveAndConnectClicked is specified, a button will show up with
+  // its label set to the value of the setting saveAndConnectLabel. It will be
+  // the primary button if specified. If onConnectClicked is specified, the test
+  // id will be save-and-connect-button, otherwise it will be connect-button.
+  // For historical/backwards compatible reasons.
+  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
 };
 
-export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
-  preferences?: Partial<ConnectionFormPreferences>;
-};
+export type ConnectionFormProps = ConnectionFormPropsWithoutSettings &
+  Partial<ConnectionFormSettings>;
 
 function ConnectionForm({
   initialConnectionInfo,
   connectionErrorMessage,
+  disableEditingConnectedConnection = false,
+  onSaveAndConnectClicked,
+  onSaveClicked,
   onConnectClicked,
-  // The connect form will not always used in an environment where
-  // the connection info can be saved.
-  onSaveConnectionClicked,
+  onDisconnectClicked,
   onCancel,
   onAdvancedOptionsToggle,
-}: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+  openSettingsModal,
+}: ConnectionFormPropsWithoutSettings): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
-  const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
 
   const onAdvancedChange = useCallback(
     (newState: boolean) => {
@@ -374,7 +368,6 @@ function ConnectionForm({
   const [
     {
       enableEditingConnectionString: _enableEditingConnectionString,
-      isDirty,
       errors,
       warnings: _warnings,
       connectionOptions,
@@ -384,17 +377,13 @@ function ConnectionForm({
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
-  type SaveConnectionModalState = 'hidden' | 'save' | 'saveAndConnect';
-
-  const [saveConnectionModal, setSaveConnectionModal] =
-    useState<SaveConnectionModalState>('hidden');
   const protectConnectionStrings =
-    !!useConnectionFormPreference('protectConnectionStrings') &&
+    !!useConnectionFormSetting('protectConnectionStrings') &&
     !allowEditingIfProtected;
   const enableEditingConnectionString =
     _enableEditingConnectionString && !protectConnectionStrings;
 
-  const forceConnectionOptions = useConnectionFormPreference(
+  const forceConnectionOptions = useConnectionFormSetting(
     'forceConnectionOptions'
   );
   const warnings = useMemo(() => {
@@ -416,66 +405,25 @@ function ConnectionForm({
   );
 
   const getConnectionInfoToSave = useCallback(
-    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => {
-      if (isMultiConnectionEnabled) {
-        return {
-          ...cloneDeep(initialConnectionInfo),
-          connectionOptions: cloneDeep(connectionOptions),
-          savedConnectionType: personalizationOptions.isFavorite
-            ? 'favorite'
-            : 'recent',
-          favorite: {
-            ...(favoriteInfo || {}),
-            name: personalizationOptions.name,
-            color: personalizationOptions.color,
-          },
-        };
-      } else {
-        return {
-          ...cloneDeep(initialConnectionInfo),
-          connectionOptions: cloneDeep(connectionOptions),
-          savedConnectionType: 'favorite',
-          favorite: {
-            name: '',
-            color: undefined,
-            ...favoriteInfo,
-          },
-        };
-      }
-    },
-    [
-      isMultiConnectionEnabled,
-      initialConnectionInfo,
-      connectionOptions,
-      personalizationOptions,
-    ]
-  );
-  const onSubmitForm = useCallback(
-    (connectionInfo?: ConnectionInfo) => {
-      const updatedConnectionOptions = cloneDeep(connectionOptions);
-      const formErrors = validateConnectionOptionsErrors(
-        updatedConnectionOptions
-      );
-      if (formErrors.length) {
-        setErrors(formErrors);
-        return;
-      }
-      onConnectClicked({
-        ...initialConnectionInfo,
-        // If connectionInfo is passed in that will be used similar to if there
-        // was initialConnectionInfo. Useful for connecting to a new favorite that
-        // was just added.
-        ...connectionInfo,
-        connectionOptions: updatedConnectionOptions,
-      });
-    },
-    [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]
+    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => ({
+      ...cloneDeep(initialConnectionInfo),
+      connectionOptions: cloneDeep(connectionOptions),
+      savedConnectionType: personalizationOptions.isFavorite
+        ? 'favorite'
+        : 'recent',
+      favorite: {
+        ...(favoriteInfo || {}),
+        name: personalizationOptions.name,
+        color: personalizationOptions.color,
+      },
+    }),
+    [initialConnectionInfo, connectionOptions, personalizationOptions]
   );
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
       try {
-        await onSaveConnectionClicked?.(connectionInfo);
+        await onSaveClicked?.(connectionInfo);
       } catch (err) {
         // save errors are already handled as toast notifications,
         // keeping so we don't rely too much on far-away code and leave errors
@@ -487,20 +435,73 @@ function ConnectionForm({
         ]);
       }
     },
-    [onSaveConnectionClicked, setErrors]
+    [onSaveClicked, setErrors]
+  );
+  const onSubmitForm = useCallback(
+    (intendedAction?: 'connect' | 'save-and-connect') => {
+      const updatedConnectionOptions = cloneDeep(connectionOptions);
+      // TODO: this method throws on malformed connection strings instead of
+      // returning errors
+      const formErrors = validateConnectionOptionsErrors(
+        updatedConnectionOptions
+      );
+      if (formErrors.length) {
+        setErrors(formErrors);
+        return;
+      }
+      if (intendedAction === 'connect') {
+        // The user explicitly clicked connect, so we use that.
+        onConnectClicked?.({
+          ...initialConnectionInfo,
+          ...getConnectionInfoToSave(),
+          connectionOptions: updatedConnectionOptions,
+        });
+      } else {
+        if (onSaveAndConnectClicked) {
+          // If there is a save&connect button, we use that action by default.
+          onSaveAndConnectClicked?.({
+            ...initialConnectionInfo,
+            ...getConnectionInfoToSave(),
+            connectionOptions: updatedConnectionOptions,
+          });
+        } else {
+          // If there isn't a save&connect button then the next default action
+          // should be to save.
+          void callOnSaveConnectionClickedAndStoreErrors?.(
+            getConnectionInfoToSave()
+          );
+        }
+      }
+    },
+    [
+      connectionOptions,
+      setErrors,
+      onConnectClicked,
+      initialConnectionInfo,
+      getConnectionInfoToSave,
+      callOnSaveConnectionClickedAndStoreErrors,
+      onSaveAndConnectClicked,
+    ]
   );
 
-  const showFavoriteActions = useConnectionFormPreference(
-    'showFavoriteActions'
+  const showPersonalisationForm = useConnectionFormSetting(
+    'showPersonalisationForm'
   );
 
-  const showFooterBorder = !!isMultiConnectionEnabled;
+  const showHelpCardsInForm = useConnectionFormSetting('showHelpCardsInForm');
 
-  const showHelpCardsInForm = !!isMultiConnectionEnabled;
-
+  /*
+  To test onSubmit on a form (ie. what happens when you press {enter} and not
+  what happens when you click a submit button) you have to use submit() which only
+  works with role="form", but eslint doesn't like that because role="form"
+  should be redundant.
+  https://stackoverflow.com/questions/59362804/pressing-enter-to-submit-form-in-react-testing-library-does-not-work
+  */
+  /* eslint-disable jsx-a11y/no-redundant-roles */
   return (
     <ConfirmationModalArea>
       <form
+        role="form"
         className={formStyles}
         onSubmit={(e) => {
           // Prevent default html page refresh.
@@ -513,60 +514,62 @@ function ConnectionForm({
         <div className={formHeaderStyles}>
           <div className={formHeaderContentStyles}>
             <H3 className={headingWithHiddenButtonStyles}>
-              {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-              {!isMultiConnectionEnabled && showFavoriteActions && (
-                <IconButton
-                  type="button"
-                  aria-label="Save Connection"
-                  data-testid="edit-favorite-name-button"
-                  className={editFavoriteButtonStyles}
-                  onClick={() => {
-                    setSaveConnectionModal('save');
-                  }}
-                >
-                  <Icon glyph="Edit" />
-                </IconButton>
-              )}
+              {(initialConnectionInfo.favorite?.name ?? 'New Connection') ||
+                'Edit Connection'}
             </H3>
             <Description className={descriptionStyles}>
-              {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
-              {isMultiConnectionEnabled && 'Manage your connection settings'}
+              Manage your connection settings
             </Description>
-
-            {!isMultiConnectionEnabled && showFavoriteActions && (
-              <IconButton
-                aria-label="Save Connection"
-                data-testid="edit-favorite-icon-button"
-                type="button"
-                className={favoriteButtonStyles}
-                size="large"
-                onClick={() => {
-                  setSaveConnectionModal('save');
-                }}
-              >
-                <div className={favoriteButtonContentStyles}>
-                  <FavoriteIcon
-                    isFavorite={!!initialConnectionInfo.favorite}
-                    size={spacing[5]}
-                  />
-                  <Overline className={favoriteButtonLabelStyles}>
-                    FAVORITE
-                  </Overline>
-                </div>
-              </IconButton>
-            )}
           </div>
         </div>
 
         <div className={formContentContainerStyles}>
           <div className={formContentStyles}>
+            {disableEditingConnectedConnection && onDisconnectClicked && (
+              <Banner
+                data-testid="disabled-connected-connection-banner"
+                className={bannerStyles}
+              >
+                <div className={disabledConnectedConnectionContentStyles}>
+                  <div>
+                    While connected, you may only personalize your
+                    connection&apos;s name, color or favorite status. To fully
+                    configure it, you must first disconnect. Beware that
+                    disconnecting might cause work in progress to be lost.
+                  </div>
+                  <div>
+                    <Button
+                      size="small"
+                      leftGlyph={<Icon glyph="Disconnect" />}
+                      onClick={onDisconnectClicked}
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                </div>
+              </Banner>
+            )}
+            {protectConnectionStrings && !disableEditingConnectedConnection && (
+              <Banner
+                data-testid="protect-connection-strings-banner"
+                className={bannerStyles}
+              >
+                Advanced Connection Options are hidden while the &quot;Protect
+                Connection String Secrets&quot; setting is enabled. Disable the
+                setting to configure Advanced Connection Options or edit your
+                connection string.
+              </Banner>
+            )}
             <ConnectionStringInput
               connectionString={connectionOptions.connectionString}
               enableEditingConnectionString={enableEditingConnectionString}
+              disableEditingConnectedConnection={
+                !!disableEditingConnectedConnection
+              }
               setEnableEditingConnectionString={
                 setEnableEditingConnectionString
               }
-              onSubmit={() => onSubmitForm()}
+              onSubmit={onSubmitForm}
               updateConnectionFormField={updateConnectionFormField}
               protectConnectionStrings={protectConnectionStrings}
             />
@@ -578,20 +581,28 @@ function ConnectionForm({
                 {connectionStringInvalidError.message}
               </Banner>
             )}
-            {isMultiConnectionEnabled && (
+            {showPersonalisationForm && (
               <ConnectionPersonalizationForm
                 personalizationOptions={personalizationOptions}
                 updateConnectionFormField={updateConnectionFormField}
               />
             )}
-            {!protectConnectionStrings && (
+            {!(
+              protectConnectionStrings || disableEditingConnectedConnection
+            ) && (
               <AdvancedConnectionOptions
                 open={advancedOpen}
                 setOpen={onAdvancedChange}
                 errors={connectionStringInvalidError ? [] : errors}
-                disabled={!!connectionStringInvalidError}
+                disabled={
+                  !!(
+                    connectionStringInvalidError ||
+                    disableEditingConnectedConnection
+                  )
+                }
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                openSettingsModal={openSettingsModal}
               />
             )}
           </div>
@@ -604,101 +615,103 @@ function ConnectionForm({
         </div>
 
         <div
-          className={cx(formFooterStyles, {
-            [isDarkMode
+          className={cx(
+            formFooterStyles,
+            isDarkMode
               ? formFooterBorderDarkModeStyles
-              : formFooterBorderLightModeStyles]: showFooterBorder,
-          })}
+              : formFooterBorderLightModeStyles
+          )}
         >
-          {isMultiConnectionEnabled && (
-            <ConnectionFormModalActions
-              errors={connectionStringInvalidError ? [] : errors}
-              warnings={connectionStringInvalidError ? [] : warnings}
-              onCancel={onCancel}
-              onSave={() =>
-                void callOnSaveConnectionClickedAndStoreErrors?.(
-                  getConnectionInfoToSave()
-                )
-              }
-              onConnect={() => {
-                void callOnSaveConnectionClickedAndStoreErrors?.(
-                  getConnectionInfoToSave()
-                );
-                onSubmitForm();
-              }}
-            />
-          )}
-          {!isMultiConnectionEnabled && (
-            <ConnectionFormActions
-              errors={connectionStringInvalidError ? [] : errors}
-              warnings={connectionStringInvalidError ? [] : warnings}
-              saveButton={
-                isDirty || !initialConnectionInfo.favorite
-                  ? 'enabled'
-                  : 'disabled'
-              }
-              saveAndConnectButton={
-                initialConnectionInfo.favorite ? 'hidden' : 'enabled'
-              }
-              onSaveClicked={() => {
-                if (initialConnectionInfo.favorite) {
-                  void callOnSaveConnectionClickedAndStoreErrors({
-                    ...cloneDeep(initialConnectionInfo),
-                    connectionOptions: cloneDeep(connectionOptions),
-                  });
-                } else {
-                  setSaveConnectionModal('save');
-                }
-              }}
-              onSaveAndConnectClicked={() => {
-                setSaveConnectionModal('saveAndConnect');
-              }}
-              onConnectClicked={() => onSubmitForm()}
-            />
-          )}
+          <ConnectionFormModalActions
+            errors={connectionStringInvalidError ? [] : errors}
+            warnings={connectionStringInvalidError ? [] : warnings}
+            onCancel={onCancel}
+            onSave={
+              onSaveClicked
+                ? () =>
+                    void callOnSaveConnectionClickedAndStoreErrors?.(
+                      getConnectionInfoToSave()
+                    )
+                : undefined
+            }
+            onConnect={
+              onConnectClicked ? () => onSubmitForm('connect') : undefined
+            }
+            onSaveAndConnect={
+              onSaveAndConnectClicked
+                ? () => onSubmitForm('save-and-connect')
+                : undefined
+            }
+          />
         </div>
       </form>
-
-      {showFavoriteActions && (
-        <SaveConnectionModal
-          open={saveConnectionModal !== 'hidden'}
-          saveText={
-            saveConnectionModal === 'saveAndConnect' ? 'Save & Connect' : 'Save'
-          }
-          onCancelClicked={() => {
-            setSaveConnectionModal('hidden');
-          }}
-          onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
-            setSaveConnectionModal('hidden');
-
-            const connectionInfo = getConnectionInfoToSave(favoriteInfo);
-            await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
-
-            if (saveConnectionModal === 'saveAndConnect') {
-              // Connect to the newly created favorite
-              onSubmitForm(connectionInfo);
-            }
-          }}
-          key={initialConnectionInfo.id}
-          initialFavoriteInfo={initialConnectionInfo.favorite}
-        />
-      )}
     </ConfirmationModalArea>
   );
+  /* eslint-enable jsx-a11y/no-redundant-roles */
 }
 
-const ConnectionFormWithPreferences = (
-  props: ConnectionFormPropsWithoutPreferences & {
-    preferences?: Partial<ConnectionFormPreferences>;
-  }
-) => {
-  const { preferences, ...rest } = props;
+const ConnectionFormWithSettings: React.FunctionComponent<
+  ConnectionFormPropsWithoutSettings & Partial<ConnectionFormSettings>
+> = ({
+  showFavoriteActions,
+  showHelpCardsInForm,
+  showPersonalisationForm,
+  protectConnectionStrings,
+  forceConnectionOptions,
+  showKerberosPasswordField,
+  showOIDCDeviceAuthFlow,
+  enableOidc,
+  enableDebugUseCsfleSchemaMap,
+  protectConnectionStringsForNewConnections,
+  showOIDCAuth,
+  showKerberosAuth,
+  showCSFLE,
+  showProxySettings,
+  saveAndConnectLabel,
+  ...rest
+}) => {
+  const value = useMemo(
+    () => ({
+      showFavoriteActions,
+      showHelpCardsInForm,
+      showPersonalisationForm,
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+      showOIDCAuth,
+      showKerberosAuth,
+      showCSFLE,
+      showProxySettings,
+      saveAndConnectLabel,
+    }),
+    [
+      showFavoriteActions,
+      showHelpCardsInForm,
+      showPersonalisationForm,
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+      showOIDCAuth,
+      showKerberosAuth,
+      showCSFLE,
+      showProxySettings,
+      saveAndConnectLabel,
+    ]
+  );
 
   return (
-    <ConnectionFormPreferencesContext.Provider value={preferences ?? {}}>
+    <ConnectionFormSettingsContext.Provider value={value}>
       <ConnectionForm {...rest} />
-    </ConnectionFormPreferencesContext.Provider>
+    </ConnectionFormSettingsContext.Provider>
   );
 };
 
-export default ConnectionFormWithPreferences;
+export default ConnectionFormWithSettings;

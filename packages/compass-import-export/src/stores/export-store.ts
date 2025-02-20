@@ -3,11 +3,16 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { closeExport, exportReducer, openExport } from '../modules/export';
+import {
+  closeExport,
+  exportReducer,
+  openExport,
+  connectionDisconnected,
+} from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function configureStore(services: ExportPluginServices) {
@@ -25,7 +30,7 @@ export type RootExportState = ReturnType<
 
 export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
-  connectionsManager: ConnectionsManager;
+  connections: ConnectionsService;
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
@@ -54,7 +59,7 @@ export function activatePlugin(
   _: unknown,
   {
     globalAppRegistry,
-    connectionsManager,
+    connections,
     preferences,
     logger,
     track,
@@ -63,7 +68,7 @@ export function activatePlugin(
 ) {
   const store = configureStore({
     globalAppRegistry,
-    connectionsManager,
+    connections,
     preferences,
     logger,
     track,
@@ -104,6 +109,9 @@ export function activatePlugin(
       );
     }
   );
+  on(connections, 'disconnected', function (connectionId: string) {
+    store.dispatch(connectionDisconnected(connectionId));
+  });
 
   addCleanup(() => {
     // We use close and not cancel because cancel doesn't actually cancel
@@ -116,3 +124,5 @@ export function activatePlugin(
     deactivate: cleanup,
   };
 }
+
+export type ExportStore = ReturnType<typeof configureStore>;

@@ -11,11 +11,7 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-import { systemCertsAsync } from 'system-ca';
-import type { Options as SystemCAOptions } from 'system-ca';
-import type { RequestInfo, RequestInit, Response } from 'node-fetch';
-import https from 'https';
-import nodeFetch from 'node-fetch';
+import type { Agent } from 'https';
 import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
@@ -27,6 +23,7 @@ import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
 const track = createIpcTrack();
@@ -36,19 +33,15 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
 
-async function getSystemCA() {
-  // It is possible for OIDC login flow to fail if system CA certs are different from
-  // the ones packaged with the application. To avoid this, we include the system CA
-  // certs in the OIDC plugin options. See COMPASS-7950 for more details.
-  const systemCAOpts: SystemCAOptions = { includeNodeCertificates: true };
-  const ca = await systemCertsAsync(systemCAOpts);
-  return ca.join('\n');
-}
-
 const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
 } as const;
+
+interface CompassAuthHTTPClient {
+  agent: Agent | undefined;
+  fetch: (url: string, init: RequestInit) => Promise<Response>;
+}
 
 export class CompassAuthService {
   private constructor() {
@@ -56,6 +49,8 @@ export class CompassAuthService {
   }
 
   private static initPromise: Promise<void> | null = null;
+
+  private static httpClient: CompassAuthHTTPClient;
 
   private static oidcPluginLogger = new OidcPluginLogger();
 
@@ -66,7 +61,7 @@ export class CompassAuthService {
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
   private static fetch = async (
-    url: RequestInfo,
+    url: string,
     init: RequestInit = {}
   ): Promise<Response> => {
     await this.initPromise;
@@ -79,15 +74,7 @@ export class CompassAuthService {
       { url }
     );
     try {
-      const res = await nodeFetch(url, {
-        // Tests use 'http'.
-        ...(url.toString().includes('https')
-          ? {
-              agent: new https.Agent({
-                ca: await getSystemCA(),
-              }),
-            }
-          : {}),
+      const res = await this.httpClient.fetch(url, {
         ...init,
         headers: {
           ...init.headers,
@@ -145,7 +132,7 @@ export class CompassAuthService {
 
   private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
 
-  private static async setupPlugin(serializedState?: string) {
+  private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
       redirectServerRequestHandler: (data) => {
         if (data.result === 'redirecting') {
@@ -167,7 +154,7 @@ export class CompassAuthService {
       logger: this.oidcPluginLogger,
       serializedState,
       customHttpOptions: {
-        ca: await getSystemCA(),
+        agent: this.httpClient.agent,
       },
     });
     oidcPluginHookLoggerToMongoLogWriter(
@@ -177,7 +164,11 @@ export class CompassAuthService {
     );
   }
 
-  static init(preferences: PreferencesAccess): Promise<void> {
+  static init(
+    preferences: PreferencesAccess,
+    httpClient: CompassAuthHTTPClient
+  ): Promise<void> {
+    this.httpClient = httpClient;
     this.preferences = preferences;
     this.config = getAtlasConfig(preferences);
     return (this.initPromise ??= (async () => {
@@ -199,7 +190,7 @@ export class CompassAuthService {
         { config: this.config }
       );
       const serializedState = await this.secretStore.getState();
-      await this.setupPlugin(serializedState);
+      this.setupPlugin(serializedState);
     })());
   }
 
@@ -207,9 +198,7 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
-  private static async requestOAuthToken({
-    signal,
-  }: { signal?: AbortSignal } = {}) {
+  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
@@ -219,14 +208,14 @@ export class CompassAuthService {
       );
     }
 
-    return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
+    return this.plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
       {
-        clientId: this.config.atlasLogin.clientId,
-        issuer: this.config.atlasLogin.issuer,
-      },
-      {
+        idpInfo: {
+          clientId: this.config.atlasLogin.clientId,
+          issuer: this.config.atlasLogin.issuer,
+        },
         // Required driver specific stuff
-        version: 0,
+        version: 1,
         // While called timeoutContext, this is actually an abort signal that
         // plugin will listen to, not a timeout
         timeoutContext: signal,
@@ -320,7 +309,7 @@ export class CompassAuthService {
     this.attachOidcPluginLoggerEvents();
     // Destroy old plugin and setup new one
     await this.plugin?.destroy();
-    await this.setupPlugin();
+    this.setupPlugin();
     // Revoke tokens. Revoking refresh token will also revoke associated access
     // tokens
     // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
@@ -387,10 +376,7 @@ export class CompassAuthService {
 
       await throwIfNotOk(res);
 
-      const userInfo = (await res.json()) as AtlasUserInfo;
-
-      // TODO: Remove hadcoded `enabledAIFeature: true` when Atlas returns the actual value.
-      return { ...userInfo, enabledAIFeature: true };
+      return (await res.json()) as AtlasUserInfo;
     })();
     return this.currentUser;
   }

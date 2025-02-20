@@ -18,9 +18,11 @@ type DatabaseOrCollectionStatus =
   | 'error';
 
 export type NotConnectedConnectionStatus =
-  | ConnectionStatus.Connecting
-  | ConnectionStatus.Disconnected
-  | ConnectionStatus.Failed;
+  | 'initial'
+  | 'connecting'
+  | 'disconnected'
+  | 'canceled'
+  | 'failed';
 
 export type NotConnectedConnection = {
   name: string;
@@ -31,11 +33,14 @@ export type NotConnectedConnection = {
 export type ConnectedConnection = {
   name: string;
   connectionInfo: ConnectionInfo;
-  connectionStatus: ConnectionStatus.Connected;
+  connectionStatus: 'connected';
   isReady: boolean;
   isDataLake: boolean;
   isWritable: boolean;
+  isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   databasesStatus: DatabaseOrCollectionStatus;
   databasesLength: number;
   databases: Database[];
@@ -49,6 +54,7 @@ export type Database = {
   collectionsStatus: DatabaseOrCollectionStatus;
   collectionsLength: number;
   collections: Collection[];
+  isNonExistent: boolean;
 };
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
@@ -62,6 +68,7 @@ export type Collection = {
   type: 'view' | 'collection' | 'timeseries';
   sourceName: string | null;
   pipeline: unknown[];
+  isNonExistent: boolean;
 };
 
 export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
@@ -78,10 +85,13 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
-  connectionStatus: ConnectionStatus.Connected;
+  connectionStatus: 'connected';
+  isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
   hasWriteActionsDisabled: boolean;
   isShellEnabled: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
@@ -92,6 +102,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   connectionId: string;
   dbName: string;
   hasWriteActionsDisabled: boolean;
+  isNonExistent: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -102,6 +113,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   connectionId: string;
   namespace: string;
   hasWriteActionsDisabled: boolean;
+  isNonExistent: boolean;
 };
 
 export type SidebarActionableItem =
@@ -132,7 +144,7 @@ const notConnectedConnectionToItems = ({
       colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
-      isExpandable: false,
+      isExpandable: true,
     },
   ];
 };
@@ -145,26 +157,30 @@ const connectedConnectionToItems = ({
     databases,
     databasesStatus,
     databasesLength,
+    isPerformanceTabAvailable,
     isPerformanceTabSupported,
     isDataLake,
     isWritable,
+    isGenuineMongoDB,
+    csfleMode,
   },
   connectionIndex,
   connectionsLength,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesShellEnabled,
 }: {
   connection: ConnectedConnection;
   connectionIndex: number;
   connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
   const hasWriteActionsDisabled =
     preferencesReadOnly || isDataLake || !isWritable;
-  const isShellEnabled = !preferencesReadOnly && isWritable;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
@@ -177,9 +193,12 @@ const connectedConnectionToItems = ({
     colorCode,
     connectionInfo,
     connectionStatus,
+    isPerformanceTabAvailable,
     isPerformanceTabSupported,
     hasWriteActionsDisabled,
-    isShellEnabled,
+    isShellEnabled: preferencesShellEnabled,
+    isGenuineMongoDB,
+    csfleMode,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];
@@ -230,6 +249,7 @@ const databaseToItems = ({
     collections,
     collectionsLength,
     collectionsStatus,
+    isNonExistent,
   },
   connectionId,
   expandedItems = {},
@@ -262,6 +282,7 @@ const databaseToItems = ({
     dbName: id,
     isExpandable: true,
     hasWriteActionsDisabled,
+    isNonExistent,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -289,84 +310,61 @@ const databaseToItems = ({
   }
 
   return sidebarData.concat(
-    collections.map(({ _id: id, name, type }, collectionIndex) => ({
-      id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
-      level: level + 1,
-      name,
-      type,
-      setSize: collectionsLength,
-      posInSet: collectionIndex + 1,
-      colorCode,
-      connectionId,
-      namespace: id,
-      hasWriteActionsDisabled,
-      isExpandable: false,
-    }))
+    collections.map(
+      ({ _id: id, name, type, isNonExistent }, collectionIndex) => ({
+        id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
+        level: level + 1,
+        name,
+        type,
+        setSize: collectionsLength,
+        posInSet: collectionIndex + 1,
+        colorCode,
+        connectionId,
+        namespace: id,
+        hasWriteActionsDisabled,
+        isExpandable: false,
+        isNonExistent,
+      })
+    )
   );
 };
 
 /**
  * Converts a list connections to virtual tree items.
  *
- * When isSingleConnection is true, the connections are treated as a single connection mode
- * and only two levels of items are shown: databases and collections.
- *
  * The IDs of the items are just to be used by the tree to correctly identify the items and
  * do not represent the actual IDs of the items.
  *
  * @param connections - The connections.
- * @param isSingleConnection - Whether the connections are a single connection.
  * @param expandedItems - The expanded items.
  */
 export function getVirtualTreeItems({
   connections,
-  isSingleConnection,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
-  isSingleConnection: boolean;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
-  if (!isSingleConnection) {
-    return connections.flatMap((connection, connectionIndex) => {
-      if (connection.connectionStatus === ConnectionStatus.Connected) {
-        return connectedConnectionToItems({
-          connection,
-          expandedItems,
-          connectionIndex,
-          connectionsLength: connections.length,
-          preferencesReadOnly,
-        });
-      } else {
-        return notConnectedConnectionToItems({
-          connection,
-          connectionsLength: connections.length,
-          connectionIndex,
-        });
-      }
-    });
-  }
-
-  const connection = connections[0];
-  // In single connection mode we expect the only connection to be connected
-  if (connection.connectionStatus !== ConnectionStatus.Connected) {
-    return [];
-  }
-
-  const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-  const hasWriteActionsDisabled =
-    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
-  return connection.databases.flatMap((database, databaseIndex) => {
-    return databaseToItems({
-      connectionId: connection.connectionInfo.id,
-      database,
-      expandedItems: dbExpandedItems,
-      level: 1,
-      databasesLength: connection.databasesLength,
-      databaseIndex,
-      hasWriteActionsDisabled,
-    });
+  return connections.flatMap((connection, connectionIndex) => {
+    if (connection.connectionStatus === ConnectionStatus.Connected) {
+      return connectedConnectionToItems({
+        connection,
+        expandedItems,
+        connectionIndex,
+        connectionsLength: connections.length,
+        preferencesReadOnly,
+        preferencesShellEnabled,
+      });
+    } else {
+      return notConnectedConnectionToItems({
+        connection,
+        connectionsLength: connections.length,
+        connectionIndex,
+      });
+    }
   });
 }

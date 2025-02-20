@@ -7,7 +7,9 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  connectionNameFromString,
 } from '../helpers/compass';
+import { setupProxyServer } from '../helpers/proxy';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -16,6 +18,9 @@ import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
 import { once, EventEmitter } from 'events';
+import type { Server as HTTPServer, IncomingMessage } from 'http';
+import { createServer as createHTTPServer } from 'http';
+import type { Socket, AddressInfo } from 'net';
 import { expect } from 'chai';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
@@ -59,40 +64,48 @@ function getTestBrowserShellCommand() {
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
   let oidcMockProviderEndpointAccesses: Record<string, number>;
+  let hostport: string;
 
   let i = 0;
   let tmpdir: string;
   let cluster: MongoCluster;
   let connectionString: string;
+  let connectionName: string;
   let getFavoriteConnectionInfo: (
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
 
+  let isFirstRun = true;
+
   before(async function () {
-    skipForWeb(this, 'feature flags not yet available in compass-web');
+    skipForWeb(
+      this,
+      'OIDC authentication type is not supported in compass-web'
+    );
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
+    // Test locally by setting OIDC_MOCK_HOSTNAME, OIDC_MOCK_PORT and OIDC_CONNECTION_STRING
     if (
-      process.platform !== 'linux' ||
-      !serverSatisfies('> 7.0.0-alpha0', true)
+      (process.platform !== 'linux' ||
+        !serverSatisfies('> 7.0.0-alpha0', true)) &&
+      !process.env.OIDC_CONNECTION_STRING
     ) {
-      return this.skip();
-    }
-
-    // TODO(COMPASS-7966): Enable OIDC tests on 8.0.x when server fix is backported.
-    if (serverSatisfies('>= 8.0.0-alpha0 <8.1.0-rc0')) {
       return this.skip();
     }
 
     {
       oidcMockProviderEndpointAccesses = {};
       oidcMockProviderConfig = {
+        hostname: process.env.OIDC_MOCK_HOSTNAME ?? undefined,
+        port: process.env.OIDC_MOCK_PORT
+          ? parseInt(process.env.OIDC_MOCK_PORT, 10)
+          : undefined,
+        bindIpAll: process.env.OIDC_BIND_IP_ALL === 'true',
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
           return getTokenPayload(metadata);
         },
@@ -104,6 +117,9 @@ describe('OIDC integration', function () {
         },
       };
       oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
+
+      // so we can be sure we're passing the correct one if starting mongodb manually
+      console.log('OIDC Mock Provider Issuer', oidcMockProvider.issuer);
     }
 
     {
@@ -114,37 +130,50 @@ describe('OIDC integration', function () {
       await fs.mkdir(path.join(tmpdir, 'db'), { recursive: true });
     }
 
+    let clusterConnectionString: string;
+
     {
-      const serverOidcConfig = {
-        issuer: oidcMockProvider.issuer,
-        clientId: 'testServer',
-        requestScopes: ['mongodbGroups'],
-        authorizationClaim: 'groups',
-        audience: 'resource-server-audience-value',
-        authNamePrefix: 'dev',
-      };
+      if (process.env.OIDC_CONNECTION_STRING) {
+        clusterConnectionString = process.env.OIDC_CONNECTION_STRING;
 
-      const args = [
-        '--setParameter',
-        'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
-        // enableTestCommands allows using http:// issuers such as http://localhost
-        '--setParameter',
-        'enableTestCommands=true',
-        '--setParameter',
-        `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
-      ];
+        const cs = new ConnectionString(clusterConnectionString);
+        hostport = cs.hosts[0];
+      } else {
+        const serverOidcConfig = {
+          issuer: oidcMockProvider.issuer,
+          clientId: 'testServer',
+          requestScopes: ['mongodbGroups'],
+          authorizationClaim: 'groups',
+          audience: 'resource-server-audience-value',
+          authNamePrefix: 'dev',
+        };
 
-      if (serverSatisfies('>= 8.1.0-rc0', true)) {
-        // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
-        args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+        const args = [
+          '--setParameter',
+          'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
+          // enableTestCommands allows using http:// issuers such as http://localhost
+          '--setParameter',
+          'enableTestCommands=true',
+          '--setParameter',
+          `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+        ];
+
+        if (serverSatisfies('>= 8.1.0-rc0', true)) {
+          // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
+          args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+        }
+
+        cluster = await startTestServer({ args });
+        clusterConnectionString = cluster.connectionString;
+        hostport = cluster.hostport;
       }
 
-      cluster = await startTestServer({ args });
-
-      const cs = new ConnectionString(cluster.connectionString);
+      const cs = new ConnectionString(clusterConnectionString);
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
 
       connectionString = cs.toString();
+
+      connectionName = connectionNameFromString(connectionString);
     }
 
     {
@@ -161,9 +190,12 @@ describe('OIDC integration', function () {
 
   beforeEach(async function () {
     oidcMockProviderEndpointAccesses = {};
-    getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
+    getTokenPayload = () => {
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
     overrideRequestHandler = () => {};
-    compass = await init(this.test?.fullTitle());
+    compass = await init(this.test?.fullTitle(), { firstRun: isFirstRun });
+    isFirstRun = false;
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -197,6 +229,7 @@ describe('OIDC integration', function () {
     };
     await browser.connectWithConnectionString(connectionString);
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -223,20 +256,24 @@ describe('OIDC integration', function () {
       }
     };
 
-    {
-      await browser.setValueVisible(
-        Selectors.ConnectionStringInput,
-        connectionString
-      );
-      await browser.clickVisible(Selectors.ConnectButton);
-      await once(emitter, 'authorizeEndpointCalled');
-      await browser.closeConnectModal();
-    }
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.setValueVisible(
+      Selectors.ConnectionFormStringInput,
+      connectionString
+    );
+
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
+    await once(emitter, 'authorizeEndpointCalled');
+
+    await browser.clickVisible(Selectors.ConenctionToastCancelConnectionButton);
 
     overrideRequestHandler = () => {};
     await browser.connectWithConnectionString(connectionString);
     emitter.emit('secondConnectionEstablished');
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -252,11 +289,13 @@ describe('OIDC integration', function () {
     };
 
     await browser.connectWithConnectionForm({
-      hosts: [cluster.hostport],
+      hosts: [hostport],
       authMethod: 'MONGODB-OIDC',
+      connectionName,
     });
 
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -270,26 +309,40 @@ describe('OIDC integration', function () {
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
+        // make the token expire in less than a minute so it have time to be refreshed
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
 
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
-    const modal = '[role=dialog]';
-    const confirmButton = 'button:nth-of-type(1)';
-    await browser.waitUntil(async () => {
-      const modalHeader = await browser.$(`${modal} h1`);
-      return (await modalHeader.getText()).includes('Authentication expired');
-    });
+    // wait for the token to expire (see expires_in above)
+    await browser.pause(10_000);
+
+    // we have to browse somewhere that will fire off commands that require
+    // authentication so that those commands get rejected due to the expired
+    // auth and then that will trigger the confirmation modal we expect.
+    await browser.selectConnectionMenuItem(
+      connectionName,
+      Selectors.OpenShellItem,
+      false
+    );
+
+    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
+    expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
-    await browser.clickVisible(`${modal} ${confirmButton}`);
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -301,28 +354,39 @@ describe('OIDC integration', function () {
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
+        // make the token expire in less than a minute so it have time to be refreshed
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
 
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
-    await browser.clickVisible(Selectors.ConnectButton);
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
 
-    const modal = '[role=dialog]';
-    const cancelButton = 'button:nth-of-type(2)';
-    await browser.waitUntil(async () => {
-      const modalHeader = await browser.$(`${modal} h1`);
-      return (await modalHeader.getText()).includes('Authentication expired');
-    });
+    // wait for the token to expire (see expires_in above)
+    await browser.pause(10_000);
+
+    // we have to browse somewhere that will fire off commands that require
+    // authentication so that those commands get rejected due to the expired
+    // auth and then that will trigger the confirmation modal we expect
+    await browser.selectConnectionMenuItem(
+      connectionName,
+      Selectors.OpenShellItem,
+      false
+    );
+
+    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
+    expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
-    await browser.clickVisible(`${modal} ${cancelButton}`);
-    const errorBanner = await browser.$(
-      '[data-testid="toast-instance-refresh-failed"]'
-    );
+    await browser.clickVisible(Selectors.confirmationModalCancelButton());
+    const errorBanner = browser.$('[data-testid="toast-oidc-auth-failed"]');
     await errorBanner.waitForDisplayed();
     expect(await errorBanner.getText()).to.include(
       'Reauthentication declined by user'
@@ -337,12 +401,13 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
-    await browser.selectFavorite(favoriteName);
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -361,17 +426,18 @@ describe('OIDC integration', function () {
 
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
     await browser.screenshot(
       `after-disconnecting-favourite-${favoriteName}.png`
     );
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
-    await browser.selectFavorite(favoriteName);
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.equal(
@@ -388,8 +454,9 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -399,14 +466,82 @@ describe('OIDC integration', function () {
     {
       // Restart Compass
       await cleanup(compass);
-      compass = await init(this.test?.fullTitle());
+      compass = await init(this.test?.fullTitle(), { firstRun: false });
       browser = compass.browser;
     }
 
-    await browser.selectFavorite(favoriteName);
-    await browser.doConnect();
-    await browser.disconnect();
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
 
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+  });
+
+  context('when using a proxy', function () {
+    let httpServer: HTTPServer;
+    let connectRequests: IncomingMessage[];
+    let httpForwardRequests: IncomingMessage[];
+    let connections: Socket[];
+
+    beforeEach(async function () {
+      await browser.setFeature('proxy', '');
+      httpServer = createHTTPServer();
+      ({ connectRequests, httpForwardRequests, connections } =
+        setupProxyServer(httpServer));
+      httpServer.listen(0);
+      await once(httpServer, 'listening');
+    });
+
+    afterEach(async function () {
+      await browser.setFeature('proxy', '');
+      httpServer?.close?.();
+      for (const conn of connections) {
+        if (!conn.destroyed) conn.destroy();
+      }
+    });
+
+    it('can proxy both HTTP and MongoDB traffic through a proxy', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: true,
+        proxyMethod: 'app-proxy',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.include(
+        `${oidcMockProvider.issuer}/.well-known/openid-configuration`
+      );
+    });
+
+    it('can choose not to forward OIDC HTTP traffic', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: false,
+        proxyMethod: 'app-proxy',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.be.empty;
+    });
   });
 });

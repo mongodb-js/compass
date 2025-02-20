@@ -30,17 +30,19 @@ const csfleBannerStyles = css({
   marginTop: spacing[3],
 });
 
-export default function CSFLEConnectionModal({
-  csfleMode,
-  open,
-  setOpen,
-  setConnectionIsCSFLEEnabled,
-}: {
-  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+export type CSFLEConnectionModalProps = {
   open: boolean;
-  setOpen: (isOpen: boolean) => void;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+  onClose: () => void;
   setConnectionIsCSFLEEnabled: (isEnabled: boolean) => void;
-}) {
+};
+
+export default function CSFLEConnectionModal({
+  open,
+  csfleMode,
+  onClose,
+  setConnectionIsCSFLEEnabled,
+}: CSFLEConnectionModalProps) {
   const onChange = useCallback(
     (checked: boolean) => {
       setConnectionIsCSFLEEnabled(checked);
@@ -48,14 +50,10 @@ export default function CSFLEConnectionModal({
     [setConnectionIsCSFLEEnabled]
   );
 
-  const onClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
   useTrackOnChange(
     (track: TrackFunction) => {
       if (open) {
-        track('Screen', { name: 'csfle_connection_modal' });
+        track('Screen', { name: 'csfle_connection_modal' }, undefined);
       }
     },
     [open],

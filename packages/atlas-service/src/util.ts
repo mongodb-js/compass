@@ -9,7 +9,7 @@ export type AtlasUserInfo = {
   lastName: string;
   primaryEmail: string;
   login: string;
-} & { enabledAIFeature: boolean };
+};
 
 export type IntrospectInfo = { active: boolean };
 
@@ -46,10 +46,21 @@ export function throwIfNetworkTrafficDisabled(
 /**
  * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
  */
-export function isServerError(
+function isAtlasAPIError(
   err: any
 ): err is { error: number; errorCode: string; detail: string } {
-  return Boolean(err.error && err.errorCode && err.detail);
+  return Boolean(err && err.error && err.errorCode && err.detail);
+}
+
+function isCloudBackendError(err: any): err is {
+  errorCode: string;
+  message: string;
+  version: string;
+  status: string;
+} {
+  return Boolean(
+    err && err.errorCode && err.message && err.version && err.status
+  );
 }
 
 export async function throwIfNotOk(
@@ -60,21 +71,25 @@ export async function throwIfNotOk(
   }
 
   const messageJSON = await res.json().catch(() => undefined);
-  if (messageJSON && isServerError(messageJSON)) {
-    throw new AtlasServiceError(
-      'ServerError',
-      res.status,
-      messageJSON.detail ?? 'Internal server error',
-      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
-    );
-  } else {
-    throw new AtlasServiceError(
-      'NetworkError',
-      res.status,
-      res.statusText,
-      `${res.status}`
-    );
+
+  const status = res.status;
+  let statusText = res.statusText;
+  let errorCode = `${res.status}`;
+  let errorName: 'NetworkError' | 'ServerError' = 'NetworkError';
+
+  if (isAtlasAPIError(messageJSON)) {
+    errorName = 'ServerError';
+    statusText = messageJSON.detail;
+    errorCode = messageJSON.errorCode;
   }
+
+  if (isCloudBackendError(messageJSON)) {
+    errorName = 'ServerError';
+    statusText = messageJSON.message;
+    errorCode = messageJSON.errorCode;
+  }
+
+  throw new AtlasServiceError(errorName, status, statusText, errorCode);
 }
 
 export type AtlasServiceConfig = {
@@ -107,9 +122,11 @@ export type AtlasServiceConfig = {
  * Atlas service backend configurations.
  *  - atlas-local:             local mms backend         (localhost)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
+ *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
  *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
  *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
+ *  - web-sandbox-atlas-qa:    qa mms backend + proxy    (cloud-qa.mongodb.com / proxy prefix)
  *  - web-sandbox-atlas:       mms backend + proxy       (cloud.mongodb.com / proxy prefix)
  */
 const config = {
@@ -133,6 +150,16 @@ const config = {
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
   },
+  'atlas-qa': {
+    wsBaseUrl: '',
+    cloudBaseUrl: '',
+    atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-qa.mongodb.com/account/login',
+  },
   atlas: {
     wsBaseUrl: '',
     cloudBaseUrl: '',
@@ -144,7 +171,7 @@ const config = {
     authPortalUrl: 'https://account.mongodb.com/account/login',
   },
   'web-sandbox-atlas-local': {
-    wsBaseUrl: 'ws://localhost:1337',
+    wsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'http://localhost:8080/api/private',
     atlasLogin: {
@@ -154,7 +181,17 @@ const config = {
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
   },
   'web-sandbox-atlas-dev': {
-    wsBaseUrl: 'ws://localhost:1337',
+    wsBaseUrl: '/ccs',
+    cloudBaseUrl: '/cloud-mongodb-com',
+    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+  },
+  'web-sandbox-atlas-qa': {
+    wsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -164,7 +201,7 @@ const config = {
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
   },
   'web-sandbox-atlas': {
-    wsBaseUrl: 'ws://localhost:1337',
+    wsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {

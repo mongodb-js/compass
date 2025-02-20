@@ -1,5 +1,10 @@
 import React from 'react';
-import { fireEvent, render, cleanup, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  cleanup,
+  screen,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -16,18 +21,32 @@ describe('TabNavBar Component', function () {
 
   describe('when rendered with tabs', function () {
     beforeEach(function () {
-      const views = [
-        <MockElement key={1} number={1} />,
-        <MockElement key={2} number={2} />,
-        <MockElement key={3} number={3} />,
-        <MockElement key={4} number={4} />,
+      const tabs = [
+        {
+          name: 'one',
+          title: 'one',
+          content: <MockElement key={1} number={1} />,
+        },
+        {
+          name: 'two',
+          title: 'two',
+          content: <MockElement key={2} number={2} />,
+        },
+        {
+          name: 'three',
+          title: 'three',
+          content: <MockElement key={3} number={3} />,
+        },
+        {
+          name: 'four',
+          title: <p key={'four'}>four</p>,
+          content: <MockElement key={4} number={4} />,
+        },
       ];
       onTabClickedSpy = sinon.spy();
       render(
         <TabNavBar
-          tabNames={['one', 'two', 'three', 'four']}
-          tabLabels={['one', 'two', 'three', <p key={'four'}>four</p>]}
-          views={views}
+          tabs={tabs}
           aria-label="Test tabs label"
           onTabClicked={onTabClickedSpy}
           activeTabIndex={2}

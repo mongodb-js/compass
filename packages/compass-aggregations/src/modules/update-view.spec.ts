@@ -4,11 +4,26 @@ import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from 'hadron-app-registry';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import {
+  type ConnectionInfoRef,
+  ConnectionScopedAppRegistryImpl,
+} from '@mongodb-js/compass-connections/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = { ...createDefaultConnectionInfo(), title: '' };
 
 describe('update-view module', function () {
+  const globalAppRegistry = new AppRegistry();
+  const connectionInfoRef: ConnectionInfoRef = {
+    current: TEST_CONNECTION_INFO,
+  };
+  const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
+    globalAppRegistry.emit.bind(globalAppRegistry),
+    connectionInfoRef
+  );
   const thunkArg = {
-    globalAppRegistry: new AppRegistry(),
+    globalAppRegistry,
+    connectionScopedAppRegistry,
     localAppRegistry: new AppRegistry(),
     pipelineBuilder: {
       getPipelineFromStages() {
@@ -23,10 +38,8 @@ describe('update-view module', function () {
     },
     logger: createNoopLogger(),
     track: createNoopTrack(),
-    connectionInfoAccess: {
-      getCurrentConnectionInfo() {
-        return TEST_CONNECTION_INFO;
-      },
+    connectionInfoRef: {
+      current: TEST_CONNECTION_INFO,
     },
   };
 

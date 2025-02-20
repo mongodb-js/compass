@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import fs from 'fs';
 import _ from 'lodash';
 import {
@@ -133,11 +133,15 @@ type OpenExportAction = {
 export const openExport = (
   exportOptions: Omit<OpenExportAction, 'type'>
 ): ExportThunkAction<void, OpenExportAction> => {
-  return (dispatch, _getState, { track }) => {
-    track('Export Opened', {
-      type: exportOptions.aggregation ? 'aggregation' : 'query',
-      origin: exportOptions.origin,
-    });
+  return (dispatch, _getState, { track, connections }) => {
+    track(
+      'Export Opened',
+      {
+        type: exportOptions.aggregation ? 'aggregation' : 'query',
+        origin: exportOptions.origin,
+      },
+      connections.getConnectionById(exportOptions.connectionId)?.info
+    );
     dispatch({
       type: ExportActionTypes.OpenExport,
       ...exportOptions,
@@ -147,6 +151,20 @@ export const openExport = (
 
 type CloseExportAction = {
   type: ExportActionTypes.CloseExport;
+};
+
+export const connectionDisconnected = (
+  connectionId: string
+): ExportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().export.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      // unlike cancelExport() close also cancels fieldsToExportAbortController
+      // and it hides the modal
+      dispatch(closeExport());
+    }
+  };
 };
 
 export const closeExport = (): CloseExportAction => ({
@@ -270,7 +288,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
   return async (
     dispatch,
     getState,
-    { connectionsManager, logger: { log, mongoLogId } }
+    { connections, logger: { log, mongoLogId } }
   ) => {
     dispatch({
       type: ExportActionTypes.SelectFieldsToExport,
@@ -294,8 +312,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
         throw new Error('ConnectionId not provided');
       }
 
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       gatherFieldsResult = await gatherFieldsFromQuery({
         ns: namespace,
@@ -350,7 +367,7 @@ export const runExport = ({
   return async (
     dispatch,
     getState,
-    { connectionsManager, preferences, track, logger: { log, mongoLogId } }
+    { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
     let outputWriteStream: fs.WriteStream;
     try {
@@ -451,8 +468,7 @@ export const runExport = ({
         throw new Error('ConnectionId not provided');
       }
 
-      const dataService =
-        connectionsManager.getDataServiceForConnection(connectionId);
+      const dataService = connections.getDataServiceForConnection(connectionId);
 
       const baseExportOptions = {
         ns: namespace,
@@ -515,36 +531,42 @@ export const runExport = ({
     const aborted = !!(
       exportAbortController.signal.aborted || exportResult?.aborted
     );
-    track('Export Completed', {
-      type: aggregation ? 'aggregation' : 'query',
-      all_docs: exportFullCollection,
-      has_projection:
-        exportFullCollection || aggregation || !_query
-          ? undefined
-          : queryHasProjection(_query),
-      field_option:
-        exportFullCollection ||
-        aggregation ||
-        (_query && queryHasProjection(_query))
-          ? undefined
-          : selectedFieldOption,
-      file_type: fileType,
-      json_format: fileType === 'json' ? jsonFormatVariant : undefined,
-      field_count:
-        selectedFieldOption === 'select-fields'
-          ? fieldsIncludedCount
-          : undefined,
-      fields_added_count:
-        selectedFieldOption === 'select-fields' ? fieldsAddedCount : undefined,
-      fields_not_selected_count:
-        selectedFieldOption === 'select-fields'
-          ? fieldsExcludedCount
-          : undefined,
-      number_of_docs: exportResult?.docsWritten,
-      success: exportSucceeded,
-      stopped: aborted,
-      duration: Date.now() - startTime,
-    });
+    track(
+      'Export Completed',
+      {
+        type: aggregation ? 'aggregation' : 'query',
+        all_docs: exportFullCollection,
+        has_projection:
+          exportFullCollection || aggregation || !_query
+            ? undefined
+            : queryHasProjection(_query),
+        field_option:
+          exportFullCollection ||
+          aggregation ||
+          (_query && queryHasProjection(_query))
+            ? undefined
+            : selectedFieldOption,
+        file_type: fileType,
+        json_format: fileType === 'json' ? jsonFormatVariant : undefined,
+        field_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsIncludedCount
+            : undefined,
+        fields_added_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsAddedCount
+            : undefined,
+        fields_not_selected_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsExcludedCount
+            : undefined,
+        number_of_docs: exportResult?.docsWritten,
+        success: exportSucceeded,
+        stopped: aborted,
+        duration: Date.now() - startTime,
+      },
+      connections.getConnectionById(connectionId)?.info
+    );
 
     if (!exportSucceeded) {
       return;
@@ -569,7 +591,7 @@ export const runExport = ({
   };
 };
 
-export const exportReducer: Reducer<ExportState> = (
+export const exportReducer: Reducer<ExportState, Action> = (
   state = initialState,
   action
 ) => {

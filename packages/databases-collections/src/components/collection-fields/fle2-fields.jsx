@@ -12,13 +12,26 @@ import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 
-const kmsProviderNames = {
+const kmsProviderTypes = {
   local: 'Local',
   gcp: 'GCP',
   azure: 'Azure',
   aws: 'AWS',
   kmip: 'KMIP',
 };
+
+/**
+ * Get the friendly provider name.
+ * @param {string} provider
+ * @returns string
+ */
+function getKmsProviderName(provider) {
+  const parts = provider.split(':');
+  if (parts.length === 1) {
+    return kmsProviderTypes[parts[0]];
+  }
+  return `${kmsProviderTypes[parts[0]]} ${parts[1]}`;
+}
 
 export const ENCRYPTED_FIELDS_PLACEHOLDER = `{
   fields: [
@@ -50,11 +63,14 @@ const keyEncryptionKeyTemplate = {
   kmip: '/* No KeyEncryptionKey required */\n{}',
 };
 
+function getKMSProviderKeyTemplate(provider) {
+  return keyEncryptionKeyTemplate[provider.split(':')[0]];
+}
+
 const queryableEncryptedFieldsEditorId = 'queryable-encrypted-fields-editor-id';
 const keyEncryptionKeyEditorId = 'key-encryption-key-editor-id';
 
 function FLE2Fields({
-  isCapped,
   isTimeSeries,
   isFLE2,
   onChangeIsFLE2,
@@ -69,7 +85,7 @@ function FLE2Fields({
   return (
     <CollapsibleFieldSet
       toggled={isFLE2}
-      disabled={isTimeSeries || isCapped}
+      disabled={isTimeSeries}
       onToggle={(checked) => onChangeIsFLE2(checked)}
       // Queryable Encryption is the user-facing name of FLE2
       label="Queryable Encryption"
@@ -107,13 +123,13 @@ function FLE2Fields({
             ev.preventDefault();
             onChangeField(
               ['fle2.kmsProvider', 'fle2.keyEncryptionKey'],
-              [ev.target.value, keyEncryptionKeyTemplate[ev.target.value]]
+              [ev.target.value, getKMSProviderKeyTemplate(ev.target.value)]
             );
           }}
           id="createcollection-radioboxgroup"
           value={fle2.kmsProvider}
         >
-          {(configuredKMSProviders || Object.keys(kmsProviderNames)).map(
+          {(configuredKMSProviders || Object.keys(kmsProviderTypes)).map(
             (provider) => {
               return (
                 <RadioBox
@@ -123,7 +139,7 @@ function FLE2Fields({
                   value={provider}
                   key={provider}
                 >
-                  {kmsProviderNames[provider]}
+                  {getKmsProviderName(provider)}
                 </RadioBox>
               );
             }
@@ -152,7 +168,6 @@ function FLE2Fields({
 }
 
 FLE2Fields.propTypes = {
-  isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isFLE2: PropTypes.bool.isRequired,
   onChangeIsFLE2: PropTypes.func.isRequired,

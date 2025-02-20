@@ -1,7 +1,9 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
+import { connectionSupports } from '@mongodb-js/compass-connections';
+import toNS from 'mongodb-ns';
 
 /**
  * No dots in DB name error message.
@@ -100,9 +102,13 @@ export const open = (
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
   return (dispatch, _getState, { track }) => {
-    track('Screen', {
-      name: dbName ? 'create_collection_modal' : 'create_database_modal',
-    });
+    track(
+      'Screen',
+      {
+        name: dbName ? 'create_collection_modal' : 'create_database_modal',
+      },
+      undefined
+    );
 
     dispatch({
       type: CreateNamespaceActionTypes.Open,
@@ -164,15 +170,20 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-const reducer: Reducer<CreateNamespaceState> = (
+const reducer: Reducer<CreateNamespaceState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (
-    isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset) ||
-    isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)
-  ) {
+  if (isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset)) {
     return { ...INITIAL_STATE };
+  }
+
+  if (isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)) {
+    // When a modal is closed, we should not clear the connectionMetaData
+    return {
+      ...INITIAL_STATE,
+      connectionMetaData: state.connectionMetaData,
+    };
   }
 
   if (isAction<OpenAction>(action, CreateNamespaceActionTypes.Open)) {
@@ -277,7 +288,6 @@ export type CreateNamespaceOptions = {
   database?: string;
   collection: string;
   options: {
-    capped?: boolean;
     size?: number;
     collation?: Record<string, unknown>;
     timeseries?: Record<string, unknown>;
@@ -354,18 +364,13 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      connectionsManager,
-      logger: { debug },
-      track,
-      workspaces,
-    }
+    { globalAppRegistry, connections, logger: { debug }, track, workspaces }
   ) => {
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
-    const dbName = databaseName ?? data.database;
-    const collName = data.collection;
+
+    const dbName = databaseName ?? data.database?.trim();
+    const collName = data.collection.trim();
     const namespace = `${dbName}.${collName}`;
 
     dispatch(clearError());
@@ -376,14 +381,13 @@ export const createNamespace = (
 
     try {
       dispatch(toggleIsRunning(true));
-      const ds = connectionsManager.getDataServiceForConnection(connectionId);
+      const ds = connections.getDataServiceForConnection(connectionId);
 
       const options = await handleFLE2Options(ds, data.options);
 
       await ds.createCollection(namespace, (options as any) ?? {});
 
       const trackEvent = {
-        is_capped: !!data.options.capped,
         has_collation: !!data.options.collation,
         is_timeseries: !!data.options.timeseries,
         is_clustered: !!data.options.clusteredIndex,
@@ -391,13 +395,23 @@ export const createNamespace = (
         expires: !!data.options.expireAfterSeconds,
       };
 
-      track(`${kind} Created`, trackEvent);
+      const connectionInfo = connections.getConnectionById(connectionId)?.info;
+
+      track(`${kind} Created`, trackEvent, connectionInfo);
 
       globalAppRegistry.emit('collection-created', namespace, {
         connectionId,
       });
+
+      // For special namespaces (admin, local, config), we do not want
+      // to navigate user to the global-writes tab if it's supported.
+      const isSpecialNS = toNS(namespace).isSpecial;
+      const isGlobalWritesSupported =
+        connectionInfo && connectionSupports(connectionInfo, 'globalWrites');
       workspaces.openCollectionWorkspace(connectionId, namespace, {
         newTab: true,
+        initialSubtab:
+          !isSpecialNS && isGlobalWritesSupported ? 'GlobalWrites' : undefined,
       });
       dispatch(reset());
     } catch (e) {

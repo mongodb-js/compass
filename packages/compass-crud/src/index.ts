@@ -1,3 +1,4 @@
+import React from 'react';
 import type { DocumentProps } from './components/document';
 import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
@@ -8,7 +9,7 @@ import {
   activateDocumentsPlugin,
 } from './stores/crud-store';
 import {
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
   dataServiceLocator,
   type DataServiceLocator,
@@ -17,7 +18,10 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './utils/data-service';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -27,12 +31,22 @@ import {
 } from '@mongodb-js/my-queries-storage/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { CrudTabTitle } from './plugin-title';
 
-export const CompassDocumentsHadronPlugin = registerHadronPlugin(
+const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassDocuments',
-    component: DocumentList as any, // as any because of reflux store
+    component: function CrudProvider({ children, ...props }) {
+      return React.createElement(
+        React.Fragment,
+        null,
+        // Cloning children with props is a workaround for reflux store.
+        React.isValidElement(children)
+          ? React.cloneElement(children, props)
+          : null
+      );
+    },
     activate: activateDocumentsPlugin,
   },
   {
@@ -43,20 +57,23 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-CRUD-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
     fieldStoreService: fieldStoreServiceLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionInfoRef: connectionInfoRefLocator,
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<EmittedAppRegistryEvents>,
     queryBar: queryBarServiceLocator,
+    collection: collectionModelLocator,
   }
 );
 
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
-  component: CompassDocumentsHadronPlugin,
+  provider: CompassDocumentsHadronPlugin,
+  content: DocumentList as any, // as any because of reflux store
+  header: CrudTabTitle as any, // as any because of reflux store
 };
 
 export default DocumentList;

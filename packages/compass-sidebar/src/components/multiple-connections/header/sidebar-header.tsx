@@ -5,6 +5,8 @@ import {
   css,
   type ItemAction,
   ItemActionControls,
+  Badge,
+  BadgeVariant,
 } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
@@ -12,11 +14,17 @@ const sidebarHeaderStyles = css({
   paddingRight: spacing[400],
   display: 'flex',
   justifyContent: 'space-between',
+  alignItems: 'center',
 });
 
 const sidebarHeaderTextStyles = css({
   lineHeight: '32px',
   fontWeight: 600,
+});
+
+const badgeStyles = css({
+  verticalAlign: 'middle',
+  marginLeft: spacing[100],
 });
 
 type Action = 'open-compass-settings';
@@ -31,18 +39,33 @@ const actions: ItemAction<Action>[] = [
 
 export function SidebarHeader({
   onAction,
+  isCompassWeb,
 }: {
   onAction(actionName: Action): void;
+  isCompassWeb?: boolean;
 }): React.ReactElement {
   return (
-    <div className={sidebarHeaderStyles}>
-      <Subtitle className={sidebarHeaderTextStyles}>Compass</Subtitle>
-      <ItemActionControls<Action>
-        onAction={onAction}
-        iconSize="small"
-        actions={actions}
-        data-testid="connections-sidebar-title-actions"
-      ></ItemActionControls>
+    <div className={sidebarHeaderStyles} data-testid="sidebar-header">
+      <Subtitle className={sidebarHeaderTextStyles}>
+        {isCompassWeb ? 'Data Explorer' : 'Compass'}
+        {isCompassWeb && (
+          <Badge
+            variant={BadgeVariant.Blue}
+            className={badgeStyles}
+            data-testid="sidebar-header-badge"
+          >
+            Preview
+          </Badge>
+        )}
+      </Subtitle>
+      {!isCompassWeb && (
+        <ItemActionControls<Action>
+          onAction={onAction}
+          iconSize="small"
+          actions={actions}
+          data-testid="connections-sidebar-title-actions"
+        ></ItemActionControls>
+      )}
     </div>
   );
 }

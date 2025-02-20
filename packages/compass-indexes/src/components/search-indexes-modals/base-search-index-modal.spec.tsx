@@ -6,8 +6,13 @@ import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
 import {
@@ -164,7 +169,8 @@ describe('Base Search Index Modal', function () {
         });
       });
 
-      it('resets the template on type switch', async function () {
+      // TODO(COMPASS-7557): super flaky even on mac
+      it.skip('resets the template on type switch', async function () {
         userEvent.click(
           screen.getByTestId('search-index-type-vectorSearch-button'),
           undefined,

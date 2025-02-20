@@ -1,20 +1,23 @@
 import React from 'react';
 import { MongoDBInstance } from 'mongodb-instance-model';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { DatabasesPlugin } from './databases-plugin';
-import AppRegistry from 'hadron-app-registry';
 import Sinon from 'sinon';
 
 describe('Databasees [Plugin]', function () {
   let dataService: any;
   let mongodbInstance: Sinon.SinonSpiedInstance<MongoDBInstance>;
-  let appRegistry: Sinon.SinonSpiedInstance<AppRegistry>;
-
-  beforeEach(function () {
-    appRegistry = Sinon.spy(new AppRegistry());
-  });
+  let appRegistry: Sinon.SinonSpiedInstance<
+    RenderWithConnectionsResult['globalAppRegistry']
+  >;
 
   afterEach(function () {
     mongodbInstance.removeAllListeners();
@@ -41,11 +44,12 @@ describe('Databasees [Plugin]', function () {
 
       const Plugin = DatabasesPlugin.withMockServices({
         instance: mongodbInstance,
-        globalAppRegistry: appRegistry,
         dataService,
       });
 
-      render(<Plugin></Plugin>);
+      const { globalAppRegistry } = render(<Plugin></Plugin>);
+
+      appRegistry = Sinon.spy(globalAppRegistry);
 
       await waitFor(() => {
         expect(screen.getByRole('gridcell', { name: /foo/ })).to.exist;

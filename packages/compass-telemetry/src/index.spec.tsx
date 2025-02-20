@@ -1,9 +1,14 @@
 import { createIpcTrack } from './';
 import { expect } from 'chai';
 
+// So that we don't need to override types in all tests
+function createTrackFn() {
+  return createIpcTrack() as (name: string, ...args: any[]) => void;
+}
+
 describe('Telemetry', () => {
   it('sends track events over ipc', async function () {
-    const track = createIpcTrack();
+    const track = createTrackFn();
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
@@ -25,7 +30,7 @@ describe('Telemetry', () => {
   });
 
   it('resolves track event attributes', async function () {
-    const track = createIpcTrack();
+    const track = createTrackFn();
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
@@ -52,7 +57,7 @@ describe('Telemetry', () => {
   });
 
   it('tracks events even when fetching the attributes fails', async function () {
-    const track = createIpcTrack();
+    const track = createTrackFn();
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
