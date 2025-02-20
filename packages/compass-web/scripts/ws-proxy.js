@@ -103,7 +103,7 @@ function decodeMessageWithTypeByte(message) {
   } else if (typeByte === 0x02) {
     return message.subarray(1);
   } else {
-    console.error('message does not have valid type byte "%s":', message);
+    logger.error('message does not have valid type byte "%s":', message);
   }
 }
 
