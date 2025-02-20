@@ -102,8 +102,6 @@ function decodeMessageWithTypeByte(message) {
     return JSON.parse(jsonStr);
   } else if (typeByte === 0x02) {
     return message.subarray(1);
-  } else {
-    logger.error('message does not have valid type byte "%s":', message);
   }
 }
 
