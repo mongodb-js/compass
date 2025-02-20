@@ -2,7 +2,7 @@ import React, { type ChangeEvent, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
-  Code,
+  KeylineCard,
   ModalBody,
   ModalHeader,
   ModalFooter,
@@ -15,6 +15,7 @@ import {
   Label,
   CancelLoader,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import type { RootState } from '../stores/store';
 import {
@@ -35,9 +36,15 @@ const contentContainerStyles = css({
   paddingBottom: spacing[400],
 });
 
-const codeStyles = css({
+const codeEditorContainerStyles = css({
   maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
   overflow: 'auto',
+});
+
+const codeStyles = css({
+  '& .cm-editor': {
+    paddingLeft: spacing[2],
+  },
 });
 
 const footerStyles = css({
@@ -139,17 +146,22 @@ const ExportSchemaModal: React.FunctionComponent<{
               onCancel={onCancelSchemaExport}
             />
           )}
-          {exportStatus === 'complete' && (
-            <Code
-              id="export-schema-content"
-              data-testid="export-schema-content"
-              language="json"
-              className={codeStyles}
-              copyable={true}
-              onCopy={onExportedSchemaCopied}
-            >
-              {exportedSchema ?? 'Empty'}
-            </Code>
+          {exportStatus === 'complete' && exportedSchema && (
+            <KeylineCard className={codeEditorContainerStyles}>
+              <CodemirrorMultilineEditor
+                data-testid="export-schema-content"
+                language="json"
+                className={codeStyles}
+                copyable={true}
+                showAnnotationsGutter={false}
+                showLineNumbers={false}
+                formattable={false}
+                initialJSONFoldAll={false}
+                readOnly
+                text={exportedSchema}
+                onCopy={onExportedSchemaCopied}
+              ></CodemirrorMultilineEditor>
+            </KeylineCard>
           )}
           {exportStatus === 'error' && errorMessage && (
             <ErrorSummary

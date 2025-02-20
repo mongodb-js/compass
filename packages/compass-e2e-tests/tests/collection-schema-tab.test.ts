@@ -135,7 +135,9 @@ describe('Collection schema tab', function () {
 
       const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
       await exportSchemaContent.waitForDisplayed();
-      const text = await browser.$(Selectors.ExportSchemaOutput).getText();
+      const text = await browser.getCodemirrorEditorText(
+        Selectors.ExportSchemaOutput
+      );
       const parsedText = JSON.parse(text);
       delete parsedText.$defs;
       expect(parsedText).to.deep.equal({
