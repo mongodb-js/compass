@@ -33,6 +33,15 @@ if (
   process.type === 'browser'
 ) {
   if (process.platform === 'linux') {
+    const isLibsecretInstalled = () => {
+      try {
+        process.dlopen({ exports: {} }, 'libsecret-1.so.0');
+        return true;
+      } catch (err: any) {
+        return err && err.message?.includes('did not self-register');
+      }
+    };
+
     // For Linux users with drivers that are avoided by Chromium we disable the
     // GPU check to attempt to bypass the disabled WebGL settings.
     app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
@@ -47,7 +56,10 @@ if (
      *
      * @see {@link https://github.com/microsoft/vscode/issues/185212#issuecomment-1593271415}
      */
-    if (app.commandLine.hasSwitch('password-store') === false) {
+    if (
+      app.commandLine.hasSwitch('password-store') === false &&
+      isLibsecretInstalled()
+    ) {
       app.commandLine.appendSwitch('password-store', 'gnome-libsecret');
     }
   }
