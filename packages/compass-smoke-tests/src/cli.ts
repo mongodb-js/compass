@@ -13,7 +13,7 @@ import { testTimeToFirstQuery } from './tests/time-to-first-query';
 import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
 import { deleteSandboxesDirectory } from './directories';
-import { dispatchAndWait } from './dispatch';
+import { dispatchAndWait, getRefFromGithubPr } from './dispatch';
 
 const debug = createDebug('compass:smoketests');
 
@@ -135,6 +135,10 @@ yargs(hideBin(process.argv))
     'Dispatch smoke tests on GitHub and watch to completion',
     (argv) =>
       argv
+        .option('github-pr-number', {
+          type: 'number',
+          description: 'GitHub PR number used to determine ref',
+        })
         .option('ref', {
           type: 'string',
           description: 'Git reference to dispatch the workflow from',
@@ -145,7 +149,7 @@ yargs(hideBin(process.argv))
           description: 'Compass version to run tests for',
           default: process.env.DEV_VERSION_IDENTIFIER,
         }),
-    async ({ version, bucketName, bucketKeyPrefix, ref }) => {
+    async ({ version, bucketName, bucketKeyPrefix, ref, githubPrNumber }) => {
       const { GITHUB_TOKEN } = process.env;
       assert(
         typeof GITHUB_TOKEN === 'string',
@@ -161,7 +165,13 @@ yargs(hideBin(process.argv))
       );
       await dispatchAndWait({
         githubToken: GITHUB_TOKEN,
-        ref,
+        ref:
+          typeof githubPrNumber === 'number'
+            ? await getRefFromGithubPr({
+                githubToken: GITHUB_TOKEN,
+                githubPrNumber,
+              })
+            : ref,
         version,
         bucketName,
         bucketKeyPrefix,

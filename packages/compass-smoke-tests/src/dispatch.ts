@@ -47,6 +47,29 @@ async function getWorkflowRunRetrying(
   );
 }
 
+type RefFromGithubPrOptions = {
+  githubToken: string;
+  githubPrNumber: number;
+};
+
+export async function getRefFromGithubPr({
+  githubToken,
+  githubPrNumber,
+}: RefFromGithubPrOptions) {
+  const octokit = github.getOctokit(githubToken);
+  const {
+    data: {
+      head: { ref },
+    },
+  } = await octokit.rest.pulls.get({
+    owner: GITHUB_OWNER,
+    repo: GITHUB_REPO,
+    pull_number: githubPrNumber,
+  });
+  console.log(`Got ref "${ref}" from PR #${githubPrNumber}`);
+  return ref;
+}
+
 type DispatchOptions = {
   githubToken: string;
   ref: string;

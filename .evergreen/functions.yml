@@ -669,7 +669,11 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           # Start the smoke tests on GitHub Actions and wait for successful completion
-          npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --ref ${trigger_branch}
+          if [[ "${requester}" == "github_pr" ]]; then
+            npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --github-pr-number ${github_pr_number}
+          else
+            npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --ref ${branch_name}
+          fi
 
   test-web-sandbox:
     - command: shell.exec
