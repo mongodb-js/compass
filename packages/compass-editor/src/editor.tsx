@@ -1407,6 +1407,7 @@ type MultilineEditorProps = EditorProps & {
   editorClassName?: string;
   actionsClassName?: string;
   onExpand?: () => void;
+  onCopy?: () => void;
   expanded?: boolean;
 };
 
@@ -1420,6 +1421,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onCopy,
       onExpand,
       expanded,
       ...props
@@ -1429,6 +1431,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     const darkMode = useDarkMode(_darkMode);
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
+
+    const onCopyRef = useRef(onCopy);
+    onCopyRef.current = onCopy;
 
     useImperativeHandle(
       ref,
@@ -1441,6 +1446,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             return editorRef.current?.unfoldAll() ?? false;
           },
           copyAll() {
+            onCopyRef.current?.();
             return editorRef.current?.copyAll() ?? false;
           },
           prettify() {

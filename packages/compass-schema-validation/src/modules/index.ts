@@ -30,6 +30,7 @@ import type {
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 /**
  * Reset action constant.
@@ -67,6 +68,7 @@ export type SchemaValidationExtraArgs = {
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;
+  workspaces: WorkspacesService;
   logger: Logger;
   track: TrackFunction;
 };
@@ -77,7 +79,7 @@ export type SchemaValidationThunkAction<
 > = ThunkAction<R, RootState, SchemaValidationExtraArgs, A>;
 
 /**
- * The intial state of the root reducer.
+ * The initial state of the root reducer.
  */
 export const INITIAL_STATE: RootState = {
   namespace: NS_INITIAL_STATE,
@@ -112,9 +114,6 @@ const doReset = (): RootState => ({ ...INITIAL_STATE });
  */
 export const reset = (): ResetAction => ({ type: RESET });
 
-/**
- * The root reducer.
- */
 const rootReducer = (
   state: RootState | undefined,
   action: RootAction
