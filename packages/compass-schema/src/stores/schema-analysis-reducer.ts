@@ -1,11 +1,7 @@
 import type { Schema } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
-import {
-  openToast,
-  type ToastProperties,
-} from '@mongodb-js/compass-components';
 import type { Action, Reducer } from 'redux';
-import type { AggregateOptions } from 'mongodb';
+import type { AggregateOptions, MongoError } from 'mongodb';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
@@ -25,22 +21,19 @@ import type { SchemaThunkAction } from './store';
 import { UUID } from 'bson';
 import { isAction } from '../utils';
 
-const ERROR_WARNING = 'An error occurred during schema analysis';
-const COMPLEXITY_ABORT_MESSAGE = `
-Analysis was aborted due to: Fields count above 1000.
-Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.
-`;
-const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
-
 const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
+export type SchemaAnalysisError = {
+  errorMessage: string;
+  errorType: 'TIMEOUT' | 'HIGH_COMPLEXITY' | 'GENERAL';
+};
+
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   analysisStartTime?: number;
-  errorMessage: string;
+  error?: SchemaAnalysisError;
   schema: Schema | null;
   resultId: string;
 };
@@ -69,7 +62,7 @@ export type AnalysisFailedAction = {
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   state = getInitialState(),
   action
-) => {
+): SchemaAnalysisState => {
   if (
     isAction<AnalysisStartedAction>(
       action,
@@ -80,7 +73,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       ...state,
       analysisStartTime: action.analysisStartTime,
       analysisState: ANALYSIS_STATE_ANALYZING,
-      errorMessage: '',
+      error: undefined,
       schema: null,
     };
   }
@@ -101,34 +94,38 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
     };
   }
 
+  if (
+    isAction<AnalysisFailedAction>(action, SchemaAnalysisActions.analysisFailed)
+  ) {
+    return {
+      ...state,
+      error: getErrorDetails(action.error),
+      analysisState: ANALYSIS_STATE_INITIAL,
+      resultId: resultId(),
+    };
+  }
+
   return state;
 };
 
-function getErrorDetails(
-  errorMessage: string,
-  errorCode?: number
-): Partial<ToastProperties> {
+function getErrorDetails(error: Error): SchemaAnalysisError {
+  const errorCode = (error as MongoError).code;
+  const errorMessage = error.message || 'Unknown error';
+  let errorType: SchemaAnalysisError['errorType'] = 'GENERAL';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
-    return { description: INCREASE_MAX_TIME_MS_HINT_MESSAGE };
-  } else if (errorMessage.includes('Schema analysis aborted: Fields count')) {
-    return {
-      description: COMPLEXITY_ABORT_MESSAGE,
-      actionElement: `<a href="https://www.mongodb.com/cloud/atlas/lp/search-1">Learn more</a>`,
-    };
-  } else {
-    return { description: `${ERROR_WARNING}: ${errorMessage}` };
+    errorType = 'TIMEOUT';
+  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
+    errorType = 'HIGH_COMPLEXITY';
+    // return {
+    //   description: COMPLEXITY_ABORT_MESSAGE,
+    //   actionElement: `<a href="https://www.mongodb.com/cloud/atlas/lp/search-1">Learn more</a>`,
+    // };
   }
-}
 
-function handleError(err: Error & { code?: number }) {
-  const errorMessage = (err && err.message) || 'Unknown error';
-  const errorCode = err && err.code;
-
-  openToast('schema-analysis-error', {
-    variant: 'important',
-    title: 'Schema Analysis Failed',
-    ...getErrorDetails(errorMessage, errorCode),
-  });
+  return {
+    errorType,
+    errorMessage,
+  };
 }
 
 function resultId(): string {
@@ -137,7 +134,6 @@ function resultId(): string {
 
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
-  errorMessage: '',
   schema: null,
   resultId: resultId(),
 });
@@ -357,8 +353,10 @@ export const startAnalysis = (): SchemaThunkAction<
           error: err.stack,
         }
       );
-      dispatch({ type: SchemaAnalysisActions.analysisFinished, schema: null });
-      handleError(err as Error);
+      dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: err as Error,
+      });
     } finally {
       analysisAbortControllerRef.current = undefined;
     }

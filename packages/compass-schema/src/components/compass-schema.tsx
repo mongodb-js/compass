@@ -36,7 +36,11 @@ import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../stores/store';
-import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
+import {
+  type SchemaAnalysisError,
+  startAnalysis,
+  stopAnalysis,
+} from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
 import ExportSchemaModal from './export-schema-modal';
 import ExportSchemaLegacyBanner from './export-schema-legacy-banner';
@@ -371,7 +375,7 @@ const PerformanceAdvisorBanner = () => {
 
 const Schema: React.FunctionComponent<{
   analysisState: AnalysisState;
-  errorMessage?: string;
+  error?: SchemaAnalysisError;
   maxTimeMS?: number;
   schema: MongodbSchema | null;
   count?: number;
@@ -381,7 +385,7 @@ const Schema: React.FunctionComponent<{
   onStopAnalysis: () => void;
 }> = ({
   analysisState,
-  errorMessage,
+  error,
   schema,
   resultId,
   onExportSchemaClicked,
@@ -410,7 +414,7 @@ const Schema: React.FunctionComponent<{
               onExportSchemaClicked={onExportSchemaClicked}
               onResetClicked={onApplyClicked}
               analysisState={analysisState}
-              errorMessage={errorMessage || ''}
+              error={error}
               isOutdated={!!outdated}
               sampleSize={schema ? schema.count : 0}
               schemaResultId={resultId || ''}
@@ -440,7 +444,7 @@ const Schema: React.FunctionComponent<{
 export default connect(
   (state: RootState) => ({
     analysisState: state.schemaAnalysis.analysisState,
-    errorMessage: state.schemaAnalysis.errorMessage,
+    error: state.schemaAnalysis.error,
     schema: state.schemaAnalysis.schema,
     resultId: state.schemaAnalysis.resultId,
   }),
