@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import {
+  Banner,
+  BannerVariant,
   Body,
   Button,
   ErrorSummary,
@@ -45,10 +47,6 @@ const schemaToolbarActionBarRightStyles = css({
 });
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
-const COMPLEXITY_ABORT_MESSAGE = `
-Analysis was aborted due to: Fields count above 1000.
-Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.
-`;
 const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
 const OUTDATED_WARNING_MESSAGE =
@@ -61,7 +59,7 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
-  error: SchemaAnalysisError;
+  error?: SchemaAnalysisError;
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
@@ -141,10 +139,18 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
         <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
       )}
       {error?.errorType === 'HIGH_COMPLEXITY' && (
-        <ErrorSummary
+        <Banner
+          variant={BannerVariant.Danger}
           data-testid="schema-toolbar-complexity-abort-message"
-          errors={[COMPLEXITY_ABORT_MESSAGE]}
-        />
+          dismissible={true}
+        >
+          Analysis was aborted due to: Fields count above 1000. Consider
+          breaking up your data into more collections with smaller documents,
+          and using references to consolidate the data you need.&nbsp;
+          <Link href="https://www.mongodb.com/cloud/atlas/lp/search-1">
+            Learn more
+          </Link>
+        </Banner>
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />

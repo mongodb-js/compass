@@ -116,10 +116,6 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
     errorType = 'TIMEOUT';
   } else if (error.message.includes('Schema analysis aborted: Fields count')) {
     errorType = 'HIGH_COMPLEXITY';
-    // return {
-    //   description: COMPLEXITY_ABORT_MESSAGE,
-    //   actionElement: `<a href="https://www.mongodb.com/cloud/atlas/lp/search-1">Learn more</a>`,
-    // };
   }
 
   return {
