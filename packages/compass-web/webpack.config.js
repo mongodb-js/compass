@@ -148,7 +148,7 @@ module.exports = (env, args) => {
       }),
     ],
     performance: {
-      hints: serve ? 'warning' : 'error',
+      hints: serve || args.watch ? 'warning' : 'error',
       maxEntrypointSize: MAX_COMPRESSION_FILE_SIZE,
       maxAssetSize: MAX_COMPRESSION_FILE_SIZE,
     },

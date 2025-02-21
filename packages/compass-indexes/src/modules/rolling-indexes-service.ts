@@ -67,9 +67,12 @@ export class RollingIndexesService {
 
     // Not possible to do through UI, doing a pre-check here to avoid dealing
     // with payload variations based on metricsType later
-    if (atlasMetadata.metricsType === 'serverless') {
+    if (
+      atlasMetadata.metricsType === 'serverless' ||
+      atlasMetadata.metricsType === 'flex'
+    ) {
       throw new Error(
-        "Serverless clusters don't support rolling index build creation"
+        'Flex clusters don not support rolling index build creation'
       );
     }
 
