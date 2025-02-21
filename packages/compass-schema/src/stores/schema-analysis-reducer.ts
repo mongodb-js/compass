@@ -27,7 +27,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
 export type SchemaAnalysisError = {
   errorMessage: string;
-  errorType: 'TIMEOUT' | 'HIGH_COMPLEXITY' | 'GENERAL';
+  errorType: 'timeout' | 'highComplexity' | 'general';
 };
 
 export type SchemaAnalysisState = {
@@ -128,11 +128,11 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
 function getErrorDetails(error: Error): SchemaAnalysisError {
   const errorCode = (error as MongoError).code;
   const errorMessage = error.message || 'Unknown error';
-  let errorType: SchemaAnalysisError['errorType'] = 'GENERAL';
+  let errorType: SchemaAnalysisError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
-    errorType = 'TIMEOUT';
+    errorType = 'timeout';
   } else if (error.message.includes('Schema analysis aborted: Fields count')) {
-    errorType = 'HIGH_COMPLEXITY';
+    errorType = 'highComplexity';
   }
 
   return {

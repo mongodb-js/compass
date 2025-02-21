@@ -14,6 +14,8 @@ import type { DataService } from '../stores/store';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
+export const DISTINCT_FIELDS_ABORT_THRESHOLD = 1000;
+
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
 function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
@@ -65,7 +67,7 @@ export const analyzeSchema = async (
       ? {
           signal: abortSignal,
           storedValuesLengthLimit: 100,
-          distinctFieldsAbortThreshold: 1000,
+          distinctFieldsAbortThreshold: DISTINCT_FIELDS_ABORT_THRESHOLD,
         }
       : {
           signal: abortSignal,

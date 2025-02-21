@@ -66,7 +66,7 @@ describe('SchemaToolbar', function () {
       renderSchemaToolbar({
         analysisState: 'initial',
         error: {
-          errorType: 'GENERAL',
+          errorType: 'general',
           errorMessage: 'test error msg',
         },
       });
@@ -79,7 +79,7 @@ describe('SchemaToolbar', function () {
       renderSchemaToolbar({
         analysisState: 'initial',
         error: {
-          errorType: 'TIMEOUT',
+          errorType: 'timeout',
           errorMessage: 'test error msg',
         },
       });
@@ -95,7 +95,7 @@ describe('SchemaToolbar', function () {
       renderSchemaToolbar({
         analysisState: 'initial',
         error: {
-          errorType: 'HIGH_COMPLEXITY',
+          errorType: 'highComplexity',
           errorMessage: 'test error msg',
         },
       });

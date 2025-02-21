@@ -16,6 +16,7 @@ import type { AnalysisState } from '../../constants/analysis-states';
 import { ANALYSIS_STATE_COMPLETE } from '../../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { type SchemaAnalysisError } from '../../stores/schema-analysis-reducer';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../../modules/schema-analysis';
 
 const schemaToolbarStyles = css({
   display: 'flex',
@@ -131,7 +132,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           </div>
         </div>
       )}
-      {error?.errorType === 'GENERAL' && (
+      {error?.errorType === 'general' && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
           errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
@@ -139,7 +140,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onClose={onDismissError}
         />
       )}
-      {error?.errorType === 'TIMEOUT' && (
+      {error?.errorType === 'timeout' && (
         <WarningSummary
           data-testid="schema-toolbar-timeout-message"
           warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
@@ -147,17 +148,17 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onClose={onDismissError}
         />
       )}
-      {error?.errorType === 'HIGH_COMPLEXITY' && (
+      {error?.errorType === 'highComplexity' && (
         <Banner
           variant={BannerVariant.Danger}
           data-testid="schema-toolbar-complexity-abort-message"
           dismissible={true}
           onClose={onDismissError}
         >
-          The analysis was aborted because the number of fields exceeds 1000.
-          Consider breaking up your data into more collections with smaller
-          documents, and using references to consolidate the data you
-          need.&nbsp;
+          The analysis was aborted because the number of fields exceeds{' '}
+          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+          more collections with smaller documents, and using references to
+          consolidate the data you need.&nbsp;
           <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
             Learn more
           </Link>
