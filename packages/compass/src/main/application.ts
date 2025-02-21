@@ -428,6 +428,7 @@ class CompassApplication {
       urls: [
         '*://cloud.mongodb.com/*',
         '*://cloud-dev.mongodb.com/*',
+        '*://cloud-qa.mongodb.com/*',
         '*://compass.mongodb.com/*',
       ],
     };
