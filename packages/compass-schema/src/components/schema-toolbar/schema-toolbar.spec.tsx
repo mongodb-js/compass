@@ -47,6 +47,7 @@ describe('SchemaToolbar', function () {
           sampleSize={10}
           schemaResultId="123"
           onExportSchemaClicked={() => {}}
+          onDismissError={() => {}}
           {...props}
         />
       </MockQueryBarPlugin>,
@@ -72,6 +73,22 @@ describe('SchemaToolbar', function () {
 
       expect(screen.getByText(testErrorMessage)).to.be.visible;
       expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
+    });
+
+    it('renders timeout error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'TIMEOUT',
+          errorMessage: 'test error msg',
+        },
+      });
+
+      expect(screen.getByTestId('schema-toolbar-timeout-message')).to.be
+        .visible;
+      expect(
+        screen.getByTestId('schema-toolbar-timeout-message').textContent
+      ).to.include('Please try increasing the maxTimeMS');
     });
 
     it('renders complexity abort error', function () {

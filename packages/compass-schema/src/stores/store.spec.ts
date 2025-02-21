@@ -131,7 +131,7 @@ describe('Schema Store', function () {
       store.dispatch(stopAnalysis());
       isCancelErrorStub.returns(true);
       await analysisPromise;
-      expect(store.getState().schemaAnalysis.analysisState).to.equal('error');
+      expect(store.getState().schemaAnalysis.analysisState).to.equal('initial');
     });
 
     describe('schema export', function () {

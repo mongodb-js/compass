@@ -42,6 +42,7 @@ export const enum SchemaAnalysisActions {
   analysisStarted = 'schema-service/schema-analysis/analysisStarted',
   analysisFinished = 'schema-service/schema-analysis/analysisFinished',
   analysisFailed = 'schema-service/schema-analysis/analysisFailed',
+  analysisErrorDismissed = 'schema-service/schema-analysis/analysisErrorDismissed',
 }
 
 export type AnalysisStartedAction = {
@@ -57,6 +58,10 @@ export type AnalysisFinishedAction = {
 export type AnalysisFailedAction = {
   type: SchemaAnalysisActions.analysisFailed;
   error: Error;
+};
+
+export type AnalysisErrorDismissedAction = {
+  type: SchemaAnalysisActions.analysisErrorDismissed;
 };
 
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
@@ -105,6 +110,18 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
     };
   }
 
+  if (
+    isAction<AnalysisErrorDismissedAction>(
+      action,
+      SchemaAnalysisActions.analysisErrorDismissed
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+    };
+  }
+
   return state;
 };
 
@@ -147,6 +164,12 @@ export const geoLayerAdded = (
     return generateGeoQuery(geoLayersRef.current);
   };
 };
+
+export const analysisErrorDismissed =
+  (): SchemaThunkAction<AnalysisErrorDismissedAction> => {
+    return (dispatch) =>
+      dispatch({ type: SchemaAnalysisActions.analysisErrorDismissed });
+  };
 
 export const geoLayersEdited = (
   field: string,

@@ -24,6 +24,10 @@ const actionButtonStyles = css({
   marginLeft: 'auto',
 });
 
+type DismissProps =
+  | { dismissible: true; onClose: () => void }
+  | { dismissible?: false; onClose?: never };
+
 function Summary({ messages }: { messages: string[] }): React.ReactElement {
   if (messages.length === 1) {
     return <div>{messages[0]}</div>;
@@ -77,11 +81,11 @@ const BannerWithSummary: React.FunctionComponent<
     variant: BannerVariant;
     ['data-testid']?: string;
     className?: string;
-    dismissible?: boolean;
   } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
-  )
+  ) &
+    DismissProps
 > = ({
   ['data-testid']: dataTestId,
   messages,
@@ -90,6 +94,7 @@ const BannerWithSummary: React.FunctionComponent<
   variant,
   className,
   dismissible,
+  onClose,
 }) => {
   const _messages = useMemo(() => {
     return !Array.isArray(messages) ? [messages] : messages;
@@ -101,6 +106,7 @@ const BannerWithSummary: React.FunctionComponent<
       variant={variant}
       className={cx(bannerStyle, className)}
       dismissible={dismissible}
+      onClose={onClose}
     >
       <div className={summaryStyles}>
         <Summary messages={_messages}></Summary>
@@ -127,7 +133,8 @@ export const ErrorSummary: React.FunctionComponent<
   } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
-  )
+  ) &
+    DismissProps
 > = ({ className, errors, ...props }) => {
   return (
     <BannerWithSummary
@@ -147,7 +154,8 @@ export const WarningSummary: React.FunctionComponent<
   } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
-  )
+  ) &
+    DismissProps
 > = ({ className, warnings, ...props }) => {
   return (
     <BannerWithSummary

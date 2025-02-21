@@ -37,6 +37,7 @@ import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../stores/store';
 import {
+  analysisErrorDismissed,
   type SchemaAnalysisError,
   startAnalysis,
   stopAnalysis,
@@ -383,6 +384,7 @@ const Schema: React.FunctionComponent<{
   onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
+  onDismissError: () => void;
 }> = ({
   analysisState,
   error,
@@ -391,6 +393,7 @@ const Schema: React.FunctionComponent<{
   onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
+  onDismissError,
 }) => {
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
@@ -415,6 +418,7 @@ const Schema: React.FunctionComponent<{
               onResetClicked={onApplyClicked}
               analysisState={analysisState}
               error={error}
+              onDismissError={onDismissError}
               isOutdated={!!outdated}
               sampleSize={schema ? schema.count : 0}
               schemaResultId={resultId || ''}
@@ -452,5 +456,6 @@ export default connect(
     onStartAnalysis: startAnalysis,
     onStopAnalysis: () => stopAnalysis(),
     onExportSchemaClicked: openExportSchema,
+    onDismissError: analysisErrorDismissed,
   }
 )(Schema);

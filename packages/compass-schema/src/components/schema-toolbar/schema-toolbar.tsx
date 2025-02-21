@@ -64,6 +64,7 @@ type SchemaToolbarProps = {
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
   onResetClicked: () => void;
+  onDismissError: () => void;
   sampleSize: number;
   schemaResultId: string;
 };
@@ -71,6 +72,7 @@ type SchemaToolbarProps = {
 const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
   error,
+  onDismissError,
   isOutdated,
   onAnalyzeSchemaClicked,
   onExportSchemaClicked,
@@ -134,12 +136,15 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           data-testid="schema-toolbar-error-message"
           errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
           dismissible={true}
+          onClose={onDismissError}
         />
       )}
       {error?.errorType === 'TIMEOUT' && (
         <WarningSummary
+          data-testid="schema-toolbar-timeout-message"
           warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
           dismissible={true}
+          onClose={onDismissError}
         />
       )}
       {error?.errorType === 'HIGH_COMPLEXITY' && (
@@ -147,6 +152,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           variant={BannerVariant.Danger}
           data-testid="schema-toolbar-complexity-abort-message"
           dismissible={true}
+          onClose={onDismissError}
         >
           The analysis was aborted because the number of fields exceeds 1000.
           Consider breaking up your data into more collections with smaller
