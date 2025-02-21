@@ -8,9 +8,11 @@ import type {
   SchemaField,
   SchemaType,
   PrimitiveSchemaType,
+  SchemaParseOptions,
 } from 'mongodb-schema';
 import type { DataService } from '../stores/store';
 import type { Logger } from '@mongodb-js/compass-logging';
+import { usePreference } from 'compass-preferences-model/provider';
 
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
@@ -57,11 +59,17 @@ export const analyzeSchema = async (
         fallbackReadPreference: 'secondaryPreferred',
       }
     );
-    const schemaAccessor = await analyzeDocuments(docs, {
-      signal: abortSignal,
-      storedValuesLengthLimit: 100,
-      distinctFieldsAbortThreshold: 1000,
-    });
+    const enableExportSchema = usePreference('enableExportSchema');
+    const schemaParseOptions: SchemaParseOptions = enableExportSchema
+      ? {
+          signal: abortSignal,
+          storedValuesLengthLimit: 100,
+          distinctFieldsAbortThreshold: 1000,
+        }
+      : {
+          signal: abortSignal,
+        };
+    const schemaAccessor = await analyzeDocuments(docs, schemaParseOptions);
     log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
       ns,
     });
