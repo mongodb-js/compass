@@ -7,6 +7,10 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { isInternalFieldPath } from 'hadron-document';
 
 import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
 
 const testDocs = [
   {
@@ -64,8 +68,13 @@ const testDocs = [
 ];
 
 const dummyLogger = createNoopLogger('TEST');
+let preferences: PreferencesAccess;
 
 describe('schema-analysis', function () {
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   afterEach(function () {
     sinon.restore();
   });
@@ -89,7 +98,8 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger
+        dummyLogger,
+        preferences
       );
 
       const expectedSchema = {
@@ -182,7 +192,8 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger
+        dummyLogger,
+        preferences
       );
 
       expect(sampleSpy).to.have.been.calledWith(
@@ -207,7 +218,8 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger
+        dummyLogger,
+        preferences
       );
 
       expect(result).to.equal(undefined);
@@ -235,7 +247,8 @@ describe('schema-analysis', function () {
           'db.coll',
           {},
           {},
-          dummyLogger
+          dummyLogger,
+          preferences
         );
       } catch (err: any) {
         expect(err.message).to.equal('should have been thrown');

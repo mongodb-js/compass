@@ -133,10 +133,14 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
           errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
+          dismissible={true}
         />
       )}
       {error?.errorType === 'TIMEOUT' && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
+        <WarningSummary
+          warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
+          dismissible={true}
+        />
       )}
       {error?.errorType === 'HIGH_COMPLEXITY' && (
         <Banner

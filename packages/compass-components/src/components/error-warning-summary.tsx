@@ -77,6 +77,7 @@ const BannerWithSummary: React.FunctionComponent<
     variant: BannerVariant;
     ['data-testid']?: string;
     className?: string;
+    dismissible?: boolean;
   } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
@@ -88,6 +89,7 @@ const BannerWithSummary: React.FunctionComponent<
   actionText,
   variant,
   className,
+  dismissible,
 }) => {
   const _messages = useMemo(() => {
     return !Array.isArray(messages) ? [messages] : messages;
@@ -98,6 +100,7 @@ const BannerWithSummary: React.FunctionComponent<
       data-testid={dataTestId}
       variant={variant}
       className={cx(bannerStyle, className)}
+      dismissible={dismissible}
     >
       <div className={summaryStyles}>
         <Summary messages={_messages}></Summary>
