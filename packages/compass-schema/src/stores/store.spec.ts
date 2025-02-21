@@ -100,7 +100,7 @@ describe('Schema Store', function () {
     });
 
     it('defaults the error to empty', function () {
-      expect(store.getState().schemaAnalysis.errorMessage).to.equal('');
+      expect(store.getState().schemaAnalysis.error).to.be.undefined;
     });
 
     it('defaults the schema to null', function () {
@@ -112,15 +112,10 @@ describe('Schema Store', function () {
       sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
       await store.dispatch(startAnalysis());
       expect(sampleStub).to.have.been.called;
-      const {
-        analysisState,
-        errorMessage,
-        schema,
-        resultId,
-        analysisStartTime,
-      } = store.getState().schemaAnalysis;
+      const { analysisState, error, schema, resultId, analysisStartTime } =
+        store.getState().schemaAnalysis;
       expect(analysisState).to.equal('complete');
-      expect(!!errorMessage).to.be.false;
+      expect(error).to.be.undefined;
       expect(analysisStartTime).to.not.be.undefined;
       expect(analysisStartTime).to.be.greaterThan(1000);
       expect(schema).not.to.be.null;

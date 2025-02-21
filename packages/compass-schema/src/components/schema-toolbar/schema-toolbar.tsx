@@ -144,10 +144,11 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           data-testid="schema-toolbar-complexity-abort-message"
           dismissible={true}
         >
-          Analysis was aborted due to: Fields count above 1000. Consider
-          breaking up your data into more collections with smaller documents,
-          and using references to consolidate the data you need.&nbsp;
-          <Link href="https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-document-size/">
+          The analysis was aborted because the number of fields exceeds 1000.
+          Consider breaking up your data into more collections with smaller
+          documents, and using references to consolidate the data you
+          need.&nbsp;
+          <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
             Learn more
           </Link>
         </Banner>
