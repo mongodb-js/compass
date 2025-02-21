@@ -2025,6 +2025,27 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user shares the schema.
+ *
+ * @category Schema
+ */
+type SchemaExportFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Export Download Failed';
+  payload: {
+    /**
+     * Indicates whether the schema was analyzed before sharing.
+     */
+    has_schema: boolean;
+
+    schema_length: number;
+
+    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+
+    stage: string;
+  };
+}>;
+
+/**
  * This event is fired when a user clicks to show the details of an operation.
  *
  * @category Performance Tab
@@ -2729,6 +2750,7 @@ export type TelemetryEvent =
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
+  | SchemaExportFailedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent

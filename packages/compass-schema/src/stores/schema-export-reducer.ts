@@ -27,6 +27,7 @@ export type SchemaExportState = {
   exportFormat: SchemaFormat;
   errorMessage?: string;
   exportStatus: ExportStatus;
+  blobToDownload?: Blob;
 };
 
 const defaultSchemaFormat: SchemaFormat = 'standardJSON';
@@ -52,6 +53,7 @@ export const enum SchemaExportActions {
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
   changeExportSchemaFormatError = 'schema-service/schema-export/changeExportSchemaFormatError',
   cancelExportSchema = 'schema-service/schema-export/cancelExportSchema',
+  schemaDownloadReady = 'schema-service/schema-export/schemaDownloadReady',
 }
 
 export type OpenExportSchemaAction = {
@@ -103,6 +105,11 @@ export type ChangeExportSchemaFormatErroredAction = {
 export type ChangeExportSchemaFormatCompletedAction = {
   type: SchemaExportActions.changeExportSchemaFormatComplete;
   exportedSchema: string;
+};
+
+export type schemaDownloadReadyAction = {
+  type: SchemaExportActions.schemaDownloadReady;
+  blob: Blob;
 };
 
 export const cancelExportSchema = (): SchemaThunkAction<
@@ -201,6 +208,37 @@ export const trackSchemaExported = (): SchemaThunkAction<void> => {
   };
 };
 
+const prepareDownload = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    let stage = 'initial';
+    const { exportedSchema, exportFormat } = getState().schemaExport;
+
+    try {
+      stage = 'stringify';
+      // const stringified = JSON.stringify({ abc: 1 }, null, 2);
+
+      stage = 'blob';
+      // TODO: schema is already stringified. are edge cases handled?
+      // TODO: no schema case
+      const blob = new Blob([exportedSchema || ''], {
+        type: 'application/json',
+      });
+      dispatch({ type: SchemaExportActions.schemaDownloadReady, blob });
+    } catch (error) {
+      track(
+        'Schema Export Download Failed',
+        {
+          has_schema: !!exportedSchema,
+          schema_length: exportedSchema?.length || 0,
+          format: exportFormat,
+          stage,
+        },
+        connectionInfoRef.current
+      );
+    }
+  };
+};
+
 export const changeExportSchemaFormat = (
   exportFormat: SchemaFormat
 ): SchemaThunkAction<
@@ -284,6 +322,7 @@ export const changeExportSchemaFormat = (
       type: SchemaExportActions.changeExportSchemaFormatComplete,
       exportedSchema,
     });
+    dispatch(prepareDownload());
   };
 };
 
@@ -401,6 +440,18 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
       exportStatus: 'error',
       errorMessage: 'cancelled',
       abortController: undefined,
+    };
+  }
+
+  if (
+    isAction<schemaDownloadReadyAction>(
+      action,
+      SchemaExportActions.schemaDownloadReady
+    )
+  ) {
+    return {
+      ...state,
+      blobToDownload: action.blob,
     };
   }
 

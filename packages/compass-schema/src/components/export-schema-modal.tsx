@@ -1,4 +1,4 @@
-import React, { type ChangeEvent, useCallback } from 'react';
+import React, { type ChangeEvent, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
@@ -14,6 +14,8 @@ import {
   ErrorSummary,
   Label,
   CancelLoader,
+  Link,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -80,20 +82,24 @@ const ExportSchemaModal: React.FunctionComponent<{
   resultId?: string;
   exportFormat: SchemaFormat;
   exportedSchema?: string;
+  blobToDownload?: Blob;
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
   onExportedSchemaCopied: () => void;
+  onExportedSchema: () => void;
 }> = ({
   errorMessage,
   exportStatus,
   isOpen,
   exportFormat,
   exportedSchema,
+  blobToDownload,
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
   onExportedSchemaCopied,
+  onExportedSchema,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +109,11 @@ const ExportSchemaModal: React.FunctionComponent<{
     },
     [onChangeSchemaExportFormat]
   );
+
+  const downloadUrl = useMemo<string | undefined>(() => {
+    if (!blobToDownload) return;
+    return window.URL.createObjectURL(blobToDownload);
+  }, [blobToDownload]);
 
   return (
     <Modal open={isOpen} setOpen={onClose}>
@@ -177,14 +188,19 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Button onClick={onClose} variant="default">
           Cancel
         </Button>
-        <Button
-          onClick={() => {
-            /* TODO(COMPASS-8704): download and track with trackSchemaExported */
-          }}
-          variant="primary"
+        <Link
+          download="export.json" // TODO
+          href={downloadUrl}
+          onClick={onExportedSchema}
         >
-          Export
-        </Button>
+          <Button
+            variant="primary"
+            isLoading={!downloadUrl}
+            loadingIndicator={<SpinLoader />}
+          >
+            Export
+          </Button>
+        </Link>
       </ModalFooter>
     </Modal>
   );
@@ -197,9 +213,11 @@ export default connect(
     exportFormat: state.schemaExport.exportFormat,
     isOpen: state.schemaExport.isOpen,
     exportedSchema: state.schemaExport.exportedSchema,
+    blobToDownload: state.schemaExport.blobToDownload,
   }),
   {
     onExportedSchemaCopied: trackSchemaExported,
+    onExportedSchema: trackSchemaExported,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,
