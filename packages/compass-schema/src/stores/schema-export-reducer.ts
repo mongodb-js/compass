@@ -28,6 +28,7 @@ export type SchemaExportState = {
   errorMessage?: string;
   exportStatus: ExportStatus;
   blobToDownload?: Blob;
+  filename?: string;
 };
 
 const defaultSchemaFormat: SchemaFormat = 'standardJSON';
@@ -110,6 +111,7 @@ export type ChangeExportSchemaFormatCompletedAction = {
 export type schemaDownloadReadyAction = {
   type: SchemaExportActions.schemaDownloadReady;
   blob: Blob;
+  filename: string;
 };
 
 export const cancelExportSchema = (): SchemaThunkAction<
@@ -209,7 +211,7 @@ export const trackSchemaExported = (): SchemaThunkAction<void> => {
 };
 
 const prepareDownload = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
+  return (dispatch, getState, { track, connectionInfoRef, namespace }) => {
     let stage = 'initial';
     const { exportedSchema, exportFormat } = getState().schemaExport;
 
@@ -223,7 +225,12 @@ const prepareDownload = (): SchemaThunkAction<void> => {
       const blob = new Blob([exportedSchema || ''], {
         type: 'application/json',
       });
-      dispatch({ type: SchemaExportActions.schemaDownloadReady, blob });
+      const filename = `schema-${exportFormat}-${namespace}.json`;
+      dispatch({
+        type: SchemaExportActions.schemaDownloadReady,
+        blob,
+        filename,
+      });
     } catch (error) {
       track(
         'Schema Export Download Failed',
@@ -452,6 +459,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
     return {
       ...state,
       blobToDownload: action.blob,
+      filename: action.filename,
     };
   }
 

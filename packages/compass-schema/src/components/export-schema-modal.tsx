@@ -83,6 +83,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   exportFormat: SchemaFormat;
   exportedSchema?: string;
   blobToDownload?: Blob;
+  filename?: string;
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
@@ -95,6 +96,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   exportFormat,
   exportedSchema,
   blobToDownload,
+  filename,
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
@@ -188,11 +190,7 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Button onClick={onClose} variant="default">
           Cancel
         </Button>
-        <Link
-          download="export.json" // TODO
-          href={downloadUrl}
-          onClick={onExportedSchema}
-        >
+        <Link download={filename} href={downloadUrl} onClick={onExportedSchema}>
           <Button
             variant="primary"
             isLoading={!downloadUrl}
@@ -214,6 +212,7 @@ export default connect(
     isOpen: state.schemaExport.isOpen,
     exportedSchema: state.schemaExport.exportedSchema,
     blobToDownload: state.schemaExport.blobToDownload,
+    filename: state.schemaExport.filename,
   }),
   {
     onExportedSchemaCopied: trackSchemaExported,
