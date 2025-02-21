@@ -2030,7 +2030,7 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
  * @category Schema
  */
 type SchemaExportFailedEvent = ConnectionScopedEvent<{
-  name: 'Schema Export Download Failed';
+  name: 'Schema Export Failed';
   payload: {
     /**
      * Indicates whether the schema was analyzed before sharing.

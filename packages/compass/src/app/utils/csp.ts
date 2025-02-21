@@ -64,7 +64,6 @@ const defaultCSP = {
   ],
   'script-src': [
     "'self'",
-    'blob:',
     'https://app.intercom.io',
     'https://widget.intercom.io',
     'https://js.intercomcdn.com',
@@ -104,7 +103,6 @@ function injectCSP() {
       })
       .join('; ') + ';';
 
-  console.log({ cspContent });
   metaCSP.setAttribute('http-equiv', 'Content-Security-Policy');
   metaCSP.setAttribute('content', cspContent);
   document.head.prepend(metaCSP);

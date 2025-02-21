@@ -156,8 +156,24 @@ async function getSchemaByFormat({
       break;
   }
 
-  return JSON.stringify(schema, null, 2);
+  JSON.stringify(schema, null, 2);
 }
+
+const _trackSchemaExportFailed = (stage: string): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    const { exportedSchema, exportFormat } = getState().schemaExport;
+    track(
+      'Schema Export Failed',
+      {
+        has_schema: !!exportedSchema,
+        schema_length: exportedSchema?.length || 0,
+        format: exportFormat,
+        stage,
+      },
+      connectionInfoRef.current
+    );
+  };
+};
 
 const _trackSchemaExported = ({
   schema,
@@ -211,17 +227,11 @@ export const trackSchemaExported = (): SchemaThunkAction<void> => {
 };
 
 const prepareDownload = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef, namespace }) => {
-    let stage = 'initial';
+  return (dispatch, getState, { namespace }) => {
     const { exportedSchema, exportFormat } = getState().schemaExport;
     if (!exportedSchema) return;
 
     try {
-      stage = 'stringify';
-      // const stringified = JSON.stringify({ abc: 1 }, null, 2);
-
-      stage = 'blob';
-      // TODO: schema is already stringified. are edge cases handled?
       const blob = new Blob([exportedSchema], {
         type: 'application/json',
       });
@@ -232,16 +242,7 @@ const prepareDownload = (): SchemaThunkAction<void> => {
         filename,
       });
     } catch (error) {
-      track(
-        'Schema Export Download Failed',
-        {
-          has_schema: !!exportedSchema,
-          schema_length: exportedSchema?.length || 0,
-          format: exportFormat,
-          stage,
-        },
-        connectionInfoRef.current
-      );
+      _trackSchemaExportFailed('prepareDownload');
     }
   };
 };
@@ -308,6 +309,7 @@ export const changeExportSchemaFormat = (
         type: SchemaExportActions.changeExportSchemaFormatError,
         errorMessage: (err as Error).message,
       });
+      _trackSchemaExportFailed('changeExportFormat');
       return;
     }
 
