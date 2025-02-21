@@ -214,6 +214,7 @@ const prepareDownload = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { track, connectionInfoRef, namespace }) => {
     let stage = 'initial';
     const { exportedSchema, exportFormat } = getState().schemaExport;
+    if (!exportedSchema) return;
 
     try {
       stage = 'stringify';
@@ -221,8 +222,7 @@ const prepareDownload = (): SchemaThunkAction<void> => {
 
       stage = 'blob';
       // TODO: schema is already stringified. are edge cases handled?
-      // TODO: no schema case
-      const blob = new Blob([exportedSchema || ''], {
+      const blob = new Blob([exportedSchema], {
         type: 'application/json',
       });
       const filename = `schema-${exportFormat}-${namespace}.json`;

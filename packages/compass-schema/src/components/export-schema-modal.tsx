@@ -195,6 +195,7 @@ const ExportSchemaModal: React.FunctionComponent<{
             variant="primary"
             isLoading={!downloadUrl}
             loadingIndicator={<SpinLoader />}
+            disabled={!exportedSchema}
           >
             Export
           </Button>
