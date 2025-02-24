@@ -147,20 +147,7 @@ describe('SchemaToolbar', function () {
     expect(screen.queryByTestId(exportSchemaTestId)).to.not.exist;
   });
 
-  describe('when rendered with the enableExportSchema feature flag true', function () {
-    beforeEach(function () {
-      renderSchemaToolbar(
-        {
-          sampleSize: 100,
-        },
-        {
-          enableExportSchema: true,
-        }
-      );
-    });
-
-    it('renders the export schema button', function () {
-      expect(screen.getByTestId(exportSchemaTestId)).to.be.visible;
-    });
+  it('renders the export schema button', function () {
+    expect(screen.getByTestId(exportSchemaTestId)).to.be.visible;
   });
 });
