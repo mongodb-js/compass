@@ -40,13 +40,14 @@ describe('SchemaToolbar', function () {
       <MockQueryBarPlugin {...(queryBarProps as any)}>
         <SchemaToolbar
           analysisState="complete"
-          errorMessage={''}
+          error={undefined}
           isOutdated={false}
           onAnalyzeSchemaClicked={() => {}}
           onResetClicked={() => {}}
           sampleSize={10}
           schemaResultId="123"
           onExportSchemaClicked={() => {}}
+          onDismissError={() => {}}
           {...props}
         />
       </MockQueryBarPlugin>,
@@ -60,23 +61,54 @@ describe('SchemaToolbar', function () {
     sinon.restore();
   });
 
-  it("renders errors when they're passed", function () {
-    renderSchemaToolbar({
-      analysisState: 'error',
-      errorMessage: 'test error msg',
+  describe('errors', function () {
+    it('renders general error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'general',
+          errorMessage: 'test error msg',
+        },
+      });
+
+      expect(screen.getByText(testErrorMessage)).to.be.visible;
+      expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
     });
 
-    expect(screen.getByText(testErrorMessage)).to.be.visible;
-    expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
-  });
+    it('renders timeout error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'timeout',
+          errorMessage: 'test error msg',
+        },
+      });
 
-  it('does not render errors when the analysis state is not error', function () {
-    renderSchemaToolbar({
-      errorMessage: 'test error msg',
+      expect(screen.getByTestId('schema-toolbar-timeout-message')).to.be
+        .visible;
+      expect(
+        screen.getByTestId('schema-toolbar-timeout-message').textContent
+      ).to.include('Please try increasing the maxTimeMS');
     });
 
-    expect(screen.queryByText(testErrorMessage)).to.not.exist;
-    expect(screen.queryByTestId('schema-toolbar-error-message')).to.not.exist;
+    it('renders complexity abort error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'highComplexity',
+          errorMessage: 'test error msg',
+        },
+      });
+
+      expect(screen.getByTestId('schema-toolbar-complexity-abort-message')).to
+        .be.visible;
+      expect(
+        screen.getByRole('link', { name: 'Learn more' })
+      ).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/'
+      );
+    });
   });
 
   it('renders the sample size count', function () {
