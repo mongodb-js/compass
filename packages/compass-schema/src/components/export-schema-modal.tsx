@@ -225,7 +225,6 @@ export default connect(
     exportFormat: state.schemaExport.exportFormat,
     isOpen: state.schemaExport.isOpen,
     exportedSchema: state.schemaExport.exportedSchema,
-    downloadUrl: state.schemaExport.downloadUrl,
     filename: state.schemaExport.filename,
   }),
   {
