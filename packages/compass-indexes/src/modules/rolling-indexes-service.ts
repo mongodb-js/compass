@@ -72,7 +72,7 @@ export class RollingIndexesService {
       atlasMetadata.metricsType === 'flex'
     ) {
       throw new Error(
-        'Flex clusters don not support rolling index build creation'
+        'Flex clusters do not support rolling index build creation'
       );
     }
 
