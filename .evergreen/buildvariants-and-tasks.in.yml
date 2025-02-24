@@ -187,9 +187,11 @@ buildvariants:
     display_name: Smoke Test via GitHub Actions
     run_on: ubuntu2004-large
     depends_on:
+    <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
     <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
-     - name: package-compass
+     - name: package-<%= distribution %>
        variant: <%= buildVariant.name %>
+    <% } %>
     <% } %>
     tasks:
       - name: smoketest-packaged-app

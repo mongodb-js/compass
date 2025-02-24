@@ -90,6 +90,26 @@ buildvariants:
         variant: package-macos-x64
       - name: package-compass
         variant: package-macos-arm
+      - name: package-compass-isolated
+        variant: package-ubuntu
+      - name: package-compass-isolated
+        variant: package-windows
+      - name: package-compass-isolated
+        variant: package-rhel
+      - name: package-compass-isolated
+        variant: package-macos-x64
+      - name: package-compass-isolated
+        variant: package-macos-arm
+      - name: package-compass-readonly
+        variant: package-ubuntu
+      - name: package-compass-readonly
+        variant: package-windows
+      - name: package-compass-readonly
+        variant: package-rhel
+      - name: package-compass-readonly
+        variant: package-macos-x64
+      - name: package-compass-readonly
+        variant: package-macos-arm
     tasks:
       - name: smoketest-packaged-app
   - name: test-eol-servers
