@@ -27,7 +27,7 @@ export type SchemaExportState = {
   exportFormat: SchemaFormat;
   errorMessage?: string;
   exportStatus: ExportStatus;
-  blobToDownload?: Blob;
+  downloadUrl?: string;
   filename?: string;
 };
 
@@ -110,7 +110,7 @@ export type ChangeExportSchemaFormatCompletedAction = {
 
 export type schemaDownloadReadyAction = {
   type: SchemaExportActions.schemaDownloadReady;
-  blob: Blob;
+  downloadUrl: string;
   filename: string;
 };
 
@@ -124,6 +124,20 @@ export const cancelExportSchema = (): SchemaThunkAction<
     return dispatch({
       type: SchemaExportActions.cancelExportSchema,
     });
+  };
+};
+
+export const cleanupObjectUrl = (): SchemaThunkAction<
+  void,
+  CancelExportSchemaAction
+> => {
+  return (dispatch, getState) => {
+    const {
+      schemaExport: { downloadUrl },
+    } = getState();
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+    }
   };
 };
 
@@ -228,20 +242,26 @@ export const trackSchemaExported = (): SchemaThunkAction<void> => {
 
 const prepareDownload = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { namespace }) => {
-    const { exportedSchema, exportFormat } = getState().schemaExport;
+    const {
+      exportedSchema,
+      exportFormat,
+      downloadUrl: previousDownloadUrl,
+    } = getState().schemaExport;
     if (!exportedSchema) return;
 
     try {
+      if (previousDownloadUrl) URL.revokeObjectURL(previousDownloadUrl);
       const blob = new Blob([exportedSchema], {
         type: 'application/json',
       });
+      const downloadUrl = URL.createObjectURL(blob);
       const filename = `schema-${namespace.replace(
         '.',
         '-'
       )}-${exportFormat}.json`;
       dispatch({
         type: SchemaExportActions.schemaDownloadReady,
-        blob,
+        downloadUrl,
         filename,
       });
     } catch (error) {
@@ -463,7 +483,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   ) {
     return {
       ...state,
-      blobToDownload: action.blob,
+      downloadUrl: action.downloadUrl,
       filename: action.filename,
     };
   }

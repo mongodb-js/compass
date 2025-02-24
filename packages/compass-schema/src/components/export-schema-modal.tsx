@@ -1,4 +1,4 @@
-import React, { type ChangeEvent, useCallback, useMemo } from 'react';
+import React, { type ChangeEvent, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
@@ -81,7 +81,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   resultId?: string;
   exportFormat: SchemaFormat;
   exportedSchema?: string;
-  blobToDownload?: Blob;
+  downloadUrl?: string;
   filename?: string;
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
@@ -94,7 +94,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   isOpen,
   exportFormat,
   exportedSchema,
-  blobToDownload,
+  downloadUrl,
   filename,
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
@@ -110,11 +110,6 @@ const ExportSchemaModal: React.FunctionComponent<{
     },
     [onChangeSchemaExportFormat]
   );
-
-  const downloadUrl = useMemo<string | undefined>(() => {
-    if (!blobToDownload) return;
-    return window.URL.createObjectURL(blobToDownload);
-  }, [blobToDownload]);
 
   return (
     <Modal open={isOpen} setOpen={onClose}>
@@ -213,7 +208,7 @@ export default connect(
     exportFormat: state.schemaExport.exportFormat,
     isOpen: state.schemaExport.isOpen,
     exportedSchema: state.schemaExport.exportedSchema,
-    blobToDownload: state.schemaExport.blobToDownload,
+    downloadUrl: state.schemaExport.downloadUrl,
     filename: state.schemaExport.filename,
   }),
   {

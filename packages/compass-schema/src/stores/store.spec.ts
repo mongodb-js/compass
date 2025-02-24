@@ -158,7 +158,7 @@ describe('Schema Store', function () {
             errorMessage,
             exportedSchema,
             filename,
-            blobToDownload,
+            downloadUrl,
           } = store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
@@ -172,9 +172,8 @@ describe('Schema Store', function () {
             name: { type: 'string' },
           });
           expect(filename).to.equal('schema-db-coll-standardJSON.json');
-          expect(blobToDownload).to.be.a('Blob');
-          expect(blobToDownload?.type).to.equal('application/json');
-          expect(blobToDownload?.size).to.be.greaterThan(0);
+          expect(downloadUrl).to.be.a('string');
+          expect(/blob:(.*)/.test(downloadUrl || '')).to.be.true;
         });
 
         it('runs schema export formatting with a new format', async function () {
@@ -186,7 +185,7 @@ describe('Schema Store', function () {
             errorMessage,
             exportedSchema,
             filename,
-            blobToDownload,
+            downloadUrl,
           } = store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
@@ -199,9 +198,8 @@ describe('Schema Store', function () {
             name: { bsonType: 'string' },
           });
           expect(filename).to.equal('schema-db-coll-mongoDBJSON.json');
-          expect(blobToDownload).to.be.a('Blob');
-          expect(blobToDownload?.type).to.equal('application/json');
-          expect(blobToDownload?.size).to.be.greaterThan(0);
+          expect(downloadUrl).to.be.a('string');
+          expect(/blob:(.*)/.test(downloadUrl || '')).to.be.true;
         });
       });
     });
