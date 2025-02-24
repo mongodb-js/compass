@@ -6,10 +6,6 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      version:
-        type: string
-        description: 'Version of the installer to download'
-        required: true
       bucket_name:
         type: string
         description: 'S3 bucket to download installers from'
@@ -18,11 +14,14 @@ on:
         type: string
         description: 'S3 bucket key prefix to download installers from'
         required: true
+      dev_version:
+        type: string
+        description: 'Dev version of the installer to download'
       nonce:
         type: string
         description: 'A random string to track the run from dispatch to watching'
 
-run-name: Test Installers ${{ github.event.inputs.version }} / (nonce = ${{ github.event.inputs.nonce || 'not set' }})
+run-name: Test Installers ${{ github.event.inputs.dev_version || github.ref_name }} / (nonce = ${{ github.event.inputs.nonce || 'not set' }})
 
 jobs:
   test:
@@ -162,7 +161,7 @@ jobs:
       - name: Cache downloads
         uses: actions/cache@v4
         with:
-          key: smoke-tests-downloads-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}-${{ matrix.package }}
+          key: smoke-tests-downloads-${{ inputs.dev_version || github.ref_name }}-${{ runner.os }}-${{ runner.arch }}-${{ matrix.package }}
           path: packages/compass-smoke-tests/.downloads
       - name: Install dependencies and build packages
         run: npm ci
@@ -195,8 +194,8 @@ jobs:
         env:
           EVERGREEN_BUCKET_NAME: ${{ inputs.bucket_name }}
           EVERGREEN_BUCKET_KEY_PREFIX: ${{ inputs.bucket_key_prefix }}
-          DEV_VERSION_IDENTIFIER: ${{ inputs.version }}
           HADRON_DISTRIBUTION: ${{ matrix.hadron-distribution }}
+          DEV_VERSION_IDENTIFIER: ${{ inputs.dev_version }}
           PLATFORM: ${{ matrix.hadron-platform }}
           ARCH: ${{ matrix.arch }}
           # Useful to pass a "fake" DISTRO_ID environment to inform the "mongodb-download-url" package

@@ -8,7 +8,6 @@ import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
-import { createSandbox } from './directories';
 
 const debug = createDebug('compass:smoketests:build-info');
 const COMPASS_PATH = path.resolve(__dirname, '../../compass');
@@ -246,6 +245,12 @@ export function writeAndReadPackageDetails({
   };
   debug({ infoArgs });
 
+  // Removing the DEV_VERSION_IDENTIFIER variable if it's empty
+  // - to avoid any potential (future) issues from CI setting it without providing a value
+  if (process.env.DEV_VERSION_IDENTIFIER === '') {
+    delete process.env.DEV_VERSION_IDENTIFIER;
+  }
+
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
   debug(
@@ -263,29 +268,4 @@ export function writeAndReadPackageDetails({
   );
   writeBuildInfo(infoArgs);
   return readPackageDetails(packageKind, infoArgs.out);
-}
-
-export function getCompassVersionFromBuildInfo(): string {
-  const out = path.resolve(createSandbox(), 'target.json');
-  // We're hardcoding the platform and arch here because we're only interested in the version
-  if (typeof process.env.HADRON_DISTRIBUTION !== 'string') {
-    // TODO: Ideally we would interface directly with the `Target` from the "hadron-build" package so we could pass this directly
-    process.env.HADRON_DISTRIBUTION = 'compass';
-  }
-  writeBuildInfo({
-    format: 'json',
-    dir: COMPASS_PATH,
-    platform: 'linux',
-    arch: 'x64',
-    out,
-  });
-  const result = readJson(out);
-  assert(typeof result === 'object', 'Expected hadron to write an object');
-  assert(
-    'version' in result,
-    'Expected hadron to write an object with a version'
-  );
-  const { version } = result;
-  assert(typeof version === 'string', 'Expected version to be a string');
-  return version;
 }

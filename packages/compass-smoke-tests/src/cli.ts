@@ -14,7 +14,6 @@ import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
 import { deleteSandboxesDirectory } from './directories';
 import { dispatchAndWait, getRefFromGithubPr } from './dispatch';
-import { getCompassVersionFromBuildInfo } from './build-info';
 
 const debug = createDebug('compass:smoketests');
 
@@ -165,7 +164,7 @@ yargs(hideBin(process.argv))
                 githubPrNumber,
               })
             : ref,
-        version: getCompassVersionFromBuildInfo(),
+        devVersion: process.env.DEV_VERSION_IDENTIFIER,
         bucketName,
         bucketKeyPrefix,
       });

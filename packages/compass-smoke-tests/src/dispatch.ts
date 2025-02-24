@@ -73,9 +73,9 @@ export async function getRefFromGithubPr({
 type DispatchOptions = {
   githubToken: string;
   ref: string;
-  version: string;
   bucketName: string;
   bucketKeyPrefix: string;
+  devVersion?: string;
 
   /**
    * Delay in milliseconds to wait between requests when polling while watching the run.
@@ -86,7 +86,7 @@ type DispatchOptions = {
 export async function dispatchAndWait({
   githubToken,
   ref,
-  version,
+  devVersion,
   bucketName,
   bucketKeyPrefix,
   watchPollDelayMs = 5000,
@@ -100,7 +100,7 @@ export async function dispatchAndWait({
     workflow_id: GITHUB_WORKFLOW_ID,
     ref,
     inputs: {
-      version,
+      dev_version: devVersion,
       bucket_name: bucketName,
       bucket_key_prefix: bucketKeyPrefix,
       nonce,
@@ -110,7 +110,7 @@ export async function dispatchAndWait({
   // Find the next run we just dispatched
   const run = await getWorkflowRunRetrying(
     octokit,
-    `Test Installers ${version} / (nonce = ${nonce})`
+    `Test Installers ${devVersion || ref} / (nonce = ${nonce})`
   );
 
   console.log(`Dispatched run #${run.run_number} (${run.html_url})`);
