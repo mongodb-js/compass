@@ -153,8 +153,13 @@ describe('Schema Store', function () {
               'complete'
             );
           });
-          const { exportStatus, errorMessage, exportedSchema } =
-            store.getState().schemaExport;
+          const {
+            exportStatus,
+            errorMessage,
+            exportedSchema,
+            filename,
+            blobToDownload,
+          } = store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
@@ -166,14 +171,23 @@ describe('Schema Store', function () {
           expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
             name: { type: 'string' },
           });
+          expect(filename).to.equal('schema-db-coll-standardJSON.json');
+          expect(blobToDownload).to.be.a('Blob');
+          expect(blobToDownload?.type).to.equal('application/json');
+          expect(blobToDownload?.size).to.be.greaterThan(0);
         });
 
         it('runs schema export formatting with a new format', async function () {
           sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
           await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
           expect(sampleStub).to.have.been.called;
-          const { exportStatus, errorMessage, exportedSchema } =
-            store.getState().schemaExport;
+          const {
+            exportStatus,
+            errorMessage,
+            exportedSchema,
+            filename,
+            blobToDownload,
+          } = store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
@@ -184,6 +198,10 @@ describe('Schema Store', function () {
           expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
             name: { bsonType: 'string' },
           });
+          expect(filename).to.equal('schema-db-coll-mongoDBJSON.json');
+          expect(blobToDownload).to.be.a('Blob');
+          expect(blobToDownload?.type).to.equal('application/json');
+          expect(blobToDownload?.size).to.be.greaterThan(0);
         });
       });
     });

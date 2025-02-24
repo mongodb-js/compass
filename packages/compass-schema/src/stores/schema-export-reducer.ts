@@ -156,7 +156,7 @@ async function getSchemaByFormat({
       break;
   }
 
-  JSON.stringify(schema, null, 2);
+  return JSON.stringify(schema, null, 2);
 }
 
 const _trackSchemaExportFailed = (stage: string): SchemaThunkAction<void> => {
@@ -235,14 +235,17 @@ const prepareDownload = (): SchemaThunkAction<void> => {
       const blob = new Blob([exportedSchema], {
         type: 'application/json',
       });
-      const filename = `schema-${exportFormat}-${namespace}.json`;
+      const filename = `schema-${namespace.replace(
+        '.',
+        '-'
+      )}-${exportFormat}.json`;
       dispatch({
         type: SchemaExportActions.schemaDownloadReady,
         blob,
         filename,
       });
     } catch (error) {
-      _trackSchemaExportFailed('prepareDownload');
+      dispatch(_trackSchemaExportFailed('prepareDownload'));
     }
   };
 };
@@ -309,7 +312,7 @@ export const changeExportSchemaFormat = (
         type: SchemaExportActions.changeExportSchemaFormatError,
         errorMessage: (err as Error).message,
       });
-      _trackSchemaExportFailed('changeExportFormat');
+      dispatch(_trackSchemaExportFailed('changeExportFormat'));
       return;
     }
 

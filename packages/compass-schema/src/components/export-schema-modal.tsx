@@ -14,7 +14,6 @@ import {
   ErrorSummary,
   Label,
   CancelLoader,
-  Link,
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -190,17 +189,18 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Button onClick={onClose} variant="default">
           Cancel
         </Button>
-          <Button
-            variant="primary"
-            isLoading={!downloadUrl}
-            loadingIndicator={<SpinLoader />}
-            disabled={!exportedSchema}
-             download={filename}
-             href={downloadUrl}
-             onClick={onExportedSchema}
-          >
-            Export
-          </Button>
+        <Button
+          variant="primary"
+          isLoading={!downloadUrl}
+          loadingIndicator={<SpinLoader />}
+          disabled={!exportedSchema}
+          download={filename}
+          href={downloadUrl}
+          onClick={onExportedSchema}
+          data-testid="schema-export-download-button"
+        >
+          Export
+        </Button>
       </ModalFooter>
     </Modal>
   );
