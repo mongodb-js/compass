@@ -20,29 +20,29 @@ const SAMPLE_DEFINITION = `A sample is fetched from a sample-space of ${SAMPLE_S
 
 /**
  * The Sample Documents editor component.
- */
-
+ **/
 const sampleDocumentsSectionStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[600],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const sampleDocumentsStyles = css({
   display: 'flex',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const sampleDocumentStyles = css({
-  flex: 1,
+  overflow: 'auto',
+  flex: '50%',
 });
 
 const documentHeadingStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
-  marginBottom: spacing[3],
+  gap: spacing[100],
+  marginBottom: spacing[400],
 });
 
 const matchingStylesLight = css({

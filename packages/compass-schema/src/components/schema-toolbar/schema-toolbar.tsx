@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import {
+  Banner,
+  BannerVariant,
   Body,
   Button,
   ErrorSummary,
@@ -11,12 +13,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { AnalysisState } from '../../constants/analysis-states';
-import {
-  ANALYSIS_STATE_ERROR,
-  ANALYSIS_STATE_TIMEOUT,
-  ANALYSIS_STATE_COMPLETE,
-} from '../../constants/analysis-states';
+import { ANALYSIS_STATE_COMPLETE } from '../../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import { type SchemaAnalysisError } from '../../stores/schema-analysis-reducer';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../../modules/schema-analysis';
 
 const schemaToolbarStyles = css({
   display: 'flex',
@@ -60,18 +60,20 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
-  errorMessage: string;
+  error?: SchemaAnalysisError;
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
   onResetClicked: () => void;
+  onDismissError: () => void;
   sampleSize: number;
   schemaResultId: string;
 };
 
 const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
-  errorMessage,
+  error,
+  onDismissError,
   isOutdated,
   onAnalyzeSchemaClicked,
   onExportSchemaClicked,
@@ -130,14 +132,37 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           </div>
         </div>
       )}
-      {analysisState === ANALYSIS_STATE_ERROR && (
+      {error?.errorType === 'general' && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
-          errors={[`${ERROR_WARNING}: ${errorMessage}`]}
+          errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
+          dismissible={true}
+          onClose={onDismissError}
         />
       )}
-      {analysisState === ANALYSIS_STATE_TIMEOUT && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
+      {error?.errorType === 'timeout' && (
+        <WarningSummary
+          data-testid="schema-toolbar-timeout-message"
+          warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
+          dismissible={true}
+          onClose={onDismissError}
+        />
+      )}
+      {error?.errorType === 'highComplexity' && (
+        <Banner
+          variant={BannerVariant.Danger}
+          data-testid="schema-toolbar-complexity-abort-message"
+          dismissible={true}
+          onClose={onDismissError}
+        >
+          The analysis was aborted because the number of fields exceeds{' '}
+          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+          more collections with smaller documents, and using references to
+          consolidate the data you need.&nbsp;
+          <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
+            Learn more
+          </Link>
+        </Banner>
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />

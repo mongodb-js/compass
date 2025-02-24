@@ -413,10 +413,15 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           cd packages/compass && npm run prepackage-compass
+    - command: ec2.assume_role
+      display_name: Assume IAM role with permissions to pull Kondukto API token
+      params:
+        role_arn: ${kondukto_role_arn}
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
@@ -425,10 +430,8 @@ functions:
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
-          # for Silk SBOM integration
-          SILK_ASSET_GROUP: ${silk_asset_group}
-          SILK_CLIENT_ID: ${silk_client_id}
-          SILK_CLIENT_SECRET: ${silk_client_secret}
+          # for SilkBomb integration
+          KONDUKTO_BRANCH: ${branch_name}_${target_platform}
         script: |
           set -e
 

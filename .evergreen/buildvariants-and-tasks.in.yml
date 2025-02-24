@@ -32,31 +32,31 @@ const PACKAGE_BUILD_VARIANTS = [
     // # when compiling/re-building addons. This ensures compatibility with other
     // # debian platforms that have glibc 2.27 or newer.
     run_on: 'ubuntu1804-large',
-    silk_asset_group: 'compass-ubuntu',
+    target_platform: 'ubuntu',
   },
   {
     name: 'package-windows',
     display_name: 'Package Windows',
     run_on: 'windows-vsCurrent-large',
-    silk_asset_group: 'compass-windows',
+    target_platform: 'windows',
   },
   {
     name: 'package-rhel',
     display_name: 'Package RHEL',
     run_on: 'rhel80-large',
-    silk_asset_group: 'compass-rhel',
+    target_platform: 'rhel',
   },
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
     run_on: 'macos-14',
-    silk_asset_group: 'compass-macos',
+    target_platform: 'macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
     run_on: 'macos-14-arm64',
-    silk_asset_group: 'compass-macos-arm',
+    target_platform: 'macos-arm',
   }
 ];
 
