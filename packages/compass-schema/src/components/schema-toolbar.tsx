@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
+  Banner,
+  BannerVariant,
   Body,
   Button,
   ErrorSummary,
@@ -13,12 +15,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { AnalysisState } from '../constants/analysis-states';
-import {
-  ANALYSIS_STATE_ERROR,
-  ANALYSIS_STATE_TIMEOUT,
-  ANALYSIS_STATE_COMPLETE,
-} from '../constants/analysis-states';
+import { ANALYSIS_STATE_COMPLETE } from '../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import {
+  type SchemaAnalysisError,
+  analysisErrorDismissed,
+} from '../stores/schema-analysis-reducer';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
 import type { RootState } from '../stores/store';
 import { openExportSchema } from '../stores/schema-export-reducer';
 
@@ -64,11 +67,12 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
-  errorMessage: string;
+  error?: SchemaAnalysisError;
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
   onResetClicked: () => void;
+  onDismissError: () => void;
   sampleSize: number;
   schemaResultId: string;
   setShowLegacyExportTooltip: (show: boolean) => void;
@@ -77,7 +81,8 @@ type SchemaToolbarProps = {
 
 export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
-  errorMessage,
+  error,
+  onDismissError,
   isOutdated,
   onAnalyzeSchemaClicked,
   onExportSchemaClicked,
@@ -149,14 +154,37 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           </div>
         </div>
       )}
-      {analysisState === ANALYSIS_STATE_ERROR && (
+      {error?.errorType === 'general' && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
-          errors={[`${ERROR_WARNING}: ${errorMessage}`]}
+          errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
+          dismissible={true}
+          onClose={onDismissError}
         />
       )}
-      {analysisState === ANALYSIS_STATE_TIMEOUT && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
+      {error?.errorType === 'timeout' && (
+        <WarningSummary
+          data-testid="schema-toolbar-timeout-message"
+          warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
+          dismissible={true}
+          onClose={onDismissError}
+        />
+      )}
+      {error?.errorType === 'highComplexity' && (
+        <Banner
+          variant={BannerVariant.Danger}
+          data-testid="schema-toolbar-complexity-abort-message"
+          dismissible={true}
+          onClose={onDismissError}
+        >
+          The analysis was aborted because the number of fields exceeds{' '}
+          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+          more collections with smaller documents, and using references to
+          consolidate the data you need.&nbsp;
+          <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
+            Learn more
+          </Link>
+        </Banner>
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
@@ -168,11 +196,12 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
 export default connect(
   (state: RootState) => ({
     analysisState: state.schemaAnalysis.analysisState,
-    errorMessage: state.schemaAnalysis.errorMessage,
+    error: state.schemaAnalysis.error,
     sampleSize: state.schemaAnalysis.schema?.count ?? 0,
     schemaResultId: state.schemaAnalysis.resultId ?? '',
   }),
   {
     onExportSchemaClicked: openExportSchema,
+    onDismissError: analysisErrorDismissed,
   }
 )(SchemaToolbar);

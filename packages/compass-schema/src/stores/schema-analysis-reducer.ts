@@ -1,15 +1,13 @@
 import type { Schema } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
-import type { AggregateOptions } from 'mongodb';
+import type { AggregateOptions, MongoError } from 'mongodb';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
-  ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_INITIAL,
-  ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
@@ -27,10 +25,15 @@ const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
+export type SchemaAnalysisError = {
+  errorMessage: string;
+  errorType: 'timeout' | 'highComplexity' | 'general';
+};
+
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   analysisStartTime?: number;
-  errorMessage: string;
+  error?: SchemaAnalysisError;
   schema: Schema | null;
   resultId: string;
 };
@@ -39,6 +42,7 @@ export const enum SchemaAnalysisActions {
   analysisStarted = 'schema-service/schema-analysis/analysisStarted',
   analysisFinished = 'schema-service/schema-analysis/analysisFinished',
   analysisFailed = 'schema-service/schema-analysis/analysisFailed',
+  analysisErrorDismissed = 'schema-service/schema-analysis/analysisErrorDismissed',
 }
 
 export type AnalysisStartedAction = {
@@ -56,10 +60,14 @@ export type AnalysisFailedAction = {
   error: Error;
 };
 
+export type AnalysisErrorDismissedAction = {
+  type: SchemaAnalysisActions.analysisErrorDismissed;
+};
+
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   state = getInitialState(),
   action
-) => {
+): SchemaAnalysisState => {
   if (
     isAction<AnalysisStartedAction>(
       action,
@@ -70,7 +78,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       ...state,
       analysisStartTime: action.analysisStartTime,
       analysisState: ANALYSIS_STATE_ANALYZING,
-      errorMessage: '',
+      error: undefined,
       schema: null,
     };
   }
@@ -96,27 +104,41 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   ) {
     return {
       ...state,
-      ...getErrorState(action.error),
+      error: getErrorDetails(action.error),
+      analysisState: ANALYSIS_STATE_INITIAL,
       resultId: resultId(),
+    };
+  }
+
+  if (
+    isAction<AnalysisErrorDismissedAction>(
+      action,
+      SchemaAnalysisActions.analysisErrorDismissed
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
     };
   }
 
   return state;
 };
 
-function getErrorState(err: Error & { code?: number }) {
-  const errorMessage = (err && err.message) || 'Unknown error';
-  const errorCode = err && err.code;
-
-  let analysisState: AnalysisState;
-
+function getErrorDetails(error: Error): SchemaAnalysisError {
+  const errorCode = (error as MongoError).code;
+  const errorMessage = error.message || 'Unknown error';
+  let errorType: SchemaAnalysisError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
-    analysisState = ANALYSIS_STATE_TIMEOUT;
-  } else {
-    analysisState = ANALYSIS_STATE_ERROR;
+    errorType = 'timeout';
+  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
+    errorType = 'highComplexity';
   }
 
-  return { analysisState, errorMessage };
+  return {
+    errorType,
+    errorMessage,
+  };
 }
 
 function resultId(): string {
@@ -125,7 +147,6 @@ function resultId(): string {
 
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
-  errorMessage: '',
   schema: null,
   resultId: resultId(),
 });
@@ -143,6 +164,12 @@ export const geoLayerAdded = (
     return generateGeoQuery(geoLayersRef.current);
   };
 };
+
+export const analysisErrorDismissed =
+  (): SchemaThunkAction<AnalysisErrorDismissedAction> => {
+    return (dispatch) =>
+      dispatch({ type: SchemaAnalysisActions.analysisErrorDismissed });
+  };
 
 export const geoLayersEdited = (
   field: string,
@@ -300,7 +327,8 @@ export const startAnalysis = (): SchemaThunkAction<
         namespace,
         samplingOptions,
         driverOptions,
-        logger
+        logger,
+        preferences
       );
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
