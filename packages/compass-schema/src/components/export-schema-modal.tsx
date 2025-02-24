@@ -2,7 +2,7 @@ import React, { type ChangeEvent, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
-  Code,
+  KeylineCard,
   ModalBody,
   ModalHeader,
   ModalFooter,
@@ -15,12 +15,14 @@ import {
   Label,
   CancelLoader,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import type { RootState } from '../stores/store';
 import {
   cancelExportSchema,
   changeExportSchemaFormat,
   closeExportSchema,
+  trackSchemaExported,
   type SchemaFormat,
   type ExportStatus,
 } from '../stores/schema-export-reducer';
@@ -34,9 +36,15 @@ const contentContainerStyles = css({
   paddingBottom: spacing[400],
 });
 
-const codeStyles = css({
+const codeEditorContainerStyles = css({
   maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
   overflow: 'auto',
+});
+
+const codeStyles = css({
+  '& .cm-editor': {
+    paddingLeft: spacing[2],
+  },
 });
 
 const footerStyles = css({
@@ -75,6 +83,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
+  onExportedSchemaCopied: () => void;
 }> = ({
   errorMessage,
   exportStatus,
@@ -84,6 +93,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
+  onExportedSchemaCopied,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -136,16 +146,22 @@ const ExportSchemaModal: React.FunctionComponent<{
               onCancel={onCancelSchemaExport}
             />
           )}
-          {exportStatus === 'complete' && (
-            <Code
-              id="export-schema-content"
-              data-testid="export-schema-content"
-              language="json"
-              className={codeStyles}
-              copyable={true}
-            >
-              {exportedSchema ?? 'Empty'}
-            </Code>
+          {exportStatus === 'complete' && exportedSchema && (
+            <KeylineCard className={codeEditorContainerStyles}>
+              <CodemirrorMultilineEditor
+                data-testid="export-schema-content"
+                language="json"
+                className={codeStyles}
+                copyable={true}
+                showAnnotationsGutter={false}
+                showLineNumbers={false}
+                formattable={false}
+                initialJSONFoldAll={false}
+                readOnly
+                text={exportedSchema}
+                onCopy={onExportedSchemaCopied}
+              ></CodemirrorMultilineEditor>
+            </KeylineCard>
           )}
           {exportStatus === 'error' && errorMessage && (
             <ErrorSummary
@@ -163,7 +179,7 @@ const ExportSchemaModal: React.FunctionComponent<{
         </Button>
         <Button
           onClick={() => {
-            /* TODO(COMPASS-8704) */
+            /* TODO(COMPASS-8704): download and track with trackSchemaExported */
           }}
           variant="primary"
         >
@@ -183,6 +199,7 @@ export default connect(
     exportedSchema: state.schemaExport.exportedSchema,
   }),
   {
+    onExportedSchemaCopied: trackSchemaExported,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,

@@ -16,13 +16,14 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 /**
  * The lowest supported version.
  */
 const MIN_VERSION = '3.2.0';
 
-type SchemaValidationServices = {
+export type SchemaValidationServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<
     DataService,
@@ -32,6 +33,7 @@ type SchemaValidationServices = {
   preferences: PreferencesAccess;
   instance: MongoDBInstance;
   logger: Logger;
+  workspaces: WorkspacesService;
   track: TrackFunction;
 };
 
@@ -41,6 +43,7 @@ export function configureStore(
   services: Pick<
     SchemaValidationServices,
     | 'globalAppRegistry'
+    | 'workspaces'
     | 'dataService'
     | 'preferences'
     | 'logger'
@@ -70,9 +73,10 @@ export function onActivated(
     preferences,
     instance,
     logger,
+    workspaces,
     track,
   }: SchemaValidationServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(
     {
@@ -90,6 +94,7 @@ export function onActivated(
       connectionInfoRef,
       preferences,
       globalAppRegistry,
+      workspaces,
       logger,
       track,
     }
@@ -106,6 +111,14 @@ export function onActivated(
 
   // Activate validation when this plugin is first rendered
   store.dispatch(activateValidation());
+
+  const onCloseOrReplace = () => {
+    return !store.getState().validation.isChanged;
+  };
+
+  addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
+
+  addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
 
   return {
     store,

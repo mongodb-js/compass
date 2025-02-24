@@ -107,7 +107,11 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
       delete process.env.UPDATE_CHECKER_ALLOW_DOWNGRADES;
     }
   } finally {
-    debug('Uninstalling');
-    await uninstall();
+    if (context.skipUninstall) {
+      debug('Skipped uninstalling');
+    } else {
+      debug('Uninstalling');
+      await uninstall();
+    }
   }
 }

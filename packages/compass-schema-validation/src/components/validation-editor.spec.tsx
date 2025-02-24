@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ValidationEditor from '.';
+import { ValidationEditor } from './validation-editor';
 
 describe('ValidationEditor [Component]', function () {
   context('when it is an editable mode', function () {

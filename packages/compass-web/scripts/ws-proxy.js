@@ -26,12 +26,12 @@ function createWebSocketProxy(port = 1337, logger = console) {
     });
     ws.on('message', async (data) => {
       if (socket) {
-        socket.write(data, 'binary');
+        socket.write(decodeMessageWithTypeByte(data), 'binary');
       } else {
         // First message before socket is created is with connection info
-        const { tls: useSecureConnection, ...connectOptions } = JSON.parse(
-          data.toString()
-        );
+        const { tls: useSecureConnection, ...connectOptions } =
+          decodeMessageWithTypeByte(data);
+
         logger.log(
           'setting up new%s connection to %s:%s',
           useSecureConnection ? ' secure' : '',
@@ -61,16 +61,48 @@ function createWebSocketProxy(port = 1337, logger = console) {
             connectOptions.port
           );
           socket.setTimeout(0);
-          ws.send(JSON.stringify({ preMessageOk: 1 }));
+          const encoded = encodeStringMessageWithTypeByte(
+            JSON.stringify({ preMessageOk: 1 })
+          );
+          ws.send(encoded);
         });
         socket.on('data', async (data) => {
-          ws.send(data);
+          ws.send(encodeBinaryMessageWithTypeByte(data));
         });
       }
     });
   });
 
   return wsServer;
+}
+
+function encodeStringMessageWithTypeByte(message) {
+  const utf8Encoder = new TextEncoder();
+  const utf8Array = utf8Encoder.encode(message);
+  return encodeMessageWithTypeByte(utf8Array, 0x01);
+}
+
+function encodeBinaryMessageWithTypeByte(message) {
+  return encodeMessageWithTypeByte(message, 0x02);
+}
+
+function encodeMessageWithTypeByte(message, type) {
+  const encoded = new Uint8Array(message.length + 1);
+  encoded[0] = type;
+  encoded.set(message, 1);
+  return encoded;
+}
+
+function decodeMessageWithTypeByte(message) {
+  const typeByte = message[0];
+  if (typeByte === 0x01) {
+    const jsonBytes = message.subarray(1);
+    const textDecoder = new TextDecoder('utf-8');
+    const jsonStr = textDecoder.decode(jsonBytes);
+    return JSON.parse(jsonStr);
+  } else if (typeByte === 0x02) {
+    return message.subarray(1);
+  }
 }
 
 module.exports = { createWebSocketProxy };

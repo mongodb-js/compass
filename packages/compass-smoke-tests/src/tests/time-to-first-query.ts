@@ -47,7 +47,11 @@ export async function testTimeToFirstQuery(context: SmokeTestsContext) {
       }
     );
   } finally {
-    debug('Uninstalling');
-    await uninstall();
+    if (context.skipUninstall) {
+      debug('Skipped uninstalling');
+    } else {
+      debug('Uninstalling');
+      await uninstall();
+    }
   }
 }
