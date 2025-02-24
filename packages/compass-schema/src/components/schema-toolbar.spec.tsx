@@ -47,6 +47,8 @@ describe('SchemaToolbar', function () {
           sampleSize={10}
           schemaResultId="123"
           onExportSchemaClicked={() => {}}
+          setShowLegacyExportTooltip={() => {}}
+          showLegacyExportTooltip={false}
           {...props}
         />
       </MockQueryBarPlugin>,

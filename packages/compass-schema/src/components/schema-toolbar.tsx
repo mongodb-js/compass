@@ -1,22 +1,26 @@
 import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
 import {
   Body,
   Button,
   ErrorSummary,
   Icon,
   Link,
+  Tooltip,
   WarningSummary,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { AnalysisState } from '../../constants/analysis-states';
+import type { AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_TIMEOUT,
   ANALYSIS_STATE_COMPLETE,
-} from '../../constants/analysis-states';
+} from '../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import type { RootState } from '../stores/store';
+import { openExportSchema } from '../stores/schema-export-reducer';
 
 const schemaToolbarStyles = css({
   display: 'flex',
@@ -67,9 +71,11 @@ type SchemaToolbarProps = {
   onResetClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
+  setShowLegacyExportTooltip: (show: boolean) => void;
+  showLegacyExportTooltip: boolean;
 };
 
-const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
+export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
   errorMessage,
   isOutdated,
@@ -78,6 +84,8 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   onResetClicked,
   sampleSize,
   schemaResultId,
+  setShowLegacyExportTooltip,
+  showLegacyExportTooltip,
 }) => {
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
@@ -101,15 +109,26 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
         <div className={schemaToolbarActionBarStyles}>
           {enableExportSchema && ANALYSIS_STATE_COMPLETE && (
             <div>
-              <Button
-                variant="default"
-                onClick={onExportSchemaClicked}
-                data-testid="open-schema-export-button"
-                size="xsmall"
-                leftGlyph={<Icon glyph="Export" />}
+              <Tooltip
+                id="export-schema-tooltip"
+                open={showLegacyExportTooltip}
+                onClose={() => setShowLegacyExportTooltip(false)}
+                triggerEvent="click"
+                trigger={
+                  <Button
+                    variant="default"
+                    onClick={onExportSchemaClicked}
+                    data-testid="open-schema-export-button"
+                    size="xsmall"
+                    leftGlyph={<Icon glyph="Export" />}
+                  >
+                    Export Schema
+                  </Button>
+                }
               >
-                Export Schema
-              </Button>
+                Next time, export the schema directly from Compass&apos; Schema
+                tab.
+              </Tooltip>
             </div>
           )}
           <div
@@ -146,4 +165,14 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   );
 };
 
-export { SchemaToolbar };
+export default connect(
+  (state: RootState) => ({
+    analysisState: state.schemaAnalysis.analysisState,
+    errorMessage: state.schemaAnalysis.errorMessage,
+    sampleSize: state.schemaAnalysis.schema?.count ?? 0,
+    schemaResultId: state.schemaAnalysis.resultId ?? '',
+  }),
+  {
+    onExportSchemaClicked: openExportSchema,
+  }
+)(SchemaToolbar);

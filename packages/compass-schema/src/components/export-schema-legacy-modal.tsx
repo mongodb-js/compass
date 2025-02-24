@@ -16,7 +16,7 @@ import {
   confirmedExportLegacySchemaToClipboard,
   switchToSchemaExport,
   SchemaExportActions,
-  stopShowingLegacyBanner,
+  stopShowingLegacyModal,
 } from '../stores/schema-export-reducer';
 
 const SchemaExportSVG = () => (
@@ -463,28 +463,31 @@ const optionHeaderStyles = css({
   margin: '0px',
 });
 
-const ExportSchemaLegacyBanner: React.FunctionComponent<{
+const ExportSchemaLegacyModal: React.FunctionComponent<{
   isOpen: boolean;
   onClose: () => void;
   onLegacyShare: () => void;
   onSwitchToSchemaExport: () => void;
-  stopShowingLegacyBanner: (choice: 'legacy' | 'export') => void;
+  setShowLegacyExportTooltip: (show: boolean) => void;
+  stopShowingLegacyModal: (choice: 'legacy' | 'export') => void;
 }> = ({
   isOpen,
   onClose,
   onLegacyShare,
   onSwitchToSchemaExport,
-  stopShowingLegacyBanner,
+  setShowLegacyExportTooltip,
+  stopShowingLegacyModal,
 }) => {
   const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
   const handleLegacyShare = useCallback(() => {
-    if (dontShowAgainChecked) stopShowingLegacyBanner('legacy');
+    if (dontShowAgainChecked) stopShowingLegacyModal('legacy');
     onLegacyShare();
-  }, [onLegacyShare, dontShowAgainChecked, stopShowingLegacyBanner]);
+    setShowLegacyExportTooltip(true);
+  }, [onLegacyShare, dontShowAgainChecked, stopShowingLegacyModal]);
   const handleSwitchToNew = useCallback(() => {
-    if (dontShowAgainChecked) stopShowingLegacyBanner('export');
+    if (dontShowAgainChecked) stopShowingLegacyModal('export');
     onSwitchToSchemaExport();
-  }, [onSwitchToSchemaExport, dontShowAgainChecked, stopShowingLegacyBanner]);
+  }, [onSwitchToSchemaExport, dontShowAgainChecked, stopShowingLegacyModal]);
   return (
     <Modal open={isOpen} setOpen={onClose} contentClassName={containerStyles}>
       <ModalHeader
@@ -535,13 +538,13 @@ const ExportSchemaLegacyBanner: React.FunctionComponent<{
 
 export default connect(
   (state: RootState) => ({
-    isOpen: state.schemaExport.isLegacyBannerOpen,
+    isOpen: state.schemaExport.isLegacyModalOpen,
   }),
   (dispatch: SchemaThunkDispatch) => ({
-    onClose: () => dispatch({ type: SchemaExportActions.closeLegacyBanner }),
+    onClose: () => dispatch({ type: SchemaExportActions.closeLegacyModal }),
     onLegacyShare: () => dispatch(confirmedExportLegacySchemaToClipboard()),
     onSwitchToSchemaExport: () => dispatch(switchToSchemaExport()),
-    stopShowingLegacyBanner: (choice: 'legacy' | 'export') =>
-      dispatch(stopShowingLegacyBanner(choice)),
+    stopShowingLegacyModal: (choice: 'legacy' | 'export') =>
+      dispatch(stopShowingLegacyModal(choice)),
   })
-)(ExportSchemaLegacyBanner);
+)(ExportSchemaLegacyModal);

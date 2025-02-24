@@ -21,8 +21,8 @@ export type SchemaFormat =
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
   isOpen: boolean;
-  isLegacyBannerOpen: boolean;
-  legacyBannerChoice?: 'legacy' | 'export';
+  isLegacyModalOpen: boolean;
+  legacyModalChoice?: 'legacy' | 'export';
   exportedSchema?: string;
   exportFormat: SchemaFormat;
   errorMessage?: string;
@@ -37,16 +37,16 @@ const getInitialState = (): SchemaExportState => ({
   exportStatus: 'inprogress',
   exportedSchema: undefined,
   isOpen: false,
-  isLegacyBannerOpen: false,
-  legacyBannerChoice: undefined,
+  isLegacyModalOpen: false,
+  legacyModalChoice: undefined,
 });
 
 export const enum SchemaExportActions {
   openExportSchema = 'schema-service/schema-export/openExportSchema',
   closeExportSchema = 'schema-service/schema-export/closeExportSchema',
-  openLegacyBanner = 'schema-service/schema-export/openLegacyBanner',
-  closeLegacyBanner = 'schema-service/schema-export/closeLegacyBanner',
-  setLegacyBannerChoice = 'schema-service/schema-export/setLegacyBannerChoice',
+  openLegacyModal = 'schema-service/schema-export/openLegacyModal',
+  closeLegacyModal = 'schema-service/schema-export/closeLegacyModal',
+  setLegacyModalChoice = 'schema-service/schema-export/setLegacyModalChoice',
   changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
   changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
@@ -316,38 +316,35 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   }
 
   if (
-    isAction<openLegacyBannerAction>(
-      action,
-      SchemaExportActions.openLegacyBanner
-    )
+    isAction<openLegacyModalAction>(action, SchemaExportActions.openLegacyModal)
   ) {
     return {
       ...state,
-      isLegacyBannerOpen: true,
+      isLegacyModalOpen: true,
     };
   }
 
   if (
-    isAction<closeLegacyBannerAction>(
+    isAction<closeLegacyModalAction>(
       action,
-      SchemaExportActions.closeLegacyBanner
+      SchemaExportActions.closeLegacyModal
     )
   ) {
     return {
       ...state,
-      isLegacyBannerOpen: false,
+      isLegacyModalOpen: false,
     };
   }
 
   if (
-    isAction<setLegacyBannerChoiceAction>(
+    isAction<setLegacyModalChoiceAction>(
       action,
-      SchemaExportActions.setLegacyBannerChoice
+      SchemaExportActions.setLegacyModalChoice
     )
   ) {
     return {
       ...state,
-      legacyBannerChoice: action.choice,
+      legacyModalChoice: action.choice,
     };
   }
 
@@ -407,19 +404,19 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   return state;
 };
 
-// TODO clean out when phase out is confirmed COMPASS-8692
-export type openLegacyBannerAction = {
-  type: SchemaExportActions.openLegacyBanner;
+// TODO(COMPASS-8692): clean out when phase out is confirmed.
+export type openLegacyModalAction = {
+  type: SchemaExportActions.openLegacyModal;
 };
 
-export const openLegacyBanner = (): SchemaThunkAction<void> => {
+export const openLegacyModal = (): SchemaThunkAction<void> => {
   return (dispatch, getState) => {
-    const choiceInState = getState().schemaExport.legacyBannerChoice;
+    const choiceInState = getState().schemaExport.legacyModalChoice;
     const savedChoice = choiceInState || localStorage.getItem(localStorageId);
     if (savedChoice) {
       if (savedChoice !== choiceInState) {
         dispatch({
-          type: SchemaExportActions.setLegacyBannerChoice,
+          type: SchemaExportActions.setLegacyModalChoice,
           choice: savedChoice,
         });
       }
@@ -432,24 +429,24 @@ export const openLegacyBanner = (): SchemaThunkAction<void> => {
         return;
       }
     }
-    dispatch({ type: SchemaExportActions.openLegacyBanner });
+    dispatch({ type: SchemaExportActions.openLegacyModal });
   };
 };
 
-export type closeLegacyBannerAction = {
-  type: SchemaExportActions.closeLegacyBanner;
+export type closeLegacyModalAction = {
+  type: SchemaExportActions.closeLegacyModal;
 };
 
-export type setLegacyBannerChoiceAction = {
-  type: SchemaExportActions.setLegacyBannerChoice;
+export type setLegacyModalChoiceAction = {
+  type: SchemaExportActions.setLegacyModalChoice;
   choice: 'legacy' | 'export';
 };
 
-const localStorageId = 'schemaExportLegacyBannerChoice';
+const localStorageId = 'schemaExportLegacyModalChoice';
 
 export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   return (dispatch) => {
-    dispatch({ type: SchemaExportActions.closeLegacyBanner });
+    dispatch({ type: SchemaExportActions.closeLegacyModal });
     dispatch(openExportSchema());
   };
 };
@@ -471,7 +468,7 @@ export const confirmedExportLegacySchemaToClipboard =
           format: 'legacyJSON',
         })
       );
-      dispatch({ type: SchemaExportActions.closeLegacyBanner });
+      dispatch({ type: SchemaExportActions.closeLegacyModal });
       openToast(
         'share-schema',
         hasSchema
@@ -491,11 +488,11 @@ export const confirmedExportLegacySchemaToClipboard =
     };
   };
 
-export const stopShowingLegacyBanner = (
+export const stopShowingLegacyModal = (
   choice: 'legacy' | 'export'
 ): SchemaThunkAction<void> => {
   return (dispatch) => {
     localStorage.setItem(localStorageId, choice);
-    dispatch({ type: SchemaExportActions.setLegacyBannerChoice, choice });
+    dispatch({ type: SchemaExportActions.setLegacyModalChoice, choice });
   };
 };
