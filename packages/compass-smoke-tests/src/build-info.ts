@@ -2,14 +2,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import createDebug from 'debug';
+import { pick } from 'lodash';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
-import { pick } from 'lodash';
+import { createSandbox } from './directories';
 
 const debug = createDebug('compass:smoketests:build-info');
+const COMPASS_PATH = path.resolve(__dirname, '../../compass');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
@@ -229,16 +231,18 @@ export function readPackageDetails(
   return getPackageDetails(kind, result);
 }
 
-export function writeAndReadPackageDetails(
-  context: SmokeTestsContextWithSandbox
-): PackageDetails {
-  const compassDir = path.resolve(__dirname, '../../compass');
+export function writeAndReadPackageDetails({
+  package: packageKind,
+  platform,
+  arch,
+  sandboxPath,
+}: SmokeTestsContextWithSandbox): PackageDetails {
   const infoArgs = {
     format: 'json',
-    dir: compassDir,
-    platform: context.platform,
-    arch: context.arch,
-    out: path.resolve(context.sandboxPath, 'target.json'),
+    dir: COMPASS_PATH,
+    platform,
+    arch,
+    out: path.resolve(sandboxPath, 'target.json'),
   };
   debug({ infoArgs });
 
@@ -258,5 +262,30 @@ export function writeAndReadPackageDetails(
     ])
   );
   writeBuildInfo(infoArgs);
-  return readPackageDetails(context.package, infoArgs.out);
+  return readPackageDetails(packageKind, infoArgs.out);
+}
+
+export function getCompassVersionFromBuildInfo(): string {
+  const out = path.resolve(createSandbox(), 'target.json');
+  // We're hardcoding the platform and arch here because we're only interested in the version
+  if (typeof process.env.HADRON_DISTRIBUTION !== 'string') {
+    // TODO: Ideally we would interface directly with the `Target` from the "hadron-build" package so we could pass this directly
+    process.env.HADRON_DISTRIBUTION = 'compass';
+  }
+  writeBuildInfo({
+    format: 'json',
+    dir: COMPASS_PATH,
+    platform: 'linux',
+    arch: 'x64',
+    out,
+  });
+  const result = readJson(out);
+  assert(typeof result === 'object', 'Expected hadron to write an object');
+  assert(
+    'version' in result,
+    'Expected hadron to write an object with a version'
+  );
+  const { version } = result;
+  assert(typeof version === 'string', 'Expected version to be a string');
+  return version;
 }

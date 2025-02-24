@@ -14,6 +14,7 @@ import { testAutoUpdateFrom } from './tests/auto-update-from';
 import { testAutoUpdateTo } from './tests/auto-update-to';
 import { deleteSandboxesDirectory } from './directories';
 import { dispatchAndWait, getRefFromGithubPr } from './dispatch';
+import { getCompassVersionFromBuildInfo } from './build-info';
 
 const debug = createDebug('compass:smoketests');
 
@@ -143,26 +144,18 @@ yargs(hideBin(process.argv))
           type: 'string',
           description: 'Git reference to dispatch the workflow from',
           default: getDefaultRef(),
-        })
-        .option('version', {
-          type: 'string',
-          description: 'Compass version to run tests for',
-          default: process.env.DEV_VERSION_IDENTIFIER,
         }),
-    async ({ version, bucketName, bucketKeyPrefix, ref, githubPrNumber }) => {
+    async ({ bucketName, bucketKeyPrefix, ref, githubPrNumber }) => {
       const { GITHUB_TOKEN } = process.env;
       assert(
         typeof GITHUB_TOKEN === 'string',
         'Expected a GITHUB_TOKEN environment variable'
       );
       assert(
-        typeof version === 'string',
-        'Expected a version to dispatch tests for'
-      );
-      assert(
         typeof bucketName === 'string' && typeof bucketKeyPrefix === 'string',
         'Bucket name and key prefix are needed to download'
       );
+
       await dispatchAndWait({
         githubToken: GITHUB_TOKEN,
         ref:
@@ -172,7 +165,7 @@ yargs(hideBin(process.argv))
                 githubPrNumber,
               })
             : ref,
-        version,
+        version: getCompassVersionFromBuildInfo(),
         bucketName,
         bucketKeyPrefix,
       });
