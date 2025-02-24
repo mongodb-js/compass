@@ -24,7 +24,6 @@ import {
 } from './schema-analysis-reducer';
 import {
   cancelExportSchema,
-  cleanupObjectUrl,
   confirmedExportLegacySchemaToClipboard,
   openLegacyBanner,
   schemaExportReducer,
@@ -94,7 +93,6 @@ export function activateSchemaPlugin(
 
   addCleanup(() => store.dispatch(cleanupAnalysis()));
   addCleanup(() => store.dispatch(cancelExportSchema()));
-  addCleanup(() => store.dispatch(cleanupObjectUrl()));
 
   return {
     store,

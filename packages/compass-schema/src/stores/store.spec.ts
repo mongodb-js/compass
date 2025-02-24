@@ -153,13 +153,8 @@ describe('Schema Store', function () {
               'complete'
             );
           });
-          const {
-            exportStatus,
-            errorMessage,
-            exportedSchema,
-            filename,
-            downloadUrl,
-          } = store.getState().schemaExport;
+          const { exportStatus, errorMessage, exportedSchema, filename } =
+            store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
@@ -172,21 +167,14 @@ describe('Schema Store', function () {
             name: { type: 'string' },
           });
           expect(filename).to.equal('schema-db-coll-standardJSON.json');
-          expect(downloadUrl).to.be.a('string');
-          expect(/blob:(.*)/.test(downloadUrl || '')).to.be.true;
         });
 
         it('runs schema export formatting with a new format', async function () {
           sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
           await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
           expect(sampleStub).to.have.been.called;
-          const {
-            exportStatus,
-            errorMessage,
-            exportedSchema,
-            filename,
-            downloadUrl,
-          } = store.getState().schemaExport;
+          const { exportStatus, errorMessage, exportedSchema, filename } =
+            store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
@@ -198,8 +186,6 @@ describe('Schema Store', function () {
             name: { bsonType: 'string' },
           });
           expect(filename).to.equal('schema-db-coll-mongoDBJSON.json');
-          expect(downloadUrl).to.be.a('string');
-          expect(/blob:(.*)/.test(downloadUrl || '')).to.be.true;
         });
       });
     });

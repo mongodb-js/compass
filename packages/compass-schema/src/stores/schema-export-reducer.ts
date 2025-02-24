@@ -27,7 +27,6 @@ export type SchemaExportState = {
   exportFormat: SchemaFormat;
   errorMessage?: string;
   exportStatus: ExportStatus;
-  downloadUrl?: string;
   filename?: string;
 };
 
@@ -106,11 +105,6 @@ export type ChangeExportSchemaFormatErroredAction = {
 export type ChangeExportSchemaFormatCompletedAction = {
   type: SchemaExportActions.changeExportSchemaFormatComplete;
   exportedSchema: string;
-};
-
-export type schemaDownloadReadyAction = {
-  type: SchemaExportActions.schemaDownloadReady;
-  downloadUrl: string;
   filename: string;
 };
 
@@ -124,20 +118,6 @@ export const cancelExportSchema = (): SchemaThunkAction<
     return dispatch({
       type: SchemaExportActions.cancelExportSchema,
     });
-  };
-};
-
-export const cleanupObjectUrl = (): SchemaThunkAction<
-  void,
-  CancelExportSchemaAction
-> => {
-  return (dispatch, getState) => {
-    const {
-      schemaExport: { downloadUrl },
-    } = getState();
-    if (downloadUrl) {
-      URL.revokeObjectURL(downloadUrl);
-    }
   };
 };
 
@@ -173,7 +153,9 @@ async function getSchemaByFormat({
   return JSON.stringify(schema, null, 2);
 }
 
-const _trackSchemaExportFailed = (stage: string): SchemaThunkAction<void> => {
+export const trackSchemaExportFailed = (
+  stage: string
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { track, connectionInfoRef }) => {
     const { exportedSchema, exportFormat } = getState().schemaExport;
     track(
@@ -240,36 +222,6 @@ export const trackSchemaExported = (): SchemaThunkAction<void> => {
   };
 };
 
-const prepareDownload = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const {
-      exportedSchema,
-      exportFormat,
-      downloadUrl: previousDownloadUrl,
-    } = getState().schemaExport;
-    if (!exportedSchema) return;
-
-    try {
-      if (previousDownloadUrl) URL.revokeObjectURL(previousDownloadUrl);
-      const blob = new Blob([exportedSchema], {
-        type: 'application/json',
-      });
-      const downloadUrl = URL.createObjectURL(blob);
-      const filename = `schema-${namespace.replace(
-        '.',
-        '-'
-      )}-${exportFormat}.json`;
-      dispatch({
-        type: SchemaExportActions.schemaDownloadReady,
-        downloadUrl,
-        filename,
-      });
-    } catch (error) {
-      dispatch(_trackSchemaExportFailed('prepareDownload'));
-    }
-  };
-};
-
 export const changeExportSchemaFormat = (
   exportFormat: SchemaFormat
 ): SchemaThunkAction<
@@ -281,7 +233,7 @@ export const changeExportSchemaFormat = (
   return async (
     dispatch,
     getState,
-    { logger: { log }, exportAbortControllerRef, schemaAccessorRef }
+    { logger: { log }, exportAbortControllerRef, schemaAccessorRef, namespace }
   ) => {
     // If we're already in progress we abort their current operation.
     exportAbortControllerRef.current?.abort();
@@ -332,7 +284,7 @@ export const changeExportSchemaFormat = (
         type: SchemaExportActions.changeExportSchemaFormatError,
         errorMessage: (err as Error).message,
       });
-      dispatch(_trackSchemaExportFailed('changeExportFormat'));
+      dispatch(trackSchemaExportFailed('switching format'));
       return;
     }
 
@@ -350,11 +302,16 @@ export const changeExportSchemaFormat = (
       }
     );
 
+    const filename = `schema-${namespace.replace(
+      '.',
+      '-'
+    )}-${exportFormat}.json`;
+
     dispatch({
       type: SchemaExportActions.changeExportSchemaFormatComplete,
       exportedSchema,
+      filename,
     });
-    dispatch(prepareDownload());
   };
 };
 
@@ -457,6 +414,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
     return {
       ...state,
       exportedSchema: action.exportedSchema,
+      filename: action.filename,
       exportStatus: 'complete',
     };
   }
@@ -472,19 +430,6 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
       exportStatus: 'error',
       errorMessage: 'cancelled',
       abortController: undefined,
-    };
-  }
-
-  if (
-    isAction<schemaDownloadReadyAction>(
-      action,
-      SchemaExportActions.schemaDownloadReady
-    )
-  ) {
-    return {
-      ...state,
-      downloadUrl: action.downloadUrl,
-      filename: action.filename,
     };
   }
 

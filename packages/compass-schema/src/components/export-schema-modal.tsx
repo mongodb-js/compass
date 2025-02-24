@@ -26,6 +26,7 @@ import {
   trackSchemaExported,
   type SchemaFormat,
   type ExportStatus,
+  trackSchemaExportFailed,
 } from '../stores/schema-export-reducer';
 
 const loaderStyles = css({
@@ -81,26 +82,26 @@ const ExportSchemaModal: React.FunctionComponent<{
   resultId?: string;
   exportFormat: SchemaFormat;
   exportedSchema?: string;
-  downloadUrl?: string;
   filename?: string;
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
   onExportedSchemaCopied: () => void;
   onExportedSchema: () => void;
+  onSchemaExportFailed: (stage: string) => void;
 }> = ({
   errorMessage,
   exportStatus,
   isOpen,
   exportFormat,
   exportedSchema,
-  downloadUrl,
   filename,
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
   onExportedSchemaCopied,
   onExportedSchema,
+  onSchemaExportFailed,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +111,25 @@ const ExportSchemaModal: React.FunctionComponent<{
     },
     [onChangeSchemaExportFormat]
   );
+
+  const handleSchemaDownload = useCallback(() => {
+    try {
+      if (!exportedSchema) return;
+      const blob = new Blob([exportedSchema], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'export.json';
+      link.click();
+      window.URL.revokeObjectURL(url);
+      onExportedSchema();
+    } catch (error) {
+      onSchemaExportFailed('download button clicked');
+      throw error;
+    }
+  }, [exportedSchema, filename, onSchemaExportFailed, onExportedSchema]);
 
   return (
     <Modal open={isOpen} setOpen={onClose}>
@@ -186,12 +206,9 @@ const ExportSchemaModal: React.FunctionComponent<{
         </Button>
         <Button
           variant="primary"
-          isLoading={!downloadUrl}
           loadingIndicator={<SpinLoader />}
           disabled={!exportedSchema}
-          download={filename}
-          href={downloadUrl}
-          onClick={onExportedSchema}
+          onClick={handleSchemaDownload}
           data-testid="schema-export-download-button"
         >
           Export
@@ -214,6 +231,7 @@ export default connect(
   {
     onExportedSchemaCopied: trackSchemaExported,
     onExportedSchema: trackSchemaExported,
+    onSchemaExportFailed: trackSchemaExportFailed,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,
