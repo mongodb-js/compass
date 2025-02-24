@@ -190,16 +190,17 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Button onClick={onClose} variant="default">
           Cancel
         </Button>
-        <Link download={filename} href={downloadUrl} onClick={onExportedSchema}>
           <Button
             variant="primary"
             isLoading={!downloadUrl}
             loadingIndicator={<SpinLoader />}
             disabled={!exportedSchema}
+             download={filename}
+             href={downloadUrl}
+             onClick={onExportedSchema}
           >
             Export
           </Button>
-        </Link>
       </ModalFooter>
     </Modal>
   );
