@@ -185,3 +185,11 @@ jobs:
         working-directory: packages/compass-smoke-tests
         # Using --skipUninstalling --skipCleanup because the runners are ephemeral
         run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup
+
+      - name: 'Upload logs'
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.hadron-distribution}}-${{ matrix.hadron-platform}}-${{ matrix.arch }}-${{ matrix.package }}-${{ matrix.test }}-logs
+          path: packages/compass-e2e-tests/.log/
+          include-hidden-files: true
