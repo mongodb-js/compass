@@ -206,6 +206,7 @@ const ExportSchemaModal: React.FunctionComponent<{
         </Button>
         <Button
           variant="primary"
+          isLoading={exportStatus === 'inprogress'}
           loadingIndicator={<SpinLoader />}
           disabled={!exportedSchema}
           onClick={handleSchemaDownload}

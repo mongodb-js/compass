@@ -1027,7 +1027,7 @@ export const ExportSchemaFormatOptions =
   '[data-testid="export-schema-format-type-box-group"]';
 export const exportSchemaFormatOption = (
   option: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON'
-) => `[data-testid="export-schema-format-${option}-button"]`;
+) => `label[for="export-schema-format-${option}-button"]`;
 export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
 export const ExportSchemaDownloadButton =
   '[data-testid="schema-export-download-button"]';

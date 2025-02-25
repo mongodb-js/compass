@@ -121,7 +121,7 @@ describe('Collection schema tab', function () {
       await browser.setFeature('enableExportSchema', true);
     });
 
-    const filename = 'schema-test-numbers-standardJSON.json';
+    const filename = 'schema-test-numbers-mongoDBJSON.json';
 
     before(() => {
       cleanUpDownloadedFile(filename);
