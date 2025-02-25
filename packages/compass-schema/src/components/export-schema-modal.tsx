@@ -27,6 +27,7 @@ import {
   type SchemaFormat,
   type ExportStatus,
   trackSchemaExportFailed,
+  downloadSchema,
 } from '../stores/schema-export-reducer';
 
 const loaderStyles = css({
@@ -87,21 +88,18 @@ const ExportSchemaModal: React.FunctionComponent<{
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
   onExportedSchemaCopied: () => void;
-  onExportedSchema: () => void;
-  onSchemaExportFailed: (stage: string) => void;
+  onSchemaDownload: () => void;
 }> = ({
   errorMessage,
   exportStatus,
   isOpen,
   exportFormat,
   exportedSchema,
-  filename,
   onCancelSchemaExport,
   onChangeSchemaExportFormat,
   onClose,
   onExportedSchemaCopied,
-  onExportedSchema,
-  onSchemaExportFailed,
+  onSchemaDownload,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -111,25 +109,6 @@ const ExportSchemaModal: React.FunctionComponent<{
     },
     [onChangeSchemaExportFormat]
   );
-
-  const handleSchemaDownload = useCallback(() => {
-    try {
-      if (!exportedSchema) return;
-      const blob = new Blob([exportedSchema], {
-        type: 'application/json',
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename || 'export.json';
-      link.click();
-      window.URL.revokeObjectURL(url);
-      onExportedSchema();
-    } catch (error) {
-      onSchemaExportFailed('download button clicked');
-      throw error;
-    }
-  }, [exportedSchema, filename, onSchemaExportFailed, onExportedSchema]);
 
   return (
     <Modal open={isOpen} setOpen={onClose}>
@@ -209,7 +188,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           isLoading={exportStatus === 'inprogress'}
           loadingIndicator={<SpinLoader />}
           disabled={!exportedSchema}
-          onClick={handleSchemaDownload}
+          onClick={onSchemaDownload}
           data-testid="schema-export-download-button"
         >
           Export
@@ -235,5 +214,6 @@ export default connect(
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,
+    onSchemaDownload: downloadSchema,
   }
 )(ExportSchemaModal);

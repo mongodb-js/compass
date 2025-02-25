@@ -153,6 +153,30 @@ async function getSchemaByFormat({
   return JSON.stringify(schema, null, 2);
 }
 
+export const downloadSchema = (): SchemaThunkAction<void> => {
+  return (dispatch, getState) => {
+    try {
+      const {
+        schemaExport: { exportedSchema, filename },
+      } = getState();
+      if (!exportedSchema) return;
+      const blob = new Blob([exportedSchema], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'export.json';
+      link.click();
+      window.URL.revokeObjectURL(url);
+      dispatch(trackSchemaExported);
+    } catch (error) {
+      dispatch(trackSchemaExportFailed('download button clicked'));
+      throw error;
+    }
+  };
+};
+
 export const trackSchemaExportFailed = (
   stage: string
 ): SchemaThunkAction<void> => {
