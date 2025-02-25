@@ -138,16 +138,11 @@ describe('SchemaToolbar', function () {
     expect(screen.getByTestId('query-bar')).to.be.visible;
   });
 
-  it('does not render the export schema button', function () {
+  it('renders the export schema button', function () {
     renderSchemaToolbar({
       sampleSize: 100,
     });
-    expect(screen.getByText(/documents/)).to.be.visible;
 
-    expect(screen.queryByTestId(exportSchemaTestId)).to.not.exist;
-  });
-
-  it('renders the export schema button', function () {
     expect(screen.getByTestId(exportSchemaTestId)).to.be.visible;
   });
 });
