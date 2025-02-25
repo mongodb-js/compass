@@ -483,7 +483,12 @@ const ExportSchemaLegacyModal: React.FunctionComponent<{
     if (dontShowAgainChecked) stopShowingLegacyModal('legacy');
     onLegacyShare();
     setShowLegacyExportTooltip(true);
-  }, [onLegacyShare, dontShowAgainChecked, stopShowingLegacyModal]);
+  }, [
+    onLegacyShare,
+    dontShowAgainChecked,
+    stopShowingLegacyModal,
+    setShowLegacyExportTooltip,
+  ]);
   const handleSwitchToNew = useCallback(() => {
     if (dontShowAgainChecked) stopShowingLegacyModal('export');
     onSwitchToSchemaExport();
