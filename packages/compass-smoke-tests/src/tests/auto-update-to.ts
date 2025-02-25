@@ -57,11 +57,13 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
         bucket_key_prefix: context.bucketKeyPrefix,
       });
     } else {
-      process.env.PUBLISHED_RELEASES = JSON.stringify({
-        name: version,
-        body: version,
-        bucket_key_prefix: context.bucketKeyPrefix,
-      });
+      process.env.PUBLISHED_RELEASES = JSON.stringify([
+        {
+          name: version,
+          body: version,
+          bucket_key_prefix: context.bucketKeyPrefix,
+        },
+      ]);
     }
 
     const server = await startAutoUpdateServer();

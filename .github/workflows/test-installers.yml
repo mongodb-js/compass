@@ -40,8 +40,7 @@ jobs:
           - windows_msi
           - windows_setup
           - linux_deb
-          # TODO: Re-enable (see https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079619474)
-          # - linux_tar
+          - linux_tar
           # TODO: Enable (needs a docker container)
           - linux_rpm
         hadron-distribution:
@@ -78,10 +77,10 @@ jobs:
             runs-on: ubuntu-latest
             arch: x64
             hadron-platform: linux
-          # - package: linux_tar
-          #   runs-on: ubuntu-latest
-          #   arch: x64
-          #   hadron-platform: linux
+          - package: linux_tar
+            runs-on: ubuntu-latest
+            arch: x64
+            hadron-platform: linux
           - package: linux_rpm
             runs-on: ubuntu-latest
             arch: x64
@@ -105,12 +104,6 @@ jobs:
             install-update-server: true
 
         exclude:
-          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079620322
-          - package: osx_dmg
-            test: auto-update-from
-          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079621700
-          - package: windows_setup
-            test: auto-update-from
           # Skip auto-update tests for isolated and readonly distributions for now
           # This is not supported by the update server we're using in the test harness
           - hadron-distribution: compass-isolated
@@ -121,20 +114,6 @@ jobs:
             test: auto-update-from
           - hadron-distribution: compass-readonly
             test: auto-update-to
-          # Temporary skip failing auto-update-to tests
-          - test: auto-update-to
-            package: osx_dmg
-          - test: auto-update-to
-            package: windows_zip
-          - test: auto-update-to
-            package: windows_msi
-          - test: auto-update-to
-            package: windows_setup
-          # Waiting for https://github.com/10gen/compass-mongodb-com/pull/122 to be released
-          - test: auto-update-to
-            package: linux_deb
-          - test: auto-update-to
-            package: linux_rpm
 
           # Skip time-to-first-query tests for readonly because it doesn't have editable documents
           # See https://github.com/mongodb-js/compass/actions/runs/13286945911/job/37097791601
