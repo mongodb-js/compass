@@ -2,14 +2,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import createDebug from 'debug';
+import { pick } from 'lodash';
 
 import { handler as writeBuildInfo } from 'hadron-build/commands/info';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
-import { pick } from 'lodash';
 
 const debug = createDebug('compass:smoketests:build-info');
+const COMPASS_PATH = path.resolve(__dirname, '../../compass');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
@@ -229,18 +230,26 @@ export function readPackageDetails(
   return getPackageDetails(kind, result);
 }
 
-export function writeAndReadPackageDetails(
-  context: SmokeTestsContextWithSandbox
-): PackageDetails {
-  const compassDir = path.resolve(__dirname, '../../compass');
+export function writeAndReadPackageDetails({
+  package: packageKind,
+  platform,
+  arch,
+  sandboxPath,
+}: SmokeTestsContextWithSandbox): PackageDetails {
   const infoArgs = {
     format: 'json',
-    dir: compassDir,
-    platform: context.platform,
-    arch: context.arch,
-    out: path.resolve(context.sandboxPath, 'target.json'),
+    dir: COMPASS_PATH,
+    platform,
+    arch,
+    out: path.resolve(sandboxPath, 'target.json'),
   };
   debug({ infoArgs });
+
+  // Removing the DEV_VERSION_IDENTIFIER variable if it's empty
+  // - to avoid any potential (future) issues from CI setting it without providing a value
+  if (process.env.DEV_VERSION_IDENTIFIER === '') {
+    delete process.env.DEV_VERSION_IDENTIFIER;
+  }
 
   // These are known environment variables that will affect the way
   // writeBuildInfo works. Log them as a reminder and for our own sanity
@@ -258,5 +267,5 @@ export function writeAndReadPackageDetails(
     ])
   );
   writeBuildInfo(infoArgs);
-  return readPackageDetails(context.package, infoArgs.out);
+  return readPackageDetails(packageKind, infoArgs.out);
 }
