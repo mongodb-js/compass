@@ -101,8 +101,5 @@
     "chai-enzyme": {
       "cheerio": "1.0.0-rc.10"
     }
-  },
-  "dependencies": {
-    "mongodb-log-writer": "^2.3.4"
   }
 }
