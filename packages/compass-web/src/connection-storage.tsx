@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react';
 import type {
   ConnectionStorage,
   ConnectionInfo,
+  AtlasClusterMetadata,
 } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageProvider,
@@ -90,6 +91,10 @@ function isServerless(clusterDescription: ClusterDescription) {
   return clusterDescription['@provider'] === 'SERVERLESS';
 }
 
+function isFlex(clusterDescription: ClusterDescription) {
+  return clusterDescription['@provider'] === 'FLEX';
+}
+
 function isSharded(clusterDescription: ClusterDescription) {
   return (
     clusterDescription.clusterType === 'SHARDED' ||
@@ -100,12 +105,13 @@ function isSharded(clusterDescription: ClusterDescription) {
 function getMetricsIdAndType(
   clusterDescription: ClusterDescription,
   deploymentItem?: ReplicaSetDeploymentItem | ShardingDeploymentItem
-): {
-  metricsId: string;
-  metricsType: 'serverless' | 'replicaSet' | 'cluster';
-} {
+): Pick<AtlasClusterMetadata, 'metricsId' | 'metricsType'> {
   if (isServerless(clusterDescription)) {
     return { metricsId: clusterDescription.name, metricsType: 'serverless' };
+  }
+
+  if (isFlex(clusterDescription)) {
+    return { metricsId: clusterDescription.name, metricsType: 'flex' };
   }
 
   if (!deploymentItem) {
