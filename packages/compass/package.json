@@ -4,7 +4,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://www.mongodb.com/products/compass",
-  "version": "1.45.4-beta.3",
+  "version": "1.45.4-beta.4",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
   "author": {
@@ -284,5 +284,5 @@
     "macos-export-certificate-and-key": "^1.1.2",
     "win-export-certificate-and-key": "^2.0.1"
   },
-  "releasePublisher": "Kræn Hansen <kraen.hansen@mongodb.com>"
+  "releasePublisher": "Paula Stachova <paula.stachova@mongodb.com>"
 }
