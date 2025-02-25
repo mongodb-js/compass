@@ -121,12 +121,12 @@ export const cancelExportSchema = (): SchemaThunkAction<
 async function getSchemaByFormat({
   exportFormat,
   schemaAccessor,
+  signal,
 }: {
   exportFormat: SchemaFormat;
   schemaAccessor: SchemaAccessor;
   signal: AbortSignal;
 }): Promise<string> {
-  // TODO: Use the signal once we pull in the schema accessor type changes.
   let schema:
     | StandardJSONSchema
     | MongoDBJSONSchema
@@ -134,16 +134,24 @@ async function getSchemaByFormat({
     | InternalSchema;
   switch (exportFormat) {
     case 'standardJSON':
-      schema = await schemaAccessor.getStandardJsonSchema();
+      schema = await schemaAccessor.getStandardJsonSchema({
+        signal,
+      });
       break;
     case 'mongoDBJSON':
-      schema = await schemaAccessor.getMongoDBJsonSchema();
+      schema = await schemaAccessor.getMongoDBJsonSchema({
+        signal,
+      });
       break;
     case 'extendedJSON':
-      schema = await schemaAccessor.getExpandedJSONSchema();
+      schema = await schemaAccessor.getExpandedJSONSchema({
+        signal,
+      });
       break;
     case 'legacyJSON':
-      schema = await schemaAccessor.getInternalSchema();
+      schema = await schemaAccessor.getInternalSchema({
+        signal,
+      });
       break;
   }
 
