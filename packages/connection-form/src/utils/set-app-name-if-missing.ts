@@ -3,9 +3,15 @@ import type { MongoClientOptions } from 'mongodb';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
-export function setAppNameParamIfMissing(
-  defaultAppName?: string
-): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
+export function setAppNameParamIfMissing({
+  defaultAppName,
+  telemetryAnonymousId,
+  connectionId,
+}: {
+  defaultAppName?: string;
+  telemetryAnonymousId?: string;
+  connectionId: string;
+}): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
   return (connectionOptions) => {
     const connectionStringUrl = new ConnectionString(
       connectionOptions.connectionString
@@ -14,7 +20,11 @@ export function setAppNameParamIfMissing(
     const searchParams =
       connectionStringUrl.typedSearchParams<MongoClientOptions>();
     if (!searchParams.has('appName') && defaultAppName !== undefined) {
-      searchParams.set('appName', defaultAppName);
+      const appName = `${defaultAppName}${
+        telemetryAnonymousId ? `-${telemetryAnonymousId}` : ''
+      }-${connectionId}`;
+
+      searchParams.set('appName', appName);
       connectionOptions = {
         ...cloneDeep(connectionOptions),
         connectionString: connectionStringUrl.toString(),

@@ -843,11 +843,13 @@ function setInitialState({
 
 export function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
+  connectionId,
   defaultAppName,
   notifyDeviceFlow,
   preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
+  connectionId: string;
   defaultAppName?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
@@ -855,6 +857,7 @@ export function adjustConnectionOptionsBeforeConnect({
   }) => void;
   preferences: {
     browserCommandForOIDCAuth?: string;
+    telemetryAnonymousId?: string;
     forceConnectionOptions: [string, string][];
   };
 }): ConnectionOptions {
@@ -863,7 +866,11 @@ export function adjustConnectionOptionsBeforeConnect({
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     unsetFleOptionsIfEmptyAutoEncryption,
-    setAppNameParamIfMissing(defaultAppName),
+    setAppNameParamIfMissing({
+      defaultAppName,
+      connectionId,
+      telemetryAnonymousId: preferences.telemetryAnonymousId,
+    }),
     adjustOIDCConnectionOptionsBeforeConnect({
       browserCommandForOIDCAuth: preferences.browserCommandForOIDCAuth,
       notifyDeviceFlow,
