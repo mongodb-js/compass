@@ -6,6 +6,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -116,9 +117,8 @@ describe('Collection schema tab', function () {
 
   describe('with the enableExportSchema feature flag enabled', function () {
     beforeEach(async function () {
-      // TODO(COMPASS-8819): remove web skip when defaulted true.
-      skipForWeb(this, "can't toggle features in compass-web");
-      await browser.setFeature('enableExportSchema', true);
+      if (!TEST_COMPASS_WEB)
+        await browser.setFeature('enableExportSchema', true);
     });
 
     const filename = 'schema-test-numbers-mongoDBJSON.json';

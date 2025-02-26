@@ -176,6 +176,9 @@ export const downloadSchema = (): SchemaThunkAction<void> => {
         link.remove();
       }, 0);
       dispatch(trackSchemaExported);
+      return dispatch({
+        type: SchemaExportActions.closeExportSchema,
+      });
     } catch (error) {
       _trackSchemaExportFailed({
         stage: 'download button clicked',
