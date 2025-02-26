@@ -20,6 +20,9 @@ on:
       nonce:
         type: string
         description: 'A random string to track the run from dispatch to watching'
+      github_pr_number:
+        type: string
+        description: 'Number of the PR that triggered this run'
       evergreen_task_url:
         type: string
         description: 'URL to the Evergreen job that triggered this run'
@@ -28,11 +31,14 @@ run-name: Test Installers ${{ github.event.inputs.dev_version || github.ref_name
 
 jobs:
   summarize:
-    if: ${{ github.event.inputs.evergreen_task_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Add a summary to the job
-        run: echo "Triggered by ${{ github.event.inputs.evergreen_task_url }}" >> $GITHUB_STEP_SUMMARY
+      - name: Add URL for the GitHub PR
+        if: ${{ github.event.inputs.github_pr_number }}
+        run: echo "[GitHub PR ${{ github.event.inputs.github_pr_number }}](https://github.com/mongodb-js/compass/pull/${{ github.event.inputs.github_pr_number }})" >> $GITHUB_STEP_SUMMARY
+      - name: Add URL for the Evergreen task
+        if: ${{ github.event.inputs.evergreen_task_url }}
+        run: echo "[Evergreen Task](${{ github.event.inputs.evergreen_task_url }})" >> $GITHUB_STEP_SUMMARY
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
     strategy:

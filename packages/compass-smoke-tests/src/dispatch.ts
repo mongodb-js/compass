@@ -122,6 +122,7 @@ type DispatchOptions = {
   bucketName: string;
   bucketKeyPrefix: string;
   devVersion?: string;
+  githubPrNumber?: string;
   evergreenTaskUrl?: string;
 
   /**
@@ -136,6 +137,7 @@ export async function dispatchAndWait({
   devVersion,
   bucketName,
   bucketKeyPrefix,
+  githubPrNumber,
   evergreenTaskUrl,
   watchPollDelayMs = 5000,
 }: DispatchOptions) {
@@ -151,6 +153,7 @@ export async function dispatchAndWait({
       dev_version: devVersion,
       bucket_name: bucketName,
       bucket_key_prefix: bucketKeyPrefix,
+      github_pr_number: githubPrNumber,
       evergreen_task_url: evergreenTaskUrl,
       nonce,
     },

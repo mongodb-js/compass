@@ -146,7 +146,13 @@ yargs(hideBin(process.argv))
           default: getDefaultRef(),
         }),
     async ({ bucketName, bucketKeyPrefix, ref, githubPrNumber }) => {
-      const { GITHUB_TOKEN } = process.env;
+      const {
+        GITHUB_TOKEN,
+        DEV_VERSION_IDENTIFIER,
+        GITHUB_PR_NUMBER,
+        EVERGREEN_TASK_URL,
+      } = process.env;
+
       assert(
         typeof GITHUB_TOKEN === 'string',
         'Expected a GITHUB_TOKEN environment variable'
@@ -165,8 +171,9 @@ yargs(hideBin(process.argv))
                 githubPrNumber,
               })
             : ref,
-        devVersion: process.env.DEV_VERSION_IDENTIFIER,
-        evergreenTaskUrl: process.env.EVERGREEN_TASK_URL,
+        devVersion: DEV_VERSION_IDENTIFIER,
+        githubPrNumber: GITHUB_PR_NUMBER,
+        evergreenTaskUrl: EVERGREEN_TASK_URL,
         bucketName,
         bucketKeyPrefix,
       });
