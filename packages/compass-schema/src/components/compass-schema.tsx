@@ -369,10 +369,17 @@ const PerformanceAdvisorBanner = () => {
 
 const Schema: React.FunctionComponent<{
   analysisState: AnalysisState;
+  isExportSchemaModalOpen: boolean;
   schema: MongodbSchema | null;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
-}> = ({ analysisState, schema, onStartAnalysis, onStopAnalysis }) => {
+}> = ({
+  analysisState,
+  isExportSchemaModalOpen,
+  schema,
+  onStartAnalysis,
+  onStopAnalysis,
+}) => {
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
   }, [onStartAnalysis]);
@@ -395,7 +402,11 @@ const Schema: React.FunctionComponent<{
             <SchemaToolbar
               onAnalyzeSchemaClicked={onApplyClicked}
               onResetClicked={onApplyClicked}
-              showLegacyExportTooltip={showLegacyExportTooltip}
+              // Show the tooltip to indicate the new export button when
+              // the export modal is closed.
+              showLegacyExportTooltip={
+                showLegacyExportTooltip && !isExportSchemaModalOpen
+              }
               setShowLegacyExportTooltip={setShowLegacyExportTooltip}
               isOutdated={!!outdated}
             />
@@ -428,6 +439,7 @@ const Schema: React.FunctionComponent<{
 export default connect(
   (state: RootState) => ({
     analysisState: state.schemaAnalysis.analysisState,
+    isExportSchemaModalOpen: state.schemaExport.isOpen,
     schema: state.schemaAnalysis.schema,
   }),
   {

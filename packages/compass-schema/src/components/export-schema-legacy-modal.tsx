@@ -491,8 +491,14 @@ const ExportSchemaLegacyModal: React.FunctionComponent<{
   ]);
   const handleSwitchToNew = useCallback(() => {
     if (dontShowAgainChecked) stopShowingLegacyModal('export');
+    setShowLegacyExportTooltip(true);
     onSwitchToSchemaExport();
-  }, [onSwitchToSchemaExport, dontShowAgainChecked, stopShowingLegacyModal]);
+  }, [
+    onSwitchToSchemaExport,
+    dontShowAgainChecked,
+    stopShowingLegacyModal,
+    setShowLegacyExportTooltip,
+  ]);
   return (
     <Modal open={isOpen} setOpen={onClose} contentClassName={containerStyles}>
       <ModalHeader
