@@ -26,7 +26,6 @@ import {
   trackSchemaExported,
   type SchemaFormat,
   type ExportStatus,
-  trackSchemaExportFailed,
   downloadSchema,
 } from '../stores/schema-export-reducer';
 
@@ -210,7 +209,6 @@ export default connect(
   {
     onExportedSchemaCopied: trackSchemaExported,
     onExportedSchema: trackSchemaExported,
-    onSchemaExportFailed: trackSchemaExportFailed,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,
