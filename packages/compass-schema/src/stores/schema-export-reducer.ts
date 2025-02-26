@@ -238,7 +238,9 @@ export const changeExportSchemaFormat = (
     try {
       const schemaAccessor = schemaAccessorRef.current;
       if (!schemaAccessor) {
-        throw new Error('No schema analysis available');
+        throw new Error(
+          "No schema analysis available. Please analyze the collection's schema before exporting."
+        );
       }
 
       exportedSchema = await getSchemaByFormat({
