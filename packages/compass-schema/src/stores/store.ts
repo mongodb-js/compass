@@ -25,7 +25,7 @@ import {
 import {
   cancelExportSchema,
   confirmedExportLegacySchemaToClipboard,
-  openLegacyBanner,
+  openLegacyModal,
   schemaExportReducer,
 } from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
@@ -85,7 +85,7 @@ export function activateSchemaPlugin(
   on(services.localAppRegistry, 'menu-share-schema-json', () => {
     const { enableExportSchema } = services.preferences.getPreferences();
     if (enableExportSchema) {
-      store.dispatch(openLegacyBanner());
+      store.dispatch(openLegacyModal());
       return;
     }
     store.dispatch(confirmedExportLegacySchemaToClipboard());
