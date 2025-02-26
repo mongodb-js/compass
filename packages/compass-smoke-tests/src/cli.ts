@@ -71,6 +71,7 @@ yargs(hideBin(process.argv))
   .scriptName('smoke-tests')
   .detectLocale(false)
   .version(false)
+  .showHelpOnFail(false)
   .strict()
   .option('bucketName', {
     type: 'string',
