@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -321,6 +327,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const [errorDetailsOpen, setErrorDetailsOpen] = useState<
+    | undefined
+    | {
+        details: Record<string, unknown>;
+        closeAction?: 'back' | 'close';
+      }
+  >(undefined);
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -582,14 +596,22 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             version={version}
             ns={ns}
             updateComment={updateComment}
+            showErrorDetails={() =>
+              setErrorDetailsOpen({
+                details: insert.error.info || {},
+                closeAction: 'back',
+              })
+            }
             {...insert}
           />
           <ErrorDetailsModal
-            open={true}
-            onClose={() => false}
-            details={insert.error?.info}
-            closeAction="back"
-            // TODO
+            open={!!errorDetailsOpen}
+            onClose={() => {
+              console.log('is closing');
+              setErrorDetailsOpen(undefined);
+            }}
+            details={errorDetailsOpen?.details}
+            closeAction={errorDetailsOpen?.closeAction || 'close'}
           />
           <BulkUpdateModal
             ns={ns}
