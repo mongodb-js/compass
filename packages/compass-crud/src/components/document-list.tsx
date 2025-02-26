@@ -9,6 +9,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
+  ErrorDetailsModal,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -84,7 +85,7 @@ export type DocumentListProps = {
         | 'doc'
         | 'csfleState'
         | 'isOpen'
-        | 'message'
+        | 'error'
         | 'mode'
         | 'jsonDoc'
         | 'isCommentNeeded'
@@ -582,6 +583,13 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             ns={ns}
             updateComment={updateComment}
             {...insert}
+          />
+          <ErrorDetailsModal
+            open={true}
+            onClose={() => false}
+            details={insert.error?.info}
+            closeAction="back"
+            // TODO
           />
           <BulkUpdateModal
             ns={ns}
