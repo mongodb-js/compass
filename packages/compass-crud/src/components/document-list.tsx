@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -9,6 +15,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
+  ErrorDetailsModal,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -84,7 +91,7 @@ export type DocumentListProps = {
         | 'doc'
         | 'csfleState'
         | 'isOpen'
-        | 'message'
+        | 'error'
         | 'mode'
         | 'jsonDoc'
         | 'isCommentNeeded'
@@ -319,6 +326,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docsPerPage,
     updateMaxDocumentsPerPage,
   } = props;
+
+  const [errorDetailsOpen, setErrorDetailsOpen] = useState<
+    | undefined
+    | {
+        details: Record<string, unknown>;
+        closeAction?: 'back' | 'close';
+      }
+  >(undefined);
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
@@ -581,7 +596,22 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             version={version}
             ns={ns}
             updateComment={updateComment}
+            showErrorDetails={() =>
+              setErrorDetailsOpen({
+                details: insert.error.info || {},
+                closeAction: 'back',
+              })
+            }
             {...insert}
+          />
+          <ErrorDetailsModal
+            open={!!errorDetailsOpen}
+            onClose={() => {
+              console.log('is closing');
+              setErrorDetailsOpen(undefined);
+            }}
+            details={errorDetailsOpen?.details}
+            closeAction={errorDetailsOpen?.closeAction || 'close'}
           />
           <BulkUpdateModal
             ns={ns}
