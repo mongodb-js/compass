@@ -1450,7 +1450,7 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
-      console.log('Error', error);
+      console.log('Error', error, '?', Object.keys(error as Error));
       this.setState({
         insert: {
           doc: this.state.insert.doc,

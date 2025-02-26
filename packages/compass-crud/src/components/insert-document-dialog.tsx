@@ -45,8 +45,7 @@ const bannerStyles = css({
 });
 
 const errorDetailsBtnStyles = css({
-  display: 'block',
-  marginTop: spacing[200],
+  float: 'right',
 });
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
@@ -68,7 +67,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: Logger;
   track?: TrackFunction;
-  showErrorDetails?: () => void;
+  showErrorDetails: () => void;
 };
 
 const DocumentOrJsonView: React.FC<{
@@ -346,7 +345,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               className={errorDetailsBtnStyles}
               onClick={showErrorDetails}
             >
-              ƒ VIEW ERROR DETAILS
+              VIEW ERROR DETAILS
             </Button>
           )}
         </Banner>
