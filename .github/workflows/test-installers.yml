@@ -41,7 +41,6 @@ jobs:
           - windows_setup
           - linux_deb
           - linux_tar
-          # TODO: Enable (needs a docker container)
           - linux_rpm
         hadron-distribution:
           - compass
