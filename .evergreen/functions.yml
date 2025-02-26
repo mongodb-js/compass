@@ -667,6 +667,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           GITHUB_TOKEN: ${generated_token}
+          EVERGREEN_TASK_URL: https://spruce.mongodb.com/task/${task_id}
         script: |
           set -e
           # Load environment variables

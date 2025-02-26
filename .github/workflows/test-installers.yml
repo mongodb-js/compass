@@ -20,10 +20,19 @@ on:
       nonce:
         type: string
         description: 'A random string to track the run from dispatch to watching'
+      evergreen_task_url:
+        type: string
+        description: 'URL to the Evergreen job that triggered this run'
 
 run-name: Test Installers ${{ github.event.inputs.dev_version || github.ref_name }} / (nonce = ${{ github.event.inputs.nonce || 'not set' }})
 
 jobs:
+  summarize:
+    if: ${{ github.event.inputs.evergreen_task_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add a summary to the job
+        run: echo "Triggered by ${{ github.event.inputs.evergreen_task_url }}" >> $GITHUB_STEP_SUMMARY
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
     strategy:

@@ -165,6 +165,7 @@ yargs(hideBin(process.argv))
               })
             : ref,
         devVersion: process.env.DEV_VERSION_IDENTIFIER,
+        evergreenTaskUrl: process.env.EVERGREEN_TASK_URL,
         bucketName,
         bucketKeyPrefix,
       });
