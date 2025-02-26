@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 
 import * as github from '@actions/github';
@@ -70,12 +71,58 @@ export async function getRefFromGithubPr({
   return ref;
 }
 
+type PollToCompletionOptions = {
+  octokit: ReturnType<typeof github.getOctokit>;
+  runId: number;
+  watchTimeoutMs: number;
+  watchPollDelayMs: number;
+};
+
+async function pollToCompletion({
+  octokit,
+  runId,
+  watchTimeoutMs,
+  watchPollDelayMs,
+}: PollToCompletionOptions): Promise<string> {
+  for (
+    const start = new Date();
+    new Date().getTime() - start.getTime() < watchTimeoutMs;
+
+  ) {
+    const {
+      data: { status, conclusion },
+    } = await octokit.rest.actions.getWorkflowRun({
+      owner: GITHUB_OWNER,
+      repo: GITHUB_REPO,
+      run_id: runId,
+    });
+    console.log(`Status: ${status || 'null'}`);
+    if (status === 'completed') {
+      assert(
+        typeof conclusion === 'string',
+        'Expected conclusion when completed'
+      );
+      return conclusion;
+    }
+    await new Promise((resolve) => setTimeout(resolve, watchPollDelayMs));
+  }
+
+  // Cancel the run before timing out
+  await octokit.rest.actions.cancelWorkflowRun({
+    owner: GITHUB_OWNER,
+    repo: GITHUB_REPO,
+    run_id: runId,
+  });
+  return 'timeout';
+}
+
 type DispatchOptions = {
   githubToken: string;
   ref: string;
   bucketName: string;
   bucketKeyPrefix: string;
   devVersion?: string;
+  evergreenTaskUrl?: string;
 
   /**
    * Delay in milliseconds to wait between requests when polling while watching the run.
@@ -89,6 +136,7 @@ export async function dispatchAndWait({
   devVersion,
   bucketName,
   bucketKeyPrefix,
+  evergreenTaskUrl,
   watchPollDelayMs = 5000,
 }: DispatchOptions) {
   const octokit = github.getOctokit(githubToken);
@@ -103,6 +151,7 @@ export async function dispatchAndWait({
       dev_version: devVersion,
       bucket_name: bucketName,
       bucket_key_prefix: bucketKeyPrefix,
+      evergreen_task_url: evergreenTaskUrl,
       nonce,
     },
   });
@@ -114,27 +163,13 @@ export async function dispatchAndWait({
   );
 
   console.log(`Dispatched run #${run.run_number} (${run.html_url})`);
-  for (
-    const start = new Date();
-    new Date().getTime() - start.getTime() < WATCH_POLL_TIMEOUT_MS;
+  const status = await pollToCompletion({
+    octokit,
+    runId: run.id,
+    watchTimeoutMs: WATCH_POLL_TIMEOUT_MS,
+    watchPollDelayMs,
+  });
 
-  ) {
-    const {
-      data: { status, conclusion },
-    } = await octokit.rest.actions.getWorkflowRun({
-      owner: GITHUB_OWNER,
-      repo: GITHUB_REPO,
-      run_id: run.id,
-    });
-    console.log(
-      `Status = ${status || 'null'}, conclusion = ${conclusion || 'null'}`
-    );
-    if (status === 'completed' && conclusion === 'success') {
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, watchPollDelayMs));
-  }
-  throw new Error(
-    `Run did not complete successfully within ${WATCH_POLL_TIMEOUT_MS}ms: See ${run.html_url} for details.`
-  );
+  console.log(`Run completed: ${run.html_url}`);
+  assert.equal(status, 'success', "Expected a 'success' conclusion");
 }
