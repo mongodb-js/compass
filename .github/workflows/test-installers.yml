@@ -26,6 +26,7 @@ run-name: Test Installers ${{ github.event.inputs.dev_version || github.ref_name
 jobs:
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
