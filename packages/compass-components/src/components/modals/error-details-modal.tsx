@@ -36,11 +36,13 @@ function ErrorDetailsModal({
     <Modal setOpen={onClose} {...modalProps}>
       <ModalHeader title={title} subtitle={subtitle} />
       <ModalBody>
-        <Code language="json">{prettyDetails}</Code>
+        <Code language="json" data-testid="error-details-json">
+          {prettyDetails}
+        </Code>
       </ModalBody>
       <ModalFooter>
         <Button
-          data-testid="close-button"
+          data-testid={`error-details-${closeAction}-button`}
           onClick={() => {
             console.log('onClick');
             onClose();
