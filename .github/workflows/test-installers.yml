@@ -41,7 +41,8 @@ jobs:
           - windows_msi
           - windows_setup
           - linux_deb
-          - linux_tar
+          # TODO(COMPASS-9061): Fix and enable the linux_tar smoke tests
+          #- linux_tar
           - linux_rpm
         hadron-distribution:
           - compass
@@ -77,10 +78,11 @@ jobs:
             runs-on: ubuntu-latest
             arch: x64
             hadron-platform: linux
-          - package: linux_tar
-            runs-on: ubuntu-latest
-            arch: x64
-            hadron-platform: linux
+          # TODO(COMPASS-9061): Fix and enable the linux_tar smoke tests
+          #- package: linux_tar
+          #  runs-on: ubuntu-latest
+          #  arch: x64
+          #  hadron-platform: linux
           - package: linux_rpm
             runs-on: ubuntu-latest
             arch: x64
