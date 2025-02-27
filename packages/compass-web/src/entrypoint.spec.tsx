@@ -57,6 +57,8 @@ describe('CompassWeb', function () {
     Sinon.resetHistory();
   });
 
+  const testAnonymousId = 'test-anonymous-id';
+
   async function renderCompassWebAndConnect(
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
@@ -72,6 +74,7 @@ describe('CompassWeb', function () {
           {...props}
           initialPreferences={{
             enableCreatingNewConnections: true,
+            telemetryAnonymousId: testAnonymousId,
             ...props.initialPreferences,
           }}
           onFailToLoadConnections={() => {}}
@@ -97,16 +100,20 @@ describe('CompassWeb', function () {
       screen.getByText('Connecting to localhost:27017');
     });
 
-    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
-      'connectionString',
-      'mongodb://localhost:27017/?appName=Compass+Web'
-    );
-
     await waitFor(() => {
       screen.getByText('Connected to localhost:27017');
     });
 
     expect(onTrackSpy).to.have.been.calledWith('New Connection');
+
+    const connectionId = onTrackSpy.firstCall.args[1][
+      'connection_id'
+    ] as string;
+
+    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
+      'connectionString',
+      `mongodb://localhost:27017/?appName=Compass+Web-${testAnonymousId}-${connectionId}`
+    );
   });
 
   it('should render error state if connection fails', async function () {
