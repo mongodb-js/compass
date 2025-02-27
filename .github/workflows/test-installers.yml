@@ -26,6 +26,7 @@ run-name: Test Installers ${{ github.event.inputs.dev_version || github.ref_name
 jobs:
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -40,9 +41,8 @@ jobs:
           - windows_msi
           - windows_setup
           - linux_deb
-          # TODO: Re-enable (see https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079619474)
-          # - linux_tar
-          # TODO: Enable (needs a docker container)
+          # TODO(COMPASS-9061): Fix and enable the linux_tar smoke tests
+          #- linux_tar
           - linux_rpm
         hadron-distribution:
           - compass
@@ -78,10 +78,11 @@ jobs:
             runs-on: ubuntu-latest
             arch: x64
             hadron-platform: linux
-          # - package: linux_tar
-          #   runs-on: ubuntu-latest
-          #   arch: x64
-          #   hadron-platform: linux
+          # TODO(COMPASS-9061): Fix and enable the linux_tar smoke tests
+          #- package: linux_tar
+          #  runs-on: ubuntu-latest
+          #  arch: x64
+          #  hadron-platform: linux
           - package: linux_rpm
             runs-on: ubuntu-latest
             arch: x64
@@ -105,12 +106,6 @@ jobs:
             install-update-server: true
 
         exclude:
-          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079620322
-          - package: osx_dmg
-            test: auto-update-from
-          # TODO: See https://github.com/mongodb-js/compass/actions/runs/13281152689/job/37079621700
-          - package: windows_setup
-            test: auto-update-from
           # Skip auto-update tests for isolated and readonly distributions for now
           # This is not supported by the update server we're using in the test harness
           - hadron-distribution: compass-isolated
@@ -121,18 +116,20 @@ jobs:
             test: auto-update-from
           - hadron-distribution: compass-readonly
             test: auto-update-to
-          # Temporary skip failing auto-update-to tests
+
+          # Skip auto-update-to tests for anything except the one release
+          # package we install for that platform and arch, because that's the
+          # only one that gets installed and therefore updated.
+          # See https://github.com/10gen/compass-mongodb-com/blob/ae1ce87c54ab8702e94b154ffe2bfb9997b56661/src/routes/update.js#L320-L411
+          # ie. only leave osx_dmg, windows_setup, linux_deb, linux_rpm
           - test: auto-update-to
-            package: osx_dmg
+            package: osx_zip
           - test: auto-update-to
             package: windows_zip
           - test: auto-update-to
             package: windows_msi
           - test: auto-update-to
-            package: windows_setup
-          # Waiting for https://github.com/10gen/compass-mongodb-com/pull/122 to be released
-          - test: auto-update-to
-            package: linux_deb
+            package: linux_tar
           - test: auto-update-to
             package: linux_rpm
 
@@ -206,3 +203,11 @@ jobs:
         working-directory: packages/compass-smoke-tests
         # Using --skipUninstalling --skipCleanup because the runners are ephemeral
         run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup
+
+      - name: 'Upload logs'
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.hadron-distribution}}-${{ matrix.hadron-platform}}-${{ matrix.arch }}-${{ matrix.package }}-${{ matrix.test }}-logs
+          path: packages/compass-e2e-tests/.log/
+          include-hidden-files: true

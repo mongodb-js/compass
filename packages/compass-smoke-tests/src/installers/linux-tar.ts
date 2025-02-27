@@ -18,7 +18,14 @@ export function installLinuxTar({
   execute('tar', ['-xzvf', filepath, '-C', sandboxPath]);
 
   // Check that the executable will run without being quarantined or similar
-  execute('xvfb-run', [path.resolve(appPath, appName), '--version']);
+  // Passing --no-sandbox because RHEL and Rocky usually run as root and --disable-gpu to avoid warnings
+  // (see compass-e2e-tests/helpers/chrome-startup-flags.ts for details)
+  execute('xvfb-run', [
+    path.resolve(appPath, appName),
+    '--version',
+    '--no-sandbox',
+    '--disable-gpu',
+  ]);
 
   return {
     appName,
