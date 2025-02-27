@@ -159,6 +159,7 @@ export const downloadSchema = (): SchemaThunkAction<void> => {
   return (dispatch, getState, { track, connectionInfoRef }) => {
     const {
       schemaExport: { exportedSchema, exportFormat, filename },
+      schemaAnalysis: { schema },
     } = getState();
     if (!exportedSchema) return;
     try {
@@ -175,7 +176,13 @@ export const downloadSchema = (): SchemaThunkAction<void> => {
         window.URL.revokeObjectURL(url);
         link.remove();
       }, 0);
-      dispatch(trackSchemaExported);
+      _trackSchemaExported({
+        track,
+        schema,
+        format: exportFormat,
+        connectionInfoRef,
+        source: 'schema_tab',
+      });
       return dispatch({
         type: SchemaExportActions.closeExportSchema,
       });
