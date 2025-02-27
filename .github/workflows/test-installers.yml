@@ -120,7 +120,7 @@ jobs:
           # Skip auto-update-to tests for anything except the one release
           # package we install for that platform and arch, because that's the
           # only one that gets installed and therefore updated.
-          # Se https://github.com/10gen/compass-mongodb-com/blob/ae1ce87c54ab8702e94b154ffe2bfb9997b56661/src/routes/update.js#L320-L411
+          # See https://github.com/10gen/compass-mongodb-com/blob/ae1ce87c54ab8702e94b154ffe2bfb9997b56661/src/routes/update.js#L320-L411
           # ie. only leave osx_dmg, windows_setup, linux_deb, linux_rpm
           - test: auto-update-to
             package: osx_zip
