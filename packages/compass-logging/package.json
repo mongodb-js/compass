@@ -55,7 +55,7 @@
     "hadron-app-registry": "^9.4.2",
     "hadron-ipc": "^3.4.2",
     "is-electron-renderer": "^2.0.1",
-    "mongodb-log-writer": "^2.1.0",
+    "mongodb-log-writer": "^2.3.4",
     "react": "^17.0.2"
   },
   "devDependencies": {
