@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Feb 26 2025.
+This document was automatically generated on Thu Feb 27 2025.
 
 ## List of dependencies
 
@@ -439,7 +439,7 @@ Package|Version|License
 **[mongodb-client-encryption](#d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a)**|6.1.1|Apache-2.0
 **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**|2.1.2|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
-**[mongodb-log-writer](#aa6af6c54190e5547bd195c110196863c35a7ecb8f24c593f9f1d9cde3db9f16)**|2.1.0|Apache-2.0
+**[mongodb-log-writer](#47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c)**|2.3.4|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**|4.3.0|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
@@ -26641,8 +26641,8 @@ License files:
       
 
 
-<a id="aa6af6c54190e5547bd195c110196863c35a7ecb8f24c593f9f1d9cde3db9f16"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.1.0)
+<a id="47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.3.4)
 License tags: Apache-2.0
 
 License files:
