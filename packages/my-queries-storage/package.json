@@ -75,7 +75,7 @@
   "dependencies": {
     "@mongodb-js/compass-editor": "^0.36.2",
     "@mongodb-js/compass-user-data": "^0.5.2",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "hadron-app-registry": "^9.4.2",
     "react": "^17.0.2"
   }

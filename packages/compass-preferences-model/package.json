@@ -52,7 +52,7 @@
     "@mongodb-js/compass-logging": "^1.6.2",
     "@mongodb-js/compass-user-data": "^0.5.2",
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "hadron-app-registry": "^9.4.2",
     "hadron-ipc": "^3.4.2",
     "js-yaml": "^4.1.0",

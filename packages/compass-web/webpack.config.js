@@ -88,6 +88,7 @@ module.exports = (env, args) => {
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with
         // the same name as Node.js built-in, not a built-in Node.js one
+        'util/types': localPolyfill('util/types'),
         util: require.resolve('util/'),
         buffer: require.resolve('buffer/'),
         events: require.resolve('events/'),
