@@ -174,7 +174,7 @@ buildvariants:
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
     expansions:
-      silk_asset_group: <%= buildVariant.silk_asset_group %>
+      target_platform: <%= buildVariant.target_platform %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:

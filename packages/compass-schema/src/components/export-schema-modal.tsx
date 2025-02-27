@@ -14,6 +14,7 @@ import {
   ErrorSummary,
   Label,
   CancelLoader,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -25,6 +26,7 @@ import {
   trackSchemaExported,
   type SchemaFormat,
   type ExportStatus,
+  downloadSchema,
 } from '../stores/schema-export-reducer';
 
 const loaderStyles = css({
@@ -80,10 +82,12 @@ const ExportSchemaModal: React.FunctionComponent<{
   resultId?: string;
   exportFormat: SchemaFormat;
   exportedSchema?: string;
+  filename?: string;
   onCancelSchemaExport: () => void;
   onChangeSchemaExportFormat: (format: SchemaFormat) => Promise<void>;
   onClose: () => void;
   onExportedSchemaCopied: () => void;
+  onSchemaDownload: () => void;
 }> = ({
   errorMessage,
   exportStatus,
@@ -94,6 +98,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onChangeSchemaExportFormat,
   onClose,
   onExportedSchemaCopied,
+  onSchemaDownload,
 }) => {
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -178,10 +183,12 @@ const ExportSchemaModal: React.FunctionComponent<{
           Cancel
         </Button>
         <Button
-          onClick={() => {
-            /* TODO(COMPASS-8704): download and track with trackSchemaExported */
-          }}
           variant="primary"
+          isLoading={exportStatus === 'inprogress'}
+          loadingIndicator={<SpinLoader />}
+          disabled={!exportedSchema}
+          onClick={onSchemaDownload}
+          data-testid="schema-export-download-button"
         >
           Export
         </Button>
@@ -197,11 +204,14 @@ export default connect(
     exportFormat: state.schemaExport.exportFormat,
     isOpen: state.schemaExport.isOpen,
     exportedSchema: state.schemaExport.exportedSchema,
+    filename: state.schemaExport.filename,
   }),
   {
     onExportedSchemaCopied: trackSchemaExported,
+    onExportedSchema: trackSchemaExported,
     onCancelSchemaExport: cancelExportSchema,
     onChangeSchemaExportFormat: changeExportSchemaFormat,
     onClose: closeExportSchema,
+    onSchemaDownload: downloadSchema,
   }
 )(ExportSchemaModal);

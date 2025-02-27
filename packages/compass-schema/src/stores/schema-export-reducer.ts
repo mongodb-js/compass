@@ -12,6 +12,8 @@ import { openToast } from '@mongodb-js/compass-components';
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
 import { calculateSchemaMetadata } from '../modules/schema-analysis';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type SchemaFormat =
   | 'standardJSON'
@@ -27,6 +29,7 @@ export type SchemaExportState = {
   exportFormat: SchemaFormat;
   errorMessage?: string;
   exportStatus: ExportStatus;
+  filename?: string;
 };
 
 const defaultSchemaFormat: SchemaFormat = 'standardJSON';
@@ -52,6 +55,7 @@ export const enum SchemaExportActions {
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
   changeExportSchemaFormatError = 'schema-service/schema-export/changeExportSchemaFormatError',
   cancelExportSchema = 'schema-service/schema-export/cancelExportSchema',
+  schemaDownloadReady = 'schema-service/schema-export/schemaDownloadReady',
 }
 
 export type OpenExportSchemaAction = {
@@ -103,6 +107,7 @@ export type ChangeExportSchemaFormatErroredAction = {
 export type ChangeExportSchemaFormatCompletedAction = {
   type: SchemaExportActions.changeExportSchemaFormatComplete;
   exportedSchema: string;
+  filename: string;
 };
 
 export const cancelExportSchema = (): SchemaThunkAction<
@@ -158,54 +163,125 @@ async function getSchemaByFormat({
   return JSON.stringify(schema, null, 2);
 }
 
+export const downloadSchema = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    const {
+      schemaExport: { exportedSchema, exportFormat, filename },
+      schemaAnalysis: { schema },
+    } = getState();
+    if (!exportedSchema) return;
+    try {
+      const blob = new Blob([exportedSchema], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'export.json';
+      link.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        link.remove();
+      }, 0);
+      _trackSchemaExported({
+        track,
+        schema,
+        format: exportFormat,
+        connectionInfoRef,
+        source: 'schema_tab',
+      });
+      return dispatch({
+        type: SchemaExportActions.closeExportSchema,
+      });
+    } catch (error) {
+      _trackSchemaExportFailed({
+        stage: 'download button clicked',
+        track,
+        connectionInfoRef,
+        exportedSchema,
+        exportFormat,
+      });
+      throw error;
+    }
+  };
+};
+
+const _trackSchemaExportFailed = ({
+  stage,
+  track,
+  connectionInfoRef,
+  exportedSchema,
+  exportFormat,
+}: {
+  stage: string;
+  track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
+  exportedSchema: SchemaExportState['exportedSchema'];
+  exportFormat: SchemaExportState['exportFormat'];
+}) => {
+  track(
+    'Schema Export Failed',
+    {
+      has_schema: !!exportedSchema,
+      schema_length: exportedSchema?.length || 0,
+      format: exportFormat,
+      stage,
+    },
+    connectionInfoRef.current
+  );
+};
+
 const _trackSchemaExported = ({
   schema,
   source,
   format,
+  track,
+  connectionInfoRef,
 }: {
   schema: InternalSchema | null;
   source: 'app_menu' | 'schema_tab';
   format: SchemaFormat;
-}): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = async () => {
-      const { geo_data, schema_depth } = schema
-        ? await calculateSchemaMetadata(schema)
-        : {
-            geo_data: false,
-            schema_depth: 0,
-          };
+  track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
+}) => {
+  // Use a function here to a) ensure that the calculations here
+  // are only made when telemetry is enabled and b) that errors from
+  // those calculations are caught and logged rather than displayed to
+  // users as errors from the core schema sharing logic.
+  const trackEvent = async () => {
+    const { geo_data, schema_depth } = schema
+      ? await calculateSchemaMetadata(schema)
+      : {
+          geo_data: false,
+          schema_depth: 0,
+        };
 
-      return {
-        has_schema: schema !== null,
-        format,
-        source,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth,
-        geo_data,
-      };
+    return {
+      has_schema: schema !== null,
+      format,
+      source,
+      schema_width: schema?.fields?.length ?? 0,
+      schema_depth,
+      geo_data,
     };
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
   };
+  track('Schema Exported', trackEvent, connectionInfoRef.current);
 };
 
 export const trackSchemaExported = (): SchemaThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
     const {
       schemaAnalysis: { schema },
       schemaExport: { exportFormat },
     } = getState();
-    dispatch(
-      _trackSchemaExported({
-        schema,
-        format: exportFormat,
-        source: 'schema_tab',
-      })
-    );
+    _trackSchemaExported({
+      schema,
+      format: exportFormat,
+      source: 'schema_tab',
+      track,
+      connectionInfoRef,
+    });
   };
 };
 
@@ -220,7 +296,14 @@ export const changeExportSchemaFormat = (
   return async (
     dispatch,
     getState,
-    { logger: { log }, exportAbortControllerRef, schemaAccessorRef }
+    {
+      logger: { log },
+      exportAbortControllerRef,
+      schemaAccessorRef,
+      namespace,
+      track,
+      connectionInfoRef,
+    }
   ) => {
     // If we're already in progress we abort their current operation.
     exportAbortControllerRef.current?.abort();
@@ -271,6 +354,13 @@ export const changeExportSchemaFormat = (
         type: SchemaExportActions.changeExportSchemaFormatError,
         errorMessage: (err as Error).message,
       });
+      _trackSchemaExportFailed({
+        stage: 'switching format',
+        track,
+        connectionInfoRef,
+        exportedSchema: undefined,
+        exportFormat,
+      });
       return;
     }
 
@@ -288,9 +378,15 @@ export const changeExportSchemaFormat = (
       }
     );
 
+    const filename = `schema-${namespace.replace(
+      '.',
+      '-'
+    )}-${exportFormat}.json`;
+
     dispatch({
       type: SchemaExportActions.changeExportSchemaFormatComplete,
       exportedSchema,
+      filename,
     });
   };
 };
@@ -394,6 +490,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
     return {
       ...state,
       exportedSchema: action.exportedSchema,
+      filename: action.filename,
       exportStatus: 'complete',
     };
   }
@@ -464,7 +561,7 @@ export const switchToSchemaExport = (): SchemaThunkAction<void> => {
 
 export const confirmedExportLegacySchemaToClipboard =
   (): SchemaThunkAction<void> => {
-    return (dispatch, getState, { namespace }) => {
+    return (dispatch, getState, { namespace, track, connectionInfoRef }) => {
       const {
         schemaAnalysis: { schema },
       } = getState();
@@ -472,13 +569,13 @@ export const confirmedExportLegacySchemaToClipboard =
       if (hasSchema) {
         void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
       }
-      dispatch(
-        _trackSchemaExported({
-          schema,
-          source: 'app_menu',
-          format: 'legacyJSON',
-        })
-      );
+      _trackSchemaExported({
+        schema,
+        source: 'app_menu',
+        format: 'legacyJSON',
+        track,
+        connectionInfoRef,
+      });
       dispatch({ type: SchemaExportActions.closeLegacyBanner });
       openToast(
         'share-schema',
