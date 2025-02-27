@@ -615,12 +615,19 @@ export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const ErrorDetailsJson = '[data-testid="error-details-json"]';
+export const ErrorDetailsBackButton =
+  '[data-testid="error-details-back-button"]';
+export const ErrorDetailsCloseButton =
+  '[data-testid="error-details-close-button"]';
 
 // Insert Document modal
 
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
+export const InsertDialogErrorDetailsBtn =
+  'button[data-testid="insert-document-error-details-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';

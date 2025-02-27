@@ -344,6 +344,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               size="xsmall"
               className={errorDetailsBtnStyles}
               onClick={showErrorDetails}
+              data-testid="insert-document-error-details-button"
             >
               VIEW ERROR DETAILS
             </Button>
