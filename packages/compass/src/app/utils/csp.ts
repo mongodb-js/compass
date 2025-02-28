@@ -102,6 +102,7 @@ function injectCSP() {
         return `${name} ${values.join(' ')}`;
       })
       .join('; ') + ';';
+
   metaCSP.setAttribute('http-equiv', 'Content-Security-Policy');
   metaCSP.setAttribute('content', cspContent);
   document.head.prepend(metaCSP);

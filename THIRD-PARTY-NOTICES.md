@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Feb 24 2025.
+This document was automatically generated on Thu Feb 27 2025.
 
 ## List of dependencies
 
@@ -184,7 +184,7 @@ Package|Version|License
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[body-parser](#ac02c7f4de34d468bfc87444d6d5f4691f322aa0b5dbfe2c2d0c3c42fd078dec)**|1.20.3|MIT
 **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**|0.2.0|MIT
-**[bson](#88bcf6ee33d70cc1bf263aac89726781fb724e29ba9647909ffb24584ef23cf4)**|6.10.1|Apache-2.0
+**[bson](#c2a71e4ed4c66bf769b189dcac6ccdf5afec76968be4a1cc63105fda1d2b2132)**|6.10.3|Apache-2.0
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
@@ -438,7 +438,7 @@ Package|Version|License
 **[mongodb-client-encryption](#d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a)**|6.1.1|Apache-2.0
 **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**|2.1.2|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
-**[mongodb-log-writer](#aa6af6c54190e5547bd195c110196863c35a7ecb8f24c593f9f1d9cde3db9f16)**|2.1.0|Apache-2.0
+**[mongodb-log-writer](#47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c)**|2.3.4|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**|4.3.0|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
@@ -16785,8 +16785,8 @@ License files:
 License tags: MIT
 
 
-<a id="88bcf6ee33d70cc1bf263aac89726781fb724e29ba9647909ffb24584ef23cf4"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 6.10.1)
+<a id="c2a71e4ed4c66bf769b189dcac6ccdf5afec76968be4a1cc63105fda1d2b2132"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 6.10.3)
 License tags: Apache-2.0
 
 License files:
@@ -26429,8 +26429,8 @@ License files:
       
 
 
-<a id="aa6af6c54190e5547bd195c110196863c35a7ecb8f24c593f9f1d9cde3db9f16"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.1.0)
+<a id="47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.3.4)
 License tags: Apache-2.0
 
 License files:
