@@ -246,7 +246,12 @@ function ExportModal({
   }, [isOpen, resetExportFormState]);
 
   return (
-    <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
+    <Modal
+      open={isOpen}
+      setOpen={closeExport}
+      data-testid="export-modal"
+      initialFocus="#export-collection-code-preview-wrapper"
+    >
       <ModalHeader
         title="Export"
         subtitle={aggregation ? `Aggregation on ${ns}` : `Collection ${ns}`}

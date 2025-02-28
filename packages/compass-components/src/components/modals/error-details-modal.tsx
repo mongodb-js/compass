@@ -6,10 +6,9 @@ import { Modal } from './modal';
 import { Button, Code, ModalFooter } from '../leafygreen';
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
-import { ModalFooterButton } from './modal-footer-button';
 
-const backButtonStyles = css({
-  float: 'left',
+const leftDirectionFooter = css({
+  justifyContent: 'left',
 });
 
 type ModalProps = React.ComponentProps<typeof Modal>;
@@ -33,22 +32,24 @@ function ErrorDetailsModal({
     return JSON.stringify(details, undefined, 2);
   }, [details]);
   return (
-    <Modal setOpen={onClose} {...modalProps}>
+    <Modal setOpen={onClose} initialFocus="#error-details-json" {...modalProps}>
       <ModalHeader title={title} subtitle={subtitle} />
       <ModalBody>
-        <Code language="json" data-testid="error-details-json">
+        <Code
+          language="json"
+          data-testid="error-details-json"
+          id="error-details-json"
+        >
           {prettyDetails}
         </Code>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter
+        className={cx(closeAction === 'back' && leftDirectionFooter)}
+      >
         <Button
           data-testid={`error-details-${closeAction}-button`}
-          onClick={() => {
-            console.log('onClick');
-            onClose();
-          }}
+          onClick={onClose}
           variant="default"
-          className={cx(closeAction === 'back' && backButtonStyles)}
         >
           {closeAction === 'back' ? 'Back' : 'Close'}
         </Button>

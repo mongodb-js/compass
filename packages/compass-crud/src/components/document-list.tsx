@@ -606,10 +606,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           />
           <ErrorDetailsModal
             open={!!errorDetailsOpen}
-            onClose={() => {
-              console.log('is closing');
-              setErrorDetailsOpen(undefined);
-            }}
+            onClose={() => setErrorDetailsOpen(undefined)}
             details={errorDetailsOpen?.details}
             closeAction={errorDetailsOpen?.closeAction || 'close'}
           />
