@@ -29,12 +29,28 @@ describe('setAppNameParamIfMissing', function () {
     });
   });
 
-  it('sets appName to a default value if not already set', function () {
+  it('sets appName to a default app name if not atlas and not already set', function () {
     expect(
       setAppNameParamIfMissing({
         defaultAppName: 'defaultAppName',
         connectionId: '123',
         telemetryAnonymousId: '789',
+        isAtlas: false,
+      })({
+        connectionString: 'mongodb://localhost/',
+      })
+    ).to.deep.equal({
+      connectionString: 'mongodb://localhost/?appName=defaultAppName',
+    });
+  });
+
+  it('sets appName to a default app name, anonymous id, and connection id and not already set', function () {
+    expect(
+      setAppNameParamIfMissing({
+        defaultAppName: 'defaultAppName',
+        connectionId: '123',
+        telemetryAnonymousId: '789',
+        isAtlas: true,
       })({
         connectionString: 'mongodb://localhost/',
       })
