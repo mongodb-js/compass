@@ -31,7 +31,10 @@ describe('Auto-update', function () {
 
         if (process.env.AUTO_UPDATE_UPDATABLE === 'true') {
           const restartButton = browser.$(Selectors.AutoUpdateRestartButton);
-          await restartButton.waitForDisplayed();
+          // 2 minutes is apparently not always enough for downloading the
+          // windows update on GHA. Has to be shorter than the mocha test
+          // timeout so this can fail before the test does.
+          await restartButton.waitForDisplayed({ timeout: 240_000 });
 
           if (process.env.EXPECTED_UPDATE_VERSION) {
             expect(
