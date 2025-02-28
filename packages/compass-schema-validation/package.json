@@ -79,7 +79,7 @@
     "@mongodb-js/compass-logging": "^1.6.2",
     "@mongodb-js/compass-telemetry": "^1.4.2",
     "@mongodb-js/compass-workspaces": "^0.31.2",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "compass-preferences-model": "^2.33.2",
     "hadron-app-registry": "^9.4.2",
     "javascript-stringify": "^2.0.1",
