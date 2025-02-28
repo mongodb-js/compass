@@ -132,6 +132,20 @@ jobs:
           - hadron-distribution: compass-readonly
             test: auto-update-to
 
+
+          # TODO(COMPASS-9067): auto-update-from does not work for windows. Not
+          # even manually. It downloads the releases file, the toast appears
+          # that says it is downloading the update, the log appears that says
+          # thatit is downloading the update, but it never makes the request to
+          # the update server to actually download the .nupkg file. Strangely
+          # auto-update-to works. (which starts with the latest release and then
+          # updates to the newly packaged one) and auto-updating from an old dev
+          # version also works. it seems to be the fact that it is actually
+          # downgrading from the new package to the most recent release that
+          # breaks it? Can't see any other difference.
+          - test: auto-update-from
+            package: windows_setup
+
           # Skip auto-update-to tests for anything except the one release
           # package we install for that platform and arch, because that's the
           # only one that gets installed and therefore updated.
