@@ -74,7 +74,7 @@ type SupportedFormat = Exclude<SchemaFormat, 'legacyJSON'>;
 const exportSchemaFormatOptions: SupportedFormat[] = [
   'standardJSON',
   'mongoDBJSON',
-  'extendedJSON',
+  'expandedJSON',
 ];
 
 const exportSchemaFormatOptionDetails: Record<
@@ -103,7 +103,7 @@ const exportSchemaFormatOptionDetails: Record<
       </div>
     ),
   },
-  extendedJSON: {
+  expandedJSON: {
     title: 'Expanded',
     description: (
       <div>

@@ -18,7 +18,7 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 export type SchemaFormat =
   | 'standardJSON'
   | 'mongoDBJSON'
-  | 'extendedJSON'
+  | 'expandedJSON'
   | 'legacyJSON';
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
@@ -134,7 +134,7 @@ async function getSchemaByFormat({
 }): Promise<string> {
   let schema:
     | StandardJSONSchema
-    | MongoDBJSONSchema
+    | { $jsonSchema: MongoDBJSONSchema }
     | ExpandedJSONSchema
     | InternalSchema;
   switch (exportFormat) {
@@ -144,11 +144,13 @@ async function getSchemaByFormat({
       });
       break;
     case 'mongoDBJSON':
-      schema = await schemaAccessor.getMongoDBJsonSchema({
-        signal,
-      });
+      schema = {
+        $jsonSchema: await schemaAccessor.getMongoDBJsonSchema({
+          signal,
+        }),
+      };
       break;
-    case 'extendedJSON':
+    case 'expandedJSON':
       schema = await schemaAccessor.getExpandedJSONSchema({
         signal,
       });
