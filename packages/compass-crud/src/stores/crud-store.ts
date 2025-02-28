@@ -81,6 +81,11 @@ export type EmittedAppRegistryEvents =
   | 'document-deleted'
   | 'document-inserted';
 
+export type ErrorDetailsDialogOptions = {
+  details: Record<string, unknown>;
+  closeAction?: 'back' | 'close';
+};
+
 export type CrudActions = {
   drillDown(
     doc: Document,
@@ -94,6 +99,8 @@ export type CrudActions = {
   removeDocument(doc: Document): void;
   replaceDocument(doc: Document): void;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
+  openErrorDetailsDialog(options: ErrorDetailsDialogOptions): void;
+  closeErrorDetailsDialog(): void;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
   runBulkUpdate(): void;
@@ -341,6 +348,10 @@ type CrudState = {
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
   collectionStats: CollectionStats | null;
+  errorDetailsOpen: {
+    details: Record<string, unknown>;
+    closeAction?: 'back' | 'close';
+  } | null;
 };
 
 type CrudStoreActionsOptions = {
@@ -447,6 +458,7 @@ class CrudStoreImpl
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
       collectionStats: extractCollectionStats(this.collection),
+      errorDetailsOpen: null,
     };
   }
 
@@ -951,6 +963,18 @@ class CrudStoreImpl
         ...this.state.bulkUpdate,
         isOpen: false,
       },
+    });
+  }
+
+  openErrorDetailsDialog(errorDetailsOpen: ErrorDetailsDialogOptions) {
+    this.setState({
+      errorDetailsOpen,
+    });
+  }
+
+  closeErrorDetailsDialog() {
+    this.setState({
+      errorDetailsOpen: null,
     });
   }
 
