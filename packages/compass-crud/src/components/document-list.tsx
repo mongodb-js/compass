@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -36,10 +30,11 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import {
-  type CrudStore,
-  type BSONObject,
-  type DocumentView,
+import type {
+  CrudStore,
+  BSONObject,
+  DocumentView,
+  ErrorDetailsDialogOptions,
 } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
@@ -77,6 +72,8 @@ const loaderContainerStyles = css({
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
+  openErrorDetailsDialog: (options: ErrorDetailsDialogOptions) => void;
+  closeErrorDetailsDialog: () => void;
   openBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -84,6 +81,7 @@ export type DocumentListProps = {
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
+  errorDetailsOpen: ErrorDetailsDialogOptions | null;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -302,7 +300,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
+    errorDetailsOpen,
     openInsertDocumentDialog,
+    openErrorDetailsDialog,
+    closeErrorDetailsDialog,
     openImportFileDialog,
     openBulkUpdateModal,
     docs,
@@ -326,14 +327,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docsPerPage,
     updateMaxDocumentsPerPage,
   } = props;
-
-  const [errorDetailsOpen, setErrorDetailsOpen] = useState<
-    | undefined
-    | {
-        details: Record<string, unknown>;
-        closeAction?: 'back' | 'close';
-      }
-  >(undefined);
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
@@ -597,7 +590,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             ns={ns}
             updateComment={updateComment}
             showErrorDetails={() =>
-              setErrorDetailsOpen({
+              openErrorDetailsDialog({
                 details: insert.error.info || {},
                 closeAction: 'back',
               })
@@ -606,7 +599,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           />
           <ErrorDetailsModal
             open={!!errorDetailsOpen}
-            onClose={() => setErrorDetailsOpen(undefined)}
+            onClose={closeErrorDetailsDialog}
             details={errorDetailsOpen?.details}
             closeAction={errorDetailsOpen?.closeAction || 'close'}
           />
