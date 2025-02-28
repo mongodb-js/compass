@@ -65,8 +65,8 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
-    "@mongodb-js/monorepo-tools": "^1.1.1",
-    "@mongodb-js/sbom-tools": "^0.7.0",
+    "@mongodb-js/monorepo-tools": "^1.1.16",
+    "@mongodb-js/sbom-tools": "^0.7.2",
     "@testing-library/dom": "^8.20.1",
     "husky": "^8.0.3",
     "js-yaml": "^4.1.0",
