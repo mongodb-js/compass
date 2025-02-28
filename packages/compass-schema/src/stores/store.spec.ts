@@ -178,11 +178,12 @@ describe('Schema Store', function () {
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
-          expect(JSON.parse(exportedSchema!).type).to.equal(undefined);
-          expect(JSON.parse(exportedSchema!).bsonType).to.equal('object');
-          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(undefined);
-          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
-          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+          const parsedSchema = JSON.parse(exportedSchema!).$jsonSchema;
+          expect(parsedSchema.type).to.equal(undefined);
+          expect(parsedSchema.bsonType).to.equal('object');
+          expect(parsedSchema['$schema']).to.equal(undefined);
+          expect(parsedSchema.required).to.deep.equal(['name']);
+          expect(parsedSchema.properties).to.deep.equal({
             name: { bsonType: 'string' },
           });
           expect(filename).to.equal('schema-db-coll-mongoDBJSON.json');

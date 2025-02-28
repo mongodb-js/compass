@@ -208,17 +208,19 @@ describe('Collection schema tab', function () {
 
       const content = readFileSync(filePath, 'utf-8');
       expect(JSON.parse(content)).to.deep.equal({
-        bsonType: 'object',
-        required: ['_id', 'i', 'j'],
-        properties: {
-          _id: {
-            bsonType: 'objectId',
-          },
-          i: {
-            bsonType: 'int',
-          },
-          j: {
-            bsonType: 'int',
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['_id', 'i', 'j'],
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+            i: {
+              bsonType: 'int',
+            },
+            j: {
+              bsonType: 'int',
+            },
           },
         },
       });
