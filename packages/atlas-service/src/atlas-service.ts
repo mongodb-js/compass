@@ -36,6 +36,21 @@ function shouldAddCSRFHeaders(method = 'get') {
   return !/^(get|head|options|trace)$/.test(method.toLowerCase());
 }
 
+function getAutomationAgentClusterId(
+  atlasMetadata: Pick<
+    AtlasClusterMetadata,
+    'clusterUniqueId' | 'metricsId' | 'metricsType'
+  >
+): { clusterId: string } | { serverlessId: string } | { flexId: string } {
+  if (atlasMetadata.metricsType === 'flex') {
+    return { flexId: atlasMetadata.clusterUniqueId };
+  }
+  if (atlasMetadata.metricsType === 'serverless') {
+    return { serverlessId: atlasMetadata.clusterUniqueId };
+  }
+  return { clusterId: atlasMetadata.metricsId };
+}
+
 export class AtlasService {
   private config: AtlasServiceConfig;
   constructor(
@@ -121,10 +136,7 @@ export class AtlasService {
     opType: string,
     opBody: Record<string, unknown>
   ): Promise<{ _id: string; requestType: string } | undefined> {
-    const opBodyClusterId =
-      atlasMetadata.metricsType === 'serverless'
-        ? { serverlessId: atlasMetadata.clusterUniqueId }
-        : { clusterId: atlasMetadata.metricsId };
+    const opBodyClusterId = getAutomationAgentClusterId(atlasMetadata);
     const requestUrl = this.regionalizedCloudEndpoint(
       atlasMetadata,
       `/explorer/v1/groups/${atlasMetadata.projectId}/requests/${opType}`
