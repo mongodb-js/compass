@@ -74,6 +74,9 @@ const insightsBadgeStyles = css({
   verticalAlign: 'middle',
 });
 
+const DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY =
+  'dismissedPerformanceAdvisorBanner' as const;
+
 const minichartStyles = (darkMode: boolean) => {
   const mcBlue0 = palette.blue.light1;
   const mcBlue1 = lighten(0.075, mcBlue0);
@@ -341,8 +344,15 @@ const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
+  const onClose = () => {
+    localStorage.setItem(
+      DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY,
+      'true'
+    );
+  };
   return (
-    <Banner variant="info">
+    // two
+    <Banner variant="info" dismissible onClose={onClose}>
       <Body weight="medium">Looking for schema anti-patterns?</Body>
       In its place, you may refer to Data Explorer’s performance insights{' '}
       <Badge className={insightsBadgeStyles} variant="blue">
@@ -413,7 +423,10 @@ const Schema: React.FunctionComponent<{
           }
         >
           <div className={contentStyles}>
-            {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
+            {enablePerformanceAdvisorBanner &&
+              localStorage.getItem(
+                DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY
+              ) !== 'true' && <PerformanceAdvisorBanner />}
             {analysisState === ANALYSIS_STATE_INITIAL && (
               <InitialScreen onApplyClicked={onApplyClicked} />
             )}

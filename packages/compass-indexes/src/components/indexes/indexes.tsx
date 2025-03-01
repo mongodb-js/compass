@@ -49,13 +49,23 @@ const containerStyles = css({
 
 const linkTitle = 'Atlas Search.';
 
+const DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+  'dismissedSearchIndexesBanner';
+
 const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   const { atlasMetadata } = useConnectionInfo();
   if (!atlasMetadata) {
     return null;
   }
+  const onClose = () => {
+    localStorage.setItem(
+      DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+      'true'
+    );
+  };
   return (
-    <Banner variant="info">
+    // one
+    <Banner variant="info" dismissible onClose={onClose}>
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
@@ -141,9 +151,11 @@ export function Indexes({
         }
       >
         <div className={indexesContainersStyles}>
-          {!isReadonlyView && !enableAtlasSearchIndexes && (
-            <AtlasIndexesBanner namespace={namespace} />
-          )}
+          {!isReadonlyView &&
+            !enableAtlasSearchIndexes &&
+            localStorage.getItem(
+              DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY
+            ) !== 'true' && <AtlasIndexesBanner namespace={namespace} />}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
