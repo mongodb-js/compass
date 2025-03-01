@@ -75,7 +75,7 @@ const insightsBadgeStyles = css({
 });
 
 const DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY =
-  'dismissedPerformanceAdvisorBanner' as const;
+  'mongodb_compass_dismissedPerformanceAdvisorBanner' as const;
 
 const minichartStyles = (darkMode: boolean) => {
   const mcBlue0 = palette.blue.light1;
@@ -351,7 +351,6 @@ const PerformanceAdvisorBanner = () => {
     );
   };
   return (
-    // two
     <Banner variant="info" dismissible onClose={onClose}>
       <Body weight="medium">Looking for schema anti-patterns?</Body>
       In its place, you may refer to Data Explorer’s performance insights{' '}

@@ -50,7 +50,7 @@ const containerStyles = css({
 const linkTitle = 'Atlas Search.';
 
 const DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
-  'dismissedSearchIndexesBanner';
+  'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
 const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   const { atlasMetadata } = useConnectionInfo();
@@ -64,7 +64,6 @@ const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
     );
   };
   return (
-    // one
     <Banner variant="info" dismissible onClose={onClose}>
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
