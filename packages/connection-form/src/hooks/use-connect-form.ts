@@ -843,13 +843,13 @@ function setInitialState({
 
 export function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
-  connectionId,
+  connectionInfo,
   defaultAppName,
   notifyDeviceFlow,
   preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
-  connectionId: string;
+  connectionInfo: Readonly<Pick<ConnectionInfo, 'id' | 'atlasMetadata'>>;
   defaultAppName?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
@@ -868,7 +868,8 @@ export function adjustConnectionOptionsBeforeConnect({
     unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing({
       defaultAppName,
-      connectionId,
+      connectionId: connectionInfo.id,
+      isAtlas: !!connectionInfo.atlasMetadata,
       telemetryAnonymousId: preferences.telemetryAnonymousId,
     }),
     adjustOIDCConnectionOptionsBeforeConnect({

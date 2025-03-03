@@ -1554,7 +1554,7 @@ const connectWithOptions = (
                 cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
-              connectionId: connectionInfo.id,
+              connectionInfo,
               defaultAppName: appName,
               preferences: {
                 forceConnectionOptions: forceConnectionOptions ?? [],
