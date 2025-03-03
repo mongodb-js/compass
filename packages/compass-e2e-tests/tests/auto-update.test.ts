@@ -71,7 +71,7 @@ describe('Auto-update', function () {
         console.log(
           'pause to make sure the app properly exited before starting again'
         );
-        await wait(10_000);
+        await wait(60_000);
 
         console.log('starting compass a second time');
         // run the app again and check that the version changed
