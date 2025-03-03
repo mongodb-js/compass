@@ -320,18 +320,19 @@ const EditActionsFooter: React.FunctionComponent<{
     >
       <div className={message} data-testid="document-footer-message">
         {error?.message ?? statusMessage}
-        {error?.details && (
-          <Button
-            size="xsmall"
-            onClick={() => onOpenErrorDetails?.(error?.details)}
-            data-testid="insert-document-error-details-button"
-          >
-            VIEW ERROR DETAILS
-          </Button>
-        )}
       </div>
       {!isSuccess(status) && (
         <div className={buttonGroup}>
+          {error?.details && (
+            <Button
+              className={button}
+              size="xsmall"
+              onClick={() => onOpenErrorDetails?.(error.details!)}
+              data-testid="insert-document-error-details-button"
+            >
+              VIEW ERROR DETAILS
+            </Button>
+          )}
           <Button
             type="button"
             size="xsmall"
