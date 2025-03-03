@@ -43,6 +43,7 @@ const Document = (props: DocumentProps) => {
   }
 
   if (editable) {
+    console.log('PROP IS HERE', props.openErrorDetailsDialog);
     return <EditableDocument {...props} doc={doc} />;
   }
 
