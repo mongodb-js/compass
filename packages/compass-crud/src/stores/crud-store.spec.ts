@@ -290,6 +290,7 @@ describe('store', function () {
         docsPerPage: 25,
         end: 0,
         error: null,
+        errorDetailsOpen: null,
         insert: {
           doc: null,
           isCommentNeeded: true,
@@ -1447,7 +1448,10 @@ describe('store', function () {
           expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
           expect(state.insert.jsonView).to.equal(true);
-          expect(state.insert.message).to.equal('Document failed validation');
+          expect(state.insert.error).to.not.be.null;
+          expect(state.insert.error?.message).to.equal(
+            'Document failed validation'
+          );
         });
 
         store.state.insert.jsonDoc = docs;

@@ -19,6 +19,7 @@ export type EditableDocumentProps = {
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
+  openErrorDetailsDialog?: CrudActions['openErrorDetailsDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
 };
@@ -278,6 +279,12 @@ class EditableDocument extends React.Component<
         onCancel={() => {
           this.handleCancel();
         }}
+        // onOpenErrorDetails{() => {
+        //   this.props.openErrorDetailsDialog?.({
+        //     details: '// TODO erro details',
+        //     closeAction: 'close',
+        //   })
+        // }}
       />
     );
   }
