@@ -35,7 +35,6 @@ export type DocumentListViewProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
-  | 'openErrorDetailsDialog'
 >;
 
 /**
@@ -67,7 +66,6 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
               replaceDocument={this.props.replaceDocument}
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-              openErrorDetailsDialog={this.props.openErrorDetailsDialog}
             />
           </KeylineCard>
         </li>

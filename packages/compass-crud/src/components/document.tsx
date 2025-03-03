@@ -57,7 +57,6 @@ Document.propTypes = {
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
-  openErrorDetailsDialog: PropTypes.func,
   copyToClipboard: PropTypes.func,
   isExpanded: PropTypes.bool,
 };
