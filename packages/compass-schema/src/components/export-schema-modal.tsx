@@ -15,6 +15,8 @@ import {
   Label,
   CancelLoader,
   SpinLoader,
+  palette,
+  Link,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -28,6 +30,10 @@ import {
   type ExportStatus,
   downloadSchema,
 } from '../stores/schema-export-reducer';
+
+const modalStyles = css({
+  width: '610px',
+});
 
 const loaderStyles = css({
   marginTop: spacing[400],
@@ -54,23 +60,58 @@ const footerStyles = css({
   gap: spacing[200],
 });
 
-const exportSchemaFormatOptions: {
-  title: string;
-  id: SchemaFormat;
-}[] = [
-  {
-    title: 'Standard',
-    id: 'standardJSON',
-  },
-  {
-    title: 'MongoDB',
-    id: 'mongoDBJSON',
-  },
-  {
-    title: 'Extended',
-    id: 'extendedJSON',
-  },
+const labelStyles = css({
+  color: palette.gray.dark1,
+});
+
+const formatDescriptionStyles = css({
+  marginTop: spacing[200],
+  color: palette.gray.dark1,
+});
+
+type SupportedFormat = Exclude<SchemaFormat, 'legacyJSON'>;
+
+const exportSchemaFormatOptions: SupportedFormat[] = [
+  'standardJSON',
+  'mongoDBJSON',
+  'expandedJSON',
 ];
+
+const exportSchemaFormatOptionDetails: Record<
+  SupportedFormat,
+  {
+    title: string;
+    description: JSX.Element;
+  }
+> = {
+  standardJSON: {
+    title: 'Standard',
+    description: (
+      <div>
+        For broad compatibility with tools and systems that rely on
+        standard&nbsp;
+        <Link href="https://json-schema.org/specification">JSON Schema</Link>
+      </div>
+    ),
+  },
+  mongoDBJSON: {
+    title: 'MongoDB',
+    description: (
+      <div>
+        For MongoDB-specific data validation at the database level (includes
+        BSON data types)
+      </div>
+    ),
+  },
+  expandedJSON: {
+    title: 'Expanded',
+    description: (
+      <div>
+        For schema analysis to help with understanding and documenting your data
+      </div>
+    ),
+  },
+};
 
 const formatTypeRadioBoxGroupId = 'export-schema-format-type-box-group';
 const formatTypeRadioBoxGroupLabelId = `${formatTypeRadioBoxGroupId}-label`;
@@ -110,14 +151,15 @@ const ExportSchemaModal: React.FunctionComponent<{
   );
 
   return (
-    <Modal open={isOpen} setOpen={onClose}>
-      <ModalHeader title="Export Schema" />
+    <Modal open={isOpen} setOpen={onClose} contentClassName={modalStyles}>
+      <ModalHeader title="Export JSON Schema" />
       <ModalBody>
         <Label
           htmlFor={formatTypeRadioBoxGroupId}
           id={formatTypeRadioBoxGroupLabelId}
+          className={labelStyles}
         >
-          Schema Format
+          Select format:
         </Label>
         <RadioBoxGroup
           aria-labelledby={formatTypeRadioBoxGroupLabelId}
@@ -127,7 +169,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           value={exportFormat}
           size="compact"
         >
-          {exportSchemaFormatOptions.map(({ title, id }) => {
+          {exportSchemaFormatOptions.map((id) => {
             return (
               <RadioBox
                 id={`export-schema-format-${id}-button`}
@@ -136,11 +178,16 @@ const ExportSchemaModal: React.FunctionComponent<{
                 value={id}
                 key={id}
               >
-                {title}
+                {exportSchemaFormatOptionDetails[id].title}
               </RadioBox>
             );
           })}
         </RadioBoxGroup>
+        {exportFormat !== 'legacyJSON' && (
+          <div className={formatDescriptionStyles}>
+            {exportSchemaFormatOptionDetails[exportFormat].description}
+          </div>
+        )}
         <div className={contentContainerStyles}>
           {exportStatus === 'inprogress' && (
             <CancelLoader

@@ -2003,7 +2003,7 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      */
     has_schema: boolean;
 
-    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 
     source: 'app_menu' | 'schema_tab';
 
@@ -2039,7 +2039,7 @@ type SchemaExportFailedEvent = ConnectionScopedEvent<{
 
     schema_length: number;
 
-    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 
     stage: string;
   };

@@ -7,7 +7,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Fri, Feb 28, 2025
+Generated on Sun, Mar 2, 2025
 
 ## Table of Contents
 
@@ -1927,7 +1927,7 @@ This event is fired when user shares the schema.
 
 - **has_schema** (required): `boolean`
   - Indicates whether the schema was analyzed before sharing.
-- **format** (required): `"standardJSON" | "mongoDBJSON" | "extendedJSON" | "legacyJSON"`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
 - **source** (required): `"app_menu" | "schema_tab"`
 - **schema_width** (required): `number`
   - The number of fields at the top level.
@@ -1950,7 +1950,7 @@ This event is fired when user shares the schema.
 - **has_schema** (required): `boolean`
   - Indicates whether the schema was analyzed before sharing.
 - **schema_length** (required): `number`
-- **format** (required): `"standardJSON" | "mongoDBJSON" | "extendedJSON" | "legacyJSON"`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
 - **stage** (required): `string`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
