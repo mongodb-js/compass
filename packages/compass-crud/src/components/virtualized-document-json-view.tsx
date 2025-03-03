@@ -53,6 +53,7 @@ export type VirtualizedDocumentJsonViewProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
+  | 'openErrorDetailsDialog'
 >;
 
 const VirtualizedDocumentJsonView: React.FC<
@@ -70,6 +71,7 @@ const VirtualizedDocumentJsonView: React.FC<
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  openErrorDetailsDialog,
   __TEST_OVERSCAN_COUNT,
   __TEST_LIST_HEIGHT,
   listRef,
@@ -90,6 +92,7 @@ const VirtualizedDocumentJsonView: React.FC<
             replaceDocument={replaceDocument}
             updateDocument={updateDocument}
             openInsertDocumentDialog={openInsertDocumentDialog}
+            openErrorDetailsDialog={openErrorDetailsDialog}
           />
         </KeylineCard>
       );
@@ -101,6 +104,7 @@ const VirtualizedDocumentJsonView: React.FC<
       scrollTriggerRef,
       copyToClipboard,
       openInsertDocumentDialog,
+      openErrorDetailsDialog,
       removeDocument,
       replaceDocument,
       updateDocument,
