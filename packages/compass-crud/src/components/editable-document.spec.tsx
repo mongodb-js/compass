@@ -22,6 +22,7 @@ describe('<EditableDocument />', function () {
           updateDocument={sinon.spy(action)}
           copyToClipboard={sinon.spy(action)}
           openInsertDocumentDialog={sinon.spy(action)}
+          openErrorDetailsDialog={sinon.spy(action)}
         />
       );
     });
