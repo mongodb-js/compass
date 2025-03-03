@@ -21,6 +21,7 @@ describe('<DocumentListView />', function () {
           replaceDocument={sinon.spy()}
           updateDocument={sinon.spy()}
           openInsertDocumentDialog={sinon.spy()}
+          openErrorDetailsDialog={sinon.spy()}
         />
       );
 

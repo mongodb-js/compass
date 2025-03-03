@@ -17,8 +17,9 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { context } from '../helpers/test-runner-context';
+import { context as testRunnerContext } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 const { expect } = chai;
 
@@ -553,7 +554,7 @@ FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('can copy a document from the contextual toolbar', async function () {
-    if (context.disableClipboardUsage) {
+    if (testRunnerContext.disableClipboardUsage) {
       this.skip();
     }
 
@@ -683,6 +684,50 @@ FindIterable<Document> result = collection.find(filter);`);
         Selectors.HadronDocumentElement
       ).length;
       expect(numExpandedHadronElementsPostSwitch).to.equal(14);
+    });
+  });
+
+  context('with existing validation rule', function () {
+    const REQUIRE_PHONE_VALIDATOR =
+      '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
+    beforeEach(async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Validation'
+      );
+      await browser.clickVisible(Selectors.AddRuleButton);
+      const element = browser.$(Selectors.ValidationEditor);
+      await element.waitForDisplayed();
+      await browser.setValidation(REQUIRE_PHONE_VALIDATOR);
+    });
+
+    it('Shows error info when inserting', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Documents'
+      );
+      await tryToInsertDocument(browser, '{}');
+
+      const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
+      await errorElement.waitForDisplayed();
+      expect(await errorElement.getText()).to.include(
+        'Document failed validation'
+      );
+      // enter details
+      const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
+      await errorElement.waitForDisplayed();
+      await errorDetailsBtn.click();
+
+      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+      await errorDetailsJson.waitForDisplayed();
+
+      // exit details
+      await browser.clickVisible(Selectors.ErrorDetailsBackButton);
+      await errorElement.waitForDisplayed();
     });
   });
 });

@@ -74,6 +74,7 @@ function ExportCodeView({
       <Code
         className={codeStyles}
         data-testid="export-collection-code-preview-wrapper"
+        id="export-collection-code-preview-wrapper"
         language="javascript"
         copyable
       >
