@@ -696,6 +696,11 @@ class CrudStoreImpl
           const nbsp = '\u00a0';
           error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
         }
+        console.log(
+          'updateDocument error',
+          error,
+          (error as MongoServerError).errInfo
+        );
         doc.onUpdateError(error as Error);
       } else if (d) {
         doc.onUpdateSuccess(d);
@@ -794,6 +799,7 @@ class CrudStoreImpl
         'replace'
       );
       if (error) {
+        console.log('replaceDocument error', error);
         doc.onUpdateError(error as Error);
       } else {
         doc.onUpdateSuccess(d);
