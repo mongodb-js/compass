@@ -1,7 +1,8 @@
 import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { EJSON } from 'bson';
+import { EJSON, ObjectId } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
+import { openToast } from '@mongodb-js/compass-components';
 import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
@@ -475,6 +476,12 @@ export const saveValidation = (
       validation_action: validation.validationAction,
       validation_level: validation.validationLevel,
     };
+    const toastId = `schema-validation-update-${new ObjectId().toString()}`;
+
+    openToast(toastId, {
+      title: 'Updating validation rules…',
+      variant: 'progress',
+    });
     track('Schema Validation Updated', trackEvent, connectionInfoRef.current);
     try {
       await dataService.updateCollection(
@@ -486,8 +493,17 @@ export const saveValidation = (
         }
       );
       dispatch(fetchValidation(namespace));
+      openToast(toastId, {
+        title: 'New validation rules applied',
+        variant: 'success',
+      });
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
+      openToast(toastId, {
+        title: 'Failed to update validation rules',
+        description: (error as Error)?.message ?? 'An unknown error occurred',
+        variant: 'warning',
+      });
     }
   };
 };
