@@ -9,10 +9,7 @@ import {
   validationActionChanged,
   validationLevelChanged,
 } from '../modules/validation';
-import {
-  fetchValidDocument,
-  fetchInvalidDocument,
-} from '../modules/sample-documents';
+import { fetchSampleDocuments } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
@@ -157,7 +154,7 @@ describe('Schema Validation Store', function () {
       });
     });
 
-    context('when the action is fetch valid sample documents', function () {
+    context('when the action is fetch sample documents', function () {
       it('updates the sample document loading in state', function (done) {
         expect(store.getState().sampleDocuments.validDocumentState).to.equal(
           'initial'
@@ -167,25 +164,12 @@ describe('Schema Validation Store', function () {
           expect(store.getState().sampleDocuments.validDocumentState).to.equal(
             'loading'
           );
-          done();
-        });
-        store.dispatch(fetchValidDocument() as any);
-      });
-    });
-
-    context('when the action is fetch invalid sample documents', function () {
-      it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(
-          'initial'
-        );
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
           expect(
             store.getState().sampleDocuments.invalidDocumentState
           ).to.equal('loading');
           done();
         });
-        store.dispatch(fetchInvalidDocument() as any);
+        store.dispatch(fetchSampleDocuments() as any);
       });
     });
 

@@ -74,12 +74,16 @@ interface FetchingInvalidDocumentFailedAction {
   type: typeof FETCHING_INVALID_DOCUMENT_FAILED;
 }
 
-export type SampleDocumentNonInitialAction =
+type SampleDocumentNonInitialAction =
   | ClearSampleDocumentsAction
   | FetchedValidDocumentAction
   | FetchedInvalidDocumentAction
   | FetchingInvalidDocumentFailedAction
   | FetchingValidDocumentFailedAction;
+
+export type SampleDocumentAction =
+  | SampleDocumentNonInitialAction
+  | FetchingSampleDocumentsAction;
 
 /**
  * Action creators
