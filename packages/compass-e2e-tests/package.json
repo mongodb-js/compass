@@ -51,7 +51,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^32.3.2",
-    "electron-to-chromium": "^1.5.108",
+    "electron-to-chromium": "^1.5.109",
     "eslint": "^7.25.0",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
