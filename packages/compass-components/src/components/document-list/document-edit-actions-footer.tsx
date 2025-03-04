@@ -328,7 +328,7 @@ const EditActionsFooter: React.FunctionComponent<{
               className={button}
               size="xsmall"
               onClick={() => onOpenErrorDetails?.(error.details!)}
-              data-testid="insert-document-error-details-button"
+              data-testid="edit-actions-footer-error-details-button"
             >
               VIEW ERROR DETAILS
             </Button>
