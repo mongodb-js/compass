@@ -26,6 +26,13 @@ const sampleDocumentsSectionStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[200],
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[400],
+  padding: spacing[400],
+});
+
+const sampleDocumentsSectionDarkModeStyles = css({
+  border: `1px solid ${palette.gray.dark2}`,
 });
 
 const sampleDocumentsStyles = css({
@@ -70,21 +77,15 @@ const initialStateContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: spacing[200],
-  padding: spacing[400],
+  gap: spacing[300],
   marginTop: spacing[400],
-  border: `1px solid ${palette.gray.light2}`,
-  borderRadius: spacing[400],
-});
-
-const initialStateContainerDarkModeStyles = css({
-  border: `1px solid ${palette.gray.dark2}`,
 });
 
 const previewHeaderStyles = css({
   fontSize: spacing[400],
   fontWeight: 'bold',
   color: palette.green.dark2,
+  marginTop: spacing[200],
 });
 
 const previewHeaderDarkModeStyles = css({
@@ -142,12 +143,7 @@ const InitialState: React.FC<{
 }> = ({ onPreviewClick }) => {
   const darkMode = useDarkMode();
   return (
-    <div
-      className={cx(
-        initialStateContainerStyles,
-        darkMode && initialStateContainerDarkModeStyles
-      )}
-    >
+    <div className={initialStateContainerStyles}>
       <DocumentGraphic />
       <div
         className={cx(
@@ -183,43 +179,56 @@ function SampleDocuments({
 }) {
   const darkMode = useDarkMode();
 
-  if (isInitialState)
-    return <InitialState onPreviewClick={fetchSampleDocuments} />;
-
   return (
-    <div className={sampleDocumentsSectionStyles}>
-      <div className={sampleDocumentsStyles}>
-        {/* Documents that match the validation */}
-        <div className={sampleDocumentStyles} data-testid="matching-documents">
+    <div
+      className={cx(
+        sampleDocumentsSectionStyles,
+        darkMode && sampleDocumentsSectionDarkModeStyles
+      )}
+    >
+      {isInitialState ? (
+        <InitialState onPreviewClick={fetchSampleDocuments} />
+      ) : (
+        <div className={sampleDocumentsStyles}>
+          {/* Documents that match the validation */}
           <div
-            className={cx(
-              documentHeadingStyles,
-              darkMode ? matchingStylesDark : matchingStylesLight
-            )}
+            className={sampleDocumentStyles}
+            data-testid="matching-documents"
           >
-            <Icon glyph="CheckmarkWithCircle" size="small" />
-            <Body className={documentHeadingTextStyles}>Passed validation</Body>
+            <div
+              className={cx(
+                documentHeadingStyles,
+                darkMode ? matchingStylesDark : matchingStylesLight
+              )}
+            >
+              <Icon glyph="CheckmarkWithCircle" size="small" />
+              <Body className={documentHeadingTextStyles}>
+                Passed validation
+              </Body>
+            </div>
+            <DocumentPreview document={validDocument} />
           </div>
-          <DocumentPreview document={validDocument} />
-        </div>
 
-        {/* Documents that do not match the validation */}
-        <div
-          className={sampleDocumentStyles}
-          data-testid="notmatching-documents"
-        >
+          {/* Documents that do not match the validation */}
           <div
-            className={cx(
-              documentHeadingStyles,
-              darkMode ? notMatchingStylesDark : notMatchingStylesLight
-            )}
+            className={sampleDocumentStyles}
+            data-testid="notmatching-documents"
           >
-            <Icon glyph="XWithCircle" size="small" />
-            <Body className={documentHeadingTextStyles}>Failed validation</Body>
+            <div
+              className={cx(
+                documentHeadingStyles,
+                darkMode ? notMatchingStylesDark : notMatchingStylesLight
+              )}
+            >
+              <Icon glyph="XWithCircle" size="small" />
+              <Body className={documentHeadingTextStyles}>
+                Failed validation
+              </Body>
+            </div>
+            <DocumentPreview document={invalidDocument} />
           </div>
-          <DocumentPreview document={invalidDocument} />
         </div>
-      </div>
+      )}
     </div>
   );
 }
