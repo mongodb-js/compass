@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -112,6 +111,7 @@ const ValidationCodeEditor = ({
       text={text}
       onChangeText={onChangeText}
       readOnly={readOnly}
+      formattable={!readOnly}
       completer={completer}
     />
   );
@@ -214,19 +214,6 @@ export const ValidationEditor: React.FunctionComponent<
   const { validationAction, validationLevel, error, syntaxError, isChanged } =
     validation;
 
-  const hasErrors = !!(error || syntaxError);
-
-  let message = '';
-  let variant: BannerVariant = 'info';
-
-  if (syntaxError) {
-    message = syntaxError.message;
-    variant = 'danger';
-  } else if (error) {
-    message = error.message;
-    variant = 'warning';
-  }
-
   const onClickApplyValidation = useCallback(async () => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to apply these validation rules?',
@@ -273,7 +260,10 @@ export const ValidationEditor: React.FunctionComponent<
           serverVersion={serverVersion}
         />
       </div>
-      {variant && message && <Banner variant={variant}>{message}</Banner>}
+      {syntaxError && <Banner variant="danger">{syntaxError.message}</Banner>}
+      {!syntaxError && error && (
+        <Banner variant="danger">{error.message}</Banner>
+      )}
       {isEditable && (
         <div className={actionsStyles}>
           {isEditingEnabled ? (
@@ -308,7 +298,7 @@ export const ValidationEditor: React.FunctionComponent<
                   onClick={() => {
                     void onClickApplyValidation();
                   }}
-                  disabled={hasErrors}
+                  disabled={!!syntaxError}
                 >
                   Apply
                 </Button>
@@ -322,7 +312,7 @@ export const ValidationEditor: React.FunctionComponent<
               data-testid="enable-edit-validation-button"
               onClick={onClickEnableEditRules}
             >
-              Edit Rules
+              Edit rules
             </Button>
           )}
         </div>
