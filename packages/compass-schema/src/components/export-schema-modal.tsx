@@ -237,7 +237,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           onClick={onSchemaDownload}
           data-testid="schema-export-download-button"
         >
-          Export
+          Export…
         </Button>
       </ModalFooter>
     </Modal>

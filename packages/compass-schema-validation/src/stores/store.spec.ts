@@ -101,6 +101,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
+          isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
         });
@@ -115,6 +116,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
+          isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });

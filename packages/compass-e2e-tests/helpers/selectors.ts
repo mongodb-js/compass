@@ -1144,6 +1144,8 @@ export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const EnableEditValidationButton =
+  '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';

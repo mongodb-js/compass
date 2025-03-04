@@ -96,7 +96,14 @@ describe('Collection validation tab', function () {
         );
       });
 
-      // Reset the validation again to make everything valid for future tests
+      const enableUpdateValidationButtonElement = browser.$(
+        Selectors.EnableEditValidationButton
+      );
+      // Enable the editing mode and wait for it to be enabled.
+      await browser.clickVisible(enableUpdateValidationButtonElement);
+      await enableUpdateValidationButtonElement.waitForDisplayed({
+        reverse: true,
+      });
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
       await browser.setValidation(PASSING_VALIDATOR);

@@ -1,4 +1,5 @@
 import type { RootAction, SchemaValidationThunkAction } from '.';
+import { enableEditRules } from './edit-mode';
 
 /**
  * Zero state changed action.
@@ -52,6 +53,7 @@ export const changeZeroState = (
     if (isZeroState === false) {
       track('Schema Validation Added', {}, connectionInfoRef.current);
     }
+    dispatch(enableEditRules());
     return dispatch(zeroStateChanged(isZeroState));
   };
 };
