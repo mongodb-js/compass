@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Mar 03 2025.
+This document was automatically generated on Tue Mar 04 2025.
 
 ## List of dependencies
 
@@ -443,7 +443,7 @@ Package|Version|License
 **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**|4.3.0|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
 **[mongodb-schema](#200c813b2033bff2c15d483efbee05103074fef52fe90e31be3be1310f6e6a03)**|12.4.0|Apache-2.0
-**[mongodb](#cb726cf7a5329fc15d51574a4bc2e29682afe46afb788a94370b09643ab98a72)**|6.12.0|Apache-2.0
+**[mongodb](#7696156f9c85b86e3cf63e0edc7c5c9016136a26bd01c3167ab9096853770a7f)**|6.13.1|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -27303,8 +27303,8 @@ License files:
       
 
 
-<a id="cb726cf7a5329fc15d51574a4bc2e29682afe46afb788a94370b09643ab98a72"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.12.0)
+<a id="7696156f9c85b86e3cf63e0edc7c5c9016136a26bd01c3167ab9096853770a7f"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.13.1)
 License tags: Apache-2.0
 
 License files:
