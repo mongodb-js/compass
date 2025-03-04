@@ -1,7 +1,8 @@
 import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { EJSON } from 'bson';
+import { EJSON, ObjectId } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
+import { openToast } from '@mongodb-js/compass-components';
 import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
@@ -486,6 +487,11 @@ export const saveValidation = (
         }
       );
       dispatch(fetchValidation(namespace));
+      const toastId = `schema-validation-update-${new ObjectId().toString()}`;
+      openToast(toastId, {
+        title: 'New validation rules applied',
+        variant: 'success',
+      });
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
     }
