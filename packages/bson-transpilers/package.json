@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "antlr4": "4.7.2",
-    "bson": "^6.10.1",
+    "bson": "^6.10.3",
     "js-yaml": "^3.13.1"
   },
   "bugs": {
