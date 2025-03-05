@@ -761,7 +761,8 @@ export async function startBrowser(
   assertTestingWeb(context);
 
   runCounter++;
-  const { webdriverOptions, wdioOptions } = await processCommonOpts();
+  const { webdriverOptions, wdioOptions, chromeArgs } =
+    await processCommonOpts();
 
   const browserCapabilities: Record<string, Record<string, unknown>> = {
     chrome: {
@@ -769,6 +770,7 @@ export async function startBrowser(
         prefs: {
           'download.default_directory': downloadPath,
         },
+        args: chromeArgs,
       },
     },
     firefox: {
