@@ -1492,6 +1492,7 @@ const connectWithOptions = (
         forceConnectionOptions,
         browserCommandForOIDCAuth,
         maximumNumberOfActiveConnections,
+        telemetryAnonymousId,
       } = preferences.getPreferences();
 
       const connectionProgress = getNotificationTriggers();
@@ -1553,10 +1554,15 @@ const connectWithOptions = (
                 cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
+              connectionInfo: {
+                id: connectionInfo.id,
+                isAtlas: !!connectionInfo.atlasMetadata,
+              },
               defaultAppName: appName,
               preferences: {
                 forceConnectionOptions: forceConnectionOptions ?? [],
                 browserCommandForOIDCAuth,
+                telemetryAnonymousId,
               },
               notifyDeviceFlow: (deviceFlowInfo) => {
                 connectionProgress.openNotifyDeviceAuthModal(

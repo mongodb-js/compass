@@ -6,6 +6,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -13,6 +14,11 @@ import {
   createGeospatialCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
+import {
+  cleanUpDownloadedFile,
+  waitForFileDownload,
+} from '../helpers/downloads';
+import { readFileSync } from 'fs';
 
 const { expect } = chai;
 
@@ -111,12 +117,21 @@ describe('Collection schema tab', function () {
 
   describe('with the enableExportSchema feature flag enabled', function () {
     beforeEach(async function () {
-      // TODO(COMPASS-8819): remove web skip when defaulted true.
-      skipForWeb(this, "can't toggle features in compass-web");
-      await browser.setFeature('enableExportSchema', true);
+      if (!TEST_COMPASS_WEB)
+        await browser.setFeature('enableExportSchema', true);
     });
 
-    it('shows an exported schema to copy', async function () {
+    const filename = 'schema-test-numbers-mongoDBJSON.json';
+
+    before(() => {
+      cleanUpDownloadedFile(filename);
+    });
+
+    after(() => {
+      cleanUpDownloadedFile(filename);
+    });
+
+    it('shows an exported schema to copy (standard JSON Schema)', async function () {
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME_1,
         'test',
@@ -153,6 +168,59 @@ describe('Collection schema tab', function () {
           },
           j: {
             type: 'integer',
+          },
+        },
+      });
+    });
+
+    it('can download schema (MongoDB $jsonSchema)', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Schema'
+      );
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const element = browser.$(Selectors.SchemaFieldList);
+      await element.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.ExportSchemaButton);
+
+      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+      await exportModal.waitForDisplayed();
+
+      await browser.clickVisible(
+        Selectors.exportSchemaFormatOption('mongoDBJSON')
+      );
+
+      const exportSchemaButton = browser.$(
+        Selectors.ExportSchemaDownloadButton
+      );
+      await exportSchemaButton.waitForEnabled();
+      await exportSchemaButton.click();
+
+      const { fileExists, filePath } = await waitForFileDownload(
+        filename,
+        browser
+      );
+      expect(fileExists).to.be.true;
+
+      const content = readFileSync(filePath, 'utf-8');
+      expect(JSON.parse(content)).to.deep.equal({
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['_id', 'i', 'j'],
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+            i: {
+              bsonType: 'int',
+            },
+            j: {
+              bsonType: 'int',
+            },
           },
         },
       });

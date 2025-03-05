@@ -1025,7 +1025,12 @@ export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const ExportSchemaButton = '[data-testid="open-schema-export-button"]';
 export const ExportSchemaFormatOptions =
   '[data-testid="export-schema-format-type-box-group"]';
+export const exportSchemaFormatOption = (
+  option: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON'
+) => `label[for="export-schema-format-${option}-button"]`;
 export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
+export const ExportSchemaDownloadButton =
+  '[data-testid="schema-export-download-button"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
@@ -1139,6 +1144,8 @@ export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const EnableEditValidationButton =
+  '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';

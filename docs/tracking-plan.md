@@ -7,7 +7,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Tue, Feb 25, 2025
+Generated on Wed, Mar 5, 2025
 
 ## Table of Contents
 
@@ -156,6 +156,7 @@ Generated on Tue, Feb 25, 2025
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
+- [Schema Export Failed](#event--SchemaExportFailedEvent)
 
 ### Schema Validation
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
@@ -1926,7 +1927,7 @@ This event is fired when user shares the schema.
 
 - **has_schema** (required): `boolean`
   - Indicates whether the schema was analyzed before sharing.
-- **format** (required): `"standardJSON" | "mongoDBJSON" | "extendedJSON" | "legacyJSON"`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
 - **source** (required): `"app_menu" | "schema_tab"`
 - **schema_width** (required): `number`
   - The number of fields at the top level.
@@ -1934,6 +1935,23 @@ This event is fired when user shares the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaExportFailedEvent"></a>
+
+### Schema Export Failed
+
+This event is fired when user shares the schema.
+
+**Properties**:
+
+- **has_schema** (required): `boolean`
+  - Indicates whether the schema was analyzed before sharing.
+- **schema_length** (required): `number`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
+- **stage** (required): `string`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.

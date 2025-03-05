@@ -95,6 +95,14 @@ const disabledContainerDarkModeStyles = css({
   boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
 });
 
+const readOnlyStyle = css({
+  // We hide the blinking cursor in read only mode
+  // as it can appear to users like the editor is editable.
+  '& .cm-cursor': {
+    display: 'none !important',
+  },
+});
+
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
     overflow: '-moz-scrollbars-none',
@@ -1204,6 +1212,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       className={cx(
         disabled && disabledContainerStyles,
         disabled && darkMode && disabledContainerDarkModeStyles,
+        readOnly && readOnlyStyle,
         className
       )}
       style={{

@@ -2003,7 +2003,7 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      */
     has_schema: boolean;
 
-    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 
     source: 'app_menu' | 'schema_tab';
 
@@ -2021,6 +2021,27 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      * Indicates whether the schema contains geospatial data.
      */
     geo_data: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user shares the schema.
+ *
+ * @category Schema
+ */
+type SchemaExportFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Export Failed';
+  payload: {
+    /**
+     * Indicates whether the schema was analyzed before sharing.
+     */
+    has_schema: boolean;
+
+    schema_length: number;
+
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
+
+    stage: string;
   };
 }>;
 
@@ -2729,6 +2750,7 @@ export type TelemetryEvent =
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
+  | SchemaExportFailedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent

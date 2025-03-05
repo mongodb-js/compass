@@ -4,7 +4,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
-import { setupLoggerAndTelemetry } from '@mongosh/logging';
+import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import { EventEmitter } from 'events';
 
 declare const __webpack_require__: typeof require;
@@ -52,10 +52,9 @@ export function createWorkerRuntime(
 ): typeof WorkerRuntime['prototype'] {
   const emitter = new EventEmitter();
 
-  setupLoggerAndTelemetry(
-    emitter,
-    log,
-    {
+  const loggingAndTelemetry = setupLoggingAndTelemetry({
+    bus: emitter,
+    analytics: {
       identify: () => {
         /* not needed */
       },
@@ -63,19 +62,26 @@ export function createWorkerRuntime(
       // We always enable telemetry here, since the track call will
       // already check whether Compass telemetry is enabled or not.
       track: ({ event, properties }) => {
-        return track(`Shell ${event}`, properties, connectionInfo.current);
+        return track(
+          `Shell ${event as string}`,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          properties,
+          connectionInfo.current
+        );
       },
       flush: () => {
         return Promise.resolve(); // not needed
       },
     },
-    {
+    userTraits: {
       platform: process.platform,
       arch: process.arch,
     },
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-var-requires
-    require('../../package.json').version
-  );
+    mongoshVersion: require('../../package.json').version,
+  });
+
+  loggingAndTelemetry.attachLogger(log);
 
   // We also don't need to pass a proper user id, since that is
   // handled by the Compass tracking code.
