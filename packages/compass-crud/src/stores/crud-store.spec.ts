@@ -12,6 +12,7 @@ import type {
   CrudStore,
   CrudStoreOptions,
   DocumentsPluginServices,
+  ErrorDetailsDialogOptions,
 } from './crud-store';
 import {
   findAndModifyWithFLEFallback,
@@ -290,7 +291,7 @@ describe('store', function () {
         docsPerPage: 25,
         end: 0,
         error: null,
-        errorDetailsOpen: null,
+        errorDetails: { isOpen: false },
         insert: {
           doc: null,
           isCommentNeeded: true,
@@ -1459,6 +1460,43 @@ describe('store', function () {
 
         await listener;
       });
+    });
+  });
+
+  describe('#openErrorDetailsDialog #closeErrorDetailsDialog', function () {
+    const options: ErrorDetailsDialogOptions = {
+      details: { abc: 'abc' },
+      closeAction: 'close',
+    };
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('manages the errorDetails state', async function () {
+      const openListener = waitForState(store, (state) => {
+        expect(state.errorDetails).to.deep.equal({
+          isOpen: true,
+          ...options,
+        });
+      });
+
+      void store.openErrorDetailsDialog(options);
+
+      await openListener;
+
+      const closeListener = waitForState(store, (state) => {
+        expect(state.errorDetails).to.deep.equal({
+          isOpen: false,
+        });
+      });
+
+      void store.closeErrorDetailsDialog();
+
+      await closeListener;
     });
   });
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { css, cx } from '@leafygreen-ui/emotion';
 
@@ -26,13 +26,24 @@ function ErrorDetailsModal({
   details,
   closeAction,
   onClose,
+  open,
   ...modalProps
 }: ErrorDetailsModalProps) {
-  const prettyDetails = useMemo(() => {
-    return JSON.stringify(details, undefined, 2);
-  }, [details]);
+  const [stringDetails, setStringDetails] = useState<string>('');
+
+  useEffect(() => {
+    if (open) {
+      setStringDetails(JSON.stringify(details, undefined, 2));
+    }
+  }, [details, open]);
+
   return (
-    <Modal setOpen={onClose} initialFocus="#error-details-json" {...modalProps}>
+    <Modal
+      setOpen={onClose}
+      initialFocus="#error-details-json"
+      open={open}
+      {...modalProps}
+    >
       <ModalHeader title={title} subtitle={subtitle} />
       <ModalBody>
         <Code
@@ -40,7 +51,7 @@ function ErrorDetailsModal({
           data-testid="error-details-json"
           id="error-details-json"
         >
-          {prettyDetails}
+          {stringDetails}
         </Code>
       </ModalBody>
       <ModalFooter

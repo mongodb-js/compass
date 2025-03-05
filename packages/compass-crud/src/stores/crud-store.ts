@@ -81,10 +81,22 @@ export type EmittedAppRegistryEvents =
   | 'document-deleted'
   | 'document-inserted';
 
-export type ErrorDetailsDialogOptions = {
-  details: Record<string, unknown>;
-  closeAction?: 'back' | 'close';
-};
+export type ErrorDetailsDialogState =
+  | {
+      isOpen: false;
+      details?: never;
+      closeAction?: never;
+    }
+  | {
+      isOpen: true;
+      details: Record<string, unknown>;
+      closeAction?: 'back' | 'close';
+    };
+
+export type ErrorDetailsDialogOptions = Omit<
+  Extract<ErrorDetailsDialogState, { isOpen: true }>,
+  'isOpen'
+>;
 
 export type CrudActions = {
   drillDown(
@@ -348,10 +360,7 @@ type CrudState = {
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
   collectionStats: CollectionStats | null;
-  errorDetailsOpen: {
-    details: Record<string, unknown>;
-    closeAction?: 'back' | 'close';
-  } | null;
+  errorDetails: ErrorDetailsDialogState;
 };
 
 type CrudStoreActionsOptions = {
@@ -458,7 +467,7 @@ class CrudStoreImpl
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
       collectionStats: extractCollectionStats(this.collection),
-      errorDetailsOpen: null,
+      errorDetails: { isOpen: false },
     };
   }
 
@@ -966,15 +975,20 @@ class CrudStoreImpl
     });
   }
 
-  openErrorDetailsDialog(errorDetailsOpen: ErrorDetailsDialogOptions) {
+  openErrorDetailsDialog(options: ErrorDetailsDialogOptions) {
     this.setState({
-      errorDetailsOpen,
+      errorDetails: {
+        isOpen: true,
+        ...options,
+      },
     });
   }
 
   closeErrorDetailsDialog() {
     this.setState({
-      errorDetailsOpen: null,
+      errorDetails: {
+        isOpen: false,
+      },
     });
   }
 

@@ -35,6 +35,7 @@ import type {
   BSONObject,
   DocumentView,
   ErrorDetailsDialogOptions,
+  ErrorDetailsDialogState,
 } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
@@ -81,7 +82,7 @@ export type DocumentListProps = {
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
-  errorDetailsOpen: ErrorDetailsDialogOptions | null;
+  errorDetails: ErrorDetailsDialogState;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -300,7 +301,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
-    errorDetailsOpen,
+    errorDetails,
     openInsertDocumentDialog,
     openErrorDetailsDialog,
     closeErrorDetailsDialog,
@@ -598,10 +599,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             {...insert}
           />
           <ErrorDetailsModal
-            open={!!errorDetailsOpen}
+            open={errorDetails.isOpen}
             onClose={closeErrorDetailsDialog}
-            details={errorDetailsOpen?.details}
-            closeAction={errorDetailsOpen?.closeAction || 'close'}
+            details={errorDetails.details}
+            closeAction={errorDetails.closeAction || 'close'}
           />
           <BulkUpdateModal
             ns={ns}
