@@ -115,15 +115,17 @@ describe('sample-documents module', function () {
       });
 
       context('when the action is FETCHED_INVALID_DOCUMENT', function () {
-        for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
-          const sampleDocuments = reducer(
-            loadingState,
-            fetchedInvalidDocument(document)
-          );
-          expect(sampleDocuments.invalidDocumentState).to.equal('success');
-          expect(sampleDocuments.invalidDocument).to.deep.equal(document);
-          expect(sampleDocuments.validDocumentState).to.equal('loading');
-        }
+        it('updates the invalid document state', function () {
+          for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
+            const sampleDocuments = reducer(
+              loadingState,
+              fetchedInvalidDocument(document)
+            );
+            expect(sampleDocuments.invalidDocumentState).to.equal('success');
+            expect(sampleDocuments.invalidDocument).to.deep.equal(document);
+            expect(sampleDocuments.validDocumentState).to.equal('loading');
+          }
+        });
       });
 
       context('when the action is FETCHING_VALID_DOCUMENT_FAILED', function () {

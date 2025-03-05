@@ -27,7 +27,7 @@ const sampleDocumentsSectionStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
   border: `1px solid ${palette.gray.light2}`,
-  borderRadius: spacing[400],
+  borderRadius: spacing[200],
   padding: spacing[400],
 });
 
@@ -77,8 +77,9 @@ const initialStateContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
+  height: '228px', // using the same space as the previews
   gap: spacing[300],
-  marginTop: spacing[400],
 });
 
 const previewHeaderStyles = css({
