@@ -11,6 +11,8 @@ import {
   queryAsShellJSString,
 } from '../utils/get-shell-js-string';
 
+export const codeElementId = 'export-collection-code-preview-wrapper';
+
 const containerStyles = css({
   marginBottom: spacing[3],
 });
@@ -74,7 +76,7 @@ function ExportCodeView({
       <Code
         className={codeStyles}
         data-testid="export-collection-code-preview-wrapper"
-        id="export-collection-code-preview-wrapper"
+        id={codeElementId}
         language="javascript"
         copyable
       >
