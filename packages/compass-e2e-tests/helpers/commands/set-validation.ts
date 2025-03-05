@@ -15,6 +15,11 @@ export async function setValidation(
 
   await browser.clickVisible(Selectors.UpdateValidationButton);
 
+  // Close toast.
+  await browser.clickVisible(
+    Selectors.closeToastButton(Selectors.ValidationSuccessToast)
+  );
+
   // both buttons should become hidden if it succeeds
   await validationActionMessageElement.waitForDisplayed({
     reverse: true,

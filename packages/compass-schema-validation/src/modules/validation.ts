@@ -451,6 +451,8 @@ export function validationFromCollection(
   };
 }
 
+const toastId = 'schema-validation-update';
+
 /**
  * Save validation.
  */
@@ -487,7 +489,6 @@ export const saveValidation = (
         }
       );
       dispatch(fetchValidation(namespace));
-      const toastId = `schema-validation-update-${new ObjectId().toString()}`;
       openToast(toastId, {
         title: 'New validation rules applied',
         variant: 'success',
