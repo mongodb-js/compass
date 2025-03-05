@@ -14,6 +14,7 @@ import parseNamespace from 'mongodb-ns';
 import _ from 'lodash';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { mongoLogId } from './logger';
+import { EJSON } from 'bson';
 
 /**
  * A list of field paths for a document.
@@ -365,6 +366,12 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     return info;
   }
 
+  *_getCSFLECollectionNames(): Iterable<ReturnType<typeof parseNamespace>> {
+    for (const ns of this._nsToInfo.keys()) {
+      yield parseNamespace(ns);
+    }
+  }
+
   updateCollectionInfo(
     ns: string,
     result: CollectionInfoNameOnly & Partial<CollectionInfo>
@@ -402,19 +409,21 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       db: (dbName: string) => {
         return {
           listCollections: (filter: Document, opts: ListCollectionsOptions) => {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const self = this; // there are no async generator arrow functions
             return {
-              toArray: async () => {
+              [Symbol.asyncIterator]: async function* () {
                 const collectionInfos = await wrappedClient
                   .db(dbName)
                   .listCollections(filter, opts)
                   .toArray();
-                const err = this._checkListCollectionsForLibmongocryptResult(
+                const err = self._checkListCollectionsForLibmongocryptResult(
                   dbName,
                   filter,
                   (collectionInfos ?? []) as CollectionInfo[]
                 );
                 if (err) {
-                  this._logger?.error(
+                  self._logger?.error(
                     'COMPASS-DATA-SERVICE',
                     mongoLogId(1_001_000_122),
                     'CSFLECollectionTracker',
@@ -423,7 +432,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
                   );
                   throw err;
                 }
-                return collectionInfos;
+                yield* collectionInfos;
               },
             };
           },
@@ -437,53 +446,70 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     filter: Document,
     collectionInfos: CollectionInfo[]
   ): Error | undefined {
-    if (typeof filter?.name !== 'string' || collectionInfos.length > 1) {
+    // filter is either { name: string } or { name: { $in: string[] } }
+    if (
+      typeof filter?.name !== 'string' &&
+      (!filter?.name ||
+        typeof filter.name !== 'object' ||
+        !Array.isArray(filter.name.$in) ||
+        !(filter.name.$in as unknown[]).every(
+          (name) => typeof name === 'string'
+        ))
+    ) {
       // This is an assertion more than an actual error condition.
       // It ensures that we're only getting listCollections requests
       // in the format that we expect them to come in.
       return new Error(
-        `[Compass] Unexpected listCollections request on '${dbName}' with name: '${
-          filter?.name as string
-        }'`
+        `[Compass] Unexpected listCollections request on '${dbName}' with filter: ${EJSON.stringify(
+          filter
+        )}`
       );
     }
+    const filterNames: string[] =
+      typeof filter.name === 'string' ? [filter.name] : filter.name.$in;
 
-    const ns = `${dbName}.${filter.name}`;
-    const existingInfo = this._getCSFLECollectionInfo(ns);
-
-    if (collectionInfos.length === 0) {
-      if (existingInfo.serverEnforcedEncryptedFields?.encryptedFields?.length) {
-        return new Error(
-          `[Compass] Missing encrypted field information of collection '${ns}'`
-        );
-      }
-      return;
-    }
-
-    const [info] = collectionInfos;
-    if (filter.name !== info.name) {
-      // Also just a consistency check to make sure that things
-      // didn't go *terribly* wrong somewhere.
-      return new Error(
-        `[Compass] Unexpected listCollections name mismatch: got ${info.name}, expected ${filter.name}`
-      );
-    }
-    const newInfo = extractEncryptedFieldsFromListCollectionsResult(
-      info.options
-    );
-
-    for (const expectedEncryptedField of existingInfo
-      .serverEnforcedEncryptedFields?.encryptedFields ?? []) {
+    // First check: All collections for which we had existing encrypted fields
+    // in the server schema also have a collection schema in the new listCollections response
+    for (const existingNs of this._getCSFLECollectionNames()) {
       if (
-        !newInfo.encryptedFields.some((field) =>
-          _.isEqual(field, expectedEncryptedField)
-        )
+        existingNs.database === dbName &&
+        filterNames.includes(existingNs.collection)
       ) {
-        return new Error(
-          `[Compass] Missing encrypted field '${expectedEncryptedField.join(
-            '.'
-          )}' of collection '${ns}' in listCollections result`
-        );
+        const existingInfo = this._getCSFLECollectionInfo(existingNs.ns);
+        if (
+          existingInfo.serverEnforcedEncryptedFields?.encryptedFields?.length &&
+          !collectionInfos.some((info) => info.name === existingNs.collection)
+        ) {
+          return new Error(
+            `[Compass] Missing encrypted field information of collection '${existingNs.ns}'`
+          );
+        }
+      }
+    }
+
+    // Second check: All fields that were previously known to be encrypted
+    // are still encrypted in the new listCollections response
+    for (const info of collectionInfos) {
+      const ns = `${dbName}.${info.name}`;
+      const existingInfo = this._getCSFLECollectionInfo(ns);
+
+      const newInfo = extractEncryptedFieldsFromListCollectionsResult(
+        info.options
+      );
+
+      for (const expectedEncryptedField of existingInfo
+        .serverEnforcedEncryptedFields?.encryptedFields ?? []) {
+        if (
+          !newInfo.encryptedFields.some((field) =>
+            _.isEqual(field, expectedEncryptedField)
+          )
+        ) {
+          return new Error(
+            `[Compass] Missing encrypted field '${expectedEncryptedField.join(
+              '.'
+            )}' of collection '${ns}' in listCollections result`
+          );
+        }
       }
     }
   }
