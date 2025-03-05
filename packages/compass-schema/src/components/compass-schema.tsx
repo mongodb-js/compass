@@ -22,6 +22,7 @@ import {
   spacing,
   useDarkMode,
   WorkspaceContainer,
+  usePersistedState,
   lighten,
   Banner,
   Body,
@@ -298,6 +299,9 @@ const AnalyzingScreen: React.FunctionComponent<{
   );
 };
 
+const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
 const FieldList: React.FunctionComponent<{
   schema: MongodbSchema | null;
   analysisState: AnalysisState;
@@ -341,29 +345,37 @@ const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
+
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
   return (
-    <Banner variant="info">
-      <Body weight="medium">Looking for schema anti-patterns?</Body>
-      In its place, you may refer to Data Explorer’s performance insights{' '}
-      <Badge className={insightsBadgeStyles} variant="blue">
-        <Icon glyph="Bulb" size="small" />
-        Insight
-      </Badge>
-      {nbsp}or{nbsp}
-      {connectionInfo.atlasMetadata ? (
-        <Link
-          href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
-          onClick={() =>
-            track('Performance Advisor Clicked', {}, connectionInfo)
-          }
-          hideExternalIcon
-        >
-          {title}
-        </Link>
-      ) : (
-        title
-      )}
-    </Banner>
+    !dismissed && (
+      <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+        <Body weight="medium">Looking for schema anti-patterns?</Body>
+        In its place, you may refer to Data Explorer’s performance insights{' '}
+        <Badge className={insightsBadgeStyles} variant="blue">
+          <Icon glyph="Bulb" size="small" />
+          Insight
+        </Badge>
+        {nbsp}or{nbsp}
+        {connectionInfo.atlasMetadata ? (
+          <Link
+            href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
+            onClick={() =>
+              track('Performance Advisor Clicked', {}, connectionInfo)
+            }
+            hideExternalIcon
+          >
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
+      </Banner>
+    )
   );
 };
 
