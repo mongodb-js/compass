@@ -159,7 +159,11 @@ const InitialState: React.FC<{
         This section displays one document that passed validation and one that
         failed validation.
       </div>
-      <Button onClick={onPreviewClick} variant={ButtonVariant.PrimaryOutline}>
+      <Button
+        onClick={onPreviewClick}
+        variant={ButtonVariant.PrimaryOutline}
+        data-testid="load-sample-documents"
+      >
         Preview documents
       </Button>
     </div>

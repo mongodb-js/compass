@@ -10,7 +10,6 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
-const LOAD_SAMPLE_DOCUMENT = 'Load document';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
 const FAILING_VALIDATOR =
   '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
@@ -54,8 +53,10 @@ describe('Collection validation tab', function () {
   }
 
   context('when the schema validation is set or modified', function () {
-    it('provides users with a button to load sample documents', async function () {
+    it('provides users with a single button to load sample documents', async function () {
       await addValidation(PASSING_VALIDATOR);
+
+      await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
 
       await browser.waitUntil(async () => {
         const matchTextElement = browser.$(
@@ -67,18 +68,15 @@ describe('Collection validation tab', function () {
         );
         const notMatchingText = await notMatchingTextElement.getText();
         return (
-          matchText === LOAD_SAMPLE_DOCUMENT &&
-          notMatchingText === LOAD_SAMPLE_DOCUMENT
+          matchText.includes('ObjectId(') &&
+          notMatchingText === NO_PREVIEW_DOCUMENTS
         );
       });
     });
 
     it('supports rules in JSON schema', async function () {
       await addValidation(FAILING_VALIDATOR);
-      await browser.clickVisible(Selectors.ValidationLoadMatchingDocumentsBtn);
-      await browser.clickVisible(
-        Selectors.ValidationLoadNotMatchingDocumentsBtn
-      );
+      await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
 
       // nothing passed, everything failed
       await browser.waitUntil(async () => {
@@ -100,10 +98,7 @@ describe('Collection validation tab', function () {
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
       await browser.setValidation(PASSING_VALIDATOR);
-      await browser.clickVisible(Selectors.ValidationLoadMatchingDocumentsBtn);
-      await browser.clickVisible(
-        Selectors.ValidationLoadNotMatchingDocumentsBtn
-      );
+      await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
 
       // nothing failed, everything passed
       await browser.waitUntil(async () => {
