@@ -22,6 +22,7 @@ import {
   spacing,
   useDarkMode,
   WorkspaceContainer,
+  usePersistedState,
   lighten,
   Banner,
   Body,
@@ -73,9 +74,6 @@ const contentStyles = css({
 const insightsBadgeStyles = css({
   verticalAlign: 'middle',
 });
-
-const DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedPerformanceAdvisorBanner' as const;
 
 const minichartStyles = (darkMode: boolean) => {
   const mcBlue0 = palette.blue.light1;
@@ -301,6 +299,9 @@ const AnalyzingScreen: React.FunctionComponent<{
   );
 };
 
+const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
 const FieldList: React.FunctionComponent<{
   schema: MongodbSchema | null;
   analysisState: AnalysisState;
@@ -344,35 +345,37 @@ const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
-  const onClose = () => {
-    localStorage.setItem(
-      DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY,
-      'true'
-    );
-  };
+
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
   return (
-    <Banner variant="info" dismissible onClose={onClose}>
-      <Body weight="medium">Looking for schema anti-patterns?</Body>
-      In its place, you may refer to Data Explorer’s performance insights{' '}
-      <Badge className={insightsBadgeStyles} variant="blue">
-        <Icon glyph="Bulb" size="small" />
-        Insight
-      </Badge>
-      {nbsp}or{nbsp}
-      {connectionInfo.atlasMetadata ? (
-        <Link
-          href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
-          onClick={() =>
-            track('Performance Advisor Clicked', {}, connectionInfo)
-          }
-          hideExternalIcon
-        >
-          {title}
-        </Link>
-      ) : (
-        title
-      )}
-    </Banner>
+    !dismissed && (
+      <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+        <Body weight="medium">Looking for schema anti-patterns?</Body>
+        In its place, you may refer to Data Explorer’s performance insights{' '}
+        <Badge className={insightsBadgeStyles} variant="blue">
+          <Icon glyph="Bulb" size="small" />
+          Insight
+        </Badge>
+        {nbsp}or{nbsp}
+        {connectionInfo.atlasMetadata ? (
+          <Link
+            href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
+            onClick={() =>
+              track('Performance Advisor Clicked', {}, connectionInfo)
+            }
+            hideExternalIcon
+          >
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
+      </Banner>
+    )
   );
 };
 
@@ -422,10 +425,7 @@ const Schema: React.FunctionComponent<{
           }
         >
           <div className={contentStyles}>
-            {enablePerformanceAdvisorBanner &&
-              localStorage.getItem(
-                DISMISSED_PERFORMANCE_ADVISOR_BANNER_LOCAL_STORAGE_KEY
-              ) !== 'true' && <PerformanceAdvisorBanner />}
+            {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
             {analysisState === ANALYSIS_STATE_INITIAL && (
               <InitialScreen onApplyClicked={onApplyClicked} />
             )}

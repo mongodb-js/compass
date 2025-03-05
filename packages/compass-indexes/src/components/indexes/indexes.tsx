@@ -7,6 +7,7 @@ import {
   WorkspaceContainer,
   css,
   spacing,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
@@ -49,7 +50,7 @@ const containerStyles = css({
 
 const linkTitle = 'Atlas Search.';
 
-const DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
 const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
@@ -57,30 +58,32 @@ const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   if (!atlasMetadata) {
     return null;
   }
-  const onClose = () => {
-    localStorage.setItem(
-      DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
-      'true'
-    );
-  };
+
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
   return (
-    <Banner variant="info" dismissible onClose={onClose}>
-      <Body weight="medium">Looking for search indexes?</Body>
-      These indexes can be created and viewed under{' '}
-      {atlasMetadata ? (
-        <Link
-          href={getAtlasSearchIndexesLink({
-            clusterName: atlasMetadata.clusterName,
-            namespace,
-          })}
-          hideExternalIcon
-        >
-          {linkTitle}
-        </Link>
-      ) : (
-        linkTitle
-      )}
-    </Banner>
+    !dismissed && (
+      <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+        <Body weight="medium">Looking for search indexes?</Body>
+        These indexes can be created and viewed under{' '}
+        {atlasMetadata ? (
+          <Link
+            href={getAtlasSearchIndexesLink({
+              clusterName: atlasMetadata.clusterName,
+              namespace,
+            })}
+            hideExternalIcon
+          >
+            {linkTitle}
+          </Link>
+        ) : (
+          linkTitle
+        )}
+      </Banner>
+    )
   );
 };
 
@@ -150,11 +153,9 @@ export function Indexes({
         }
       >
         <div className={indexesContainersStyles}>
-          {!isReadonlyView &&
-            !enableAtlasSearchIndexes &&
-            localStorage.getItem(
-              DIMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY
-            ) !== 'true' && <AtlasIndexesBanner namespace={namespace} />}
+          {!isReadonlyView && !enableAtlasSearchIndexes && (
+            <AtlasIndexesBanner namespace={namespace} />
+          )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
