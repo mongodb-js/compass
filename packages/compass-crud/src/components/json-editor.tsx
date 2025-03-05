@@ -58,6 +58,7 @@ export type JSONEditorProps = {
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
+  openErrorDetailsDialog?: CrudActions['openErrorDetailsDialog'];
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
