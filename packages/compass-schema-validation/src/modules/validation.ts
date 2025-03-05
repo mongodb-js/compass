@@ -8,6 +8,7 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
+import { disableEditRules } from './edit-mode';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -493,6 +494,7 @@ export const saveValidation = (
         title: 'New validation rules applied',
         variant: 'success',
       });
+      dispatch(disableEditRules());
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
     }
@@ -512,6 +514,7 @@ export const cancelValidation = () => {
     const state = getState();
     const prevValidation = state.validation.prevValidation;
 
+    dispatch(disableEditRules());
     dispatch(
       validationCanceled({
         isChanged: false,
