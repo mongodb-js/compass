@@ -1,5 +1,5 @@
 import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { EJSON, ObjectId } from 'bson';
+import { EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { openToast } from '@mongodb-js/compass-components';
