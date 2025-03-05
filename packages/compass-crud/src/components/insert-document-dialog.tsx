@@ -1,5 +1,5 @@
 import { without } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
@@ -200,8 +200,11 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     }
   }, [isOpen, track]);
 
+  const prevJsonView = useRef(jsonView);
   useEffect(() => {
-    if (isOpen && !hasManyDocuments()) {
+    const viewHasChanged = prevJsonView.current !== jsonView;
+    prevJsonView.current = jsonView;
+    if (isOpen && !hasManyDocuments() && viewHasChanged) {
       if (!jsonView) {
         // When switching to Hadron Document View.
         // Reset the invalid elements list, which contains the
