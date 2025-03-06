@@ -1489,9 +1489,7 @@ describe('store', function () {
       await openListener;
 
       const closeListener = waitForState(store, (state) => {
-        expect(state.errorDetails).to.deep.equal({
-          isOpen: false,
-        });
+        expect(state.errorDetails.isOpen).to.be.false;
       });
 
       void store.closeErrorDetailsDialog();

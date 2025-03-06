@@ -84,8 +84,8 @@ export type EmittedAppRegistryEvents =
 export type ErrorDetailsDialogState =
   | {
       isOpen: false;
-      details?: never;
-      closeAction?: never;
+      details?: Record<string, unknown>;
+      closeAction?: 'back' | 'close';
     }
   | {
       isOpen: true;
@@ -987,6 +987,7 @@ class CrudStoreImpl
   closeErrorDetailsDialog() {
     this.setState({
       errorDetails: {
+        ...this.state.errorDetails,
         isOpen: false,
       },
     });

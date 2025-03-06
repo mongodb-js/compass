@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { css, cx } from '@leafygreen-ui/emotion';
 
@@ -29,13 +29,10 @@ function ErrorDetailsModal({
   open,
   ...modalProps
 }: ErrorDetailsModalProps) {
-  const [stringDetails, setStringDetails] = useState<string>('');
-
-  useEffect(() => {
-    if (open) {
-      setStringDetails(JSON.stringify(details, undefined, 2));
-    }
-  }, [details, open]);
+  const prettyDetails = useMemo(
+    () => JSON.stringify(details, undefined, 2),
+    [details]
+  );
 
   return (
     <Modal
@@ -51,7 +48,7 @@ function ErrorDetailsModal({
           data-testid="error-details-json"
           id="error-details-json"
         >
-          {stringDetails}
+          {prettyDetails}
         </Code>
       </ModalBody>
       <ModalFooter
