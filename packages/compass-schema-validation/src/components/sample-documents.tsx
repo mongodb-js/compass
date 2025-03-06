@@ -153,7 +153,7 @@ const InitialState: React.FC<{
         )}
       >
         <InlineDefinition definition={SAMPLE_DEFINITION}>
-          Preview your sample here
+          Preview sample documents
         </InlineDefinition>
       </div>
       <div>
