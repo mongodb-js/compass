@@ -193,7 +193,6 @@ export type CollectionInfoNameOnly = {
 export type CollectionInfo = CollectionInfoNameOnly & {
   /** @see https://docs.mongodb.com/manual/reference/method/db.createCollection/#mongodb-method-db.createCollection */
   options: Document;
-  name: string;
   info: {
     readOnly?: boolean;
     uuid?: Binary;

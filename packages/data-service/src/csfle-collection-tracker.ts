@@ -481,7 +481,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
           !collectionInfos.some((info) => info.name === existingNs.collection)
         ) {
           return new Error(
-            `[Compass] Missing encrypted field information of collection '${existingNs.ns}'`
+            `[Compass] Missing encrypted field information for collection '${existingNs.ns}'`
           );
         }
       }
