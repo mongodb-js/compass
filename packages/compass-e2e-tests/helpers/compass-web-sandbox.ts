@@ -11,6 +11,7 @@ import {
 } from './test-runner-paths';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 
 const debug = Debug('compass-e2e-tests:compass-web-sandbox');
 
@@ -31,7 +32,16 @@ const wait = (ms: number) => {
 export function spawnCompassWebSandbox() {
   const proc = crossSpawn.spawn(
     'npm',
-    ['run', '--unsafe-perm', 'start', '--workspace', '@mongodb-js/compass-web'],
+    [
+      'run',
+      '--unsafe-perm',
+      '--workspace',
+      '@mongodb-js/compass-web',
+      'start',
+      '--',
+      '--no-sandbox',
+      '--in-process-gpu',
+    ],
     { env: process.env }
   );
   proc.stdout.pipe(process.stdout);
@@ -56,7 +66,7 @@ export async function waitForCompassWebSandboxToBeReady(
     }
     // No point in trying to fetch sandbox URL right away, give the spawn script
     // some time to run
-    await wait(2000);
+    await wait(5000);
     try {
       const res = await fetch(sandboxUrl);
       serverReady = res.ok;
@@ -90,6 +100,7 @@ export async function spawnCompassWebSandboxAndSignInToAtlas(
       'goog:chromeOptions': {
         binary: ELECTRON_PATH,
         args: [
+          ...CHROME_STARTUP_FLAGS,
           `--user-data-dir=${COMPASS_WEB_WDIO_USER_DATA_PATH}`,
           `--app=${COMPASS_WEB_SANDBOX_RUNNER_PATH}`,
         ],
