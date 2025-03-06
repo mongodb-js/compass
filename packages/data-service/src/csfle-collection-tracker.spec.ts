@@ -469,7 +469,7 @@ describe('CSFLECollectionTracker', function () {
         }
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.match(
-          /\[Compass\] Missing encrypted field information of collection/
+          /\[Compass\] Missing encrypted field information for collection/
         );
       });
 
