@@ -1151,6 +1151,8 @@ export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
+export const ValidationSuccessToast =
+  '[data-testid="toast-schema-validation-update"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationLoadSampleDocumentsBtn = `[data-testid="load-sample-documents"]`;
