@@ -660,7 +660,6 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
       const driverOptions = {
         maxTimeMS,
       };
-      console.log('ANALYZING');
       const schemaAccessor = await analyzeSchema(
         dataService,
         abortSignal,
@@ -674,16 +673,17 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
       }
 
-      console.log('CONVERTING');
       const jsonSchema = await schemaAccessor?.getMongoDBJsonSchema({
         signal: abortSignal,
       });
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
       }
-      console.log('STRINGIFYING');
-      const validator = JSON.stringify(jsonSchema, undefined, 2);
-      console.log('DONE');
+      const validator = JSON.stringify(
+        { $jsonSchema: jsonSchema },
+        undefined,
+        2
+      );
       dispatch(validationLevelChanged('moderate'));
       dispatch(validatorChanged(validator));
       dispatch(enableEditRules());
