@@ -9,15 +9,12 @@ import reducer, {
   validationFetched,
   validationCanceled,
   validationSaveFailed,
-  syntaxErrorOccurred,
-  validationFromCollection,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
   VALIDATION_SAVE_FAILED,
   VALIDATION_FETCHED,
   VALIDATION_ACTION_CHANGED,
   VALIDATION_LEVEL_CHANGED,
-  SYNTAX_ERROR_OCCURRED,
 } from './validation';
 
 describe('validation module', function () {
@@ -117,71 +114,6 @@ describe('validation module', function () {
         error: { message: 'Validation save failed!' },
       });
     });
-  });
-
-  describe('#syntaxErrorOccurred', function () {
-    it('returns the SYNTAX_ERROR_OCCURRED action', function () {
-      expect(syntaxErrorOccurred({ message: 'Syntax Error!' })).to.deep.equal({
-        type: SYNTAX_ERROR_OCCURRED,
-        syntaxError: { message: 'Syntax Error!' },
-      });
-    });
-  });
-
-  describe('validationFromCollection', function () {
-    context('when an error occurs listing the collection', function () {
-      it('includes the error', function () {
-        const error = new Error('Fake error');
-        expect(validationFromCollection(error)).to.deep.equal({
-          validationAction: 'error',
-          validationLevel: 'strict',
-          error,
-        });
-      });
-    });
-
-    context('when the options contains no options', function () {
-      it('returns defaults', function () {
-        const data = {};
-        expect(validationFromCollection(null, data)).to.deep.equal({
-          validationAction: 'error',
-          validationLevel: 'strict',
-        });
-      });
-    });
-
-    context(
-      'when the options contains no validation-related options',
-      function () {
-        it('returns defaults', function () {
-          const data = { validation: {} };
-          expect(validationFromCollection(null, data)).to.deep.equal({
-            validationAction: 'error',
-            validationLevel: 'strict',
-          });
-        });
-      }
-    );
-
-    context(
-      'when the options contains validation-related options',
-      function () {
-        it('overrides the defaults', function () {
-          const data = {
-            validation: {
-              validationAction: 'new-validationAction',
-              validationLevel: 'new-validationLevel',
-              validator: { foo: 'bar' },
-            },
-          };
-          expect(validationFromCollection(null, data)).to.deep.equal({
-            validationAction: 'new-validationAction',
-            validationLevel: 'new-validationLevel',
-            validator: { foo: 'bar' },
-          });
-        });
-      }
-    );
   });
 
   describe('#reducer', function () {
@@ -321,24 +253,6 @@ describe('validation module', function () {
           isChanged: false,
           syntaxError: null,
           error: { message: 'Validation save failed!' },
-        });
-      });
-    });
-
-    context('when the action is syntaxErrorOccurred', function () {
-      it('returns the new state', function () {
-        const validation = reducer(
-          undefined,
-          syntaxErrorOccurred({ message: 'Syntax Error!' })
-        );
-
-        expect(validation).to.deep.equal({
-          validator: '',
-          validationAction: 'error',
-          validationLevel: 'strict',
-          isChanged: true,
-          syntaxError: { message: 'Syntax Error!' },
-          error: null,
         });
       });
     });

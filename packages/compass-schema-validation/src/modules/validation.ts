@@ -73,7 +73,7 @@ export const VALIDATION_SAVE_FAILED =
   `${PREFIX}/VALIDATION_SAVE_FAILED` as const;
 interface ValidationSaveFailedAction {
   type: typeof VALIDATION_SAVE_FAILED;
-  error: null | { message: string };
+  error: Error;
 }
 
 /**
@@ -82,7 +82,9 @@ interface ValidationSaveFailedAction {
 export const VALIDATION_FETCHED = `${PREFIX}/VALIDATION_FETCHED` as const;
 interface ValidationFetchedAction {
   type: typeof VALIDATION_FETCHED;
-  validation: PartialValidation;
+  validationAction: Validation['validationAction'];
+  validationLevel: Validation['validationLevel'];
+  validator: Validation['validator'];
 }
 
 /**
@@ -96,6 +98,21 @@ interface ValidationActionChangedAction {
 }
 
 /**
+ * Validation action changed action name.
+ */
+export const SET_VALIDATION_TO_DEFAULT =
+  `${PREFIX}/SET_VALIDATION_TO_DEFAULT` as const;
+interface SetValidationDefaultAction {
+  type: typeof SET_VALIDATION_TO_DEFAULT;
+}
+
+const VALIDATION_FETCH_ERRORED = `${PREFIX}/VALIDATION_FETCH_ERRORED` as const;
+interface ValidationFetchErroredAction {
+  type: typeof VALIDATION_FETCH_ERRORED;
+  error: Error;
+}
+
+/**
  * Validation level changed action name.
  */
 export const VALIDATION_LEVEL_CHANGED =
@@ -105,15 +122,6 @@ interface ValidationLevelChangedAction {
   validationLevel: ValidationLevel;
 }
 
-/**
- * Syntax error occurred action name.
- */
-export const SYNTAX_ERROR_OCCURRED = `${PREFIX}/SYNTAX_ERROR_OCCURRED` as const;
-interface SyntaxErrorOccurredAction {
-  type: typeof SYNTAX_ERROR_OCCURRED;
-  syntaxError: null | { message: string };
-}
-
 export type ValidationAction =
   | ValidatorChangedAction
   | ValidationCanceledAction
@@ -121,25 +129,21 @@ export type ValidationAction =
   | ValidationFetchedAction
   | ValidationActionChangedAction
   | ValidationLevelChangedAction
-  | SyntaxErrorOccurredAction;
+  | SetValidationDefaultAction
+  | ValidationFetchErroredAction;
 
 export interface Validation {
   validator: string;
   validationAction: ValidationServerAction;
   validationLevel: ValidationLevel;
   isChanged?: boolean;
-  error?: null | { message: string };
+  error?: null | Error;
 }
-type PartialValidation = Pick<
-  Validation,
-  'validationAction' | 'validationLevel'
-> &
-  Partial<Validation>;
 
 export interface ValidationState extends Validation {
   isChanged: boolean;
-  syntaxError: null | { message: string };
-  error: null | { message: string };
+  syntaxError: null | Error;
+  error: null | Error;
   prevValidation?: Validation;
 }
 
@@ -161,11 +165,11 @@ export const INITIAL_STATE: ValidationState = {
 export const checkValidator = (
   validator: string
 ): {
-  syntaxError: null | { message: string };
+  syntaxError: null | Error;
   validator: Record<string, unknown> | string;
 } => {
   const validation: {
-    syntaxError: null | { message: string };
+    syntaxError: null | Error;
     validator: Record<string, unknown> | string;
   } = { syntaxError: null, validator };
 
@@ -175,7 +179,7 @@ export const checkValidator = (
     };
   } else {
     try {
-      validation.validator = parseFilter(validator);
+      parseFilter(validator);
     } catch (error) {
       validation.syntaxError = error as Error;
     }
@@ -184,6 +188,19 @@ export const checkValidator = (
   return validation;
 };
 
+function checkValidatorForSyntaxError(validator: string): Error | null {
+  if (validator === '') {
+    return new Error('The validator must be an object.');
+  } else {
+    try {
+      parseFilter(validator);
+    } catch (error) {
+      return error as Error;
+    }
+  }
+  return null;
+}
+
 /**
  * Change validator.
  */
@@ -191,59 +208,80 @@ const changeValidator = (
   state: ValidationState,
   action: ValidatorChangedAction
 ): ValidationState => {
-  const checkedValidator = checkValidator(action.validator);
-  const newState = {
-    ...state,
-    validator: action.validator,
-    syntaxError: checkedValidator.syntaxError,
-    error: null,
-  };
+  // const checkedValidator = checkValidator(action.validator);
+  const syntaxError = checkValidatorForSyntaxError(action.validator);
 
   return {
-    ...newState,
+    ...state,
+    validator: action.validator,
+    syntaxError,
+    error: null,
     isChanged: !isEqual(
-      pick(newState, ['validator', 'validationAction', 'validationLevel']),
+      {
+        validator: action.validator,
+        validationAction: state.validationAction,
+        validationLevel: state.validationLevel,
+      },
       state.prevValidation
     ),
   };
 };
 
-/**
- * Sets syntax error.
- */
-const setSyntaxError = (
+const setValidationFetched = (
   state: ValidationState,
-  action: SyntaxErrorOccurredAction
-): ValidationState => ({
-  ...state,
-  isChanged: true,
-  syntaxError: action.syntaxError,
-});
-
-/**
- * Set validation.
- */
-const setValidation = (
-  state: ValidationState,
-  action: ValidationFetchedAction | ValidationCanceledAction
+  action: ValidationFetchedAction
 ): ValidationState => {
-  const checkedValidator = checkValidator(action.validation.validator ?? '');
-  // TODO(COMPASS-4989): javascriptStringify??
-  const validator = javascriptStringify(
-    checkedValidator.validator,
-    null,
-    2
-  ) as string;
+  // const syntaxError = checkValidatorForSyntaxError(action.validation.validator);
+
+  // const checkedValidator = checkValidator(action.validation.validator ?? '');
+  // // TODO(COMPASS-4989): javascriptStringify??
+  // const validator = javascriptStringify(
+  //   checkedValidator.validator,
+  //   null,
+  //   2
+  // ) as string;
+  // validator = checkedValidator;
 
   return {
     ...state,
     prevValidation: {
-      validator,
+      validator: action.validator,
+      validationAction: action.validationAction,
+      validationLevel: action.validationLevel,
+    },
+    isChanged: false,
+    validator: action.validator,
+    validationAction: action.validationAction,
+    validationLevel: action.validationLevel,
+    syntaxError: null,
+    error: null,
+  };
+};
+
+const setValidationCanceled = (
+  state: ValidationState,
+  action: ValidationCanceledAction
+): ValidationState => {
+  // const syntaxError = checkValidatorForSyntaxError(action.validation.validator);
+
+  // const checkedValidator = checkValidator(action.validation.validator ?? '');
+  // // TODO(COMPASS-4989): javascriptStringify??
+  // const validator = javascriptStringify(
+  //   checkedValidator.validator,
+  //   null,
+  //   2
+  // ) as string;
+  // validator = checkedValidator;
+
+  return {
+    ...state,
+    prevValidation: {
+      validator: action.validation.validator ?? '',
       validationAction: action.validation.validationAction,
       validationLevel: action.validation.validationLevel,
     },
-    isChanged: action.validation.isChanged || false,
-    validator: validator,
+    isChanged: action.validation.isChanged ?? false,
+    validator: action.validation.validator ?? '',
     validationAction: action.validation.validationAction,
     validationLevel: action.validation.validationLevel,
     syntaxError: null,
@@ -251,10 +289,25 @@ const setValidation = (
   };
 };
 
-/**
- * Set Error.
- */
-const setError = (
+const setValidationToDefault = (state: ValidationState): ValidationState => {
+  return {
+    ...state,
+    prevValidation: {
+      // Set it to an empty object to ensure future isChanged work properly.
+      validator: '{}',
+      validationAction: state.validationAction,
+      validationLevel: state.validationLevel,
+    },
+    isChanged: true,
+    validator: VALIDATION_TEMPLATE,
+    validationAction: INITIAL_STATE.validationAction,
+    validationLevel: INITIAL_STATE.validationLevel,
+    syntaxError: null,
+    error: null,
+  };
+};
+
+const setValidationSaveErrored = (
   state: ValidationState,
   action: ValidationSaveFailedAction
 ): ValidationState => {
@@ -271,15 +324,15 @@ const changeValidationAction = (
   state: ValidationState,
   action: ValidationActionChangedAction
 ): ValidationState => {
-  const newState = {
+  return {
     ...state,
     validationAction: action.validationAction,
-  };
-
-  return {
-    ...newState,
     isChanged: !isEqual(
-      pick(newState, ['validator', 'validationAction', 'validationLevel']),
+      {
+        validator: state.validator,
+        validationAction: action.validationAction,
+        validationLevel: state.validationLevel,
+      },
       state.prevValidation
     ),
   };
@@ -316,12 +369,13 @@ const MAPPINGS: {
   ) => ValidationState;
 } = {
   [VALIDATOR_CHANGED]: changeValidator,
-  [VALIDATION_CANCELED]: setValidation,
-  [VALIDATION_FETCHED]: setValidation,
-  [VALIDATION_SAVE_FAILED]: setError,
+  [VALIDATION_CANCELED]: setValidationCanceled,
+  [VALIDATION_FETCHED]: setValidationFetched,
+  [VALIDATION_SAVE_FAILED]: setValidationSaveErrored,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
-  [SYNTAX_ERROR_OCCURRED]: setSyntaxError,
+  [SET_VALIDATION_TO_DEFAULT]: setValidationToDefault,
+  [VALIDATION_FETCH_ERRORED]: setValidationFetchErrored,
 };
 
 /**
@@ -371,11 +425,20 @@ export const validatorChanged = (
 /**
  * Action creator for validation fetched events.
  */
-export const validationFetched = (
-  validation: PartialValidation
-): ValidationFetchedAction => ({
+export const validationFetched = (validationUpdate: {
+  validationAction: Validation['validationAction'];
+  validationLevel: Validation['validationLevel'];
+  validator: Validation['validator'];
+}): ValidationFetchedAction => ({
   type: VALIDATION_FETCHED,
-  validation,
+  ...validationUpdate,
+});
+
+export const validationFetchErrored = (
+  error: Error
+): ValidationFetchErroredAction => ({
+  type: VALIDATION_FETCH_ERRORED,
+  error,
 });
 
 /**
@@ -402,88 +465,53 @@ export const validationSaveFailed = (error: {
   error,
 });
 
-/**
- * Action creator for syntax error occurred events.
- */
-export const syntaxErrorOccurred = (
-  syntaxError: null | { message: string }
-): SyntaxErrorOccurredAction => ({
-  type: SYNTAX_ERROR_OCCURRED,
-  syntaxError,
-});
-
 export const fetchValidation = (namespace: {
   database: string;
   collection: string;
-}): SchemaValidationThunkAction<void> => {
-  return (dispatch, _getState, { dataService }) => {
-    dataService.collectionInfo(namespace.database, namespace.collection).then(
-      (collInfo) => {
-        const validation = validationFromCollection(null, collInfo ?? {});
+}): SchemaValidationThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { dataService }) => {
+    try {
+      const collInfo = await dataService.collectionInfo(
+        namespace.database,
+        namespace.collection
+      );
 
-        if (!validation.validator) {
-          const newValidation = {
-            ...validation,
-            validator: VALIDATION_TEMPLATE,
-          };
-          dispatch(validationFetched(newValidation));
-          dispatch(isLoadedChanged(true));
-          return;
-        }
-
-        // TODO(COMPASS-4989): EJSON??
-        const newValidation = {
-          ...validation,
-          validator: EJSON.stringify(validation.validator, undefined, 2),
-        };
-
-        dispatch(validationFetched(newValidation));
-        dispatch(zeroStateChanged(false));
+      if (!collInfo?.validation?.validator) {
+        dispatch({
+          type: SET_VALIDATION_TO_DEFAULT,
+        });
         dispatch(isLoadedChanged(true));
-      },
-      (err: Error) => {
-        dispatch(
-          validationFetched({
-            ...validationFromCollection(err),
-            validator: undefined,
-          })
-        );
-        dispatch(zeroStateChanged(false));
-        dispatch(isLoadedChanged(true));
+        return;
       }
-    );
+
+      // TODO(COMPASS-4989): EJSON??
+      // const newValidation = {
+      //   ...validation,
+      //   validator: EJSON.stringify(validation.validator, undefined, 2),
+      // };
+
+      dispatch(
+        validationFetched({
+          validationAction:
+            (collInfo.validation
+              .validationAction as Validation['validationAction']) ??
+            INITIAL_STATE.validationAction,
+          validationLevel:
+            (collInfo.validation
+              .validationLevel as Validation['validationLevel']) ??
+            INITIAL_STATE.validationLevel,
+          validator: JSON.stringify(collInfo.validation.validator),
+        })
+      );
+      dispatch(zeroStateChanged(false));
+      dispatch(isLoadedChanged(true));
+    } catch (err) {
+      dispatch(validationFetchErrored(err as Error));
+      dispatch(zeroStateChanged(false));
+      dispatch(isLoadedChanged(true));
+    }
   };
 };
-
-export function validationFromCollection(
-  err: null | { message: string },
-  {
-    validation,
-  }: {
-    validation?: {
-      validationAction?: string;
-      validationLevel?: string;
-      validator?: null | Record<string, unknown>;
-    } | null;
-  } = {}
-): Pick<Validation, 'validationAction' | 'validationLevel'> & {
-  error?: { message: string };
-  validator?: Record<string, unknown>;
-} {
-  const { validationAction, validationLevel } = INITIAL_STATE;
-  if (err) {
-    return { validationAction, validationLevel, error: err };
-  }
-  return {
-    validationAction: (validation?.validationAction ??
-      validationAction) as ValidationServerAction,
-    validationLevel: (validation?.validationLevel ??
-      validationLevel) as ValidationLevel,
-    ...(validation?.validator && {
-      validator: validation.validator,
-    }),
-  };
-}
 
 /**
  * Save validation.
@@ -520,7 +548,7 @@ export const saveValidation = (
           validationLevel: savedValidation.validationLevel,
         }
       );
-      dispatch(fetchValidation(namespace));
+      void dispatch(fetchValidation(namespace));
       dispatch(disableEditRules());
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
@@ -567,6 +595,6 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
     const state = getState();
     const namespace = state.namespace;
 
-    dispatch(fetchValidation(namespace));
+    void dispatch(fetchValidation(namespace));
   };
 };
