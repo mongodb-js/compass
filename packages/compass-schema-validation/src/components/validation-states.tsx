@@ -21,6 +21,7 @@ import { ZeroGraphic } from './zero-graphic';
 import {
   clearRulesGenerationError,
   generateValidationRules,
+  stopRulesGeneration,
 } from '../modules/validation';
 
 const validationStatesStyles = css({
@@ -71,6 +72,7 @@ type ValidationStatesProps = {
   changeZeroState: (value: boolean) => void;
   generateValidationRules: () => void;
   clearRulesGenerationError: () => void;
+  stopRulesGeneration: () => void;
   editMode: {
     collectionTimeSeries?: boolean;
     collectionReadOnly?: boolean;
@@ -150,6 +152,7 @@ export function ValidationStates({
   changeZeroState,
   generateValidationRules,
   clearRulesGenerationError,
+  stopRulesGeneration,
   editMode,
 }: ValidationStatesProps) {
   const { readOnly, enableExportSchema } = usePreferences([
@@ -173,7 +176,7 @@ export function ValidationStates({
         <ErrorSummary
           errors={rulesGenerationError}
           dismissible={true}
-          onDismiss={clearRulesGenerationError}
+          onClose={clearRulesGenerationError}
         />
       )}
       <ValidationBanners editMode={editMode} />
@@ -183,7 +186,11 @@ export function ValidationStates({
             <EmptyContent
               icon={ZeroGraphic}
               title="Create validation rules"
-              subTitle="Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts"
+              subTitle={
+                enableExportSchema
+                  ? 'Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts'
+                  : 'Create rules to enforce data structure of documents on updates and inserts.'
+              }
               callToAction={
                 <div className={zeroStateButtonsStyles}>
                   {enableExportSchema && (
@@ -216,7 +223,7 @@ export function ValidationStates({
             />
           )}
           {isZeroState && isRulesGenerationInProgress && (
-            <GeneratingScreen onCancelClicked={() => ({})} />
+            <GeneratingScreen onCancelClicked={stopRulesGeneration} />
           )}
           {!isZeroState && (
             <div className={contentContainerStyles}>
@@ -252,4 +259,5 @@ export default connect(mapStateToProps, {
   changeZeroState,
   generateValidationRules,
   clearRulesGenerationError,
+  stopRulesGeneration,
 })(ValidationStates);

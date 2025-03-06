@@ -14,6 +14,7 @@ export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
 
 const SAMPLE_SIZE = 1000;
+const ABORT_MESSAGE = 'Operation cancelled';
 
 /**
  * The module action prefix.
@@ -609,24 +610,9 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
 };
 
 export const stopRulesGeneration = (): SchemaValidationThunkAction<void> => {
-  return (
-    dispatch,
-    getState,
-    { rulesGenerationAbortControllerRef, connectionInfoRef, track }
-  ) => {
+  return (dispatch, getState, { rulesGenerationAbortControllerRef }) => {
     if (!rulesGenerationAbortControllerRef.current) return;
-    // const analysisTime =
-    //   Date.now() - (getState().schemaAnalysis.analysisStartTime ?? 0);
-    // track(
-    //   'Schema Analysis Cancelled',
-    //   {
-    //     analysis_time_ms: analysisTime,
-    //     with_filter: Object.entries(query.filter ?? {}).length > 0,
-    //   },
-    //   connectionInfoRef.current
-    // );
-
-    rulesGenerationAbortControllerRef.current?.abort('Analysis cancelled');
+    rulesGenerationAbortControllerRef.current?.abort(ABORT_MESSAGE);
   };
 };
 
@@ -643,7 +629,6 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
     { dataService, logger, preferences, rulesGenerationAbortControllerRef }
   ) => {
     dispatch({ type: RULES_GENERATION_STARTED });
-    console.log('START');
 
     rulesGenerationAbortControllerRef.current = new AbortController();
     const abortSignal = rulesGenerationAbortControllerRef.current.signal;
@@ -670,14 +655,14 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
         preferences
       );
       if (abortSignal?.aborted) {
-        throw new Error(abortSignal?.reason || new Error('Operation aborted'));
+        throw new Error(ABORT_MESSAGE);
       }
 
       const jsonSchema = await schemaAccessor?.getMongoDBJsonSchema({
         signal: abortSignal,
       });
       if (abortSignal?.aborted) {
-        throw new Error(abortSignal?.reason || new Error('Operation aborted'));
+        throw new Error(ABORT_MESSAGE);
       }
       const validator = JSON.stringify(
         { $jsonSchema: jsonSchema },
@@ -690,6 +675,10 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
       dispatch({ type: RULES_GENERATION_FINISHED });
       dispatch(zeroStateChanged(false));
     } catch (error) {
+      if (abortSignal.aborted) {
+        dispatch({ type: RULES_GENERATION_FINISHED });
+        return;
+      }
       dispatch({
         type: RULES_GENERATION_FAILED,
         message: `Rules generation failed: ${(error as Error).message}`,
