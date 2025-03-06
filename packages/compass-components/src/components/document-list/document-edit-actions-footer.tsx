@@ -202,25 +202,25 @@ function useHadronDocumentStatus(
 
 const container = css({
   display: 'flex',
-  paddingTop: spacing[2],
-  paddingRight: spacing[2],
-  paddingBottom: spacing[2],
-  paddingLeft: spacing[3],
+  paddingTop: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[200],
+  paddingLeft: spacing[400],
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   borderBottomLeftRadius: 'inherit',
   borderBottomRightRadius: 'inherit',
 });
 
 const message = css({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+  overflow: 'scroll',
 });
 
 const buttonGroup = css({
   display: 'flex',
   marginLeft: 'auto',
-  gap: spacing[2],
+  gap: spacing[200],
+  flexShrink: 0,
 });
 
 const button = css({
