@@ -55,17 +55,13 @@ const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
 
 const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   const { atlasMetadata } = useConnectionInfo();
-  if (!atlasMetadata) {
-    return null;
-  }
-
   const [dismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false
   );
-
-  if (dismissed) {
-    return <></>;
+  
+  if (!atlasMetadata || dismissed) {
+    return null;
   }
 
   return (
