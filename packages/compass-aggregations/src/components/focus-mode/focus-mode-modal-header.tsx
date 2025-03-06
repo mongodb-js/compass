@@ -70,13 +70,6 @@ const menuStyles = css({
   width: '240px',
 });
 
-const menuItemStyles = css({
-  '&:after': {
-    content: 'attr(data-hotkey)',
-    whiteSpace: 'nowrap',
-  },
-});
-
 const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -307,17 +300,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
           }}
         >
           <MenuItem
-            className={menuItemStyles}
             onClick={onAddStageAfter}
-            data-hotkey={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
+            description={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
             data-text="Add stage after"
           >
             Add stage after
           </MenuItem>
           <MenuItem
-            className={menuItemStyles}
             onClick={onAddStageBefore}
-            data-hotkey={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
+            description={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
             data-text="Add stage before"
           >
             Add stage before

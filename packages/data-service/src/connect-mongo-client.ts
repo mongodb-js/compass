@@ -219,6 +219,15 @@ export async function connectMongoClientDataService({
   class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
       super(url, options);
+      // TODO(COMPASS-9073): This is a workaround to fix some test failures we're seeing
+      // in CI after the Node.js driver 6.13.0 release. We should investigate why
+      // this fixes e2e tests, specifically the ones for verifying that the
+      // "Queryable Encryption" collection badge is displayed correctly.
+      Object.defineProperty(this, 'options', {
+        ...Object.getOwnPropertyDescriptor(this, 'options'),
+        enumerable: false,
+        configurable: true,
+      });
       if (setupListeners) {
         setupListeners(this);
       }
