@@ -351,31 +351,33 @@ const PerformanceAdvisorBanner = () => {
     false
   );
 
+  if (dismissed) {
+    return <></>;
+  }
+
   return (
-    !dismissed && (
-      <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
-        <Body weight="medium">Looking for schema anti-patterns?</Body>
-        In its place, you may refer to Data Explorer’s performance insights{' '}
-        <Badge className={insightsBadgeStyles} variant="blue">
-          <Icon glyph="Bulb" size="small" />
-          Insight
-        </Badge>
-        {nbsp}or{nbsp}
-        {connectionInfo.atlasMetadata ? (
-          <Link
-            href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
-            onClick={() =>
-              track('Performance Advisor Clicked', {}, connectionInfo)
-            }
-            hideExternalIcon
-          >
-            {title}
-          </Link>
-        ) : (
-          title
-        )}
-      </Banner>
-    )
+    <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+      <Body weight="medium">Looking for schema anti-patterns?</Body>
+      In its place, you may refer to Data Explorer’s performance insights{' '}
+      <Badge className={insightsBadgeStyles} variant="blue">
+        <Icon glyph="Bulb" size="small" />
+        Insight
+      </Badge>
+      {nbsp}or{nbsp}
+      {connectionInfo.atlasMetadata ? (
+        <Link
+          href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
+          onClick={() =>
+            track('Performance Advisor Clicked', {}, connectionInfo)
+          }
+          hideExternalIcon
+        >
+          {title}
+        </Link>
+      ) : (
+        title
+      )}
+    </Banner>
   );
 };
 
