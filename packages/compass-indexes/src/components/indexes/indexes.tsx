@@ -64,26 +64,28 @@ const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
     false
   );
 
+  if (dismissed) {
+    return <></>;
+  }
+
   return (
-    !dismissed && (
-      <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
-        <Body weight="medium">Looking for search indexes?</Body>
-        These indexes can be created and viewed under{' '}
-        {atlasMetadata ? (
-          <Link
-            href={getAtlasSearchIndexesLink({
-              clusterName: atlasMetadata.clusterName,
-              namespace,
-            })}
-            hideExternalIcon
-          >
-            {linkTitle}
-          </Link>
-        ) : (
-          linkTitle
-        )}
-      </Banner>
-    )
+    <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+      <Body weight="medium">Looking for search indexes?</Body>
+      These indexes can be created and viewed under{' '}
+      {atlasMetadata ? (
+        <Link
+          href={getAtlasSearchIndexesLink({
+            clusterName: atlasMetadata.clusterName,
+            namespace,
+          })}
+          hideExternalIcon
+        >
+          {linkTitle}
+        </Link>
+      ) : (
+        linkTitle
+      )}
+    </Banner>
   );
 };
 
