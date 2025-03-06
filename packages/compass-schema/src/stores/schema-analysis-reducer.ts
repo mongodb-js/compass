@@ -13,7 +13,7 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaMetadata,
-} from '../modules/schema-analysis';
+} from '@mongodb-js/compass-schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';

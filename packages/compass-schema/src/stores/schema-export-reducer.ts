@@ -11,7 +11,7 @@ import { openToast } from '@mongodb-js/compass-components';
 
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
-import { calculateSchemaMetadata } from '../modules/schema-analysis';
+import { calculateSchemaMetadata } from '@mongodb-js/compass-schema-analysis';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 

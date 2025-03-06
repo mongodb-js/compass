@@ -10,7 +10,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { changeZeroState } from '../modules/zero-state';
 import type { RootState } from '../modules';
 import ValidationEditor from './validation-editor';
@@ -19,6 +19,10 @@ import { ZeroGraphic } from './zero-graphic';
 
 const validationStatesStyles = css({ padding: spacing[3] });
 const contentContainerStyles = css({ height: '100%' });
+const zeroStateButtonsStyles = css({
+  display: 'flex',
+  gap: spacing[400],
+});
 
 /**
  * Warnings for the banner.
@@ -110,7 +114,10 @@ export function ValidationStates({
   changeZeroState,
   editMode,
 }: ValidationStatesProps) {
-  const readOnly = usePreference('readOnly');
+  const { readOnly, enableExportSchema } = usePreferences([
+    'readOnly',
+    'enableExportSchema',
+  ]);
 
   const isEditable =
     !editMode.collectionReadOnly &&
@@ -130,18 +137,31 @@ export function ValidationStates({
           {isZeroState ? (
             <EmptyContent
               icon={ZeroGraphic}
-              title="Add validation rules"
-              subTitle="Create rules to enforce data structure of documents on updates and inserts."
+              title="Create validation rules"
+              subTitle="Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts"
               callToAction={
-                <Button
-                  data-testid="add-rule-button"
-                  disabled={!isEditable}
-                  onClick={() => changeZeroState(false)}
-                  variant={ButtonVariant.Primary}
-                  size="small"
-                >
-                  Add Rule
-                </Button>
+                <div className={zeroStateButtonsStyles}>
+                  {enableExportSchema && (
+                    <Button
+                      data-testid="generate-rules-button"
+                      disabled={!isEditable}
+                      onClick={() => changeZeroState(false)}
+                      variant={ButtonVariant.Primary}
+                      size="small"
+                    >
+                      Generate rules
+                    </Button>
+                  )}
+                  <Button
+                    data-testid="add-rule-button"
+                    disabled={!isEditable}
+                    onClick={() => changeZeroState(false)}
+                    variant={ButtonVariant.PrimaryOutline}
+                    size="small"
+                  >
+                    Add Rule
+                  </Button>
+                </div>
               }
               callToActionLink={
                 <Link href={DOC_SCHEMA_VALIDATION} target="_blank">

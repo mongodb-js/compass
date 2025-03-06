@@ -8,6 +8,7 @@ import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
 import { disableEditRules } from './edit-mode';
+import { analyzeSchema } from '@mongodb-js/compass-schema-analysis';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -83,6 +84,19 @@ interface SyntaxErrorOccurredAction {
   syntaxError: null | { message: string };
 }
 
+export const RULES_GENERATION_STARTED =
+  `${PREFIX}/RULES_GENERATION_STARTED` as const;
+interface RulesGenerationStartedAction {
+  type: typeof RULES_GENERATION_STARTED;
+}
+
+export const RULES_GENERATION_FAILED =
+  `${PREFIX}/RULES_GENERATION_FAILED` as const;
+interface RulesGenerationFailedAction {
+  type: typeof RULES_GENERATION_STARTED;
+  syntaxError: null | { message: string };
+}
+
 export type ValidationAction =
   | ValidatorChangedAction
   | ValidationCanceledAction
@@ -110,6 +124,8 @@ export interface ValidationState extends Validation {
   syntaxError: null | { message: string };
   error: null | { message: string };
   prevValidation?: Validation;
+  rulesGenerationStatus?: 'in-progress' | 'failed';
+  rulesGenerationErrorMessage?: string;
 }
 
 /**
@@ -534,5 +550,42 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
     const namespace = state.namespace;
 
     dispatch(fetchValidation(namespace));
+  };
+};
+
+/**
+ * Get $jsonSchema from schema analysis
+ * @returns
+ */
+export const generateValidationRules = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, getState, { dataService, logger, preferences }) => {
+    dispatch({ type: RULES_GENERATION_STARTED });
+
+    try {
+      ///// TODO
+      const samplingOptions = {};
+      const driverOptions = {};
+      const abortSignal = new AbortSignal();
+      const namespace = '';
+      const schemaAccessor = await analyzeSchema(
+        dataService,
+        abortSignal,
+        namespace,
+        samplingOptions,
+        driverOptions,
+        logger,
+        preferences
+      );
+
+      const jsonSchema = await schemaAccessor?.getMongoDBJsonSchema();
+      const validator = JSON.stringify(jsonSchema, undefined, 2);
+
+      dispatch(validationLevelChanged('moderate'));
+      dispatch(validatorChanged(validator));
+    } catch (error) {
+      dispatch({ type: RULES_GENERATION_FAILED });
+    }
   };
 };

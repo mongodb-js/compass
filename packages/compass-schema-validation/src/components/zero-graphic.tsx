@@ -1,5 +1,12 @@
 import React, { useMemo } from 'react';
-import { palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
+
+const svgStyles = css({ marginLeft: spacing[300] });
 
 const ZeroGraphic: React.FunctionComponent = () => {
   const darkMode = useDarkMode();
@@ -16,6 +23,7 @@ const ZeroGraphic: React.FunctionComponent = () => {
       viewBox="0 0 72 72"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={svgStyles}
     >
       <path
         d="M41 16V4.00001L55 18H43C41.8954 18 41 17.1046 41 16Z"

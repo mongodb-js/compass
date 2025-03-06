@@ -25,7 +25,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type {
   ConnectionInfoRef,
-  DataService,
+  DataService as OriginalDataService,
 } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -60,11 +60,17 @@ export type RootAction =
   | EditModeAction
   | ResetAction;
 
+export type DataService = Pick<
+  OriginalDataService,
+  | 'aggregate'
+  | 'collectionInfo'
+  | 'updateCollection'
+  | 'sample'
+  | 'isCancelError'
+>;
+
 export type SchemaValidationExtraArgs = {
-  dataService: Pick<
-    DataService,
-    'aggregate' | 'collectionInfo' | 'updateCollection'
-  >;
+  dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;

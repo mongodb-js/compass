@@ -10,9 +10,13 @@ import type {
   PrimitiveSchemaType,
   SchemaParseOptions,
 } from 'mongodb-schema';
-import type { DataService } from '../stores/store';
+import type {
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
+
+type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
 
 export const DISTINCT_FIELDS_ABORT_THRESHOLD = 1000;
 
@@ -46,7 +50,7 @@ export const analyzeSchema = async (
   preferences: PreferencesAccess
 ): Promise<SchemaAccessor | undefined> => {
   try {
-    log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
+    log.info(mongoLogId(1_001_000_345), 'Schema', 'Starting schema analysis', {
       ns,
     });
 
@@ -73,12 +77,12 @@ export const analyzeSchema = async (
           signal: abortSignal,
         };
     const schemaAccessor = await analyzeDocuments(docs, schemaParseOptions);
-    log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
+    log.info(mongoLogId(1_001_000_346), 'Schema', 'Schema analysis completed', {
       ns,
     });
     return schemaAccessor;
   } catch (err: any) {
-    log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', {
+    log.error(mongoLogId(1_001_000_347), 'Schema', 'Schema analysis failed', {
       ns,
       error: err.message,
     });
