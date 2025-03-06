@@ -30,7 +30,7 @@ import type { ExportStatus, FieldsToExportOption } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { SelectFileType } from './select-file-type';
 import { ExportSelectFields } from './export-select-fields';
-import { ExportCodeView } from './export-code-view';
+import { codeElementId, ExportCodeView } from './export-code-view';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
@@ -246,7 +246,12 @@ function ExportModal({
   }, [isOpen, resetExportFormState]);
 
   return (
-    <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
+    <Modal
+      open={isOpen}
+      setOpen={closeExport}
+      data-testid="export-modal"
+      initialFocus={`#${codeElementId}`}
+    >
       <ModalHeader
         title="Export"
         subtitle={aggregation ? `Aggregation on ${ns}` : `Collection ${ns}`}
