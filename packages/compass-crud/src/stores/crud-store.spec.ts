@@ -1265,22 +1265,14 @@ describe('store', function () {
         // this should be invalid according to the validation rules
         const jsonDoc = '{ "status": "testing" }';
 
-        beforeEach(async function () {
+        beforeEach(function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
-          await dataService.updateCollection('compass-crud.test', {
-            validator: { $jsonSchema: { required: ['abc'] } },
-            validationAction: 'error',
-            validationLevel: 'strict',
-          });
         });
 
         afterEach(async function () {
           await dataService.deleteMany('compass-crud.test', {});
-          await dataService.updateCollection('compass-crud.test', {
-            validationLevel: 'off',
-          });
         });
 
         it('does not insert the document', async function () {
