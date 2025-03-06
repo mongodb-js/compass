@@ -478,7 +478,7 @@ export class Document extends EventEmitter {
   }
 
   onUpdateError(error: Error) {
-    this.emit('update-error', error.message);
+    this.emit('update-error', error);
   }
 
   markForDeletion() {
@@ -505,7 +505,7 @@ export class Document extends EventEmitter {
   }
 
   onRemoveError(error: Error) {
-    this.emit('remove-error', error.message);
+    this.emit('remove-error', error);
   }
 
   setModifiedEJSONString(ejson: string | null) {

@@ -70,6 +70,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
+  openErrorDetailsDialog,
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
@@ -318,6 +319,12 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
+        onOpenErrorDetails={(details: Record<string, unknown>) =>
+          openErrorDetailsDialog?.({
+            details,
+            closeAction: 'close',
+          })
+        }
       />
     </div>
   );
