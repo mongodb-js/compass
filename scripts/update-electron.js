@@ -100,7 +100,8 @@ async function main() {
     electronVersionRange
   );
 
-  const latestNodeAbiVersion = await getLatestVersion('node-abi');
+  // TODO(COMPASS-9098): Latest version of node-abi depends on Node.js 22. We are on 20 and will stay on this version until our version of Electron is updated along with the monorepo expected engines version. Uncomment this when we can update
+  // const latestNodeAbiVersion = await getLatestVersion('node-abi');
   const latestElectronRemoteVersion = await getLatestVersion(
     '@electron/remote'
   );
@@ -114,7 +115,7 @@ async function main() {
   );
 
   const newVersions = {
-    'node-abi': `^${latestNodeAbiVersion}`,
+    // 'node-abi': `^${latestNodeAbiVersion}`,
     '@electron/remote': `^${latestElectronRemoteVersion}`,
     '@electron/rebuild': `^${latestElectronRebuildVersion}`,
     electron: `^${latestElectronVersion}`,

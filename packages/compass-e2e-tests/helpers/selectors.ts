@@ -1153,7 +1153,7 @@ export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
-export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
+export const ValidationLoadSampleDocumentsBtn = `[data-testid="load-sample-documents"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
 export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
