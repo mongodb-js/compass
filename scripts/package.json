@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.24.3",
-    "@mongodb-js/monorepo-tools": "^1.1.1",
+    "@mongodb-js/monorepo-tools": "^1.1.16",
     "commander": "^11.0.0",
     "electron": "^32.3.2",
     "jsdom": "^24.1.3",
