@@ -214,7 +214,7 @@ Package|Version|License
 **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**|0.0.9|MIT
 **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**|1.0.5|MIT
 **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**|3.1.8|MIT
-**[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**|7.0.5|MIT
+**[cross-spawn](#50cb51119b3e7a0445ea15e1e026e95d2137df62a2bd344230886c9dcc0a7e64)**|7.0.6|MIT
 **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**|4.3.0|MIT
 **[d3-flextree](#d4848a862048d0f4733db2a8631b802f3b5f86f2d4a1efb77fc8b8cf9a06bf73)**|2.1.2|WTFPL
 **[d3-hierarchy](#e718643319205524a77c56ca75dcbf37e3975cc5e187760d1eef01cdd94a7d74)**|1.1.9|BSD-3-Clause
@@ -245,7 +245,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#917139cb42a267079249e7a59bef6353e0e9267c5cd83e377e0f3cf0e776e26b)**|32.3.2|MIT
+**[electron](#da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4)**|32.3.3|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -520,7 +520,7 @@ Package|Version|License
 **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**|0.20.2|MIT
 **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**|1.1.2|MIT
 **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**|6.3.1|ISC
-**[semver](#2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b)**|7.6.3|ISC
+**[semver](#ac791b6534eece17bffa8b5b2540862edf9edcbffbbe1141144b6c0a3e5f40ec)**|7.7.1|ISC
 **[send](#412cd4c4a8e6aaa433d5e67852c05a1e307fd4eb9dc362bdc30fa099313c24cb)**|0.19.0|MIT
 **[serve-static](#9a2d04a479ef9c6e990f1fb614478dea4368c040af707296400ff7f9bb68d30b)**|1.16.2|MIT
 **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**|1.2.2|MIT
@@ -551,7 +551,7 @@ Package|Version|License
 **[strip-final-newline](#a6dd80beeaaa538a553eca27a2bc8f9b22f02a61191d2f6981b02a2c1c12bf19)**|2.0.0|MIT
 **[strip-final-newline](#0e84cc036056cb7e0b11c5f70c4d239d4adf3ca9253b0e215abd7e78639b1c61)**|3.0.0|MIT
 **[strip-json-comments](#7e22a64e44ef0efd054f76d551df5305ac48eb5807079c025c8bf63c0a728c33)**|3.1.1|MIT
-**[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**|1.0.5|MIT
+**[strnum](#3bdf4900c0e3d15676c4bd10e5138b44348e4b8ac83a669999834c715506230d)**|1.1.2|MIT
 **[style-mod](#65cbf3eb373755d5dd9f5c58cf62d48dd4a33349e67d644af61d8d5438dbc1b5)**|4.1.2|MIT
 **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**|4.2.0|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
@@ -17635,8 +17635,8 @@ License files:
       
 
 
-<a id="18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d"></a>
-### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.5)
+<a id="50cb51119b3e7a0445ea15e1e026e95d2137df62a2bd344230886c9dcc0a7e64"></a>
+### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.6)
 License tags: MIT
 
 License files:
@@ -18952,8 +18952,8 @@ License files:
       
 
 
-<a id="917139cb42a267079249e7a59bef6353e0e9267c5cd83e377e0f3cf0e776e26b"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 32.3.2)
+<a id="da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.3.3)
 License tags: MIT
 
 License files:
@@ -35861,8 +35861,8 @@ License files:
       
 
 
-<a id="2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 7.6.3)
+<a id="ac791b6534eece17bffa8b5b2540862edf9edcbffbbe1141144b6c0a3e5f40ec"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.7.1)
 License tags: ISC
 
 License files:
@@ -36825,8 +36825,8 @@ License files:
       
 
 
-<a id="84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d"></a>
-### [strnum](https://www.npmjs.com/package/strnum) (version 1.0.5)
+<a id="3bdf4900c0e3d15676c4bd10e5138b44348e4b8ac83a669999834c715506230d"></a>
+### [strnum](https://www.npmjs.com/package/strnum) (version 1.1.2)
 License tags: MIT
 
 License files:
