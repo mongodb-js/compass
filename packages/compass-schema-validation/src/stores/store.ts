@@ -45,13 +45,21 @@ export function configureStore(
     | 'connectionInfoRef'
   >
 ) {
+  const rulesGenerationAbortControllerRef = {
+    current: undefined,
+  };
   return createStore(
     reducer,
     {
       ...INITIAL_STATE,
       ...state,
     },
-    applyMiddleware(thunk.withExtraArgument(services))
+    applyMiddleware(
+      thunk.withExtraArgument({
+        ...services,
+        rulesGenerationAbortControllerRef,
+      })
+    )
   );
 }
 

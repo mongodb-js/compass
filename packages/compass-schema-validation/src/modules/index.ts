@@ -77,6 +77,7 @@ export type SchemaValidationExtraArgs = {
   workspaces: WorkspacesService;
   logger: Logger;
   track: TrackFunction;
+  rulesGenerationAbortControllerRef: { current?: AbortController };
 };
 
 export type SchemaValidationThunkAction<

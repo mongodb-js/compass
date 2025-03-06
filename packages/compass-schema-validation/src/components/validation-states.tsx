@@ -3,7 +3,9 @@ import {
   Banner,
   Button,
   ButtonVariant,
+  CancelLoader,
   EmptyContent,
+  ErrorSummary,
   Link,
   WarningSummary,
   css,
@@ -16,12 +18,25 @@ import type { RootState } from '../modules';
 import ValidationEditor from './validation-editor';
 import { SampleDocuments } from './sample-documents';
 import { ZeroGraphic } from './zero-graphic';
+import {
+  clearRulesGenerationError,
+  generateValidationRules,
+} from '../modules/validation';
 
-const validationStatesStyles = css({ padding: spacing[3] });
+const validationStatesStyles = css({
+  padding: spacing[400],
+  height: '100%',
+});
 const contentContainerStyles = css({ height: '100%' });
 const zeroStateButtonsStyles = css({
   display: 'flex',
   gap: spacing[400],
+});
+
+const loaderStyles = css({
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
 });
 
 /**
@@ -50,8 +65,12 @@ const DOC_UPGRADE_REVISION =
 
 type ValidationStatesProps = {
   isZeroState: boolean;
+  isRulesGenerationInProgress?: boolean;
+  rulesGenerationError?: string;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
+  generateValidationRules: () => void;
+  clearRulesGenerationError: () => void;
   editMode: {
     collectionTimeSeries?: boolean;
     collectionReadOnly?: boolean;
@@ -108,10 +127,29 @@ function ValidationBanners({
   return null;
 }
 
+const GeneratingScreen: React.FunctionComponent<{
+  onCancelClicked: () => void;
+}> = ({ onCancelClicked }) => {
+  return (
+    <div className={loaderStyles}>
+      <CancelLoader
+        data-testid="generating-rules"
+        progressText="Generating rules"
+        cancelText="Stop"
+        onCancel={onCancelClicked}
+      />
+    </div>
+  );
+};
+
 export function ValidationStates({
   isZeroState,
+  isRulesGenerationInProgress,
+  rulesGenerationError,
   isLoaded,
   changeZeroState,
+  generateValidationRules,
+  clearRulesGenerationError,
   editMode,
 }: ValidationStatesProps) {
   const { readOnly, enableExportSchema } = usePreferences([
@@ -131,10 +169,17 @@ export function ValidationStates({
       className={validationStatesStyles}
       data-testid="schema-validation-states"
     >
+      {rulesGenerationError && (
+        <ErrorSummary
+          errors={rulesGenerationError}
+          dismissible={true}
+          onDismiss={clearRulesGenerationError}
+        />
+      )}
       <ValidationBanners editMode={editMode} />
       {isLoaded && (
         <>
-          {isZeroState ? (
+          {isZeroState && !isRulesGenerationInProgress && (
             <EmptyContent
               icon={ZeroGraphic}
               title="Create validation rules"
@@ -145,7 +190,7 @@ export function ValidationStates({
                     <Button
                       data-testid="generate-rules-button"
                       disabled={!isEditable}
-                      onClick={() => changeZeroState(false)}
+                      onClick={generateValidationRules}
                       variant={ButtonVariant.Primary}
                       size="small"
                     >
@@ -169,7 +214,11 @@ export function ValidationStates({
                 </Link>
               }
             />
-          ) : (
+          )}
+          {isZeroState && isRulesGenerationInProgress && (
+            <GeneratingScreen onCancelClicked={() => ({})} />
+          )}
+          {!isZeroState && (
             <div className={contentContainerStyles}>
               <ValidationEditor isEditable={isEditable} />
               <SampleDocuments />
@@ -192,6 +241,8 @@ const mapStateToProps = (state: RootState) => ({
   isZeroState: state.isZeroState,
   isLoaded: state.isLoaded,
   editMode: state.editMode,
+  isRulesGenerationInProgress: state.validation.isRulesGenerationInProgress,
+  rulesGenerationError: state.validation.rulesGenerationError,
 });
 
 /**
@@ -199,4 +250,6 @@ const mapStateToProps = (state: RootState) => ({
  */
 export default connect(mapStateToProps, {
   changeZeroState,
+  generateValidationRules,
+  clearRulesGenerationError,
 })(ValidationStates);
