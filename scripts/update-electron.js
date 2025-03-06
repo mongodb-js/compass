@@ -100,7 +100,9 @@ async function main() {
     electronVersionRange
   );
 
-  const latestNodeAbiVersion = await getLatestVersion('node-abi');
+
+  // Latest version of node-abi depends on Compass 22
+  // const latestNodeAbiVersion = await getLatestVersion('node-abi');
   const latestElectronRemoteVersion = await getLatestVersion(
     '@electron/remote'
   );
@@ -114,7 +116,7 @@ async function main() {
   );
 
   const newVersions = {
-    'node-abi': `^${latestNodeAbiVersion}`,
+    // 'node-abi': `^${latestNodeAbiVersion}`,
     '@electron/remote': `^${latestElectronRemoteVersion}`,
     '@electron/rebuild': `^${latestElectronRebuildVersion}`,
     electron: `^${latestElectronVersion}`,
