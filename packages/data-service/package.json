@@ -57,7 +57,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
     "bson": "^6.10.3",
     "lodash": "^4.17.21",
-    "mongodb": "^6.13.1",
+    "mongodb": "^6.14.1",
     "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-ns": "^2.4.2"
@@ -76,7 +76,7 @@
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "kerberos": "^2.2.0",
+    "kerberos": "^2.2.1",
     "mocha": "^10.2.0",
     "mongodb-log-writer": "^2.3.4",
     "nyc": "^15.1.0",
@@ -86,6 +86,6 @@
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.1.0"
+    "mongodb-client-encryption": "^6.3.0"
   }
 }

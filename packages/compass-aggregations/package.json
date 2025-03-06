@@ -84,7 +84,7 @@
     "hadron-document": "^8.8.4",
     "hadron-type-checker": "^7.4.4",
     "lodash": "^4.17.21",
-    "mongodb": "^6.13.1",
+    "mongodb": "^6.14.1",
     "mongodb-collection-model": "^5.25.4",
     "mongodb-data-service": "^22.25.4",
     "mongodb-database-model": "^2.25.4",
