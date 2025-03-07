@@ -77,7 +77,11 @@ const getMockedStore = async (analyzeSchema: any) => {
 };
 
 const schemaAccessor = {
-  getMongoDBJsonSchema: () => ({ required: ['prop1'] }),
+  getMongoDBJsonSchema: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ required: ['prop1'] }), 100); // waiting to give abort a chance
+    });
+  },
 };
 
 describe('Schema Validation Store', function () {
