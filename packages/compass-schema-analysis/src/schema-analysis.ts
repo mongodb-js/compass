@@ -10,9 +10,7 @@ import type {
   PrimitiveSchemaType,
   SchemaParseOptions,
 } from 'mongodb-schema';
-import type {
-  DataService as OriginalDataService,
-} from '@mongodb-js/compass-connections/provider';
+import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
@@ -50,7 +48,7 @@ export const analyzeSchema = async (
   preferences: PreferencesAccess
 ): Promise<SchemaAccessor | undefined> => {
   try {
-    log.info(mongoLogId(1_001_000_345), 'Schema', 'Starting schema analysis', {
+    log.info(mongoLogId(1_001_000_348), 'Schema', 'Starting schema analysis', {
       ns,
     });
 
