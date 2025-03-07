@@ -72,7 +72,7 @@
     "semver": "^7.6.3",
     "tree-kill": "^1.2.2",
     "ts-node": "^10.9.1",
-    "webdriverio": "^9.11.0",
+    "webdriverio": "^9.4.1",
     "why-is-node-running": "^2.3.0",
     "xvfb-maybe": "^0.2.1",
     "yargs": "^17.7.2"
