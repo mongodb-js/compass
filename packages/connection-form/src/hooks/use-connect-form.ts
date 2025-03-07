@@ -849,7 +849,10 @@ export function adjustConnectionOptionsBeforeConnect({
   preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
-  connectionInfo: Readonly<Pick<ConnectionInfo, 'id' | 'atlasMetadata'>>;
+  connectionInfo: {
+    id: string;
+    isAtlas: boolean;
+  };
   defaultAppName?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
@@ -869,7 +872,7 @@ export function adjustConnectionOptionsBeforeConnect({
     setAppNameParamIfMissing({
       defaultAppName,
       connectionId: connectionInfo.id,
-      isAtlas: !!connectionInfo.atlasMetadata,
+      isAtlas: connectionInfo.isAtlas,
       telemetryAnonymousId: preferences.telemetryAnonymousId,
     }),
     adjustOIDCConnectionOptionsBeforeConnect({

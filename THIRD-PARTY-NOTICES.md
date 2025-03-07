@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Mar 04 2025.
+This document was automatically generated on Thu Mar 06 2025.
 
 ## List of dependencies
 
@@ -340,7 +340,7 @@ Package|Version|License
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsondiffpatch](#2cc3b990f6692cd23f883319a727b42a76a3a9d6675d1ebd8a05241eb7edc4ac)**|0.5.0|MIT
 **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**|6.1.0|MIT
-**[kerberos](#ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b)**|2.2.0|Apache-2.0
+**[kerberos](#ca3c5608522e29e5bb1448cbc98ecd22ae59e194adfeb8c882448b88d2c2c45d)**|2.2.1|Apache-2.0
 **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**|1.3.0|MIT
 **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**|7.9.0|MIT
 **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**|0.1.1|BSD-2-Clause
@@ -435,19 +435,19 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**|1.1.0|MIT
 **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**|1.7.2|Apache-2.0
-**[mongodb-client-encryption](#d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a)**|6.1.1|Apache-2.0
+**[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**|6.3.0|Apache-2.0
 **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**|2.1.2|Apache-2.0
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
-**[mongodb-log-writer](#47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c)**|2.3.4|Apache-2.0
+**[mongodb-log-writer](#88666983cb95a6ccc6128f1044a0dcc126ed2a0291334daa221a96de19595c42)**|2.4.0|Apache-2.0
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**|4.3.0|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
 **[mongodb-schema](#200c813b2033bff2c15d483efbee05103074fef52fe90e31be3be1310f6e6a03)**|12.4.0|Apache-2.0
-**[mongodb](#7696156f9c85b86e3cf63e0edc7c5c9016136a26bd01c3167ab9096853770a7f)**|6.13.1|Apache-2.0
+**[mongodb](#a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a)**|6.14.2|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
-**[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
+**[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**|2.0.0|MIT
 **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**|0.6.3|MIT
 **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**|2.0.2|MIT
 **[node-abi](#e0fdace18ee5ae0d28d9180ead4d34c46d38ba2185a05dd566a3f7b1a699b2f0)**|3.74.0|MIT
@@ -481,7 +481,7 @@ Package|Version|License
 **[path-to-regexp](#a36c8f7aea129a341c589b7722e2c873fab8a2d01a0c3e2e426f5b28ba793621)**|0.1.12|MIT
 **[picocolors](#f964752f1f8cfd947506fd51ce1c148469ecf3b6f531d826511b720670e556f1)**|1.1.0|ISC
 **[polished](#41f40703c540ffc63abf67340f3944d1f3071fd6b35f499912e723da526b9807)**|4.3.1|MIT
-**[prebuild-install](#93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5)**|7.1.2|MIT
+**[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**|7.1.3|MIT
 **[prettier](#2e1e2077936be4bb5f075fd4d279f9ece641322ccd12a8116edb3f99f08f7411)**|2.7.1|MIT
 **[prop-types](#e4dd0bb5b6f98fbf52f0ad7062b8514aadc56a47a692bf6d8aab369786b6039f)**|15.8.1|MIT
 **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**|2.0.7|MIT
@@ -22219,8 +22219,8 @@ License files:
       
 
 
-<a id="ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.0)
+<a id="ca3c5608522e29e5bb1448cbc98ecd22ae59e194adfeb8c882448b88d2c2c45d"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.1)
 License tags: Apache-2.0
 
 License files:
@@ -25805,8 +25805,8 @@ License files:
       
 
 
-<a id="d8efb4ae363035b677f38203b1acc7b0d69b22f13b17e95d09d151bf9928072a"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.1.1)
+<a id="4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.3.0)
 License tags: Apache-2.0
 
 License files:
@@ -26429,8 +26429,8 @@ License files:
       
 
 
-<a id="47f6e9c71670774256e4055b714f0dafedf5d8cb82374f4f2315ade178dd074c"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.3.4)
+<a id="88666983cb95a6ccc6128f1044a0dcc126ed2a0291334daa221a96de19595c42"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.4.0)
 License tags: Apache-2.0
 
 License files:
@@ -27303,8 +27303,8 @@ License files:
       
 
 
-<a id="7696156f9c85b86e3cf63e0edc7c5c9016136a26bd01c3167ab9096853770a7f"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.13.1)
+<a id="a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.14.2)
 License tags: Apache-2.0
 
 License files:
@@ -27606,8 +27606,8 @@ License files:
       
 
 
-<a id="26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a"></a>
-### [napi-build-utils](https://www.npmjs.com/package/napi-build-utils) (version 1.0.2)
+<a id="4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372"></a>
+### [napi-build-utils](https://www.npmjs.com/package/napi-build-utils) (version 2.0.0)
 License tags: MIT
 
 License files:
@@ -28531,8 +28531,8 @@ License files:
       
 
 
-<a id="93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.2)
+<a id="034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.3)
 License tags: MIT
 
 License files:
