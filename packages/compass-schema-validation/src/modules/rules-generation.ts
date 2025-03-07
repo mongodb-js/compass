@@ -1,7 +1,6 @@
 import type { SchemaValidationThunkAction } from '.';
 import { zeroStateChanged } from './zero-state';
 import { enableEditRules } from './edit-mode';
-import { analyzeSchema } from '@mongodb-js/compass-schema';
 import type { MongoError } from 'mongodb';
 import type { Action, AnyAction, Reducer } from 'redux';
 import { validationLevelChanged, validatorChanged } from './validation';
@@ -161,7 +160,13 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, logger, preferences, rulesGenerationAbortControllerRef }
+    {
+      dataService,
+      logger,
+      preferences,
+      rulesGenerationAbortControllerRef,
+      analyzeSchema,
+    }
   ) => {
     dispatch({ type: RulesGenerationActions.generationStarted });
 

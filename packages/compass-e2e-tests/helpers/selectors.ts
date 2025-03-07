@@ -1161,6 +1161,8 @@ export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =
   '[data-testid="validation-level-selector"]';
+export const GenerateValidationRulesButton =
+  '[data-testid="generate-rules-button"]';
 
 // Find (Documents and Schema tabs)
 export const queryBar = (tabName: string): string => {

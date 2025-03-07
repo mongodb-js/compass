@@ -14,6 +14,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { analyzeSchema as compassAnalyzeSchema } from '@mongodb-js/compass-schema';
 
 /**
  * The lowest supported version.
@@ -43,7 +44,8 @@ export function configureStore(
     | 'logger'
     | 'track'
     | 'connectionInfoRef'
-  >
+  >,
+  analyzeSchema = compassAnalyzeSchema
 ) {
   const rulesGenerationAbortControllerRef = {
     current: undefined,
@@ -58,6 +60,7 @@ export function configureStore(
       thunk.withExtraArgument({
         ...services,
         rulesGenerationAbortControllerRef,
+        analyzeSchema,
       })
     )
   );
@@ -78,7 +81,8 @@ export function onActivated(
     workspaces,
     track,
   }: SchemaValidationServices,
-  { on, cleanup, addCleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers,
+  analyzeSchema?: typeof compassAnalyzeSchema
 ) {
   const store = configureStore(
     {
@@ -100,7 +104,8 @@ export function onActivated(
       workspaces,
       logger,
       track,
-    }
+    },
+    analyzeSchema
   );
 
   // isWritable can change later

@@ -36,6 +36,7 @@ import {
   INITIAL_STATE as RULES_GENERATION_STATE,
   rulesGenerationReducer,
 } from './rules-generation';
+import type { analyzeSchema } from '@mongodb-js/compass-schema';
 
 /**
  * Reset action constant.
@@ -84,6 +85,7 @@ export type SchemaValidationExtraArgs = {
   logger: Logger;
   track: TrackFunction;
   rulesGenerationAbortControllerRef: { current?: AbortController };
+  analyzeSchema: typeof analyzeSchema;
 };
 
 export type SchemaValidationThunkAction<
