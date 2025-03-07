@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Banner,
+  BannerVariant,
   Button,
   ButtonVariant,
   CancelLoader,
@@ -22,7 +23,9 @@ import {
   clearRulesGenerationError,
   generateValidationRules,
   stopRulesGeneration,
-} from '../modules/validation';
+  type RulesGenerationError,
+} from '../modules/rules-generation';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '@mongodb-js/compass-schema';
 
 const validationStatesStyles = css({
   padding: spacing[400],
@@ -67,7 +70,7 @@ const DOC_UPGRADE_REVISION =
 type ValidationStatesProps = {
   isZeroState: boolean;
   isRulesGenerationInProgress?: boolean;
-  rulesGenerationError?: string;
+  rulesGenerationError?: RulesGenerationError;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
   generateValidationRules: () => void;
@@ -144,6 +147,51 @@ const GeneratingScreen: React.FunctionComponent<{
   );
 };
 
+const RulesGenerationErrorBanner: React.FunctionComponent<{
+  error: RulesGenerationError;
+  onDismissError: () => void;
+}> = ({ error, onDismissError }) => {
+  if (error?.errorType === 'timeout') {
+    return (
+      <WarningSummary
+        data-testid="rules-generation-timeout-message"
+        warnings={[
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.',
+        ]}
+        dismissible={true}
+        onClose={onDismissError}
+      />
+    );
+  }
+  if (error?.errorType === 'highComplexity') {
+    return (
+      <Banner
+        variant={BannerVariant.Danger}
+        data-testid="rules-generation-complexity-abort-message"
+        dismissible={true}
+        onClose={onDismissError}
+      >
+        The rules generation was aborted because the number of fields exceeds{' '}
+        {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+        more collections with smaller documents, and using references to
+        consolidate the data you need.&nbsp;
+        <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
+          Learn more
+        </Link>
+      </Banner>
+    );
+  }
+
+  return (
+    <ErrorSummary
+      data-testid="rules-generation-error-message"
+      errors={[`Error occured during rules generation: ${error.errorMessage}`]}
+      dismissible={true}
+      onClose={onDismissError}
+    />
+  );
+};
+
 export function ValidationStates({
   isZeroState,
   isRulesGenerationInProgress,
@@ -173,10 +221,9 @@ export function ValidationStates({
       data-testid="schema-validation-states"
     >
       {rulesGenerationError && (
-        <ErrorSummary
-          errors={rulesGenerationError}
-          dismissible={true}
-          onClose={clearRulesGenerationError}
+        <RulesGenerationErrorBanner
+          error={rulesGenerationError}
+          onDismissError={clearRulesGenerationError}
         />
       )}
       <ValidationBanners editMode={editMode} />
@@ -248,8 +295,8 @@ const mapStateToProps = (state: RootState) => ({
   isZeroState: state.isZeroState,
   isLoaded: state.isLoaded,
   editMode: state.editMode,
-  isRulesGenerationInProgress: state.validation.isRulesGenerationInProgress,
-  rulesGenerationError: state.validation.rulesGenerationError,
+  isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
+  rulesGenerationError: state.rulesGeneration.error,
 });
 
 /**

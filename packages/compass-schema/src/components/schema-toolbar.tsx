@@ -21,8 +21,8 @@ import {
   type SchemaAnalysisError,
   analysisErrorDismissed,
 } from '../stores/schema-analysis-reducer';
-import type { RootState } from '../stores/store';
 import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
+import type { RootState } from '../stores/store';
 import { openExportSchema } from '../stores/schema-export-reducer';
 
 const schemaToolbarStyles = css({

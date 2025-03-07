@@ -7,14 +7,10 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-import { disableEditRules, enableEditRules } from './edit-mode';
-import { analyzeSchema } from '@mongodb-js/compass-schema';
+import { disableEditRules } from './edit-mode';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
-
-const SAMPLE_SIZE = 1000;
-const ABORT_MESSAGE = 'Operation cancelled';
 
 /**
  * The module action prefix.
@@ -87,31 +83,6 @@ interface SyntaxErrorOccurredAction {
   syntaxError: null | { message: string };
 }
 
-export const RULES_GENERATION_STARTED =
-  `${PREFIX}/RULES_GENERATION_STARTED` as const;
-interface RulesGenerationStartedAction {
-  type: typeof RULES_GENERATION_STARTED;
-}
-
-export const RULES_GENERATION_FAILED =
-  `${PREFIX}/RULES_GENERATION_FAILED` as const;
-interface RulesGenerationFailedAction {
-  type: typeof RULES_GENERATION_FAILED;
-  message: string;
-}
-
-export const RULES_GENERATION_CLEAR_ERROR =
-  `${PREFIX}/RULES_GENERATION_CLEAR_ERROR` as const;
-interface RulesGenerationClearErrorAction {
-  type: typeof RULES_GENERATION_CLEAR_ERROR;
-}
-
-export const RULES_GENERATION_FINISHED =
-  `${PREFIX}/RULES_GENERATION_FINISHED` as const;
-interface RulesGenerationFinishedAction {
-  type: typeof RULES_GENERATION_FINISHED;
-}
-
 export type ValidationAction =
   | ValidatorChangedAction
   | ValidationCanceledAction
@@ -119,11 +90,7 @@ export type ValidationAction =
   | ValidationFetchedAction
   | ValidationActionChangedAction
   | ValidationLevelChangedAction
-  | SyntaxErrorOccurredAction
-  | RulesGenerationStartedAction
-  | RulesGenerationFinishedAction
-  | RulesGenerationFailedAction
-  | RulesGenerationClearErrorAction;
+  | SyntaxErrorOccurredAction;
 
 export interface Validation {
   validator: string;
@@ -143,8 +110,6 @@ export interface ValidationState extends Validation {
   syntaxError: null | { message: string };
   error: null | { message: string };
   prevValidation?: Validation;
-  isRulesGenerationInProgress?: boolean;
-  rulesGenerationError?: string;
 }
 
 /**
@@ -222,34 +187,6 @@ const setSyntaxError = (
   ...state,
   isChanged: true,
   syntaxError: action.syntaxError,
-});
-
-const startRulesGeneration = (state: ValidationState): ValidationState => ({
-  ...state,
-  isRulesGenerationInProgress: true,
-  rulesGenerationError: undefined,
-});
-
-const finishRulesGeneration = (state: ValidationState): ValidationState => ({
-  ...state,
-  isRulesGenerationInProgress: undefined,
-  rulesGenerationError: undefined,
-});
-
-const markRulesGenerationFailure = (
-  state: ValidationState,
-  action: RulesGenerationFailedAction
-): ValidationState => ({
-  ...state,
-  isRulesGenerationInProgress: undefined,
-  rulesGenerationError: action.message,
-});
-
-const unsetRulesGenerationError = (
-  state: ValidationState
-): ValidationState => ({
-  ...state,
-  rulesGenerationError: undefined,
 });
 
 /**
@@ -354,10 +291,6 @@ const MAPPINGS: {
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
   [SYNTAX_ERROR_OCCURRED]: setSyntaxError,
-  [RULES_GENERATION_STARTED]: startRulesGeneration,
-  [RULES_GENERATION_FINISHED]: finishRulesGeneration,
-  [RULES_GENERATION_FAILED]: markRulesGenerationFailure,
-  [RULES_GENERATION_CLEAR_ERROR]: unsetRulesGenerationError,
 };
 
 /**
@@ -447,11 +380,6 @@ export const syntaxErrorOccurred = (
   type: SYNTAX_ERROR_OCCURRED,
   syntaxError,
 });
-
-export const clearRulesGenerationError =
-  (): RulesGenerationClearErrorAction => ({
-    type: RULES_GENERATION_CLEAR_ERROR,
-  });
 
 export const fetchValidation = (namespace: {
   database: string;
@@ -606,83 +534,5 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
     const namespace = state.namespace;
 
     dispatch(fetchValidation(namespace));
-  };
-};
-
-export const stopRulesGeneration = (): SchemaValidationThunkAction<void> => {
-  return (dispatch, getState, { rulesGenerationAbortControllerRef }) => {
-    if (!rulesGenerationAbortControllerRef.current) return;
-    rulesGenerationAbortControllerRef.current?.abort(ABORT_MESSAGE);
-  };
-};
-
-/**
- * Get $jsonSchema from schema analysis
- * @returns
- */
-export const generateValidationRules = (): SchemaValidationThunkAction<
-  Promise<void>
-> => {
-  return async (
-    dispatch,
-    getState,
-    { dataService, logger, preferences, rulesGenerationAbortControllerRef }
-  ) => {
-    dispatch({ type: RULES_GENERATION_STARTED });
-
-    rulesGenerationAbortControllerRef.current = new AbortController();
-    const abortSignal = rulesGenerationAbortControllerRef.current.signal;
-
-    const { namespace } = getState();
-    const { maxTimeMS } = preferences.getPreferences();
-
-    try {
-      const samplingOptions = {
-        query: {},
-        size: SAMPLE_SIZE,
-        fields: undefined,
-      };
-      const driverOptions = {
-        maxTimeMS,
-      };
-      const schemaAccessor = await analyzeSchema(
-        dataService,
-        abortSignal,
-        namespace.toString(),
-        samplingOptions,
-        driverOptions,
-        logger,
-        preferences
-      );
-      if (abortSignal?.aborted) {
-        throw new Error(ABORT_MESSAGE);
-      }
-
-      const jsonSchema = await schemaAccessor?.getMongoDBJsonSchema({
-        signal: abortSignal,
-      });
-      if (abortSignal?.aborted) {
-        throw new Error(ABORT_MESSAGE);
-      }
-      const validator = JSON.stringify(
-        { $jsonSchema: jsonSchema },
-        undefined,
-        2
-      );
-      dispatch(validationLevelChanged('moderate'));
-      dispatch(validatorChanged(validator));
-      dispatch(enableEditRules());
-      dispatch({ type: RULES_GENERATION_FINISHED });
-      dispatch(zeroStateChanged(false));
-    } catch (error) {
-      if (abortSignal.aborted) {
-        dispatch({ type: RULES_GENERATION_FINISHED });
-        return;
-      }
-      dispatch({
-        type: RULES_GENERATION_FAILED,
-        message: `Rules generation failed: ${(error as Error).message}`,
-      });
-    }
   };
 };
