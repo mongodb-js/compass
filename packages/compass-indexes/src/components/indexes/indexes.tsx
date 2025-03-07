@@ -59,7 +59,7 @@ const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false
   );
-  
+
   if (!atlasMetadata || dismissed) {
     return null;
   }
