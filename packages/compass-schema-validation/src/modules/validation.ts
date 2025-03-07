@@ -8,7 +8,7 @@ import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
 import { disableEditRules, enableEditRules } from './edit-mode';
-import { analyzeSchema } from '@mongodb-js/compass-schema-analysis';
+import { analyzeSchema } from '@mongodb-js/compass-schema';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';

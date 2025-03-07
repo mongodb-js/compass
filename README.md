@@ -51,7 +51,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-maybe-protect-connection-string**](packages/compass-maybe-protect-connection-string): Utility for protecting connection strings if requested
 - [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for compass
 - [**@mongodb-js/compass-telemetry**](packages/compass-telemetry): Compass telemetry
-- [**@mongodb-js/compass-schema-analysis**](packages/compass-schema-analysis): Compass schema analysis
 - [**@mongodb-js/compass-test-server**](packages/compass-test-server): Wrapper around mongodb-runner to manage test servers for Compass
 - [**@mongodb-js/compass-user-data**](packages/compass-user-data): undefined
 - [**@mongodb-js/compass-utils**](packages/compass-utils): Utilities for MongoDB Compass Development

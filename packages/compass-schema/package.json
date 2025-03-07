@@ -54,7 +54,6 @@
     "@mongodb-js/prettier-config-compass": "^1.2.5",
     "@mongodb-js/testing-library-compass": "^1.2.5",
     "@mongodb-js/tsconfig-compass": "^1.2.5",
-    "@mongodb-js/compass-schema-analysis": "^1.0.0",
     "@types/chai": "^4.2.21",
     "@types/leaflet": "^1.9.8",
     "@types/leaflet-draw": "^1.0.11",
