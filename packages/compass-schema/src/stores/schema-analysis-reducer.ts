@@ -1,24 +1,20 @@
 import type { Schema } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
-import type { AggregateOptions } from 'mongodb';
+import type { AggregateOptions, MongoError } from 'mongodb';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
-  ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_INITIAL,
-  ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
-  calculateSchemaDepth,
-  type SchemaAccessor,
-  schemaContainsGeoData,
+  calculateSchemaMetadata,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
-import { openToast } from '@mongodb-js/compass-components';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
@@ -29,11 +25,16 @@ const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
+export type SchemaAnalysisError = {
+  errorMessage: string;
+  errorType: 'timeout' | 'highComplexity' | 'general';
+};
+
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
-  errorMessage: string;
+  analysisStartTime?: number;
+  error?: SchemaAnalysisError;
   schema: Schema | null;
-  schemaAccessor: SchemaAccessor | null;
   resultId: string;
 };
 
@@ -41,15 +42,16 @@ export const enum SchemaAnalysisActions {
   analysisStarted = 'schema-service/schema-analysis/analysisStarted',
   analysisFinished = 'schema-service/schema-analysis/analysisFinished',
   analysisFailed = 'schema-service/schema-analysis/analysisFailed',
+  analysisErrorDismissed = 'schema-service/schema-analysis/analysisErrorDismissed',
 }
 
 export type AnalysisStartedAction = {
   type: SchemaAnalysisActions.analysisStarted;
+  analysisStartTime: number;
 };
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
-  schemaAccessor: SchemaAccessor | null;
   schema: Schema | null;
 };
 
@@ -58,10 +60,14 @@ export type AnalysisFailedAction = {
   error: Error;
 };
 
+export type AnalysisErrorDismissedAction = {
+  type: SchemaAnalysisActions.analysisErrorDismissed;
+};
+
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   state = getInitialState(),
   action
-) => {
+): SchemaAnalysisState => {
   if (
     isAction<AnalysisStartedAction>(
       action,
@@ -70,10 +76,10 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   ) {
     return {
       ...state,
+      analysisStartTime: action.analysisStartTime,
       analysisState: ANALYSIS_STATE_ANALYZING,
-      errorMessage: '',
+      error: undefined,
       schema: null,
-      schemaAccessor: null,
     };
   }
 
@@ -89,7 +95,6 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         ? ANALYSIS_STATE_COMPLETE
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
-      schemaAccessor: action.schemaAccessor,
       resultId: resultId(),
     };
   }
@@ -99,88 +104,50 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   ) {
     return {
       ...state,
-      ...getErrorState(action.error),
+      error: getErrorDetails(action.error),
+      analysisState: ANALYSIS_STATE_INITIAL,
       resultId: resultId(),
+    };
+  }
+
+  if (
+    isAction<AnalysisErrorDismissedAction>(
+      action,
+      SchemaAnalysisActions.analysisErrorDismissed
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
     };
   }
 
   return state;
 };
 
-function getErrorState(err: Error & { code?: number }) {
-  const errorMessage = (err && err.message) || 'Unknown error';
-  const errorCode = err && err.code;
-
-  let analysisState: AnalysisState;
-
+function getErrorDetails(error: Error): SchemaAnalysisError {
+  const errorCode = (error as MongoError).code;
+  const errorMessage = error.message || 'Unknown error';
+  let errorType: SchemaAnalysisError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
-    analysisState = ANALYSIS_STATE_TIMEOUT;
-  } else {
-    analysisState = ANALYSIS_STATE_ERROR;
+    errorType = 'timeout';
+  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
+    errorType = 'highComplexity';
   }
 
-  return { analysisState, errorMessage };
+  return {
+    errorType,
+    errorMessage,
+  };
 }
 
 function resultId(): string {
   return new UUID().toString();
 }
 
-export const handleSchemaShare = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { namespace }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    const hasSchema = schema !== null;
-    if (hasSchema) {
-      void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
-    }
-    dispatch(_trackSchemaShared(hasSchema));
-    openToast(
-      'share-schema',
-      hasSchema
-        ? {
-            variant: 'success',
-            title: 'Schema Copied',
-            description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
-            timeout: 5_000,
-          }
-        : {
-            variant: 'warning',
-            title: 'Analyze Schema First',
-            description: 'Please Analyze the Schema First from the Schema Tab.',
-            timeout: 5_000,
-          }
-    );
-  };
-};
-
-export const _trackSchemaShared = (
-  hasSchema: boolean
-): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    const {
-      schemaAnalysis: { schema },
-    } = getState();
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = () => ({
-      has_schema: hasSchema,
-      schema_width: schema?.fields?.length ?? 0,
-      schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-      geo_data: schema ? schemaContainsGeoData(schema) : false,
-    });
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
-  };
-};
-
 const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
-  errorMessage: '',
   schema: null,
-  schemaAccessor: null,
   resultId: resultId(),
 });
 
@@ -197,6 +164,12 @@ export const geoLayerAdded = (
     return generateGeoQuery(geoLayersRef.current);
   };
 };
+
+export const analysisErrorDismissed =
+  (): SchemaThunkAction<AnalysisErrorDismissedAction> => {
+    return (dispatch) =>
+      dispatch({ type: SchemaAnalysisActions.analysisErrorDismissed });
+  };
 
 export const geoLayersEdited = (
   field: string,
@@ -222,9 +195,72 @@ export const geoLayersDeleted = (
 };
 
 export const stopAnalysis = (): SchemaThunkAction<void> => {
-  return (dispatch, getState, { abortControllerRef }) => {
-    if (!abortControllerRef.current) return;
-    abortControllerRef.current?.abort();
+  return (
+    dispatch,
+    getState,
+    { analysisAbortControllerRef, connectionInfoRef, queryBar, track }
+  ) => {
+    if (!analysisAbortControllerRef.current) return;
+    const analysisTime =
+      Date.now() - (getState().schemaAnalysis.analysisStartTime ?? 0);
+
+    const query = queryBar.getLastAppliedQuery('schema');
+    track(
+      'Schema Analysis Cancelled',
+      {
+        analysis_time_ms: analysisTime,
+        with_filter: Object.entries(query.filter ?? {}).length > 0,
+      },
+      connectionInfoRef.current
+    );
+
+    analysisAbortControllerRef.current?.abort('Analysis cancelled');
+  };
+};
+
+export const cleanupAnalysis = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { analysisAbortControllerRef }) => {
+    if (!analysisAbortControllerRef.current) return;
+    analysisAbortControllerRef.current?.abort();
+  };
+};
+
+const getSchemaAnalyzedEventPayload = ({
+  schema,
+  query,
+  analysisTime,
+}: {
+  schema: Schema | null;
+  query: ReturnType<QueryBarService['getLastAppliedQuery']>;
+  analysisTime: number;
+}) => {
+  return async () => {
+    const {
+      field_types,
+      geo_data,
+      optional_field_count,
+      schema_depth,
+      variable_type_count,
+    } = schema
+      ? await calculateSchemaMetadata(schema)
+      : {
+          field_types: {},
+          geo_data: false,
+          optional_field_count: 0,
+          schema_depth: 0,
+          variable_type_count: 0,
+        };
+
+    return {
+      with_filter: Object.entries(query.filter ?? {}).length > 0,
+      schema_width: schema?.fields?.length ?? 0,
+      field_types,
+      variable_type_count,
+      optional_field_count,
+      schema_depth,
+      geo_data,
+      analysis_time_ms: analysisTime,
+    };
   };
 };
 
@@ -242,7 +278,8 @@ export const startAnalysis = (): SchemaThunkAction<
       dataService,
       logger,
       fieldStoreService,
-      abortControllerRef,
+      analysisAbortControllerRef,
+      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
@@ -272,23 +309,32 @@ export const startAnalysis = (): SchemaThunkAction<
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
     };
 
-    abortControllerRef.current = new AbortController();
-    const abortSignal = abortControllerRef.current.signal;
+    analysisAbortControllerRef.current = new AbortController();
+    const abortSignal = analysisAbortControllerRef.current.signal;
 
+    const analysisStartTime = Date.now();
     try {
       debug('analysis started');
 
-      dispatch({ type: SchemaAnalysisActions.analysisStarted });
+      dispatch({
+        type: SchemaAnalysisActions.analysisStarted,
+        analysisStartTime,
+      });
 
-      const analysisStartTime = Date.now();
       const schemaAccessor = await analyzeSchema(
         dataService,
         abortSignal,
         namespace,
         samplingOptions,
         driverOptions,
-        logger
+        logger,
+        preferences
       );
+      if (abortSignal?.aborted) {
+        throw new Error(abortSignal?.reason || new Error('Operation aborted'));
+      }
+
+      schemaAccessorRef.current = schemaAccessor;
       let schema: Schema | null = null;
       if (schemaAccessor) {
         schema = await schemaAccessor.getInternalSchema();
@@ -305,18 +351,17 @@ export const startAnalysis = (): SchemaThunkAction<
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
         schema,
-        schemaAccessor,
       });
 
-      // track schema analyzed
-      const trackEvent = () => ({
-        with_filter: Object.entries(query.filter ?? {}).length > 0,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
-        geo_data: schema ? schemaContainsGeoData(schema) : false,
-        analysis_time_ms: analysisTime,
-      });
-      track('Schema Analyzed', trackEvent, connectionInfoRef.current);
+      track(
+        'Schema Analyzed',
+        getSchemaAnalyzedEventPayload({
+          schema,
+          query,
+          analysisTime,
+        }),
+        connectionInfoRef.current
+      );
 
       geoLayersRef.current = {};
     } catch (err: any) {
@@ -333,7 +378,7 @@ export const startAnalysis = (): SchemaThunkAction<
         error: err as Error,
       });
     } finally {
-      abortControllerRef.current = undefined;
+      analysisAbortControllerRef.current = undefined;
     }
   };
 };

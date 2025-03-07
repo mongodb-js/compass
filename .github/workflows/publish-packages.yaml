@@ -1,4 +1,4 @@
-name: Publish
+name: Publish packages to npm
 on:
   # NOTE: avoid using the manual execution unless is the only way to fix some issue,
   # rather retry failed jobs in case of flakes. The manual execution can potentially
@@ -59,7 +59,7 @@ jobs:
 
       - name: "Publish tags"
         run: |
-          npx lerna list -a --json | \
+          npx lerna list --json | \
             jq -r '.[] | .name + "@" + .version' | \
             xargs -i sh -c "git tag -a {} -m {} || true"
           git push --follow-tags

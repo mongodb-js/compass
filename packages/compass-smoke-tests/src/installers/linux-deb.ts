@@ -1,20 +1,27 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
 import * as apt from './apt';
 
+const debug = createDebug('compass:smoketests:linux-deb');
+
 export function installLinuxDeb({
-  appName,
+  kind,
   filepath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
+  assert.equal(kind, 'linux_deb');
+  const appName = buildInfo.productName;
   const packageName = apt.getPackageName(filepath);
   const installPath = `/usr/lib/${packageName}`;
   const appPath = path.resolve(installPath, appName);
 
   function uninstall() {
+    debug('Uninstalling %s', filepath);
     execute('sudo', ['apt', 'remove', '--yes', '--purge', packageName]);
   }
 
@@ -47,6 +54,7 @@ export function installLinuxDeb({
   execute('xvfb-run', [appPath, '--version']);
 
   return {
+    appName,
     appPath: installPath,
     uninstall,
   };

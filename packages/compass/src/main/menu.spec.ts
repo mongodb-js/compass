@@ -209,7 +209,7 @@ describe('CompassMenu', function () {
               const updateItem = (
                 menu[0].submenu as any
               )?.[1] as MenuItemConstructorOptions;
-              expect(updateItem.label).to.equal('Restart');
+              expect(updateItem.label).to.equal('Restart to Update');
             }
           });
         });
@@ -280,7 +280,7 @@ describe('CompassMenu', function () {
               const updateItem = (
                 menu[3].submenu as any
               )?.[8] as MenuItemConstructorOptions;
-              expect(updateItem.label).to.equal('Restart');
+              expect(updateItem.label).to.equal('Restart to Update');
             }
           });
         });
@@ -411,7 +411,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',
@@ -445,7 +445,7 @@ describe('CompassMenu', function () {
         submenu: [
           {
             accelerator: 'Alt+CmdOrCtrl+S',
-            label: '&Share Schema as JSON',
+            label: '&Share Schema as JSON (Legacy)',
           },
           {
             type: 'separator',

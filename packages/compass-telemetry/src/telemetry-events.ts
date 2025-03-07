@@ -1935,6 +1935,25 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
     schema_width: number;
 
     /**
+     * Key/value pairs of bsonType and count.
+     */
+    field_types: {
+      [bsonType: string]: number;
+    };
+
+    /**
+     * The count of fields with multiple types in a given schema (not counting undefined).
+     * This is only calculated for the top level fields, not nested fields and arrays.
+     */
+    variable_type_count: number;
+
+    /**
+     * The count of fields that don't appear on all documents.
+     * This is only calculated for the top level fields, not nested fields and arrays.
+     */
+    optional_field_count: number;
+
+    /**
      * The number of nested levels.
      */
     schema_depth: number;
@@ -1946,6 +1965,26 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 
     /**
      * The time taken to analyze the schema, in milliseconds.
+     */
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when user analyzes the schema.
+ *
+ * @category Schema
+ */
+type SchemaAnalysisCancelledEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Cancelled';
+  payload: {
+    /**
+     * Indicates whether a filter was applied during the schema analysis.
+     */
+    with_filter: boolean;
+
+    /**
+     * The time taken when analyzing the schema, before being cancelled, in milliseconds.
      */
     analysis_time_ms: number;
   };
@@ -1964,6 +2003,10 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      */
     has_schema: boolean;
 
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
+
+    source: 'app_menu' | 'schema_tab';
+
     /**
      * The number of fields at the top level.
      */
@@ -1978,6 +2021,27 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      * Indicates whether the schema contains geospatial data.
      */
     geo_data: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user shares the schema.
+ *
+ * @category Schema
+ */
+type SchemaExportFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Export Failed';
+  payload: {
+    /**
+     * Indicates whether the schema was analyzed before sharing.
+     */
+    has_schema: boolean;
+
+    schema_length: number;
+
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
+
+    stage: string;
   };
 }>;
 
@@ -2683,8 +2747,10 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
+  | SchemaExportFailedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent

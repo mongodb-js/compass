@@ -2,7 +2,6 @@ import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
 import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
-import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
@@ -42,6 +41,8 @@ import {
   ELECTRON_PATH,
 } from './test-runner-paths';
 import treeKill from 'tree-kill';
+import { downloadPath } from './downloads';
+import path from 'path';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -75,12 +76,12 @@ declare global {
   }
 }
 
-/*
-A helper so we can easily find all the tests we're skipping in compass-web.
-Reason is there so you can fill it in and have it show up in search results
-in a scannable manner. It is not being output at present because the tests will
-be logged as pending anyway.
-*/
+/**
+ * A helper so we can easily find all the tests we're skipping in compass-web.
+ * Reason is there so you can fill it in and have it show up in search results
+ * in a scannable manner. It is not being output at present because the tests will
+ * be logged as pending anyway.
+ */
 export function skipForWeb(
   test: Mocha.Runnable | Mocha.Context,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -677,6 +678,13 @@ async function startCompassElectron(
 
   try {
     browser = (await remote(options)) as CompassBrowser;
+    // https://webdriver.io/docs/best-practices/file-download/#configuring-chromium-browser-downloads
+    const page = await browser.getPuppeteer();
+    const cdpSession = await page.target().createCDPSession();
+    await cdpSession.send('Browser.setDownloadBehavior', {
+      behavior: 'allow',
+      downloadPath: downloadPath,
+    });
   } catch (err) {
     debug('Failed to start remote webdriver session', {
       error: (err as Error).stack,
@@ -755,6 +763,26 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
+  const browserCapabilities: Record<string, Record<string, unknown>> = {
+    chrome: {
+      'goog:chromeOptions': {
+        prefs: {
+          'download.default_directory': downloadPath,
+        },
+      },
+    },
+    firefox: {
+      'moz:firefoxOptions': {
+        prefs: {
+          'browser.download.dir': downloadPath,
+          'browser.download.folderList': 2,
+          'browser.download.manager.showWhenStarting': false,
+          'browser.helperApps.neverAsk.saveToDisk': '*/*',
+        },
+      },
+    },
+  };
+
   // webdriverio removed RemoteOptions. It is now
   // Capabilities.WebdriverIOConfig, but Capabilities is not exported
   const options = {
@@ -763,6 +791,7 @@ export async function startBrowser(
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
+      ...browserCapabilities[context.browserName],
 
       // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
       'wdio:enforceWebDriverClassic': true,

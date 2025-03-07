@@ -2,11 +2,13 @@ import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
 import { EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
+import { openToast } from '@mongodb-js/compass-components';
 import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
+import { disableEditRules } from './edit-mode';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -450,6 +452,8 @@ export function validationFromCollection(
   };
 }
 
+const toastId = 'schema-validation-update';
+
 /**
  * Save validation.
  */
@@ -486,6 +490,11 @@ export const saveValidation = (
         }
       );
       dispatch(fetchValidation(namespace));
+      openToast(toastId, {
+        title: 'New validation rules applied',
+        variant: 'success',
+      });
+      dispatch(disableEditRules());
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
     }
@@ -505,6 +514,7 @@ export const cancelValidation = () => {
     const state = getState();
     const prevValidation = state.validation.prevValidation;
 
+    dispatch(disableEditRules());
     dispatch(
       validationCanceled({
         isChanged: false,

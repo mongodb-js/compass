@@ -2,9 +2,13 @@ import assert from 'node:assert/strict';
 import cp from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+
+const debug = createDebug('compass:smoketests:linux-rpm');
+
 /**
  * Call dnf to get the package name
  */
@@ -26,26 +30,26 @@ function getPackageName(filepath: string) {
  * Check if a package is installed (by name)
  */
 export function isInstalled(packageName: string) {
-  const result = cp.spawnSync(
-    'sudo',
-    ['dnf', 'list', 'installed', packageName],
-    {
-      stdio: 'inherit',
-    }
-  );
+  const result = cp.spawnSync('dnf', ['list', 'installed', packageName], {
+    stdio: 'inherit',
+  });
   return result.status === 0;
 }
 
 export function installLinuxRpm({
-  appName,
+  kind,
   filepath,
+  buildInfo,
 }: InstallablePackage): InstalledAppInfo {
+  assert.equal(kind, 'linux_rpm');
+  const appName = buildInfo.productName;
   const packageName = getPackageName(filepath);
   const installPath = `/usr/lib/${packageName}`;
   const appPath = path.resolve(installPath, appName);
 
   function uninstall() {
-    execute('sudo', ['dnf', 'remove', '-y', packageName]);
+    debug('Uninstalling %s', filepath);
+    execute('dnf', ['remove', '-y', packageName]);
   }
 
   if (isInstalled(packageName)) {
@@ -63,7 +67,7 @@ export function installLinuxRpm({
     !fs.existsSync(installPath),
     `Expected no install directory to exist: ${installPath}`
   );
-  execute('sudo', ['dnf', 'install', '-y', filepath]);
+  execute('dnf', ['install', '-y', filepath]);
 
   assert(isInstalled(packageName), 'Expected the package to be installed');
   assert(
@@ -72,9 +76,12 @@ export function installLinuxRpm({
   );
 
   // Check that the executable will run without being quarantined or similar
-  execute('xvfb-run', [appPath, '--version']);
+  // Passing --no-sandbox because RHEL and Rocky usually run as root and --disable-gpu to avoid warnings
+  // (see compass-e2e-tests/helpers/chrome-startup-flags.ts for details)
+  execute('xvfb-run', [appPath, '--version', '--no-sandbox', '--disable-gpu']);
 
   return {
+    appName,
     appPath: installPath,
     uninstall,
   };

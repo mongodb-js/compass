@@ -7,6 +7,11 @@ import { Duplex } from 'stream';
  * used when running compass-web in a local sandbox, mms has their own
  * implementation
  */
+enum MESSAGE_TYPE {
+  JSON = 0x01,
+  BINARY = 0x02,
+}
+
 class Socket extends Duplex {
   private _ws: WebSocket | null = null;
   constructor() {
@@ -36,7 +41,7 @@ class Socket extends Duplex {
           ok: 1,
         });
         setTimeout(() => {
-          this._ws?.send(connectMsg);
+          this._ws?.send(this.encodeStringMessageWithTypeByte(connectMsg));
         });
       },
       { once: true }
@@ -49,10 +54,11 @@ class Socket extends Duplex {
     });
     this._ws.addEventListener(
       'message',
-      ({ data }: MessageEvent<string | ArrayBuffer>) => {
-        if (typeof data === 'string') {
+      ({ data }: MessageEvent<ArrayBuffer>) => {
+        const dataView = new Uint8Array(data);
+        if (dataView[0] === 0x01) {
           try {
-            const res = JSON.parse(data) as { preMessageOk: 1 };
+            const res = this.decodeMessageWithTypeByte(dataView);
             if (res.preMessageOk) {
               setTimeout(() => {
                 this.emit(options.tls ? 'secureConnect' : 'connect');
@@ -64,7 +70,7 @@ class Socket extends Duplex {
           }
         } else {
           setTimeout(() => {
-            this.emit('data', Buffer.from(data));
+            this.emit('data', this.decodeMessageWithTypeByte(dataView));
           });
         }
       }
@@ -75,7 +81,7 @@ class Socket extends Duplex {
     // noop
   }
   _write(chunk: ArrayBufferLike, _encoding: BufferEncoding, cb: () => void) {
-    this._ws?.send(chunk);
+    this._ws?.send(this.encodeBinaryMessageWithTypeByte(new Uint8Array(chunk)));
     setTimeout(() => {
       cb();
     });
@@ -109,6 +115,38 @@ class Socket extends Duplex {
   }
   setNoDelay() {
     return this;
+  }
+
+  encodeStringMessageWithTypeByte(message: string) {
+    const utf8Encoder = new TextEncoder();
+    const utf8Array = utf8Encoder.encode(message);
+    return this.encodeMessageWithTypeByte(utf8Array, MESSAGE_TYPE.JSON);
+  }
+
+  encodeBinaryMessageWithTypeByte(message: Uint8Array) {
+    return this.encodeMessageWithTypeByte(message, MESSAGE_TYPE.BINARY);
+  }
+
+  encodeMessageWithTypeByte(message: Uint8Array, type: MESSAGE_TYPE) {
+    const encoded = new Uint8Array(message.length + 1);
+    encoded[0] = type;
+    encoded.set(message, 1);
+    return encoded;
+  }
+
+  decodeMessageWithTypeByte(message: Uint8Array) {
+    const typeByte = message[0];
+    if (typeByte === MESSAGE_TYPE.JSON) {
+      const jsonBytes = message.subarray(1);
+      const textDecoder = new TextDecoder('utf-8');
+      const jsonStr = textDecoder.decode(jsonBytes);
+      return JSON.parse(jsonStr);
+    } else if (typeByte === MESSAGE_TYPE.BINARY) {
+      return message.subarray(1);
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('message does not have valid type byte "%s"', message);
+    }
   }
 }
 

@@ -17,13 +17,15 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { SchemaAccessor } from 'mongodb-schema';
 import {
   schemaAnalysisReducer,
-  handleSchemaShare,
-  stopAnalysis,
+  cleanupAnalysis,
 } from './schema-analysis-reducer';
 import {
   cancelExportSchema,
+  confirmedExportLegacySchemaToClipboard,
+  openLegacyModal,
   schemaExportReducer,
 } from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
@@ -48,7 +50,9 @@ export const rootReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type SchemaExtraArgs = SchemaPluginServices & {
-  abortControllerRef: { current?: AbortController };
+  analysisAbortControllerRef: { current?: AbortController };
+  exportAbortControllerRef: { current?: AbortController };
+  schemaAccessorRef: { current?: SchemaAccessor };
   geoLayersRef: { current: Record<string, InternalLayer> };
   namespace: string;
 };
@@ -74,15 +78,20 @@ export function activateSchemaPlugin(
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(services, namespace);
+
   /**
    * When `Share Schema as JSON` clicked in menu show a dialog message.
    */
+  on(services.localAppRegistry, 'menu-share-schema-json', () => {
+    const { enableExportSchema } = services.preferences.getPreferences();
+    if (enableExportSchema) {
+      store.dispatch(openLegacyModal());
+      return;
+    }
+    store.dispatch(confirmedExportLegacySchemaToClipboard());
+  });
 
-  on(services.localAppRegistry, 'menu-share-schema-json', () =>
-    store.dispatch(handleSchemaShare())
-  );
-
-  addCleanup(() => store.dispatch(stopAnalysis()));
+  addCleanup(() => store.dispatch(cleanupAnalysis()));
   addCleanup(() => store.dispatch(cancelExportSchema()));
 
   return {
@@ -97,7 +106,13 @@ export function configureStore(
   services: SchemaPluginServices,
   namespace: string
 ) {
-  const abortControllerRef = {
+  const analysisAbortControllerRef = {
+    current: undefined,
+  };
+  const exportAbortControllerRef = {
+    current: undefined,
+  };
+  const schemaAccessorRef = {
     current: undefined,
   };
   const geoLayersRef: { current: Record<string, InternalLayer> } = {
@@ -108,7 +123,9 @@ export function configureStore(
     applyMiddleware(
       thunk.withExtraArgument({
         ...services,
-        abortControllerRef,
+        analysisAbortControllerRef,
+        exportAbortControllerRef,
+        schemaAccessorRef,
         geoLayersRef,
         namespace,
       })

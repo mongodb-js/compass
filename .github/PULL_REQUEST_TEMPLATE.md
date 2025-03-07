@@ -12,10 +12,12 @@
 ## Description
 <!--- Describe your changes in detail -->
 <!--- If applicable, describe (or illustrate) architecture flow -->
+<!--- If the UI changes in a non-trivial way, consider adding screenshots/video illustrating the new flows -->
 
 ### Checklist
 - [ ] New tests and/or benchmarks are included
 - [ ] Documentation is changed or added
+- [ ] If this change updates the UI, screenshots/videos are added and a design review is requested
 - [ ] I have signed the MongoDB Contributor License Agreement (https://www.mongodb.com/legal/contributor-agreement)
 
 ## Motivation and Context

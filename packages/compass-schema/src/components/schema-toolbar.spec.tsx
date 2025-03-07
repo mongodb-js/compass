@@ -3,11 +3,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  createSandboxFromDefaultPreferences,
-  type PreferencesAccess,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { AllPreferences } from 'compass-preferences-model';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
@@ -35,33 +31,31 @@ const testErrorMessage =
 const exportSchemaTestId = 'open-schema-export-button';
 
 describe('SchemaToolbar', function () {
-  let defaultPreferences: PreferencesAccess;
-
-  before(async function () {
-    defaultPreferences = await createSandboxFromDefaultPreferences();
-  });
-
   const renderSchemaToolbar = (
     props: Partial<ComponentProps<typeof SchemaToolbar>> = {},
-    preferences: PreferencesAccess = defaultPreferences
+    preferences: Partial<AllPreferences> = {}
   ) => {
     const queryBarProps = {};
     render(
-      <PreferencesProvider value={preferences}>
-        <MockQueryBarPlugin {...(queryBarProps as any)}>
-          <SchemaToolbar
-            analysisState="complete"
-            errorMessage={''}
-            isOutdated={false}
-            onAnalyzeSchemaClicked={() => {}}
-            onResetClicked={() => {}}
-            sampleSize={10}
-            schemaResultId="123"
-            onExportSchemaClicked={() => {}}
-            {...props}
-          />
-        </MockQueryBarPlugin>
-      </PreferencesProvider>
+      <MockQueryBarPlugin {...(queryBarProps as any)}>
+        <SchemaToolbar
+          analysisState="complete"
+          error={undefined}
+          isOutdated={false}
+          onAnalyzeSchemaClicked={() => {}}
+          onResetClicked={() => {}}
+          sampleSize={10}
+          schemaResultId="123"
+          onExportSchemaClicked={() => {}}
+          setShowLegacyExportTooltip={() => {}}
+          showLegacyExportTooltip={false}
+          onDismissError={() => {}}
+          {...props}
+        />
+      </MockQueryBarPlugin>,
+      {
+        preferences,
+      }
     );
   };
 
@@ -69,23 +63,54 @@ describe('SchemaToolbar', function () {
     sinon.restore();
   });
 
-  it("renders errors when they're passed", function () {
-    renderSchemaToolbar({
-      analysisState: 'error',
-      errorMessage: 'test error msg',
+  describe('errors', function () {
+    it('renders general error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'general',
+          errorMessage: 'test error msg',
+        },
+      });
+
+      expect(screen.getByText(testErrorMessage)).to.be.visible;
+      expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
     });
 
-    expect(screen.getByText(testErrorMessage)).to.be.visible;
-    expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
-  });
+    it('renders timeout error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'timeout',
+          errorMessage: 'test error msg',
+        },
+      });
 
-  it('does not render errors when the analysis state is not error', function () {
-    renderSchemaToolbar({
-      errorMessage: 'test error msg',
+      expect(screen.getByTestId('schema-toolbar-timeout-message')).to.be
+        .visible;
+      expect(
+        screen.getByTestId('schema-toolbar-timeout-message').textContent
+      ).to.include('Please try increasing the maxTimeMS');
     });
 
-    expect(screen.queryByText(testErrorMessage)).to.not.exist;
-    expect(screen.queryByTestId('schema-toolbar-error-message')).to.not.exist;
+    it('renders complexity abort error', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'highComplexity',
+          errorMessage: 'test error msg',
+        },
+      });
+
+      expect(screen.getByTestId('schema-toolbar-complexity-abort-message')).to
+        .be.visible;
+      expect(
+        screen.getByRole('link', { name: 'Learn more' })
+      ).to.have.attribute(
+        'href',
+        'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/'
+      );
+    });
   });
 
   it('renders the sample size count', function () {
@@ -125,17 +150,14 @@ describe('SchemaToolbar', function () {
   });
 
   describe('when rendered with the enableExportSchema feature flag true', function () {
-    beforeEach(async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableExportSchema: true,
-      });
-
+    beforeEach(function () {
       renderSchemaToolbar(
         {
           sampleSize: 100,
         },
-        preferences
+        {
+          enableExportSchema: true,
+        }
       );
     });
 

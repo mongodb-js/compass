@@ -90,7 +90,7 @@ function updateSubmenu(
         enabled: false,
       }
     : {
-        label: 'Restart',
+        label: 'Restart to Update',
         click() {
           compassApp.emit('menu-request-restart');
         },
@@ -326,7 +326,7 @@ function collectionSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
-    label: '&Share Schema as JSON',
+    label: '&Share Schema as JSON (Legacy)',
     accelerator: 'Alt+CmdOrCtrl+S',
     click() {
       ipcMain?.broadcastFocused('window:menu-share-schema-json');

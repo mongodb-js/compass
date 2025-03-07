@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import L from 'leaflet';
 
 import { COPYRIGHT_URL } from './constants';
@@ -9,15 +10,25 @@ const thisYear = new Date().getFullYear();
  * @returns {Array} Array of attribution objects { label, alt, boxes, minLevel, maxLevel }
  */
 export async function _getHereTileBoxes() {
-  const rawTileBoxes = await fetch(COPYRIGHT_URL).then((response) =>
+  const copyrightData = await fetch(COPYRIGHT_URL).then((response) =>
     response.json()
   );
-  return rawTileBoxes.normal.map((attr) => ({
-    ...attr,
-    boxes: attr.boxes.map((box) =>
-      L.latLngBounds(L.latLng(box[0], box[1]), L.latLng(box[2], box[3]))
-    ),
-  }));
+  const fields = copyrightData.resources.base.styles['lite.day'];
+  const tileBoxes = Object.values(_.pick(copyrightData.copyrights, fields))
+    .flat()
+    .map((notice) => ({
+      alt: notice.copyrightText,
+      label: notice.label,
+      maxLevel: notice.maxLevel,
+      minLevel: notice.minLevel,
+      boxes: notice.boundingBoxes.map((box) =>
+        L.latLngBounds(
+          L.latLng(box.south, box.west),
+          L.latLng(box.north, box.east)
+        )
+      ),
+    }));
+  return tileBoxes;
 }
 
 function cachedGetHereTileBoxes() {

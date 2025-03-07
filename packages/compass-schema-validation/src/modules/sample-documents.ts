@@ -8,19 +8,22 @@ export const SAMPLE_SIZE = 10000;
 /**
  * Initial state
  */
-export type DOCUMENT_LOADING_STATES =
-  | 'initial'
-  | 'loading'
-  | 'success'
-  | 'error';
+export type DOCUMENT_LOADING_STATES = 'loading' | 'success' | 'error';
 
-export interface SampleDocumentState {
+type InitialState = {
+  validDocumentState: 'initial';
+  invalidDocumentState: 'initial';
+};
+
+type LoadingState = {
   validDocumentState: DOCUMENT_LOADING_STATES;
-  validDocument: undefined | Record<string, unknown>;
-
   invalidDocumentState: DOCUMENT_LOADING_STATES;
+};
+
+export type SampleDocumentState = {
+  validDocument: undefined | Record<string, unknown>;
   invalidDocument: undefined | Record<string, unknown>;
-}
+} & (InitialState | LoadingState);
 
 export const INITIAL_STATE: SampleDocumentState = {
   validDocumentState: 'initial',
@@ -33,17 +36,16 @@ export const INITIAL_STATE: SampleDocumentState = {
 /**
  * Action names
  */
-
 export const CLEAR_SAMPLE_DOCUMENTS =
   'validation/namespace/CLEAR_SAMPLE_DOCUMENTS' as const;
 interface ClearSampleDocumentsAction {
   type: typeof CLEAR_SAMPLE_DOCUMENTS;
 }
 
-export const FETCHING_VALID_DOCUMENT =
-  'validation/namespace/FETCHING_VALID_DOCUMENT' as const;
-interface FetchingValidDocumentAction {
-  type: typeof FETCHING_VALID_DOCUMENT;
+export const FETCHING_SAMPLE_DOCUMENTS =
+  'validation/namespace/FETCHING_SAMPLE_DOCUMENTS' as const;
+interface FetchingSampleDocumentsAction {
+  type: typeof FETCHING_SAMPLE_DOCUMENTS;
 }
 
 export const FETCHED_VALID_DOCUMENT =
@@ -59,12 +61,6 @@ interface FetchingValidDocumentFailedAction {
   type: typeof FETCHING_VALID_DOCUMENT_FAILED;
 }
 
-export const FETCHING_INVALID_DOCUMENT =
-  'validation/namespace/FETCHING_INVALID_DOCUMENT' as const;
-interface FetchingInvalidDocumentAction {
-  type: typeof FETCHING_INVALID_DOCUMENT;
-}
-
 export const FETCHED_INVALID_DOCUMENT =
   'validation/namespace/FETCHED_INVALID_DOCUMENT' as const;
 interface FetchedInvalidDocumentAction {
@@ -78,15 +74,16 @@ interface FetchingInvalidDocumentFailedAction {
   type: typeof FETCHING_INVALID_DOCUMENT_FAILED;
 }
 
-export type SampleDocumentAction =
+type SampleDocumentNonInitialAction =
   | ClearSampleDocumentsAction
-  | FetchingValidDocumentAction
   | FetchedValidDocumentAction
-  | FetchingValidDocumentAction
-  | FetchingInvalidDocumentAction
   | FetchedInvalidDocumentAction
   | FetchingInvalidDocumentFailedAction
   | FetchingValidDocumentFailedAction;
+
+export type SampleDocumentAction =
+  | SampleDocumentNonInitialAction
+  | FetchingSampleDocumentsAction;
 
 /**
  * Action creators
@@ -96,12 +93,8 @@ export const clearSampleDocuments = (): ClearSampleDocumentsAction => ({
   type: CLEAR_SAMPLE_DOCUMENTS,
 });
 
-export const fetchingValidDocument = (): FetchingValidDocumentAction => ({
-  type: FETCHING_VALID_DOCUMENT,
-});
-
-export const fetchingInvalidDocument = (): FetchingInvalidDocumentAction => ({
-  type: FETCHING_INVALID_DOCUMENT,
+export const fetchingSampleDocuments = (): FetchingSampleDocumentsAction => ({
+  type: FETCHING_SAMPLE_DOCUMENTS,
 });
 
 export const fetchedValidDocument = (
@@ -134,22 +127,16 @@ export const fetchingInvalidDocumentFailed =
 
 export const clearingSampleDocuments = (): SampleDocumentState => INITIAL_STATE;
 
-export const startFetchingValidDocument = (
+export const startFetchingSampleDocuments = (
   state: SampleDocumentState
 ): SampleDocumentState => ({
   ...state,
   validDocumentState: 'loading',
-});
-
-export const startFetchingInvalidDocument = (
-  state: SampleDocumentState
-): SampleDocumentState => ({
-  ...state,
   invalidDocumentState: 'loading',
 });
 
 export const updateStateWithFetchedValidDocument = (
-  state: SampleDocumentState,
+  state: SampleDocumentState & LoadingState,
   action: FetchedValidDocumentAction
 ): SampleDocumentState => ({
   ...state,
@@ -158,7 +145,7 @@ export const updateStateWithFetchedValidDocument = (
 });
 
 export const updateStateWithFetchedInvalidDocument = (
-  state: SampleDocumentState,
+  state: SampleDocumentState & LoadingState,
   action: FetchedInvalidDocumentAction
 ): SampleDocumentState => ({
   ...state,
@@ -167,7 +154,7 @@ export const updateStateWithFetchedInvalidDocument = (
 });
 
 export const validDocumentFetchErrored = (
-  state: SampleDocumentState
+  state: SampleDocumentState & LoadingState
 ): SampleDocumentState => ({
   ...state,
   validDocumentState: 'error',
@@ -175,24 +162,22 @@ export const validDocumentFetchErrored = (
 });
 
 export const invalidDocumentFetchErrored = (
-  state: SampleDocumentState
+  state: SampleDocumentState & LoadingState
 ): SampleDocumentState => ({
   ...state,
   invalidDocumentState: 'error',
   invalidDocument: undefined,
 });
 
-const ACTION_TO_REDUCER_MAPPINGS: {
-  [Type in SampleDocumentAction['type']]: (
-    state: SampleDocumentState,
-    action: SampleDocumentAction & { type: Type }
+const LOADING_ACTION_TO_REDUCER_MAPPINGS: {
+  [Type in SampleDocumentNonInitialAction['type']]: (
+    state: SampleDocumentState & LoadingState,
+    action: SampleDocumentNonInitialAction & { type: Type }
   ) => SampleDocumentState;
 } = {
   [CLEAR_SAMPLE_DOCUMENTS]: clearingSampleDocuments,
-  [FETCHING_VALID_DOCUMENT]: startFetchingValidDocument,
   [FETCHED_VALID_DOCUMENT]: updateStateWithFetchedValidDocument,
   [FETCHING_VALID_DOCUMENT_FAILED]: validDocumentFetchErrored,
-  [FETCHING_INVALID_DOCUMENT]: startFetchingInvalidDocument,
   [FETCHED_INVALID_DOCUMENT]: updateStateWithFetchedInvalidDocument,
   [FETCHING_INVALID_DOCUMENT_FAILED]: invalidDocumentFetchErrored,
 };
@@ -201,8 +186,14 @@ export default function (
   state: SampleDocumentState = INITIAL_STATE,
   action: RootAction
 ): SampleDocumentState {
-  const fn =
-    ACTION_TO_REDUCER_MAPPINGS[action.type as SampleDocumentAction['type']];
+  let fn;
+  if (state.validDocumentState !== 'initial') {
+    fn =
+      LOADING_ACTION_TO_REDUCER_MAPPINGS[
+        action.type as SampleDocumentNonInitialAction['type']
+      ];
+  } else if (action.type === FETCHING_SAMPLE_DOCUMENTS)
+    fn = startFetchingSampleDocuments;
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore-error TS does not understand that action can be passed to fn
@@ -233,11 +224,12 @@ const getSampleDocuments = async ({
   return await dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
-export const fetchValidDocument = (): SchemaValidationThunkAction<
-  Promise<void>
+export const fetchSampleDocuments = (): SchemaValidationThunkAction<
+  void,
+  FetchingSampleDocumentsAction
 > => {
-  return async (dispatch, getState, { preferences, dataService }) => {
-    dispatch(fetchingValidDocument());
+  return (dispatch, getState) => {
+    dispatch(fetchingSampleDocuments());
 
     const state = getState();
     const namespace = state.namespace.ns;
@@ -248,6 +240,22 @@ export const fetchValidDocument = (): SchemaValidationThunkAction<
       checkedValidator.validator as string
     ).validator;
 
+    void dispatch(fetchValidDocument({ namespace, query }));
+    void dispatch(fetchInvalidDocument({ namespace, query }));
+  };
+};
+
+const fetchValidDocument = ({
+  namespace,
+  query,
+}: {
+  namespace: string;
+  query: string | Record<string, unknown>;
+}): SchemaValidationThunkAction<
+  Promise<void>,
+  FetchedValidDocumentAction | FetchingValidDocumentFailedAction
+> => {
+  return async (dispatch, getState, { preferences, dataService }) => {
     try {
       const valid = (
         await getSampleDocuments({
@@ -265,22 +273,17 @@ export const fetchValidDocument = (): SchemaValidationThunkAction<
   };
 };
 
-export const fetchInvalidDocument = (): SchemaValidationThunkAction<
-  Promise<void>
+const fetchInvalidDocument = ({
+  namespace,
+  query,
+}: {
+  namespace: string;
+  query: string | Record<string, unknown>;
+}): SchemaValidationThunkAction<
+  Promise<void>,
+  FetchedInvalidDocumentAction | FetchingInvalidDocumentFailedAction
 > => {
   return async (dispatch, getState, { preferences, dataService }) => {
-    dispatch(fetchingInvalidDocument());
-
-    const state = getState();
-    const namespace = state.namespace.ns;
-    const validator = state.validation.validator;
-
-    // Calling checkValidator twice here seems wrong
-    const checkedValidator = checkValidator(validator);
-    const query = checkValidator(
-      checkedValidator.validator as string
-    ).validator;
-
     try {
       const invalid = (
         await getSampleDocuments({

@@ -95,6 +95,14 @@ const disabledContainerDarkModeStyles = css({
   boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
 });
 
+const readOnlyStyle = css({
+  // We hide the blinking cursor in read only mode
+  // as it can appear to users like the editor is editable.
+  '& .cm-cursor': {
+    display: 'none !important',
+  },
+});
+
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
     overflow: '-moz-scrollbars-none',
@@ -1204,6 +1212,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       className={cx(
         disabled && disabledContainerStyles,
         disabled && darkMode && disabledContainerDarkModeStyles,
+        readOnly && readOnlyStyle,
         className
       )}
       style={{
@@ -1407,6 +1416,7 @@ type MultilineEditorProps = EditorProps & {
   editorClassName?: string;
   actionsClassName?: string;
   onExpand?: () => void;
+  onCopy?: () => void;
   expanded?: boolean;
 };
 
@@ -1420,6 +1430,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onCopy,
       onExpand,
       expanded,
       ...props
@@ -1429,6 +1440,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     const darkMode = useDarkMode(_darkMode);
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
+
+    const onCopyRef = useRef(onCopy);
+    onCopyRef.current = onCopy;
 
     useImperativeHandle(
       ref,
@@ -1441,6 +1455,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             return editorRef.current?.unfoldAll() ?? false;
           },
           copyAll() {
+            onCopyRef.current?.();
             return editorRef.current?.copyAll() ?? false;
           },
           prettify() {

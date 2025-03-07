@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { Schema as MongodbSchema } from 'mongodb-schema';
 import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
@@ -7,11 +7,9 @@ import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
 } from '../constants/analysis-states';
-
-import { SchemaToolbar } from './schema-toolbar/schema-toolbar';
+import SchemaToolbar from './schema-toolbar';
 import Field from './field';
 import { ZeroGraphic } from './zero-graphic';
-
 import {
   Button,
   CancelLoader,
@@ -39,6 +37,7 @@ import type { RootState } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
 import ExportSchemaModal from './export-schema-modal';
+import ExportSchemaLegacyModal from './export-schema-legacy-modal';
 
 const rootStyles = css({
   width: '100%',
@@ -370,26 +369,22 @@ const PerformanceAdvisorBanner = () => {
 
 const Schema: React.FunctionComponent<{
   analysisState: AnalysisState;
-  errorMessage?: string;
-  maxTimeMS?: number;
+  isExportSchemaModalOpen: boolean;
   schema: MongodbSchema | null;
-  count?: number;
-  resultId?: string;
-  onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
 }> = ({
   analysisState,
-  errorMessage,
+  isExportSchemaModalOpen,
   schema,
-  resultId,
-  onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
 }) => {
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
   }, [onStartAnalysis]);
+
+  const [showLegacyExportTooltip, setShowLegacyExportTooltip] = useState(false);
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
@@ -406,13 +401,14 @@ const Schema: React.FunctionComponent<{
           toolbar={
             <SchemaToolbar
               onAnalyzeSchemaClicked={onApplyClicked}
-              onExportSchemaClicked={onExportSchemaClicked}
               onResetClicked={onApplyClicked}
-              analysisState={analysisState}
-              errorMessage={errorMessage || ''}
+              // Show the tooltip to indicate the new export button when
+              // the export modal is closed.
+              showLegacyExportTooltip={
+                showLegacyExportTooltip && !isExportSchemaModalOpen
+              }
+              setShowLegacyExportTooltip={setShowLegacyExportTooltip}
               isOutdated={!!outdated}
-              sampleSize={schema ? schema.count : 0}
-              schemaResultId={resultId || ''}
             />
           }
         >
@@ -431,6 +427,11 @@ const Schema: React.FunctionComponent<{
         </WorkspaceContainer>
       </div>
       {enableExportSchema && <ExportSchemaModal />}
+      {enableExportSchema && (
+        <ExportSchemaLegacyModal
+          setShowLegacyExportTooltip={setShowLegacyExportTooltip}
+        />
+      )}
     </>
   );
 };
@@ -438,13 +439,12 @@ const Schema: React.FunctionComponent<{
 export default connect(
   (state: RootState) => ({
     analysisState: state.schemaAnalysis.analysisState,
-    errorMessage: state.schemaAnalysis.errorMessage,
+    isExportSchemaModalOpen: state.schemaExport.isOpen,
     schema: state.schemaAnalysis.schema,
-    resultId: state.schemaAnalysis.resultId,
   }),
   {
     onStartAnalysis: startAnalysis,
-    onStopAnalysis: stopAnalysis,
+    onStopAnalysis: () => stopAnalysis(),
     onExportSchemaClicked: openExportSchema,
   }
 )(Schema);

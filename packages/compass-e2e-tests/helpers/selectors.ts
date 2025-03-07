@@ -244,6 +244,11 @@ export const ConenctionToastCancelConnectionButton =
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
+export const ConnectButton =
+  '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
+export const ConnectDropdownButton = `${ConnectButton} [data-testid="lg-split_button-trigger"]`;
+export const ConnectInNewWindowButton =
+  '[data-action="connection-connect-in-new-window"]';
 export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
 export const CreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-create-database-action"]';
@@ -363,6 +368,12 @@ export const sidebarConnectionButton = (connectionName: string): string => {
   return `${sidebarConnection(
     connectionName
   )} [data-action="connection-connect"]`;
+};
+
+export const sidebarConnectionDropdownButton = (
+  connectionName: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${ConnectDropdownButton}`;
 };
 
 export const sidebarConnectionActionButton = (
@@ -1014,7 +1025,12 @@ export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const ExportSchemaButton = '[data-testid="open-schema-export-button"]';
 export const ExportSchemaFormatOptions =
   '[data-testid="export-schema-format-type-box-group"]';
+export const exportSchemaFormatOption = (
+  option: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON'
+) => `label[for="export-schema-format-${option}-button"]`;
 export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
+export const ExportSchemaDownloadButton =
+  '[data-testid="schema-export-download-button"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
@@ -1128,14 +1144,18 @@ export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const EnableEditValidationButton =
+  '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
+export const ValidationSuccessToast =
+  '[data-testid="toast-schema-validation-update"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
-export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
+export const ValidationLoadSampleDocumentsBtn = `[data-testid="load-sample-documents"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
 export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;

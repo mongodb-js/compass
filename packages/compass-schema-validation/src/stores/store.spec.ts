@@ -9,10 +9,7 @@ import {
   validationActionChanged,
   validationLevelChanged,
 } from '../modules/validation';
-import {
-  fetchValidDocument,
-  fetchInvalidDocument,
-} from '../modules/sample-documents';
+import { fetchSampleDocuments } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
@@ -21,6 +18,8 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import Sinon from 'sinon';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -42,34 +41,49 @@ const fakeDataService = {
     }),
 } as any;
 
-describe('Schema Validation Store', function () {
-  let store: Store<RootState, RootAction>;
-  let deactivate: null | (() => void) = null;
+const fakeWorkspaces = {
+  onTabReplace: () => {},
+  onTabClose: () => {},
+} as unknown as WorkspacesService;
+
+const getMockedStore = async () => {
   const globalAppRegistry = new AppRegistry();
   const connectionInfoRef = {
     current: {},
   } as ConnectionInfoRef;
+  const activateResult = onActivated(
+    { namespace: 'test.test' } as any,
+    {
+      globalAppRegistry: globalAppRegistry,
+      dataService: fakeDataService,
+      instance: fakeInstance,
+      workspaces: fakeWorkspaces,
+      preferences: await createSandboxFromDefaultPreferences(),
+      logger: createNoopLogger(),
+      track: createNoopTrack(),
+      connectionInfoRef,
+    },
+    createActivateHelpers()
+  );
+  return activateResult;
+};
+
+describe('Schema Validation Store', function () {
+  let store: Store<RootState, RootAction>;
+  let deactivate: null | (() => void) = null;
+  let sandbox: Sinon.SinonSandbox;
 
   beforeEach(async function () {
-    const activateResult = onActivated(
-      { namespace: 'test.test' } as any,
-      {
-        globalAppRegistry: globalAppRegistry,
-        dataService: fakeDataService,
-        instance: fakeInstance,
-        preferences: await createSandboxFromDefaultPreferences(),
-        logger: createNoopLogger(),
-        track: createNoopTrack(),
-        connectionInfoRef,
-      },
-      createActivateHelpers()
-    );
+    sandbox = Sinon.createSandbox();
+    fakeWorkspaces.onTabClose = sandbox.stub();
+    fakeWorkspaces.onTabReplace = sandbox.stub();
+    const activateResult = await getMockedStore();
     store = activateResult.store;
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     deactivate = activateResult.deactivate;
   });
 
   afterEach(function () {
+    sandbox.reset();
     deactivate?.();
     deactivate = null;
   });
@@ -84,6 +98,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
+          isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
         });
@@ -98,6 +113,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
+          isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });
@@ -128,9 +144,19 @@ describe('Schema Validation Store', function () {
         });
         store.dispatch(validatorChanged(validator));
       });
+
+      it('prevents closing the tab', function () {
+        store.dispatch(validatorChanged(validator));
+        expect(store.getState().validation.isChanged).to.be.true;
+        deactivate?.();
+        const fnProvidedToOnTabClose = (
+          fakeWorkspaces.onTabClose as Sinon.SinonStub
+        ).args[0][0];
+        expect(fnProvidedToOnTabClose()).to.be.false;
+      });
     });
 
-    context('when the action is fetch valid sample documents', function () {
+    context('when the action is fetch sample documents', function () {
       it('updates the sample document loading in state', function (done) {
         expect(store.getState().sampleDocuments.validDocumentState).to.equal(
           'initial'
@@ -140,25 +166,12 @@ describe('Schema Validation Store', function () {
           expect(store.getState().sampleDocuments.validDocumentState).to.equal(
             'loading'
           );
-          done();
-        });
-        store.dispatch(fetchValidDocument() as any);
-      });
-    });
-
-    context('when the action is fetch invalid sample documents', function () {
-      it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(
-          'initial'
-        );
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
           expect(
             store.getState().sampleDocuments.invalidDocumentState
           ).to.equal('loading');
           done();
         });
-        store.dispatch(fetchInvalidDocument() as any);
+        store.dispatch(fetchSampleDocuments() as any);
       });
     });
 

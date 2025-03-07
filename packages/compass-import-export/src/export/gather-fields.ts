@@ -87,10 +87,14 @@ async function _gatherFields({
   const analyzeStream = new Transform({
     objectMode: true,
     transform: (doc: Document, encoding, callback) => {
-      schemaAnalyzer.analyzeDoc(doc);
-      result.docsProcessed++;
-      progressCallback?.(result.docsProcessed);
-      callback();
+      schemaAnalyzer
+        .analyzeDoc(doc)
+        .then(() => {
+          result.docsProcessed++;
+          progressCallback?.(result.docsProcessed);
+          callback();
+        })
+        .catch(callback);
     },
   });
 

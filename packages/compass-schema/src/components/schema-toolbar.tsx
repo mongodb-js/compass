@@ -1,22 +1,29 @@
 import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
 import {
+  Banner,
+  BannerVariant,
   Body,
   Button,
   ErrorSummary,
   Icon,
   Link,
+  Tooltip,
   WarningSummary,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { AnalysisState } from '../../constants/analysis-states';
-import {
-  ANALYSIS_STATE_ERROR,
-  ANALYSIS_STATE_TIMEOUT,
-  ANALYSIS_STATE_COMPLETE,
-} from '../../constants/analysis-states';
+import type { AnalysisState } from '../constants/analysis-states';
+import { ANALYSIS_STATE_COMPLETE } from '../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import {
+  type SchemaAnalysisError,
+  analysisErrorDismissed,
+} from '../stores/schema-analysis-reducer';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
+import type { RootState } from '../stores/store';
+import { openExportSchema } from '../stores/schema-export-reducer';
 
 const schemaToolbarStyles = css({
   display: 'flex',
@@ -60,24 +67,30 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
-  errorMessage: string;
+  error?: SchemaAnalysisError;
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
   onResetClicked: () => void;
+  onDismissError: () => void;
   sampleSize: number;
   schemaResultId: string;
+  setShowLegacyExportTooltip: (show: boolean) => void;
+  showLegacyExportTooltip: boolean;
 };
 
-const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
+export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
-  errorMessage,
+  error,
+  onDismissError,
   isOutdated,
   onAnalyzeSchemaClicked,
   onExportSchemaClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
+  setShowLegacyExportTooltip,
+  showLegacyExportTooltip,
 }) => {
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
@@ -101,15 +114,26 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
         <div className={schemaToolbarActionBarStyles}>
           {enableExportSchema && ANALYSIS_STATE_COMPLETE && (
             <div>
-              <Button
-                variant="default"
-                onClick={onExportSchemaClicked}
-                data-testid="open-schema-export-button"
-                size="xsmall"
-                leftGlyph={<Icon glyph="Export" />}
+              <Tooltip
+                id="export-schema-tooltip"
+                open={showLegacyExportTooltip}
+                onClose={() => setShowLegacyExportTooltip(false)}
+                triggerEvent="click"
+                trigger={
+                  <Button
+                    variant="default"
+                    onClick={onExportSchemaClicked}
+                    data-testid="open-schema-export-button"
+                    size="xsmall"
+                    leftGlyph={<Icon glyph="Export" />}
+                  >
+                    Export Schema
+                  </Button>
+                }
               >
-                Export Schema
-              </Button>
+                Next time, export the schema directly from Compass&apos; Schema
+                tab.
+              </Tooltip>
             </div>
           )}
           <div
@@ -130,14 +154,37 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           </div>
         </div>
       )}
-      {analysisState === ANALYSIS_STATE_ERROR && (
+      {error?.errorType === 'general' && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
-          errors={[`${ERROR_WARNING}: ${errorMessage}`]}
+          errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
+          dismissible={true}
+          onClose={onDismissError}
         />
       )}
-      {analysisState === ANALYSIS_STATE_TIMEOUT && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
+      {error?.errorType === 'timeout' && (
+        <WarningSummary
+          data-testid="schema-toolbar-timeout-message"
+          warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
+          dismissible={true}
+          onClose={onDismissError}
+        />
+      )}
+      {error?.errorType === 'highComplexity' && (
+        <Banner
+          variant={BannerVariant.Danger}
+          data-testid="schema-toolbar-complexity-abort-message"
+          dismissible={true}
+          onClose={onDismissError}
+        >
+          The analysis was aborted because the number of fields exceeds{' '}
+          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+          more collections with smaller documents, and using references to
+          consolidate the data you need.&nbsp;
+          <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
+            Learn more
+          </Link>
+        </Banner>
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
@@ -146,4 +193,15 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   );
 };
 
-export { SchemaToolbar };
+export default connect(
+  (state: RootState) => ({
+    analysisState: state.schemaAnalysis.analysisState,
+    error: state.schemaAnalysis.error,
+    sampleSize: state.schemaAnalysis.schema?.count ?? 0,
+    schemaResultId: state.schemaAnalysis.resultId ?? '',
+  }),
+  {
+    onExportSchemaClicked: openExportSchema,
+    onDismissError: analysisErrorDismissed,
+  }
+)(SchemaToolbar);

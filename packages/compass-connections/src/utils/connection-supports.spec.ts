@@ -145,7 +145,7 @@ const mockConnections = [
       clusterName: 'clusterName',
       regionalBaseUrl: 'https://example.com',
       metricsId: 'metricsId',
-      metricsType: 'replicaSet',
+      metricsType: 'flex',
       instanceSize: 'FLEX',
       clusterType: 'REPLICASET',
       clusterUniqueId: 'clusterUniqueId',

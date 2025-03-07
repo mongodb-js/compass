@@ -127,6 +127,7 @@ const App = () => {
             onActiveWorkspaceTabChange={updateCurrentTab}
             initialWorkspace={currentTab ?? undefined}
             initialPreferences={{
+              enableExportSchema: true,
               enablePerformanceAdvisorBanner: isAtlas,
               enableAtlasSearchIndexes: !isAtlas,
               maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,

@@ -1420,6 +1420,12 @@ const openConnectionClosedWithNonRetryableErrorToast = (
   });
 };
 
+export const connectInNewWindow =
+  (connectionInfo: ConnectionInfo): ConnectionsThunkAction<void> =>
+  (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('connect-in-new-window', connectionInfo.id);
+  };
+
 export const connect = (
   connectionInfo: ConnectionInfo
 ): ConnectionsThunkAction<
@@ -1486,6 +1492,7 @@ const connectWithOptions = (
         forceConnectionOptions,
         browserCommandForOIDCAuth,
         maximumNumberOfActiveConnections,
+        telemetryAnonymousId,
       } = preferences.getPreferences();
 
       const connectionProgress = getNotificationTriggers();
@@ -1547,10 +1554,15 @@ const connectWithOptions = (
                 cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
+              connectionInfo: {
+                id: connectionInfo.id,
+                isAtlas: !!connectionInfo.atlasMetadata,
+              },
               defaultAppName: appName,
               preferences: {
                 forceConnectionOptions: forceConnectionOptions ?? [],
                 browserCommandForOIDCAuth,
+                telemetryAnonymousId,
               },
               notifyDeviceFlow: (deviceFlowInfo) => {
                 connectionProgress.openNotifyDeviceAuthModal(
