@@ -1,66 +1,15 @@
 import { expect } from 'chai';
 import { stringify as javascriptStringify } from 'javascript-stringify';
+import { parseFilter } from 'mongodb-query-parser';
 
 import reducer, {
-  checkValidator,
-  validationActionChanged,
-  validationLevelChanged,
-  validatorChanged,
+  ValidationActions,
   validationFetched,
   validationCanceled,
   validationSaveFailed,
-  VALIDATOR_CHANGED,
-  VALIDATION_CANCELED,
-  VALIDATION_SAVE_FAILED,
-  VALIDATION_FETCHED,
-  VALIDATION_ACTION_CHANGED,
-  VALIDATION_LEVEL_CHANGED,
 } from './validation';
 
 describe('validation module', function () {
-  describe('#checkValidator', function () {
-    it('returns parsed JS validation query and error information', function () {
-      expect(
-        checkValidator("{ $jsonSchema: { bsonType: 'object' } }")
-      ).to.deep.equal({
-        syntaxError: null,
-        validator: { $jsonSchema: { bsonType: 'object' } },
-      });
-    });
-  });
-
-  describe('#validationActionChanged', function () {
-    it('returns the VALIDATION_ACTION_CHANGED action', function () {
-      expect(validationActionChanged('warn')).to.deep.equal({
-        type: VALIDATION_ACTION_CHANGED,
-        validationAction: 'warn',
-      });
-    });
-  });
-
-  describe('#validationLevelChanged', function () {
-    it('returns the VALIDATION_LEVEL_CHANGED action', function () {
-      expect(validationLevelChanged('moderate')).to.deep.equal({
-        type: VALIDATION_LEVEL_CHANGED,
-        validationLevel: 'moderate',
-      });
-    });
-  });
-
-  describe('#validatorChanged', function () {
-    it('returns the VALIDATOR_CHANGED action', function () {
-      expect(
-        validatorChanged(
-          "{ $jsonSchema: { bsonType: 'object', required: [ 'name' ] } }"
-        )
-      ).to.deep.equal({
-        type: VALIDATOR_CHANGED,
-        validator:
-          "{ $jsonSchema: { bsonType: 'object', required: [ 'name' ] } }",
-      });
-    });
-  });
-
   describe('#validationFetched', function () {
     it('returns the VALIDATION_FETCHED action', function () {
       expect(
@@ -70,7 +19,7 @@ describe('validation module', function () {
           validationLevel: 'off',
         })
       ).to.deep.equal({
-        type: VALIDATION_FETCHED,
+        type: ValidationActions.ValidationFetched,
         validation: {
           validator: '{ name: { $exists: true } }',
           validationAction: 'warn',
@@ -91,7 +40,7 @@ describe('validation module', function () {
           error: null,
         })
       ).to.deep.equal({
-        type: VALIDATION_CANCELED,
+        type: ValidationActions.CancelChangeValidator,
         validation: {
           isChanged: false,
           validator: '{ name: { $exists: true } }',
@@ -106,104 +55,15 @@ describe('validation module', function () {
   describe('#validationSaveFailed', function () {
     it('returns the VALIDATION_SAVE_FAILED action', function () {
       expect(
-        validationSaveFailed({
-          message: 'Validation save failed!',
-        })
+        validationSaveFailed(new Error('Validation save failed!'))
       ).to.deep.equal({
-        type: VALIDATION_SAVE_FAILED,
+        type: ValidationActions.ValidationSaveFailed,
         error: { message: 'Validation save failed!' },
       });
     });
   });
 
   describe('#reducer', function () {
-    context(
-      'when the action is not presented in validation module',
-      function () {
-        it('returns the default state', function () {
-          expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal({
-            validator: '',
-            validationAction: 'error',
-            validationLevel: 'strict',
-            isChanged: false,
-            syntaxError: null,
-            error: null,
-          });
-        });
-      }
-    );
-
-    context('when the action is validationActionChanged', function () {
-      it('returns the new state', function () {
-        const validation = reducer(undefined, validationActionChanged('warn'));
-
-        expect(validation.validationAction).to.equal('warn');
-      });
-    });
-
-    context('when the action is validationLevelChanged', function () {
-      it('returns the new state', function () {
-        const validation = reducer(
-          undefined,
-          validationLevelChanged('moderate')
-        );
-
-        expect(validation.validationLevel).to.equal('moderate');
-      });
-    });
-
-    context('when the action is validatorChanged', function () {
-      it('returns the new state for the simple object', function () {
-        const validation = reducer(
-          undefined,
-          validatorChanged(`{
-          $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
-        }`)
-        );
-
-        expect(validation.validator).to.equal(`{
-          $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
-        }`);
-      });
-
-      it('returns the new state for the object with regex', function () {
-        const validation = reducer(
-          undefined,
-          validatorChanged(`{
-          'name': 'test',
-          'options': {
-            'validator': {
-              'number': {
-                '$exists': true
-              },
-              'last_name': {
-                '$regex': '^foo'
-              }
-            },
-            'validationLevel': 'strict',
-            'validationAction': 'error'
-          }
-        }`)
-        );
-
-        expect(validation.validator).to.equal(`{
-          'name': 'test',
-          'options': {
-            'validator': {
-              'number': {
-                '$exists': true
-              },
-              'last_name': {
-                '$regex': '^foo'
-              }
-            },
-            'validationLevel': 'strict',
-            'validationAction': 'error'
-          }
-        }`);
-      });
-    });
-
     context('when the action is validationFetched', function () {
       it('returns the new state', function () {
         const validation = reducer(
@@ -214,7 +74,7 @@ describe('validation module', function () {
             validationLevel: 'off',
           })
         );
-        const checkedValidator = checkValidator('{ name: { $exists: true } }');
+        const checkedValidator = parseFilter('{ name: { $exists: true } }');
         const validator = javascriptStringify(
           checkedValidator.validator,
           null,
@@ -241,9 +101,7 @@ describe('validation module', function () {
       it('returns the new state', function () {
         const validation = reducer(
           undefined,
-          validationSaveFailed({
-            message: 'Validation save failed!',
-          })
+          validationSaveFailed(new Error('Validation save failed!'))
         );
 
         expect(validation).to.deep.equal({

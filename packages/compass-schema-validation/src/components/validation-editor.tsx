@@ -21,6 +21,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { parseFilter } from 'mongodb-query-parser';
 import type {
   Validation,
   ValidationLevel,
@@ -30,8 +31,7 @@ import type {
 import { ActionSelector, LevelSelector } from './validation-selectors';
 import type { RootState } from '../modules';
 import {
-  checkValidator,
-  validatorChanged,
+  changeValidator,
   cancelValidation,
   saveValidation,
   validationActionChanged,
@@ -121,7 +121,7 @@ type ValidationEditorProps = {
   namespace: string;
   clearSampleDocuments: () => void;
   onClickEnableEditRules: () => void;
-  validatorChanged: (text: string) => void;
+  changeValidator: (text: string) => void;
   validationActionChanged: (action: ValidationServerAction) => void;
   validationLevelChanged: (level: ValidationLevel) => void;
   cancelValidation: () => void;
@@ -140,6 +140,17 @@ type ValidationEditorProps = {
   isEditingEnabled: boolean;
 };
 
+function doesValidatorHaveJsonSchema(validator: string): boolean {
+  try {
+    const parsedValidator = parseFilter(validator);
+    return (
+      typeof parsedValidator === 'object' && !!parsedValidator?.$jsonSchema
+    );
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The validation editor component.
  */
@@ -149,7 +160,7 @@ export const ValidationEditor: React.FunctionComponent<
   namespace,
   clearSampleDocuments,
   onClickEnableEditRules,
-  validatorChanged,
+  changeValidator,
   validationActionChanged,
   validationLevelChanged,
   cancelValidation,
@@ -166,8 +177,8 @@ export const ValidationEditor: React.FunctionComponent<
   const clearSampleDocumentsRef = useRef(clearSampleDocuments);
   clearSampleDocumentsRef.current = clearSampleDocuments;
 
-  const validatorChangedRef = useRef(validatorChanged);
-  validatorChangedRef.current = validatorChanged;
+  const changeValidatorRef = useRef(changeValidator);
+  changeValidatorRef.current = changeValidator;
 
   const saveValidationRef = useRef(saveValidation);
   saveValidationRef.current = saveValidation;
@@ -177,18 +188,15 @@ export const ValidationEditor: React.FunctionComponent<
 
   const trackValidator = useCallback(
     (validator: string) => {
-      const checkedValidator = checkValidator(validator);
       const trackEvent = {
-        json_schema:
-          typeof checkedValidator.validator === 'object' &&
-          !!checkedValidator.validator?.$jsonSchema,
+        json_schema: doesValidatorHaveJsonSchema(validator),
       };
       track('Schema Validation Edited', trackEvent, connectionInfoRef.current);
     },
     [connectionInfoRef, track]
   );
 
-  const debounceValidatorChanged = useMemo(() => {
+  const debounceChangeValidator = useMemo(() => {
     return debounce((validator: string) => {
       clearSampleDocumentsRef.current();
       trackValidator(validator);
@@ -197,16 +205,16 @@ export const ValidationEditor: React.FunctionComponent<
 
   useEffect(() => {
     return () => {
-      debounceValidatorChanged.cancel();
+      debounceChangeValidator.cancel();
     };
-  }, [debounceValidatorChanged]);
+  }, [debounceChangeValidator]);
 
   const onValidatorChange = useCallback(
     (validator: string) => {
-      validatorChangedRef.current(validator);
-      debounceValidatorChanged(validator);
+      changeValidatorRef.current(validator);
+      debounceChangeValidator(validator);
     },
-    [debounceValidatorChanged]
+    [debounceChangeValidator]
   );
 
   const darkMode = useDarkMode();
@@ -333,7 +341,7 @@ const mapStateToProps = (state: RootState) => ({
  */
 export default connect(mapStateToProps, {
   clearSampleDocuments,
-  validatorChanged,
+  changeValidator,
   cancelValidation,
   saveValidation,
   onClickEnableEditRules: enableEditRules,

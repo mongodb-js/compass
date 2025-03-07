@@ -1,6 +1,7 @@
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { checkValidator } from './validation';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { parseFilter } from 'mongodb-query-parser';
+
 import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export const SAMPLE_SIZE = 10000;
@@ -232,6 +233,14 @@ const getSampleDocuments = async ({
   return await dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
+function parseValidator(validator: string): Record<string, unknown> | string {
+  try {
+    return parseFilter(validator);
+  } catch (err) {
+    return validator;
+  }
+}
+
 export const fetchValidDocument = (): SchemaValidationThunkAction<
   Promise<void>
 > => {
@@ -240,12 +249,9 @@ export const fetchValidDocument = (): SchemaValidationThunkAction<
 
     const state = getState();
     const namespace = state.namespace.ns;
-    const validator = state.validation.validator;
 
-    const checkedValidator = checkValidator(validator);
-    const query = checkValidator(
-      checkedValidator.validator as string
-    ).validator;
+    const checkedValidator = parseValidator(state.validation.validator);
+    const query = parseValidator(checkedValidator as string);
 
     try {
       const valid = (
@@ -272,13 +278,9 @@ export const fetchInvalidDocument = (): SchemaValidationThunkAction<
 
     const state = getState();
     const namespace = state.namespace.ns;
-    const validator = state.validation.validator;
 
-    // Calling checkValidator twice here seems wrong
-    const checkedValidator = checkValidator(validator);
-    const query = checkValidator(
-      checkedValidator.validator as string
-    ).validator;
+    const checkedValidator = parseValidator(state.validation.validator);
+    const query = parseValidator(checkedValidator as string);
 
     try {
       const invalid = (
