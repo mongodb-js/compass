@@ -10,7 +10,6 @@ import reducer, {
   validationCanceled,
   validationSaveFailed,
   syntaxErrorOccurred,
-  validationFromCollection,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
   VALIDATION_SAVE_FAILED,
@@ -126,62 +125,6 @@ describe('validation module', function () {
         syntaxError: { message: 'Syntax Error!' },
       });
     });
-  });
-
-  describe('validationFromCollection', function () {
-    context('when an error occurs listing the collection', function () {
-      it('includes the error', function () {
-        const error = new Error('Fake error');
-        expect(validationFromCollection(error)).to.deep.equal({
-          validationAction: 'error',
-          validationLevel: 'strict',
-          error,
-        });
-      });
-    });
-
-    context('when the options contains no options', function () {
-      it('returns defaults', function () {
-        const data = {};
-        expect(validationFromCollection(null, data)).to.deep.equal({
-          validationAction: 'error',
-          validationLevel: 'strict',
-        });
-      });
-    });
-
-    context(
-      'when the options contains no validation-related options',
-      function () {
-        it('returns defaults', function () {
-          const data = { validation: {} };
-          expect(validationFromCollection(null, data)).to.deep.equal({
-            validationAction: 'error',
-            validationLevel: 'strict',
-          });
-        });
-      }
-    );
-
-    context(
-      'when the options contains validation-related options',
-      function () {
-        it('overrides the defaults', function () {
-          const data = {
-            validation: {
-              validationAction: 'new-validationAction',
-              validationLevel: 'new-validationLevel',
-              validator: { foo: 'bar' },
-            },
-          };
-          expect(validationFromCollection(null, data)).to.deep.equal({
-            validationAction: 'new-validationAction',
-            validationLevel: 'new-validationLevel',
-            validator: { foo: 'bar' },
-          });
-        });
-      }
-    );
   });
 
   describe('#reducer', function () {
