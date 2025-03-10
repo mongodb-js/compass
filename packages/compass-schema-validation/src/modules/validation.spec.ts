@@ -9,7 +9,6 @@ import reducer, {
   validationFetched,
   validationCanceled,
   validationSaveFailed,
-  syntaxErrorOccurred,
   validationFromCollection,
   VALIDATOR_CHANGED,
   VALIDATION_CANCELED,
@@ -17,7 +16,6 @@ import reducer, {
   VALIDATION_FETCHED,
   VALIDATION_ACTION_CHANGED,
   VALIDATION_LEVEL_CHANGED,
-  SYNTAX_ERROR_OCCURRED,
 } from './validation';
 
 describe('validation module', function () {
@@ -115,15 +113,6 @@ describe('validation module', function () {
       ).to.deep.equal({
         type: VALIDATION_SAVE_FAILED,
         error: { message: 'Validation save failed!' },
-      });
-    });
-  });
-
-  describe('#syntaxErrorOccurred', function () {
-    it('returns the SYNTAX_ERROR_OCCURRED action', function () {
-      expect(syntaxErrorOccurred({ message: 'Syntax Error!' })).to.deep.equal({
-        type: SYNTAX_ERROR_OCCURRED,
-        syntaxError: { message: 'Syntax Error!' },
       });
     });
   });
@@ -321,24 +310,6 @@ describe('validation module', function () {
           isChanged: false,
           syntaxError: null,
           error: { message: 'Validation save failed!' },
-        });
-      });
-    });
-
-    context('when the action is syntaxErrorOccurred', function () {
-      it('returns the new state', function () {
-        const validation = reducer(
-          undefined,
-          syntaxErrorOccurred({ message: 'Syntax Error!' })
-        );
-
-        expect(validation).to.deep.equal({
-          validator: '',
-          validationAction: 'error',
-          validationLevel: 'strict',
-          isChanged: true,
-          syntaxError: { message: 'Syntax Error!' },
-          error: null,
         });
       });
     });
