@@ -156,7 +156,7 @@ const RulesGenerationErrorBanner: React.FunctionComponent<{
       <WarningSummary
         data-testid="rules-generation-timeout-message"
         warnings={[
-          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.',
+          'Operation exceeded time limit. Please try increasing the maxTimeMS in Compass Settings.',
         ]}
         dismissible={true}
         onClose={onDismissError}
