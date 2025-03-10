@@ -75,6 +75,13 @@ interface ValidationLevelChangedAction {
   validationLevel: ValidationLevel;
 }
 
+export const SET_VALIDATION_TO_DEFAULT =
+  `${PREFIX}/SET_VALIDATION_TO_DEFAULT` as const;
+export interface SetValidationToDefaultAction {
+  type: typeof SET_VALIDATION_TO_DEFAULT;
+  validator: string;
+}
+
 /**
  * Syntax error occurred action name.
  */
@@ -89,6 +96,7 @@ export type ValidationAction =
   | ValidationCanceledAction
   | ValidationSaveFailedAction
   | ValidationFetchedAction
+  | SetValidationToDefaultAction
   | ValidationActionChangedAction
   | ValidationLevelChangedAction
   | SyntaxErrorOccurredAction;
@@ -112,6 +120,36 @@ export interface ValidationState extends Validation {
   error: null | { message: string };
   prevValidation?: Validation;
 }
+
+export const VALIDATION_TEMPLATE = `/**
+ * This is a starter template for a schema validation rule for a collection.
+ * More information on schema validation rules can be found at:
+ * https://www.mongodb.com/docs/manual/core/schema-validation/
+ */
+{ 
+	$jsonSchema: {
+		title: "Library.books", 
+		bsonType: "object", 
+		required: ["fieldname1", "fieldname2"],
+		properties: {
+			fieldname1: { 
+				bsonType: "string",
+				description: "Fieldname1 must be a string",
+			},
+fieldname2: { 
+				bsonType: "int",
+				description: "Fieldname2 must be an integer",
+			},
+			arrayFieldName: {
+				bsonType: "array",
+				items: {
+bsonType: "string"
+},
+description: "arrayFieldName must be an array of strings"
+			},
+		}
+	}
+}`;
 
 /**
  * The initial state.
@@ -276,6 +314,23 @@ const changeValidationLevel = (
   };
 };
 
+const changeValidationToDefault = (
+  state: ValidationState,
+  action: SetValidationToDefaultAction
+): ValidationState => {
+  return {
+    ...state,
+    validationAction: INITIAL_STATE.validationAction,
+    validationLevel: INITIAL_STATE.validationLevel,
+    validator: action.validator,
+
+    // Set the previous validation to undefined so that the isChanged
+    // flag is set to true in future checks.
+    prevValidation: undefined,
+    isChanged: true,
+  };
+};
+
 /**
  * To not have a huge switch statement in the reducer.
  */
@@ -288,6 +343,7 @@ const MAPPINGS: {
   [VALIDATOR_CHANGED]: changeValidator,
   [VALIDATION_CANCELED]: setValidation,
   [VALIDATION_FETCHED]: setValidation,
+  [SET_VALIDATION_TO_DEFAULT]: changeValidationToDefault,
   [VALIDATION_SAVE_FAILED]: setError,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
@@ -348,6 +404,11 @@ export const validationFetched = (
   validation,
 });
 
+export const setValidationToDefault = (validator: string) => ({
+  type: SET_VALIDATION_TO_DEFAULT,
+  validator,
+});
+
 /**
  * Action creator for validation canceled events.
  */
@@ -385,40 +446,55 @@ export const syntaxErrorOccurred = (
 export const fetchValidation = (namespace: {
   database: string;
   collection: string;
-}): SchemaValidationThunkAction<void> => {
-  return (dispatch, _getState, { dataService }) => {
-    dataService.collectionInfo(namespace.database, namespace.collection).then(
-      (collInfo) => {
-        const validation = validationFromCollection(null, collInfo ?? {});
-
-        if (!validation.validator) {
-          const newValidation = { ...validation, validator: '{}' };
-          dispatch(validationFetched(newValidation));
-          dispatch(isLoadedChanged(true));
-          return;
-        }
-
-        // TODO(COMPASS-4989): EJSON??
-        const newValidation = {
-          ...validation,
-          validator: EJSON.stringify(validation.validator, undefined, 2),
-        };
-
-        dispatch(validationFetched(newValidation));
-        dispatch(zeroStateChanged(false));
-        dispatch(isLoadedChanged(true));
-      },
-      (err: Error) => {
+}): SchemaValidationThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { dataService, preferences }) => {
+    try {
+      const collInfo = await dataService.collectionInfo(
+        namespace.database,
+        namespace.collection
+      );
+      if (!collInfo?.validation?.validator) {
         dispatch(
-          validationFetched({
-            ...validationFromCollection(err),
-            validator: undefined,
-          })
+          setValidationToDefault(
+            preferences.getPreferences().enableExportSchema
+              ? VALIDATION_TEMPLATE
+              : '{}'
+          )
         );
-        dispatch(zeroStateChanged(false));
         dispatch(isLoadedChanged(true));
+        return;
       }
-    );
+
+      dispatch(
+        validationFetched({
+          validationAction:
+            (collInfo.validation.validationAction as ValidationServerAction) ??
+            INITIAL_STATE.validationAction,
+          validationLevel:
+            (collInfo.validation.validationLevel as ValidationLevel) ??
+            INITIAL_STATE.validationLevel,
+          // TODO(COMPASS-4989): EJSON??
+          validator: EJSON.stringify(
+            collInfo.validation.validator,
+            undefined,
+            2
+          ),
+        })
+      );
+      dispatch(zeroStateChanged(false));
+      dispatch(isLoadedChanged(true));
+    } catch (err) {
+      dispatch(
+        validationFetched({
+          validationAction: INITIAL_STATE.validationAction,
+          validationLevel: INITIAL_STATE.validationLevel,
+          error: err as Error,
+          validator: undefined,
+        })
+      );
+      dispatch(zeroStateChanged(false));
+      dispatch(isLoadedChanged(true));
+    }
   };
 };
 
@@ -489,7 +565,7 @@ export const saveValidation = (
           validationLevel: savedValidation.validationLevel,
         }
       );
-      dispatch(fetchValidation(namespace));
+      void dispatch(fetchValidation(namespace));
       openToast(toastId, {
         title: 'New validation rules applied',
         variant: 'success',
@@ -506,7 +582,7 @@ export const saveValidation = (
  *
  * @returns {Function} The function.
  */
-export const cancelValidation = () => {
+export const cancelValidation = (): SchemaValidationThunkAction<void> => {
   return (
     dispatch: ThunkDispatch<RootState, unknown, RootAction>,
     getState: () => RootState
@@ -518,9 +594,11 @@ export const cancelValidation = () => {
     dispatch(
       validationCanceled({
         isChanged: false,
-        validator: prevValidation!.validator,
-        validationAction: prevValidation!.validationAction,
-        validationLevel: prevValidation!.validationLevel,
+        validator: prevValidation?.validator ?? '{}',
+        validationAction:
+          prevValidation?.validationAction ?? INITIAL_STATE.validationAction,
+        validationLevel:
+          prevValidation?.validationLevel ?? INITIAL_STATE.validationLevel,
         error: null,
       })
     );
@@ -540,6 +618,6 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
     const state = getState();
     const namespace = state.namespace;
 
-    dispatch(fetchValidation(namespace));
+    void dispatch(fetchValidation(namespace));
   };
 };

@@ -1,4 +1,16 @@
+import type { AnyAction } from 'redux';
 import type { RootAction } from '.';
+import {
+  SET_VALIDATION_TO_DEFAULT,
+  type SetValidationToDefaultAction,
+} from './validation';
+
+export function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 /**
  * The edit mode changed action.
@@ -69,6 +81,12 @@ export default function reducer(
 
   if (action.type === DISABLE_EDIT_RULES) {
     return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<SetValidationToDefaultAction>(action, SET_VALIDATION_TO_DEFAULT)
+  ) {
+    return { ...state, isEditingEnabledByUser: true };
   }
 
   return state;
