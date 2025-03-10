@@ -75,23 +75,13 @@ interface ValidationLevelChangedAction {
   validationLevel: ValidationLevel;
 }
 
-/**
- * Syntax error occurred action name.
- */
-export const SYNTAX_ERROR_OCCURRED = `${PREFIX}/SYNTAX_ERROR_OCCURRED` as const;
-interface SyntaxErrorOccurredAction {
-  type: typeof SYNTAX_ERROR_OCCURRED;
-  syntaxError: null | { message: string };
-}
-
 export type ValidationAction =
   | ValidatorChangedAction
   | ValidationCanceledAction
   | ValidationSaveFailedAction
   | ValidationFetchedAction
   | ValidationActionChangedAction
-  | ValidationLevelChangedAction
-  | SyntaxErrorOccurredAction;
+  | ValidationLevelChangedAction;
 
 export interface Validation {
   validator: string;
@@ -177,18 +167,6 @@ const changeValidator = (
     ),
   };
 };
-
-/**
- * Sets syntax error.
- */
-const setSyntaxError = (
-  state: ValidationState,
-  action: SyntaxErrorOccurredAction
-): ValidationState => ({
-  ...state,
-  isChanged: true,
-  syntaxError: action.syntaxError,
-});
 
 /**
  * Set validation.
@@ -291,7 +269,6 @@ const MAPPINGS: {
   [VALIDATION_SAVE_FAILED]: setError,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
-  [SYNTAX_ERROR_OCCURRED]: setSyntaxError,
 };
 
 /**
@@ -370,16 +347,6 @@ export const validationSaveFailed = (error: {
 }): ValidationSaveFailedAction => ({
   type: VALIDATION_SAVE_FAILED,
   error,
-});
-
-/**
- * Action creator for syntax error occurred events.
- */
-export const syntaxErrorOccurred = (
-  syntaxError: null | { message: string }
-): SyntaxErrorOccurredAction => ({
-  type: SYNTAX_ERROR_OCCURRED,
-  syntaxError,
 });
 
 export const fetchValidation = (namespace: {
