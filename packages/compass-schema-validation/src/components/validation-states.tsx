@@ -1,24 +1,47 @@
 import React from 'react';
 import {
   Banner,
+  BannerVariant,
   Button,
   ButtonVariant,
+  CancelLoader,
   EmptyContent,
+  ErrorSummary,
   Link,
   WarningSummary,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { changeZeroState } from '../modules/zero-state';
 import type { RootState } from '../modules';
 import ValidationEditor from './validation-editor';
 import { SampleDocuments } from './sample-documents';
 import { ZeroGraphic } from './zero-graphic';
+import {
+  clearRulesGenerationError,
+  generateValidationRules,
+  stopRulesGeneration,
+  type RulesGenerationError,
+} from '../modules/rules-generation';
+import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '@mongodb-js/compass-schema';
 
-const validationStatesStyles = css({ padding: spacing[3] });
+const validationStatesStyles = css({
+  padding: spacing[400],
+  height: '100%',
+});
 const contentContainerStyles = css({ height: '100%' });
+const zeroStateButtonsStyles = css({
+  display: 'flex',
+  gap: spacing[400],
+});
+
+const loaderStyles = css({
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+});
 
 /**
  * Warnings for the banner.
@@ -46,8 +69,13 @@ const DOC_UPGRADE_REVISION =
 
 type ValidationStatesProps = {
   isZeroState: boolean;
+  isRulesGenerationInProgress?: boolean;
+  rulesGenerationError?: RulesGenerationError;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
+  generateValidationRules: () => void;
+  clearRulesGenerationError: () => void;
+  stopRulesGeneration: () => void;
   editMode: {
     collectionTimeSeries?: boolean;
     collectionReadOnly?: boolean;
@@ -104,13 +132,81 @@ function ValidationBanners({
   return null;
 }
 
+const GeneratingScreen: React.FunctionComponent<{
+  onCancelClicked: () => void;
+}> = ({ onCancelClicked }) => {
+  return (
+    <div className={loaderStyles}>
+      <CancelLoader
+        data-testid="generating-rules"
+        progressText="Generating rules"
+        cancelText="Stop"
+        onCancel={onCancelClicked}
+      />
+    </div>
+  );
+};
+
+const RulesGenerationErrorBanner: React.FunctionComponent<{
+  error: RulesGenerationError;
+  onDismissError: () => void;
+}> = ({ error, onDismissError }) => {
+  if (error?.errorType === 'timeout') {
+    return (
+      <WarningSummary
+        data-testid="rules-generation-timeout-message"
+        warnings={[
+          'Operation exceeded time limit. Please try increasing the maxTimeMS in Compass Settings.',
+        ]}
+        dismissible={true}
+        onClose={onDismissError}
+      />
+    );
+  }
+  if (error?.errorType === 'highComplexity') {
+    return (
+      <Banner
+        variant={BannerVariant.Danger}
+        data-testid="rules-generation-complexity-abort-message"
+        dismissible={true}
+        onClose={onDismissError}
+      >
+        The rules generation was aborted because the number of fields exceeds{' '}
+        {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
+        more collections with smaller documents, and using references to
+        consolidate the data you need.&nbsp;
+        <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
+          Learn more
+        </Link>
+      </Banner>
+    );
+  }
+
+  return (
+    <ErrorSummary
+      data-testid="rules-generation-error-message"
+      errors={[`Error occured during rules generation: ${error.errorMessage}`]}
+      dismissible={true}
+      onClose={onDismissError}
+    />
+  );
+};
+
 export function ValidationStates({
   isZeroState,
+  isRulesGenerationInProgress,
+  rulesGenerationError,
   isLoaded,
   changeZeroState,
+  generateValidationRules,
+  clearRulesGenerationError,
+  stopRulesGeneration,
   editMode,
 }: ValidationStatesProps) {
-  const readOnly = usePreference('readOnly');
+  const { readOnly, enableExportSchema } = usePreferences([
+    'readOnly',
+    'enableExportSchema',
+  ]);
 
   const isEditable =
     !editMode.collectionReadOnly &&
@@ -124,24 +220,47 @@ export function ValidationStates({
       className={validationStatesStyles}
       data-testid="schema-validation-states"
     >
+      {rulesGenerationError && (
+        <RulesGenerationErrorBanner
+          error={rulesGenerationError}
+          onDismissError={clearRulesGenerationError}
+        />
+      )}
       <ValidationBanners editMode={editMode} />
       {isLoaded && (
         <>
-          {isZeroState ? (
+          {isZeroState && !isRulesGenerationInProgress && (
             <EmptyContent
               icon={ZeroGraphic}
-              title="Add validation rules"
-              subTitle="Create rules to enforce data structure of documents on updates and inserts."
+              title="Create validation rules"
+              subTitle={
+                enableExportSchema
+                  ? 'Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts'
+                  : 'Create rules to enforce data structure of documents on updates and inserts.'
+              }
               callToAction={
-                <Button
-                  data-testid="add-rule-button"
-                  disabled={!isEditable}
-                  onClick={() => changeZeroState(false)}
-                  variant={ButtonVariant.Primary}
-                  size="small"
-                >
-                  Add Rule
-                </Button>
+                <div className={zeroStateButtonsStyles}>
+                  {enableExportSchema && (
+                    <Button
+                      data-testid="generate-rules-button"
+                      disabled={!isEditable}
+                      onClick={generateValidationRules}
+                      variant={ButtonVariant.Primary}
+                      size="small"
+                    >
+                      Generate rules
+                    </Button>
+                  )}
+                  <Button
+                    data-testid="add-rule-button"
+                    disabled={!isEditable}
+                    onClick={() => changeZeroState(false)}
+                    variant={ButtonVariant.PrimaryOutline}
+                    size="small"
+                  >
+                    Add Rule
+                  </Button>
+                </div>
               }
               callToActionLink={
                 <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
@@ -149,7 +268,11 @@ export function ValidationStates({
                 </Link>
               }
             />
-          ) : (
+          )}
+          {isZeroState && isRulesGenerationInProgress && (
+            <GeneratingScreen onCancelClicked={stopRulesGeneration} />
+          )}
+          {!isZeroState && (
             <div className={contentContainerStyles}>
               <ValidationEditor isEditable={isEditable} />
               <SampleDocuments />
@@ -172,6 +295,8 @@ const mapStateToProps = (state: RootState) => ({
   isZeroState: state.isZeroState,
   isLoaded: state.isLoaded,
   editMode: state.editMode,
+  isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
+  rulesGenerationError: state.rulesGeneration.error,
 });
 
 /**
@@ -179,4 +304,7 @@ const mapStateToProps = (state: RootState) => ({
  */
 export default connect(mapStateToProps, {
   changeZeroState,
+  generateValidationRules,
+  clearRulesGenerationError,
+  stopRulesGeneration,
 })(ValidationStates);

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Mar 06 2025.
+This document was automatically generated on Mon Mar 10 2025.
 
 ## List of dependencies
 
@@ -245,7 +245,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#917139cb42a267079249e7a59bef6353e0e9267c5cd83e377e0f3cf0e776e26b)**|32.3.2|MIT
+**[electron](#da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4)**|32.3.3|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -442,7 +442,7 @@ Package|Version|License
 **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**|2.4.2|MIT
 **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**|4.3.0|Apache-2.0
 **[mongodb-redact](#6fe8cef9beca5f3e1e3e999f47975ae99dcf4488419b28fc6d5eafc436081623)**|1.1.5|Apache-2.0
-**[mongodb-schema](#200c813b2033bff2c15d483efbee05103074fef52fe90e31be3be1310f6e6a03)**|12.4.0|Apache-2.0
+**[mongodb-schema](#87587e0fbb7b6358ac3d59faad8435b0d2e668ce8fccbc5640b51d2c47492ad2)**|12.5.0|Apache-2.0
 **[mongodb](#a52473fc1187a982574f4e63f3941340138879361b742ea77aacf6aec6561f1a)**|6.14.2|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -18952,8 +18952,8 @@ License files:
       
 
 
-<a id="917139cb42a267079249e7a59bef6353e0e9267c5cd83e377e0f3cf0e776e26b"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 32.3.2)
+<a id="da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.3.3)
 License tags: MIT
 
 License files:
@@ -27092,8 +27092,8 @@ License files:
       
 
 
-<a id="200c813b2033bff2c15d483efbee05103074fef52fe90e31be3be1310f6e6a03"></a>
-### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 12.4.0)
+<a id="87587e0fbb7b6358ac3d59faad8435b0d2e668ce8fccbc5640b51d2c47492ad2"></a>
+### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 12.5.0)
 License tags: Apache-2.0
 
 License files:

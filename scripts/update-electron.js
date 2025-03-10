@@ -3,7 +3,7 @@ const semver = require('semver');
 const fetch = require('make-fetch-happen');
 const fs = require('fs');
 const path = require('path');
-const { forEachPackage } = require('@mongodb-js/monorepo-tools');
+const { listAllPackages } = require('@mongodb-js/monorepo-tools');
 const { runInDir } = require('./run-in-dir');
 
 async function cleanAndBootstrap(newVersions) {
@@ -125,11 +125,11 @@ async function main() {
 
   console.log('Updating the following packages:', newVersions);
 
-  forEachPackage((props) => {
+  for await (const props of listAllPackages()) {
     const packageJsonPath = path.resolve(props.location, 'package.json');
 
     updatePackageVersions(packageJsonPath, newVersions);
-  });
+  }
 
   console.log('Cleaning node_modules and rebootstrapping');
   cleanAndBootstrap(newVersions);
