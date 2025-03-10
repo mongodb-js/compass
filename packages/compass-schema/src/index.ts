@@ -49,3 +49,5 @@ export const CompassSchemaPlugin = {
   content: CompassSchema as React.FunctionComponent /* reflux store */,
   header: SchemaTabTitle,
 };
+
+export * from './modules/schema-analysis';

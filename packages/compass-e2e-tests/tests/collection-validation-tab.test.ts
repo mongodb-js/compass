@@ -8,6 +8,8 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { expect } from 'chai';
+import { isTestingDesktop } from '../helpers/test-runner-context';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
@@ -51,6 +53,45 @@ describe('Collection validation tab', function () {
 
     await browser.setValidation(validation);
   }
+
+  context('when the schema validation is empty', function () {
+    before(async function () {
+      if (isTestingDesktop()) {
+        await browser.setFeature('enableExportSchema', true);
+      }
+    });
+
+    it('provides users with a button to generate rules', async function () {
+      await browser.clickVisible(Selectors.GenerateValidationRulesButton);
+      const editor = browser.$(Selectors.ValidationEditor);
+      await editor.waitForDisplayed();
+
+      // rules are generated
+      const generatedRules = await browser.getCodemirrorEditorText(
+        Selectors.ValidationEditor
+      );
+      expect(JSON.parse(generatedRules)).to.deep.equal({
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['_id', 'i', 'j'],
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+            i: {
+              bsonType: 'int',
+            },
+            j: {
+              bsonType: 'int',
+            },
+          },
+        },
+      });
+
+      // generated rules can be edited and saved
+      await browser.setValidation(PASSING_VALIDATOR);
+    });
+  });
 
   context('when the schema validation is set or modified', function () {
     it('provides users with a single button to load sample documents', async function () {
