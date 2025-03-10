@@ -24,7 +24,11 @@ const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<
-      'aggregate' | 'collectionInfo' | 'updateCollection'
+      | 'aggregate'
+      | 'collectionInfo'
+      | 'updateCollection'
+      | 'sample'
+      | 'isCancelError'
     >,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
