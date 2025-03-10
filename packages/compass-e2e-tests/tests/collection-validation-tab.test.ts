@@ -9,6 +9,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
+import { isTestingDesktop } from '../helpers/test-runner-context';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
@@ -55,7 +56,9 @@ describe('Collection validation tab', function () {
 
   context('when the schema validation is empty', function () {
     before(async function () {
-      await browser.setFeature('enableExportSchema', true);
+      if (isTestingDesktop()) {
+        await browser.setFeature('enableExportSchema', true);
+      }
     });
 
     it('provides users with a button to generate rules', async function () {
