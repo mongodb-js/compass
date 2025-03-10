@@ -86,7 +86,7 @@ describe('Collection validation tab', function () {
       });
 
       // generated rules can be edited and saved
-      await browser.setValidation('{ $jsonSchema: { "blah": "string" } }');
+      await browser.setValidation(PASSING_VALIDATOR);
     });
   });
 
