@@ -7,7 +7,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Mar 10, 2025
+Generated on Tue, Mar 11, 2025
 
 ## Table of Contents
 
@@ -1982,22 +1982,6 @@ This event is fired when user edits validation rules (without saving them).
 
 <a name="event--SchemaValidationUpdatedEvent"></a>
 
-### Schema Validation Generated
-
-This event is fired when user generates validation rules.
-
-**Properties**:
-
-- **is_compass_web** (optional): `true | undefined`
-- **connection_id** (optional): `string | undefined`
-  - The id of the connection associated to this event.
-- **variable_type_count** (required): `number`
-  - The count of fields with multiple types in the generated schema (not counting undefined).
-This is only calculated for the top level fields, not nested fields and arrays.
-- **optional_field_count** (required): `number`
-  - The count of fields that don't appear on all documents. This is only calculated for the top level fields, not nested fields and arrays.
-
-
 ### Schema Validation Updated
 
 This event is fired when user saves validation rules.
@@ -2008,6 +1992,22 @@ This event is fired when user saves validation rules.
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaValidationGeneratedEvent"></a>
+
+### Schema Validation Generated
+
+This event is fired when user generates validation rules.
+
+**Properties**:
+
+- **variable_type_count** (required): `number`
+- **optional_field_count** (required): `number`
+  - The count of fields that don't appear on all documents.
+This is only calculated for the top level fields, not nested fields and arrays.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
