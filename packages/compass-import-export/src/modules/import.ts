@@ -389,11 +389,14 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       debug('Error while importing:', err.stack);
 
       progressCallback.flush();
-      showFailedToast(err, () =>
-        dispatch({ type: ERROR_DETAILS_OPENED, errorDetails: err.errInfo })
-      );
+      const errInfo =
+        err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
+      const showErrorDetails: () => void | undefined =
+        errInfo &&
+        (() => dispatch({ type: ERROR_DETAILS_OPENED, errorDetails: errInfo }));
+      showFailedToast(err as Error, showErrorDetails);
 
-      dispatch(onFailed(err));
+      dispatch(onFailed(err as Error));
       return;
     } finally {
       errorLogWriteStream?.close();

@@ -3,6 +3,7 @@ import {
   Body,
   Button,
   css,
+  Link,
   openToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
@@ -227,19 +228,21 @@ export function showFailedToast(
   err: Error | undefined,
   showErrorDetails?: () => void
 ) {
-  console.log({ err, showErrorDetails });
   openToast(importToastId, {
     title: 'Failed to import with the following error:',
-    description: err?.message,
-    variant: 'warning',
-    actionElement: showErrorDetails && (err as MongoServerError).errInfo && (
-      <Button
-        size="xsmall"
-        onClick={showErrorDetails}
-        data-testid="insert-document-error-details-button"
-      >
-        VIEW ERROR DETAILS
-      </Button>
+    description: (
+      <>
+        {err?.message}&nbsp;
+        {showErrorDetails && (
+          <Link
+            onClick={showErrorDetails}
+            data-testid="insert-document-error-details-button"
+          >
+            View error details
+          </Link>
+        )}
+      </>
     ),
+    variant: 'warning',
   });
 }
