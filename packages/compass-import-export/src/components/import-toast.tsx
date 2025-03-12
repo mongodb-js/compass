@@ -1,14 +1,12 @@
 import React from 'react';
 import {
   Body,
-  Button,
   css,
   Link,
   openToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
 import path from 'path';
-import type { MongoServerError } from 'mongodb';
 
 const importToastId = 'import-toast';
 const bloatedDocumentSignalToastId = 'import-toast-bloated-document';
