@@ -234,7 +234,7 @@ export function showFailedToast(
         {showErrorDetails && (
           <Link
             onClick={showErrorDetails}
-            data-testid="insert-document-error-details-button"
+            data-testid="import-error-details-button"
           >
             View error details
           </Link>
