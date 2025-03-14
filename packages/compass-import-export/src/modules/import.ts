@@ -47,6 +47,8 @@ export const STARTED = `${PREFIX}/STARTED`;
 export const CANCELED = `${PREFIX}/CANCELED`;
 export const FINISHED = `${PREFIX}/FINISHED`;
 export const FAILED = `${PREFIX}/FAILED`;
+export const ERROR_DETAILS_OPENED = `${PREFIX}/ERROR_DETAILS_OPENED`;
+export const ERROR_DETAILS_CLOSED = `${PREFIX}/ERROR_DETAILS_CLOSED`;
 export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const FILE_SELECT_ERROR = `${PREFIX}/FILE_SELECT_ERROR`;
@@ -80,6 +82,16 @@ type FieldFromJSON = {
 };
 type FieldType = FieldFromJSON | FieldFromCSV;
 
+export type ErrorDetailsDialogState =
+  | {
+      isOpen: false;
+      details?: Record<string, unknown>;
+    }
+  | {
+      isOpen: true;
+      details: Record<string, unknown>;
+    };
+
 type ImportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
@@ -87,6 +99,7 @@ type ImportState = {
   fileType: AcceptedFileType | '';
   fileName: string;
   errorLogFilePath: string;
+  errorDetails: ErrorDetailsDialogState;
   fileIsMultilineJSON: boolean;
   useHeaderLines: boolean;
   status: ProcessStatus;
@@ -122,6 +135,7 @@ export const INITIAL_STATE: ImportState = {
   firstErrors: [],
   fileName: '',
   errorLogFilePath: '',
+  errorDetails: { isOpen: false },
   fileIsMultilineJSON: false,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
@@ -168,6 +182,8 @@ const onFinished = ({
 });
 
 const onFailed = (error: Error) => ({ type: FAILED, error });
+
+export const onErrorDetailsClose = () => ({ type: ERROR_DETAILS_CLOSED });
 
 const onFileSelectError = (error: Error) => ({
   type: FILE_SELECT_ERROR,
@@ -373,9 +389,14 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       debug('Error while importing:', err.stack);
 
       progressCallback.flush();
-      showFailedToast(err);
+      const errInfo =
+        err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
+      const showErrorDetails: () => void | undefined =
+        errInfo &&
+        (() => dispatch({ type: ERROR_DETAILS_OPENED, errorDetails: errInfo }));
+      showFailedToast(err as Error, showErrorDetails);
 
-      dispatch(onFailed(err));
+      dispatch(onFailed(err as Error));
       return;
     } finally {
       errorLogWriteStream?.close();
@@ -1066,6 +1087,26 @@ export const importReducer: Reducer<ImportState> = (
       firstErrors: [action.error],
       status: PROCESS_STATUS.FAILED,
       abortController: undefined,
+    };
+  }
+
+  if (action.type === ERROR_DETAILS_OPENED) {
+    return {
+      ...state,
+      errorDetails: {
+        isOpen: true,
+        details: action.errorDetails,
+      },
+    };
+  }
+
+  if (action.type === ERROR_DETAILS_CLOSED) {
+    return {
+      ...state,
+      errorDetails: {
+        ...state.errorDetails,
+        isOpen: false,
+      },
     };
   }
 
