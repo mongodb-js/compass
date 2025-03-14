@@ -615,12 +615,19 @@ export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const ErrorDetailsJson = '[data-testid="error-details-json"]';
+export const ErrorDetailsBackButton =
+  '[data-testid="error-details-back-button"]';
+export const ErrorDetailsCloseButton =
+  '[data-testid="error-details-close-button"]';
 
 // Insert Document modal
 
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
+export const InsertDialogErrorDetailsBtn =
+  'button[data-testid="insert-document-error-details-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
@@ -647,6 +654,10 @@ export const ImportAnalyzeError =
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
+export const ImportToastErrorDetailsBtn =
+  '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
+export const ImportErrorDetailsModal =
+  '[data-testid="import-error-details-modal"]';
 export const ImportToastAbort = '[data-testid="toast-action-stop"]';
 export const ImportFieldLabel =
   '[data-testid="import-modal"] .import-field-label';

@@ -12,6 +12,7 @@ import type {
   CrudStore,
   CrudStoreOptions,
   DocumentsPluginServices,
+  ErrorDetailsDialogOptions,
 } from './crud-store';
 import {
   findAndModifyWithFLEFallback,
@@ -290,13 +291,13 @@ describe('store', function () {
         docsPerPage: 25,
         end: 0,
         error: null,
+        errorDetails: { isOpen: false },
         insert: {
           doc: null,
           isCommentNeeded: true,
           isOpen: false,
           jsonDoc: null,
           jsonView: false,
-          message: '',
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
@@ -1125,7 +1126,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           store.state.insert.doc = doc;
@@ -1153,7 +1154,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           void store.insertDocument();
@@ -1181,7 +1182,8 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
             expect(state.insert.mode).to.equal('error');
           });
 
@@ -1216,7 +1218,8 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
           });
 
           void store.insertDocument();
@@ -1246,10 +1249,45 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
           });
 
           store.state.insert.doc = doc;
+          void store.insertDocument();
+
+          await listener;
+        });
+      });
+
+      context('when it is a validation error', function () {
+        const hadronDoc = new HadronDocument({});
+        // this should be invalid according to the validation rules
+        const jsonDoc = '{ "status": "testing" }';
+
+        beforeEach(function () {
+          store.state.insert.jsonView = true;
+          store.state.insert.doc = hadronDoc;
+          store.state.insert.jsonDoc = jsonDoc;
+        });
+
+        afterEach(async function () {
+          await dataService.deleteMany('compass-crud.test', {});
+        });
+
+        it('does not insert the document', async function () {
+          const listener = waitForState(store, (state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.deep.equal(hadronDoc);
+            expect(state.insert.jsonDoc).to.equal(jsonDoc);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
+            expect(state.insert.error.info).not.to.be.empty;
+          });
+
           void store.insertDocument();
 
           await listener;
@@ -1287,7 +1325,7 @@ describe('store', function () {
               expect(state.insert.jsonDoc).to.equal(null);
               expect(state.insert.isOpen).to.equal(false);
               expect(state.insert.jsonView).to.equal(false);
-              expect(state.insert.message).to.equal('');
+              expect(state.insert.error).to.equal(undefined);
 
               expect(state.status).to.equal('fetching');
               expect(state.abortController).to.not.be.null;
@@ -1347,7 +1385,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           store.state.insert.jsonDoc = docs;
@@ -1403,7 +1441,10 @@ describe('store', function () {
           expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
           expect(state.insert.jsonView).to.equal(true);
-          expect(state.insert.message).to.equal('Document failed validation');
+          expect(state.insert.error).to.not.be.null;
+          expect(state.insert.error?.message).to.equal(
+            'Document failed validation'
+          );
         });
 
         store.state.insert.jsonDoc = docs;
@@ -1411,6 +1452,41 @@ describe('store', function () {
 
         await listener;
       });
+    });
+  });
+
+  describe('#openErrorDetailsDialog #closeErrorDetailsDialog', function () {
+    const options: ErrorDetailsDialogOptions = {
+      details: { abc: 'abc' },
+      closeAction: 'close',
+    };
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('manages the errorDetails state', async function () {
+      const openListener = waitForState(store, (state) => {
+        expect(state.errorDetails).to.deep.equal({
+          isOpen: true,
+          ...options,
+        });
+      });
+
+      void store.openErrorDetailsDialog(options);
+
+      await openListener;
+
+      const closeListener = waitForState(store, (state) => {
+        expect(state.errorDetails.isOpen).to.be.false;
+      });
+
+      void store.closeErrorDetailsDialog();
+
+      await closeListener;
     });
   });
 

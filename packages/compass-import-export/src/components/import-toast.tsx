@@ -1,7 +1,9 @@
 import React from 'react';
 import {
   Body,
+  closeToast,
   css,
+  Link,
   openToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
@@ -221,10 +223,28 @@ export function showCancelledToast({
   });
 }
 
-export function showFailedToast(err: Error | undefined) {
+export function showFailedToast(
+  err: Error | undefined,
+  showErrorDetails?: () => void
+) {
   openToast(importToastId, {
     title: 'Failed to import with the following error:',
-    description: err?.message,
+    description: (
+      <>
+        {err?.message}&nbsp;
+        {showErrorDetails && (
+          <Link
+            onClick={() => {
+              showErrorDetails();
+              closeToast(importToastId);
+            }}
+            data-testid="import-error-details-button"
+          >
+            View error details
+          </Link>
+        )}
+      </>
+    ),
     variant: 'warning',
   });
 }
