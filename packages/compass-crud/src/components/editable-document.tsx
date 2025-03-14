@@ -18,6 +18,7 @@ export type EditableDocumentProps = {
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
+  openErrorDetailsDialog?: CrudActions['openErrorDetailsDialog'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
