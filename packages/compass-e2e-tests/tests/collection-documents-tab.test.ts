@@ -20,7 +20,6 @@ import {
 import { context as testRunnerContext } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
-import { isClickable } from 'webdriverio/build/commands/element';
 
 const { expect } = chai;
 
@@ -734,7 +733,7 @@ FindIterable<Document> result = collection.find(filter);`);
         await browser.runFindOperation('Documents', '{ "phone": 12345 }');
       });
 
-      it.only('shows error info when editing via list view', async function () {
+      it('shows error info when editing via list view', async function () {
         const document = browser.$(Selectors.DocumentListEntry);
         await document.waitForDisplayed();
 
@@ -747,11 +746,6 @@ FindIterable<Document> result = collection.find(filter);`);
         const deleteBtn = browser.$(
           `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentRemoveElement}`
         );
-        console.log({
-          isDisplayed: await deleteBtn.isDisplayed(),
-          isClickable: await deleteBtn.isClickable(),
-          isEnabled: await deleteBtn.isEnabled(),
-        });
 
         await deleteBtn.waitForDisplayed();
         console.log('I am displayed');

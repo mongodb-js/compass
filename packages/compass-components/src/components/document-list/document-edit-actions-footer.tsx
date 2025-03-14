@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import type { MongoServerError } from 'mongodb';
 import type HadronDocument from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
@@ -89,13 +88,17 @@ function useHadronDocumentStatus(
   const invalidElementsRef = useRef(new Set());
 
   const updateStatus = useCallback(
-    (newStatus: Status, error: Error | MongoServerError | null = null) => {
+    (
+      newStatus: Status,
+      error: Error | null = null,
+      errorDetails?: Record<string, unknown>
+    ) => {
       setStatus(newStatus);
       setError(
         error
           ? {
               message: error?.message,
-              details: (error as MongoServerError).errInfo,
+              details: errorDetails,
             }
           : null
       );
@@ -142,8 +145,11 @@ function useHadronDocumentStatus(
     const onUpdateSuccess = () => {
       updateStatus('UpdateSuccess');
     };
-    const onUpdateError = (err: Error | MongoServerError) => {
-      updateStatus('UpdateError', err);
+    const onUpdateError = (
+      err: Error,
+      errorDetails?: Record<string, unknown>
+    ) => {
+      updateStatus('UpdateError', err, errorDetails);
     };
     const onRemoveStart = () => {
       updateStatus('DeleteStart');
@@ -151,8 +157,11 @@ function useHadronDocumentStatus(
     const onRemoveSuccess = () => {
       updateStatus('DeleteSuccess');
     };
-    const onRemoveError = (err: Error | MongoServerError) => {
-      updateStatus('DeleteError', err);
+    const onRemoveError = (
+      err: Error,
+      errorDetails?: Record<string, unknown>
+    ) => {
+      updateStatus('DeleteError', err, errorDetails);
     };
 
     doc.on(Element.Events.Added, onUpdate);
