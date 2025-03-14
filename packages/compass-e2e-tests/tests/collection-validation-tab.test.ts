@@ -50,7 +50,7 @@ describe('Collection validation tab', function () {
     const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
-    await browser.setValidation(validation);
+    await browser.setValidationWithinValidationTab(validation);
   }
 
   context('when the schema validation is set or modified', function () {
@@ -99,7 +99,7 @@ describe('Collection validation tab', function () {
       // Reset the validation again to make everything valid for future tests
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
-      await browser.setValidation(PASSING_VALIDATOR);
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
       await browser.clickVisible(Selectors.ValidationLoadMatchingDocumentsBtn);
       await browser.clickVisible(
         Selectors.ValidationLoadNotMatchingDocumentsBtn

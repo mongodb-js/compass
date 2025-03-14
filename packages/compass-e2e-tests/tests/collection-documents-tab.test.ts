@@ -691,16 +691,12 @@ FindIterable<Document> result = collection.find(filter);`);
     const REQUIRE_PHONE_VALIDATOR =
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     beforeEach(async function () {
-      await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
-        'test',
-        'numbers',
-        'Validation'
-      );
-      await browser.clickVisible(Selectors.AddRuleButton);
-      const element = browser.$(Selectors.ValidationEditor);
-      await element.waitForDisplayed();
-      await browser.setValidation(REQUIRE_PHONE_VALIDATOR);
+      await browser.setValidation({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        database: 'test',
+        collection: 'numbers',
+        validator: REQUIRE_PHONE_VALIDATOR,
+      });
     });
 
     it('Shows error info when inserting', async function () {

@@ -28,7 +28,7 @@ export type ErrorJSON = {
   index?: number;
   code?: string | number;
   op?: any;
-  errorInfo?: Document;
+  errInfo?: Document;
   numErrors?: number;
 };
 
