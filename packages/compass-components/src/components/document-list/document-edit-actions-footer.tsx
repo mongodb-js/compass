@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { MongoServerError } from 'mongodb';
 import type HadronDocument from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
@@ -81,13 +82,26 @@ function useHadronDocumentStatus(
       ? 'Deleting'
       : 'Initial';
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [error, setError] = useState<{
+    message: string;
+    details?: Record<string, unknown>;
+  } | null>(null);
   const invalidElementsRef = useRef(new Set());
 
-  const updateStatus = useCallback((newStatus: Status, errorMessage = null) => {
-    setStatus(newStatus);
-    setErrorMessage(errorMessage);
-  }, []);
+  const updateStatus = useCallback(
+    (newStatus: Status, error: Error | MongoServerError | null = null) => {
+      setStatus(newStatus);
+      setError(
+        error
+          ? {
+              message: error?.message,
+              details: (error as MongoServerError).errInfo,
+            }
+          : null
+      );
+    },
+    []
+  );
 
   useEffect(() => {
     if (status !== 'Initial') {
@@ -128,7 +142,7 @@ function useHadronDocumentStatus(
     const onUpdateSuccess = () => {
       updateStatus('UpdateSuccess');
     };
-    const onUpdateError = (err: string) => {
+    const onUpdateError = (err: Error | MongoServerError) => {
       updateStatus('UpdateError', err);
     };
     const onRemoveStart = () => {
@@ -137,7 +151,7 @@ function useHadronDocumentStatus(
     const onRemoveSuccess = () => {
       updateStatus('DeleteSuccess');
     };
-    const onRemoveError = (err: string) => {
+    const onRemoveError = (err: Error | MongoServerError) => {
       updateStatus('DeleteError', err);
     };
 
@@ -183,30 +197,30 @@ function useHadronDocumentStatus(
     }
   }, [status, updateStatus]);
 
-  return { status, updateStatus, errorMessage };
+  return { status, updateStatus, error };
 }
 
 const container = css({
   display: 'flex',
-  paddingTop: spacing[2],
-  paddingRight: spacing[2],
-  paddingBottom: spacing[2],
-  paddingLeft: spacing[3],
+  paddingTop: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[200],
+  paddingLeft: spacing[400],
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   borderBottomLeftRadius: 'inherit',
   borderBottomRightRadius: 'inherit',
 });
 
 const message = css({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+  overflow: 'scroll',
 });
 
 const buttonGroup = css({
   display: 'flex',
   marginLeft: 'auto',
-  gap: spacing[2],
+  gap: spacing[200],
+  flexShrink: 0,
 });
 
 const button = css({
@@ -261,6 +275,7 @@ const EditActionsFooter: React.FunctionComponent<{
   onUpdate(force: boolean): void;
   onDelete(): void;
   onCancel?: () => void;
+  onOpenErrorDetails?: (details: Record<string, unknown>) => void;
 }> = ({
   doc,
   editing,
@@ -271,11 +286,12 @@ const EditActionsFooter: React.FunctionComponent<{
   onUpdate,
   onDelete,
   onCancel,
+  onOpenErrorDetails,
 }) => {
   const {
     status: _status,
     updateStatus,
-    errorMessage,
+    error,
   } = useHadronDocumentStatus(doc, editing, deleting);
 
   const darkMode = useDarkMode();
@@ -303,10 +319,20 @@ const EditActionsFooter: React.FunctionComponent<{
       data-status={status}
     >
       <div className={message} data-testid="document-footer-message">
-        {errorMessage ?? statusMessage}
+        {error?.message ?? statusMessage}
       </div>
       {!isSuccess(status) && (
         <div className={buttonGroup}>
+          {error?.details && (
+            <Button
+              className={button}
+              size="xsmall"
+              onClick={() => onOpenErrorDetails?.(error.details!)}
+              data-testid="edit-actions-footer-error-details-button"
+            >
+              VIEW ERROR DETAILS
+            </Button>
+          )}
           <Button
             type="button"
             size="xsmall"

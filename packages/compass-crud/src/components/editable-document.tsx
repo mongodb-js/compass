@@ -278,6 +278,12 @@ class EditableDocument extends React.Component<
         onCancel={() => {
           this.handleCancel();
         }}
+        onOpenErrorDetails={(details: Record<string, unknown>) => {
+          this.props.openErrorDetailsDialog?.({
+            details,
+            closeAction: 'close',
+          });
+        }}
       />
     );
   }
@@ -313,6 +319,7 @@ class EditableDocument extends React.Component<
     replaceDocument: PropTypes.func.isRequired,
     updateDocument: PropTypes.func.isRequired,
     openInsertDocumentDialog: PropTypes.func.isRequired,
+    openErrorDetailsDialog: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     showInsights: PropTypes.bool,
   };

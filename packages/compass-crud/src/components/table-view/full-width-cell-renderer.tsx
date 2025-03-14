@@ -20,6 +20,7 @@ export type FullWidthCellRendererProps = Pick<
   replaceDocument: CrudActions['replaceDocument'];
   removeDocument: CrudActions['removeDocument'];
   updateDocument: CrudActions['updateDocument'];
+  openErrorDetailsDialog: CrudActions['openErrorDetailsDialog'];
   darkMode?: boolean;
 };
 
@@ -150,6 +151,12 @@ class FullWidthCellRenderer extends React.Component<
               this.handleCancelRemove();
             }
           }}
+          onOpenErrorDetails={(details: Record<string, unknown>) => {
+            this.props.openErrorDetailsDialog?.({
+              details,
+              closeAction: 'close',
+            });
+          }}
         />
       </LeafyGreenProvider>
     );
@@ -163,6 +170,7 @@ class FullWidthCellRenderer extends React.Component<
     updateDocument: PropTypes.func.isRequired,
     removeDocument: PropTypes.func.isRequired,
     replaceDocument: PropTypes.func.isRequired,
+    openErrorDetailsDialog: PropTypes.func.isRequired,
     replaceDoc: PropTypes.func.isRequired,
     cleanCols: PropTypes.func.isRequired,
     darkMode: PropTypes.bool,

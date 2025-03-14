@@ -20,6 +20,7 @@ import {
 import { context as testRunnerContext } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
+import { isClickable } from 'webdriverio/build/commands/element';
 
 const { expect } = chai;
 
@@ -724,6 +725,157 @@ FindIterable<Document> result = collection.find(filter);`);
       // exit details
       await browser.clickVisible(Selectors.ErrorDetailsBackButton);
       await errorElement.waitForDisplayed();
+    });
+
+    describe('Editing', function () {
+      beforeEach(async function () {
+        await browser.navigateWithinCurrentCollectionTabs('Documents');
+        await tryToInsertDocument(browser, `{ "phone": 12345 }`);
+        await browser.runFindOperation('Documents', '{ "phone": 12345 }');
+      });
+
+      it.only('shows error info when editing via list view', async function () {
+        const document = browser.$(Selectors.DocumentListEntry);
+        await document.waitForDisplayed();
+
+        // enter edit mode
+        await browser.hover(Selectors.DocumentListEntry);
+        await browser.clickVisible(Selectors.EditDocumentButton);
+
+        // delete the required field
+        await browser.hover(`${Selectors.HadronDocumentElement}:last-child`);
+        const deleteBtn = browser.$(
+          `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentRemoveElement}`
+        );
+        console.log({
+          isDisplayed: await deleteBtn.isDisplayed(),
+          isClickable: await deleteBtn.isClickable(),
+          isEnabled: await deleteBtn.isEnabled(),
+        });
+
+        await deleteBtn.waitForDisplayed();
+        console.log('I am displayed');
+        await deleteBtn.waitForClickable();
+        console.log('I am clickable');
+        await deleteBtn.click();
+
+        // confirm update
+        const footer = document.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = document.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        console.log({ errorDetailsBtn });
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
+
+      it('shows error info when editing via json view', async function () {
+        await browser.clickVisible(Selectors.SelectJSONView);
+
+        const document = browser.$(Selectors.DocumentJSONEntry);
+        await document.waitForDisplayed();
+
+        await waitForJSON(browser, document);
+
+        // enter edit mode
+        await browser.hover(Selectors.JSONDocumentCard);
+        await browser.clickVisible(Selectors.JSONEditDocumentButton);
+
+        // remove the required field
+        await browser.setCodemirrorEditorValue(
+          Selectors.DocumentJSONEntry,
+          `{}`
+        );
+
+        // confirm update
+        const footer = document.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = document.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
+
+      it('shows error info when editing via table view', async function () {
+        await browser.clickVisible(Selectors.SelectTableView);
+
+        const document = browser.$('.ag-center-cols-clipper .ag-row-first');
+        await document.waitForDisplayed();
+
+        // enter edit mode
+        const value = document.$('[col-id="phone"] .element-value');
+        await value.doubleClick();
+
+        // remove the required field
+        await browser.clickVisible(
+          '[data-testid="table-view-cell-editor-remove-field-button"]'
+        );
+
+        // confirm update
+        const footer = browser.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = browser.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
     });
   });
 });
