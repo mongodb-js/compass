@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Body,
+  closeToast,
   css,
   Link,
   openToast,
@@ -233,7 +234,10 @@ export function showFailedToast(
         {err?.message}&nbsp;
         {showErrorDetails && (
           <Link
-            onClick={showErrorDetails}
+            onClick={() => {
+              showErrorDetails();
+              closeToast(importToastId);
+            }}
             data-testid="import-error-details-button"
           >
             View error details
