@@ -10,7 +10,7 @@ import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, ToastBody } from '@mongodb-js/compass-components';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -323,6 +323,28 @@ const app = {
     });
     ipcRenderer?.on('compass:open-import', () => {
       globalAppRegistry.emit('open-active-namespace-import');
+    });
+    ipcRenderer?.on('download-finished', (event, { path }) => {
+      openToast('file-download-complete', {
+        title: 'Success',
+        description: (
+          <ToastBody
+            statusMessage="File download complete"
+            actionHandler={() => ipcRenderer?.send('show-file', path)}
+            actionText="show file"
+          />
+        ),
+        variant: 'success',
+      });
+    });
+    ipcRenderer?.on('download-failed', (event, { filename }) => {
+      openToast('file-download-failed', {
+        title: 'Failure',
+        description: filename
+          ? `Failed to download ${filename}`
+          : 'Download failed',
+        variant: 'warning',
+      });
     });
     // Autoupdate handlers
     ipcRenderer?.on(
