@@ -85,6 +85,11 @@ const schemaAccessor = {
       setTimeout(() => resolve({ required: ['prop1'] }), 100); // waiting to give abort a chance
     });
   },
+  getInternalSchema: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ required: ['prop1'] }), 100); // waiting to give abort a chance
+    });
+  },
 };
 
 describe('Schema Validation Store', function () {

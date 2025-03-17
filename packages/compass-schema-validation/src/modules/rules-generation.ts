@@ -4,6 +4,12 @@ import { enableEditRules } from './edit-mode';
 import type { MongoError } from 'mongodb';
 import type { Action, Reducer } from 'redux';
 import { validationLevelChanged, validatorChanged } from './validation';
+import {
+  type analyzeSchema as analyzeSchemaType,
+  calculateSchemaMetadata,
+} from '@mongodb-js/compass-schema';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { isAction } from '../util';
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
@@ -141,6 +147,29 @@ export const stopRulesGeneration = (): SchemaValidationThunkAction<void> => {
   };
 };
 
+const _trackRulesGenerated = async ({
+  schemaAccessor,
+  track,
+  connectionInfoRef,
+}: {
+  schemaAccessor: Awaited<ReturnType<typeof analyzeSchemaType>>;
+  track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
+}) => {
+  const internalSchema = await schemaAccessor?.getInternalSchema();
+  if (!internalSchema) return;
+  const { variable_type_count, optional_field_count } =
+    await calculateSchemaMetadata(internalSchema);
+  track(
+    'Schema Validation Generated',
+    {
+      variable_type_count,
+      optional_field_count,
+    },
+    connectionInfoRef.current
+  );
+};
+
 /**
  * Get $jsonSchema from schema analysis
  * @returns
@@ -157,6 +186,8 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
       preferences,
       rulesGenerationAbortControllerRef,
       analyzeSchema,
+      track,
+      connectionInfoRef,
     }
   ) => {
     dispatch({ type: RulesGenerationActions.generationStarted });
@@ -205,6 +236,12 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
       dispatch(enableEditRules());
       dispatch({ type: RulesGenerationActions.generationFinished });
       dispatch(zeroStateChanged(false));
+
+      void _trackRulesGenerated({
+        schemaAccessor,
+        connectionInfoRef,
+        track,
+      });
     } catch (error) {
       if (abortSignal.aborted) {
         dispatch({ type: RulesGenerationActions.generationFinished });

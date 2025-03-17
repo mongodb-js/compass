@@ -7,7 +7,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Mar 10, 2025
+Generated on Sun, Mar 16, 2025
 
 ## Table of Contents
 
@@ -162,6 +162,7 @@ Generated on Mon, Mar 10, 2025
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
 - [Schema Validation Edited](#event--SchemaValidationEditedEvent)
 - [Schema Validation Updated](#event--SchemaValidationUpdatedEvent)
+- [Schema Validation Generated](#event--SchemaValidationGeneratedEvent)
 
 ### Settings
 - [Theme Changed](#event--ThemeChangedEvent)
@@ -1991,6 +1992,22 @@ This event is fired when user saves validation rules.
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaValidationGeneratedEvent"></a>
+
+### Schema Validation Generated
+
+This event is fired when user generates validation rules.
+
+**Properties**:
+
+- **variable_type_count** (required): `number`
+- **optional_field_count** (required): `number`
+  - The count of fields that don't appear on all documents.
+This is only calculated for the top level fields, not nested fields and arrays.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
