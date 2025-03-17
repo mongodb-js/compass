@@ -77,8 +77,12 @@ export const ErrorDetailsModalArea: React.FC = ({ children }) => {
     });
 
   const contextValue = React.useMemo(
-    () => ({ showErrorDetails, isMounted: true }),
-    []
+    () => ({
+      showErrorDetails: (options: ErrorDetailsOptions) =>
+        setErrorDetailsProps({ open: true, ...options }),
+      isMounted: true,
+    }),
+    [setErrorDetailsProps]
   );
 
   // Event listener to use confirmation modal outside of react
