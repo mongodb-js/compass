@@ -11,6 +11,7 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   spacing,
+  useErrorDetailsModal,
 } from '@mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
@@ -67,7 +68,6 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: Logger;
   track?: TrackFunction;
-  showErrorDetails: () => void;
 };
 
 const DocumentOrJsonView: React.FC<{
@@ -135,12 +135,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   updateJsonDoc,
   updateComment,
   closeInsertDocumentDialog,
-  showErrorDetails,
 }) => {
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
     []
   );
   const [insertInProgress, setInsertInProgress] = useState(false);
+
+  const { showErrorDetails } = useErrorDetailsModal();
 
   const hasManyDocuments = useCallback(() => {
     let parsed: unknown;
@@ -346,7 +347,12 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             <Button
               size="xsmall"
               className={errorDetailsBtnStyles}
-              onClick={showErrorDetails}
+              onClick={() =>
+                showErrorDetails({
+                  details: error.info,
+                  closeAction: 'back',
+                })
+              }
               data-testid="insert-document-error-details-button"
             >
               VIEW ERROR DETAILS

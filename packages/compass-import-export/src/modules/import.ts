@@ -35,6 +35,7 @@ import {
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
 import type { DataService } from 'mongodb-data-service';
+import { showErrorDetails } from '@mongodb-js/compass-components';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -82,16 +83,6 @@ type FieldFromJSON = {
 };
 type FieldType = FieldFromJSON | FieldFromCSV;
 
-export type ErrorDetailsDialogState =
-  | {
-      isOpen: false;
-      details?: Record<string, unknown>;
-    }
-  | {
-      isOpen: true;
-      details: Record<string, unknown>;
-    };
-
 type ImportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
@@ -99,7 +90,6 @@ type ImportState = {
   fileType: AcceptedFileType | '';
   fileName: string;
   errorLogFilePath: string;
-  errorDetails: ErrorDetailsDialogState;
   fileIsMultilineJSON: boolean;
   useHeaderLines: boolean;
   status: ProcessStatus;
@@ -135,7 +125,6 @@ export const INITIAL_STATE: ImportState = {
   firstErrors: [],
   fileName: '',
   errorLogFilePath: '',
-  errorDetails: { isOpen: false },
   fileIsMultilineJSON: false,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
@@ -182,8 +171,6 @@ const onFinished = ({
 });
 
 const onFailed = (error: Error) => ({ type: FAILED, error });
-
-export const onErrorDetailsClose = () => ({ type: ERROR_DETAILS_CLOSED });
 
 const onFileSelectError = (error: Error) => ({
   type: FILE_SELECT_ERROR,
@@ -391,10 +378,12 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       progressCallback.flush();
       const errInfo =
         err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
-      const showErrorDetails: () => void | undefined =
-        errInfo &&
-        (() => dispatch({ type: ERROR_DETAILS_OPENED, errorDetails: errInfo }));
-      showFailedToast(err as Error, showErrorDetails);
+      showFailedToast(err as Error, () =>
+        showErrorDetails({
+          details: errInfo,
+          closeAction: 'close',
+        })
+      );
 
       dispatch(onFailed(err as Error));
       return;
@@ -1087,26 +1076,6 @@ export const importReducer: Reducer<ImportState> = (
       firstErrors: [action.error],
       status: PROCESS_STATUS.FAILED,
       abortController: undefined,
-    };
-  }
-
-  if (action.type === ERROR_DETAILS_OPENED) {
-    return {
-      ...state,
-      errorDetails: {
-        isOpen: true,
-        details: action.errorDetails,
-      },
-    };
-  }
-
-  if (action.type === ERROR_DETAILS_CLOSED) {
-    return {
-      ...state,
-      errorDetails: {
-        ...state.errorDetails,
-        isOpen: false,
-      },
     };
   }
 

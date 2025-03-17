@@ -741,17 +741,11 @@ FindIterable<Document> result = collection.find(filter);`);
         await browser.hover(Selectors.DocumentListEntry);
         await browser.clickVisible(Selectors.EditDocumentButton);
 
-        // delete the required field
-        await browser.hover(`${Selectors.HadronDocumentElement}:last-child`);
-        const deleteBtn = browser.$(
-          `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentRemoveElement}`
+        // rename the required field
+        const input = document.$(
+          `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`
         );
-
-        await deleteBtn.waitForDisplayed();
-        console.log('I am displayed');
-        await deleteBtn.waitForClickable();
-        console.log('I am clickable');
-        await deleteBtn.click();
+        await browser.setValueVisible(input, 'somethingElse');
 
         // confirm update
         const footer = document.$(Selectors.DocumentFooterMessage);
@@ -771,7 +765,6 @@ FindIterable<Document> result = collection.find(filter);`);
           Selectors.DocumentFooterErrorDetailsButton
         );
         await errorDetailsBtn.waitForDisplayed();
-        console.log({ errorDetailsBtn });
         await errorDetailsBtn.click();
 
         const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);

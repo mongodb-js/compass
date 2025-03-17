@@ -6,6 +6,7 @@ import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../../hooks/use-theme';
+import { useErrorDetailsModal } from '../../hooks/use-error-details';
 
 type Status =
   | 'Initial'
@@ -284,7 +285,6 @@ const EditActionsFooter: React.FunctionComponent<{
   onUpdate(force: boolean): void;
   onDelete(): void;
   onCancel?: () => void;
-  onOpenErrorDetails?: (details: Record<string, unknown>) => void;
 }> = ({
   doc,
   editing,
@@ -295,7 +295,6 @@ const EditActionsFooter: React.FunctionComponent<{
   onUpdate,
   onDelete,
   onCancel,
-  onOpenErrorDetails,
 }) => {
   const {
     status: _status,
@@ -304,6 +303,8 @@ const EditActionsFooter: React.FunctionComponent<{
   } = useHadronDocumentStatus(doc, editing, deleting);
 
   const darkMode = useDarkMode();
+
+  const { showErrorDetails } = useErrorDetailsModal();
 
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
@@ -336,7 +337,12 @@ const EditActionsFooter: React.FunctionComponent<{
             <Button
               className={button}
               size="xsmall"
-              onClick={() => onOpenErrorDetails?.(error.details!)}
+              onClick={() =>
+                showErrorDetails({
+                  details: error.details,
+                  closeAction: 'close',
+                })
+              }
               data-testid="edit-actions-footer-error-details-button"
             >
               VIEW ERROR DETAILS

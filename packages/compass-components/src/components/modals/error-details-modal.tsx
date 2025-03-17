@@ -12,7 +12,7 @@ const leftDirectionFooter = css({
 });
 
 type ModalProps = React.ComponentProps<typeof Modal>;
-type ErrorDetailsModalProps = Omit<ModalProps, 'children'> & {
+export type ErrorDetailsModalProps = Omit<ModalProps, 'children'> & {
   title?: string;
   subtitle?: string;
   details?: Record<string, unknown>;

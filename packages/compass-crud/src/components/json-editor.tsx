@@ -58,7 +58,6 @@ export type JSONEditorProps = {
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  openErrorDetailsDialog?: CrudActions['openErrorDetailsDialog'];
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
@@ -70,7 +69,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
-  openErrorDetailsDialog,
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
@@ -319,12 +317,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
-        onOpenErrorDetails={(details: Record<string, unknown>) =>
-          openErrorDetailsDialog?.({
-            details,
-            closeAction: 'close',
-          })
-        }
       />
     </div>
   );

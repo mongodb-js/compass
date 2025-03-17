@@ -19,8 +19,6 @@ const configureActions = () => {
     'toggleInsertDocumentView',
     'toggleInsertDocument',
     'openInsertDocumentDialog',
-    'openErrorDetailsDialog',
-    'closeErrorDetailsDialog',
     'openBulkUpdateModal',
     'updateBulkUpdatePreview',
     'runBulkUpdate',

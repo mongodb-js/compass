@@ -89,7 +89,7 @@ describe('Collection validation tab', function () {
       });
 
       // generated rules can be edited and saved
-      await browser.setValidation(PASSING_VALIDATOR);
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
     });
   });
 

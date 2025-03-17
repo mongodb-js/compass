@@ -9,7 +9,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
-  ErrorDetailsModal,
+  ErrorDetailsModalArea,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -30,13 +30,7 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import type {
-  CrudStore,
-  BSONObject,
-  DocumentView,
-  ErrorDetailsDialogOptions,
-  ErrorDetailsDialogState,
-} from '../stores/crud-store';
+import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -73,8 +67,6 @@ const loaderContainerStyles = css({
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
-  openErrorDetailsDialog: (options: ErrorDetailsDialogOptions) => void;
-  closeErrorDetailsDialog: () => void;
   openBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -82,7 +74,6 @@ export type DocumentListProps = {
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
-  errorDetails: ErrorDetailsDialogState;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -301,10 +292,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
-    errorDetails,
     openInsertDocumentDialog,
-    openErrorDetailsDialog,
-    closeErrorDetailsDialog,
     openImportFileDialog,
     openBulkUpdateModal,
     docs,
@@ -531,102 +519,92 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
-      <WorkspaceContainer
-        scrollableContainerRef={scrollRef}
-        initialTopInView={currentViewInitialScrollTop === 0}
-        toolbar={
-          <CrudToolbar
-            activeDocumentView={view}
-            error={error}
-            count={count}
-            isFetching={isFetching}
-            loadingCount={loadingCount}
-            start={start}
-            end={end}
-            page={page}
-            getPage={getPage}
-            insertDataHandler={onOpenInsert}
-            onApplyClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
-            onUpdateButtonClicked={onUpdateButtonClicked}
-            onDeleteButtonClicked={onDeleteButtonClicked}
-            onExpandAllClicked={onExpandAllClicked}
-            onCollapseAllClicked={onCollapseAllClicked}
-            openExportFileDialog={openExportFileDialog}
-            outdated={outdated}
-            readonly={!isEditable}
-            viewSwitchHandler={handleViewChanged}
-            isWritable={isWritable}
-            instanceDescription={instanceDescription}
-            refreshDocuments={refreshDocuments}
-            resultId={resultId}
-            querySkip={query.skip}
-            queryLimit={query.limit}
-            insights={getToolbarSignal(
-              JSON.stringify(query.filter ?? {}),
-              Boolean(isCollectionScan),
-              isSearchIndexesSupported,
-              store.openCreateIndexModal.bind(store),
-              store.openCreateSearchIndexModal.bind(store)
-            )}
-            docsPerPage={docsPerPage}
-            updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
-          />
-        }
-      >
-        {renderContent}
-      </WorkspaceContainer>
+      <ErrorDetailsModalArea>
+        <WorkspaceContainer
+          scrollableContainerRef={scrollRef}
+          initialTopInView={currentViewInitialScrollTop === 0}
+          toolbar={
+            <CrudToolbar
+              activeDocumentView={view}
+              error={error}
+              count={count}
+              isFetching={isFetching}
+              loadingCount={loadingCount}
+              start={start}
+              end={end}
+              page={page}
+              getPage={getPage}
+              insertDataHandler={onOpenInsert}
+              onApplyClicked={onApplyClicked}
+              onResetClicked={onResetClicked}
+              onUpdateButtonClicked={onUpdateButtonClicked}
+              onDeleteButtonClicked={onDeleteButtonClicked}
+              onExpandAllClicked={onExpandAllClicked}
+              onCollapseAllClicked={onCollapseAllClicked}
+              openExportFileDialog={openExportFileDialog}
+              outdated={outdated}
+              readonly={!isEditable}
+              viewSwitchHandler={handleViewChanged}
+              isWritable={isWritable}
+              instanceDescription={instanceDescription}
+              refreshDocuments={refreshDocuments}
+              resultId={resultId}
+              querySkip={query.skip}
+              queryLimit={query.limit}
+              insights={getToolbarSignal(
+                JSON.stringify(query.filter ?? {}),
+                Boolean(isCollectionScan),
+                isSearchIndexesSupported,
+                store.openCreateIndexModal.bind(store),
+                store.openCreateSearchIndexModal.bind(store)
+              )}
+              docsPerPage={docsPerPage}
+              updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
+            />
+          }
+        >
+          {renderContent}
+        </WorkspaceContainer>
 
-      {isEditable && (
-        <>
-          <InsertDocumentDialog
-            closeInsertDocumentDialog={closeInsertDocumentDialog}
-            insertDocument={insertDocument}
-            insertMany={insertMany}
-            updateJsonDoc={updateJsonDoc}
-            toggleInsertDocument={toggleInsertDocument}
-            toggleInsertDocumentView={toggleInsertDocumentView}
-            jsonView
-            version={version}
-            ns={ns}
-            updateComment={updateComment}
-            showErrorDetails={() =>
-              openErrorDetailsDialog({
-                details: insert.error.info || {},
-                closeAction: 'back',
-              })
-            }
-            {...insert}
-          />
-          <ErrorDetailsModal
-            open={errorDetails.isOpen}
-            onClose={closeErrorDetailsDialog}
-            details={errorDetails.details}
-            closeAction={errorDetails.closeAction || 'close'}
-          />
-          <BulkUpdateModal
-            ns={ns}
-            filter={query.filter ?? {}}
-            count={count}
-            enablePreview={isUpdatePreviewSupported}
-            {...bulkUpdate}
-            closeBulkUpdateModal={closeBulkUpdateModal}
-            updateBulkUpdatePreview={updateBulkUpdatePreview}
-            runBulkUpdate={runBulkUpdate}
-            saveUpdateQuery={onSaveUpdateQuery}
-          />
-          <BulkDeleteModal
-            open={store.state.bulkDelete.status === 'open'}
-            namespace={store.state.ns}
-            documentCount={store.state.bulkDelete.affected}
-            filter={query.filter ?? {}}
-            onCancel={onCancelBulkDeleteDialog}
-            onConfirmDeletion={onConfirmBulkDeleteDialog}
-            sampleDocuments={store.state.bulkDelete.previews}
-            onExportToLanguage={onExportToLanguageDeleteQuery}
-          />
-        </>
-      )}
+        {isEditable && (
+          <>
+            <InsertDocumentDialog
+              closeInsertDocumentDialog={closeInsertDocumentDialog}
+              insertDocument={insertDocument}
+              insertMany={insertMany}
+              updateJsonDoc={updateJsonDoc}
+              toggleInsertDocument={toggleInsertDocument}
+              toggleInsertDocumentView={toggleInsertDocumentView}
+              jsonView
+              version={version}
+              ns={ns}
+              updateComment={updateComment}
+              {...insert}
+            />
+            <BulkUpdateModal
+              ns={ns}
+              filter={query.filter ?? {}}
+              count={count}
+              enablePreview={isUpdatePreviewSupported}
+              {...bulkUpdate}
+              closeBulkUpdateModal={closeBulkUpdateModal}
+              updateBulkUpdatePreview={updateBulkUpdatePreview}
+              runBulkUpdate={runBulkUpdate}
+              saveUpdateQuery={onSaveUpdateQuery}
+            />
+            <BulkDeleteModal
+              open={store.state.bulkDelete.status === 'open'}
+              namespace={store.state.ns}
+              documentCount={store.state.bulkDelete.affected}
+              filter={query.filter ?? {}}
+              onCancel={onCancelBulkDeleteDialog}
+              onConfirmDeletion={onConfirmBulkDeleteDialog}
+              sampleDocuments={store.state.bulkDelete.previews}
+              onExportToLanguage={onExportToLanguageDeleteQuery}
+            />
+          </>
+        )}
+      </ErrorDetailsModalArea>
     </div>
   );
 };

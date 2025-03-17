@@ -56,7 +56,6 @@ export type DocumentTableViewProps = {
   ns: string;
   version: string;
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  openErrorDetailsDialog?: CrudActions['openErrorDetailsDialog'];
   pathChanged: (path: (string | number)[], types: TableHeaderType[]) => void;
   removeColumn: GridActions['removeColumn'];
   copyToClipboard: (doc: Document) => void;
@@ -144,7 +143,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         removeDocument: this.props.removeDocument,
         replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument,
-        openErrorDetailsDialog: this.props.openErrorDetailsDialog,
         darkMode: this.props.darkMode,
       },
       getRowNodeId: function (data) {
@@ -1033,7 +1031,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     ns: PropTypes.string.isRequired,
     version: PropTypes.string.isRequired,
     openInsertDocumentDialog: PropTypes.func,
-    openErrorDetailsDialog: PropTypes.func,
     pathChanged: PropTypes.func.isRequired,
     removeColumn: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,

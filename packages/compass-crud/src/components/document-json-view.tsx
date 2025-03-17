@@ -33,7 +33,6 @@ export type DocumentJsonViewProps = {
   | 'removeDocument'
   | 'replaceDocument'
   | 'updateDocument'
-  | 'openErrorDetailsDialog'
   | 'openInsertDocumentDialog'
 >;
 
@@ -68,7 +67,6 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
               replaceDocument={this.props.replaceDocument}
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-              openErrorDetailsDialog={this.props.openErrorDetailsDialog}
             />
           </KeylineCard>
         </li>
