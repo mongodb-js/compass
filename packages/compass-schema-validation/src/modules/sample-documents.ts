@@ -1,7 +1,12 @@
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { checkValidator } from './validation';
+import {
+  checkValidator,
+  ValidationActions,
+  type ValidationCanceledAction,
+} from './validation';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { RootAction, SchemaValidationThunkAction } from '.';
+import { isAction } from '../util';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -194,6 +199,15 @@ export default function (
       ];
   } else if (action.type === FETCHING_SAMPLE_DOCUMENTS)
     fn = startFetchingSampleDocuments;
+
+  if (
+    isAction<ValidationCanceledAction>(
+      action,
+      ValidationActions.ValidationCanceled
+    )
+  ) {
+    fn = clearingSampleDocuments;
+  }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore-error TS does not understand that action can be passed to fn

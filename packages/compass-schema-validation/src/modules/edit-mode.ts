@@ -1,16 +1,11 @@
-import type { AnyAction } from 'redux';
 import type { RootAction } from '.';
+import { isAction } from '../util';
 import {
-  SET_VALIDATION_TO_DEFAULT,
-  type SetValidationToDefaultAction,
+  type EmptyValidationFetchedAction,
+  ValidationActions,
+  type ValidationCanceledAction,
+  type ValidationFetchedAction,
 } from './validation';
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 /**
  * The edit mode changed action.
@@ -84,9 +79,30 @@ export default function reducer(
   }
 
   if (
-    isAction<SetValidationToDefaultAction>(action, SET_VALIDATION_TO_DEFAULT)
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    )
   ) {
     return { ...state, isEditingEnabledByUser: true };
+  }
+
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<ValidationCanceledAction>(
+      action,
+      ValidationActions.ValidationCanceled
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: false };
   }
 
   return state;

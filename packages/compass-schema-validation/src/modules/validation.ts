@@ -1,85 +1,64 @@
-import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { EJSON } from 'bson';
+import type { RootAction, SchemaValidationThunkAction } from '.';
+import { type Document, EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { openToast } from '@mongodb-js/compass-components';
-import { clearSampleDocuments } from './sample-documents';
-import { zeroStateChanged } from './zero-state';
-import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
-import type { ThunkDispatch } from 'redux-thunk';
 import { disableEditRules } from './edit-mode';
+import { isAction } from '../util';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
 
-/**
- * The module action prefix.
- */
-const PREFIX = 'validation' as const;
+export const enum ValidationActions {
+  ValidatorChanged = 'compass-schema-validation/validation/ValidatorChanged',
+  ValidationCanceled = 'compass-schema-validation/validation/ValidationCanceled',
+  ValidationSaveFailed = 'compass-schema-validation/validation/ValidationSaveFailed',
+  ValidationFetched = 'compass-schema-validation/validation/ValidationFetched',
+  EmptyValidationFetched = 'compass-schema-validation/validation/EmptyValidationFetched',
+  ValidationActionChanged = 'compass-schema-validation/validation/ValidationActionChanged',
+  ValidationLevelChanged = 'compass-schema-validation/validation/ValidationLevelChanged',
+  ValidationFetchErrored = 'compass-schema-validation/validation/ValidationFetchErrored',
+}
 
-/**
- * Validator changed action name.
- */
-export const VALIDATOR_CHANGED = `${PREFIX}/VALIDATOR_CHANGED` as const;
 interface ValidatorChangedAction {
-  type: typeof VALIDATOR_CHANGED;
+  type: ValidationActions.ValidatorChanged;
   validator: string;
 }
 
-/**
- * Validation canceled action name.
- */
-export const VALIDATION_CANCELED = `${PREFIX}/VALIDATION_CANCELED` as const;
-interface ValidationCanceledAction {
-  type: typeof VALIDATION_CANCELED;
-  validation: Validation;
+export interface ValidationCanceledAction {
+  type: ValidationActions.ValidationCanceled;
 }
 
-/**
- * Validation save failed action name.
- */
-export const VALIDATION_SAVE_FAILED =
-  `${PREFIX}/VALIDATION_SAVE_FAILED` as const;
 interface ValidationSaveFailedAction {
-  type: typeof VALIDATION_SAVE_FAILED;
-  error: null | { message: string };
+  type: ValidationActions.ValidationSaveFailed;
+  error: { message: string };
 }
-
-/**
- * Validation fetched action name.
- */
-export const VALIDATION_FETCHED = `${PREFIX}/VALIDATION_FETCHED` as const;
-interface ValidationFetchedAction {
-  type: typeof VALIDATION_FETCHED;
-  validation: PartialValidation;
-}
-
-/**
- * Validation action changed action name.
- */
-export const VALIDATION_ACTION_CHANGED =
-  `${PREFIX}/VALIDATION_ACTION_CHANGED` as const;
-interface ValidationActionChangedAction {
-  type: typeof VALIDATION_ACTION_CHANGED;
+export interface ValidationFetchedAction {
+  type: ValidationActions.ValidationFetched;
+  validator: Document;
   validationAction: ValidationServerAction;
-}
-
-/**
- * Validation level changed action name.
- */
-export const VALIDATION_LEVEL_CHANGED =
-  `${PREFIX}/VALIDATION_LEVEL_CHANGED` as const;
-interface ValidationLevelChangedAction {
-  type: typeof VALIDATION_LEVEL_CHANGED;
   validationLevel: ValidationLevel;
 }
 
-export const SET_VALIDATION_TO_DEFAULT =
-  `${PREFIX}/SET_VALIDATION_TO_DEFAULT` as const;
-export interface SetValidationToDefaultAction {
-  type: typeof SET_VALIDATION_TO_DEFAULT;
-  validator: string;
+export interface ValidationFetchErroredAction {
+  type: ValidationActions.ValidationFetchErrored;
+  error: { message: string };
+}
+
+export interface EmptyValidationFetchedAction {
+  type: ValidationActions.EmptyValidationFetched;
+  validationTemplate: string;
+}
+
+interface ValidationActionChangedAction {
+  type: ValidationActions.ValidationActionChanged;
+  validationAction: ValidationServerAction;
+}
+
+interface ValidationLevelChangedAction {
+  type: ValidationActions.ValidationLevelChanged;
+  validationLevel: ValidationLevel;
 }
 
 export type ValidationAction =
@@ -87,7 +66,8 @@ export type ValidationAction =
   | ValidationCanceledAction
   | ValidationSaveFailedAction
   | ValidationFetchedAction
-  | SetValidationToDefaultAction
+  | ValidationFetchErroredAction
+  | EmptyValidationFetchedAction
   | ValidationActionChangedAction
   | ValidationLevelChangedAction;
 
@@ -98,11 +78,6 @@ export interface Validation {
   isChanged?: boolean;
   error?: null | { message: string };
 }
-type PartialValidation = Pick<
-  Validation,
-  'validationAction' | 'validationLevel'
-> &
-  Partial<Validation>;
 
 export interface ValidationState extends Validation {
   isChanged: boolean;
@@ -117,28 +92,28 @@ export const VALIDATION_TEMPLATE = `/**
  * https://www.mongodb.com/docs/manual/core/schema-validation/
  */
 { 
-	$jsonSchema: {
-		title: "Library.books", 
-		bsonType: "object", 
-		required: ["fieldname1", "fieldname2"],
-		properties: {
-			fieldname1: { 
-				bsonType: "string",
-				description: "Fieldname1 must be a string",
-			},
-fieldname2: { 
-				bsonType: "int",
-				description: "Fieldname2 must be an integer",
-			},
-			arrayFieldName: {
-				bsonType: "array",
-				items: {
-bsonType: "string"
-},
-description: "arrayFieldName must be an array of strings"
-			},
-		}
-	}
+  $jsonSchema: {
+    title: "Library.books", 
+    bsonType: "object", 
+    required: ["fieldname1", "fieldname2"],
+    properties: {
+      fieldname1: { 
+        bsonType: "string",
+        description: "Fieldname1 must be a string",
+      },
+      fieldname2: { 
+        bsonType: "int",
+        description: "Fieldname2 must be an integer",
+      },
+      arrayFieldName: {
+        bsonType: "array",
+        items: {
+          bsonType: "string"
+        },
+        description: "arrayFieldName must be an array of strings"
+      },
+    }
+  }
 }`;
 
 /**
@@ -151,6 +126,15 @@ export const INITIAL_STATE: ValidationState = {
   isChanged: false,
   syntaxError: null,
   error: null,
+};
+
+const DEFAULT_VALIDATION: Pick<
+  Validation,
+  'validator' | 'validationAction' | 'validationLevel'
+> = {
+  validator: '{}',
+  validationAction: 'error',
+  validationLevel: 'strict',
 };
 
 /**
@@ -182,231 +166,224 @@ export const checkValidator = (
   return validation;
 };
 
-/**
- * Change validator.
- */
-const changeValidator = (
-  state: ValidationState,
-  action: ValidatorChangedAction
-): ValidationState => {
-  const checkedValidator = checkValidator(action.validator);
-  const newState = {
-    ...state,
-    validator: action.validator,
-    syntaxError: checkedValidator.syntaxError,
-    error: null,
-  };
-
-  return {
-    ...newState,
-    isChanged: !isEqual(
-      pick(newState, ['validator', 'validationAction', 'validationLevel']),
-      state.prevValidation
-    ),
-  };
-};
-
-/**
- * Set validation.
- */
-const setValidation = (
-  state: ValidationState,
-  action: ValidationFetchedAction | ValidationCanceledAction
-): ValidationState => {
-  const checkedValidator = checkValidator(action.validation.validator ?? '');
-  // TODO(COMPASS-4989): javascriptStringify??
-  const validator = javascriptStringify(
-    checkedValidator.validator,
-    null,
-    2
-  ) as string;
-
-  return {
-    ...state,
-    prevValidation: {
-      validator,
-      validationAction: action.validation.validationAction,
-      validationLevel: action.validation.validationLevel,
-    },
-    isChanged: action.validation.isChanged || false,
-    validator: validator,
-    validationAction: action.validation.validationAction,
-    validationLevel: action.validation.validationLevel,
-    syntaxError: null,
-    error: action.validation.error || null,
-  };
-};
-
-/**
- * Set Error.
- */
-const setError = (
-  state: ValidationState,
-  action: ValidationSaveFailedAction
-): ValidationState => {
-  return {
-    ...state,
-    error: action.error || null,
-  };
-};
-
-/**
- * Change validation action.
- */
-const changeValidationAction = (
-  state: ValidationState,
-  action: ValidationActionChangedAction
-): ValidationState => {
-  const newState = {
-    ...state,
-    validationAction: action.validationAction,
-  };
-
-  return {
-    ...newState,
-    isChanged: !isEqual(
-      pick(newState, ['validator', 'validationAction', 'validationLevel']),
-      state.prevValidation
-    ),
-  };
-};
-
-/**
- * Change validation level.
- */
-const changeValidationLevel = (
-  state: ValidationState,
-  action: ValidationLevelChangedAction
-): ValidationState => {
-  const newState = {
-    ...state,
-    validationLevel: action.validationLevel,
-  };
-
-  return {
-    ...newState,
-    isChanged: !isEqual(
-      pick(newState, ['validator', 'validationAction', 'validationLevel']),
-      state.prevValidation
-    ),
-  };
-};
-
-const changeValidationToDefault = (
-  state: ValidationState,
-  action: SetValidationToDefaultAction
-): ValidationState => {
-  return {
-    ...state,
-    validationAction: INITIAL_STATE.validationAction,
-    validationLevel: INITIAL_STATE.validationLevel,
-    validator: action.validator,
-
-    // Set the previous validation to undefined so that the isChanged
-    // flag is set to true in future checks.
-    prevValidation: undefined,
-    isChanged: true,
-  };
-};
-
-/**
- * To not have a huge switch statement in the reducer.
- */
-const MAPPINGS: {
-  [Type in ValidationAction['type']]: (
-    state: ValidationState,
-    action: ValidationAction & { type: Type }
-  ) => ValidationState;
-} = {
-  [VALIDATOR_CHANGED]: changeValidator,
-  [VALIDATION_CANCELED]: setValidation,
-  [VALIDATION_FETCHED]: setValidation,
-  [SET_VALIDATION_TO_DEFAULT]: changeValidationToDefault,
-  [VALIDATION_SAVE_FAILED]: setError,
-  [VALIDATION_ACTION_CHANGED]: changeValidationAction,
-  [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
-};
-
-/**
- * Reducer function for handle state changes to status.
- */
 export default function reducer(
   state: ValidationState = INITIAL_STATE,
   action: RootAction
 ): ValidationState {
-  const fn = MAPPINGS[action.type as ValidationAction['type']];
+  if (
+    isAction<ValidatorChangedAction>(action, ValidationActions.ValidatorChanged)
+  ) {
+    const checkedValidator = checkValidator(action.validator);
+    const newState = {
+      ...state,
+      validator: action.validator,
+      syntaxError: checkedValidator.syntaxError,
+      error: null,
+    };
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore-error TS does not understand that action can be passed to fn
-  return fn ? fn(state, action) : state;
+    return {
+      ...newState,
+      isChanged: !isEqual(
+        pick(newState, ['validator', 'validationAction', 'validationLevel']),
+        state.prevValidation
+      ),
+    };
+  }
+
+  if (
+    isAction<ValidationSaveFailedAction>(
+      action,
+      ValidationActions.ValidationSaveFailed
+    )
+  ) {
+    return {
+      ...state,
+      error: action.error,
+    };
+  }
+
+  if (
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    )
+  ) {
+    return {
+      ...state,
+      isChanged: true,
+      error: null,
+      syntaxError: null,
+      ...DEFAULT_VALIDATION,
+      validator: action.validationTemplate,
+    };
+  }
+
+  if (
+    isAction<ValidationFetchErroredAction>(
+      action,
+      ValidationActions.ValidationFetchErrored
+    )
+  ) {
+    return {
+      ...state,
+      prevValidation: {
+        ...DEFAULT_VALIDATION,
+      },
+      isChanged: true,
+      error: action.error,
+      syntaxError: null,
+      ...DEFAULT_VALIDATION,
+    };
+  }
+
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    )
+  ) {
+    // TODO(COMPASS-4989): EJSON??
+    const checkedValidator = checkValidator(
+      EJSON.stringify(action.validator, undefined, 2)
+    );
+    // TODO(COMPASS-4989): javascriptStringify??
+    const validator = javascriptStringify(
+      checkedValidator.validator,
+      null,
+      2
+    ) as string;
+
+    return {
+      ...state,
+      prevValidation: {
+        validator,
+        validationAction: action.validationAction,
+        validationLevel: action.validationLevel,
+      },
+      isChanged: false,
+      validator,
+      validationAction: action.validationAction,
+      validationLevel: action.validationLevel,
+      syntaxError: null,
+      error: null,
+    };
+  }
+
+  if (
+    isAction<ValidationActionChangedAction>(
+      action,
+      ValidationActions.ValidationActionChanged
+    )
+  ) {
+    return {
+      ...state,
+      validationAction: action.validationAction,
+      isChanged: !isEqual(
+        pick(state, ['validator', 'validationAction', 'validationLevel']),
+        state.prevValidation
+      ),
+    };
+  }
+
+  if (
+    isAction<ValidationLevelChangedAction>(
+      action,
+      ValidationActions.ValidationLevelChanged
+    )
+  ) {
+    return {
+      ...state,
+      validationLevel: action.validationLevel,
+      isChanged: !isEqual(
+        pick(state, ['validator', 'validationAction', 'validationLevel']),
+        state.prevValidation
+      ),
+    };
+  }
+
+  if (
+    isAction<ValidationCanceledAction>(
+      action,
+      ValidationActions.ValidationCanceled
+    )
+  ) {
+    const prevValidation = state.prevValidation;
+
+    return {
+      ...state,
+      isChanged: false,
+      validator: prevValidation?.validator ?? '{}',
+      validationAction:
+        prevValidation?.validationAction ?? INITIAL_STATE.validationAction,
+      validationLevel:
+        prevValidation?.validationLevel ?? INITIAL_STATE.validationLevel,
+      error: null,
+    };
+  }
+
+  return state;
 }
 
-/**
- * Action creator for validation action changed events.
- */
+export const validationFetchErrored = (error: {
+  message: string;
+}): ValidationFetchErroredAction => ({
+  type: ValidationActions.ValidationFetchErrored,
+  error,
+});
+
 export const validationActionChanged = (
   validationAction: ValidationServerAction
 ): ValidationActionChangedAction => ({
-  type: VALIDATION_ACTION_CHANGED,
+  type: ValidationActions.ValidationActionChanged,
   validationAction,
 });
 
-/**
- * Action creator for validation level changed events.
- */
 export const validationLevelChanged = (
   validationLevel: ValidationLevel
 ): ValidationLevelChangedAction => ({
-  type: VALIDATION_LEVEL_CHANGED,
+  type: ValidationActions.ValidationLevelChanged,
   validationLevel,
 });
 
-/**
- * Action creator for validator changed events.
- */
 export const validatorChanged = (
   validator: string
 ): ValidatorChangedAction => ({
-  type: VALIDATOR_CHANGED,
+  type: ValidationActions.ValidatorChanged,
   validator,
 });
 
-/**
- * Action creator for validation fetched events.
- */
-export const validationFetched = (
-  validation: PartialValidation
-): ValidationFetchedAction => ({
-  type: VALIDATION_FETCHED,
-  validation,
-});
-
-export const setValidationToDefault = (validator: string) => ({
-  type: SET_VALIDATION_TO_DEFAULT,
+export const validationFetched = ({
   validator,
+  validationLevel,
+  validationAction,
+}: {
+  validator: Document;
+  validationLevel: ValidationLevel;
+  validationAction: ValidationServerAction;
+}): ValidationFetchedAction => ({
+  type: ValidationActions.ValidationFetched,
+  validator,
+  validationLevel,
+  validationAction,
 });
 
-/**
- * Action creator for validation canceled events.
- */
-export const validationCanceled = (
-  validation: Validation
-): ValidationCanceledAction => ({
-  type: VALIDATION_CANCELED,
-  validation,
+export const emptyValidationFetched = ({
+  validationTemplate,
+}: {
+  validationTemplate: string;
+}): EmptyValidationFetchedAction => ({
+  type: ValidationActions.EmptyValidationFetched,
+  validationTemplate,
 });
 
-/**
- * Action creator for validation save failed events.
- *
- * @param {Object} error - Error.
- *
- * @returns {Object} Validation save failed action.
- */
+export const validationCanceled = (): ValidationCanceledAction => ({
+  type: ValidationActions.ValidationCanceled,
+});
+
 export const validationSaveFailed = (error: {
   message: string;
 }): ValidationSaveFailedAction => ({
-  type: VALIDATION_SAVE_FAILED,
+  type: ValidationActions.ValidationSaveFailed,
   error,
 });
 
@@ -422,13 +399,12 @@ export const fetchValidation = (namespace: {
       );
       if (!collInfo?.validation?.validator) {
         dispatch(
-          setValidationToDefault(
-            preferences.getPreferences().enableExportSchema
+          emptyValidationFetched({
+            validationTemplate: preferences.getPreferences().enableExportSchema
               ? VALIDATION_TEMPLATE
-              : '{}'
-          )
+              : '{}',
+          })
         );
-        dispatch(isLoadedChanged(true));
         return;
       }
 
@@ -440,27 +416,11 @@ export const fetchValidation = (namespace: {
           validationLevel:
             (collInfo.validation.validationLevel as ValidationLevel) ??
             INITIAL_STATE.validationLevel,
-          // TODO(COMPASS-4989): EJSON??
-          validator: EJSON.stringify(
-            collInfo.validation.validator,
-            undefined,
-            2
-          ),
+          validator: collInfo.validation.validator,
         })
       );
-      dispatch(zeroStateChanged(false));
-      dispatch(isLoadedChanged(true));
     } catch (err) {
-      dispatch(
-        validationFetched({
-          validationAction: INITIAL_STATE.validationAction,
-          validationLevel: INITIAL_STATE.validationLevel,
-          error: err as Error,
-          validator: undefined,
-        })
-      );
-      dispatch(zeroStateChanged(false));
-      dispatch(isLoadedChanged(true));
+      dispatch(validationFetchErrored(err as Error));
     }
   };
 };
@@ -514,36 +474,9 @@ export const saveValidation = (
   };
 };
 
-/**
- * Cancel validation.
- *
- * @returns {Function} The function.
- */
-export const cancelValidation = (): SchemaValidationThunkAction<void> => {
-  return (
-    dispatch: ThunkDispatch<RootState, unknown, RootAction>,
-    getState: () => RootState
-  ) => {
-    const state = getState();
-    const prevValidation = state.validation.prevValidation;
-
-    dispatch(disableEditRules());
-    dispatch(
-      validationCanceled({
-        isChanged: false,
-        validator: prevValidation?.validator ?? '{}',
-        validationAction:
-          prevValidation?.validationAction ?? INITIAL_STATE.validationAction,
-        validationLevel:
-          prevValidation?.validationLevel ?? INITIAL_STATE.validationLevel,
-        error: null,
-      })
-    );
-    dispatch(clearSampleDocuments());
-
-    return;
-  };
-};
+export const cancelValidation = (): ValidationCanceledAction => ({
+  type: ValidationActions.ValidationCanceled,
+});
 
 /**
  * Activate validation.

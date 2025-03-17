@@ -7,14 +7,7 @@ import reducer, {
   validationLevelChanged,
   validatorChanged,
   validationFetched,
-  validationCanceled,
   validationSaveFailed,
-  VALIDATOR_CHANGED,
-  VALIDATION_CANCELED,
-  VALIDATION_SAVE_FAILED,
-  VALIDATION_FETCHED,
-  VALIDATION_ACTION_CHANGED,
-  VALIDATION_LEVEL_CHANGED,
 } from './validation';
 
 describe('validation module', function () {
@@ -25,93 +18,6 @@ describe('validation module', function () {
       ).to.deep.equal({
         syntaxError: null,
         validator: { $jsonSchema: { bsonType: 'object' } },
-      });
-    });
-  });
-
-  describe('#validationActionChanged', function () {
-    it('returns the VALIDATION_ACTION_CHANGED action', function () {
-      expect(validationActionChanged('warn')).to.deep.equal({
-        type: VALIDATION_ACTION_CHANGED,
-        validationAction: 'warn',
-      });
-    });
-  });
-
-  describe('#validationLevelChanged', function () {
-    it('returns the VALIDATION_LEVEL_CHANGED action', function () {
-      expect(validationLevelChanged('moderate')).to.deep.equal({
-        type: VALIDATION_LEVEL_CHANGED,
-        validationLevel: 'moderate',
-      });
-    });
-  });
-
-  describe('#validatorChanged', function () {
-    it('returns the VALIDATOR_CHANGED action', function () {
-      expect(
-        validatorChanged(
-          "{ $jsonSchema: { bsonType: 'object', required: [ 'name' ] } }"
-        )
-      ).to.deep.equal({
-        type: VALIDATOR_CHANGED,
-        validator:
-          "{ $jsonSchema: { bsonType: 'object', required: [ 'name' ] } }",
-      });
-    });
-  });
-
-  describe('#validationFetched', function () {
-    it('returns the VALIDATION_FETCHED action', function () {
-      expect(
-        validationFetched({
-          validator: '{ name: { $exists: true } }',
-          validationAction: 'warn',
-          validationLevel: 'off',
-        })
-      ).to.deep.equal({
-        type: VALIDATION_FETCHED,
-        validation: {
-          validator: '{ name: { $exists: true } }',
-          validationAction: 'warn',
-          validationLevel: 'off',
-        },
-      });
-    });
-  });
-
-  describe('#validationCanceled', function () {
-    it('returns the VALIDATION_CANCELED action', function () {
-      expect(
-        validationCanceled({
-          isChanged: false,
-          validator: '{ name: { $exists: true } }',
-          validationAction: 'warn',
-          validationLevel: 'off',
-          error: null,
-        })
-      ).to.deep.equal({
-        type: VALIDATION_CANCELED,
-        validation: {
-          isChanged: false,
-          validator: '{ name: { $exists: true } }',
-          validationAction: 'warn',
-          validationLevel: 'off',
-          error: null,
-        },
-      });
-    });
-  });
-
-  describe('#validationSaveFailed', function () {
-    it('returns the VALIDATION_SAVE_FAILED action', function () {
-      expect(
-        validationSaveFailed({
-          message: 'Validation save failed!',
-        })
-      ).to.deep.equal({
-        type: VALIDATION_SAVE_FAILED,
-        error: { message: 'Validation save failed!' },
       });
     });
   });
@@ -209,7 +115,7 @@ describe('validation module', function () {
         const validation = reducer(
           undefined,
           validationFetched({
-            validator: '{ name: { $exists: true } }',
+            validator: { name: { $exists: true } },
             validationAction: 'warn',
             validationLevel: 'off',
           })
@@ -252,7 +158,9 @@ describe('validation module', function () {
           validationLevel: 'strict',
           isChanged: false,
           syntaxError: null,
-          error: { message: 'Validation save failed!' },
+          error: {
+            message: 'Validation save failed!',
+          },
         });
       });
     });

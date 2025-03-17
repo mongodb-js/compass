@@ -5,9 +5,12 @@ import { MongoDBInstance } from 'mongodb-instance-model';
 import {
   validatorChanged,
   validationFetched,
+  validationFetchErrored,
   validationSaveFailed,
   validationActionChanged,
   validationLevelChanged,
+  type ValidationServerAction,
+  type ValidationLevel,
 } from '../modules/validation';
 import { fetchSampleDocuments } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
@@ -195,8 +198,8 @@ describe('Schema Validation Store', function () {
     context('when the action is VALIDATION_FETCHED', function () {
       const validation = {
         validator: { name: { $type: 4 } },
-        validationAction: 'warn',
-        validationLevel: 'moderate',
+        validationAction: 'warn' as ValidationServerAction,
+        validationLevel: 'moderate' as ValidationLevel,
       };
 
       it('updates the validation in state if succeed', function (done) {
@@ -220,32 +223,34 @@ describe('Schema Validation Store', function () {
           expect(store.getState().validation).to.deep.equal(createdValidation);
           done();
         });
-        store.dispatch(validationFetched(validation as any));
+        store.dispatch(validationFetched(validation));
       });
+    });
 
-      it('updates the error in state if failed', function (done) {
+    context('when the action is VALIDATION_FETCH_ERRORED', function () {
+      it('updates the error in state', function (done) {
         const unsubscribe = store.subscribe(() => {
-          const validator = javascriptStringify(validation.validator, null, 2);
-          const createdValidation = {
-            validator,
-            validationAction: 'warn',
-            validationLevel: 'moderate',
+          const expectedValidation = {
+            validator: '{}',
+            validationAction: 'error',
+            validationLevel: 'strict',
             error: { message: 'Validation fetch failed!' },
             syntaxError: null,
-            isChanged: false,
+            isChanged: true,
             prevValidation: {
-              validator,
-              validationAction: 'warn',
-              validationLevel: 'moderate',
+              validator: '{}',
+              validationAction: 'error',
+              validationLevel: 'strict',
             },
           };
 
           unsubscribe();
-          expect(store.getState().validation).to.deep.equal(createdValidation);
+          expect(store.getState().validation).to.deep.equal(expectedValidation);
           done();
         });
-        (validation as any).error = { message: 'Validation fetch failed!' };
-        store.dispatch(validationFetched(validation as any));
+        store.dispatch(
+          validationFetchErrored({ message: 'Validation fetch failed!' })
+        );
       });
     });
 
