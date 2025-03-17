@@ -7,8 +7,10 @@ import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler
 import SSHTunnelIdentity from './ssh-tunnel-identity';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
-import { FileInputBackendProvider } from '@mongodb-js/compass-components';
-import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
+import {
+  FileInputBackendProvider,
+  createJSDomFileInputDummyBackend,
+} from '@mongodb-js/compass-components';
 
 const formFields: {
   key: keyof SSHConnectionOptions;
