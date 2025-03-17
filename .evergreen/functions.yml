@@ -504,12 +504,18 @@ functions:
         content_type: application/x-gzip
 
   publish:
+    - command: ec2.assume_role
+      params:
+        role_arn: "arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass"
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
           <<: *compass-env
+          DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
         script: |
           set -e
           # Load environment variables
