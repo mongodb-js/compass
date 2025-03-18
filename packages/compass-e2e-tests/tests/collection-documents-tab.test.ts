@@ -722,7 +722,7 @@ FindIterable<Document> result = collection.find(filter);`);
       await errorDetailsJson.waitForDisplayed();
 
       // exit details
-      await browser.clickVisible(Selectors.ErrorDetailsBackButton);
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       await errorElement.waitForDisplayed();
     });
 
@@ -771,7 +771,7 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsJson.waitForDisplayed();
 
         // exit details
-        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
         await errorDetailsJson.waitForDisplayed({ reverse: true });
       });
 
@@ -817,7 +817,7 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsJson.waitForDisplayed();
 
         // exit details
-        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
         await errorDetailsJson.waitForDisplayed({ reverse: true });
       });
 
@@ -860,7 +860,7 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsJson.waitForDisplayed();
 
         // exit details
-        await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
         await errorDetailsJson.waitForDisplayed({ reverse: true });
       });
     });

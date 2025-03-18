@@ -619,10 +619,6 @@ export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
-export const ErrorDetailsBackButton =
-  '[data-testid="error-details-back-button"]';
-export const ErrorDetailsCloseButton =
-  '[data-testid="error-details-close-button"]';
 
 // Insert Document modal
 
@@ -1325,11 +1321,11 @@ export const ConfirmationModalInput = `${ConfirmationModal} input`;
 
 export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
+) => `${modalSelector} [role=dialog] [data-testid*="confirm_button"]`;
 
 export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
+) => `${modalSelector} [role=dialog] [data-testid*="cancel_button"]`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
