@@ -182,10 +182,7 @@ export {
   ConfirmationModalArea,
   showConfirmation,
 } from './hooks/use-confirmation';
-export {
-  useErrorDetailsModal,
-  showErrorDetails,
-} from './hooks/use-error-details';
+export { showErrorDetails } from './hooks/use-error-details';
 export {
   useHotkeys,
   formatHotkey,

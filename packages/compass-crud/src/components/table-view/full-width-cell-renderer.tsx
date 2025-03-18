@@ -129,32 +129,30 @@ class FullWidthCellRenderer extends React.Component<
       // this is needed cause ag-grid renders this component outside
       // of the context chain
       <LeafyGreenProvider darkMode={this.props.darkMode}>
-        <ConfirmationModalArea>
-          <DocumentList.DocumentEditActionsFooter
-            doc={this.doc}
-            editing={this.state.mode === 'editing'}
-            deleting={this.state.mode === 'deleting'}
-            onUpdate={(force) => {
-              this.props.api.stopEditing();
-              if (force) {
-                this.props.replaceDocument(this.doc);
-              } else {
-                this.props.updateDocument(this.doc);
-              }
-            }}
-            onDelete={() => {
-              this.props.api.stopEditing();
-              this.props.removeDocument(this.doc);
-            }}
-            onCancel={() => {
-              if (this.state.mode === 'editing') {
-                this.handleCancelUpdate();
-              } else {
-                this.handleCancelRemove();
-              }
-            }}
-          />
-        </ConfirmationModalArea>
+        <DocumentList.DocumentEditActionsFooter
+          doc={this.doc}
+          editing={this.state.mode === 'editing'}
+          deleting={this.state.mode === 'deleting'}
+          onUpdate={(force) => {
+            this.props.api.stopEditing();
+            if (force) {
+              this.props.replaceDocument(this.doc);
+            } else {
+              this.props.updateDocument(this.doc);
+            }
+          }}
+          onDelete={() => {
+            this.props.api.stopEditing();
+            this.props.removeDocument(this.doc);
+          }}
+          onCancel={() => {
+            if (this.state.mode === 'editing') {
+              this.handleCancelUpdate();
+            } else {
+              this.handleCancelRemove();
+            }
+          }}
+        />
       </LeafyGreenProvider>
     );
   }

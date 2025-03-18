@@ -11,7 +11,7 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   spacing,
-  useErrorDetailsModal,
+  showErrorDetails,
 } from '@mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
@@ -140,8 +140,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     []
   );
   const [insertInProgress, setInsertInProgress] = useState(false);
-
-  const { showErrorDetails } = useErrorDetailsModal();
 
   const hasManyDocuments = useCallback(() => {
     let parsed: unknown;

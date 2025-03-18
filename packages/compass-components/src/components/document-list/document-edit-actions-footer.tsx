@@ -6,7 +6,7 @@ import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../../hooks/use-theme';
-import { useErrorDetailsModal } from '../../hooks/use-error-details';
+import { showErrorDetails } from '../../hooks/use-error-details';
 
 type Status =
   | 'Initial'
@@ -303,8 +303,6 @@ const EditActionsFooter: React.FunctionComponent<{
   } = useHadronDocumentStatus(doc, editing, deleting);
 
   const darkMode = useDarkMode();
-
-  const { showErrorDetails } = useErrorDetailsModal();
 
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
+import type { ButtonProps } from '@leafygreen-ui/button';
 
 export { ConfirmationModalVariant };
 
@@ -11,6 +12,7 @@ type ConfirmationProperties = Partial<
   Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
 > & {
   buttonText?: React.ReactNode;
+  confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
@@ -191,6 +193,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
             : undefined,
           children: confirmationProps.buttonText ?? 'Confirm',
           onClick: handleConfirm,
+          ...confirmationProps.confirmButtonProps,
         }}
         cancelButtonProps={{
           className: confirmationProps.hideCancelButton

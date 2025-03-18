@@ -1,10 +1,10 @@
 import {
   type showConfirmation as originalShowConfirmation,
   showConfirmation,
-  useConfirmationModal,
 } from './use-confirmation';
 import { Code } from '../components/leafygreen';
 import React from 'react';
+import { ButtonVariant } from '..';
 
 const getShowErrorDetails = (
   showConfirmation: typeof originalShowConfirmation
@@ -29,15 +29,10 @@ const getShowErrorDetails = (
       ),
       hideCancelButton: true,
       buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
-      // modalProps
-      // buttonProps
+      confirmButtonProps: {
+        variant: ButtonVariant.Default,
+      },
     });
 };
-
-export function useErrorDetailsModal() {
-  const { showConfirmation } = useConfirmationModal();
-
-  return { showErrorDetails: getShowErrorDetails(showConfirmation) };
-}
 
 export const showErrorDetails = getShowErrorDetails(showConfirmation);
