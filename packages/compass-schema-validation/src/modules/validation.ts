@@ -6,7 +6,10 @@ import { openToast } from '@mongodb-js/compass-components';
 import { isEqual, pick } from 'lodash';
 import { disableEditRules } from './edit-mode';
 import { isAction } from '../util';
-import { IS_ZERO_STATE_CHANGED, IsZeroStateChangedAction } from './zero-state';
+import {
+  IS_ZERO_STATE_CHANGED,
+  type IsZeroStateChangedAction,
+} from './zero-state';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
