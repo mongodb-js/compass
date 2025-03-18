@@ -6,6 +6,7 @@ import { openToast } from '@mongodb-js/compass-components';
 import { isEqual, pick } from 'lodash';
 import { disableEditRules } from './edit-mode';
 import { isAction } from '../util';
+import { IS_ZERO_STATE_CHANGED, IsZeroStateChangedAction } from './zero-state';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -91,17 +92,17 @@ export const VALIDATION_TEMPLATE = `/**
  * More information on schema validation rules can be found at:
  * https://www.mongodb.com/docs/manual/core/schema-validation/
  */
-{ 
+{
   $jsonSchema: {
-    title: "Library.books", 
-    bsonType: "object", 
+    title: "Library.books",
+    bsonType: "object",
     required: ["fieldname1", "fieldname2"],
     properties: {
-      fieldname1: { 
+      fieldname1: {
         bsonType: "string",
         description: "Fieldname1 must be a string",
       },
-      fieldname2: { 
+      fieldname2: {
         bsonType: "int",
         description: "Fieldname2 must be an integer",
       },
@@ -210,7 +211,7 @@ export default function reducer(
   ) {
     return {
       ...state,
-      isChanged: true,
+      isChanged: false,
       error: null,
       syntaxError: null,
       ...DEFAULT_VALIDATION,
@@ -282,6 +283,13 @@ export default function reducer(
         pick(state, ['validator', 'validationAction', 'validationLevel']),
         state.prevValidation
       ),
+    };
+  }
+
+  if (isAction<IsZeroStateChangedAction>(action, IS_ZERO_STATE_CHANGED)) {
+    return {
+      ...state,
+      isChanged: true,
     };
   }
 

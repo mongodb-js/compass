@@ -13,7 +13,7 @@ import type {
  */
 export const IS_ZERO_STATE_CHANGED =
   'validation/namespace/IS_ZERO_STATE_CHANGED' as const;
-interface IsZeroStateChangedAction {
+export interface IsZeroStateChangedAction {
   type: typeof IS_ZERO_STATE_CHANGED;
   isZeroState: boolean;
 }
