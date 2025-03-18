@@ -45,13 +45,17 @@ const contentContainerStyles = css({
 });
 
 const codeEditorContainerStyles = css({
-  maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
-  overflow: 'auto',
+  height: `${spacing[1600] * 4 - spacing[400]}px`,
+  padding: spacing[100],
 });
 
 const codeStyles = css({
   '& .cm-editor': {
-    paddingLeft: spacing[2],
+    paddingLeft: spacing[200],
+    maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
+  },
+  '& .multiline-editor-actions': {
+    marginRight: spacing[300],
   },
 });
 
