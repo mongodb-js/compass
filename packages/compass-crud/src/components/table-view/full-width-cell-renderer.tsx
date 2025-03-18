@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  ConfirmationModalArea,
   DocumentList,
   ErrorDetailsModalArea,
   LeafyGreenProvider,
@@ -128,7 +129,7 @@ class FullWidthCellRenderer extends React.Component<
       // this is needed cause ag-grid renders this component outside
       // of the context chain
       <LeafyGreenProvider darkMode={this.props.darkMode}>
-        <ErrorDetailsModalArea>
+        <ConfirmationModalArea>
           <DocumentList.DocumentEditActionsFooter
             doc={this.doc}
             editing={this.state.mode === 'editing'}
@@ -153,7 +154,7 @@ class FullWidthCellRenderer extends React.Component<
               }
             }}
           />
-        </ErrorDetailsModalArea>
+        </ConfirmationModalArea>
       </LeafyGreenProvider>
     );
   }

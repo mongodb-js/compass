@@ -100,8 +100,28 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     });
   const callbackRef = useRef<ConfirmationCallback>();
 
+  const listenerRef =
+    useRef<(event: CustomEvent<ShowConfirmationEventDetail>) => void>();
+
   const contextValue = React.useMemo(
-    () => ({ showConfirmation, isMounted: true }),
+    () => ({
+      showConfirmation: (props: ConfirmationProperties) => {
+        return new Promise((resolve, reject) => {
+          const event = new CustomEvent<ShowConfirmationEventDetail>(
+            'show-confirmation',
+            {
+              detail: {
+                props: { ...props, confirmationId: ++confirmationId },
+                resolve,
+                reject,
+              },
+            }
+          );
+          listenerRef.current?.(event);
+        });
+      },
+      isMounted: true,
+    }),
     []
   );
 
@@ -127,6 +147,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
       };
       props.signal?.addEventListener('abort', onAbort);
     };
+    listenerRef.current = listener;
     globalConfirmation.addEventListener('show-confirmation', listener);
     return () => {
       globalConfirmation.removeEventListener('show-confirmation', listener);
