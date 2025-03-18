@@ -44,6 +44,7 @@ describe('validation module', function () {
         const validation = reducer(undefined, validationActionChanged('warn'));
 
         expect(validation.validationAction).to.equal('warn');
+        expect(validation.isChanged).to.equal(true);
       });
     });
 
@@ -55,6 +56,7 @@ describe('validation module', function () {
         );
 
         expect(validation.validationLevel).to.equal('moderate');
+        expect(validation.isChanged).to.equal(true);
       });
     });
 

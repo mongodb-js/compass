@@ -214,10 +214,13 @@ export default function reducer(
   ) {
     return {
       ...state,
+      prevValidation: {
+        ...DEFAULT_VALIDATION,
+      },
+      ...DEFAULT_VALIDATION,
       isChanged: false,
       error: null,
       syntaxError: null,
-      ...DEFAULT_VALIDATION,
       validator: action.validationTemplate,
     };
   }
@@ -283,7 +286,11 @@ export default function reducer(
       ...state,
       validationAction: action.validationAction,
       isChanged: !isEqual(
-        pick(state, ['validator', 'validationAction', 'validationLevel']),
+        {
+          validator: state.validator,
+          validationAction: action.validationAction,
+          validationLevel: state.validationLevel,
+        },
         state.prevValidation
       ),
     };
@@ -306,7 +313,11 @@ export default function reducer(
       ...state,
       validationLevel: action.validationLevel,
       isChanged: !isEqual(
-        pick(state, ['validator', 'validationAction', 'validationLevel']),
+        {
+          validator: state.validator,
+          validationAction: state.validationAction,
+          validationLevel: action.validationLevel,
+        },
         state.prevValidation
       ),
     };

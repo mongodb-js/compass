@@ -234,12 +234,12 @@ export const ValidationEditor: React.FunctionComponent<
     >
       <div className={validationOptionsStyles}>
         <ActionSelector
-          isEditable={isEditable}
+          isEditable={isEditable && isEditingEnabled}
           validationActionChanged={validationActionChanged}
           validationAction={validationAction}
         />
         <LevelSelector
-          isEditable={isEditable}
+          isEditable={isEditable && isEditingEnabled}
           validationLevelChanged={validationLevelChanged}
           validationLevel={validationLevel}
         />
