@@ -339,7 +339,7 @@ const EditActionsFooter: React.FunctionComponent<{
               size="xsmall"
               onClick={() =>
                 showErrorDetails({
-                  details: error.details,
+                  details: error.details!,
                   closeAction: 'close',
                 })
               }

@@ -349,7 +349,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               className={errorDetailsBtnStyles}
               onClick={() =>
                 showErrorDetails({
-                  details: error.info,
+                  details: error.info!,
                   closeAction: 'back',
                 })
               }

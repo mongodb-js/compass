@@ -106,7 +106,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
   const contextValue = React.useMemo(
     () => ({
       showConfirmation: (props: ConfirmationProperties) => {
-        return new Promise((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
           const event = new CustomEvent<ShowConfirmationEventDetail>(
             'show-confirmation',
             {

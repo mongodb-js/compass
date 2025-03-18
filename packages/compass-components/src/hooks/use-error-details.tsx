@@ -1,18 +1,22 @@
-import { useConfirmationModal } from './use-confirmation';
+import {
+  type showConfirmation as originalShowConfirmation,
+  showConfirmation,
+  useConfirmationModal,
+} from './use-confirmation';
 import { Code } from '../components/leafygreen';
 import React from 'react';
 
-export function useErrorDetailsModal() {
-  const { showConfirmation } = useConfirmationModal();
-
-  const showErrorDetails = ({
+const getShowErrorDetails = (
+  showConfirmation: typeof originalShowConfirmation
+) => {
+  return ({
     details,
     closeAction,
   }: {
     details: Record<string, unknown>;
     closeAction: 'back' | 'close';
   }) =>
-    showConfirmation({
+    void showConfirmation({
       title: 'Error details',
       description: (
         <Code
@@ -28,6 +32,12 @@ export function useErrorDetailsModal() {
       // modalProps
       // buttonProps
     });
+};
 
-  return { showErrorDetails };
+export function useErrorDetailsModal() {
+  const { showConfirmation } = useConfirmationModal();
+
+  return { showErrorDetails: getShowErrorDetails(showConfirmation) };
 }
+
+export const showErrorDetails = getShowErrorDetails(showConfirmation);

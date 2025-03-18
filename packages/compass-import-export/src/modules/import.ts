@@ -378,11 +378,14 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       progressCallback.flush();
       const errInfo =
         err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
-      showFailedToast(err as Error, () =>
-        showErrorDetails({
-          details: errInfo,
-          closeAction: 'close',
-        })
+      showFailedToast(
+        err as Error,
+        errInfo &&
+          (() =>
+            showErrorDetails({
+              details: errInfo,
+              closeAction: 'close',
+            }))
       );
 
       dispatch(onFailed(err as Error));
