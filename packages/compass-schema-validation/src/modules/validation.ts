@@ -3,6 +3,7 @@ import { type Document, EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { openToast } from '@mongodb-js/compass-components';
+import { VALIDATION_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { isEqual, pick } from 'lodash';
 import { disableEditRules } from './edit-mode';
 import { isAction } from '../util';
@@ -89,36 +90,6 @@ export interface ValidationState extends Validation {
   error: null | { message: string };
   prevValidation?: Validation;
 }
-
-export const VALIDATION_TEMPLATE = `/**
- * This is a starter template for a schema validation rule for a collection.
- * More information on schema validation rules can be found at:
- * https://www.mongodb.com/docs/manual/core/schema-validation/
- */
-{
-  $jsonSchema: {
-    title: "Library.books",
-    bsonType: "object",
-    required: ["fieldname1", "fieldname2"],
-    properties: {
-      fieldname1: {
-        bsonType: "string",
-        description: "Fieldname1 must be a string",
-      },
-      fieldname2: {
-        bsonType: "int",
-        description: "Fieldname2 must be an integer",
-      },
-      arrayFieldName: {
-        bsonType: "array",
-        items: {
-          bsonType: "string"
-        },
-        description: "arrayFieldName must be an array of strings"
-      },
-    }
-  }
-}`;
 
 /**
  * The initial state.
