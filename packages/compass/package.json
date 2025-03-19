@@ -227,7 +227,7 @@
     "@mongodb-js/connection-storage": "^0.26.5",
     "@mongodb-js/devtools-proxy-support": "^0.4.2",
     "@mongodb-js/eslint-config-compass": "^1.3.5",
-    "@mongodb-js/get-os-info": "^0.3.24",
+    "@mongodb-js/get-os-info": "^0.4.0",
     "@mongodb-js/mocha-config-compass": "^1.6.5",
     "@mongodb-js/mongodb-downloader": "^0.3.7",
     "@mongodb-js/my-queries-storage": "^0.22.5",
