@@ -33,7 +33,6 @@ export type DocumentJsonViewProps = {
   | 'removeDocument'
   | 'replaceDocument'
   | 'updateDocument'
-  | 'openErrorDetailsDialog'
   | 'openInsertDocumentDialog'
 >;
 

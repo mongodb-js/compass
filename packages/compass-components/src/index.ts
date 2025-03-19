@@ -92,7 +92,6 @@ export { ModalBody } from './components/modals/modal-body';
 export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
-export { ErrorDetailsModal } from './components/modals/error-details-modal';
 
 export type {
   FileInputBackend,
@@ -183,6 +182,7 @@ export {
   ConfirmationModalArea,
   showConfirmation,
 } from './hooks/use-confirmation';
+export { showErrorDetails } from './hooks/use-error-details';
 export {
   useHotkeys,
   formatHotkey,

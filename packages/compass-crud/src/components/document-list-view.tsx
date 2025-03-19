@@ -97,7 +97,6 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
     replaceDocument: PropTypes.func,
     updateDocument: PropTypes.func,
     openInsertDocumentDialog: PropTypes.func,
-    openErrorDetailsDialog: PropTypes.func,
     copyToClipboard: PropTypes.func,
     className: PropTypes.string,
   };

@@ -574,16 +574,7 @@ describe('Collection import', function () {
       expect(await errorDetailsModal.getText()).to.include(
         'schemaRulesNotSatisfied'
       );
-      await browser.clickVisible(Selectors.ErrorDetailsCloseButton);
-
-      // Close the toast
-      await browser
-        .$(Selectors.closeToastButton(Selectors.ImportToast))
-        .waitForDisplayed();
-      await browser.clickVisible(
-        Selectors.closeToastButton(Selectors.ImportToast)
-      );
-      await toastElement.waitForDisplayed({ reverse: true });
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     });
 
     it('with CSV + abort on error unchecked, it includes the details in a file', async function () {

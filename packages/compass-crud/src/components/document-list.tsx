@@ -9,7 +9,6 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
-  ErrorDetailsModal,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -30,13 +29,7 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import type {
-  CrudStore,
-  BSONObject,
-  DocumentView,
-  ErrorDetailsDialogOptions,
-  ErrorDetailsDialogState,
-} from '../stores/crud-store';
+import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -73,8 +66,6 @@ const loaderContainerStyles = css({
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
-  openErrorDetailsDialog: (options: ErrorDetailsDialogOptions) => void;
-  closeErrorDetailsDialog: () => void;
   openBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -82,7 +73,6 @@ export type DocumentListProps = {
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: DocumentView;
-  errorDetails: ErrorDetailsDialogState;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -301,10 +291,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
-    errorDetails,
     openInsertDocumentDialog,
-    openErrorDetailsDialog,
-    closeErrorDetailsDialog,
     openImportFileDialog,
     openBulkUpdateModal,
     docs,
@@ -590,19 +577,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             version={version}
             ns={ns}
             updateComment={updateComment}
-            showErrorDetails={() =>
-              openErrorDetailsDialog({
-                details: insert.error.info || {},
-                closeAction: 'back',
-              })
-            }
             {...insert}
-          />
-          <ErrorDetailsModal
-            open={errorDetails.isOpen}
-            onClose={closeErrorDetailsDialog}
-            details={errorDetails.details}
-            closeAction={errorDetails.closeAction || 'close'}
           />
           <BulkUpdateModal
             ns={ns}
