@@ -655,8 +655,6 @@ export const ImportConfirm =
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastErrorDetailsBtn =
   '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
-export const ImportErrorDetailsModal =
-  '[data-testid="import-error-details-modal"]';
 export const ImportToastAbort = '[data-testid="toast-action-stop"]';
 export const ImportFieldLabel =
   '[data-testid="import-modal"] .import-field-label';

@@ -569,9 +569,9 @@ describe('Collection import', function () {
 
       // Visit error details
       await browser.clickVisible(Selectors.ImportToastErrorDetailsBtn);
-      const errorDetailsModal = browser.$(Selectors.ImportErrorDetailsModal);
-      await errorDetailsModal.waitForDisplayed();
-      expect(await errorDetailsModal.getText()).to.include(
+      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+      await errorDetailsJson.waitForDisplayed();
+      expect(await errorDetailsJson.getText()).to.include(
         'schemaRulesNotSatisfied'
       );
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
