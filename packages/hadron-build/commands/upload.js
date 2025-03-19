@@ -19,6 +19,7 @@ const {
   getKeyPrefix,
   downloadManifest,
   uploadAsset,
+  uploadAssetNew,
   uploadManifest,
 } = require('../lib/download-center');
 
@@ -235,6 +236,7 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
     );
     if (!dryRun) {
       await uploadAsset(channel, asset);
+      await uploadAssetNew(channel, asset);
     }
     cli.info(`${asset.name}: upload to download center completed.`);
   });
