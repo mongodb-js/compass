@@ -88,6 +88,7 @@ module.exports = (env, args) => {
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with
         // the same name as Node.js built-in, not a built-in Node.js one
+        'util/types': localPolyfill('util/types'),
         util: require.resolve('util/'),
         buffer: require.resolve('buffer/'),
         events: require.resolve('events/'),
@@ -148,7 +149,7 @@ module.exports = (env, args) => {
       }),
     ],
     performance: {
-      hints: serve ? 'warning' : 'error',
+      hints: serve || args.watch ? 'warning' : 'error',
       maxEntrypointSize: MAX_COMPRESSION_FILE_SIZE,
       maxAssetSize: MAX_COMPRESSION_FILE_SIZE,
     },

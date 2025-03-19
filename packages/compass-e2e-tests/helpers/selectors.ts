@@ -1025,7 +1025,12 @@ export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const ExportSchemaButton = '[data-testid="open-schema-export-button"]';
 export const ExportSchemaFormatOptions =
   '[data-testid="export-schema-format-type-box-group"]';
+export const exportSchemaFormatOption = (
+  option: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON'
+) => `label[for="export-schema-format-${option}-button"]`;
 export const ExportSchemaOutput = '[data-testid="export-schema-content"]';
+export const ExportSchemaDownloadButton =
+  '[data-testid="schema-export-download-button"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
@@ -1139,14 +1144,18 @@ export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const EnableEditValidationButton =
+  '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
+export const ValidationSuccessToast =
+  '[data-testid="toast-schema-validation-update"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
-export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
+export const ValidationLoadSampleDocumentsBtn = `[data-testid="load-sample-documents"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
 export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
@@ -1154,6 +1163,8 @@ export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =
   '[data-testid="validation-level-selector"]';
+export const GenerateValidationRulesButton =
+  '[data-testid="generate-rules-button"]';
 
 // Find (Documents and Schema tabs)
 export const queryBar = (tabName: string): string => {

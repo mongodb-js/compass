@@ -36,8 +36,10 @@ export interface AtlasClusterMetadata {
    *   - `replicaSet`: anything that is not sharded (both dedicated or "free
    *                   tier" / MTM)
    *   - `serverless`: specifically for serverless clusters
+   *   - `flex`:       new type that replaces serverless and some shared
+   *                   clusters
    */
-  metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
+  metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless' | 'flex';
   /**
    * Atlas API base url to be used when making control plane requests for a
    * regionalized cluster

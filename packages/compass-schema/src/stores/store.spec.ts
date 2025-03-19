@@ -153,7 +153,7 @@ describe('Schema Store', function () {
               'complete'
             );
           });
-          const { exportStatus, errorMessage, exportedSchema } =
+          const { exportStatus, errorMessage, exportedSchema, filename } =
             store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
@@ -166,24 +166,27 @@ describe('Schema Store', function () {
           expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
             name: { type: 'string' },
           });
+          expect(filename).to.equal('schema-db-coll-standardJSON.json');
         });
 
         it('runs schema export formatting with a new format', async function () {
           sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
           await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
           expect(sampleStub).to.have.been.called;
-          const { exportStatus, errorMessage, exportedSchema } =
+          const { exportStatus, errorMessage, exportedSchema, filename } =
             store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
           expect(!!errorMessage).to.be.false;
           expect(exportedSchema).not.to.be.undefined;
-          expect(JSON.parse(exportedSchema!).type).to.equal(undefined);
-          expect(JSON.parse(exportedSchema!).bsonType).to.equal('object');
-          expect(JSON.parse(exportedSchema!)['$schema']).to.equal(undefined);
-          expect(JSON.parse(exportedSchema!).required).to.deep.equal(['name']);
-          expect(JSON.parse(exportedSchema!).properties).to.deep.equal({
+          const parsedSchema = JSON.parse(exportedSchema!).$jsonSchema;
+          expect(parsedSchema.type).to.equal(undefined);
+          expect(parsedSchema.bsonType).to.equal('object');
+          expect(parsedSchema['$schema']).to.equal(undefined);
+          expect(parsedSchema.required).to.deep.equal(['name']);
+          expect(parsedSchema.properties).to.deep.equal({
             name: { bsonType: 'string' },
           });
+          expect(filename).to.equal('schema-db-coll-mongoDBJSON.json');
         });
       });
     });

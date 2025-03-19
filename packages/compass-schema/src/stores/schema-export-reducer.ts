@@ -12,21 +12,24 @@ import { openToast } from '@mongodb-js/compass-components';
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
 import { calculateSchemaMetadata } from '../modules/schema-analysis';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type SchemaFormat =
   | 'standardJSON'
   | 'mongoDBJSON'
-  | 'extendedJSON'
+  | 'expandedJSON'
   | 'legacyJSON';
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
   isOpen: boolean;
-  isLegacyBannerOpen: boolean;
-  legacyBannerChoice?: 'legacy' | 'export';
+  isLegacyModalOpen: boolean;
+  legacyModalChoice?: 'legacy' | 'export';
   exportedSchema?: string;
   exportFormat: SchemaFormat;
   errorMessage?: string;
   exportStatus: ExportStatus;
+  filename?: string;
 };
 
 const defaultSchemaFormat: SchemaFormat = 'standardJSON';
@@ -37,21 +40,22 @@ const getInitialState = (): SchemaExportState => ({
   exportStatus: 'inprogress',
   exportedSchema: undefined,
   isOpen: false,
-  isLegacyBannerOpen: false,
-  legacyBannerChoice: undefined,
+  isLegacyModalOpen: false,
+  legacyModalChoice: undefined,
 });
 
 export const enum SchemaExportActions {
   openExportSchema = 'schema-service/schema-export/openExportSchema',
   closeExportSchema = 'schema-service/schema-export/closeExportSchema',
-  openLegacyBanner = 'schema-service/schema-export/openLegacyBanner',
-  closeLegacyBanner = 'schema-service/schema-export/closeLegacyBanner',
-  setLegacyBannerChoice = 'schema-service/schema-export/setLegacyBannerChoice',
+  openLegacyModal = 'schema-service/schema-export/openLegacyModal',
+  closeLegacyModal = 'schema-service/schema-export/closeLegacyModal',
+  setLegacyModalChoice = 'schema-service/schema-export/setLegacyModalChoice',
   changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
   changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
   changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
   changeExportSchemaFormatError = 'schema-service/schema-export/changeExportSchemaFormatError',
   cancelExportSchema = 'schema-service/schema-export/cancelExportSchema',
+  schemaDownloadReady = 'schema-service/schema-export/schemaDownloadReady',
 }
 
 export type OpenExportSchemaAction = {
@@ -103,6 +107,7 @@ export type ChangeExportSchemaFormatErroredAction = {
 export type ChangeExportSchemaFormatCompletedAction = {
   type: SchemaExportActions.changeExportSchemaFormatComplete;
   exportedSchema: string;
+  filename: string;
 };
 
 export const cancelExportSchema = (): SchemaThunkAction<
@@ -121,83 +126,164 @@ export const cancelExportSchema = (): SchemaThunkAction<
 async function getSchemaByFormat({
   exportFormat,
   schemaAccessor,
+  signal,
 }: {
   exportFormat: SchemaFormat;
   schemaAccessor: SchemaAccessor;
   signal: AbortSignal;
 }): Promise<string> {
-  // TODO: Use the signal once we pull in the schema accessor type changes.
   let schema:
     | StandardJSONSchema
-    | MongoDBJSONSchema
+    | { $jsonSchema: MongoDBJSONSchema }
     | ExpandedJSONSchema
     | InternalSchema;
   switch (exportFormat) {
     case 'standardJSON':
-      schema = await schemaAccessor.getStandardJsonSchema();
+      schema = await schemaAccessor.getStandardJsonSchema({
+        signal,
+      });
       break;
     case 'mongoDBJSON':
-      schema = await schemaAccessor.getMongoDBJsonSchema();
+      schema = {
+        $jsonSchema: await schemaAccessor.getMongoDBJsonSchema({
+          signal,
+        }),
+      };
       break;
-    case 'extendedJSON':
-      schema = await schemaAccessor.getExpandedJSONSchema();
+    case 'expandedJSON':
+      schema = await schemaAccessor.getExpandedJSONSchema({
+        signal,
+      });
       break;
     case 'legacyJSON':
-      schema = await schemaAccessor.getInternalSchema();
+      schema = await schemaAccessor.getInternalSchema({
+        signal,
+      });
       break;
   }
 
   return JSON.stringify(schema, null, 2);
 }
 
+export const downloadSchema = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    const {
+      schemaExport: { exportedSchema, exportFormat, filename },
+      schemaAnalysis: { schema },
+    } = getState();
+    if (!exportedSchema) return;
+    try {
+      const blob = new Blob([exportedSchema], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'export.json';
+      link.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        link.remove();
+      }, 0);
+      _trackSchemaExported({
+        track,
+        schema,
+        format: exportFormat,
+        connectionInfoRef,
+        source: 'schema_tab',
+      });
+      return dispatch({
+        type: SchemaExportActions.closeExportSchema,
+      });
+    } catch (error) {
+      _trackSchemaExportFailed({
+        stage: 'download button clicked',
+        track,
+        connectionInfoRef,
+        exportedSchema,
+        exportFormat,
+      });
+      throw error;
+    }
+  };
+};
+
+const _trackSchemaExportFailed = ({
+  stage,
+  track,
+  connectionInfoRef,
+  exportedSchema,
+  exportFormat,
+}: {
+  stage: string;
+  track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
+  exportedSchema: SchemaExportState['exportedSchema'];
+  exportFormat: SchemaExportState['exportFormat'];
+}) => {
+  track(
+    'Schema Export Failed',
+    {
+      has_schema: !!exportedSchema,
+      schema_length: exportedSchema?.length || 0,
+      format: exportFormat,
+      stage,
+    },
+    connectionInfoRef.current
+  );
+};
+
 const _trackSchemaExported = ({
   schema,
   source,
   format,
+  track,
+  connectionInfoRef,
 }: {
   schema: InternalSchema | null;
   source: 'app_menu' | 'schema_tab';
   format: SchemaFormat;
-}): SchemaThunkAction<void> => {
-  return (dispatch, getState, { track, connectionInfoRef }) => {
-    // Use a function here to a) ensure that the calculations here
-    // are only made when telemetry is enabled and b) that errors from
-    // those calculations are caught and logged rather than displayed to
-    // users as errors from the core schema sharing logic.
-    const trackEvent = async () => {
-      const { geo_data, schema_depth } = schema
-        ? await calculateSchemaMetadata(schema)
-        : {
-            geo_data: false,
-            schema_depth: 0,
-          };
+  track: TrackFunction;
+  connectionInfoRef: ConnectionInfoRef;
+}) => {
+  // Use a function here to a) ensure that the calculations here
+  // are only made when telemetry is enabled and b) that errors from
+  // those calculations are caught and logged rather than displayed to
+  // users as errors from the core schema sharing logic.
+  const trackEvent = async () => {
+    const { geo_data, schema_depth } = schema
+      ? await calculateSchemaMetadata(schema)
+      : {
+          geo_data: false,
+          schema_depth: 0,
+        };
 
-      return {
-        has_schema: schema !== null,
-        format,
-        source,
-        schema_width: schema?.fields?.length ?? 0,
-        schema_depth,
-        geo_data,
-      };
+    return {
+      has_schema: schema !== null,
+      format,
+      source,
+      schema_width: schema?.fields?.length ?? 0,
+      schema_depth,
+      geo_data,
     };
-    track('Schema Exported', trackEvent, connectionInfoRef.current);
   };
+  track('Schema Exported', trackEvent, connectionInfoRef.current);
 };
 
 export const trackSchemaExported = (): SchemaThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track, connectionInfoRef }) => {
     const {
       schemaAnalysis: { schema },
       schemaExport: { exportFormat },
     } = getState();
-    dispatch(
-      _trackSchemaExported({
-        schema,
-        format: exportFormat,
-        source: 'schema_tab',
-      })
-    );
+    _trackSchemaExported({
+      schema,
+      format: exportFormat,
+      source: 'schema_tab',
+      track,
+      connectionInfoRef,
+    });
   };
 };
 
@@ -212,7 +298,14 @@ export const changeExportSchemaFormat = (
   return async (
     dispatch,
     getState,
-    { logger: { log }, exportAbortControllerRef, schemaAccessorRef }
+    {
+      logger: { log },
+      exportAbortControllerRef,
+      schemaAccessorRef,
+      namespace,
+      track,
+      connectionInfoRef,
+    }
   ) => {
     // If we're already in progress we abort their current operation.
     exportAbortControllerRef.current?.abort();
@@ -238,7 +331,9 @@ export const changeExportSchemaFormat = (
     try {
       const schemaAccessor = schemaAccessorRef.current;
       if (!schemaAccessor) {
-        throw new Error('No schema analysis available');
+        throw new Error(
+          "No schema analysis available. Please analyze the collection's schema before exporting."
+        );
       }
 
       exportedSchema = await getSchemaByFormat({
@@ -263,6 +358,13 @@ export const changeExportSchemaFormat = (
         type: SchemaExportActions.changeExportSchemaFormatError,
         errorMessage: (err as Error).message,
       });
+      _trackSchemaExportFailed({
+        stage: 'switching format',
+        track,
+        connectionInfoRef,
+        exportedSchema: undefined,
+        exportFormat,
+      });
       return;
     }
 
@@ -280,9 +382,15 @@ export const changeExportSchemaFormat = (
       }
     );
 
+    const filename = `schema-${namespace.replace(
+      '.',
+      '-'
+    )}-${exportFormat}.json`;
+
     dispatch({
       type: SchemaExportActions.changeExportSchemaFormatComplete,
       exportedSchema,
+      filename,
     });
   };
 };
@@ -316,38 +424,35 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   }
 
   if (
-    isAction<openLegacyBannerAction>(
-      action,
-      SchemaExportActions.openLegacyBanner
-    )
+    isAction<openLegacyModalAction>(action, SchemaExportActions.openLegacyModal)
   ) {
     return {
       ...state,
-      isLegacyBannerOpen: true,
+      isLegacyModalOpen: true,
     };
   }
 
   if (
-    isAction<closeLegacyBannerAction>(
+    isAction<closeLegacyModalAction>(
       action,
-      SchemaExportActions.closeLegacyBanner
+      SchemaExportActions.closeLegacyModal
     )
   ) {
     return {
       ...state,
-      isLegacyBannerOpen: false,
+      isLegacyModalOpen: false,
     };
   }
 
   if (
-    isAction<setLegacyBannerChoiceAction>(
+    isAction<setLegacyModalChoiceAction>(
       action,
-      SchemaExportActions.setLegacyBannerChoice
+      SchemaExportActions.setLegacyModalChoice
     )
   ) {
     return {
       ...state,
-      legacyBannerChoice: action.choice,
+      legacyModalChoice: action.choice,
     };
   }
 
@@ -386,6 +491,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
     return {
       ...state,
       exportedSchema: action.exportedSchema,
+      filename: action.filename,
       exportStatus: 'complete',
     };
   }
@@ -407,19 +513,19 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
   return state;
 };
 
-// TODO clean out when phase out is confirmed COMPASS-8692
-export type openLegacyBannerAction = {
-  type: SchemaExportActions.openLegacyBanner;
+// TODO(COMPASS-8692): clean out when phase out is confirmed.
+export type openLegacyModalAction = {
+  type: SchemaExportActions.openLegacyModal;
 };
 
-export const openLegacyBanner = (): SchemaThunkAction<void> => {
+export const openLegacyModal = (): SchemaThunkAction<void> => {
   return (dispatch, getState) => {
-    const choiceInState = getState().schemaExport.legacyBannerChoice;
+    const choiceInState = getState().schemaExport.legacyModalChoice;
     const savedChoice = choiceInState || localStorage.getItem(localStorageId);
     if (savedChoice) {
       if (savedChoice !== choiceInState) {
         dispatch({
-          type: SchemaExportActions.setLegacyBannerChoice,
+          type: SchemaExportActions.setLegacyModalChoice,
           choice: savedChoice,
         });
       }
@@ -432,31 +538,31 @@ export const openLegacyBanner = (): SchemaThunkAction<void> => {
         return;
       }
     }
-    dispatch({ type: SchemaExportActions.openLegacyBanner });
+    dispatch({ type: SchemaExportActions.openLegacyModal });
   };
 };
 
-export type closeLegacyBannerAction = {
-  type: SchemaExportActions.closeLegacyBanner;
+export type closeLegacyModalAction = {
+  type: SchemaExportActions.closeLegacyModal;
 };
 
-export type setLegacyBannerChoiceAction = {
-  type: SchemaExportActions.setLegacyBannerChoice;
+export type setLegacyModalChoiceAction = {
+  type: SchemaExportActions.setLegacyModalChoice;
   choice: 'legacy' | 'export';
 };
 
-const localStorageId = 'schemaExportLegacyBannerChoice';
+const localStorageId = 'schemaExportLegacyModalChoice';
 
 export const switchToSchemaExport = (): SchemaThunkAction<void> => {
   return (dispatch) => {
-    dispatch({ type: SchemaExportActions.closeLegacyBanner });
+    dispatch({ type: SchemaExportActions.closeLegacyModal });
     dispatch(openExportSchema());
   };
 };
 
 export const confirmedExportLegacySchemaToClipboard =
   (): SchemaThunkAction<void> => {
-    return (dispatch, getState, { namespace }) => {
+    return (dispatch, getState, { namespace, track, connectionInfoRef }) => {
       const {
         schemaAnalysis: { schema },
       } = getState();
@@ -464,14 +570,14 @@ export const confirmedExportLegacySchemaToClipboard =
       if (hasSchema) {
         void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
       }
-      dispatch(
-        _trackSchemaExported({
-          schema,
-          source: 'app_menu',
-          format: 'legacyJSON',
-        })
-      );
-      dispatch({ type: SchemaExportActions.closeLegacyBanner });
+      _trackSchemaExported({
+        schema,
+        source: 'app_menu',
+        format: 'legacyJSON',
+        track,
+        connectionInfoRef,
+      });
+      dispatch({ type: SchemaExportActions.closeLegacyModal });
       openToast(
         'share-schema',
         hasSchema
@@ -491,11 +597,11 @@ export const confirmedExportLegacySchemaToClipboard =
     };
   };
 
-export const stopShowingLegacyBanner = (
+export const stopShowingLegacyModal = (
   choice: 'legacy' | 'export'
 ): SchemaThunkAction<void> => {
   return (dispatch) => {
     localStorage.setItem(localStorageId, choice);
-    dispatch({ type: SchemaExportActions.setLegacyBannerChoice, choice });
+    dispatch({ type: SchemaExportActions.setLegacyModalChoice, choice });
   };
 };

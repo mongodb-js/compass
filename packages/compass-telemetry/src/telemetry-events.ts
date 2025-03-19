@@ -1907,6 +1907,27 @@ type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user generates validation rules.
+ *
+ * @category Schema Validation
+ */
+type SchemaValidationGeneratedEvent = ConnectionScopedEvent<{
+  name: 'Schema Validation Generated';
+  payload: {
+    /* The count of fields with multiple types in a given schema (not counting undefined).
+     * This is only calculated for the top level fields, not nested fields and arrays.
+     */
+    variable_type_count: number;
+
+    /**
+     * The count of fields that don't appear on all documents.
+     * This is only calculated for the top level fields, not nested fields and arrays.
+     */
+    optional_field_count: number;
+  };
+}>;
+
+/**
  * This event is fired when user adds validation rules.
  *
  * @category Schema Validation
@@ -2003,7 +2024,7 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      */
     has_schema: boolean;
 
-    format: 'standardJSON' | 'mongoDBJSON' | 'extendedJSON' | 'legacyJSON';
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 
     source: 'app_menu' | 'schema_tab';
 
@@ -2021,6 +2042,27 @@ type SchemaExportedEvent = ConnectionScopedEvent<{
      * Indicates whether the schema contains geospatial data.
      */
     geo_data: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user shares the schema.
+ *
+ * @category Schema
+ */
+type SchemaExportFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Export Failed';
+  payload: {
+    /**
+     * Indicates whether the schema was analyzed before sharing.
+     */
+    has_schema: boolean;
+
+    schema_length: number;
+
+    format: 'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
+
+    stage: string;
   };
 }>;
 
@@ -2729,9 +2771,11 @@ export type TelemetryEvent =
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
+  | SchemaExportFailedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent
+  | SchemaValidationGeneratedEvent
   | ScreenEvent
   | ShellEvent
   | SignalActionButtonClickedEvent

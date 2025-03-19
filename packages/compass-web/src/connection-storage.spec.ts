@@ -125,6 +125,35 @@ describe('buildConnectionInfoFromClusterDescription', function () {
       },
       'mongodb+srv://serverless.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&serverMonitoringMode=poll&maxIdleTimeMS=30000&minPoolSize=0&maxPoolSize=5',
     ],
+    [
+      'flex',
+      {
+        '@provider': 'FLEX',
+        uniqueId: '123abc',
+        groupId: 'abc',
+        name: 'Cluster0-flex',
+        clusterType: 'REPLICASET',
+        srvAddress: 'flex.mongodb.com',
+        state: 'IDLE',
+        deploymentItemName: 'flex-xxx',
+        dataProcessingRegion: {
+          regionalUrl: 'https://example.com',
+        },
+        replicationSpecList: [
+          {
+            regionConfigs: [
+              {
+                priority: 1,
+                electableSpecs: {
+                  instanceSize: 'FLEX',
+                },
+              },
+            ],
+          },
+        ],
+      },
+      'mongodb+srv://flex.mongodb.com/?tls=true&authMechanism=MONGODB-X509&authSource=%24external&serverMonitoringMode=poll&maxIdleTimeMS=30000&minPoolSize=0&maxPoolSize=5',
+    ],
   ];
 
   for (const [type, clusterDescription, connectionString] of tests) {
@@ -162,7 +191,10 @@ describe('buildConnectionInfoFromClusterDescription', function () {
         .deep.eq({
           orgId: '123',
           projectId: 'abc',
-          metricsId: type === 'serverless' ? `Cluster0-serverless` : '123abc',
+          metricsId:
+            type === 'serverless' || type === 'flex'
+              ? `Cluster0-${type}`
+              : '123abc',
           clusterName: `Cluster0-${type}`,
           clusterUniqueId: '123abc',
           metricsType: type === 'sharded' ? 'cluster' : type,

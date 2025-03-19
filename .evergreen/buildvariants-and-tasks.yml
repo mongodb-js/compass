@@ -76,46 +76,42 @@ buildvariants:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
-  - name: smoketest-ubuntu-compass
-    display_name: Smoketest Ubuntu (compass)
+  - name: smoketest-packaged-app
+    display_name: Smoke Test via GitHub Actions
     run_on: ubuntu2004-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
-    tasks:
-      - name: smoketest-compass
-  - name: smoketest-windows-compass
-    display_name: Smoketest Windows (compass)
-    run_on: windows-vsCurrent-large
-    depends_on:
       - name: package-compass
         variant: package-windows
-    tasks:
-      - name: smoketest-compass
-  - name: smoketest-rhel-compass
-    display_name: Smoketest RHEL (compass)
-    run_on: rhel80-large
-    depends_on:
       - name: package-compass
         variant: package-rhel
-    tasks:
-      - name: smoketest-compass
-  - name: smoketest-macos-x64-compass
-    display_name: Smoketest MacOS Intel (compass)
-    run_on: macos-14-gui
-    depends_on:
       - name: package-compass
         variant: package-macos-x64
-    tasks:
-      - name: smoketest-compass
-  - name: smoketest-macos-arm-compass
-    display_name: Smoketest MacOS Arm64 (compass)
-    run_on: macos-14-arm64-gui
-    depends_on:
       - name: package-compass
         variant: package-macos-arm
+      - name: package-compass-isolated
+        variant: package-ubuntu
+      - name: package-compass-isolated
+        variant: package-windows
+      - name: package-compass-isolated
+        variant: package-rhel
+      - name: package-compass-isolated
+        variant: package-macos-x64
+      - name: package-compass-isolated
+        variant: package-macos-arm
+      - name: package-compass-readonly
+        variant: package-ubuntu
+      - name: package-compass-readonly
+        variant: package-windows
+      - name: package-compass-readonly
+        variant: package-rhel
+      - name: package-compass-readonly
+        variant: package-macos-x64
+      - name: package-compass-readonly
+        variant: package-macos-arm
     tasks:
-      - name: smoketest-compass
+      - name: smoketest-packaged-app
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu1804-large
@@ -508,7 +504,7 @@ tasks:
       - func: save-all-artifacts
         vars:
           compass_distribution: compass-readonly
-  - name: smoketest-compass
+  - name: smoketest-packaged-app
     tags:
       - required-for-publish
       - run-on-pr
@@ -517,11 +513,9 @@ tasks:
       - func: install
       - func: bootstrap
         vars:
-          scope: compass-e2e-tests
-      - func: smoketest-packaged-app
+          scope: '@mongodb-js/compass-smoke-tests'
+      - func: smoketest-on-github-actions
         vars:
-          mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-1
     tags:

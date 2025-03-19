@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { Schema as MongodbSchema } from 'mongodb-schema';
 import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
@@ -7,11 +7,9 @@ import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
 } from '../constants/analysis-states';
-
-import { SchemaToolbar } from './schema-toolbar/schema-toolbar';
+import SchemaToolbar from './schema-toolbar';
 import Field from './field';
 import { ZeroGraphic } from './zero-graphic';
-
 import {
   Button,
   CancelLoader,
@@ -24,6 +22,7 @@ import {
   spacing,
   useDarkMode,
   WorkspaceContainer,
+  usePersistedState,
   lighten,
   Banner,
   Body,
@@ -36,15 +35,10 @@ import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../stores/store';
-import {
-  analysisErrorDismissed,
-  type SchemaAnalysisError,
-  startAnalysis,
-  stopAnalysis,
-} from '../stores/schema-analysis-reducer';
+import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
 import ExportSchemaModal from './export-schema-modal';
-import ExportSchemaLegacyBanner from './export-schema-legacy-banner';
+import ExportSchemaLegacyModal from './export-schema-legacy-modal';
 
 const rootStyles = css({
   width: '100%',
@@ -305,6 +299,9 @@ const AnalyzingScreen: React.FunctionComponent<{
   );
 };
 
+const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
 const FieldList: React.FunctionComponent<{
   schema: MongodbSchema | null;
   analysisState: AnalysisState;
@@ -348,8 +345,18 @@ const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
+
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
+  if (dismissed) {
+    return <></>;
+  }
+
   return (
-    <Banner variant="info">
+    <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
       <Body weight="medium">Looking for schema anti-patterns?</Body>
       In its place, you may refer to Data Explorer’s performance insights{' '}
       <Badge className={insightsBadgeStyles} variant="blue">
@@ -376,28 +383,22 @@ const PerformanceAdvisorBanner = () => {
 
 const Schema: React.FunctionComponent<{
   analysisState: AnalysisState;
-  error?: SchemaAnalysisError;
-  maxTimeMS?: number;
+  isExportSchemaModalOpen: boolean;
   schema: MongodbSchema | null;
-  count?: number;
-  resultId?: string;
-  onExportSchemaClicked: () => void;
   onStartAnalysis: () => Promise<void>;
   onStopAnalysis: () => void;
-  onDismissError: () => void;
 }> = ({
   analysisState,
-  error,
+  isExportSchemaModalOpen,
   schema,
-  resultId,
-  onExportSchemaClicked,
   onStartAnalysis,
   onStopAnalysis,
-  onDismissError,
 }) => {
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
   }, [onStartAnalysis]);
+
+  const [showLegacyExportTooltip, setShowLegacyExportTooltip] = useState(false);
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
@@ -414,14 +415,14 @@ const Schema: React.FunctionComponent<{
           toolbar={
             <SchemaToolbar
               onAnalyzeSchemaClicked={onApplyClicked}
-              onExportSchemaClicked={onExportSchemaClicked}
               onResetClicked={onApplyClicked}
-              analysisState={analysisState}
-              error={error}
-              onDismissError={onDismissError}
+              // Show the tooltip to indicate the new export button when
+              // the export modal is closed.
+              showLegacyExportTooltip={
+                showLegacyExportTooltip && !isExportSchemaModalOpen
+              }
+              setShowLegacyExportTooltip={setShowLegacyExportTooltip}
               isOutdated={!!outdated}
-              sampleSize={schema ? schema.count : 0}
-              schemaResultId={resultId || ''}
             />
           }
         >
@@ -440,7 +441,11 @@ const Schema: React.FunctionComponent<{
         </WorkspaceContainer>
       </div>
       {enableExportSchema && <ExportSchemaModal />}
-      {enableExportSchema && <ExportSchemaLegacyBanner />}
+      {enableExportSchema && (
+        <ExportSchemaLegacyModal
+          setShowLegacyExportTooltip={setShowLegacyExportTooltip}
+        />
+      )}
     </>
   );
 };
@@ -448,14 +453,12 @@ const Schema: React.FunctionComponent<{
 export default connect(
   (state: RootState) => ({
     analysisState: state.schemaAnalysis.analysisState,
-    error: state.schemaAnalysis.error,
+    isExportSchemaModalOpen: state.schemaExport.isOpen,
     schema: state.schemaAnalysis.schema,
-    resultId: state.schemaAnalysis.resultId,
   }),
   {
     onStartAnalysis: startAnalysis,
     onStopAnalysis: () => stopAnalysis(),
     onExportSchemaClicked: openExportSchema,
-    onDismissError: analysisErrorDismissed,
   }
 )(Schema);

@@ -60,39 +60,6 @@ const PACKAGE_BUILD_VARIANTS = [
   }
 ];
 
-const SMOKETEST_BUILD_VARIANTS = [
-  {
-    name: 'smoketest-ubuntu',
-    display_name: 'Smoketest Ubuntu',
-    run_on: 'ubuntu2004-large',
-    depends_on: 'package-ubuntu',
-  },
-  {
-    name: 'smoketest-windows',
-    display_name: 'Smoketest Windows',
-    run_on: 'windows-vsCurrent-large',
-    depends_on: 'package-windows',
-  },
-  {
-    name: 'smoketest-rhel',
-    display_name: 'Smoketest RHEL',
-    run_on: 'rhel80-large',
-    depends_on: 'package-rhel',
-  },
-  {
-    name: 'smoketest-macos-x64',
-    display_name: 'Smoketest MacOS Intel',
-    run_on: 'macos-14-gui',
-    depends_on: 'package-macos-x64',
-  },
-  {
-    name: 'smoketest-macos-arm',
-    display_name: 'Smoketest MacOS Arm64',
-    run_on: 'macos-14-arm64-gui',
-    depends_on: 'package-macos-arm',
-  }
-];
-
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
@@ -207,7 +174,7 @@ buildvariants:
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
     expansions:
-      silk_asset_group: <%= buildVariant.silk_asset_group %>
+      target_platform: <%= buildVariant.target_platform %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
@@ -216,18 +183,18 @@ buildvariants:
     <% } %>
 <% } %>
 
-<% for (const buildVariant of SMOKETEST_BUILD_VARIANTS) { %>
-<% for (const distribution of ['compass']) { %>
-  - name: <%= buildVariant.name %>-<%= distribution %>
-    display_name: <%= buildVariant.display_name %> (<%= distribution %>)
-    run_on: <%= buildVariant.run_on %>
+  - name: smoketest-packaged-app
+    display_name: Smoke Test via GitHub Actions
+    run_on: ubuntu2004-large
     depends_on:
-      - name: package-<%= distribution %>
-        variant: <%= buildVariant.depends_on %>
+    <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
+    <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
+     - name: package-<%= distribution %>
+       variant: <%= buildVariant.name %>
+    <% } %>
+    <% } %>
     tasks:
-      - name: smoketest-<%= distribution %>
-<% } %>
-<% } %>
+      - name: smoketest-packaged-app
 
   - name: test-eol-servers
     display_name: Test EoL Servers
@@ -468,21 +435,17 @@ tasks:
           compass_distribution: <%= distribution %>
   <% } %>
 
-<% for (const distribution of ['compass']) { %>
-  - name: smoketest-<%= distribution %>
+  - name: smoketest-packaged-app
     tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
       - func: bootstrap
         vars:
-          scope: 'compass-e2e-tests'
-      - func: smoketest-packaged-app
+          scope: '@mongodb-js/compass-smoke-tests'
+      - func: smoketest-on-github-actions
         vars:
-          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
-          compass_distribution: <%= distribution %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-<% } %>
 
 <% for (const serverVersion of SERVER_VERSIONS) { %>
   <% for(const group of E2E_TEST_GROUPS) { %>

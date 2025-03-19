@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { RootState } from '../modules';
+import type { DataService, RootState } from '../modules';
 import reducer, { INITIAL_STATE } from '../modules';
 import toNS from 'mongodb-ns';
 import { activateValidation } from '../modules/validation';
@@ -8,15 +8,13 @@ import { editModeChanged } from '../modules/edit-mode';
 import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
-import type {
-  ConnectionInfoRef,
-  DataService,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { analyzeSchema as compassAnalyzeSchema } from '@mongodb-js/compass-schema';
 
 /**
  * The lowest supported version.
@@ -25,10 +23,7 @@ const MIN_VERSION = '3.2.0';
 
 export type SchemaValidationServices = {
   globalAppRegistry: AppRegistry;
-  dataService: Pick<
-    DataService,
-    'aggregate' | 'collectionInfo' | 'updateCollection'
-  >;
+  dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   instance: MongoDBInstance;
@@ -49,15 +44,25 @@ export function configureStore(
     | 'logger'
     | 'track'
     | 'connectionInfoRef'
-  >
+  >,
+  analyzeSchema = compassAnalyzeSchema
 ) {
+  const rulesGenerationAbortControllerRef = {
+    current: undefined,
+  };
   return createStore(
     reducer,
     {
       ...INITIAL_STATE,
       ...state,
     },
-    applyMiddleware(thunk.withExtraArgument(services))
+    applyMiddleware(
+      thunk.withExtraArgument({
+        ...services,
+        rulesGenerationAbortControllerRef,
+        analyzeSchema,
+      })
+    )
   );
 }
 
@@ -76,7 +81,8 @@ export function onActivated(
     workspaces,
     track,
   }: SchemaValidationServices,
-  { on, cleanup, addCleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers,
+  analyzeSchema?: typeof compassAnalyzeSchema
 ) {
   const store = configureStore(
     {
@@ -87,6 +93,7 @@ export function onActivated(
         collectionReadOnly: options.isReadonly ? true : false,
         writeStateStoreReadOnly: !instance.isWritable,
         oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
+        isEditingEnabledByUser: false,
       },
     },
     {
@@ -97,7 +104,8 @@ export function onActivated(
       workspaces,
       logger,
       track,
-    }
+    },
+    analyzeSchema
   );
 
   // isWritable can change later

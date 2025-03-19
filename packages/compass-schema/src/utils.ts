@@ -13,12 +13,13 @@ export function getAtlasPerformanceAdvisorLink({
   metricsType,
   clusterName,
 }: Pick<AtlasClusterMetadata, 'metricsId' | 'metricsType' | 'clusterName'>) {
-  if (metricsType === 'serverless') {
-    return `#/serverless/advisor/${encodeURIComponent(
-      clusterName
-    )}/createIndexes`;
+  const name = encodeURIComponent(clusterName);
+  const type = encodeURIComponent(metricsType);
+  const id = encodeURIComponent(metricsId);
+
+  if (metricsType === 'serverless' || metricsType === 'flex') {
+    return `#/${type}/advisor/${name}/createIndexes`;
   }
-  return `#/metrics/${encodeURIComponent(metricsType)}/${encodeURIComponent(
-    metricsId
-  )}/advisor`;
+
+  return `#/metrics/${type}/${id}/advisor`;
 }

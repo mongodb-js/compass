@@ -6,6 +6,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -13,6 +14,11 @@ import {
   createGeospatialCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
+import {
+  cleanUpDownloadedFile,
+  waitForFileDownload,
+} from '../helpers/downloads';
+import { readFileSync } from 'fs';
 
 const { expect } = chai;
 
@@ -109,45 +115,107 @@ describe('Collection schema tab', function () {
     });
   }
 
-  it('shows an exported schema to copy', async function () {
-    await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
-      'test',
-      'numbers',
-      'Schema'
-    );
-    await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+  describe('with exporting schema', function () {
+    const filename = 'schema-test-numbers-mongoDBJSON.json';
 
-    const element = browser.$(Selectors.SchemaFieldList);
-    await element.waitForDisplayed();
+    before(() => {
+      cleanUpDownloadedFile(filename);
+    });
 
-    await browser.clickVisible(Selectors.ExportSchemaButton);
+    after(() => {
+      cleanUpDownloadedFile(filename);
+    });
 
-    const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
-    await exportModal.waitForDisplayed();
+    it('shows an exported schema to copy (standard JSON Schema)', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Schema'
+      );
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-    const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
-    await exportSchemaContent.waitForDisplayed();
-    const text = await browser.getCodemirrorEditorText(
-      Selectors.ExportSchemaOutput
-    );
-    const parsedText = JSON.parse(text);
-    delete parsedText.$defs;
-    expect(parsedText).to.deep.equal({
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      type: 'object',
-      required: ['_id', 'i', 'j'],
-      properties: {
-        _id: {
-          $ref: '#/$defs/ObjectId',
+      await browser.clickVisible(Selectors.ExportSchemaButton);
+
+      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+      await exportModal.waitForDisplayed();
+
+      const exportSchemaContent = browser.$(Selectors.ExportSchemaOutput);
+      await exportSchemaContent.waitForDisplayed();
+      const text = await browser.getCodemirrorEditorText(
+        Selectors.ExportSchemaOutput
+      );
+      const parsedText = JSON.parse(text);
+      delete parsedText.$defs;
+      expect(parsedText).to.deep.equal({
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
+        required: ['_id', 'i', 'j'],
+        properties: {
+          _id: {
+            $ref: '#/$defs/ObjectId',
+          },
+          i: {
+            type: 'integer',
+          },
+          j: {
+            type: 'integer',
+          },
         },
-        i: {
-          type: 'integer',
-        },
-        j: {
-          type: 'integer',
-        },
-      },
+      });
+
+      it('can download schema (MongoDB $jsonSchema)', async function () {
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME_1,
+          'test',
+          'numbers',
+          'Schema'
+        );
+        await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+        const element = browser.$(Selectors.SchemaFieldList);
+        await element.waitForDisplayed();
+
+        await browser.clickVisible(Selectors.ExportSchemaButton);
+
+        const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+        await exportModal.waitForDisplayed();
+
+        await browser.clickVisible(
+          Selectors.exportSchemaFormatOption('mongoDBJSON')
+        );
+
+        const exportSchemaButton = browser.$(
+          Selectors.ExportSchemaDownloadButton
+        );
+        await exportSchemaButton.waitForEnabled();
+        await exportSchemaButton.click();
+
+        const { fileExists, filePath } = await waitForFileDownload(
+          filename,
+          browser
+        );
+        expect(fileExists).to.be.true;
+
+        const content = readFileSync(filePath, 'utf-8');
+        expect(JSON.parse(content)).to.deep.equal({
+          $jsonSchema: {
+            bsonType: 'object',
+            required: ['_id', 'i', 'j'],
+            properties: {
+              _id: {
+                bsonType: 'objectId',
+              },
+              i: {
+                bsonType: 'int',
+              },
+              j: {
+                bsonType: 'int',
+              },
+            },
+          },
+        });
+      });
     });
   });
 

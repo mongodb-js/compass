@@ -7,7 +7,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Feb 24, 2025
+Generated on Wed, Mar 19, 2025
 
 ## Table of Contents
 
@@ -156,11 +156,13 @@ Generated on Mon, Feb 24, 2025
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
+- [Schema Export Failed](#event--SchemaExportFailedEvent)
 
 ### Schema Validation
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
 - [Schema Validation Edited](#event--SchemaValidationEditedEvent)
 - [Schema Validation Updated](#event--SchemaValidationUpdatedEvent)
+- [Schema Validation Generated](#event--SchemaValidationGeneratedEvent)
 
 ### Settings
 - [Theme Changed](#event--ThemeChangedEvent)
@@ -1926,7 +1928,7 @@ This event is fired when user shares the schema.
 
 - **has_schema** (required): `boolean`
   - Indicates whether the schema was analyzed before sharing.
-- **format** (required): `"standardJSON" | "mongoDBJSON" | "extendedJSON" | "legacyJSON"`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
 - **source** (required): `"app_menu" | "schema_tab"`
 - **schema_width** (required): `number`
   - The number of fields at the top level.
@@ -1934,6 +1936,23 @@ This event is fired when user shares the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaExportFailedEvent"></a>
+
+### Schema Export Failed
+
+This event is fired when user shares the schema.
+
+**Properties**:
+
+- **has_schema** (required): `boolean`
+  - Indicates whether the schema was analyzed before sharing.
+- **schema_length** (required): `number`
+- **format** (required): `"standardJSON" | "mongoDBJSON" | "expandedJSON" | "legacyJSON"`
+- **stage** (required): `string`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1973,6 +1992,22 @@ This event is fired when user saves validation rules.
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaValidationGeneratedEvent"></a>
+
+### Schema Validation Generated
+
+This event is fired when user generates validation rules.
+
+**Properties**:
+
+- **variable_type_count** (required): `number`
+- **optional_field_count** (required): `number`
+  - The count of fields that don't appear on all documents.
+This is only calculated for the top level fields, not nested fields and arrays.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.

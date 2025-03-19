@@ -31,8 +31,8 @@ const { renderWithConnections } = createPluginTestHelpers(
 describe('ValidationStates [Component]', function () {
   let props: any;
 
-  const render = (props: any) => {
-    return renderWithConnections(<ValidationStates {...props} />);
+  const render = (props: any, options: any = {}) => {
+    return renderWithConnections(<ValidationStates {...props} />, options);
   };
 
   beforeEach(function () {
@@ -255,12 +255,17 @@ describe('ValidationStates [Component]', function () {
       props.isZeroState = true;
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
-
-      render(props);
     });
 
     it('renders the zero state', function () {
+      render(props);
       expect(screen.getByTestId('empty-content')).to.exist;
+    });
+
+    it('when enableExportSchema is set, shows button for rules generation', function () {
+      render(props, { preferences: { enableExportSchema: true } });
+      const btn = screen.getByRole('button', { name: 'Generate rules' });
+      expect(btn).to.be.visible;
     });
   });
 
