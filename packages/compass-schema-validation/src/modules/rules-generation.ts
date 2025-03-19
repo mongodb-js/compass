@@ -2,7 +2,7 @@ import type { SchemaValidationThunkAction } from '.';
 import { zeroStateChanged } from './zero-state';
 import { enableEditRules } from './edit-mode';
 import type { MongoError } from 'mongodb';
-import type { Action, AnyAction, Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { validationLevelChanged, validatorChanged } from './validation';
 import {
   type analyzeSchema as analyzeSchemaType,
@@ -10,16 +10,7 @@ import {
 } from '@mongodb-js/compass-schema';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
-
-export type ValidationServerAction = 'error' | 'warn';
-export type ValidationLevel = 'off' | 'moderate' | 'strict';
+import { isAction } from '../util';
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
