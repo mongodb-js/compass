@@ -2644,6 +2644,7 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'import_modal'
       | 'insert_document_modal'
       | 'non_genuine_mongodb_modal'
+      | 'end_of_life_mongodb_modal'
       | 'rename_collection_modal'
       | 'restore_pipeline_modal'
       | 'save_pipeline_modal'
