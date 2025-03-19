@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  ConfirmationModalArea,
   DocumentList,
-  ErrorDetailsModalArea,
   LeafyGreenProvider,
 } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';

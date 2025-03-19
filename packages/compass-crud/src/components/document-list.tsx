@@ -9,7 +9,6 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
-  ErrorDetailsModalArea,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
