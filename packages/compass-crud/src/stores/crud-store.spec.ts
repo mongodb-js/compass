@@ -290,7 +290,6 @@ describe('store', function () {
         docsPerPage: 25,
         end: 0,
         error: null,
-        errorDetails: { isOpen: false },
         insert: {
           doc: null,
           isCommentNeeded: true,
@@ -501,7 +500,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('remove-error', (message) => {
+        hadronDoc.on('remove-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -611,7 +610,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal(
             'Unable to update, no changes have been made.'
           );
@@ -634,7 +633,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -726,7 +725,7 @@ describe('store', function () {
         const invalidHadronDoc = new HadronDocument(doc);
         (invalidHadronDoc as any).getId = null;
 
-        invalidHadronDoc.on('update-error', (message) => {
+        invalidHadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal(
             'An error occured when attempting to update the document: this.getId is not a function'
           );
@@ -996,7 +995,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
