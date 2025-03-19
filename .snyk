@@ -59,6 +59,14 @@ ignore:
         reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.2'
         expires: 2025-03-30T12:36:40.477Z
         created: 2025-02-28T12:36:40.484Z
+  SNYK-JS-ELECTRON-8738834:
+    - '*':
+        reason: >-
+          Not applicable: requires attacker to render hand crafted HTML snippet
+          inside the application. Putting on a short expiration time as we're
+          expecting to be able to update to electron v33 (or later) soon
+        expires: 2025-05-16T15:23:35.601Z
+        created: 2025-03-17T15:23:35.608Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':

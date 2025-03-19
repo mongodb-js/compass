@@ -8,6 +8,7 @@ import {
   EmptyContent,
   ErrorSummary,
   Link,
+  SpinLoaderWithLabel,
   WarningSummary,
   css,
   spacing,
@@ -227,6 +228,11 @@ export function ValidationStates({
         />
       )}
       <ValidationBanners editMode={editMode} />
+      {!isLoaded && (
+        <div className={loaderStyles}>
+          <SpinLoaderWithLabel progressText="Loading Validation" />
+        </div>
+      )}
       {isLoaded && (
         <>
           {isZeroState && !isRulesGenerationInProgress && (
