@@ -4,6 +4,7 @@ import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { ServerHeartbeatFailedEvent } from 'mongodb';
+import semver from 'semver';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -30,8 +31,13 @@ import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-for
 import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
+import { showEndOfLifeWarningModal as _showEndOfLifeWarningModal } from '../components/end-of-life-modal';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+
+// The EOL Server version, effective from 01/31/2025,
+// is planned to remain as is for the next six months (COMPASS-8370).
+export const DEFAULT_EOL_SERVER_VERSION = '4.4';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -1450,6 +1456,26 @@ export const saveAndConnect = (
   return connectWithOptions(connectionInfo, { forceSave: true });
 };
 
+export function isEndOfLifeServer(
+  serverVersion: string | undefined | null
+): boolean {
+  if (!serverVersion) {
+    return true;
+  }
+  try {
+    return semver.satisfies(serverVersion, `<=${getEoLServerVersion()}`);
+  } catch (e) {
+    return true;
+  }
+}
+
+export function getEoLServerVersion(): string {
+  // TODO: Get EoL server version from https://github.com/10gen/compass-mongodb-com/blob/master/src/index.js#L26
+  let endpoint;
+
+  return endpoint || DEFAULT_EOL_SERVER_VERSION;
+}
+
 const connectWithOptions = (
   connectionInfo: ConnectionInfo,
   options: {
@@ -1779,11 +1805,20 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
+        const { build } = await dataService.instance();
+
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
+        } else if (isEndOfLifeServer(build.version)) {
+          dispatch(
+            showEndOfLifeWarningModal({
+              connectionId: connectionInfo.id,
+              serverVersion: build.version,
+            })
+          );
         }
       } catch (err) {
         dispatch(connectionAttemptError(connectionInfo, err));
@@ -2105,6 +2140,20 @@ export const showNonGenuineMongoDBWarningModal = (
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
     track('Screen', { name: 'non_genuine_mongodb_modal' }, connectionInfo);
     void _showNonGenuineMongoDBWarningModal(connectionInfo);
+  };
+};
+
+export const showEndOfLifeWarningModal = ({
+  connectionId,
+  serverVersion,
+}: {
+  connectionId: string;
+  serverVersion: string;
+}): ConnectionsThunkAction<void> => {
+  return (_dispatch, getState, { track }) => {
+    const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
+    track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
+    void _showEndOfLifeWarningModal(serverVersion);
   };
 };
 
