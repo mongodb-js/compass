@@ -15,7 +15,6 @@ import {
   Label,
   CancelLoader,
   SpinLoader,
-  palette,
   Link,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -64,13 +63,8 @@ const footerStyles = css({
   gap: spacing[200],
 });
 
-const labelStyles = css({
-  color: palette.gray.dark1,
-});
-
 const formatDescriptionStyles = css({
   marginTop: spacing[200],
-  color: palette.gray.dark1,
 });
 
 type SupportedFormat = Exclude<SchemaFormat, 'legacyJSON'>;
@@ -161,7 +155,6 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Label
           htmlFor={formatTypeRadioBoxGroupId}
           id={formatTypeRadioBoxGroupLabelId}
-          className={labelStyles}
         >
           Select format:
         </Label>
