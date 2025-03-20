@@ -10,7 +10,7 @@ const { WebSocketServer } = require('ws');
  * every follow-up message is directly written to the opened socket stream
  */
 function createWebSocketProxy(port = 1337, logger = console) {
-  const wsServer = new WebSocketServer({ host: 'localhost', port }, () => {
+  const wsServer = new WebSocketServer({ host: '0.0.0.0', port }, () => {
     logger.log('ws server listening at %s', wsServer.options.port);
   });
 
