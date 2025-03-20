@@ -3,12 +3,14 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ValidationEditor } from './validation-editor';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
-function renderValidationEditor(
+async function renderValidationEditor(
   props: Partial<React.ComponentProps<typeof ValidationEditor>>
 ) {
   const validation = {
-    validator: '',
+    validator: '{}',
     validationAction: 'warn',
     validationLevel: 'moderate',
     isChanged: false,
@@ -16,22 +18,29 @@ function renderValidationEditor(
     error: null,
   } as const;
 
+  const preferences = await createSandboxFromDefaultPreferences();
+  await preferences.savePreferences({ enableExportSchema: true });
+
   return render(
-    <ValidationEditor
-      namespace="test.test"
-      validatorChanged={() => {}}
-      validationActionChanged={() => {}}
-      validationLevelChanged={() => {}}
-      cancelValidation={() => {}}
-      saveValidation={() => {}}
-      clearSampleDocuments={() => {}}
-      serverVersion="8.0.5"
-      onClickEnableEditRules={() => {}}
-      validation={validation}
-      isEditable
-      isEditingEnabled
-      {...props}
-    />
+    <PreferencesProvider value={preferences}>
+      <ValidationEditor
+        namespace="test.test"
+        validatorChanged={() => {}}
+        validationActionChanged={() => {}}
+        validationLevelChanged={() => {}}
+        cancelValidation={() => {}}
+        saveValidation={() => {}}
+        clearSampleDocuments={() => {}}
+        serverVersion="8.0.5"
+        onClickEnableEditRules={() => {}}
+        validation={validation}
+        generateValidationRules={() => {}}
+        isRulesGenerationInProgress={false}
+        isEditable
+        isEditingEnabled
+        {...props}
+      />
+    </PreferencesProvider>
   );
 }
 
@@ -40,9 +49,9 @@ describe('ValidationEditor [Component]', function () {
     'when it is an editable mode but editing is not yet enabled',
     function () {
       let onClickEnableEditRulesSpy: sinon.SinonSpy;
-      beforeEach(function () {
+      beforeEach(async function () {
         onClickEnableEditRulesSpy = sinon.spy();
-        renderValidationEditor({
+        await renderValidationEditor({
           onClickEnableEditRules: onClickEnableEditRulesSpy,
           isEditingEnabled: false,
           isEditable: true,
@@ -62,8 +71,8 @@ describe('ValidationEditor [Component]', function () {
   );
 
   context('when it is an editable mode and editing is enabled', function () {
-    beforeEach(function () {
-      renderValidationEditor({
+    beforeEach(async function () {
+      await renderValidationEditor({
         isEditable: true,
         isEditingEnabled: true,
       });
@@ -78,8 +87,8 @@ describe('ValidationEditor [Component]', function () {
   });
 
   context('when it is a not editable mode', function () {
-    beforeEach(function () {
-      renderValidationEditor({
+    beforeEach(async function () {
+      await renderValidationEditor({
         isEditable: false,
       });
     });
@@ -89,6 +98,57 @@ describe('ValidationEditor [Component]', function () {
       expect(
         screen.queryByTestId('enable-edit-validation-button')
       ).to.not.exist;
+    });
+  });
+
+  context('when the validator is empty', function () {
+    let onGenerateRulesSpy: sinon.SinonSpy;
+    beforeEach(async function () {
+      onGenerateRulesSpy = sinon.spy();
+      await renderValidationEditor({
+        generateValidationRules: onGenerateRulesSpy,
+        isEditable: true,
+        validation: {
+          validator: '{}',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: false,
+          syntaxError: null,
+          error: null,
+        },
+      });
+    });
+
+    it('allows to generate rules', function () {
+      const generateBtn = screen.getByRole('button', {
+        name: 'Generate rules',
+      });
+      expect(generateBtn).to.be.visible;
+      userEvent.click(generateBtn);
+      expect(onGenerateRulesSpy).to.have.been.calledOnce;
+    });
+  });
+
+  context('when rules generation is in progress', function () {
+    beforeEach(async function () {
+      await renderValidationEditor({
+        isEditable: true,
+        isRulesGenerationInProgress: true,
+        validation: {
+          validator: '{}',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: false,
+          syntaxError: null,
+          error: null,
+        },
+      });
+    });
+
+    it('allows to generate rules', function () {
+      const generateBtn = screen.getByTestId('generate-rules-button');
+      expect(generateBtn).to.be.visible;
+      expect(generateBtn).to.have.attribute('aria-disabled', 'true');
     });
   });
 });

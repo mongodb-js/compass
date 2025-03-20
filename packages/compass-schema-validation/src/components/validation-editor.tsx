@@ -14,6 +14,8 @@ import {
   useConfirmationModal,
   useDarkMode,
   KeylineCard,
+  ButtonVariant,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -39,6 +41,8 @@ import {
 } from '../modules/validation';
 import { clearSampleDocuments } from '../modules/sample-documents';
 import { enableEditRules } from '../modules/edit-mode';
+import { usePreference } from 'compass-preferences-model/provider';
+import { generateValidationRules } from '../modules/rules-generation';
 
 const validationEditorStyles = css({
   padding: spacing[400],
@@ -46,6 +50,10 @@ const validationEditorStyles = css({
 
 const validationOptionsStyles = css({
   display: 'flex',
+});
+
+const generateButtonContainerStyles = css({
+  flexGrow: 1,
 });
 
 const actionsStyles = css({
@@ -126,6 +134,7 @@ type ValidationEditorProps = {
   validationLevelChanged: (level: ValidationLevel) => void;
   cancelValidation: () => void;
   saveValidation: (text: Validation) => void;
+  generateValidationRules: () => void;
   serverVersion: string;
   validation: Pick<
     ValidationState,
@@ -138,6 +147,7 @@ type ValidationEditorProps = {
   >;
   isEditable: boolean;
   isEditingEnabled: boolean;
+  isRulesGenerationInProgress: boolean;
 };
 
 /**
@@ -154,11 +164,14 @@ export const ValidationEditor: React.FunctionComponent<
   validationLevelChanged,
   cancelValidation,
   saveValidation,
+  generateValidationRules,
   serverVersion,
   validation,
   isEditable,
   isEditingEnabled,
+  isRulesGenerationInProgress,
 }) => {
+  const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const { showConfirmation } = useConfirmationModal();
@@ -227,12 +240,36 @@ export const ValidationEditor: React.FunctionComponent<
     saveValidationRef.current(validationRef.current);
   }, [showConfirmation]);
 
+  const isEmpty = useMemo<boolean>(() => {
+    if (validation.validator.length === 0) return true;
+    try {
+      return Object.keys(JSON.parse(validation.validator)).length === 0;
+    } catch {
+      return false;
+    }
+  }, [validation.validator]);
+
   return (
     <KeylineCard
       data-testid="validation-editor"
       className={validationEditorStyles}
     >
       <div className={validationOptionsStyles}>
+        {enableExportSchema && (
+          <div className={generateButtonContainerStyles}>
+            <Button
+              data-testid="generate-rules-button"
+              disabled={!isEmpty}
+              isLoading={isRulesGenerationInProgress}
+              loadingIndicator={<SpinLoader />}
+              onClick={generateValidationRules}
+              variant={ButtonVariant.Primary}
+              size="small"
+            >
+              Generate rules
+            </Button>
+          </div>
+        )}
         <ActionSelector
           isEditable={isEditable && isEditingEnabled}
           validationActionChanged={validationActionChanged}
@@ -326,6 +363,7 @@ const mapStateToProps = (state: RootState) => ({
   isEditingEnabled: state.editMode.isEditingEnabledByUser,
   validation: state.validation,
   namespace: state.namespace.ns,
+  isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
 });
 
 /**
@@ -339,4 +377,5 @@ export default connect(mapStateToProps, {
   onClickEnableEditRules: enableEditRules,
   validationActionChanged,
   validationLevelChanged,
+  generateValidationRules,
 })(ValidationEditor);
