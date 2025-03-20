@@ -16,6 +16,7 @@ import {
   KeylineCard,
   ButtonVariant,
   SpinLoader,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -241,7 +242,7 @@ export const ValidationEditor: React.FunctionComponent<
   }, [showConfirmation]);
 
   const isEmpty = useMemo<boolean>(() => {
-    if (validation.validator.length === 0) return true;
+    if (!validation.validator || validation.validator.length === 0) return true;
     try {
       return Object.keys(JSON.parse(validation.validator)).length === 0;
     } catch {
@@ -257,17 +258,24 @@ export const ValidationEditor: React.FunctionComponent<
       <div className={validationOptionsStyles}>
         {enableExportSchema && (
           <div className={generateButtonContainerStyles}>
-            <Button
-              data-testid="generate-rules-button"
-              disabled={!isEmpty}
-              isLoading={isRulesGenerationInProgress}
-              loadingIndicator={<SpinLoader />}
-              onClick={generateValidationRules}
-              variant={ButtonVariant.Primary}
-              size="small"
+            <Tooltip
+              enabled={!isEmpty}
+              trigger={
+                <Button
+                  data-testid="generate-rules-button"
+                  disabled={!isEmpty}
+                  isLoading={isRulesGenerationInProgress}
+                  loadingIndicator={<SpinLoader />}
+                  onClick={generateValidationRules}
+                  variant={ButtonVariant.Primary}
+                  size="small"
+                >
+                  Generate rules
+                </Button>
+              }
             >
-              Generate rules
-            </Button>
+              Clear existing rules before generating new ones
+            </Tooltip>
           </div>
         )}
         <ActionSelector
