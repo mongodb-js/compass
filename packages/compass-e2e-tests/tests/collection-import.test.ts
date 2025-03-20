@@ -605,7 +605,6 @@ describe('Collection import', function () {
       const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
       const errorText = await toastElement.getText();
-      console.log({ errorText });
       expect(errorText).to.include('Document failed validation');
       expect(errorText).to.include('VIEW LOG');
 

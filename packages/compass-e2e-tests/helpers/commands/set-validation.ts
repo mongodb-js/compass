@@ -5,6 +5,13 @@ export async function setValidationWithinValidationTab(
   browser: CompassBrowser,
   value: string
 ): Promise<void> {
+  // enter edit mode if not already entered
+  const enableEditBtn = browser.$(Selectors.EnableEditValidationButton);
+  if (await enableEditBtn.isExisting()) {
+    await browser.clickVisible(enableEditBtn);
+  }
+
+  // change value
   await browser.setCodemirrorEditorValue(Selectors.ValidationEditor, value);
 
   // it should eventually detect that the text changed
