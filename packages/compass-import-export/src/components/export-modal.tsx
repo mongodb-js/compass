@@ -250,7 +250,7 @@ function ExportModal({
       open={isOpen}
       setOpen={closeExport}
       data-testid="export-modal"
-      initialFocus={`#${codeElementId}`}
+      initialFocus={exportFullCollection ? undefined : `#${codeElementId}`}
     >
       <ModalHeader
         title="Export"
