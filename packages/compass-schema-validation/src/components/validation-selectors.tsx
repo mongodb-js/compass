@@ -23,7 +23,7 @@ const LEVEL_HELP_URL =
 
 const validationOptionStyles = css({
   display: 'flex',
-  marginRight: spacing[4],
+  marginLeft: spacing[4],
   alignItems: 'center',
 });
 
@@ -47,7 +47,7 @@ export function ActionSelector({
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Validation Action</Label>
+      <Label htmlFor={controlId}>Action</Label>
       <IconButton
         href={ACTION_HELP_URL}
         target="_blank"
@@ -88,7 +88,7 @@ export function LevelSelector({
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Validation Level</Label>
+      <Label htmlFor={controlId}>Level</Label>
       <IconButton
         href={LEVEL_HELP_URL}
         target="_blank"
