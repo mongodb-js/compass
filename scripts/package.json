@@ -38,7 +38,7 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
-    "@babel/core": "^7.24.3",
+    "@babel/core": "^7.26.10",
     "@mongodb-js/monorepo-tools": "^1.1.16",
     "commander": "^11.0.0",
     "electron": "^32.3.3",
