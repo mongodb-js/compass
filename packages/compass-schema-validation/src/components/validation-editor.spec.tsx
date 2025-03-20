@@ -109,6 +109,34 @@ describe('ValidationEditor [Component]', function () {
         generateValidationRules: onGenerateRulesSpy,
         isEditable: true,
         validation: {
+          validator: '',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: false,
+          syntaxError: null,
+          error: null,
+        },
+      });
+    });
+
+    it('allows to generate rules', function () {
+      const generateBtn = screen.getByRole('button', {
+        name: 'Generate rules',
+      });
+      expect(generateBtn).to.be.visible;
+      userEvent.click(generateBtn);
+      expect(onGenerateRulesSpy).to.have.been.calledOnce;
+    });
+  });
+
+  context('when the validator is empty object', function () {
+    let onGenerateRulesSpy: sinon.SinonSpy;
+    beforeEach(async function () {
+      onGenerateRulesSpy = sinon.spy();
+      await renderValidationEditor({
+        generateValidationRules: onGenerateRulesSpy,
+        isEditable: true,
+        validation: {
           validator: '{}',
           validationAction: 'error',
           validationLevel: 'moderate',
