@@ -40,7 +40,7 @@ export function errorToJSON(error: any): ErrorJSON {
     message: error.message,
   };
 
-  for (const key of ['index', 'code', 'op', 'errorInfo'] as const) {
+  for (const key of ['index', 'code', 'op', 'errInfo'] as const) {
     if (error[key] !== undefined) {
       obj[key] = error[key];
     }

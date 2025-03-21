@@ -51,7 +51,7 @@ describe('Collection validation tab', function () {
     const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
-    await browser.setValidation(validation);
+    await browser.setValidationWithinValidationTab(validation);
   }
 
   context('when the schema validation is empty', function () {
@@ -89,7 +89,7 @@ describe('Collection validation tab', function () {
       });
 
       // generated rules can be edited and saved
-      await browser.setValidation(PASSING_VALIDATOR);
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
     });
   });
 
@@ -145,7 +145,7 @@ describe('Collection validation tab', function () {
       });
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
-      await browser.setValidation(PASSING_VALIDATOR);
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
       await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
 
       // nothing failed, everything passed

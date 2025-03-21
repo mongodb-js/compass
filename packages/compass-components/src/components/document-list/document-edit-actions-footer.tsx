@@ -6,6 +6,7 @@ import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../../hooks/use-theme';
+import { showErrorDetails } from '../../hooks/use-error-details';
 
 type Status =
   | 'Initial'
@@ -81,13 +82,30 @@ function useHadronDocumentStatus(
       ? 'Deleting'
       : 'Initial';
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [error, setError] = useState<{
+    message: string;
+    details?: Record<string, unknown>;
+  } | null>(null);
   const invalidElementsRef = useRef(new Set());
 
-  const updateStatus = useCallback((newStatus: Status, errorMessage = null) => {
-    setStatus(newStatus);
-    setErrorMessage(errorMessage);
-  }, []);
+  const updateStatus = useCallback(
+    (
+      newStatus: Status,
+      error: Error | null = null,
+      errorDetails?: Record<string, unknown>
+    ) => {
+      setStatus(newStatus);
+      setError(
+        error
+          ? {
+              message: error?.message,
+              details: errorDetails,
+            }
+          : null
+      );
+    },
+    []
+  );
 
   useEffect(() => {
     if (status !== 'Initial') {
@@ -128,8 +146,11 @@ function useHadronDocumentStatus(
     const onUpdateSuccess = () => {
       updateStatus('UpdateSuccess');
     };
-    const onUpdateError = (err: string) => {
-      updateStatus('UpdateError', err);
+    const onUpdateError = (
+      err: Error,
+      errorDetails?: Record<string, unknown>
+    ) => {
+      updateStatus('UpdateError', err, errorDetails);
     };
     const onRemoveStart = () => {
       updateStatus('DeleteStart');
@@ -137,8 +158,11 @@ function useHadronDocumentStatus(
     const onRemoveSuccess = () => {
       updateStatus('DeleteSuccess');
     };
-    const onRemoveError = (err: string) => {
-      updateStatus('DeleteError', err);
+    const onRemoveError = (
+      err: Error,
+      errorDetails?: Record<string, unknown>
+    ) => {
+      updateStatus('DeleteError', err, errorDetails);
     };
 
     doc.on(Element.Events.Added, onUpdate);
@@ -183,30 +207,30 @@ function useHadronDocumentStatus(
     }
   }, [status, updateStatus]);
 
-  return { status, updateStatus, errorMessage };
+  return { status, updateStatus, error };
 }
 
 const container = css({
   display: 'flex',
-  paddingTop: spacing[2],
-  paddingRight: spacing[2],
-  paddingBottom: spacing[2],
-  paddingLeft: spacing[3],
+  paddingTop: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[200],
+  paddingLeft: spacing[400],
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   borderBottomLeftRadius: 'inherit',
   borderBottomRightRadius: 'inherit',
 });
 
 const message = css({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+  overflow: 'scroll',
 });
 
 const buttonGroup = css({
   display: 'flex',
   marginLeft: 'auto',
-  gap: spacing[2],
+  gap: spacing[200],
+  flexShrink: 0,
 });
 
 const button = css({
@@ -275,7 +299,7 @@ const EditActionsFooter: React.FunctionComponent<{
   const {
     status: _status,
     updateStatus,
-    errorMessage,
+    error,
   } = useHadronDocumentStatus(doc, editing, deleting);
 
   const darkMode = useDarkMode();
@@ -303,10 +327,25 @@ const EditActionsFooter: React.FunctionComponent<{
       data-status={status}
     >
       <div className={message} data-testid="document-footer-message">
-        {errorMessage ?? statusMessage}
+        {error?.message ?? statusMessage}
       </div>
       {!isSuccess(status) && (
         <div className={buttonGroup}>
+          {error?.details && (
+            <Button
+              className={button}
+              size="xsmall"
+              onClick={() =>
+                showErrorDetails({
+                  details: error.details!,
+                  closeAction: 'close',
+                })
+              }
+              data-testid="edit-actions-footer-error-details-button"
+            >
+              VIEW ERROR DETAILS
+            </Button>
+          )}
           <Button
             type="button"
             size="xsmall"

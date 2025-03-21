@@ -29,11 +29,7 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import {
-  type CrudStore,
-  type BSONObject,
-  type DocumentView,
-} from '../stores/crud-store';
+import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -84,7 +80,7 @@ export type DocumentListProps = {
         | 'doc'
         | 'csfleState'
         | 'isOpen'
-        | 'message'
+        | 'error'
         | 'mode'
         | 'jsonDoc'
         | 'isCommentNeeded'

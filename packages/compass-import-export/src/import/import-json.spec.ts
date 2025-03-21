@@ -555,13 +555,19 @@ describe('importJSON', function () {
     const errors = errorCallback.args.map((args) => args[0]);
     for (const [index, error] of errors.entries()) {
       expect(error.op).to.exist;
-      // cheat and copy them over because it is big and with buffers
-      expectedErrors[index].op = error.op;
+      expect(error).to.deep.contain(expectedErrors[index]);
+      expect(error).to.have.nested.property('errInfo.details');
     }
-    expect(errors).to.deep.equal(expectedErrors);
 
-    const errorsText = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
+    const outputErrors = await fs.promises.readFile(output.path, 'utf8');
+    const parsedOutputErrors = outputErrors
+      .trim()
+      .split('\n')
+      .map((err) => JSON.parse(err));
+    for (const [index, error] of parsedOutputErrors.entries()) {
+      expect(error).to.deep.contain(expectedErrors[index]);
+      expect(error).to.have.nested.property('errInfo.details');
+    }
   });
 
   it('responds to abortSignal.aborted', async function () {

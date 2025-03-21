@@ -35,6 +35,7 @@ import {
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
 import type { DataService } from 'mongodb-data-service';
+import { showErrorDetails } from '@mongodb-js/compass-components';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -47,6 +48,8 @@ export const STARTED = `${PREFIX}/STARTED`;
 export const CANCELED = `${PREFIX}/CANCELED`;
 export const FINISHED = `${PREFIX}/FINISHED`;
 export const FAILED = `${PREFIX}/FAILED`;
+export const ERROR_DETAILS_OPENED = `${PREFIX}/ERROR_DETAILS_OPENED`;
+export const ERROR_DETAILS_CLOSED = `${PREFIX}/ERROR_DETAILS_CLOSED`;
 export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const FILE_SELECT_ERROR = `${PREFIX}/FILE_SELECT_ERROR`;
@@ -373,9 +376,19 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       debug('Error while importing:', err.stack);
 
       progressCallback.flush();
-      showFailedToast(err);
+      const errInfo =
+        err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
+      showFailedToast(
+        err as Error,
+        errInfo &&
+          (() =>
+            showErrorDetails({
+              details: errInfo,
+              closeAction: 'close',
+            }))
+      );
 
-      dispatch(onFailed(err));
+      dispatch(onFailed(err as Error));
       return;
     } finally {
       errorLogWriteStream?.close();
