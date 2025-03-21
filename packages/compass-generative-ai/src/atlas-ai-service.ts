@@ -8,7 +8,7 @@ import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
-import { EJSON, UUID } from 'bson';
+import { EJSON } from 'bson';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
@@ -198,17 +198,15 @@ const aiURLConfig = {
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
   'admin-api': {
-    'user-access': (userId: string) => `unauth/ai/api/v1/hello/${userId}`,
     aggregation: 'ai/api/v1/mql-aggregation',
     query: 'ai/api/v1/mql-query',
   },
   cloud: {
-    'user-access': (userId: string) => `ai/v1/hello/${userId}`,
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
     query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
   },
 } as const;
-type AIEndpoint = 'user-access' | 'query' | 'aggregation';
+type AIEndpoint = 'query' | 'aggregation';
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -242,15 +240,6 @@ export class AtlasAiService {
     connectionInfo?: ConnectionInfo
   ) {
     if (this.apiURLPreset === 'cloud') {
-      if (urlId === 'user-access') {
-        return this.atlasService.cloudEndpoint(
-          aiURLConfig[this.apiURLPreset][urlId](
-            this.preferences.getPreferences().telemetryAtlasUserId ??
-              new UUID().toString()
-          )
-        );
-      }
-
       const atlasMetadata = connectionInfo?.atlasMetadata;
       if (!atlasMetadata) {
         throw new Error(
@@ -262,15 +251,7 @@ export class AtlasAiService {
         aiURLConfig[this.apiURLPreset][urlId](atlasMetadata.projectId)
       );
     }
-    const urlConfig = aiURLConfig[this.apiURLPreset][urlId];
-    const urlPath =
-      typeof urlConfig === 'function'
-        ? urlConfig(
-            this.preferences.getPreferences().telemetryAtlasUserId ??
-              new UUID().toString()
-          )
-        : urlConfig;
-
+    const urlPath = aiURLConfig[this.apiURLPreset][urlId];
     return this.atlasService.adminApiEndpoint(urlPath);
   }
 
@@ -285,50 +266,14 @@ export class AtlasAiService {
     }
   }
 
-  private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    const url = this.getUrlForEndpoint('user-access');
-
-    const res = await this.atlasService.fetch(url, {
-      headers: {
-        Accept: 'application/json',
+  async setupAIAccess(): Promise<void> {
+    // We default GEN_AI_ACCESS on for everyone. Down the line if/when
+    // we add more features with partial rollout, we'll fetch access here.
+    await this.preferences.savePreferences({
+      cloudFeatureRolloutAccess: {
+        GEN_AI_COMPASS: true,
       },
     });
-    const body = await res.json();
-    this.validateAIFeatureEnablementResponse(body);
-    return body;
-  }
-
-  async setupAIAccess(): Promise<void> {
-    try {
-      const featureResponse = await this.getAIFeatureEnablement();
-
-      const isAIFeatureEnabled =
-        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
-
-      this.logger.log.info(
-        this.logger.mongoLogId(1_001_000_300),
-        'AtlasAIService',
-        'Fetched if the AI feature is enabled',
-        {
-          enabled: isAIFeatureEnabled,
-          featureResponse,
-        }
-      );
-
-      await this.preferences.savePreferences({
-        cloudFeatureRolloutAccess: {
-          GEN_AI_COMPASS: isAIFeatureEnabled,
-        },
-      });
-    } catch (err) {
-      // Default to what's already in Compass when we can't fetch the preference.
-      this.logger.log.error(
-        this.logger.mongoLogId(1_001_000_302),
-        'AtlasAIService',
-        'Failed to load if the AI feature is enabled',
-        { error: (err as Error).stack }
-      );
-    }
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {

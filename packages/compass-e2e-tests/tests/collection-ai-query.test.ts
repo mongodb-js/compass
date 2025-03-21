@@ -121,12 +121,9 @@ describe('Collection ai query', function () {
 
       // Check that the request was made with the correct parameters.
       const requests = getRequests();
-      expect(requests.length).to.equal(2);
-      const lastPathRegex = /[^/]*$/;
-      const userId = lastPathRegex.exec(requests[0].req.url)?.[0];
-      expect((userId?.match(/-/g) || []).length).to.equal(4); // Is uuid like.
+      expect(requests.length).to.equal(1);
 
-      const queryRequest = requests[1];
+      const queryRequest = requests[0];
       const queryURL = new URL(
         queryRequest.req.url,
         `http://${queryRequest.req.headers.host}`
