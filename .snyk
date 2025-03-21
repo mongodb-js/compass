@@ -67,6 +67,14 @@ ignore:
           expecting to be able to update to electron v33 (or later) soon
         expires: 2025-05-16T15:23:35.601Z
         created: 2025-03-17T15:23:35.608Z
+  SNYK-JS-ELECTRON-9486047:
+    - '*':
+        reason: >-
+          Not applicable: requires attacker to render hand crafted HTML snippet
+          inside the application. Putting on a short expiration time as we're
+          expecting to be able to update to electron v33 (or later) soon
+        expires: 2025-05-20T04:40:36.098Z
+        created: 2025-03-21T04:40:36.107Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
