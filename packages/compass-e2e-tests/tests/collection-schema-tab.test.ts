@@ -6,7 +6,6 @@ import {
   screenshotIfFailed,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
-  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
