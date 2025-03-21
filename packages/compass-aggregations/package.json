@@ -55,9 +55,9 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@babel/generator": "^7.19.5",
-    "@babel/parser": "^7.19.4",
-    "@babel/types": "^7.19.4",
+    "@babel/generator": "^7.26.10",
+    "@babel/parser": "^7.26.10",
+    "@babel/types": "^7.26.10",
     "@dnd-kit/core": "^6.0.7",
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.1",
