@@ -33,12 +33,6 @@ describe('CompassAuthServiceMain', function () {
       'http://example.com/v1/revoke?client_id=1234abcd': {
         ok: true,
       },
-      'http://example.com/unauth/ai/api/v1/hello/': {
-        ok: true,
-        json() {
-          return { features: {} };
-        },
-      },
     }[url];
   });
 
