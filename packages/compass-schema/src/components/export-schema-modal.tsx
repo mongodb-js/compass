@@ -15,7 +15,6 @@ import {
   Label,
   CancelLoader,
   SpinLoader,
-  palette,
   Link,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -36,23 +35,23 @@ const modalStyles = css({
 });
 
 const loaderStyles = css({
+  height: `${spacing[1600] * 5 - spacing[800]}px`,
   marginTop: spacing[400],
 });
 
 const contentContainerStyles = css({
   paddingTop: spacing[400],
-  paddingBottom: spacing[400],
 });
 
 const codeEditorContainerStyles = css({
-  height: `${spacing[1600] * 4 - spacing[400]}px`,
+  height: `${spacing[1600] * 5 - spacing[400]}px`,
   padding: spacing[100],
 });
 
 const codeStyles = css({
   '& .cm-editor': {
     paddingLeft: spacing[200],
-    maxHeight: `${spacing[1600] * 4 - spacing[800]}px`,
+    maxHeight: `${spacing[1600] * 5 - spacing[800]}px`,
   },
   '& .multiline-editor-actions': {
     marginRight: spacing[300],
@@ -64,13 +63,8 @@ const footerStyles = css({
   gap: spacing[200],
 });
 
-const labelStyles = css({
-  color: palette.gray.dark1,
-});
-
 const formatDescriptionStyles = css({
   marginTop: spacing[200],
-  color: palette.gray.dark1,
 });
 
 type SupportedFormat = Exclude<SchemaFormat, 'legacyJSON'>;
@@ -161,7 +155,6 @@ const ExportSchemaModal: React.FunctionComponent<{
         <Label
           htmlFor={formatTypeRadioBoxGroupId}
           id={formatTypeRadioBoxGroupLabelId}
-          className={labelStyles}
         >
           Select format:
         </Label>
@@ -230,9 +223,6 @@ const ExportSchemaModal: React.FunctionComponent<{
         </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
-        <Button onClick={onClose} variant="default">
-          Cancel
-        </Button>
         <Button
           variant="primary"
           isLoading={exportStatus === 'inprogress'}
@@ -241,7 +231,10 @@ const ExportSchemaModal: React.FunctionComponent<{
           onClick={onSchemaDownload}
           data-testid="schema-export-download-button"
         >
-          Export…
+          Export..
+        </Button>
+        <Button onClick={onClose} variant="default">
+          Cancel
         </Button>
       </ModalFooter>
     </Modal>
