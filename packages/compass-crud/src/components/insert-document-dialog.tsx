@@ -93,32 +93,32 @@ const DocumentOrJsonView: React.FC<{
   isCommentNeeded,
   updateComment,
 }) => {
-  if (!jsonView) {
-    if (hasManyDocuments()) {
-      return (
-        <Banner variant="warning">
-          This view is not supported for multiple documents. To specify data
-          types and use other functionality of this view, please insert
-          documents one at a time.
-        </Banner>
-      );
-    }
-
-    if (!doc) {
-      return null;
-    }
-
-    return <InsertDocument doc={doc} />;
+  if (jsonView) {
+    return (
+      <InsertJsonDocument
+        updateJsonDoc={updateJsonDoc}
+        jsonDoc={jsonDoc}
+        isCommentNeeded={isCommentNeeded}
+        updateComment={updateComment}
+      />
+    );
   }
 
-  return (
-    <InsertJsonDocument
-      updateJsonDoc={updateJsonDoc}
-      jsonDoc={jsonDoc}
-      isCommentNeeded={isCommentNeeded}
-      updateComment={updateComment}
-    />
-  );
+  if (hasManyDocuments()) {
+    return (
+      <Banner variant="warning">
+        This view is not supported for multiple documents. To specify data types
+        and use other functionality of this view, please insert documents one at
+        a time.
+      </Banner>
+    );
+  }
+
+  if (!doc) {
+    return null;
+  }
+
+  return <InsertDocument doc={doc} />;
 };
 
 /**
