@@ -50,4 +50,11 @@ export async function saveAggregationPipeline(
 
   // wait for the modal to disappear
   await savePipelineModal.waitForDisplayed({ reverse: true });
+
+  // Wait for the aggregation's name to be displayed.
+  await browser.waitForAnimations(Selectors.AggregationPipelineName);
+  await browser.waitUntil(async () => {
+    const text = await browser.$(Selectors.AggregationPipelineName).getText();
+    return text === aggregationName;
+  });
 }

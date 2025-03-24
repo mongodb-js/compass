@@ -824,6 +824,7 @@ export const AggregationWriteOperationConfirmationModalDescription = `${Aggregat
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
+export const AggregationPipelineName = '[data-testid="pipeline-name"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
 export const AggregationSettingsApplyButton = '#aggregation-settings-apply';

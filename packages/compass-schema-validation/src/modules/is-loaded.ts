@@ -1,4 +1,11 @@
 import type { RootAction } from '.';
+import { isAction } from '../util';
+import { ValidationActions } from './validation';
+import type {
+  EmptyValidationFetchedAction,
+  ValidationFetchedAction,
+  ValidationFetchErroredAction,
+} from './validation';
 
 export const IS_LOADED_CHANGED =
   'validation/namespace/IS_LOADED_CHANGED' as const;
@@ -16,6 +23,23 @@ export default function reducer(
   state: IsLoadedState = INITIAL_STATE,
   action: RootAction
 ): IsLoadedState {
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    ) ||
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    ) ||
+    isAction<ValidationFetchErroredAction>(
+      action,
+      ValidationActions.ValidationFetchErrored
+    )
+  ) {
+    return true;
+  }
+
   if (action.type === IS_LOADED_CHANGED) {
     return action.isLoaded;
   }

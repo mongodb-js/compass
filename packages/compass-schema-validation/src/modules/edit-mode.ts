@@ -1,4 +1,11 @@
 import type { RootAction } from '.';
+import { isAction } from '../util';
+import {
+  type EmptyValidationFetchedAction,
+  ValidationActions,
+  type ValidationCanceledAction,
+  type ValidationFetchedAction,
+} from './validation';
 
 /**
  * The edit mode changed action.
@@ -68,6 +75,33 @@ export default function reducer(
   }
 
   if (action.type === DISABLE_EDIT_RULES) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: true };
+  }
+
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<ValidationCanceledAction>(
+      action,
+      ValidationActions.ValidationCanceled
+    )
+  ) {
     return { ...state, isEditingEnabledByUser: false };
   }
 

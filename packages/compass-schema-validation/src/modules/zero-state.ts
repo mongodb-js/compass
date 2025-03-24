@@ -1,12 +1,19 @@
 import type { RootAction, SchemaValidationThunkAction } from '.';
+import { isAction } from '../util';
 import { enableEditRules } from './edit-mode';
+import { ValidationActions } from './validation';
+import type {
+  EmptyValidationFetchedAction,
+  ValidationFetchedAction,
+  ValidationFetchErroredAction,
+} from './validation';
 
 /**
  * Zero state changed action.
  */
 export const IS_ZERO_STATE_CHANGED =
   'validation/namespace/IS_ZERO_STATE_CHANGED' as const;
-interface IsZeroStateChangedAction {
+export interface IsZeroStateChangedAction {
   type: typeof IS_ZERO_STATE_CHANGED;
   isZeroState: boolean;
 }
@@ -26,6 +33,28 @@ export default function reducer(
   state: IsZeroStateState = INITIAL_STATE,
   action: RootAction
 ): IsZeroStateState {
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    ) ||
+    isAction<ValidationFetchErroredAction>(
+      action,
+      ValidationActions.ValidationFetchErrored
+    )
+  ) {
+    return true;
+  }
+
   if (action.type === IS_ZERO_STATE_CHANGED) {
     return action.isZeroState;
   }
