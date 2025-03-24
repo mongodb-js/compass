@@ -1,5 +1,11 @@
 import { without } from 'lodash';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
@@ -124,7 +130,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   jsonDoc,
   doc,
   isCommentNeeded,
-  error,
+  error: _error,
   ns,
   csfleState,
   track,
@@ -212,11 +218,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         // Subscribe to the validation errors for BSON types on the document.
         doc.on(Element.Events.Invalid, handleInvalid);
         doc.on(Element.Events.Valid, handleValid);
+        doc.on(Element.Events.Removed, handleValid);
       } else {
         // When switching to JSON View.
         // Remove the listeners to the BSON type validation errors in order to clean up properly.
         doc.removeListener(Element.Events.Invalid, handleInvalid);
         doc.removeListener(Element.Events.Valid, handleValid);
+        doc.removeListener(Element.Events.Removed, handleValid);
       }
     }
   }, [isOpen, jsonView, doc, handleValid, handleInvalid, hasManyDocuments]);
@@ -227,14 +235,20 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     }
   }, [insertInProgress]);
 
+  const docRef = useRef(doc);
   useEffect(() => {
-    if (!hasManyDocuments() && doc) {
-      // When closing the modal.
-      // Remove the listeners to the BSON type validation errors in order to clean up properly.
-      doc.removeListener(Element.Events.Invalid, handleInvalid);
-      doc.removeListener(Element.Events.Valid, handleValid);
+    if (isOpen) {
+      docRef.current = doc;
+      return;
     }
-  });
+    // When closing the modal.
+    if (!hasManyDocuments() && docRef.current) {
+      // Remove the listeners to the BSON type validation errors in order to clean up properly.
+      docRef.current.removeListener(Element.Events.Invalid, handleInvalid);
+      docRef.current.removeListener(Element.Events.Valid, handleValid);
+      docRef.current.removeListener(Element.Events.Removed, handleValid);
+    }
+  }, [isOpen, doc, handleInvalid, handleValid, hasManyDocuments]);
 
   const handleInsert = useCallback(() => {
     setInsertInProgress(true);
@@ -267,13 +281,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const currentView = jsonView ? 'JSON' : 'List';
   const variant = insertInProgress ? 'info' : 'danger';
 
-  if (hasErrors()) {
-    error = { message: INSERT_INVALID_MESSAGE };
-  }
-
-  if (insertInProgress) {
-    error = { message: 'Inserting Document' };
-  }
+  const error = useMemo(() => {
+    if (hasErrors()) {
+      return { message: INSERT_INVALID_MESSAGE };
+    }
+    if (insertInProgress) {
+      return { message: 'Inserting Document' };
+    }
+    return _error;
+  }, [_error, hasErrors, insertInProgress]);
 
   return (
     <FormModal
