@@ -18,6 +18,8 @@ export type ValidationLevel = 'off' | 'moderate' | 'strict';
 export const enum ValidationActions {
   ValidatorChanged = 'compass-schema-validation/validation/ValidatorChanged',
   ValidationCanceled = 'compass-schema-validation/validation/ValidationCanceled',
+  ValidationSaveStarted = 'compass-schema-validation/validation/ValidationSaveStarted',
+  ValidationSaveEnded = 'compass-schema-validation/validation/ValidationSaveEnded',
   ValidationSaveFailed = 'compass-schema-validation/validation/ValidationSaveFailed',
   ValidationFetched = 'compass-schema-validation/validation/ValidationFetched',
   EmptyValidationFetched = 'compass-schema-validation/validation/EmptyValidationFetched',
@@ -33,6 +35,14 @@ interface ValidatorChangedAction {
 
 export interface ValidationCanceledAction {
   type: ValidationActions.ValidationCanceled;
+}
+
+interface ValidationSaveStartedAction {
+  type: ValidationActions.ValidationSaveStarted;
+}
+
+interface ValidationSaveEndedAction {
+  type: ValidationActions.ValidationSaveEnded;
 }
 
 interface ValidationSaveFailedAction {
@@ -86,6 +96,7 @@ export interface Validation {
 
 export interface ValidationState extends Validation {
   isChanged: boolean;
+  isSaving: boolean;
   syntaxError: null | { message: string };
   error: null | { message: string };
   prevValidation?: Validation;
@@ -99,6 +110,7 @@ export const INITIAL_STATE: ValidationState = {
   validationAction: 'error',
   validationLevel: 'strict',
   isChanged: false,
+  isSaving: false,
   syntaxError: null,
   error: null,
 };
@@ -162,6 +174,31 @@ export default function reducer(
         pick(newState, ['validator', 'validationAction', 'validationLevel']),
         state.prevValidation
       ),
+    };
+  }
+
+  if (
+    isAction<ValidationSaveStartedAction>(
+      action,
+      ValidationActions.ValidationSaveStarted
+    )
+  ) {
+    return {
+      ...state,
+      error: null,
+      isSaving: true,
+    };
+  }
+
+  if (
+    isAction<ValidationSaveEndedAction>(
+      action,
+      ValidationActions.ValidationSaveEnded
+    )
+  ) {
+    return {
+      ...state,
+      isSaving: false,
     };
   }
 
@@ -369,6 +406,14 @@ export const emptyValidationFetched = ({
   validationTemplate,
 });
 
+export const validationSaveStarted = (): ValidationSaveStartedAction => ({
+  type: ValidationActions.ValidationSaveStarted,
+});
+
+export const validationSaveEnded = (): ValidationSaveEndedAction => ({
+  type: ValidationActions.ValidationSaveEnded,
+});
+
 export const validationCanceled = (): ValidationCanceledAction => ({
   type: ValidationActions.ValidationCanceled,
 });
@@ -446,6 +491,9 @@ export const saveValidation = (
       validation_level: validation.validationLevel,
     };
     track('Schema Validation Updated', trackEvent, connectionInfoRef.current);
+
+    dispatch(validationSaveStarted());
+
     try {
       await dataService.updateCollection(
         `${namespace.database}.${namespace.collection}`,
@@ -463,6 +511,8 @@ export const saveValidation = (
       dispatch(disableEditRules());
     } catch (error) {
       dispatch(validationSaveFailed(error as Error));
+    } finally {
+      dispatch(validationSaveEnded());
     }
   };
 };
