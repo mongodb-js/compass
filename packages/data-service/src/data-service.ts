@@ -133,6 +133,22 @@ function isReadPreferenceSet(connectionString: string): boolean {
   );
 }
 
+function isReadPreferenceTagsSet(connectionString: string): boolean {
+  return !!new ConnectionStringUrl(connectionString).searchParams.get(
+    'readPreferenceTags'
+  );
+}
+
+function maybeOverrideReadPreference(connectionString: string): {
+  readPreference?: 'secondaryPreferred';
+} {
+  if (isReadPreferenceTagsSet(connectionString)) {
+    return { readPreference: 'secondaryPreferred' };
+  }
+
+  return {};
+}
+
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -1264,7 +1280,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const cursor = this._database(databaseName, 'CRUD').listCollections(
         filter,
-        { nameOnly }
+        {
+          nameOnly,
+          ...maybeOverrideReadPreference(
+            this._connectionOptions.connectionString
+          ),
+        }
       );
       // Iterate instead of using .toArray() so we can emit
       // collection info update events as they come in.
@@ -1399,7 +1420,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
           } as {
             listDatabases: 1;
           },
-          { enableUtf8Validation: false }
+          {
+            enableUtf8Validation: false,
+            ...maybeOverrideReadPreference(
+              this._connectionOptions.connectionString
+            ),
+          }
         );
         return databases.map((x) => ({
           ...x,
@@ -2542,7 +2568,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const stats = await runCommand(
       db,
       { dbStats: 1 },
-      { enableUtf8Validation: false }
+      {
+        enableUtf8Validation: false,
+        ...maybeOverrideReadPreference(
+          this._connectionOptions.connectionString
+        ),
+      }
     );
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };
