@@ -135,10 +135,7 @@ function isReadPreferenceSet(connectionString: string): boolean {
 }
 
 function readPreferenceWithoutTags(readPreference: ReadPreference) {
-  return new ReadPreference(readPreference.mode, undefined, {
-    maxStalenessSeconds: readPreference.maxStalenessSeconds,
-    hedge: readPreference.hedge,
-  });
+  return new ReadPreference(readPreference.mode, undefined, readPreference);
 }
 
 function maybeOverrideReadPreference(
