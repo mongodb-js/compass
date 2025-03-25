@@ -53,6 +53,7 @@ import type {
   SearchIndexDescription,
   ReadPreferenceMode,
 } from 'mongodb';
+import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
 import type {
@@ -133,17 +134,21 @@ function isReadPreferenceSet(connectionString: string): boolean {
   );
 }
 
-function isReadPreferenceTagsSet(connectionString: string): boolean {
-  return !!new ConnectionStringUrl(connectionString).searchParams.get(
-    'readPreferenceTags'
-  );
+function readPreferenceWithoutTags(readPreference: ReadPreference) {
+  return new ReadPreference(readPreference.mode, undefined, {
+    maxStalenessSeconds: readPreference.maxStalenessSeconds,
+    hedge: readPreference.hedge,
+  });
 }
 
-function maybeOverrideReadPreference(connectionString: string): {
-  readPreference?: 'secondaryPreferred';
+function maybeOverrideReadPreference(
+  isMongos: boolean,
+  readPreference?: ReadPreference
+): {
+  readPreference?: ReadPreference;
 } {
-  if (isReadPreferenceTagsSet(connectionString)) {
-    return { readPreference: 'secondaryPreferred' };
+  if (isMongos && readPreference?.tags) {
+    return { readPreference: readPreferenceWithoutTags(readPreference) };
   }
 
   return {};
@@ -1283,7 +1288,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
         {
           nameOnly,
           ...maybeOverrideReadPreference(
-            this._connectionOptions.connectionString
+            this.isMongos(),
+            this._crudClient?.readPreference
           ),
         }
       );
@@ -1423,7 +1429,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
           {
             enableUtf8Validation: false,
             ...maybeOverrideReadPreference(
-              this._connectionOptions.connectionString
+              this.isMongos(),
+              this._crudClient?.readPreference
             ),
           }
         );
@@ -2571,7 +2578,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       {
         enableUtf8Validation: false,
         ...maybeOverrideReadPreference(
-          this._connectionOptions.connectionString
+          this.isMongos(),
+          this._crudClient?.readPreference
         ),
       }
     );
