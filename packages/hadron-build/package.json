@@ -21,7 +21,7 @@
   "dependencies": {
     "@electron/rebuild": "^3.7.1",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
-    "@mongodb-js/dl-center": "^1.1.7",
+    "@mongodb-js/dl-center": "^1.2.0",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
     "@mongodb-js/signing-utils": "^0.3.8",
     "@npmcli/arborist": "^6.2.0",

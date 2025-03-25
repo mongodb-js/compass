@@ -6,6 +6,7 @@ const { DownloadCenter } = require('@mongodb-js/dl-center');
 const download = require('download');
 
 const DOWNLOADS_BUCKET = 'downloads.10gen.com';
+const DOWNLOADS_BUCKET_NEW = 'cdn-origin-compass';
 const MANIFEST_BUCKET = 'info-mongodb-com';
 const MANIFEST_OBJECT_KEY = 'com-download-center/compass.json';
 
@@ -32,8 +33,29 @@ const getDownloadCenter = (bucketConfig) => {
   });
 };
 
+const getDownloadCenterNew = (bucketConfig) => {
+  requireEnvironmentVariables([
+    'DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID',
+    'DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY',
+    'DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN',
+  ]);
+
+  return new DownloadCenter({
+    ...bucketConfig,
+    accessKeyId: process.env.DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN,
+  });
+};
+
 const getKeyPrefix = (channel) => {
   return channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
+};
+
+const uploadAssetNew = async (channel, asset) => {
+  const dlCenterNew = getDownloadCenterNew({ bucket: DOWNLOADS_BUCKET_NEW });
+  const objectKey = `${getKeyPrefix(channel)}/${asset.name}`;
+  return dlCenterNew.uploadAsset(objectKey, fs.createReadStream(asset.path));
 };
 
 const uploadAsset = async (channel, asset) => {
@@ -75,6 +97,7 @@ module.exports = {
   getDownloadCenter,
   getKeyPrefix,
   uploadAsset,
+  uploadAssetNew,
   downloadManifest,
   uploadManifest,
   downloadAssetFromEvergreen,
