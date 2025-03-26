@@ -62,6 +62,7 @@ interface Props
 
 const containerStyles = css({
   height: '100%',
+  width: '100%',
   // TODO: Background on theme.
 });
 
