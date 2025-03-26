@@ -245,4 +245,38 @@ describe('ValidationEditor [Component]', function () {
       expect(applyBtn).to.have.attribute('aria-disabled', 'true');
     });
   });
+
+  context('with errorAndLog', function () {
+    it('should be hidden for server version <8.1', async function () {
+      await renderValidationEditor({
+        serverVersion: '6.0.0',
+      });
+
+      expect(
+        screen.queryByTestId('validation-action-error-and-log-option')
+      ).is.null;
+
+      screen.getByTestId('validation-action-selector').click();
+
+      expect(
+        screen.queryByTestId('validation-action-option-error-and-log')
+      ).is.null;
+    });
+
+    it('should be visible for server version >=8.1', async function () {
+      await renderValidationEditor({
+        serverVersion: '8.1.0',
+      });
+
+      expect(
+        screen.queryByTestId('validation-action-error-and-log-option')
+      ).is.null;
+
+      screen.getByTestId('validation-action-selector').click();
+
+      expect(
+        screen.queryByTestId('validation-action-option-error-and-log')
+      ).is.not.null;
+    });
+  });
 });
