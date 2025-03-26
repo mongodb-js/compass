@@ -55,10 +55,11 @@ export const confirmDeleteItem = (
       undefined // this event is connection scoped when triggered from the aggregation or query screen
     );
 
-    if (item.type === 'query') {
-      await queryStorage?.delete(item.id);
-    } else {
+    if (item.type === 'aggregation') {
       await pipelineStorage?.delete(item.id);
+    } else {
+      // query or updatemany
+      await queryStorage?.delete(item.id);
     }
 
     dispatch({ type: ActionTypes.DeleteItemConfirm, id: item.id });
