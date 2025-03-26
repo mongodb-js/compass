@@ -1,0 +1,43 @@
+import React from 'react';
+// import AnchorEndMany from './assets/anchor-end-many.svg?react';
+import { getMarkerId } from '../utils/utils';
+import styled from 'styled-components';
+import { palette } from '@mongodb-js/compass-components';
+
+export type MarkerEndManyProps = {
+  isSelected: boolean;
+};
+
+const AnchorEndManySVG = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M6 8.00485V7.99994H0V6.99994H6V7.00485H6.00456L6.00283 7.0025L15 0.359985V1.60299L7.68328 7.00485H15V8.00485H7.69345L15 13.3992V14.6422L6.00982 8.00485H6Z" />
+  </svg>
+);
+
+const Marker = styled(AnchorEndManySVG)<{ isSelected: boolean }>`
+  fill: ${(props) =>
+    props.isSelected ? palette.blue.base : palette.gray.base};
+`;
+
+export const MarkerEndMany = ({ isSelected }: MarkerEndManyProps) => {
+  const id = getMarkerId(isSelected, 'END_MANY');
+
+  return (
+    <marker
+      data-testid={id}
+      id={id}
+      markerHeight="15"
+      markerWidth="15"
+      orient="auto"
+      refX="10"
+      refY="7.5"
+    >
+      <Marker isSelected={isSelected} />
+    </marker>
+  );
+};

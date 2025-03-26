@@ -1,6 +1,7 @@
 import React from 'react';
-import Diagram from '../diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { Diagram } from './diagram/diagram';
+import type { Node } from './diagram/utils/types';
 
 const SchemaVizualization: React.FC = () => {
   const collections: {
@@ -29,25 +30,36 @@ const SchemaVizualization: React.FC = () => {
       },
     },
   ];
-  const collectionNodes = collections.map(
+  const collectionNodes: Node[] = collections.map(
     ({ collectionName, $jsonSchema }) => ({
       id: collectionName,
       type: 'COLLECTION',
       hidden: false,
       selected: false,
+      position: {
+        // TODO: positioning via elk.
+        x: 100,
+        y: 100,
+      },
       data: {
         title: collectionName,
         fields: Object.entries($jsonSchema.properties || {}).map(
           ([field, { bsonType }]) => ({
             name: field,
-            description: bsonType,
+            description: bsonType as any, // TODO: typing
           })
         ),
       },
     })
   );
 
-  return <Diagram nodes={collectionNodes} />;
+  return (
+    <Diagram
+      id="schema-viz"
+      edges={[]} // TODO: connections in the data
+      nodes={collectionNodes}
+    />
+  );
 };
 
 export default SchemaVizualization;
