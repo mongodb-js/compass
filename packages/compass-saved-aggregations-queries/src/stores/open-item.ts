@@ -572,7 +572,8 @@ export const openSelectedItem =
         await pipelineStorage?.updateAttributes(id, {
           namespace: newNamespace,
         });
-      } else if (selectedItem.type === 'query') {
+      } else {
+        // query or updatemany
         await queryStorage?.updateAttributes(id, { _ns: newNamespace });
       }
     }
