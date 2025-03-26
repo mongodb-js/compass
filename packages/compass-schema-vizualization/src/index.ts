@@ -5,7 +5,7 @@ import SchemaViz from './components';
 
 export const SchemaVizualizationHadronPlugin = registerHadronPlugin({
   name: 'Schema Vizualization' as const,
-  component: () => null,
+  component: SchemaViz,
   activate(initialProps, services, activateHelpers) {
     return {
       store: {},
@@ -19,6 +19,6 @@ export const SchemaVizualizationHadronPlugin = registerHadronPlugin({
 export const SchemaVizualizationPlugin = {
   name: 'SchemaVizualization' as const,
   provider: SchemaVizualizationHadronPlugin,
-  content: SchemaViz as React.FunctionComponent,
-  header: PluginTitle as React.FunctionComponent,
+  content: SchemaViz,
+  header: PluginTitle,
 };
