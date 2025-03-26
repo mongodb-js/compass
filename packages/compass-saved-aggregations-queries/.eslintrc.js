@@ -6,4 +6,12 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
   },
+  overrides: [
+    {
+      files: ['**/*.ts'],
+      rules: {
+        '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      },
+    },
+  ],
 };

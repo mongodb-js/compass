@@ -568,13 +568,16 @@ export const openSelectedItem =
       const id = selectedItem.id;
       const newNamespace = `${selectedDatabase}.${selectedCollection}`;
 
-      if (selectedItem.type === 'aggregation') {
-        await pipelineStorage?.updateAttributes(id, {
-          namespace: newNamespace,
-        });
-      } else {
-        // query or updatemany
-        await queryStorage?.updateAttributes(id, { _ns: newNamespace });
+      switch (selectedItem.type) {
+        case 'aggregation':
+          await pipelineStorage?.updateAttributes(id, {
+            namespace: newNamespace,
+          });
+          break;
+        case 'query':
+        case 'updatemany':
+          await queryStorage?.updateAttributes(id, { _ns: newNamespace });
+          break;
       }
     }
 

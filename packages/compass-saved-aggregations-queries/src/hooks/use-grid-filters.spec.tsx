@@ -83,7 +83,7 @@ describe('use-grid-header', function () {
           result.current.search
         )
       ).result.current.map((x) => x.item);
-      expect(gridItems).to.have.length(4);
+      expect(gridItems).to.have.length(5);
     });
 
     it('should filter items by search text - collection name', function () {
@@ -113,7 +113,7 @@ describe('use-grid-header', function () {
           result.current.search
         )
       ).result.current.map((x) => x.item);
-      expect(gridItems).to.have.length(4);
+      expect(gridItems).to.have.length(5);
     });
 
     it('should not filter items by search text - sort key (num_of_host_spaces)', function () {
