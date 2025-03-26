@@ -217,6 +217,7 @@ describe('Schema Validation Store', function () {
             error: null,
             syntaxError: null,
             isChanged: false,
+            isSaving: false,
             prevValidation: {
               validator,
               validationAction: 'warn',
@@ -242,6 +243,7 @@ describe('Schema Validation Store', function () {
             error: { message: 'Validation fetch failed!' },
             syntaxError: null,
             isChanged: true,
+            isSaving: false,
             prevValidation: {
               validator: '{}',
               validationAction: 'error',

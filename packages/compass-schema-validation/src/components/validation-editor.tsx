@@ -149,6 +149,7 @@ type ValidationEditorProps = {
   isEditable: boolean;
   isEditingEnabled: boolean;
   isRulesGenerationInProgress: boolean;
+  isSavingInProgress: boolean;
 };
 
 /**
@@ -171,6 +172,7 @@ export const ValidationEditor: React.FunctionComponent<
   isEditable,
   isEditingEnabled,
   isRulesGenerationInProgress,
+  isSavingInProgress,
 }) => {
   const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
@@ -343,6 +345,8 @@ export const ValidationEditor: React.FunctionComponent<
                   onClick={() => {
                     void onClickApplyValidation();
                   }}
+                  isLoading={isSavingInProgress}
+                  loadingIndicator={<SpinLoader title="Updating validation…" />}
                   disabled={!!syntaxError}
                 >
                   Apply
@@ -372,6 +376,7 @@ const mapStateToProps = (state: RootState) => ({
   validation: state.validation,
   namespace: state.namespace.ns,
   isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
+  isSavingInProgress: state.validation.isSaving,
 });
 
 /**
