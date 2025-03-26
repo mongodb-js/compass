@@ -32,6 +32,7 @@ describe('validation module', function () {
             validationAction: 'error',
             validationLevel: 'strict',
             isChanged: false,
+            isSaving: false,
             syntaxError: null,
             error: null,
           });
@@ -131,6 +132,7 @@ describe('validation module', function () {
 
         expect(validation).to.deep.equal({
           isChanged: false,
+          isSaving: false,
           prevValidation: {
             validator,
             validationAction: 'warn',
@@ -159,6 +161,7 @@ describe('validation module', function () {
           validationAction: 'error',
           validationLevel: 'strict',
           isChanged: false,
+          isSaving: false,
           syntaxError: null,
           error: {
             message: 'Validation save failed!',

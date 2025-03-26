@@ -36,6 +36,7 @@ async function renderValidationEditor(
         validation={validation}
         generateValidationRules={() => {}}
         isRulesGenerationInProgress={false}
+        isSavingInProgress={false}
         isEditable
         isEditingEnabled
         {...props}
@@ -43,6 +44,8 @@ async function renderValidationEditor(
     </PreferencesProvider>
   );
 }
+
+const updateValidationTestId = 'update-validation-button';
 
 describe('ValidationEditor [Component]', function () {
   context(
@@ -173,10 +176,73 @@ describe('ValidationEditor [Component]', function () {
       });
     });
 
-    it('allows to generate rules', function () {
+    it('disables the ability to generate rules', function () {
       const generateBtn = screen.getByTestId('generate-rules-button');
       expect(generateBtn).to.be.visible;
       expect(generateBtn).to.have.attribute('aria-disabled', 'true');
+    });
+  });
+
+  context('when the validator is not changed', function () {
+    beforeEach(async function () {
+      await renderValidationEditor({
+        validation: {
+          validator: '{}',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: false,
+          syntaxError: null,
+          error: null,
+        },
+      });
+    });
+
+    it('does not allow applying the rules', function () {
+      const applyBtn = screen.queryByTestId(updateValidationTestId);
+      expect(applyBtn).to.not.exist;
+    });
+  });
+
+  context('when the validator is changed', function () {
+    beforeEach(async function () {
+      await renderValidationEditor({
+        validation: {
+          validator: '{}',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: true,
+          syntaxError: null,
+          error: null,
+        },
+      });
+    });
+
+    it('allows to apply changes', function () {
+      const applyBtn = screen.getByTestId(updateValidationTestId);
+      expect(applyBtn).to.be.visible;
+      expect(applyBtn).to.have.attribute('aria-disabled', 'false');
+    });
+  });
+
+  context('when the validation saving is in progress', function () {
+    beforeEach(async function () {
+      await renderValidationEditor({
+        validation: {
+          validator: '{}',
+          validationAction: 'error',
+          validationLevel: 'moderate',
+          isChanged: true,
+          syntaxError: null,
+          error: null,
+        },
+        isSavingInProgress: true,
+      });
+    });
+
+    it('disables the apply button and shows a spin loader', function () {
+      const applyBtn = screen.queryByTestId(updateValidationTestId);
+      expect(applyBtn).to.be.visible;
+      expect(applyBtn).to.have.attribute('aria-disabled', 'true');
     });
   });
 });
