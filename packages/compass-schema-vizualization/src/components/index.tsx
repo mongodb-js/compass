@@ -1,8 +1,12 @@
 import React from 'react';
 import Diagram from '../diagram';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 const SchemaVizualization: React.FC = () => {
-  const collections = [
+  const collections: {
+    collectionName: string;
+    $jsonSchema: MongoDBJSONSchema;
+  }[] = [
     {
       collectionName: 'books',
       $jsonSchema: {
@@ -33,10 +37,12 @@ const SchemaVizualization: React.FC = () => {
       selected: false,
       data: {
         title: collectionName,
-        fields: Object.entries($jsonSchema).map(([field, { bsonType }]) => ({
-          name: field,
-          description: bsonType,
-        })),
+        fields: Object.entries($jsonSchema.properties || {}).map(
+          ([field, { bsonType }]) => ({
+            name: field,
+            description: bsonType,
+          })
+        ),
       },
     })
   );

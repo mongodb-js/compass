@@ -70,6 +70,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.4.6",
     "mocha": "^10.2.0",
+    "mongodb-schema": "^12.5.2",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^17.0.1",
