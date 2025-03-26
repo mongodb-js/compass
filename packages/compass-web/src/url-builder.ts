@@ -25,6 +25,8 @@ function getCollectionSubTabFromRoute(
       return 'Validation';
     case 'global-writes':
       return 'GlobalWrites';
+    case 'schema-viz':
+      return 'SchemaVizualization';
     default:
       return undefined;
   }

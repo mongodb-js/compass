@@ -6,6 +6,7 @@ type CollectionWorkspaceSubTab =
   | 'Documents'
   | 'Aggregations'
   | 'Schema'
+  | 'SchemaVizualization'
   | 'Indexes'
   | 'Validation'
   | 'GlobalWrites';

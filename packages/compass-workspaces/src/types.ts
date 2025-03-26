@@ -2,6 +2,7 @@ export type CollectionSubtab =
   | 'Documents'
   | 'Aggregations'
   | 'Schema'
+  | 'SchemaVizualization'
   | 'Indexes'
   | 'Validation'
   | 'GlobalWrites';

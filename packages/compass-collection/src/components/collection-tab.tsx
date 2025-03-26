@@ -125,6 +125,7 @@ function useCollectionTabs(props: CollectionMetadata) {
     useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
     !props.isReadonly &&
     !toNS(props.namespace).specialish;
+  console.log({ pluginTabs });
   return pluginTabs
     .filter((x) => {
       if (
@@ -172,23 +173,23 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   subTab: currentTab,
   onTabClick,
 }) => {
-  const track = useTelemetry();
-  const connectionInfoRef = useConnectionInfoRef();
-  useEffect(() => {
-    const activeSubTabName = currentTab
-      ? trackingIdForTabName(currentTab)
-      : null;
+  // const track = useTelemetry();
+  // const connectionInfoRef = useConnectionInfoRef();
+  // // useEffect(() => {
+  // //   // const activeSubTabName = currentTab
+  // //   //   ? trackingIdForTabName(currentTab)
+  // //   //   : null;
 
-    if (activeSubTabName) {
-      track(
-        'Screen',
-        {
-          name: activeSubTabName,
-        },
-        connectionInfoRef.current
-      );
-    }
-  }, [currentTab, track, connectionInfoRef]);
+  // //   // if (activeSubTabName) {
+  // //   //   track(
+  // //   //     'Screen',
+  // //   //     {
+  // //   //       name: activeSubTabName,
+  // //   //     },
+  // //   //     connectionInfoRef.current
+  // //   //   );
+  // //   // }
+  // // }, [currentTab, track, connectionInfoRef]);
   const pluginModals = useCollectionScopedModals();
 
   const pluginProps = {
@@ -203,6 +204,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   const tabs = useCollectionTabs(pluginProps);
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+
+  console.log({ tabs });
 
   return (
     <div className={collectionStyles} data-testid="collection">

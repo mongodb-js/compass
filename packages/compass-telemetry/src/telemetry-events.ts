@@ -2624,6 +2624,7 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'documents'
       | 'indexes'
       | 'globalwrites'
+      | 'schemavizualization'
       | 'my_queries'
       | 'performance'
       | 'schema'
