@@ -144,8 +144,10 @@ function maybeOverrideReadPreference(
 ): {
   readPreference?: ReadPreference;
 } {
+  // see ticket COMPASS-9111 for why this is necessary
   if (isMongos && readPreference?.tags) {
-    return { readPreference: readPreferenceWithoutTags(readPreference) };
+    const newReadPreference = readPreferenceWithoutTags(readPreference);
+    return { readPreference: newReadPreference };
   }
 
   return {};
