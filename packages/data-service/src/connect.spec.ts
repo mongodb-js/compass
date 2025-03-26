@@ -483,6 +483,63 @@ describe('connect', function () {
       });
     });
 
+    it('connects to sharded with readPreferenceTags', async function () {
+      const options = envs.getConnectionOptions('sharded');
+      /*
+      See ticket COMPASS-9111
+
+      This test is using readPreference=nearest because this cluster has node with the tag
+      ANALYTICS. readPreference=secondary would more closely mirror the
+      original ticket, but this cluster also has no secondaries so that would
+      fail regardless of readPreferenceTags.
+      
+      Ideally people would use readPreference=secondaryPreferred, but that works
+      regardless so isn't a good test and if it was the case that people used
+      that in the first place we'd never need this ticket.
+      
+      readPreference=nearest tries to find one that matches the criteria and
+      since the config server doesn't know about tags the following operations
+      would hang unless we remove the tags. You can confirm this manually by
+      hacking maybeOverrideReadPreference in data-service.ts.
+      */
+      const connectionString =
+        options.connectionString +
+        '&readPreference=nearest&readPreferenceTags=nodeType:ANALYTICS';
+      const connectionOptions = {
+        ...options,
+        connectionString,
+      };
+      await testConnection(connectionOptions, {
+        authenticatedUserRoles: [{ db: 'admin', role: 'root' }],
+        authenticatedUsers: [{ db: 'admin', user: 'root' }],
+      });
+
+      const dataService = await connect({
+        connectionOptions,
+      });
+
+      /*
+      Without us removing the read preference tags these operations would fail.
+
+      Normal database operations like find or aggregate will still fail
+      regardless because the cluster does not have a node with the ANALYTICS
+      tag, but this test never executes any of those
+      */
+      try {
+        const databases = await dataService.listDatabases();
+        const databaseNames = databases
+          .map((d) => d.name)
+          .filter((name) => !['local'].includes(name));
+        for (const databaseName of databaseNames) {
+          // don't really care what's in there, just that the calls succeed
+          await dataService.listCollections(databaseName);
+          await dataService.databaseStats(databaseName);
+        }
+      } finally {
+        await dataService.disconnect();
+      }
+    });
+
     describe('ssh', function () {
       it('connects with ssh (sshPassword)', async function () {
         await testConnection(envs.getConnectionOptions('sshPassword'), {
