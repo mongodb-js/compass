@@ -539,5 +539,9 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
 export const hasErrorAndLogValidationActionSupport = (
   serverVersion: string
 ) => {
-  return semver.gte(serverVersion, '8.1.0');
+  try {
+    return semver.gte(serverVersion, '8.1.0-rc.0');
+  } catch (err) {
+    return false;
+  }
 };
