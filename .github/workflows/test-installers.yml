@@ -229,6 +229,10 @@ jobs:
           DISTRO_ID: ${{ matrix.distro-id }}
           # Exposing token to prevent update server from being rate limited
           GITHUB_TOKEN: ${{ github.token }}
+          # mongodb 8.0.6 requires macOS 14+. Just use an older version for now
+          # so it will run on GitHub's mac runners
+          MONGODB_VERSION: "8.0.5"
+          MONGODB_RUNNER_VERSION: "8.0.5"
         working-directory: packages/compass-smoke-tests
         # Using --skipUninstalling --skipCleanup because the runners are ephemeral
         run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup

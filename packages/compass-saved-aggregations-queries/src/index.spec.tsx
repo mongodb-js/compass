@@ -41,7 +41,7 @@ function getConnection() {
   };
 }
 
-describe('AggregationsQueriesList', function () {
+describe('AggregationsAndQueriesAndUpdatemanyList', function () {
   const sandbox = Sinon.createSandbox();
   const query = {
     _id: '123',
@@ -50,6 +50,14 @@ describe('AggregationsQueriesList', function () {
     _dateSaved: new Date(),
     filter: { foo: 'bar' },
     sort: { bar: -1 },
+  } as any;
+  const updatemany = {
+    _id: '5667',
+    _name: 'Updatemany',
+    _ns: 'bar.baz',
+    _dateSaved: new Date(),
+    filter: { foo: 'baz' },
+    sort: { baz: -1 },
   } as any;
   const aggregation = {
     id: '123',
@@ -153,7 +161,7 @@ describe('AggregationsQueriesList', function () {
   });
 
   it('should load queries and display them in the list', async function () {
-    sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+    sandbox.stub(queryStorage, 'loadAll').resolves([query, updatemany]);
     renderPlugin();
     expect(await screen.findByText('Query')).to.exist;
     await waitFor(() => expect(screen.findByText(query._name)).to.exist);
@@ -168,7 +176,7 @@ describe('AggregationsQueriesList', function () {
 
   describe('copy to clipboard', function () {
     it('should copy query to the clipboard', async function () {
-      sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+      sandbox.stub(queryStorage, 'loadAll').resolves([query, updatemany]);
       renderPlugin();
       expect(await screen.findByText(query._name)).to.exist;
 
@@ -386,7 +394,7 @@ describe('AggregationsQueriesList', function () {
     };
 
     beforeEach(function () {
-      sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+      sandbox.stub(queryStorage, 'loadAll').resolves([query, updatemany]);
     });
 
     context('when not connected to any connection', function () {

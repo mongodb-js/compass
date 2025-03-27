@@ -97,6 +97,37 @@ export const queries = [
       },
     },
   },
+  {
+    id: '9999',
+    name: 'update some things',
+    database: 'airbnb',
+    collection: 'hosts',
+    lastModified: 13,
+    type: 'updatemany' as const,
+    query: {
+      _id: '9012',
+      _name: 'update some things',
+      _ns: 'airbnb.hosts',
+      _dateSaved: DATE,
+      _dateModified: DATE,
+      _lastExecuted: DATE,
+      filter: {
+        host_location: RegExp('berlin'),
+      },
+      project: {
+        id: 1,
+        name: 1,
+      },
+      sort: {
+        reviews: -1,
+      },
+      skip: 0,
+      limit: 10,
+      collation: {
+        locale: 'simple',
+      },
+    },
+  },
 ];
 
 export const pipelines = [

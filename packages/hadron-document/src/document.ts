@@ -12,6 +12,7 @@ import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
 import { DocumentEvents } from '.';
+import type { MongoServerError } from 'mongodb';
 
 /**
  * The event constant.
@@ -478,7 +479,7 @@ export class Document extends EventEmitter {
   }
 
   onUpdateError(error: Error) {
-    this.emit('update-error', error.message);
+    this.emit('update-error', error, (error as MongoServerError).errInfo);
   }
 
   markForDeletion() {
@@ -505,7 +506,7 @@ export class Document extends EventEmitter {
   }
 
   onRemoveError(error: Error) {
-    this.emit('remove-error', error.message);
+    this.emit('remove-error', error, (error as MongoServerError).errInfo);
   }
 
   setModifiedEJSONString(ejson: string | null) {
