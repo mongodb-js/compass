@@ -166,7 +166,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
             <Button
               size="xsmall"
               onClick={onRetry}
-              data-testid="pipeline-results-error-details-button"
+              data-testid="pipeline-results-error-retry-button"
               className={errorDetailsBtnStyles}
             >
               RETRY
