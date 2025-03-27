@@ -38,8 +38,8 @@
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "eslint": "eslint",
-    "prettier": "prettier",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
@@ -67,11 +67,9 @@
     "bson": "^6.10.3",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
-    "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.7.1",
     "sinon": "^17.0.1",
     "typescript": "^5.0.4"
   }

@@ -37,8 +37,8 @@
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
-    "eslint": "eslint",
-    "prettier": "prettier",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run lint && npm run depcheck",
@@ -70,7 +70,6 @@
     "@types/yargs-parser": "21.0.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
-    "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "sinon": "^9.2.3"
   }

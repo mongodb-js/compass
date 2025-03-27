@@ -1,8 +1,7 @@
-
 # Compass Tracking Plan
 
 > [!NOTE]
-> This plan represents the tracking plan for the current branch / commit that 
+> This plan represents the tracking plan for the current branch / commit that
 > you have selected (`main` by default), it might not be released yet. To find
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
@@ -12,9 +11,11 @@ Generated on Thu, Mar 27, 2025
 ## Table of Contents
 
 ### Identify
+
 - [Identify Traits](#event--IdentifyTraits)
 
 ### Aggregation Builder
+
 - [Aggregation Canceled](#event--AggregationCanceledEvent)
 - [Aggregation Copied](#event--AggregationCopiedEvent)
 - [Aggregation Deleted](#event--AggregationDeletedEvent)
@@ -36,11 +37,13 @@ Generated on Thu, Mar 27, 2025
 - [View Updated](#event--ViewUpdatedEvent)
 
 ### Atlas
+
 - [Atlas Sign In Error](#event--AtlasSignInErrorEvent)
 - [Atlas Sign In Success](#event--AtlasSignInSuccessEvent)
 - [Atlas Sign Out](#event--AtlasSignOutEvent)
 
 ### Auto-updates
+
 - [Autoupdate Accepted](#event--AutoupdateAcceptedEvent)
 - [Autoupdate Dismissed](#event--AutoupdateDismissedEvent)
 - [Application Restart Accepted](#event--ApplicationRestartAcceptedEvent)
@@ -48,6 +51,7 @@ Generated on Thu, Mar 27, 2025
 - [Autoupdate Disabled](#event--AutoupdateDisabledEvent)
 
 ### Bulk Operations
+
 - [Bulk Delete Executed](#event--BulkDeleteExecutedEvent)
 - [Bulk Delete Opened](#event--BulkDeleteOpenedEvent)
 - [Bulk Update Executed](#event--BulkUpdateExecutedEvent)
@@ -59,6 +63,7 @@ Generated on Thu, Mar 27, 2025
 - [Update Export Opened](#event--UpdateExportOpenedEvent)
 
 ### Connection
+
 - [Connection Attempt](#event--ConnectionAttemptEvent)
 - [Connection Created](#event--ConnectionCreatedEvent)
 - [Connection Disconnected](#event--ConnectionDisconnectedEvent)
@@ -69,11 +74,13 @@ Generated on Thu, Mar 27, 2025
 - [New Connection](#event--NewConnectionEvent)
 
 ### Database / Collection List
+
 - [Collection Created](#event--CollectionCreatedEvent)
 - [Database Created](#event--DatabaseCreatedEvent)
 - [Switch View Type](#event--SwitchViewTypeEvent)
 
 ### Documents
+
 - [Document Cloned](#event--DocumentClonedEvent)
 - [Document Copied](#event--DocumentCopiedEvent)
 - [Document Deleted](#event--DocumentDeletedEvent)
@@ -81,9 +88,11 @@ Generated on Thu, Mar 27, 2025
 - [Document Updated](#event--DocumentUpdatedEvent)
 
 ### Explain
+
 - [Explain Plan Executed](#event--ExplainPlanExecutedEvent)
 
 ### Find Queries
+
 - [Query Edited](#event--QueryEditedEvent)
 - [Query Executed](#event--QueryExecutedEvent)
 - [Query Exported](#event--QueryExportedEvent)
@@ -100,6 +109,7 @@ Generated on Thu, Mar 27, 2025
 - [Query Results Refreshed](#event--QueryResultsRefreshedEvent)
 
 ### Gen AI
+
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
@@ -107,10 +117,12 @@ Generated on Thu, Mar 27, 2025
 - [PipelineAI Feedback](#event--PipelineAiFeedbackEvent)
 
 ### Guide Cues
+
 - [Guide Cue Dismissed](#event--GuideCueDismissedEvent)
 - [Guide Cue Group Dismissed](#event--GuideCueGroupDismissedEvent)
 
 ### Import/Export
+
 - [Export Completed](#event--ExportCompletedEvent)
 - [Export Opened](#event--ExportOpenedEvent)
 - [Import Completed](#event--ImportCompletedEvent)
@@ -118,6 +130,7 @@ Generated on Thu, Mar 27, 2025
 - [Import Opened](#event--ImportOpenedEvent)
 
 ### Indexes
+
 - [Index Created](#event--IndexCreatedEvent)
 - [Index Create Failed](#event--IndexCreateFailedEvent)
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
@@ -125,11 +138,13 @@ Generated on Thu, Mar 27, 2025
 - [Index Edited](#event--IndexEditedEvent)
 
 ### My Queries
+
 - [My Queries Filter](#event--MyQueriesFilterEvent)
 - [My Queries Search](#event--MyQueriesSearchEvent)
 - [My Queries Sort](#event--MyQueriesSortEvent)
 
 ### Other
+
 - [Application Launched](#event--ApplicationLaunchedEvent)
 - [Atlas Link Clicked](#event--AtlasLinkClickedEvent)
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
@@ -139,6 +154,7 @@ Generated on Thu, Mar 27, 2025
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 
 ### Performance Tab
+
 - [CurrentOp showOperationDetails](#event--CurrentOpShowOperationDetailsEvent)
 - [DetailView hideOperationDetails](#event--DetailViewHideOperationDetailsEvent)
 - [DetailView killOp](#event--DetailViewKillOpEvent)
@@ -146,6 +162,7 @@ Generated on Thu, Mar 27, 2025
 - [Performance Resumed](#event--PerformanceResumedEvent)
 
 ### Proactive Performance Insights
+
 - [Signal Action Button Clicked](#event--SignalActionButtonClickedEvent)
 - [Signal Closed](#event--SignalClosedEvent)
 - [Signal Link Clicked](#event--SignalLinkClickedEvent)
@@ -153,32 +170,35 @@ Generated on Thu, Mar 27, 2025
 - [Signal Shown](#event--SignalShownEvent)
 
 ### Schema
+
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
 - [Schema Export Failed](#event--SchemaExportFailedEvent)
 
 ### Schema Validation
+
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
 - [Schema Validation Edited](#event--SchemaValidationEditedEvent)
 - [Schema Validation Updated](#event--SchemaValidationUpdatedEvent)
 - [Schema Validation Generated](#event--SchemaValidationGeneratedEvent)
 
 ### Settings
+
 - [Theme Changed](#event--ThemeChangedEvent)
 
 ### Shell
+
 - [Open Shell](#event--OpenShellEvent)
 - [`Shell ${string}`](#event--ShellEvent)
 
 ### Web Vitals
+
 - [First Contentful Paint](#event--FirstContentfulPaintEvent)
 - [Largest Contentful Paint](#event--LargestContentfulPaintEvent)
 - [First Input Delay](#event--FirstInputDelayEvent)
 - [Cumulative Layout Shift](#event--CumulativeLayoutShiftEvent)
 - [Time to First Byte](#event--TimeToFirstByteEvent)
-
-
 
 ## Identify
 
@@ -194,7 +214,7 @@ Traits sent along with the Segment identify call
   - Shortened version number (e.g., '1.29').
 - **compass_full_version** (required): `string`
   - The full version of the Compass application, including additional identifiers
-such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
+    such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
 - **compass_distribution** (required): `"compass" | "compass-readonly" | "compass-isolated"`
   - The distribution of Compass being used.
 - **compass_channel** (required): `"stable" | "beta" | "dev"`
@@ -204,37 +224,37 @@ such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
 - 'dev' for development versions only distributed internally.
 - **platform** (required): `string`
   - The platform on which Compass is running, derived from Node.js `os.platform()`.
-Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windows, 'linux' for Linux).
+    Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windows, 'linux' for Linux).
 - **arch** (required): `string`
   - The architecture of the system's processor, derived from Node.js `os.arch()`.
-'x64' for 64-bit processors and 'arm' for ARM processors.
+    'x64' for 64-bit processors and 'arm' for ARM processors.
 - **os_type** (optional): `string | undefined`
   - The type of operating system, including specific operating system
-names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
+    names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
 - **os_version** (optional): `string | undefined`
   - Detailed kernel or system version information.
-Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
+    Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
 - **os_arch** (optional): `string | undefined`
   - The architecture of the operating system, if available, which might be more specific
-than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
+    than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
 - **os_release** (optional): `string | undefined`
   - The release identifier of the operating system.
-This can provide additional details about the operating system release or
-version (e.g. the kernel version for a specific macOS release).
+    This can provide additional details about the operating system release or
+    version (e.g. the kernel version for a specific macOS release).
 
 NOTE: This property helps determine the macOS version in use. The reported
 version corresponds to the Darwin kernel version, which can be mapped
 to the respective macOS release using the conversion table available at:
 https://en.wikipedia.org/wiki/MacOS_version_history.
+
 - **os_linux_dist** (optional): `string | undefined`
   - The Linux distribution name, if running on a Linux-based operating system,
-derived by reading from `/etc/os-release`.
-Examples include 'ubuntu', 'debian', or 'rhel'.
+    derived by reading from `/etc/os-release`.
+    Examples include 'ubuntu', 'debian', or 'rhel'.
 - **os_linux_release** (optional): `string | undefined`
   - The version of the Linux distribution, if running on a Linux-based operating system,
-derived by reading from `/etc/os-release`.
-Examples include '20.04' for Ubuntu or '10' for Debian.
-
+    derived by reading from `/etc/os-release`.
+    Examples include '20.04' for Ubuntu or '10' for Debian.
 
 ## Aggregation Builder
 
@@ -287,7 +307,7 @@ in the stage editor view.
 
 - **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **editor_view_type** (optional): `"stage" | "text" | "focus" | undefined`
   - The type of view used to edit the aggregation.
 - **stage_index** (optional): `number | undefined`
@@ -310,7 +330,7 @@ This event is fired when user runs the aggregation.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation has been executed.
 - **stage_operators** (required): `{}`
@@ -329,7 +349,7 @@ This event is fired when user runs the explain plan for an aggregation.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **index_used** (required): `boolean`
   - Wether the explain reports that an index was used by the query.
 - **is_compass_web** (optional): `true | undefined`
@@ -346,7 +366,7 @@ This event is fired when user copies to clipboard the aggregation to export.
 
 - **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php" | undefined`
   - The language to which the query has been exported.
 - **with_import_statements** (optional): `boolean | undefined`
@@ -369,7 +389,7 @@ This event is fired when user opens the export to language dialog.
 
 - **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -402,7 +422,7 @@ This event is fired when user saves aggregation pipeline as a view
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -419,7 +439,7 @@ This event is fired when user saves aggregation pipeline.
   - A unique id for the aggregation object being saved.
 - **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation is being saved.
 - **is_compass_web** (optional): `true | undefined`
@@ -436,7 +456,7 @@ This event is fired when user clicks the aggregation side panel button.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -496,7 +516,7 @@ This event is fired when user changes editor type.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The new type of view that editor was changed to.
 - **is_compass_web** (optional): `true | undefined`
@@ -513,10 +533,10 @@ This event is fired when user clicks to minimize focus mode.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **duration** (required): `number`
   - Time elapsed between the focus mode has been opened and then closed
-(in milliseconds).
+    (in milliseconds).
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -531,7 +551,7 @@ This event is fired when user clicks to expand focus mode.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -547,13 +567,12 @@ builder.
 
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
-the even has been fired.
+    the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the view has been updated.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Atlas
 
@@ -592,7 +611,6 @@ This event is fired when user signed out from their Atlas account.
 - **auid** (required): `string`
   - The id of the atlas user who signed out.
 - **is_compass_web** (optional): `true | undefined`
-
 
 ## Auto-updates
 
@@ -641,7 +659,6 @@ This event is fired when the auto-update feature is enabled.
 ### Autoupdate Disabled
 
 This event is fired when the auto-update feature is disabled.
-
 
 ## Bulk Operations
 
@@ -750,7 +767,6 @@ TODO: https://jira.mongodb.org/browse/COMPASS-7334
 NOTE: NOT IMPLEMENTED YET.
 This event is fired when the export to language dialog is open for an update operation.
 TODO: https://jira.mongodb.org/browse/COMPASS-7334
-
 
 ## Connection
 
@@ -898,8 +914,8 @@ This event is fired when user successfully connects to a new server/cluster.
   - The type of connected topology.
 - **num_active_connections** (required): `number`
   - The number of saved active connections (doesn't include new connections
-that are not yet fully saved, like the ones created with the "New
-Connection" button)
+    that are not yet fully saved, like the ones created with the "New
+    Connection" button)
 - **num_inactive_connections** (required): `number`
   - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
@@ -935,7 +951,6 @@ Connection" button)
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Database / Collection List
 
@@ -998,7 +1013,6 @@ This event is fired when the user changes the items view type between list and g
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Documents
 
@@ -1074,7 +1088,6 @@ This event is fired when user updates a document
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
-
 ## Explain
 
 <a name="event--ExplainPlanExecutedEvent"></a>
@@ -1092,7 +1105,6 @@ This event is fired when user explains a query.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Find Queries
 
@@ -1272,7 +1284,6 @@ This event is fired when user selects a recent query to put it in the query bar.
 This event is fired when user clicks the refresh button in the UI to refresh
 the query results.
 
-
 ## Gen AI
 
 <a name="event--AiPromptSubmittedEvent"></a>
@@ -1356,13 +1367,12 @@ This event is fired when a user submits feedback for a pipeline generation.
   - Wether the feedback was positive or negative.
 - **request_id** (required): `string | null`
   - The id of the request related to this feedback. Useful to correlate
-feedback to potential error lines in the logs.
+    feedback to potential error lines in the logs.
 - **text** (required): `string`
   - The feedback comment left by the user.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Guide Cues
 
@@ -1376,7 +1386,7 @@ This event is fired when a user clicks "next" on a guide cue.
 
 - **groupId** (optional): `string | undefined`
   - The unique identifier of the group of guide cues to which this cue belongs.
-This field is only set for guide cues belonging to a group.
+    This field is only set for guide cues belonging to a group.
 - **cueId** (required): `string`
   - The unique identifier of the specific guide cue that was dismissed.
 - **step** (required): `number`
@@ -1399,7 +1409,6 @@ guide cue group.
 - **step** (required): `number`
   - The step number within the guide cue sequence where the user clicked "next".
 - **is_compass_web** (optional): `true | undefined`
-
 
 ## Import/Export
 
@@ -1425,13 +1434,13 @@ This event is fired when a data export completes.
   - Specifies the format of the JSON file if the file_type is 'json'.
 - **field_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that were present
-in the list of available fields and that were selected for export.
+    in the list of available fields and that were selected for export.
 - **fields_added_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that has been added
-manually by the user.
+    manually by the user.
 - **fields_not_selected_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that were present
-in the list of available fields, but that were not selected for export.
+    in the list of available fields, but that were not selected for export.
 - **number_of_docs** (optional): `number | undefined`
   - The total number of documents exported.
 - **success** (required): `boolean`
@@ -1472,19 +1481,19 @@ This event is fired when a data import completes.
   - The duration of the import operation in milliseconds.
 - **delimiter** (optional): `"," | "\t" | ";" | " " | undefined`
   - The delimiter used in the imported file. It could be a comma, tab,
-semicolon, or space.
-This field is optional and only applicable if the file_type is 'csv'.
+    semicolon, or space.
+    This field is optional and only applicable if the file_type is 'csv'.
 - **newline** (optional): `"\r\n" | "\n" | undefined`
   - The newline character(s) used in the imported file.
 - **file_type** (optional): `"" | "json" | "csv" | undefined`
   - The type of the imported file, such as CSV or JSON.
 - **all_fields** (optional): `boolean | undefined`
   - Indicates whether all fields in the documents were included in the import.
-If true, all fields in each document were imported; if false, only
-selected fields were imported.
+    If true, all fields in each document were imported; if false, only
+    selected fields were imported.
 - **stop_on_error_selected** (optional): `boolean | undefined`
   - Indicates whether the "Stop on Error" option was selected during the import.
-If true, the import process stops upon encountering an error.
+    If true, the import process stops upon encountering an error.
 - **number_of_docs** (optional): `number | undefined`
   - The total number of documents imported.
 - **success** (optional): `boolean | undefined`
@@ -1493,7 +1502,7 @@ If true, the import process stops upon encountering an error.
   - Indicates whether the import operation was aborted before completion.
 - **ignore_empty_strings** (optional): `boolean | undefined`
   - Indicates whether empty strings in the imported file were ignored.
-If true, fields with empty strings were not included in the imported documents.
+    If true, fields with empty strings were not included in the imported documents.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1526,7 +1535,6 @@ This event is fired when user opens the import dialog.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Indexes
 
@@ -1632,7 +1640,6 @@ This event is fired when user updates an index.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
-
 ## My Queries
 
 <a name="event--MyQueriesFilterEvent"></a>
@@ -1669,7 +1676,6 @@ sort options.
   - The order of the sorting.
 - **is_compass_web** (optional): `true | undefined`
 
-
 ## Other
 
 <a name="event--ApplicationLaunchedEvent"></a>
@@ -1682,17 +1688,17 @@ This event is fired when the application launch is initiated.
 
 - **context** (required): `"terminal" | "desktop_app"`
   - The context from which the application was launched.
-(NOT whether it is used as a CLI-only tool or not)
+    (NOT whether it is used as a CLI-only tool or not)
 - **launch_connection** (required): `"string" | "JSON_file" | "none"`
   - Whether Compass was instructed to automatically connect
-to a specific cluster using a connection string on the command line,
-a JSON file containing an exported connection on the command line,
-or not at all.
+    to a specific cluster using a connection string on the command line,
+    a JSON file containing an exported connection on the command line,
+    or not at all.
 - **protected** (optional): `boolean | undefined`
   - Whether the `protectConnectionStrings` preference was set at launch.
 - **readOnly** (required): `boolean`
   - Whether the `readOnly` preference was set at launch (including the
-compass-readonly distribution).
+    compass-readonly distribution).
 - **maxTimeMS** (optional): `number | undefined`
   - The value of the `maxTimeMS` preference at launch.
 - **global_config** (required): `boolean`
@@ -1701,7 +1707,7 @@ compass-readonly distribution).
   - Whether any preferences were specified using CLI arguments.
 - **legacy_connections** (required): `boolean`
   - Whether Compass discovered any connections in the legacy connection format
-(prior to COMPASS-5490 'Remove storage-mixin' from summer 2023).
+    (prior to COMPASS-5490 'Remove storage-mixin' from summer 2023).
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AtlasLinkClickedEvent"></a>
@@ -1773,7 +1779,6 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 This event is fired at startup when we detect that the application is running on
 a system that doesn't offer a suitable secret storage backend.
 
-
 ## Performance Tab
 
 <a name="event--CurrentOpShowOperationDetailsEvent"></a>
@@ -1805,7 +1810,6 @@ This event is fired when a user pauses the performance screen.
 ### Performance Resumed
 
 This event is fired when a user resumes a paused performance screen.
-
 
 ## Proactive Performance Insights
 
@@ -1869,7 +1873,6 @@ This event is fired when signal icon badge is rendered on the screen visible to 
   - A unique identifier for the type of the signal.
 - **is_compass_web** (optional): `true | undefined`
 
-
 ## Schema
 
 <a name="event--SchemaAnalysisCancelledEvent"></a>
@@ -1904,10 +1907,10 @@ This event is fired when user analyzes the schema.
   - Key/value pairs of bsonType and count.
 - **variable_type_count** (required): `number`
   - The count of fields with multiple types in a given schema (not counting undefined).
-This is only calculated for the top level fields, not nested fields and arrays.
+    This is only calculated for the top level fields, not nested fields and arrays.
 - **optional_field_count** (required): `number`
   - The count of fields that don't appear on all documents.
-This is only calculated for the top level fields, not nested fields and arrays.
+    This is only calculated for the top level fields, not nested fields and arrays.
 - **schema_depth** (required): `number`
   - The number of nested levels.
 - **geo_data** (required): `boolean`
@@ -1956,7 +1959,6 @@ This event is fired when user shares the schema.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Schema Validation
 
@@ -2007,11 +2009,10 @@ This event is fired when user generates validation rules.
 - **variable_type_count** (required): `number`
 - **optional_field_count** (required): `number`
   - The count of fields that don't appear on all documents.
-This is only calculated for the top level fields, not nested fields and arrays.
+    This is only calculated for the top level fields, not nested fields and arrays.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Settings
 
@@ -2026,7 +2027,6 @@ This event is fired when a user changes the theme.
 - **theme** (required): `"DARK" | "LIGHT" | "OS_THEME"`
   - The theme selected by the user. It can be 'DARK', 'LIGHT', or 'OS_THEME'.
 - **is_compass_web** (optional): `true | undefined`
-
 
 ## Shell
 
@@ -2064,7 +2064,6 @@ tracking plan for details about single events.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
 
 ## Web Vitals
 
@@ -2132,6 +2131,3 @@ See: https://web.dev/articles/vitals.
 - **value** (required): `number`
   - The reported metric value.
 - **is_compass_web** (optional): `true | undefined`
-
-
-
