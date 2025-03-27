@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
+import type { ButtonProps } from '@leafygreen-ui/button';
 
 export { ConfirmationModalVariant };
 
@@ -11,6 +12,7 @@ type ConfirmationProperties = Partial<
   Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
 > & {
   buttonText?: React.ReactNode;
+  confirmButtonProps?: Omit<ButtonProps, 'onClick'>;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
   description?: React.ReactNode;
@@ -100,8 +102,28 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     });
   const callbackRef = useRef<ConfirmationCallback>();
 
+  const listenerRef =
+    useRef<(event: CustomEvent<ShowConfirmationEventDetail>) => void>();
+
   const contextValue = React.useMemo(
-    () => ({ showConfirmation, isMounted: true }),
+    () => ({
+      showConfirmation: (props: ConfirmationProperties) => {
+        return new Promise<boolean>((resolve, reject) => {
+          const event = new CustomEvent<ShowConfirmationEventDetail>(
+            'show-confirmation',
+            {
+              detail: {
+                props: { ...props, confirmationId: ++confirmationId },
+                resolve,
+                reject,
+              },
+            }
+          );
+          listenerRef.current?.(event);
+        });
+      },
+      isMounted: true,
+    }),
     []
   );
 
@@ -127,6 +149,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
       };
       props.signal?.addEventListener('abort', onAbort);
     };
+    listenerRef.current = listener;
     globalConfirmation.addEventListener('show-confirmation', listener);
     return () => {
       globalConfirmation.removeEventListener('show-confirmation', listener);
@@ -170,6 +193,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
             : undefined,
           children: confirmationProps.buttonText ?? 'Confirm',
           onClick: handleConfirm,
+          ...confirmationProps.confirmButtonProps,
         }}
         cancelButtonProps={{
           className: confirmationProps.hideCancelButton

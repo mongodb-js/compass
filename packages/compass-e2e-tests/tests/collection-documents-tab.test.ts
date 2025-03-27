@@ -17,8 +17,9 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { context } from '../helpers/test-runner-context';
+import { context as testRunnerContext } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 const { expect } = chai;
 
@@ -553,7 +554,7 @@ FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('can copy a document from the contextual toolbar', async function () {
-    if (context.disableClipboardUsage) {
+    if (testRunnerContext.disableClipboardUsage) {
       this.skip();
     }
 
@@ -683,6 +684,185 @@ FindIterable<Document> result = collection.find(filter);`);
         Selectors.HadronDocumentElement
       ).length;
       expect(numExpandedHadronElementsPostSwitch).to.equal(14);
+    });
+  });
+
+  context('with existing validation rule', function () {
+    const REQUIRE_PHONE_VALIDATOR =
+      '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
+    beforeEach(async function () {
+      await browser.setValidation({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        database: 'test',
+        collection: 'numbers',
+        validator: REQUIRE_PHONE_VALIDATOR,
+      });
+    });
+
+    it('Shows error info when inserting', async function () {
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Documents'
+      );
+      await tryToInsertDocument(browser, '{}');
+
+      const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
+      await errorElement.waitForDisplayed();
+      expect(await errorElement.getText()).to.include(
+        'Document failed validation'
+      );
+      // enter details
+      const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
+      await errorElement.waitForDisplayed();
+      await errorDetailsBtn.click();
+
+      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+      await errorDetailsJson.waitForDisplayed();
+
+      // exit details
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+      await errorElement.waitForDisplayed();
+    });
+
+    describe('Editing', function () {
+      beforeEach(async function () {
+        await browser.navigateWithinCurrentCollectionTabs('Documents');
+        await tryToInsertDocument(browser, `{ "phone": 12345 }`);
+        await browser.runFindOperation('Documents', '{ "phone": 12345 }');
+      });
+
+      it('shows error info when editing via list view', async function () {
+        const document = browser.$(Selectors.DocumentListEntry);
+        await document.waitForDisplayed();
+
+        // enter edit mode
+        await browser.hover(Selectors.DocumentListEntry);
+        await browser.clickVisible(Selectors.EditDocumentButton);
+
+        // rename the required field
+        const input = document.$(
+          `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`
+        );
+        await browser.setValueVisible(input, 'somethingElse');
+
+        // confirm update
+        const footer = document.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = document.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
+
+      it('shows error info when editing via json view', async function () {
+        await browser.clickVisible(Selectors.SelectJSONView);
+
+        const document = browser.$(Selectors.DocumentJSONEntry);
+        await document.waitForDisplayed();
+
+        await waitForJSON(browser, document);
+
+        // enter edit mode
+        await browser.hover(Selectors.JSONDocumentCard);
+        await browser.clickVisible(Selectors.JSONEditDocumentButton);
+
+        // remove the required field
+        await browser.setCodemirrorEditorValue(
+          Selectors.DocumentJSONEntry,
+          `{}`
+        );
+
+        // confirm update
+        const footer = document.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = document.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
+
+      it('shows error info when editing via table view', async function () {
+        await browser.clickVisible(Selectors.SelectTableView);
+
+        const document = browser.$('.ag-center-cols-clipper .ag-row-first');
+        await document.waitForDisplayed();
+
+        // enter edit mode
+        const value = document.$('[col-id="phone"] .element-value');
+        await value.doubleClick();
+
+        // remove the required field
+        await browser.clickVisible(
+          '[data-testid="table-view-cell-editor-remove-field-button"]'
+        );
+
+        // confirm update
+        const footer = browser.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = browser.$(Selectors.UpdateDocumentButton);
+        await button.click();
+
+        const errorMessage = browser.$(Selectors.DocumentFooterMessage);
+        await errorMessage.waitForDisplayed();
+        expect(await errorMessage.getText()).to.include(
+          'Document failed validation'
+        );
+
+        // enter details
+        const errorDetailsBtn = browser.$(
+          Selectors.DocumentFooterErrorDetailsButton
+        );
+        await errorDetailsBtn.waitForDisplayed();
+        await errorDetailsBtn.click();
+
+        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+        await errorDetailsJson.waitForDisplayed();
+
+        // exit details
+        await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+        await errorDetailsJson.waitForDisplayed({ reverse: true });
+      });
     });
   });
 });
