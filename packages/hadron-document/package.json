@@ -34,8 +34,8 @@
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "eslint": "eslint",
-    "prettier": "prettier",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
@@ -58,11 +58,9 @@
     "@mongodb-js/tsconfig-compass": "^1.2.6",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^10.2.0",
     "moment": "^2.29.4",
-    "prettier": "^2.7.1",
     "sinon": "^17.0.1"
   }
 }
