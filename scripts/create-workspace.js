@@ -256,8 +256,8 @@ async function createWorkspace({
         ? 'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs'
         : 'tsc -p tsconfig.json',
       typecheck: 'tsc -p tsconfig-lint.json --noEmit',
-      eslint: 'eslint',
-      prettier: 'prettier',
+      eslint: 'eslint-compass',
+      prettier: 'prettier-compass',
       lint: 'npm run eslint . && npm run prettier -- --check .',
       depcheck: 'compass-scripts check-peer-deps && depcheck',
       check: 'npm run typecheck && npm run lint && npm run depcheck',
@@ -284,10 +284,8 @@ async function createWorkspace({
       '@types/sinon-chai': '*',
       chai: '*',
       depcheck: '*',
-      eslint: '*',
       mocha: '*',
       nyc: '*',
-      prettier: '*',
       sinon: '*',
       '@mongodb-js/testing-library-compass': '*',
       ...(isReact && {
@@ -333,14 +331,6 @@ async function createWorkspace({
     .map((dep) => ` - '${dep}'`)
     .join('\n');
   const depcheckrcContent = `ignores:\n${ignores}\nignore-patterns:\n - 'dist'\n`;
-
-  const prettierrcPath = path.join(packagePath, '.prettierrc.json');
-  const prettierrcContent = JSON.stringify(
-    '@mongodb-js/prettier-config-compass'
-  );
-
-  const prettierIgnorePath = path.join(packagePath, '.prettierignore');
-  const prettierIgnoreContent = '.nyc_output\ndist\ncoverage\n';
 
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
@@ -434,8 +424,6 @@ describe('Compass Plugin', function() {
     await fs.mkdir(packagePath, { recursive: true });
     await fs.writeFile(packageJsonPath, packageJsonContent);
     await fs.writeFile(depcheckrcPath, depcheckrcContent);
-    await fs.writeFile(prettierrcPath, prettierrcContent);
-    await fs.writeFile(prettierIgnorePath, prettierIgnoreContent);
     await fs.writeFile(tsconfigPath, tsconfigContent);
     await fs.writeFile(tsconfigLintPath, tsconfigLintContent);
     await fs.writeFile(eslintrcPath, eslintrcContent);
