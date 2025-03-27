@@ -25,6 +25,7 @@ import {
   TextInput,
   useId,
   DocumentIcon,
+  showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -34,6 +35,7 @@ import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
 import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import type { MongoServerError } from 'mongodb';
 
 const modalContentStyles = css({
   width: '100%',
@@ -138,6 +140,10 @@ const inlineSaveQueryModalStyles = css({
 
 const inlineSaveQueryModalInputStyles = css({
   width: '315px',
+});
+
+const errorDetailsBtnStyles = css({
+  float: 'right',
 });
 
 type InlineSaveQueryModalProps = {
@@ -326,7 +332,7 @@ export type BulkUpdateModalProps = {
   updateText: string;
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
-  serverError?: Error;
+  serverError?: MongoServerError;
   enablePreview?: boolean;
   closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
@@ -458,6 +464,21 @@ export default function BulkUpdateModal({
                       className={bannerStyles}
                     >
                       {serverError.message}
+                      {serverError?.errInfo && (
+                        <Button
+                          size="xsmall"
+                          className={errorDetailsBtnStyles}
+                          onClick={() =>
+                            showErrorDetails({
+                              details: serverError.errInfo!,
+                              closeAction: 'close',
+                            })
+                          }
+                          data-testid="edit-actions-footer-error-details-button"
+                        >
+                          VIEW ERROR DETAILS
+                        </Button>
+                      )}
                     </Banner>
                   )}
                 </div>
