@@ -1357,19 +1357,19 @@ class CrudStoreImpl
    * Insert a single document.
    */
   async insertMany() {
-    const docs = HadronDocument.FromEJSONArray(
-      this.state.insert.jsonDoc ?? ''
-    ).map((doc) => doc.generateObject());
-    this.track(
-      'Document Inserted',
-      {
-        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-        multiple: docs.length > 1,
-      },
-      this.connectionInfoRef.current
-    );
-
     try {
+      const docs = HadronDocument.FromEJSONArray(
+        this.state.insert.jsonDoc ?? ''
+      ).map((doc) => doc.generateObject());
+      this.track(
+        'Document Inserted',
+        {
+          mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+          multiple: docs.length > 1,
+        },
+        this.connectionInfoRef.current
+      );
+
       await this.dataService.insertMany(this.state.ns, docs);
       // track mode for analytics events
       const payload = {
