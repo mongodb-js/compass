@@ -4,6 +4,9 @@
   "description": "Shared Compass prettier configuration",
   "license": "SSPL",
   "main": "index.js",
+  "bin": {
+    "prettier-compass": "./bin/prettier.js"
+  },
   "peerDependencies": {
     "prettier": "^2.7.1"
   },

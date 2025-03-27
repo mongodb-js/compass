@@ -4,8 +4,12 @@
   "description": "Shared Compass eslint configuration",
   "license": "SSPL",
   "main": "index.js",
+  "bin": {
+    "eslint-compass": "./bin/eslint.js"
+  },
   "files": [
     "index.js",
+    "bin",
     "package.json",
     "README.md"
   ],
