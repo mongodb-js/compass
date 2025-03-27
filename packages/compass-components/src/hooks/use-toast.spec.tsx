@@ -1,5 +1,4 @@
 import {
-  cleanup,
   render,
   screen,
   waitForElementToBeRemoved,
@@ -8,7 +7,7 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 
-import { ToastArea, useToast } from './use-toast';
+import { ToastArea, openToast, closeToast } from './use-toast';
 import type { ToastProperties } from './use-toast';
 
 const OpenToastButton = ({
@@ -19,9 +18,13 @@ const OpenToastButton = ({
   namespace: string;
   id: string;
 } & ToastProperties) => {
-  const { openToast } = useToast(namespace);
   return (
-    <button type="button" onClick={() => openToast(id, toastProps)}>
+    <button
+      type="button"
+      onClick={() => {
+        openToast(`${namespace}--${id}`, toastProps);
+      }}
+    >
       Open Toast
     </button>
   );
@@ -34,17 +37,19 @@ const CloseToastButton = ({
   namespace: string;
   id: string;
 }) => {
-  const { closeToast } = useToast(namespace);
   return (
-    <button type="button" onClick={() => closeToast(id)}>
+    <button
+      type="button"
+      onClick={() => {
+        closeToast(`${namespace}:${id}`, id);
+      }}
+    >
       Close Toast
     </button>
   );
 };
 
-describe('useToast', function () {
-  afterEach(cleanup);
-
+describe('openToast / closeToast', function () {
   it('opens and closes a toast', async function () {
     render(
       <ToastArea>

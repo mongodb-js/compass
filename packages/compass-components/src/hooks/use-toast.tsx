@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import type { ToastProps } from '../components/leafygreen';
 import {
   ToastProvider,
@@ -109,17 +102,6 @@ export const openToast = toastState.openToast.bind(toastState);
 
 export const closeToast = toastState.closeToast.bind(toastState);
 
-const toastActions = { openToast, closeToast };
-
-const ToastContext = createContext<ToastActions>({
-  openToast: () => {
-    //
-  },
-  closeToast: () => {
-    //
-  },
-});
-
 const _ToastArea: React.FunctionComponent = ({ children }) => {
   // NB: the way leafygreen implements this hook leads to anything specifying
   // toast methods in hooks dependencies to constantly update potentially
@@ -157,11 +139,7 @@ const _ToastArea: React.FunctionComponent = ({ children }) => {
     };
   }, []);
 
-  return (
-    <ToastContext.Provider value={toastActions}>
-      {children}
-    </ToastContext.Provider>
-  );
+  return <>{children}</>;
 };
 
 const ToastAreaMountedContext = React.createContext(false);
@@ -186,42 +164,3 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
     </ToastAreaMountedContext.Provider>
   );
 };
-
-/**
- * @example
- *
- * ```
- * const MyButton = () => {
- *   const { openToast } = useToast('namespace');
- *   return <button type="button" onClick={() => openToast(
- *      'myToast1', {title: 'This is a notification'})} />
- * };
- *
- * <ToastArea><MyButton/><ToastArea>
- * ```
- *
- * @returns
- */
-export function useToast(namespace: string): ToastActions {
-  const { openToast: openGlobalToast, closeToast: closeGlobalToast } =
-    useContext(ToastContext);
-
-  const openToast = useCallback(
-    (toastId: string, toastProperties: ToastProperties): void => {
-      openGlobalToast(`${namespace}--${toastId}`, toastProperties);
-    },
-    [namespace, openGlobalToast]
-  );
-
-  const closeToast = useCallback(
-    (toastId: string): void => {
-      closeGlobalToast(`${namespace}--${toastId}`);
-    },
-    [namespace, closeGlobalToast]
-  );
-
-  return {
-    openToast,
-    closeToast,
-  };
-}

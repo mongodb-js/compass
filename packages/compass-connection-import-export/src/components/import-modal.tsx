@@ -6,7 +6,7 @@ import {
   FormFieldContainer,
   FormModal,
   spacing,
-  useToast,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
@@ -37,12 +37,11 @@ export function ImportConnectionsModal({
   setOpen: (newOpen: boolean, trackingProps?: Record<string, unknown>) => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
-  const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
     (result: ImportExportResult) => {
       setOpen(false);
       if (result === 'succeeded') {
-        openToast('import-succeeded', {
+        openToast('compass-connection-import-export--import-succeeded', {
           title: 'Import successful',
           description: 'New connections have been added',
           variant: 'success',
@@ -50,7 +49,7 @@ export function ImportConnectionsModal({
         });
       }
     },
-    [openToast, setOpen]
+    [setOpen]
   );
 
   const openModalThroughIpc = useCallback(() => {

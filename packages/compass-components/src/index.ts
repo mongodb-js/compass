@@ -80,7 +80,7 @@ export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 
-export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
+export { openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 import IndexIcon from './components/index-icon';
@@ -177,10 +177,10 @@ export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
 export {
-  useConfirmationModal,
   ConfirmationModalVariant,
   ConfirmationModalArea,
   showConfirmation,
+  showConfirmationModal,
 } from './hooks/use-confirmation';
 export { showErrorDetails } from './hooks/use-error-details';
 export {
