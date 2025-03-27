@@ -852,6 +852,8 @@ export const SavePipelineSaveAsAction =
 export const AggregationAutoPreviewToggle =
   '[data-testid="pipeline-toolbar-preview-toggle"]';
 export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
+export const AggregationErrorDetailsBtn =
+  '[data-testid="pipeline-results-error"] [data-testid="pipeline-results-error-details-button"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
