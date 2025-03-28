@@ -256,7 +256,7 @@ describe('ValidationEditor [Component]', function () {
         screen.queryByTestId('validation-action-error-and-log-option')
       ).is.null;
 
-      screen.getByTestId('validation-action-selector').click();
+      userEvent.click(screen.getByTestId('validation-action-selector'));
 
       expect(
         screen.queryByTestId('validation-action-option-error-and-log')
@@ -272,7 +272,7 @@ describe('ValidationEditor [Component]', function () {
         screen.queryByTestId('validation-action-error-and-log-option')
       ).is.null;
 
-      screen.getByTestId('validation-action-selector').click();
+      userEvent.click(screen.getByTestId('validation-action-selector'));
 
       expect(
         screen.queryByTestId('validation-action-option-error-and-log')
