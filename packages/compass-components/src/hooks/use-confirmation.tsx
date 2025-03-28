@@ -55,11 +55,45 @@ class GlobalConfirmationModalState implements ConfirmationModalActions {
 
 const confirmationModalState = new GlobalConfirmationModalState();
 
+/**
+ * Programmatically show a
+ * [leafygreen ConfirmationModal](https://www.mongodb.design/component/confirmation-modal)
+ * component and (optionally) await on the user input. Can be used both inside
+ * and __outside__ React rendering tree. Useful when user needs to confirm an
+ * action before it can be executed or to prominently display information as a
+ * side-effect of some other user action.
+ *
+ * @example
+ * async function dropDatabaseAction() {
+ *   const confirmed = await showConfirmation({
+ *     variant: 'danger',
+ *     title: 'Are you sure you want to drop database?',
+ *   });
+ *
+ *   if (confirmed) {
+ *     dataService.dropDatabase(...)
+ *   }
+ * }
+ *
+ * @example
+ * <Button
+ *   onClick={() => {
+ *     void showConfirmation({
+ *       title: 'Details',
+ *       description: <> ... </>,
+ *       hideCancelButton: true,
+ *       buttonText: 'OK',
+ *     });
+ *   }}
+ * >
+ *   Show detailed info
+ * </Button>
+ *
+ * @param props ConfirmationModal rendering properties
+ */
 export const showConfirmation = confirmationModalState.showConfirmation.bind(
   confirmationModalState
 );
-
-export const showConfirmationModal = showConfirmation;
 
 const hideButtonStyles = css({
   display: 'none !important',

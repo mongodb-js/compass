@@ -98,8 +98,56 @@ class GlobalToastState implements ToastActions {
 
 const toastState = new GlobalToastState();
 
+/**
+ * Programmatically trigger a
+ * [leafygreen Toast](https://www.mongodb.design/component/toast/code-docs)
+ * component to appear on the screen. Can be used both inside and __outside__
+ * React rendering tree. The latter is especially useful for triggering toast
+ * showing up for any async business logic flow.
+ *
+ * @example
+ * function insertDocumentAction() {
+ *   dataService.insertOne(...).then(
+ *     () => {
+ *       openToast(
+ *         `insert-doc-${ns}`,
+ *         { variant: 'success', title: 'Successfully inserted document' }
+ *       )
+ *     },
+ *     (err) => {
+ *       openToast(
+ *         `insert-doc-${ns}`,
+ *         { variant: 'warning', title: 'Failed to insert document', description: err.message }
+ *       )
+ *     }
+ *   )
+ * }
+ *
+ * Same method can be used to update the content of the toast that is already
+ * displayed
+ *
+ * @example
+ * function insertManyDocuments() {
+ *   let total = 0;
+ *   for (const doc of docs) {
+ *     await dataService.insertOne(doc);
+ *     openToast(
+ *       `insert-doc-${ns}`,
+ *       { variant: 'progress', title: 'Inserting documents', progress: docs.length / ++total }
+ *     )
+ *   }
+ * }
+ *
+ * @param id unique toast id that can be used to close the toast later
+ * @param props Toast rendering properties
+ */
 export const openToast = toastState.openToast.bind(toastState);
 
+/**
+ * Programmatically close a toast with a matching id
+ *
+ * @param id unique toast id
+ */
 export const closeToast = toastState.closeToast.bind(toastState);
 
 const _ToastArea: React.FunctionComponent = ({ children }) => {
