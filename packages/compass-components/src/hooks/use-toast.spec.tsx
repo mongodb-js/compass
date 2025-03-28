@@ -41,7 +41,7 @@ const CloseToastButton = ({
     <button
       type="button"
       onClick={() => {
-        closeToast(`${namespace}:${id}`, id);
+        closeToast(`${namespace}--${id}`, id);
       }}
     >
       Close Toast
