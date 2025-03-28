@@ -1990,7 +1990,7 @@ This event is fired when user saves validation rules.
 
 **Properties**:
 
-- **validation_action** (required): `"error" | "warn"`
+- **validation_action** (required): `"error" | "warn" | "errorAndLog"`
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
