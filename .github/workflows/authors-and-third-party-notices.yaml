@@ -3,7 +3,7 @@ name: Update Authors and Third Party Notices
 on:
   # Once a week or on pushes to main
   schedule:
-    - cron: "0 3 * * 0"
+    - cron: '0 3 * * 0'
   push:
     branches:
       - main
@@ -32,13 +32,13 @@ jobs:
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          fetch-depth: "0"
+          fetch-depth: '0'
           token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20.16.0
-          cache: "npm"
+          cache: 'npm'
 
       - name: Install npm@10.2.4
         run: |
@@ -69,7 +69,7 @@ jobs:
           npm run update-tracking-plan
           git add docs/tracking-plan.md
 
-      - name: Commit and push
-        run: |
-          git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary" || true
-          git push
+      # - name: Commit and push
+      #   run: |
+      #     git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary" || true
+      #     git push
