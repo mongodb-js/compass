@@ -14,7 +14,6 @@ handling and credential revocation upon signout.
 
 <!-- Source File: `packages/atlas-service/src/main.spec.ts` -->
 
-
 ## Connection Import / Export Testing
 
 Compass allows users to export and import connections. Our tests verify that
@@ -22,7 +21,6 @@ the application informs the user about what this feature does, and in particular
 that encryption for credentials is correctly applied.
 
 <!-- Source File: `packages/compass-e2e-tests/tests/import-export-connections.test.ts` -->
-
 
 ## In-Use Encryption Testing
 
@@ -38,7 +36,6 @@ and never sent in plaintext.
 
 <!-- Source File: `packages/compass-e2e-tests/tests/in-use-encryption.test.ts` -->
 
-
 ## Enhanced Network Isolation Tests
 
 Compass allows users to specify that the application should not perform any
@@ -48,7 +45,6 @@ if it comes with a reduced feature set.
 We ensure that no such network calls happen when this setting is enabled.
 
 <!-- Source File: `packages/compass-e2e-tests/tests/no-network-traffic.test.ts` -->
-
 
 ## OIDC Authentication End-to-End Tests
 
@@ -62,7 +58,6 @@ what the user has previously specified.
 
 <!-- Source File: `packages/compass-e2e-tests/tests/oidc.test.ts` -->
 
-
 ## Connection String Credential Protection Tests
 
 Compass provides a user- or administrator-configurable setting that prevents the application
@@ -70,7 +65,6 @@ from displaying credentials to avoid accidental leakage. Our tests verify that f
 which expose connection information honor this setting.
 
 <!-- Source File: `packages/compass-e2e-tests/tests/protect-connection-strings.test.ts` -->
-
 
 ## Automatic Connection Establishment Tests
 
@@ -82,14 +76,12 @@ behavior.
 
 <!-- Source File: `packages/compass/src/main/auto-connect.spec.ts` -->
 
-
 ## Connection Form Password Protection
 
 We verify that database credentials are not displayed to users, unless they
 are actively in the process of editing them.
 
 <!-- Source File: `packages/connection-form/src/components/connection-string-input.spec.tsx` -->
-
 
 ## Connection Option Validation Rules
 
@@ -98,11 +90,9 @@ that may result in security issues, for example potentially insecure TLS or Prox
 
 <!-- Source File: `packages/connection-form/src/utils/validation.spec.ts` -->
 
-
 ## Secure Credential Storage
 
 We ensure that when sensitive information is persisted, in particular database access credentials,
 it is cryptographically protected through an OS keychain encryption integration.
 
 <!-- Source File: `packages/connection-info/src/connection-secrets.spec.ts` -->
-
