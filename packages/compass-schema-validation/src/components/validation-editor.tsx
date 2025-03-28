@@ -11,7 +11,7 @@ import {
   Banner,
   Icon,
   palette,
-  useConfirmationModal,
+  showConfirmation,
   useDarkMode,
   KeylineCard,
   ButtonVariant,
@@ -177,7 +177,6 @@ export const ValidationEditor: React.FunctionComponent<
   const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const { showConfirmation } = useConfirmationModal();
 
   const clearSampleDocumentsRef = useRef(clearSampleDocuments);
   clearSampleDocumentsRef.current = clearSampleDocuments;
