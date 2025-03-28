@@ -17,21 +17,30 @@ module.exports = {
     'no-restricted-imports': 'off',
     '@typescript-eslint/no-restricted-imports': [
       'error',
-      restrictedProviderImport('@mongodb-js/compass-logging'),
-      restrictedProviderImport('@mongodb-js/compass-telemetry'),
-      restrictedProviderImport('@mongodb-js/compass-app-stores'),
-      restrictedProviderImport('@mongodb-js/my-queries-storage'),
-      restrictedProviderImport('@mongodb-js/atlas-service'),
-      restrictedProviderImport('compass-preferences-model'),
       {
-        paths: require('module').builtinModules,
-        message: 'Using Node.js built-in modules in plugins is not allowed.',
-        allowTypeImports: false,
-      },
-      {
-        paths: ['electron', '@electron/remote'],
-        message: 'Using electron modules in plugins is not allowed.',
-        allowTypeImports: false,
+        paths: [
+          restrictedProviderImport('@mongodb-js/compass-logging'),
+          restrictedProviderImport('@mongodb-js/compass-telemetry'),
+          restrictedProviderImport('@mongodb-js/compass-app-stores'),
+          restrictedProviderImport('@mongodb-js/my-queries-storage'),
+          restrictedProviderImport('@mongodb-js/atlas-service'),
+          restrictedProviderImport('compass-preferences-model'),
+          ...require('module').builtinModules.map((name) => {
+            return {
+              name,
+              message:
+                'Using Node.js built-in modules in plugins is not allowed.',
+              allowTypeImports: true,
+            };
+          }),
+          ...['electron', '@electron/remote'].map((name) => {
+            return {
+              name,
+              message: 'Using electron modules in plugins is not allowed.',
+              allowTypeImports: false,
+            };
+          }),
+        ],
       },
     ],
   },

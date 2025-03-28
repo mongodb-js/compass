@@ -50,7 +50,7 @@ const commonTestOverrides = {
     {
       patterns: [
         {
-          group: '@testing-library/*',
+          group: ['@testing-library/*'],
           message: 'Use @mongodb-js/testing-library-compass instead',
           allowTypeImports: false,
         },
