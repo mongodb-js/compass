@@ -10,6 +10,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -527,6 +528,11 @@ describe('Collection import', function () {
     });
 
     it('with JSON + abort on error checked, it displays a validation error with details', async function () {
+      // 4.x doesn't provide validation details
+      if (serverSatisfies('< 5.0.0')) {
+        this.skip();
+      }
+
       const jsonPath = path.resolve(
         __dirname,
         '..',
@@ -578,6 +584,11 @@ describe('Collection import', function () {
     });
 
     it('with CSV + abort on error unchecked, it includes the details in a file', async function () {
+      // 4.x doesn't provide validation details
+      if (serverSatisfies('< 5.0.0')) {
+        this.skip();
+      }
+
       const filename = 'array-documents.csv';
       const csvPath = path.resolve(__dirname, '..', 'fixtures', filename);
 
