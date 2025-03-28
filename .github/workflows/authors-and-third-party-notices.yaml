@@ -14,8 +14,8 @@ permissions:
 jobs:
   update_generated_files:
     if: |
-      github.event_name == "schedule" ||
-      !startsWith(github.event.head_commit.message, "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary")
+      github.event_name == 'schedule' ||
+      !startsWith(github.event.head_commit.message, 'chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary')
     name: Update automatically generated files
     runs-on: ubuntu-latest
     env:
