@@ -615,6 +615,84 @@ describe('Collection aggregations tab', function () {
     );
   });
 
+  context('with existing validation rule', function () {
+    const REQUIRE_PHONE_VALIDATOR =
+      '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
+    const VALIDATED_OUT_COLLECTION = 'nestedDocs';
+    beforeEach(async function () {
+      await browser.setValidation({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        database: 'test',
+        collection: VALIDATED_OUT_COLLECTION,
+        validator: REQUIRE_PHONE_VALIDATOR,
+      });
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME_1,
+        'test',
+        'numbers',
+        'Aggregations'
+      );
+      await addStage(browser, 1);
+    });
+
+    afterEach(async function () {
+      await browser.setValidation({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        database: 'test',
+        collection: VALIDATED_OUT_COLLECTION,
+        validator: '{}',
+      });
+    });
+
+    it('Shows error info when inserting', async function () {
+      await browser.selectStageOperator(0, '$out');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        `'${VALIDATED_OUT_COLLECTION}'`
+      );
+
+      await waitForAnyText(browser, browser.$(Selectors.stageContent(0)));
+
+      // run the $out stage
+      await browser.clickVisible(Selectors.RunPipelineButton);
+
+      // confirm the write operation
+      const writeOperationConfirmationModal = browser.$(
+        Selectors.AggregationWriteOperationConfirmationModal
+      );
+      await writeOperationConfirmationModal.waitForDisplayed();
+
+      const description = await browser
+        .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
+        .getText();
+
+      expect(description).to.contain(`test.${VALIDATED_OUT_COLLECTION}`);
+
+      await browser.clickVisible(
+        Selectors.AggregationWriteOperationConfirmButton
+      );
+
+      await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+
+      const errorElement = browser.$(Selectors.AggregationErrorBanner);
+      await errorElement.waitForDisplayed();
+      expect(await errorElement.getText()).to.include(
+        'Document failed validation'
+      );
+      // enter details
+      const errorDetailsBtn = browser.$(Selectors.AggregationErrorDetailsBtn);
+      await errorElement.waitForDisplayed();
+      await errorDetailsBtn.click();
+
+      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+      await errorDetailsJson.waitForDisplayed();
+
+      // exit details
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+      await errorElement.waitForDisplayed();
+    });
+  });
+
   it('cancels pipeline with $out as the last stage', async function () {
     await browser.selectStageOperator(0, '$out');
     await browser.setCodemirrorEditorValue(
