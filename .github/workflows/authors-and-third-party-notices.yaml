@@ -3,7 +3,7 @@ name: Update Authors and Third Party Notices
 on:
   # Once a week or on pushes to main
   schedule:
-    - cron: "0 3 * * 0"
+    - cron: '0 3 * * 0'
   push:
     branches:
       - main
@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   update_generated_files:
+    if: |
+      github.event_name == 'schedule' ||
+      !startsWith(github.event.head_commit.message, 'chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary')
     name: Update automatically generated files
     runs-on: ubuntu-latest
     env:
@@ -32,13 +35,13 @@ jobs:
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          fetch-depth: "0"
+          fetch-depth: '0'
           token: ${{ steps.app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20.16.0
-          cache: "npm"
+          cache: 'npm'
 
       - name: Install npm@10.2.4
         run: |
@@ -71,5 +74,15 @@ jobs:
 
       - name: Commit and push
         run: |
-          git commit --no-allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary" || true
-          git push
+          # We can't rely on git not allowing empty commits by default: the
+          # empty commit check happens before the pre-commit hooks run and if
+          # there is no diff exists after precommit logic was executed, empty
+          # commit will still be generated. Instead of that we will allow empty
+          # commit to happen and will check it directly if it's empty or not
+          git commit --allow-empty -m "chore: update AUTHORS, THIRD-PARTY-NOTICES, Security Test Summary"
+          if [ $(git diff-tree --name-only --no-commit-id HEAD | wc -l) -gt 0 ]; then
+            echo "Files changed, pushing update..."
+            git push
+          else
+            echo "No changes to push"
+          fi
