@@ -11,8 +11,9 @@ import {
   IS_ZERO_STATE_CHANGED,
   type IsZeroStateChangedAction,
 } from './zero-state';
+import semver from 'semver';
 
-export type ValidationServerAction = 'error' | 'warn';
+export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
 
 export const enum ValidationActions {
@@ -533,4 +534,14 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
 
     void dispatch(fetchValidation(namespace));
   };
+};
+
+export const hasErrorAndLogValidationActionSupport = (
+  serverVersion: string
+) => {
+  try {
+    return semver.gte(serverVersion, '8.1.0-rc.0');
+  } catch (err) {
+    return false;
+  }
 };

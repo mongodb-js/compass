@@ -10,6 +10,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { hasErrorAndLogValidationActionSupport } from '../modules/validation';
 import type {
   ValidationLevel,
   ValidationServerAction,
@@ -35,12 +36,14 @@ type ActionSelectorProps = {
   isEditable: boolean;
   validationActionChanged: (value: ValidationServerAction) => void;
   validationAction: ValidationServerAction;
+  serverVersion: string;
 };
 
 export function ActionSelector({
   isEditable,
   validationActionChanged,
   validationAction,
+  serverVersion,
 }: ActionSelectorProps) {
   const labelId = useId();
   const controlId = useId();
@@ -67,6 +70,14 @@ export function ActionSelector({
       >
         <Option value="warn">Warning</Option>
         <Option value="error">Error</Option>
+        {hasErrorAndLogValidationActionSupport(serverVersion) && (
+          <Option
+            value="errorAndLog"
+            data-testid="validation-action-option-error-and-log"
+          >
+            Error and Log
+          </Option>
+        )}
       </Select>
     </div>
   );
