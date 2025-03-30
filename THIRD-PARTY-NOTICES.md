@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Mar 28 2025.
+This document was automatically generated on Sun Mar 30 2025.
 
 ## List of dependencies
 
@@ -17887,7 +17887,6 @@ License files:
          TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
         0. You just DO WHAT THE FUCK YOU WANT TO.
-
 
 <a id="e718643319205524a77c56ca75dcbf37e3975cc5e187760d1eef01cdd94a7d74"></a>
 
