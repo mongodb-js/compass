@@ -21,8 +21,8 @@
   "scripts": {
     "start": "ts-node src/cli.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "eslint": "eslint",
-    "prettier": "prettier",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
@@ -38,10 +38,8 @@
     "compass-e2e-tests": "^1.29.6",
     "depcheck": "^1.4.1",
     "debug": "^4.3.4",
-    "eslint": "^7.25.0",
     "hadron-build": "^25.7.6",
     "lodash": "^4.17.21",
-    "prettier": "^2.7.1",
     "typescript": "^5.0.4",
     "yargs": "^17.7.2"
   }

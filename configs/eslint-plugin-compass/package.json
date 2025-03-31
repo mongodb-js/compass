@@ -24,8 +24,8 @@
   "license": "SSPL",
   "main": "index.js",
   "scripts": {
-    "eslint": "eslint",
-    "prettier": "prettier",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
@@ -42,7 +42,6 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "prettier": "^2.7.1"
+    "nyc": "^15.1.0"
   }
 }

@@ -284,6 +284,7 @@ export const ValidationEditor: React.FunctionComponent<
           isEditable={isEditable && isEditingEnabled}
           validationActionChanged={validationActionChanged}
           validationAction={validationAction}
+          serverVersion={serverVersion}
         />
         <LevelSelector
           isEditable={isEditable && isEditingEnabled}

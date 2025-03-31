@@ -1897,7 +1897,7 @@ type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
     /**
      * The validation action passed to the driver.
      */
-    validation_action: 'error' | 'warn';
+    validation_action: 'error' | 'warn' | 'errorAndLog';
 
     /**
      * The level of schema validation passed to the driver.

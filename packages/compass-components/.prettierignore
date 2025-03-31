@@ -1,5 +1,3 @@
 lib
 .nyc_output
 coverage
-# Ignore LG combobox clone.
-src/components/combobox
