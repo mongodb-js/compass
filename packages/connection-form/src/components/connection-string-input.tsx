@@ -12,7 +12,7 @@ import {
   Toggle,
   spacing,
   css,
-  useConfirmationModal,
+  showConfirmation,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -92,7 +92,6 @@ function ConnectionStringInput({
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
-  const { showConfirmation } = useConfirmationModal();
 
   const [isTextAreaFocussed, setIsTextAreaFocussed] = useState(false);
 

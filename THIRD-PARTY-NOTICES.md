@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Mar 30 2025.
+This document was automatically generated on Mon Mar 31 2025.
 
 ## List of dependencies
 
@@ -551,7 +551,7 @@ This document was automatically generated on Sun Mar 30 2025.
 | **[system-ca](#f7020e15c3acda122c176b63132660540ac26981c7037d110fc2896e3551ab19)**                                          | 2.0.1        | Apache-2.0                          |
 | **[tabbable](#0ebe87140b76c7f2135bbd5099e7973a5ec2b5d8fe2bec8e272608cf0b3f396a)**                                           | 5.3.3        | MIT                                 |
 | **[tabbable](#ada26e0fb4c29e360f21411870400a662ae4e21dae15f33a5707c2ee1d89689b)**                                           | 6.2.0        | MIT                                 |
-| **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**                                             | 2.1.1        | MIT                                 |
+| **[tar-fs](#66a8b0120f1a0cb963d8c92d510ac0c9df2c0db3cad61c3c90fb5ec84e40bc09)**                                             | 2.1.2        | MIT                                 |
 | **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**                                         | 1.6.2        | MIT                                 |
 | **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**                                         | 0.2.0        | MIT                                 |
 | **[tiny-emitter](#43eb8db7345f328bbd03f484accbed64a06fa649df3ab59db7492e65d9361def)**                                       | 2.1.0        | MIT                                 |
@@ -37887,9 +37887,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d"></a>
+<a id="66a8b0120f1a0cb963d8c92d510ac0c9df2c0db3cad61c3c90fb5ec84e40bc09"></a>
 
-### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.1)
+### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.2)
 
 License tags: MIT
 
