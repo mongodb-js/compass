@@ -131,7 +131,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
     try {
       debug('Clearing out past logs');
       fs.rmdirSync(LOG_PATH, { recursive: true });
-    } catch (e) {
+    } catch {
       debug('.log dir already removed');
     }
 

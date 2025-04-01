@@ -53,7 +53,9 @@ export async function raceWithAbort<T>(
   try {
     return await Promise.race([pendingPromise, promise]);
   } finally {
-    abortListener && signal.removeEventListener('abort', abortListener);
+    if (abortListener) {
+      signal.removeEventListener('abort', abortListener);
+    }
   }
 }
 

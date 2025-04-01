@@ -34,7 +34,7 @@ export class HistoryStorage {
   async load(): Promise<string[]> {
     try {
       return (await this.userData.readOne(this.fileName)) ?? [];
-    } catch (e) {
+    } catch {
       return [];
     }
   }

@@ -289,7 +289,7 @@ const CompassWeb = ({
 
   const telemetryOptions = useRef<TelemetryServiceOptions>({
     sendTrack: (event: string, properties: Record<string, any> | undefined) => {
-      onTrackRef.current && void onTrackRef.current(event, properties || {});
+      void onTrackRef.current?.(event, properties || {});
     },
     logger,
     preferences: preferencesAccess.current,

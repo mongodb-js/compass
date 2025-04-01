@@ -244,7 +244,7 @@ export class CompassAuthService {
     throwIfAborted(signal);
     try {
       return (await this.introspect({ signal })).active;
-    } catch (err) {
+    } catch {
       return false;
     }
   }

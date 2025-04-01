@@ -89,7 +89,7 @@ function stageCountForTelemetry(inputExpression: InputExpression) {
     return {
       num_stages: countAggregationStagesInString(inputExpression.aggregation),
     };
-  } catch (ignore) {
+  } catch {
     // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
     return { num_stages: -1 };
   }

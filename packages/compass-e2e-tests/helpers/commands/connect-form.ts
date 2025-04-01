@@ -897,7 +897,7 @@ export async function setConnectFormState(
         expect(
           found,
           `Could not find URL option "${key}". Found "${allText.join(', ')}"`
-        ).to.be.true;
+        ).to.eq(true);
 
         // make sure the menu goes away once we clicked on the option
         const menu = browser.$('#select-key-menu');

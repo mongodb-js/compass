@@ -71,8 +71,8 @@ export class ExplainPlan {
       const fields = stage === idhack ? { _id: 1 } : getStageIndexFields(stage);
       ret.push({ index, shard, fields });
     }
-    if (this.isSharded) {
-      for (const shard of this.executionStats?.executionStages?.shards) {
+    if (this.isSharded && this.executionStats?.executionStages?.shards) {
+      for (const shard of this.executionStats.executionStages.shards) {
         if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
           ret.push({ index: null, shard: shard.shardName, fields: {} });
         }

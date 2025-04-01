@@ -31,7 +31,7 @@ export abstract class CompassQueryStorage<T extends typeof RecentQuerySchema> {
         })
         .filter((x) => !namespace || x._ns === namespace);
       return sortedData;
-    } catch (e) {
+    } catch {
       return [];
     }
   }

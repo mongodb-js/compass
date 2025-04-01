@@ -145,7 +145,7 @@ describe('CompassConnections store', function () {
         // Connect method should not reject, all the logic is encapsulated,
         // there is no reason to expose the error outside the store
         await connectPromise;
-      } catch (err) {
+      } catch {
         expect.fail('Expected connect() method to not throw');
       }
     });

@@ -342,7 +342,7 @@ export class AtlasAiService {
     let data;
     try {
       data = JSON.parse(text);
-    } catch (e) {
+    } catch {
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_310),
         'AtlasAIService',

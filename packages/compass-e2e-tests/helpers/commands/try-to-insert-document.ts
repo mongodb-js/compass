@@ -27,7 +27,7 @@ export async function tryToInsertDocument(
   // confirm
   const insertConfirm = browser.$(Selectors.InsertConfirm);
   // this selector is very brittle, so just make sure it works
-  expect(await insertConfirm.isDisplayed()).to.be.true;
+  expect(await insertConfirm.isDisplayed()).to.eq(true);
   expect(await insertConfirm.getText()).to.equal('Insert');
   await insertConfirm.waitForEnabled();
   await browser.clickVisible(Selectors.InsertConfirm);

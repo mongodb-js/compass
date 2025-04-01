@@ -283,7 +283,7 @@ describe('auto connect management', function () {
     const stub = sandbox.stub(dialog, 'showMessageBox').resolves({
       response: USER_CANCELED_CONNECTION_ATTEMPT,
     } as MessageBoxReturnValue);
-    for await (const host of [
+    for (const host of [
       'myserver',
       'myserver:27017',
       'myserver:27017,localhost:27018',
@@ -305,7 +305,7 @@ describe('auto connect management', function () {
     const stub = sandbox.stub(dialog, 'showMessageBox').resolves({
       response: USER_CANCELED_CONNECTION_ATTEMPT,
     } as MessageBoxReturnValue);
-    for await (const host of [
+    for (const host of [
       'localhost',
       'localhost:27017',
       'localhost:27017,localhost:27018',

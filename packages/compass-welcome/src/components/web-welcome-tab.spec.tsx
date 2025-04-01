@@ -54,7 +54,7 @@ describe('WebWelcomeTab', function () {
       try {
         screen.getByTestId('add-new-atlas-cluster-button');
         expect.fail('add-new-atlas-cluster-button should not be rendered');
-      } catch (e) {
+      } catch {
         // noop
       }
     });

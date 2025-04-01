@@ -3,6 +3,8 @@ import {
   type ConnectionStorage,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
+// This plugin is never used in browser environment
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,

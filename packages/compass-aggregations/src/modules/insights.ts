@@ -97,7 +97,7 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
       const explainPlan = new ExplainPlan(rawExplainPlan as Stage);
       dispatch({ type: FETCH_EXPLAIN_PLAN_SUCCESS, explainPlan });
       ExplainFetchAbortControllerMap.delete(id);
-    } catch (err) {
+    } catch {
       // We are only fetching this to get information about index usage for
       // insight badge, if this fails for any reason: server, cancel, error
       // getting pipeline from state, or parsing explain plan. Whatever it is,

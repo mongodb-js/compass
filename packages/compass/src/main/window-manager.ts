@@ -230,7 +230,7 @@ async function onAppReady() {
     );
     try {
       await installDevtools(REACT_DEVELOPER_TOOLS);
-    } catch (e) {
+    } catch {
       // noop
     }
   }

@@ -281,7 +281,7 @@ const fetchValidDocument = ({
       )[0];
 
       dispatch(fetchedValidDocument(valid));
-    } catch (e) {
+    } catch {
       dispatch(fetchingValidDocumentFailed());
     }
   };
@@ -309,7 +309,7 @@ const fetchInvalidDocument = ({
       )[0];
 
       dispatch(fetchedInvalidDocument(invalid));
-    } catch (e) {
+    } catch {
       dispatch(fetchingInvalidDocumentFailed());
     }
   };

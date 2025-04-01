@@ -200,7 +200,7 @@ export class Compass {
           let value;
           try {
             value = await arg.jsonValue();
-          } catch (err) {
+          } catch {
             // there are still some edge cases we can't easily convert into text
             console.error('could not convert', arg);
             value = '¯\\_(ツ)_/¯';
@@ -985,7 +985,7 @@ export async function buildCompass(
   try {
     await getCompassBuildMetadata();
     return;
-  } catch (e) {
+  } catch {
     /* ignore */
   }
 
@@ -1133,7 +1133,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       try {
         // make sure the process can exit
         await compass.browser.deleteSession({ shutdownDriver: true });
-      } catch (_) {
+      } catch {
         debug('browser already closed');
       }
     }

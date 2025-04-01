@@ -30,7 +30,7 @@ const MIN_HIDE_INDEX_SERVER_VERSION = '4.4.0';
 const serverSupportsHideIndex = (serverVersion: string) => {
   try {
     return semver.gte(serverVersion, MIN_HIDE_INDEX_SERVER_VERSION);
-  } catch (e) {
+  } catch {
     return true;
   }
 };

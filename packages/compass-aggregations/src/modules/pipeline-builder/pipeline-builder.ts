@@ -96,7 +96,7 @@ export class PipelineBuilder {
       if (!Array.isArray(this.pipeline)) {
         throw new Error('Pipeline should be an array');
       }
-    } catch (e) {
+    } catch {
       this.pipeline = null;
     }
   }

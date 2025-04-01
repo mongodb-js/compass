@@ -59,7 +59,7 @@ export async function shellEval(
   if (parse === true) {
     try {
       result = JSON.parse(result);
-    } catch (err) {
+    } catch {
       // just leave it unparsed for now if there's a parse error because
       // that's really helpful when debugging
       console.error('Could not parse result:', result);

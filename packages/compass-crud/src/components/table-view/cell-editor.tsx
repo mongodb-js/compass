@@ -347,7 +347,7 @@ class CellEditor
   _pasteEdit(value: string) {
     try {
       this.editor().paste(value);
-    } catch (e) {
+    } catch {
       this.editor().edit(value);
     } finally {
       this._pasting = false;

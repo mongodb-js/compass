@@ -26,7 +26,7 @@ export function isValidStageNode(node?: t.ObjectExpression): boolean {
       // before validating it again
       parseShellBSON(generate(node));
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   }

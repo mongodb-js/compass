@@ -19,7 +19,7 @@ export function hasColumnstoreIndexesSupport(
   }
   try {
     return semver.gte(serverVersion, MIN_COLUMNSTORE_INDEXES_SERVER_VERSION);
-  } catch (e) {
+  } catch {
     return true;
   }
 }

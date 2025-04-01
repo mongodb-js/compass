@@ -21,7 +21,7 @@ export class Semaphore {
     this.currentCount--;
     if (this.queue.length > 0) {
       const next = this.queue.shift();
-      next && next();
+      next?.();
     }
   }
 }
