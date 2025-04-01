@@ -15,6 +15,19 @@ const extraTsRules = {
     'error',
     { fixMixedExportsWithInlineTypeSpecifier: false },
   ],
+
+  // TODO: turn those back on
+  '@typescript-eslint/prefer-promise-reject-errors': 'off',
+  '@typescript-eslint/no-explicit-any': 'off',
+  '@typescript-eslint/no-base-to-string': 'off',
+  '@typescript-eslint/no-require-imports': 'off',
+  '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+  '@typescript-eslint/unbound-method': 'off',
+  '@typescript-eslint/no-redundant-type-constituents': 'off',
+  '@typescript-eslint/no-duplicate-type-constituents': 'off',
+  '@typescript-eslint/only-throw-error': 'off',
+  '@typescript-eslint/no-unsafe-enum-comparison': 'off',
+  '@typescript-eslint/no-misused-promises': 'off',
 };
 
 const tsRules = {
@@ -57,6 +70,12 @@ const commonTestOverrides = {
       ],
     },
   ],
+  // Due do chai triggering these rules erroneously in a lot of cases
+  'no-unused-expressions': 'off',
+  '@typescript-eslint/no-unused-expressions': 'off',
+
+  // TODO: turn these back on
+  'mocha/consistent-spacing-between-blocks': 'off',
 };
 
 const testJsOverrides = {

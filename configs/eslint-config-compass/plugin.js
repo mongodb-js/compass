@@ -10,6 +10,9 @@ function restrictedProviderImport(servicePkg) {
   };
 }
 
+// node built-ins with meaningful polyfills in web environment
+const allowedNodeJSBuiltinModules = ['stream', 'events', 'crypto'];
+
 module.exports = {
   ...baseConfig,
   rules: {
@@ -25,14 +28,25 @@ module.exports = {
           restrictedProviderImport('@mongodb-js/my-queries-storage'),
           restrictedProviderImport('@mongodb-js/atlas-service'),
           restrictedProviderImport('compass-preferences-model'),
-          ...require('module').builtinModules.map((name) => {
-            return {
-              name,
-              message:
-                'Using Node.js built-in modules in plugins is not allowed.',
-              allowTypeImports: true,
-            };
-          }),
+          ...require('module')
+            .builtinModules.filter((module) => {
+              return (
+                !module.startsWith('_') &&
+                !allowedNodeJSBuiltinModules.includes(module)
+              );
+            })
+            .flatMap((name) => {
+              const config = {
+                message:
+                  'Using Node.js built-in modules in plugins is not allowed.',
+                allowTypeImports: true,
+              };
+
+              return [
+                { name, ...config },
+                { name: `node:${name}`, ...config },
+              ];
+            }),
           ...['electron', '@electron/remote'].map((name) => {
             return {
               name,
