@@ -183,23 +183,9 @@ const Application = View.extend({
    */
   preRender: function () {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('debug').enable('mon*,had*');
     }
-  },
-  /**
-   * Pre-load into the require cache a bunch of expensive modules while the
-   * user is choosing which connection, so when the user clicks on Connect,
-   * Compass can connect to the MongoDB instance faster.
-   */
-  postRender: function () {
-    marky.mark('Pre-loading additional modules required to connect');
-    // Seems like this doesn't have as much of an effect as we'd hoped as
-    // most of the expense has already occurred. You can see it take 1700ms
-    // or so if you move this to the top of the file.
-    require('local-links');
-    require('mongodb-instance-model');
-    marky.stop('Pre-loading additional modules required to connect');
   },
   /**
    * Called a soon as the DOM is ready so we can
@@ -398,7 +384,6 @@ const app = {
     // As soon as dom is ready, render and set up the rest.
     state.render();
     marky.stop('Time to Connect rendered');
-    state.postRender();
     marky.stop('Time to user can Click Connect');
     if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
       queueMicrotask(() => {

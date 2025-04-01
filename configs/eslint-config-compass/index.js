@@ -20,7 +20,6 @@ const extraTsRules = {
   '@typescript-eslint/prefer-promise-reject-errors': 'off',
   '@typescript-eslint/no-explicit-any': 'off',
   '@typescript-eslint/no-base-to-string': 'off',
-  '@typescript-eslint/no-require-imports': 'off',
   '@typescript-eslint/no-unsafe-declaration-merging': 'off',
   '@typescript-eslint/unbound-method': 'off',
   '@typescript-eslint/no-redundant-type-constituents': 'off',

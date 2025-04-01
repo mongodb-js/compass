@@ -31,7 +31,7 @@ export async function setFeature<K extends keyof UserPreferences>(
 
   await browser.execute(
     async (_name, _value) => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       await require('electron').ipcRenderer.invoke('compass:save-preferences', {
         [_name]: _value === null ? undefined : _value,
       });

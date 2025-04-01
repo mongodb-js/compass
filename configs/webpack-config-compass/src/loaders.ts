@@ -7,7 +7,7 @@ import { isServe } from './args';
 import chalk from 'chalk';
 
 function isLatestBrowserslist() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const browserslistVersion = require('browserslist/package.json').version;
   const command = `npm view browserslist version --json`;
   const latestBrowserslistVersion = JSON.parse(
@@ -18,7 +18,7 @@ function isLatestBrowserslist() {
 }
 
 const electronVersion = (() => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const [maj, min] = require('electron/package.json').version.split(
     '.'
   ) as string[];

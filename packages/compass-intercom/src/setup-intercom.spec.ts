@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
 
