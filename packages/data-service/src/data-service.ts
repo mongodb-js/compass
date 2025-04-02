@@ -2179,6 +2179,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
+  @op(mongoLogId(1_001_000_053))
   async currentOp(): Promise<{ inprog: Document[] }> {
     const db = this._database('admin', 'META');
     const pipelineWithTruncateOps: Document[] = [
