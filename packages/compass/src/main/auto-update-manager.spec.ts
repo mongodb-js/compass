@@ -191,7 +191,7 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
-    describe('when electron does not support plaform updates', function () {
+    describe('when electron does not support platform updates', function () {
       before(function () {
         if (supportsAutoupdates) {
           // eslint-disable-next-line no-console
@@ -233,7 +233,7 @@ describe('CompassAutoUpdateManager', function () {
       });
     });
 
-    describe('when electron supports plaform updates', function () {
+    describe('when electron supports platform updates', function () {
       before(function () {
         if (!supportsAutoupdates) {
           // eslint-disable-next-line no-console
@@ -425,5 +425,10 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(restartToastIpcPrompt).to.be.calledOnce;
     });
+  });
+
+  describe('when operating system is outdated', () => {
+    // TODO: Implement this
+    // TODO: Listen for the 'autoupdate:outdated-operating-system' ipc message
   });
 });
