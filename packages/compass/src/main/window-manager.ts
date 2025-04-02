@@ -3,8 +3,6 @@
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 import { pathToFileURL } from 'url';
-import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import type { HadronIpcMainEvent } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -83,10 +81,6 @@ async function showWindowWhenReady(bw: BrowserWindow) {
   await once(bw, 'ready-to-show');
   bw.show();
 }
-
-// function readLogFile() {
-
-// }
 
 /**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
