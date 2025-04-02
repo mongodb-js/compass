@@ -55,7 +55,9 @@ const getKeyPrefix = (channel) => {
 const uploadAssetNew = async (channel, asset) => {
   const dlCenterNew = getDownloadCenterNew({ bucket: DOWNLOADS_BUCKET_NEW });
   const objectKey = `${getKeyPrefix(channel)}/${asset.name}`;
-  return dlCenterNew.uploadAsset(objectKey, fs.createReadStream(asset.path));
+  return dlCenterNew.uploadAsset(objectKey, fs.createReadStream(asset.path), {
+    acl: 'private',
+  });
 };
 
 const uploadAsset = async (channel, asset) => {
