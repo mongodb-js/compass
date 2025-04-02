@@ -3,6 +3,8 @@
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
 import { pathToFileURL } from 'url';
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import type { HadronIpcMainEvent } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -82,6 +84,10 @@ async function showWindowWhenReady(bw: BrowserWindow) {
   bw.show();
 }
 
+// function readLogFile() {
+
+// }
+
 /**
  * Call me instead of using `new BrowserWindow()` directly because i'll:
  *
@@ -140,8 +146,6 @@ function showConnectWindow(
   };
 
   debug('creating new main window:', windowOpts);
-  const { preferences } = compassApp;
-  const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (mongodbUrl) {
@@ -149,12 +153,6 @@ function showConnectWindow(
   }
   if (connectionId) {
     registerConnectionIdForBrowserWindow(window, connectionId);
-  }
-  if (networkTraffic !== true) {
-    // https://github.com/electron/electron/issues/22995
-    window.webContents.session.setSpellCheckerDictionaryDownloadURL(
-      'http://127.0.0.1:0/'
-    );
   }
 
   enable(window.webContents);

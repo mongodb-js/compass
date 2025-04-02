@@ -129,6 +129,20 @@ class CompassApplication {
     // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
     // https://github.com/electron/electron/issues/33640
     await app.whenReady();
+
+    const { networkTraffic } = this.preferences.getPreferences();
+
+    if (!networkTraffic) {
+      // Electron fetches spellcheck dictionaries from a CDN
+      // on all OSs expect mac (it provides a built-in spell check).
+      // Passing a non-resolving URL prevents it from fetching
+      // as there aren't any options to disable it provided.
+      // https://github.com/electron/electron/issues/22995
+      session.defaultSession.setSpellCheckerDictionaryDownloadURL(
+        'http://127.0.0.1:0/'
+      );
+    }
+
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
