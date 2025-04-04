@@ -1,20 +1,23 @@
 {
   "name": "@mongodb-js/prettier-config-compass",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Shared Compass prettier configuration",
   "license": "SSPL",
   "main": "index.js",
+  "bin": {
+    "prettier-compass": "./bin/prettier.js"
+  },
   "peerDependencies": {
     "prettier": "^2.7.1"
   },
   "devDependencies": {
-    "prettier": "^2.7.1",
     "@mongodb-js/prettier-config-devtools": "^1.0.1"
   },
   "scripts": {
+    "prettier": "prettier-compass",
     "check": "npm run lint",
-    "lint": "prettier --check .",
-    "reformat": "prettier --write ."
+    "lint": "npm run prettier -- --check .",
+    "reformat": "npm run prettier -- --write ."
   },
   "repository": {
     "type": "git",

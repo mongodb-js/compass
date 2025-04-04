@@ -8,6 +8,8 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { expect } from 'chai';
+import { isTestingDesktop } from '../helpers/test-runner-context';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
@@ -49,8 +51,47 @@ describe('Collection validation tab', function () {
     const element = browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();
 
-    await browser.setValidation(validation);
+    await browser.setValidationWithinValidationTab(validation);
   }
+
+  context('when the schema validation is empty', function () {
+    before(async function () {
+      if (isTestingDesktop()) {
+        await browser.setFeature('enableExportSchema', true);
+      }
+    });
+
+    it('provides users with a button to generate rules', async function () {
+      await browser.clickVisible(Selectors.GenerateValidationRulesButton);
+      const editor = browser.$(Selectors.ValidationEditor);
+      await editor.waitForDisplayed();
+
+      // rules are generated
+      const generatedRules = await browser.getCodemirrorEditorText(
+        Selectors.ValidationEditor
+      );
+      expect(JSON.parse(generatedRules)).to.deep.equal({
+        $jsonSchema: {
+          bsonType: 'object',
+          required: ['_id', 'i', 'j'],
+          properties: {
+            _id: {
+              bsonType: 'objectId',
+            },
+            i: {
+              bsonType: 'int',
+            },
+            j: {
+              bsonType: 'int',
+            },
+          },
+        },
+      });
+
+      // generated rules can be edited and saved
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
+    });
+  });
 
   context('when the schema validation is set or modified', function () {
     it('provides users with a single button to load sample documents', async function () {
@@ -104,7 +145,7 @@ describe('Collection validation tab', function () {
       });
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
-      await browser.setValidation(PASSING_VALIDATOR);
+      await browser.setValidationWithinValidationTab(PASSING_VALIDATOR);
       await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
 
       // nothing failed, everything passed

@@ -1,0 +1,4 @@
+.nyc_output
+.nyc-output
+dist
+coverage

@@ -6,7 +6,6 @@ import {
   screenshotIfFailed,
   skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
-  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -115,12 +114,7 @@ describe('Collection schema tab', function () {
     });
   }
 
-  describe('with the enableExportSchema feature flag enabled', function () {
-    beforeEach(async function () {
-      if (!TEST_COMPASS_WEB)
-        await browser.setFeature('enableExportSchema', true);
-    });
-
+  describe('with exporting schema', function () {
     const filename = 'schema-test-numbers-mongoDBJSON.json';
 
     before(() => {
@@ -139,9 +133,6 @@ describe('Collection schema tab', function () {
         'Schema'
       );
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);
-
-      const element = browser.$(Selectors.SchemaFieldList);
-      await element.waitForDisplayed();
 
       await browser.clickVisible(Selectors.ExportSchemaButton);
 
@@ -171,58 +162,58 @@ describe('Collection schema tab', function () {
           },
         },
       });
-    });
 
-    it('can download schema (MongoDB $jsonSchema)', async function () {
-      await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
-        'test',
-        'numbers',
-        'Schema'
-      );
-      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+      it('can download schema (MongoDB $jsonSchema)', async function () {
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME_1,
+          'test',
+          'numbers',
+          'Schema'
+        );
+        await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-      const element = browser.$(Selectors.SchemaFieldList);
-      await element.waitForDisplayed();
+        const element = browser.$(Selectors.SchemaFieldList);
+        await element.waitForDisplayed();
 
-      await browser.clickVisible(Selectors.ExportSchemaButton);
+        await browser.clickVisible(Selectors.ExportSchemaButton);
 
-      const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
-      await exportModal.waitForDisplayed();
+        const exportModal = browser.$(Selectors.ExportSchemaFormatOptions);
+        await exportModal.waitForDisplayed();
 
-      await browser.clickVisible(
-        Selectors.exportSchemaFormatOption('mongoDBJSON')
-      );
+        await browser.clickVisible(
+          Selectors.exportSchemaFormatOption('mongoDBJSON')
+        );
 
-      const exportSchemaButton = browser.$(
-        Selectors.ExportSchemaDownloadButton
-      );
-      await exportSchemaButton.waitForEnabled();
-      await exportSchemaButton.click();
+        const exportSchemaButton = browser.$(
+          Selectors.ExportSchemaDownloadButton
+        );
+        await exportSchemaButton.waitForEnabled();
+        await exportSchemaButton.click();
 
-      const { fileExists, filePath } = await waitForFileDownload(
-        filename,
-        browser
-      );
-      expect(fileExists).to.be.true;
+        const { fileExists, filePath } = await waitForFileDownload(
+          filename,
+          browser
+        );
+        expect(fileExists).to.be.true;
 
-      const content = readFileSync(filePath, 'utf-8');
-      expect(JSON.parse(content)).to.deep.equal({
-        $jsonSchema: {
-          bsonType: 'object',
-          required: ['_id', 'i', 'j'],
-          properties: {
-            _id: {
-              bsonType: 'objectId',
-            },
-            i: {
-              bsonType: 'int',
-            },
-            j: {
-              bsonType: 'int',
+        const content = readFileSync(filePath, 'utf-8');
+        expect(JSON.parse(content)).to.deep.equal({
+          $jsonSchema: {
+            bsonType: 'object',
+            required: ['_id', 'i', 'j'],
+            properties: {
+              _id: {
+                bsonType: 'objectId',
+              },
+              i: {
+                bsonType: 'int',
+              },
+              j: {
+                bsonType: 'int',
+              },
             },
           },
-        },
+        });
       });
     });
   });

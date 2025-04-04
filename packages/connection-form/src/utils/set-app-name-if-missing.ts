@@ -24,8 +24,8 @@ export function setAppNameParamIfMissing({
     if (!searchParams.has('appName') && defaultAppName !== undefined) {
       const appName = isAtlas
         ? `${defaultAppName}${
-            telemetryAnonymousId ? `-${telemetryAnonymousId}` : ''
-          }-${connectionId}`
+            telemetryAnonymousId ? `--${telemetryAnonymousId}` : ''
+          }--${connectionId}`
         : defaultAppName;
 
       searchParams.set('appName', appName);

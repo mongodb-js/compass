@@ -53,6 +53,7 @@ import type {
   SearchIndexDescription,
   ReadPreferenceMode,
 } from 'mongodb';
+import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
 import type {
@@ -131,6 +132,25 @@ function isReadPreferenceSet(connectionString: string): boolean {
   return !!new ConnectionStringUrl(connectionString).searchParams.get(
     'readPreference'
   );
+}
+
+function readPreferenceWithoutTags(readPreference: ReadPreference) {
+  return new ReadPreference(readPreference.mode, undefined, readPreference);
+}
+
+function maybeOverrideReadPreference(
+  isMongos: boolean,
+  readPreference?: ReadPreference
+): {
+  readPreference?: ReadPreference;
+} {
+  // see ticket COMPASS-9111 for why this is necessary
+  if (isMongos && readPreference?.tags) {
+    const newReadPreference = readPreferenceWithoutTags(readPreference);
+    return { readPreference: newReadPreference };
+  }
+
+  return {};
 }
 
 let id = 0;
@@ -1264,7 +1284,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const cursor = this._database(databaseName, 'CRUD').listCollections(
         filter,
-        { nameOnly }
+        {
+          nameOnly,
+          ...maybeOverrideReadPreference(
+            this.isMongos(),
+            this._crudClient?.readPreference
+          ),
+        }
       );
       // Iterate instead of using .toArray() so we can emit
       // collection info update events as they come in.
@@ -1399,7 +1425,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
           } as {
             listDatabases: 1;
           },
-          { enableUtf8Validation: false }
+          {
+            enableUtf8Validation: false,
+            ...maybeOverrideReadPreference(
+              this.isMongos(),
+              this._crudClient?.readPreference
+            ),
+          }
         );
         return databases.map((x) => ({
           ...x,
@@ -2147,9 +2179,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
-  @op(mongoLogId(1_001_000_053), (_, result) => {
-    return result ? { result } : undefined;
-  })
+  @op(mongoLogId(1_001_000_053))
   async currentOp(): Promise<{ inprog: Document[] }> {
     const db = this._database('admin', 'META');
     const pipelineWithTruncateOps: Document[] = [
@@ -2542,7 +2572,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const stats = await runCommand(
       db,
       { dbStats: 1 },
-      { enableUtf8Validation: false }
+      {
+        enableUtf8Validation: false,
+        ...maybeOverrideReadPreference(
+          this.isMongos(),
+          this._crudClient?.readPreference
+        ),
+      }
     );
     const normalized = adaptDatabaseInfo(stats);
     return { name, ...normalized };

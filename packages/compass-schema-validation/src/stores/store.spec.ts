@@ -5,9 +5,12 @@ import { MongoDBInstance } from 'mongodb-instance-model';
 import {
   validatorChanged,
   validationFetched,
+  validationFetchErrored,
   validationSaveFailed,
   validationActionChanged,
   validationLevelChanged,
+  type ValidationServerAction,
+  type ValidationLevel,
 } from '../modules/validation';
 import { fetchSampleDocuments } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
@@ -20,6 +23,11 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import Sinon from 'sinon';
+import {
+  generateValidationRules,
+  stopRulesGeneration,
+} from '../modules/rules-generation';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -39,6 +47,8 @@ const fakeDataService = {
     new Promise(() => {
       /* never resolves */
     }),
+  isCancelError: () => false,
+  sample: () => [{ prop1: 'abc' }],
 } as any;
 
 const fakeWorkspaces = {
@@ -46,7 +56,7 @@ const fakeWorkspaces = {
   onTabClose: () => {},
 } as unknown as WorkspacesService;
 
-const getMockedStore = async () => {
+const getMockedStore = async (analyzeSchema: any) => {
   const globalAppRegistry = new AppRegistry();
   const connectionInfoRef = {
     current: {},
@@ -63,9 +73,23 @@ const getMockedStore = async () => {
       track: createNoopTrack(),
       connectionInfoRef,
     },
-    createActivateHelpers()
+    createActivateHelpers(),
+    analyzeSchema
   );
   return activateResult;
+};
+
+const schemaAccessor = {
+  getMongoDBJsonSchema: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ required: ['prop1'] }), 100); // waiting to give abort a chance
+    });
+  },
+  getInternalSchema: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ required: ['prop1'] }), 100); // waiting to give abort a chance
+    });
+  },
 };
 
 describe('Schema Validation Store', function () {
@@ -77,7 +101,8 @@ describe('Schema Validation Store', function () {
     sandbox = Sinon.createSandbox();
     fakeWorkspaces.onTabClose = sandbox.stub();
     fakeWorkspaces.onTabReplace = sandbox.stub();
-    const activateResult = await getMockedStore();
+    const fakeAnalyzeSchema = sandbox.fake.resolves(schemaAccessor);
+    const activateResult = await getMockedStore(fakeAnalyzeSchema);
     store = activateResult.store;
     deactivate = activateResult.deactivate;
   });
@@ -178,8 +203,8 @@ describe('Schema Validation Store', function () {
     context('when the action is VALIDATION_FETCHED', function () {
       const validation = {
         validator: { name: { $type: 4 } },
-        validationAction: 'warn',
-        validationLevel: 'moderate',
+        validationAction: 'warn' as ValidationServerAction,
+        validationLevel: 'moderate' as ValidationLevel,
       };
 
       it('updates the validation in state if succeed', function (done) {
@@ -192,6 +217,7 @@ describe('Schema Validation Store', function () {
             error: null,
             syntaxError: null,
             isChanged: false,
+            isSaving: false,
             prevValidation: {
               validator,
               validationAction: 'warn',
@@ -203,32 +229,35 @@ describe('Schema Validation Store', function () {
           expect(store.getState().validation).to.deep.equal(createdValidation);
           done();
         });
-        store.dispatch(validationFetched(validation as any));
+        store.dispatch(validationFetched(validation));
       });
+    });
 
-      it('updates the error in state if failed', function (done) {
+    context('when the action is VALIDATION_FETCH_ERRORED', function () {
+      it('updates the error in state', function (done) {
         const unsubscribe = store.subscribe(() => {
-          const validator = javascriptStringify(validation.validator, null, 2);
-          const createdValidation = {
-            validator,
-            validationAction: 'warn',
-            validationLevel: 'moderate',
+          const expectedValidation = {
+            validator: '{}',
+            validationAction: 'error',
+            validationLevel: 'strict',
             error: { message: 'Validation fetch failed!' },
             syntaxError: null,
-            isChanged: false,
+            isChanged: true,
+            isSaving: false,
             prevValidation: {
-              validator,
-              validationAction: 'warn',
-              validationLevel: 'moderate',
+              validator: '{}',
+              validationAction: 'error',
+              validationLevel: 'strict',
             },
           };
 
           unsubscribe();
-          expect(store.getState().validation).to.deep.equal(createdValidation);
+          expect(store.getState().validation).to.deep.equal(expectedValidation);
           done();
         });
-        (validation as any).error = { message: 'Validation fetch failed!' };
-        store.dispatch(validationFetched(validation as any));
+        store.dispatch(
+          validationFetchErrored({ message: 'Validation fetch failed!' })
+        );
       });
     });
 
@@ -276,6 +305,122 @@ describe('Schema Validation Store', function () {
           done();
         });
         store.dispatch(validationLevelChanged(validationLevel));
+      });
+    });
+
+    context('when the action is generateValidationRules', function () {
+      it('executes rules generation', async function () {
+        store.dispatch(generateValidationRules() as any);
+
+        await waitFor(() => {
+          expect(store.getState().rulesGeneration.isInProgress).to.equal(true);
+        });
+        await waitFor(() => {
+          expect(
+            JSON.parse(store.getState().validation.validator)
+          ).to.deep.equal({
+            $jsonSchema: {
+              required: ['prop1'],
+            },
+          });
+          expect(store.getState().rulesGeneration.isInProgress).to.equal(false);
+          expect(store.getState().rulesGeneration.error).to.be.undefined;
+        });
+      });
+
+      it('rules generation can be aborted', async function () {
+        store.dispatch(generateValidationRules() as any);
+
+        await waitFor(() => {
+          expect(store.getState().rulesGeneration.isInProgress).to.equal(true);
+        });
+
+        store.dispatch(stopRulesGeneration() as any);
+        await waitFor(() => {
+          expect(store.getState().validation.validator).to.equal('');
+          expect(store.getState().rulesGeneration.isInProgress).to.equal(false);
+          expect(store.getState().rulesGeneration.error).to.be.undefined;
+        });
+      });
+
+      context('rules generation failure', function () {
+        it('handles general error', async function () {
+          const fakeAnalyzeSchema = sandbox.fake.rejects(
+            new Error('Such a failure')
+          );
+          const activateResult = await getMockedStore(fakeAnalyzeSchema);
+          store = activateResult.store;
+          deactivate = activateResult.deactivate;
+          store.dispatch(generateValidationRules() as any);
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              true
+            );
+          });
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              false
+            );
+            expect(store.getState().rulesGeneration.error).to.deep.equal({
+              errorMessage: 'Such a failure',
+              errorType: 'general',
+            });
+          });
+        });
+
+        it('handles complexity error', async function () {
+          const fakeAnalyzeSchema = sandbox.fake.rejects(
+            new Error('Schema analysis aborted: Fields count above 1000')
+          );
+          const activateResult = await getMockedStore(fakeAnalyzeSchema);
+          store = activateResult.store;
+          deactivate = activateResult.deactivate;
+          store.dispatch(generateValidationRules() as any);
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              true
+            );
+          });
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              false
+            );
+            expect(store.getState().rulesGeneration.error).to.deep.equal({
+              errorMessage: 'Schema analysis aborted: Fields count above 1000',
+              errorType: 'highComplexity',
+            });
+          });
+        });
+
+        it('handles timeout error', async function () {
+          const timeoutError: any = new Error('Too long, didnt execute');
+          timeoutError.code = 50;
+          const fakeAnalyzeSchema = sandbox.fake.rejects(timeoutError);
+          const activateResult = await getMockedStore(fakeAnalyzeSchema);
+          store = activateResult.store;
+          deactivate = activateResult.deactivate;
+          store.dispatch(generateValidationRules() as any);
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              true
+            );
+          });
+
+          await waitFor(() => {
+            expect(store.getState().rulesGeneration.isInProgress).to.equal(
+              false
+            );
+            expect(store.getState().rulesGeneration.error).to.deep.equal({
+              errorMessage: 'Too long, didnt execute',
+              errorType: 'timeout',
+            });
+          });
+        });
       });
     });
   });

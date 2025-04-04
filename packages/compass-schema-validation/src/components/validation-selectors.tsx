@@ -10,6 +10,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { hasErrorAndLogValidationActionSupport } from '../modules/validation';
 import type {
   ValidationLevel,
   ValidationServerAction,
@@ -23,7 +24,7 @@ const LEVEL_HELP_URL =
 
 const validationOptionStyles = css({
   display: 'flex',
-  marginRight: spacing[4],
+  marginLeft: spacing[4],
   alignItems: 'center',
 });
 
@@ -35,19 +36,21 @@ type ActionSelectorProps = {
   isEditable: boolean;
   validationActionChanged: (value: ValidationServerAction) => void;
   validationAction: ValidationServerAction;
+  serverVersion: string;
 };
 
 export function ActionSelector({
   isEditable,
   validationActionChanged,
   validationAction,
+  serverVersion,
 }: ActionSelectorProps) {
   const labelId = useId();
   const controlId = useId();
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Validation Action</Label>
+      <Label htmlFor={controlId}>Action</Label>
       <IconButton
         href={ACTION_HELP_URL}
         target="_blank"
@@ -67,6 +70,14 @@ export function ActionSelector({
       >
         <Option value="warn">Warning</Option>
         <Option value="error">Error</Option>
+        {hasErrorAndLogValidationActionSupport(serverVersion) && (
+          <Option
+            value="errorAndLog"
+            data-testid="validation-action-option-error-and-log"
+          >
+            Error and Log
+          </Option>
+        )}
       </Select>
     </div>
   );
@@ -88,7 +99,7 @@ export function LevelSelector({
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Validation Level</Label>
+      <Label htmlFor={controlId}>Level</Label>
       <IconButton
         href={LEVEL_HELP_URL}
         target="_blank"
