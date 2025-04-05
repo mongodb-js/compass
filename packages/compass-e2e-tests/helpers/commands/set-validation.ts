@@ -68,7 +68,10 @@ export async function setValidation(
     collection,
     'Validation'
   );
-  await browser.clickVisible(Selectors.AddRuleButton);
+  const startButton = browser.$(Selectors.AddRuleButton);
+  if (await startButton.isExisting()) {
+    await browser.clickVisible(startButton);
+  }
   const element = browser.$(Selectors.ValidationEditor);
   await element.waitForDisplayed();
   await browser.setValidationWithinValidationTab(validator);

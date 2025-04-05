@@ -73,9 +73,14 @@ export type AggregationFinishedAction = {
   isLast: boolean;
 };
 
+export type AggregationError = {
+  message: string;
+  info?: Record<string, unknown>;
+};
+
 export type AggregationFailedAction = {
   type: ActionTypes.AggregationFailed;
-  error: string;
+  error: AggregationError;
   page: number;
 };
 
@@ -110,7 +115,7 @@ export type State = {
   isLast: boolean;
   loading: boolean;
   abortController?: AbortController;
-  error?: string;
+  error?: AggregationError;
   previousPageData?: PreviousPageData;
   resultsViewType: 'document' | 'json';
 };
@@ -124,6 +129,13 @@ export const INITIAL_STATE: State = {
   loading: false,
   resultsViewType: 'document',
 };
+
+function getAggregationError(error: Error): AggregationError {
+  return {
+    message: error.message,
+    info: (error as MongoServerError).errInfo,
+  };
+}
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
@@ -477,7 +489,7 @@ const fetchAggregationData = (
       if ((e as MongoServerError).code) {
         dispatch({
           type: ActionTypes.AggregationFailed,
-          error: (e as Error).message,
+          error: getAggregationError(e as Error),
           page,
         });
         if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
