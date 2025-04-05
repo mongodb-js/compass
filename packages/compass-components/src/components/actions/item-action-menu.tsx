@@ -127,7 +127,7 @@ export function ItemActionMenu<Action extends string>({
               }
               onClick={(evt) => {
                 evt.stopPropagation();
-                onClick && onClick(evt);
+                onClick?.(evt);
               }}
               className={iconClassName}
               style={iconStyle}

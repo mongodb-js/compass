@@ -9,7 +9,7 @@ export function getStageIndexFields(stage: Stage): Record<string, string> {
     try {
       const result = parse(stage.keyPattern, { mode: ParseMode.Loose });
       return typeof result === 'string' ? {} : result;
-    } catch (e) {
+    } catch {
       return {};
     }
   }

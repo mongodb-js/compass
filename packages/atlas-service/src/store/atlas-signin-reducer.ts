@@ -278,7 +278,7 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
       } else {
         dispatch({ type: AtlasSignInActions.RestoringFailed });
       }
-    } catch (err) {
+    } catch {
       // For the initial state check if failed to check auth for any reason we
       // will just allow user to sign in again, ignoring the error
       dispatch({ type: AtlasSignInActions.RestoringFailed });

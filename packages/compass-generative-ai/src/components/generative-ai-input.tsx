@@ -366,7 +366,11 @@ function GenerativeAIInput({
         }
         handleSubmit(aiPromptText);
       } else if (evt.key === 'Escape') {
-        isFetching ? onCancelRequest() : onClose();
+        if (isFetching) {
+          onCancelRequest();
+        } else {
+          onClose();
+        }
       }
     },
     [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]

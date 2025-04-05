@@ -33,14 +33,14 @@ describe('cancellable-queries', function () {
 
     try {
       await dataService.dropCollection('cancel.numbers');
-    } catch (err) {
+    } catch {
       // noop
     }
     await dataService.insertMany('cancel.numbers', docs, {});
 
     try {
       await dataService.dropCollection('cancel.empty');
-    } catch (err) {
+    } catch {
       // noop
     }
     await dataService.createCollection('cancel.empty', {});
@@ -60,7 +60,7 @@ describe('cancellable-queries', function () {
     if (dataService) {
       try {
         await dataService.disconnect();
-      } catch (err) {
+      } catch {
         // ignore
       }
     }

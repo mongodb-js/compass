@@ -77,7 +77,7 @@ export function createWorkerRuntime(
       platform: process.platform,
       arch: process.arch,
     },
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-require-imports
     mongoshVersion: require('../../package.json').version,
   });
 

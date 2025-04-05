@@ -59,7 +59,7 @@ describe('exportJSON', function () {
 
     try {
       await dataService.dropCollection(testNS);
-    } catch (err) {
+    } catch {
       // ignore
     }
     await dataService.createCollection(testNS, {});
@@ -277,7 +277,7 @@ describe('exportJSON', function () {
     try {
       await fs.promises.readFile(resultPath, 'utf8');
       expect.fail('Expected file to not exist');
-    } catch (err) {
+    } catch {
       // noop
     }
     // close the stream so that afterEach hook can clear the tmpdir
@@ -313,7 +313,7 @@ describe('exportJSON', function () {
     try {
       JSON.parse(data);
       expect.fail('Expected file to not be valid JSON');
-    } catch (err) {
+    } catch {
       // With signal part of streams pipeline the file is created and if
       // the signal is aborted the stream is destroyed and file is not
       // writable anymore and as a result its not able to write trailing ] to the file.

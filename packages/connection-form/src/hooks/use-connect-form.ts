@@ -249,7 +249,7 @@ function buildStateFromConnectionInfo(
     const parsedDefUrl = new ConnectionString(defaultConnectionString);
 
     isDefaultCnnStr = parsedCnnUrl.href === parsedDefUrl.href;
-  } catch (ex) {
+  } catch {
     // if we can't parse the URL, we assume it is not the default
   }
 
@@ -348,7 +348,7 @@ export function handleConnectionFormUpdateForPersonalization(
           ...personalization,
           name,
         };
-      } catch (ex) {
+      } catch {
         // just keep previous value
       }
     }

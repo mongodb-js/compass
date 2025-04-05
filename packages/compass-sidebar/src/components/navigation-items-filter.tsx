@@ -19,7 +19,7 @@ const textInputStyles = css({
 function createRegExp(input: string) {
   try {
     return input ? new RegExp(input, 'i') : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
