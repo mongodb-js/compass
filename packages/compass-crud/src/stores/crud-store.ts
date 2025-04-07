@@ -426,7 +426,7 @@ class CrudStoreImpl
       end: 0,
       page: 0,
       view: LIST,
-      count: 0,
+      count: null,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
       bulkDelete: this.getInitialBulkDeleteState(),
@@ -1913,7 +1913,7 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: `Delete ${affected || 0} document${
+      buttonText: `Delete ${affected ? `${affected} ` : ''} document${
         affected !== 1 ? 's' : ''
       }`,
       description: `This action can not be undone. This will permanently delete ${

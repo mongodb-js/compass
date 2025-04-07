@@ -285,7 +285,7 @@ describe('store', function () {
         debouncingLoad: false,
         loadingCount: false,
         collection: 'test',
-        count: 0,
+        count: null,
         docs: [],
         docsPerPage: 25,
         end: 0,
@@ -1170,6 +1170,7 @@ describe('store', function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         it('does not insert the document and sets the error', async function () {
@@ -1202,6 +1203,7 @@ describe('store', function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         afterEach(function () {
@@ -1233,6 +1235,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.insert.doc = doc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         afterEach(function () {
@@ -1267,6 +1270,7 @@ describe('store', function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         afterEach(async function () {
@@ -1425,6 +1429,7 @@ describe('store', function () {
 
       beforeEach(function () {
         store.state.insert.jsonDoc = JSON.stringify(docs);
+        store.state.count = 0;
       });
 
       afterEach(function () {
