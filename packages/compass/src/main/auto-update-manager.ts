@@ -618,15 +618,22 @@ class CompassAutoUpdateManager {
       os_release: release,
       os_linux_dist,
       os_linux_release,
+      os_darwin_product_version,
     } = await getOsInfo();
     const url = new URL(
       `${endpoint}/api/v2/update/${product}/${channel}/${platform}-${arch}/${version}/check`
     );
 
-    release && url.searchParams.set('release', release);
-    os_linux_dist && url.searchParams.set('os_linux_dist', os_linux_dist);
-    os_linux_release &&
-      url.searchParams.set('os_linux_release', os_linux_release);
+    for (const [key, value] of Object.entries({
+      release,
+      os_linux_dist,
+      os_linux_release,
+      os_darwin_product_version,
+    })) {
+      if (typeof value === 'string') {
+        url.searchParams.set(key, value);
+      }
+    }
 
     return url;
   }

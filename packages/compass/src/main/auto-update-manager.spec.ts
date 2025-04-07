@@ -103,6 +103,11 @@ describe('CompassAutoUpdateManager', function () {
         expect(url.searchParams.get('os_linux_dist')).to.exist;
         expect(url.searchParams.get('os_linux_release')).to.exist;
       }
+
+      const isDarwin = process.platform === 'darwin';
+      if (isDarwin) {
+        expect(url.searchParams.get('os_darwin_product_version')).to.exist;
+      }
     });
 
     it('should check for update and transition to update not available if backend returned nothing', async function () {
