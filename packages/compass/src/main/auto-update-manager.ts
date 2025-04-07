@@ -186,7 +186,10 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
     if (fromState === AutoUpdateManagerState.UserPromptedManualCheck) {
       void dialog.showMessageBox({
         icon: COMPASS_ICON,
-        message: 'There are currently no updates available.',
+        message:
+          updateInfo.reason === 'outdated-operating-system'
+            ? `The version of your operating system is no longer supported. Expected at least v${updateInfo.expectedVersion}`
+            : 'There are currently no updates available.',
       });
     }
 
