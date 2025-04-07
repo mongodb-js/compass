@@ -109,7 +109,7 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve(null);
+          return Promise.resolve({ available: false });
         });
 
       expect(
@@ -128,7 +128,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -147,7 +152,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -165,7 +175,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return wait(100, {
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       CompassAutoUpdateManager.setState(
