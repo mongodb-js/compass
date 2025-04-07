@@ -605,6 +605,11 @@ type AutoUpdateResponse =
   | {
       available: false;
       reason?: never;
+    }
+  | {
+      available: false;
+      reason: 'outdated-operating-system';
+      expectedVersion: string;
     };
 
 const emitter = new EventEmitter();
@@ -661,7 +666,34 @@ class CompassAutoUpdateManager {
     try {
       const response = await this.fetch((await this.getUpdateCheckURL()).href);
 
-      if (response.status !== 200) {
+      if (response.status === 426) {
+        const json = await response.json();
+        assert(
+          typeof json === 'object' && json !== null,
+          'Expected response to be an object'
+        );
+        if ('reason' in json && json.reason === 'outdated-operating-system') {
+          assert(
+            'expectedVersion' in json,
+            "Expected 'expectedVersion' in response"
+          );
+          const { expectedVersion } = json;
+          assert(
+            typeof expectedVersion === 'string',
+            "Expected 'expectedVersion' in response"
+          );
+          return {
+            available: false,
+            reason: 'outdated-operating-system',
+            expectedVersion,
+          };
+        } else {
+          // Some future reason that no update is available
+          return {
+            available: false,
+          };
+        }
+      } else if (response.status !== 200) {
         return { available: false };
       }
 
