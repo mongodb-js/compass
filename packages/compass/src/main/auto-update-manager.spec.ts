@@ -446,4 +446,32 @@ describe('CompassAutoUpdateManager', function () {
       expect(restartToastIpcPrompt).to.be.calledOnce;
     });
   });
+
+  describe('when operating system is outdated', () => {
+    it('should broadcast a message on the main ipc channel', () => {
+      const restartToastIpcPrompt = sandbox
+        .stub(ipcMain!, 'broadcast')
+        .callsFake((arg) => {
+          expect(arg).to.equal('autoupdate:outdated-operating-system');
+        });
+
+      // Automatic check
+      CompassAutoUpdateManager['state'] =
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.OutdatedOperatingSystem
+      );
+
+      expect(restartToastIpcPrompt).to.be.calledOnce;
+
+      // Manual check
+      CompassAutoUpdateManager['state'] =
+        AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.OutdatedOperatingSystem
+      );
+
+      expect(restartToastIpcPrompt).to.be.calledTwice;
+    });
+  });
 });

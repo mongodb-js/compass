@@ -140,6 +140,7 @@ export const enum AutoUpdateManagerState {
   Restarting = 'restarting',
   RestartDismissed = 'restart-dismissed',
   PromptToUpdateExternally = 'prompt-to-update-externally',
+  OutdatedOperatingSystem = 'outdated-operating-system',
 }
 
 type UpdateInfo = {
@@ -187,6 +188,11 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
         icon: COMPASS_ICON,
         message: 'There are currently no updates available.',
       });
+    }
+
+    if (updateInfo.reason === 'outdated-operating-system') {
+      updateManager.setState(AutoUpdateManagerState.OutdatedOperatingSystem);
+      return;
     }
 
     this.maybeInterrupt();
@@ -270,6 +276,7 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.NoUpdateAvailable,
       AutoUpdateManagerState.Disabled,
       AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerState.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
@@ -279,6 +286,7 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.NoUpdateAvailable,
       AutoUpdateManagerState.Disabled,
       AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerState.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
@@ -468,6 +476,17 @@ const STATE_UPDATE: Record<
         mongoLogId(1_001_000_165),
         'AutoUpdateManager',
         'Restart dismissed'
+      );
+    },
+  },
+  [AutoUpdateManagerState.OutdatedOperatingSystem]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: () => {
+      ipcMain?.broadcast('autoupdate:outdated-operating-system');
+      log.info(
+        mongoLogId(1_001_000_346),
+        'AutoUpdateManager',
+        'Outdated operating system'
       );
     },
   },
