@@ -39,26 +39,28 @@ function quitItem(
     label: label,
     accelerator: 'CmdOrCtrl+Q',
     click() {
-      !compassApp.preferences.getPreferences().enableShowDialogOnQuit
-        ? electronApp.quit()
-        : void dialog
-            .showMessageBox({
-              type: 'warning',
-              title: `Quit ${electronApp.getName()}`,
-              icon: COMPASS_ICON,
-              message: 'Are you sure you want to quit?',
-              buttons: ['Quit', 'Cancel'],
-              checkboxLabel: 'Do not ask me again',
-            })
-            .then((result) => {
-              if (result.response === 0) {
-                if (result.checkboxChecked)
-                  void compassApp.preferences.savePreferences({
-                    enableShowDialogOnQuit: false,
-                  });
-                electronApp.quit();
-              }
-            });
+      if (!compassApp.preferences.getPreferences().enableShowDialogOnQuit) {
+        electronApp.quit();
+      } else {
+        void dialog
+          .showMessageBox({
+            type: 'warning',
+            title: `Quit ${electronApp.getName()}`,
+            icon: COMPASS_ICON,
+            message: 'Are you sure you want to quit?',
+            buttons: ['Quit', 'Cancel'],
+            checkboxLabel: 'Do not ask me again',
+          })
+          .then((result) => {
+            if (result.response === 0) {
+              if (result.checkboxChecked)
+                void compassApp.preferences.savePreferences({
+                  enableShowDialogOnQuit: false,
+                });
+              electronApp.quit();
+            }
+          });
+      }
     },
   };
 }

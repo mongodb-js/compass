@@ -175,7 +175,7 @@ export function hasDisallowedConnectionStringOptions(
     connectionStringUrl = new ConnectionStringUrl(connectionString, {
       looseValidation: false,
     });
-  } catch (error) {
+  } catch {
     return true;
   }
 

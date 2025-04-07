@@ -203,8 +203,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       {/* AutoSizer types does not allow both width and height to be disabled
         considering that to be a pointless usecase and hence the type
         definitions are pretty strict. We require these disabled to avoid
-        tests flaking out hence ignoring the usage here.
-        @ts-ignore */}
+        tests flaking out hence ignoring the usage here. */}
+      {/* @ts-expect-error see above */}
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width = isTestEnv ? 1024 : '', height = isTestEnv ? 768 : '' }) => (
           <VirtualTree<SidebarTreeItem>

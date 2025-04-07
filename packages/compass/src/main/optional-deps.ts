@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const attempts = [
   [() => require('interruptor'), 'interruptor'],
   [() => require('keytar'), 'keytar'],

@@ -3,11 +3,11 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 // No types exist for these files
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const timer = require('d3-timer');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-/* eslint-enable @typescript-eslint/no-var-requires */
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 type Row = {
   ns: string;

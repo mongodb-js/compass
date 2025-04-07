@@ -46,7 +46,7 @@ export const parseStoredPassword = (
 ): ConnectionSecrets | undefined => {
   try {
     return JSON.parse(password).secrets;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };

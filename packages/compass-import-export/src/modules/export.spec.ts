@@ -317,7 +317,7 @@ describe('export [module]', function () {
 
       try {
         await dataService.dropCollection(testNS);
-      } catch (err) {
+      } catch {
         // ignore
       }
       await dataService.createCollection(testNS, {});

@@ -610,10 +610,15 @@ class CompassAutoUpdateManager {
       `${endpoint}/api/v2/update/${product}/${channel}/${platform}-${arch}/${version}/check`
     );
 
-    release && url.searchParams.set('release', release);
-    os_linux_dist && url.searchParams.set('os_linux_dist', os_linux_dist);
-    os_linux_release &&
+    if (release) {
+      url.searchParams.set('release', release);
+    }
+    if (os_linux_dist) {
+      url.searchParams.set('os_linux_dist', os_linux_dist);
+    }
+    if (os_linux_release) {
       url.searchParams.set('os_linux_release', os_linux_release);
+    }
 
     return url;
   }

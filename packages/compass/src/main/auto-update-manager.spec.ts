@@ -24,7 +24,7 @@ function setStateAndWaitForUpdate(
       if (newState === expected) {
         resolved = true;
         CompassAutoUpdateManager.off('new-state', resolveWhenState);
-        Promise.resolve(
+        void Promise.resolve(
           CompassAutoUpdateManager['currentStateTransition']
         ).finally(() => {
           CompassAutoUpdateManager['currentActionAbortController'].abort();

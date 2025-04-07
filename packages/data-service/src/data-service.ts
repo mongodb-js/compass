@@ -1787,7 +1787,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async isListSearchIndexesSupported(ns: string): Promise<boolean> {
     try {
       await this.getSearchIndexes(ns);
-    } catch (err) {
+    } catch {
       return false;
     }
     return true;

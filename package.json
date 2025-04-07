@@ -102,6 +102,12 @@
     },
     "chai-enzyme": {
       "cheerio": "1.0.0-rc.10"
+    },
+    "@mongodb-js/eslint-config-devtools": {
+      "@typescript-eslint/eslint-plugin": "^8.28.0",
+      "@typescript-eslint/parser": "^8.28.0",
+      "eslint": "^8.57.1",
+      "eslint-plugin-mocha": "^10.5.0"
     }
   }
 }

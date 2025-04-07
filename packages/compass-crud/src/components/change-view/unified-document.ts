@@ -1,4 +1,3 @@
-import assert from 'assert';
 import type { Delta } from 'jsondiffpatch';
 import * as jsondiffpatch from 'jsondiffpatch';
 
@@ -6,6 +5,12 @@ import { type Document } from 'bson';
 
 import { stringifyBSON, unBSON } from './bson-utils';
 import { isSimpleObject, getValueShape } from './shape-utils';
+
+function assert(ok: unknown, message: string) {
+  if (!ok) {
+    throw new Error(message);
+  }
+}
 
 const differ = jsondiffpatch.create({
   arrays: {

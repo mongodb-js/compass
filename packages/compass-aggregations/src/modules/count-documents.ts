@@ -132,7 +132,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
         type: ActionTypes.CountFinished,
         count: Number(count),
       });
-    } catch (e) {
+    } catch {
       dispatch({
         type: ActionTypes.CountFailed,
       });
