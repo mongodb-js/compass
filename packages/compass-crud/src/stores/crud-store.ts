@@ -1595,6 +1595,7 @@ class CrudStoreImpl
             ? 'readonly'
             : 'collection',
           used_regex: objectContainsRegularExpression(query.filter ?? {}),
+          mode: this.modeForTelemetry(),
         },
         this.connectionInfoRef.current
       );

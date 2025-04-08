@@ -1699,6 +1699,11 @@ type QueryExecutedEvent = ConnectionScopedEvent<{
      * Indicates whether the query used a regular expression.
      */
     used_regex: boolean;
+
+    /**
+     * The view used to run the query.
+     */
+    mode: 'list' | 'json' | 'table';
   };
 }>;
 
@@ -2313,7 +2318,7 @@ type AutoupdateDismissedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the user changes the items view type between list and grid.
+ * This event is fired when the user changes the items view type in the database and collection list between "list" and "grid".
  *
  * @category Database / Collection List
  */
