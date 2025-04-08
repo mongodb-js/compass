@@ -44,6 +44,7 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
     <Tooltip
       enabled={!!tooltip}
       trigger={<BadgeWithIconLink link={link} text={text} />}
+      triggerEvent="hover"
     >
       <Body>{tooltip}</Body>
     </Tooltip>

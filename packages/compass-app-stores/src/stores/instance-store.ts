@@ -9,6 +9,7 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 function serversArray(
   serversMap: NonNullable<
@@ -44,10 +45,12 @@ export function createInstancesStore(
     globalAppRegistry,
     connections,
     logger: { log, mongoLogId },
+    preferences,
   }: {
     connections: ConnectionsService;
     logger: Logger;
     globalAppRegistry: AppRegistry;
+    preferences: PreferencesAccess;
   },
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -182,10 +185,11 @@ export function createInstancesStore(
       const { database } = toNS(ns);
       const db = instance.databases.get(database);
       const coll = db?.collections.get(ns);
+      console.log('Refresh Namespace Stats');
       // We don't care if this fails
       await Promise.allSettled([
-        db?.fetch({ dataService, force: true }),
-        coll?.fetch({ dataService, force: true }),
+        db?.fetch({ dataService, preferences, force: true }),
+        coll?.fetch({ dataService, preferences, force: true }),
       ]);
     } catch (error) {
       log.warn(
@@ -229,11 +233,13 @@ export function createInstancesStore(
       }
       // Fetch in sequence to avoid race conditions between database and
       // collection model updates
+      console.log('Maybe add and refresh');
       await db
-        .fetch({ dataService, force: true })
+        .fetch({ dataService, preferences, force: true })
         .then(() => {
           return coll?.fetch({
             dataService,
+            preferences,
             force: true,
             // We only need to fetch info in case of new collection being created
             fetchInfo: newCollection,
@@ -435,9 +441,11 @@ export function createInstancesStore(
           db.collections.remove(coll);
           MongoDBInstance.removeAllListeners(coll);
           // Update db stats to account for db stats affected by collection stats
-          void db?.fetch({ dataService, force: true }).catch(() => {
-            // noop, we ignore stats fetching failures
-          });
+          void db
+            ?.fetch({ dataService, preferences, force: true })
+            .catch(() => {
+              // noop, we ignore stats fetching failures
+            });
         }
       } catch (error) {
         log.warn(
@@ -532,7 +540,7 @@ export function createInstancesStore(
         void instance.databases
           .get(database)
           ?.collections.get(namespace, '_id')
-          ?.fetch({ dataService, force: true });
+          ?.fetch({ dataService, preferences, force: true });
       } catch (error) {
         log.warn(
           mongoLogId(1_001_000_321),
