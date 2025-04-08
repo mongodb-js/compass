@@ -263,7 +263,7 @@
     "minimatch": "^10.0.1",
     "mongodb": "^6.14.1",
     "mongodb-build-info": "^1.7.2",
-    "mongodb-cloud-info": "^2.1.2",
+    "mongodb-cloud-info": "^2.1.7",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.25.7",
     "mongodb-instance-model": "^12.26.7",
