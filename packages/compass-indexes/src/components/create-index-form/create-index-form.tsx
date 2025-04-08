@@ -32,6 +32,7 @@ type CreateIndexFormProps = {
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
+  showIndexesGuidanceVariant: boolean;
 };
 
 function CreateIndexForm({
@@ -42,6 +43,7 @@ function CreateIndexForm({
   onSelectFieldTypeClick,
   onAddFieldClick,
   onRemoveFieldClick,
+  showIndexesGuidanceVariant,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
   const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
@@ -68,6 +70,22 @@ function CreateIndexForm({
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
+        {/* @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367 */}
+        {showIndexesGuidanceVariant && (
+          <Body>
+            The best indexes for your application should consider a number of
+            factors, such as your data model, and the queries you use most
+            often. To learn more about indexing best practices, read the{' '}
+            <a
+              href="https://docs.mongodb.com/manual/applications/indexes/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Index Strategies Documentation.
+            </a>
+          </Body>
+        )}
+
         <Body weight="medium" className={indexFieldsHeaderStyles}>
           Index fields
         </Body>

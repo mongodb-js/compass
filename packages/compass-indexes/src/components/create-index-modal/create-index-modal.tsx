@@ -23,6 +23,8 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+import { fireExperimentViewed, TestName } from '@mongodb-js/compass-utils';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -31,6 +33,7 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
+  showIndexesGuidanceVariant: boolean;
 };
 
 function CreateIndexModal({
@@ -40,7 +43,6 @@ function CreateIndexModal({
   onErrorBannerCloseClick,
   onCreateIndexClick,
   onCancelCreateIndexClick,
-  ...props
 }: CreateIndexModalProps) {
   const connectionInfoRef = useConnectionInfoRef();
   const onSetOpen = useCallback(
@@ -67,6 +69,24 @@ function CreateIndexModal({
       }
     },
     [isVisible, connectionInfoRef],
+    undefined
+  );
+
+  // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
+  const enableInIndexesGuidanceExp =
+    usePreference('enableIndexesGuidanceExp') || true;
+  // const showIndexesGuidanceVariant =
+  //   usePreference('showIndexesGuidanceVariant') || true;
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      fireExperimentViewed({
+        track,
+        testName: TestName.earlyJourneyIndexesGuidance,
+        shouldFire: enableInIndexesGuidanceExp,
+      });
+    },
+    [enableInIndexesGuidanceExp],
     undefined
   );
 
