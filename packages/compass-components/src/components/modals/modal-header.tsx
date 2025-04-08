@@ -5,7 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 
 import { useDarkMode } from '../../hooks/use-theme';
-import { Body, Icon } from '../leafygreen';
+import { Body, H3, Icon } from '../leafygreen';
 
 export const Variant = {
   Default: ButtonVariant.Primary,
@@ -65,12 +65,14 @@ type ModalHeaderProps = {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   variant?: Variant;
+  useLeafyGreenStyling?: boolean;
 };
 
 function ModalHeader({
   title,
   subtitle,
   variant = Variant.Default,
+  useLeafyGreenStyling = false,
 }: ModalHeaderProps) {
   const darkMode = useDarkMode();
 
@@ -87,13 +89,20 @@ function ModalHeader({
           />
         </div>
       )}
-      <h1
-        className={cx(titleStyle, darkMode && titleStyleDark)}
-        data-testid="modal-title"
-        id="modal-title"
-      >
-        {title}
-      </h1>
+
+      {useLeafyGreenStyling ? (
+        <H3 data-testid="modal-title" id="modal-title">
+          {title}
+        </H3>
+      ) : (
+        <h1
+          className={cx(titleStyle, darkMode && titleStyleDark)}
+          data-testid="modal-title"
+          id="modal-title"
+        >
+          {title}
+        </h1>
+      )}
       {subtitle && <Body>{subtitle}</Body>}
     </div>
   );
