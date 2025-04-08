@@ -424,9 +424,11 @@ const fetchIndexes = (
         // changed, the tab header also gets updated. The check against the
         // total is a bit of an optimisation so that we don't also poll the
         // collection stats.
-        collection.fetch({ dataService, force: true }).catch(() => {
-          /* ignore */
-        });
+        collection
+          .fetch({ dataService, preferences, force: true })
+          .catch(() => {
+            /* ignore */
+          });
       }
     } catch (err) {
       dispatch(fetchIndexesFailed((err as Error).message));

@@ -703,7 +703,7 @@ const fetchCollectionInfo = (
   return async (
     dispatch,
     getState,
-    { connections, instancesManager, logger }
+    { connections, instancesManager, logger, preferences }
   ) => {
     const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
     if (getState().collectionInfo[namespaceId]) {
@@ -728,7 +728,7 @@ const fetchCollectionInfo = (
       });
 
       if (coll) {
-        await coll.fetch({ dataService });
+        await coll.fetch({ dataService, preferences });
         const info = {
           isTimeSeries: coll.isTimeSeries,
           isReadonly: coll.readonly ?? coll.isView,
@@ -764,7 +764,7 @@ const fetchDatabaseInfo = (
   return async (
     dispatch,
     getState,
-    { connections, instancesManager, logger }
+    { connections, instancesManager, logger, preferences }
   ) => {
     const { databaseInfo } = getState();
     const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
@@ -783,7 +783,8 @@ const fetchDatabaseInfo = (
 
       const db = instance.databases.get(workspaceOptions.namespace);
       if (db) {
-        await db.fetch({ dataService });
+        console.log('DB FETCH');
+        await db.fetch({ dataService, preferences });
         const info = {
           isNonExistent: db.is_non_existent,
         };

@@ -131,12 +131,28 @@ const DatabaseModel = AmpersandModel.extend(
       collections: MongoDbCollectionCollection,
     },
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{
+     *    dataService: import('mongodb-data-service').DataService,
+     *    preferences: import('compass-preferences-model').PreferencesAccess,
+     *    force: boolean
+     * }} options
+     * @param force
      * @returns {Promise<void>}
      */
-    async fetch({ dataService, force = false }) {
+    async fetch({ dataService, preferences, force = false }) {
+      const { enableDbAndCollStats } = preferences.getPreferences();
+
       if (!shouldFetch(this.status, force)) {
+        console.log('not should fetch');
         return;
+      }
+
+      if (!enableDbAndCollStats) {
+        console.log('Skipping');
+        this.set({ status: 'ready' });
+        return;
+      } else {
+        console.log('Not skipping');
       }
 
       try {
@@ -151,10 +167,14 @@ const DatabaseModel = AmpersandModel.extend(
     },
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{
+     *    dataService: import('mongodb-data-service').DataService,
+     *    preferences: import('compass-preferences-model').PreferencesAccess,
+     *    force: boolean
+     * }} options
      * @returns {Promise<void>}
      */
-    async fetchCollections({ dataService, force = false }) {
+    async fetchCollections({ dataService, preferences, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
         return;
       }
@@ -163,7 +183,7 @@ const DatabaseModel = AmpersandModel.extend(
         const newStatus =
           this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
-        await this.collections.fetch({ dataService, force });
+        await this.collections.fetch({ dataService, preferences, force });
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
         this.set({
@@ -196,7 +216,7 @@ const DatabaseModel = AmpersandModel.extend(
             dataService,
             // We already fetched it with fetchCollections
             fetchInfo: false,
-            force
+            force,
           });
         })
       );
@@ -233,10 +253,16 @@ const DatabaseCollection = AmpersandCollection.extend(
       const dbs = await dataService.listDatabases({
         nameOnly: true,
         privileges: instanceModel.auth.privileges,
-        roles: instanceModel.auth.roles
+        roles: instanceModel.auth.roles,
       });
 
-      this.set(dbs.map(({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })));
+      this.set(
+        dbs.map(({ _id, name, is_non_existent }) => ({
+          _id,
+          name,
+          is_non_existent,
+        }))
+      );
     },
 
     toJSON(opts = { derived: true }) {

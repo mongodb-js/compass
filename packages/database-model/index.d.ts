@@ -1,5 +1,6 @@
 import type { CollectionCollection } from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 interface DatabaseProps {
   _id: string;
@@ -20,7 +21,11 @@ interface DatabaseProps {
 }
 
 interface Database extends DatabaseProps {
-  fetch(opts: { dataService: DataService; force?: boolean }): Promise<void>;
+  fetch(opts: {
+    dataService: DataService;
+    preferences: PreferenceAccess;
+    force?: boolean;
+  }): Promise<void>;
   fetchCollections(opts: {
     dataService: DataService;
     fetchInfo?: boolean;

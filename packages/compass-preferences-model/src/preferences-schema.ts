@@ -43,6 +43,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     networkTraffic: boolean;
     readOnly: boolean;
     enableShell: boolean;
+    enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
@@ -479,6 +480,20 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Switch to enable/disable dbStats and collStats calls.
+   */
+  enableDbAndCollStats: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable DB and Coll Stats',
+      long: 'Allow Compass to fetch database and collection stats.',
+    },
     validator: z.boolean().default(true),
     type: 'boolean',
   },

@@ -9,6 +9,7 @@ import reducer, {
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type CollectionTabOptions = {
   /**
@@ -31,6 +32,7 @@ export type CollectionTabServices = {
   collection: Collection;
   localAppRegistry: AppRegistry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  preferences: PreferencesAccess;
 };
 
 export function activatePlugin(
@@ -43,6 +45,7 @@ export function activatePlugin(
     collection: collectionModel,
     localAppRegistry,
     workspaces,
+    preferences,
   } = services;
 
   if (!collectionModel) {
@@ -84,9 +87,11 @@ export function activatePlugin(
     store.dispatch(selectTab('Schema'));
   });
 
-  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
-    store.dispatch(collectionMetadataFetched(metadata));
-  });
+  void collectionModel
+    .fetchMetadata({ dataService, preferences })
+    .then((metadata) => {
+      store.dispatch(collectionMetadataFetched(metadata));
+    });
 
   return {
     store,

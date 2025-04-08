@@ -104,7 +104,17 @@ function pickCollectionInfo({
   fle2,
   is_non_existent,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2, is_non_existent };
+  return {
+    type,
+    readonly,
+    view_on,
+    collation,
+    pipeline,
+    validation,
+    clustered,
+    fle2,
+    is_non_existent,
+  };
 }
 
 /**
@@ -232,20 +242,31 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   },
 
   /**
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+   * @param {{
+   *    dataService: import('mongodb-data-service').DataService,
+   *    preferences: import('compass-preferences-model').PreferencesAccess,
+   *    fetchInfo: boolean,
+   *    force: boolean
+   * }} options
    * @returns
    */
-  async fetch({ dataService, fetchInfo = true, force = false }) {
+  async fetch({ dataService, fetchInfo = true, preferences, force = false }) {
     if (!shouldFetch(this.status, force)) {
       return;
     }
+
+    const { enableDbAndCollStats } = preferences.getPreferences();
+
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
-        dataService.collectionStats(this.database, this.name),
+        enableDbAndCollStats
+          ? dataService.collectionStats(this.database, this.name)
+          : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
+      console.log('DONE and ready');
       this.set({
         status: 'ready',
         statusError: null,
@@ -255,7 +276,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // If the collection is not unprovisioned `is_non_existent` anymore,
       // let's update the parent database model to reflect the change.
       // This happens when a user tries to insert first document into a
-      // collection that doesn't exist yet or creates a new collection 
+      // collection that doesn't exist yet or creates a new collection
       // for an unprovisioned database.
       if (!this.is_non_existent) {
         getParentByType(this, 'Database').set({
@@ -271,11 +292,14 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   /**
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+   * @param {{
+   *    dataService: import('mongodb-data-service').DataService,
+   *    preferences: import('compass-preferences-model').PreferencesAccess,
+   * }} options
    */
-  async fetchMetadata({ dataService }) {
+  async fetchMetadata({ dataService, preferences }) {
     try {
-      await this.fetch({ dataService });
+      await this.fetch({ dataService, preferences });
     } catch (e) {
       if (e.name !== 'MongoServerError') {
         throw e;

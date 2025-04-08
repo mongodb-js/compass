@@ -2569,6 +2569,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
     const db = this._database(name, 'META');
+    console.log('!!!GETTING STATS!!!');
     const stats = await runCommand(
       db,
       { dbStats: 1 },

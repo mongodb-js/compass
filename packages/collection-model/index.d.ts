@@ -1,3 +1,4 @@
+import type { PreferencesAccess } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 
 type CollectionMetadata = {
@@ -85,16 +86,24 @@ interface CollectionProps {
   is_non_existent: boolean;
 }
 
-type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
+type CollectionDataService = Pick<
+  DataService,
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported'
+>;
 
 interface Collection extends CollectionProps {
   fetch(opts: {
     dataService: CollectionDataService;
+    preferences: PreferencesAccess;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchMetadata(opts: {
     dataService: CollectionDataService;
+    preferences: PreferencesAccess;
   }): Promise<CollectionMetadata>;
   on(evt: string, fn: (...args: any) => void);
   off(evt: string, fn: (...args: any) => void);
@@ -106,7 +115,10 @@ interface Collection extends CollectionProps {
 }
 
 interface CollectionCollection extends Array<Collection> {
-  fetch(opts: { dataService: CollectionDataService; fetchInfo?: boolean }): Promise<void>;
+  fetch(opts: {
+    dataService: CollectionDataService;
+    fetchInfo?: boolean;
+  }): Promise<void>;
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;
