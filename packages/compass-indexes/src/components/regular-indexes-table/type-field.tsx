@@ -44,9 +44,15 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}
-      trigger={
-        <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
-      }
+      trigger={({
+        children: tooltipChildren,
+        ...tooltipTriggerProps
+      }: React.HTMLProps<HTMLDivElement>) => (
+        <div {...tooltipTriggerProps}>
+          <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
+          {tooltipChildren}
+        </div>
+      )}
     >
       {extra && <IndexTypeTooltip extra={extra} />}
     </Tooltip>
