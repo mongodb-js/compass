@@ -450,6 +450,7 @@ class Target {
         outputDirectory: this.packagerOptions.out,
         exe: this.packagerOptions.name,
         name: this.productName,
+        shortcutName: this.productName,
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
