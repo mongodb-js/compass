@@ -59,6 +59,9 @@ describe('CompassIndexesPlugin', function () {
         atlasMetadata: {
           instanceSize: 'VERY BIG',
           metricsType: 'replicaSet',
+          supports: {
+            rollingIndexes: true,
+          },
         } as any,
       },
       {
