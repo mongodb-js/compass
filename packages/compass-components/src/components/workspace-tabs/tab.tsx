@@ -180,6 +180,13 @@ const closeButtonStyles = css({
   marginRight: spacing[100],
 });
 
+const workspaceTabTooltipStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  width: '100%',
+});
+
 type TabProps = {
   connectionName?: string;
   type: string;
@@ -326,7 +333,7 @@ function Tab({
       {tooltip && (
         <div data-testid="workspace-tab-tooltip">
           {tooltip.map(([label, value]) => (
-            <div key={label}>
+            <div key={label} className={workspaceTabTooltipStyles}>
               <b>{label}:</b> {value}
             </div>
           ))}
