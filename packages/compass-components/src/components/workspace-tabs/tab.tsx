@@ -181,10 +181,8 @@ const closeButtonStyles = css({
 });
 
 const workspaceTabTooltipStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  width: '100%',
+  overflowWrap: 'anywhere',
+  textWrap: 'wrap',
 });
 
 type TabProps = {
