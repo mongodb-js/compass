@@ -146,8 +146,8 @@ const InstanceModel = AmpersandModel.extend(
       isTopologyWritable: {
         deps: ['topologyDescription.type'],
         fn() {
-          return TopologyType.isWritable(this.topologyDescription.type)
-        }
+          return TopologyType.isWritable(this.topologyDescription.type);
+        },
       },
       singleServerType: {
         deps: ['topologyDescription.type', 'topologyDescription.servers'],
@@ -156,16 +156,23 @@ const InstanceModel = AmpersandModel.extend(
             return this.topologyDescription.servers[0].type;
           }
           return null;
-        }
+        },
       },
       isServerWritable: {
         deps: ['singleServerType'],
         fn() {
-          return this.singleServerType !== null && ServerType.isWritable(this.singleServerType);
-        }
+          return (
+            this.singleServerType !== null &&
+            ServerType.isWritable(this.singleServerType)
+          );
+        },
       },
       isWritable: {
-        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable'],
+        deps: [
+          'topologyDescription.type',
+          'isTopologyWritable',
+          'isServerWritable',
+        ],
         fn() {
           if (this.isTopologyWritable) {
             if (this.topologyDescription.type === TopologyType.SINGLE) {
@@ -176,22 +183,35 @@ const InstanceModel = AmpersandModel.extend(
           } else {
             return false;
           }
-        }
+        },
       },
       description: {
-        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable', 'singleServerType'],
+        deps: [
+          'topologyDescription.type',
+          'isTopologyWritable',
+          'isServerWritable',
+          'singleServerType',
+        ],
         fn() {
           const topologyType = this.topologyDescription.type;
 
           if (this.isTopologyWritable) {
             if (topologyType === TopologyType.SINGLE) {
-              const message = this.isServerWritable ? 'is writable' : 'is not writable';
-              return `Single connection to server type: ${ServerType.humanize(this.singleServerType)} ${message}`;
+              const message = this.isServerWritable
+                ? 'is writable'
+                : 'is not writable';
+              return `Single connection to server type: ${ServerType.humanize(
+                this.singleServerType
+              )} ${message}`;
             }
-            return `Topology type: ${TopologyType.humanize(topologyType)} is writable`;
+            return `Topology type: ${TopologyType.humanize(
+              topologyType
+            )} is writable`;
           }
-          return `Topology type: ${TopologyType.humanize(topologyType)} is not writable`;
-        }
+          return `Topology type: ${TopologyType.humanize(
+            topologyType
+          )} is not writable`;
+        },
       },
       env: {
         deps: ['isAtlas', 'isLocalAtlas', 'dataLake'],
@@ -203,8 +223,8 @@ const InstanceModel = AmpersandModel.extend(
             return Environment.ATLAS;
           }
           return Environment.ON_PREM;
-        }
-      }
+        },
+      },
     },
     children: {
       host: HostInfo,
@@ -241,7 +261,7 @@ const InstanceModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetchDatabases({ dataService, force = false }) {
+    async fetchDatabases({ dataService, preferences, force = false }) {
       if (!shouldFetch(this.databasesStatus, force)) {
         return;
       }
@@ -249,7 +269,9 @@ const InstanceModel = AmpersandModel.extend(
         const newStatus =
           this.databasesStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ databasesStatus: newStatus });
-        await this.databases.fetch({ dataService });
+        console.log('[instance-model]', 'fetching');
+        await this.databases.fetch({ dataService, preferences });
+        console.log('[instance-model]', 'done');
         this.set({ databasesStatus: 'ready', databasesStatusError: null });
       } catch (err) {
         this.set({
@@ -281,11 +303,13 @@ const InstanceModel = AmpersandModel.extend(
 
     async refresh({
       dataService,
+      preferences,
       fetchDatabases = false,
       fetchDbStats = false,
       fetchCollections = false,
       fetchCollStats = false,
     }) {
+      console.log('[instance-model]', 'refreshing');
       this.set({
         refreshingStatus:
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
@@ -322,11 +346,12 @@ const InstanceModel = AmpersandModel.extend(
             .map((db) => {
               return [
                 shouldRefresh(db.status, fetchDbStats) &&
-                  db.fetch({ dataService, force: true }),
+                  db.fetch({ dataService, force: true, preferences }),
                 ...db.collections.map((coll) => {
                   if (shouldRefresh(coll.status, fetchCollStats)) {
                     return coll.fetch({
                       dataService,
+                      preferences,
                       // We already fetched it with fetchCollections
                       fetchInfo: false,
                       force: true,
@@ -363,7 +388,7 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     removeAllListeners() {
-      InstanceModel.removeAllListeners(this)
+      InstanceModel.removeAllListeners(this);
     },
 
     toJSON(opts = { derived: true }) {

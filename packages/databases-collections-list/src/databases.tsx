@@ -27,6 +27,7 @@ const DatabasesList: React.FunctionComponent<{
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
+  console.log({ databases });
   return (
     <ItemsGrid
       items={databases}
@@ -63,12 +64,20 @@ const DatabasesList: React.FunctionComponent<{
             data={[
               {
                 label: 'Storage size',
-                value: compactBytes(db.storage_size),
-                hint: `Uncompressed data size: ${compactBytes(db.data_size)}`,
+                value:
+                  db.hasDbStats && db.storage_size
+                    ? compactBytes(db.storage_size)
+                    : 'N/A',
+                hint:
+                  db.hasDbStats &&
+                  db.data_size &&
+                  `Uncompressed data size: ${compactBytes(db.data_size)}`,
               },
               {
                 label: 'Collections',
-                value: compactNumber(db.collectionsLength),
+                value: db.hasDbStats
+                  ? compactNumber(db.collectionsLength)
+                  : 'N/A',
                 insights:
                   db.collectionsLength >= 10_000
                     ? PerformanceSignals.get('too-many-collections')
@@ -76,7 +85,10 @@ const DatabasesList: React.FunctionComponent<{
               },
               {
                 label: 'Indexes',
-                value: compactNumber(db.index_count),
+                value:
+                  db.hasDbStats && db.index_count
+                    ? compactNumber(db.index_count)
+                    : 'N/A',
               },
             ]}
             onItemClick={onItemClick}
