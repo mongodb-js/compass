@@ -80,6 +80,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
+  console.log({ collections, namespace });
   return (
     <div className={pageContainerStyles}>
       <ItemsGrid

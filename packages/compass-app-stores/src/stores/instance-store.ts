@@ -105,7 +105,17 @@ export function createInstancesStore(
         instancesManager.getMongoDBInstanceForConnection(connectionId);
       const dataService = connections.getDataServiceForConnection(connectionId);
       isFirstRun = instance.status === 'initial';
-      await instance.refresh({ dataService, ...refreshOptions });
+      const { enableDbAndCollStats } = preferences.getPreferences();
+      await instance.refresh({
+        dataService,
+        ...refreshOptions,
+        fetchDbStats: enableDbAndCollStats
+          ? refreshOptions.fetchDbStats
+          : false,
+        fetchCollStats: enableDbAndCollStats
+          ? refreshOptions.fetchCollStats
+          : false,
+      });
     } catch (err: any) {
       log.warn(
         mongoLogId(1_001_000_295),
