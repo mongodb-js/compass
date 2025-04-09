@@ -28,7 +28,7 @@ function getShortcutName() {
         process.env.HADRON_CHANNEL.slice(1)
     );
   }
-  return parts.join(' ');
+  return parts.join('\\ ');
 }
 
 /*
@@ -48,9 +48,10 @@ export async function handleSquirrelWindowsStartup(): Promise<boolean> {
   debug('processing squirrel command `%s`', cmd);
 
   /*
-  For more detailed info on these commands, so Electron and Squirrel Windows'
+  For more detailed info on these commands, so Electron, electron-winstaller and Squirrel Windows'
   documentation:
 
+  https://github.com/electron/windows-installer
   https://github.com/electron-archive/grunt-electron-installer?tab=readme-ov-file#handling-squirrel-events
   https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/custom-squirrel-events-non-cs.md
   https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/install-process.md

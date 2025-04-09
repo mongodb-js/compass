@@ -71,6 +71,7 @@ function getPkg(directory) {
   }
 
   _.defaults(pkg, {
+    // NOTE: If nothing overrides this it would result in MongoDB Inc
     productName: pkg.name,
     author: pkg.authors,
     electronVersion: require('electron/package.json').version,
@@ -454,6 +455,7 @@ class Target {
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
+        // NOTE: falling back to author would result in MongoDB Inc
         shortcutFolderName: this.shortcutFolderName || this.author,
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
