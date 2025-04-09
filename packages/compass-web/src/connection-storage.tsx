@@ -249,7 +249,6 @@ export function buildConnectionInfoFromClusterDescription(
 
 const CONNECTABLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
   'IDLE',
-  'PAUSED',
   'REPARING',
   'UPDATING',
 ];
