@@ -80,17 +80,10 @@ function CreateIndexModal({
     'showIndexesGuidanceVariant'
   );
 
-  useTrackOnChange(
-    (track: TrackFunction) => {
-      fireExperimentViewed({
-        track,
-        testName: TestName.earlyJourneyIndexesGuidance,
-        shouldFire: enableInIndexesGuidanceExp,
-      });
-    },
-    [enableInIndexesGuidanceExp],
-    undefined
-  );
+  fireExperimentViewed({
+    testName: TestName.earlyJourneyIndexesGuidance,
+    shouldFire: enableInIndexesGuidanceExp || true,
+  });
 
   return (
     <Modal
