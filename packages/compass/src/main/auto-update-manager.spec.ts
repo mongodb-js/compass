@@ -448,6 +448,55 @@ describe('CompassAutoUpdateManager', function () {
   });
 
   describe('when operating system is outdated', () => {
+    beforeEach(async () => {
+      const fetchStub = sandbox.stub();
+      CompassAutoUpdateManager['fetch'] = fetchStub;
+
+      const updateUrl = await CompassAutoUpdateManager.getUpdateCheckURL();
+      fetchStub.callsFake((url) => {
+        expect(url).equals(updateUrl.toString());
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              available: false,
+              reason: 'outdated-operating-system',
+              expectedVersion: '1.2.3',
+            }),
+            { status: 426 }
+          )
+        );
+      });
+    });
+
+    it('return expected result when checking for update', async () => {
+      const result = await CompassAutoUpdateManager.checkForUpdate();
+      expect(result).to.deep.equal({
+        available: false,
+        reason: 'outdated-operating-system',
+        expectedVersion: '1.2.3',
+      });
+    });
+
+    it('should transition to outdated operating system state (automatically)', async () => {
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerState.OutdatedOperatingSystem
+        )
+      ).to.be.true;
+    });
+
+    it('should transition to outdated operating system state (manually)', async () => {
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+          AutoUpdateManagerState.OutdatedOperatingSystem
+        )
+      ).to.be.true;
+    });
+
     it('should broadcast a message on the main ipc channel', () => {
       const restartToastIpcPrompt = sandbox
         .stub(ipcMain!, 'broadcast')
