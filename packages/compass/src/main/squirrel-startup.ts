@@ -28,7 +28,7 @@ function getShortcutName() {
         process.env.HADRON_CHANNEL.slice(1)
     );
   }
-  return parts.join('\\ ');
+  return `"${parts.join(' ')}"`;
 }
 
 /*
