@@ -213,7 +213,6 @@ And then finally
 
 - User's launch application via a desktop shortcut `${productName}`
 - Installing into `C:\\Program Files\` would require Administrator
-- Desktop shortcut managed for you automatically if you use https://github.com/mongodb-js/electron-squirrel-startup
 - Shortcut Target: `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\Update.exe --processStart ${_.titlecase(productName)}.exe`
 - Shortcut Start In: `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\app-${version}`
 
@@ -267,7 +266,6 @@ Which assets are generated depends on the target platform.
 
 ### Windows
 
-- `electron-squirrel-startup`: https://github.com/mongodb-js/electron-squirrel-startup
 - [Update process explained step by step](https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/update-process.md#update-process)
 
 ### Linux
