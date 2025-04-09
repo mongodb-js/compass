@@ -635,8 +635,9 @@ class CompassAutoUpdateManager {
     try {
       const response = await this.fetch((await this.getUpdateCheckURL()).href);
 
-
-      assert(response.ok);
+      if (response.status !== 200) {
+        return { available: false };
+      }
 
       try {
         const json = await response.json();
