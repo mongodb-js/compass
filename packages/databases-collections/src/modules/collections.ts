@@ -105,8 +105,12 @@ const reducer: Reducer<CollectionsState, Action> = (
 };
 
 export const refreshCollections = (): CollectionsThunkAction<void> => {
-  return (_dispatch, _getState, { database, dataService }) => {
-    void database.fetchCollectionsDetails({ dataService, force: true });
+  return (_dispatch, _getState, { database, dataService, preferences }) => {
+    void database.fetchCollectionsDetails({
+      dataService,
+      preferences,
+      force: true,
+    });
   };
 };
 

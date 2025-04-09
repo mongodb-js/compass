@@ -3,6 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 import Database from 'mongodb-database-model';
 import { CollectionCollection } from 'mongodb-collection-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 declare const ServerType: {
   humanize(serverType: string): string;
@@ -116,6 +117,7 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   }): Promise<void>;
   refresh(opts: {
     dataService: DataService;
+    preferences: PreferencesAccess;
     fetchDatabases?: boolean;
     fetchDbStats?: boolean;
     fetchCollections?: boolean;
@@ -124,6 +126,7 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   }): Promise<void>;
   getNamespace(opts: {
     dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>;
+    preferences: PreferencesAccess;
     database: string;
     collection: string;
   }): Promise<Collection | null>;

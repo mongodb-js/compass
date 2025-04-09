@@ -10,23 +10,32 @@ import type {
   MongoDBInstance,
   Database,
 } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type CollectionsServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
   database: Database;
   dataService: DataService;
+  preferences: PreferencesAccess;
 };
 
 export type CollectionsThunkExtraArg = {
   globalAppRegistry: AppRegistry;
   database: Database;
   dataService: DataService;
+  preferences: PreferencesAccess;
 };
 
 export function activatePlugin(
   _initialProps: { namespace: string },
-  { globalAppRegistry, instance, dataService, database }: CollectionsServices,
+  {
+    globalAppRegistry,
+    instance,
+    dataService,
+    database,
+    preferences,
+  }: CollectionsServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = createStore(
@@ -43,7 +52,12 @@ export function activatePlugin(
       },
     },
     applyMiddleware(
-      thunk.withExtraArgument({ globalAppRegistry, database, dataService })
+      thunk.withExtraArgument({
+        globalAppRegistry,
+        database,
+        dataService,
+        preferences,
+      })
     )
   );
 
@@ -73,7 +87,7 @@ export function activatePlugin(
     store.dispatch(instanceChanged(instance));
   });
 
-  void database.fetchCollectionsDetails({ dataService });
+  void database.fetchCollectionsDetails({ dataService, preferences });
 
   return {
     store,

@@ -65,18 +65,18 @@ interface CollectionProps {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
-  view_on: string;
+  view_on: string | null;
   collation: unknown;
   pipeline: unknown[];
   validation: unknown;
-  is_capped: boolean;
-  document_count: number;
-  document_size: number;
-  avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
-  index_count: number;
-  index_size: number;
+  is_capped?: boolean;
+  document_count?: number;
+  document_size?: number;
+  avg_document_size?: number;
+  storage_size?: number;
+  free_storage_size?: number;
+  index_count?: number;
+  index_size?: number;
   isTimeSeries: boolean;
   isView: boolean;
   /** Only relevant for a view and identifies collection/view from which this view was created. */

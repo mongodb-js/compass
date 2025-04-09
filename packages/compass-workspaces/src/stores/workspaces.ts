@@ -724,6 +724,7 @@ const fetchCollectionInfo = (
         dataService,
         database,
         collection,
+        preferences,
       });
 
       if (coll) {
