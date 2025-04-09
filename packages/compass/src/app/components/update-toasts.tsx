@@ -105,11 +105,14 @@ export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
     title: `Compass ${newVersion} is downloading`,
   });
 }
-export function onAutoupdateFailed() {
+export function onAutoupdateFailed(reason?: 'outdated-operating-system') {
   openToast(updateToastId, {
     variant: 'warning',
     title: 'Failed to download Compass update',
-    description: 'Downloading a newer Compass version failed',
+    description:
+      reason === 'outdated-operating-system'
+        ? 'The version of your operating system is no longer supported.'
+        : 'Downloading a newer Compass version failed',
   });
 }
 export function onAutoupdateSuccess({

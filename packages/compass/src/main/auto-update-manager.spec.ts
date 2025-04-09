@@ -500,8 +500,9 @@ describe('CompassAutoUpdateManager', function () {
     it('should broadcast a message on the main ipc channel', () => {
       const restartToastIpcPrompt = sandbox
         .stub(ipcMain!, 'broadcast')
-        .callsFake((arg) => {
-          expect(arg).to.equal('autoupdate:outdated-operating-system');
+        .callsFake((eventName, reason) => {
+          expect(eventName).to.equal('autoupdate:update-download-failed');
+          expect(reason).to.equal('outdated-operating-system');
         });
 
       // Automatic check

@@ -485,7 +485,10 @@ const STATE_UPDATE: Record<
   [AutoUpdateManagerState.OutdatedOperatingSystem]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
     enter: () => {
-      ipcMain?.broadcast('autoupdate:outdated-operating-system');
+      ipcMain?.broadcast(
+        'autoupdate:update-download-failed',
+        'outdated-operating-system'
+      );
       log.info(
         mongoLogId(1_001_000_346),
         'AutoUpdateManager',
