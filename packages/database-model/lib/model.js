@@ -149,7 +149,7 @@ const DatabaseModel = AmpersandModel.extend(
 
       if (!enableDbAndCollStats) {
         console.log('[database-model]', 'Skipping');
-        this.set({ status: 'ready', hasDbStats: 'false' });
+        this.set({ status: 'ready' });
         return;
       } else {
         console.log('[database-model]', 'Not skipping');
@@ -162,7 +162,6 @@ const DatabaseModel = AmpersandModel.extend(
         this.set({
           status: 'ready',
           statusError: null,
-          hasDbStats: true,
           ...stats,
         });
       } catch (err) {
@@ -181,6 +180,7 @@ const DatabaseModel = AmpersandModel.extend(
      */
     async fetchCollections({ dataService, preferences, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
+        console.log('[database-model]', 'skipping collection');
         return;
       }
 
@@ -188,11 +188,17 @@ const DatabaseModel = AmpersandModel.extend(
         const newStatus =
           this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
-        console.log('[database-model]', 'Fetching collections');
+        console.log(
+          '[database-model]',
+          'Fetching collections',
+          preferences,
+          this.collections.fetch
+        );
         await this.collections.fetch({ dataService, preferences, force });
         console.log('[database-model]', 'Done with collections');
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
+        console.log('[database-model]', 'failure', err);
         this.set({
           collectionsStatus: 'error',
           collectionsStatusError: err.message,
@@ -203,11 +209,13 @@ const DatabaseModel = AmpersandModel.extend(
 
     async fetchCollectionsDetails({
       dataService,
+      preferences,
       nameOnly = false,
       force = false,
     }) {
       await this.fetchCollections({
         dataService,
+        preferences,
         force,
       });
 
@@ -221,6 +229,7 @@ const DatabaseModel = AmpersandModel.extend(
         this.collections.map((coll) => {
           return coll.fetch({
             dataService,
+            preferences,
             // We already fetched it with fetchCollections
             fetchInfo: false,
             force,

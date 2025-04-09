@@ -27,6 +27,7 @@ import { runPipelineConfirmationDescription } from '../utils/modal-descriptions'
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import toNS from 'mongodb-ns';
+import { PreferencesAccess } from 'compass-preferences-model';
 
 const WRITE_STAGE_LINK = {
   $merge:
@@ -225,12 +226,19 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const confirmWriteOperationIfNeeded = async (
-  instance: MongoDBInstance,
-  dataService: DataService,
-  namespace: string,
-  pipeline: Document[]
-) => {
+const confirmWriteOperationIfNeeded = async ({
+  instance,
+  dataService,
+  namespace,
+  pipeline,
+  preferences,
+}: {
+  instance: MongoDBInstance;
+  dataService: DataService;
+  namespace: string;
+  pipeline: Document[];
+  preferences: PreferencesAccess;
+}) => {
   const lastStageOperator = getStageOperator(pipeline[pipeline.length - 1]);
   let typeOfWrite;
 
@@ -252,6 +260,7 @@ const confirmWriteOperationIfNeeded = async (
         dataService,
         database,
         collection,
+        preferences,
       }));
     } else {
       isOverwritingCollection = true;
@@ -289,17 +298,25 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService, track, connectionInfoRef }
+    {
+      pipelineBuilder,
+      instance,
+      dataService,
+      track,
+      connectionInfoRef,
+      preferences,
+    }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     if (
-      !(await confirmWriteOperationIfNeeded(
+      !(await confirmWriteOperationIfNeeded({
         instance,
         dataService,
-        getState().namespace,
-        pipeline
-      ))
+        namespace: getState().namespace,
+        pipeline,
+        preferences,
+      }))
     ) {
       return;
     }

@@ -260,7 +260,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
 
     try {
       console.log('[collection-model]', 'starting');
-      const newStatus = this.status === 'initialed' ? 'fetching' : 'refreshing';
+      const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
         enableDbAndCollStats

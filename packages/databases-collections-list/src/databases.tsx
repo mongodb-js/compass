@@ -5,6 +5,7 @@ import { compactBytes, compactNumber } from './format';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { DatabaseProps } from 'mongodb-database-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const DATABASE_CARD_WIDTH = spacing[1600] * 4;
 
@@ -28,6 +29,7 @@ const DatabasesList: React.FunctionComponent<{
   renderLoadSampleDataBanner,
 }) => {
   console.log({ databases });
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   return (
     <ItemsGrid
       items={databases}
@@ -65,17 +67,17 @@ const DatabasesList: React.FunctionComponent<{
               {
                 label: 'Storage size',
                 value:
-                  db.hasDbStats && db.storage_size
+                  enableDbAndCollStats && db.storage_size !== undefined
                     ? compactBytes(db.storage_size)
                     : 'N/A',
                 hint:
-                  db.hasDbStats &&
-                  db.data_size &&
+                  enableDbAndCollStats &&
+                  db.data_size !== undefined &&
                   `Uncompressed data size: ${compactBytes(db.data_size)}`,
               },
               {
                 label: 'Collections',
-                value: db.hasDbStats
+                value: enableDbAndCollStats
                   ? compactNumber(db.collectionsLength)
                   : 'N/A',
                 insights:
@@ -86,7 +88,7 @@ const DatabasesList: React.FunctionComponent<{
               {
                 label: 'Indexes',
                 value:
-                  db.hasDbStats && db.index_count
+                  enableDbAndCollStats && db.index_count !== undefined
                     ? compactNumber(db.index_count)
                     : 'N/A',
               },

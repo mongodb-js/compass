@@ -261,7 +261,7 @@ const InstanceModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetchDatabases({ dataService, preferences, force = false }) {
+    async fetchDatabases({ dataService, force = false }) {
       if (!shouldFetch(this.databasesStatus, force)) {
         return;
       }
@@ -269,9 +269,7 @@ const InstanceModel = AmpersandModel.extend(
         const newStatus =
           this.databasesStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ databasesStatus: newStatus });
-        console.log('[instance-model]', 'fetching');
-        await this.databases.fetch({ dataService, preferences });
-        console.log('[instance-model]', 'done');
+        await this.databases.fetch({ dataService });
         this.set({ databasesStatus: 'ready', databasesStatusError: null });
       } catch (err) {
         this.set({
@@ -309,7 +307,7 @@ const InstanceModel = AmpersandModel.extend(
       fetchCollections = false,
       fetchCollStats = false,
     }) {
-      console.log('[instance-model]', 'refreshing');
+      console.log('[instance-model]', 'refreshing', preferences);
       this.set({
         refreshingStatus:
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
@@ -373,13 +371,13 @@ const InstanceModel = AmpersandModel.extend(
       }
     },
 
-    async getNamespace({ dataService, database, collection }) {
+    async getNamespace({ dataService, database, collection, preferences }) {
       await this.fetchDatabases({ dataService });
       const db = this.databases.get(database);
       if (!db) {
         return null;
       }
-      await db.fetchCollections({ dataService });
+      await db.fetchCollections({ dataService, preferences });
       const coll = db.collections.get(collection, 'name');
       if (!coll) {
         return null;

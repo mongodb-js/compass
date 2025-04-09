@@ -5,7 +5,6 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 interface DatabaseProps {
   _id: string;
   name: string;
-  hasDbStats: boolean;
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
   collectionsStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
@@ -29,11 +28,13 @@ interface Database extends DatabaseProps {
   }): Promise<void>;
   fetchCollections(opts: {
     dataService: DataService;
+    preferences: PreferenceAccess;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchCollectionsDetails(opts: {
     dataService: DataService;
+    preferences: PreferenceAccess;
     nameOnly?: boolean;
     force?: boolean;
   }): Promise<void>;

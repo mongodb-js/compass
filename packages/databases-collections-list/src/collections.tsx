@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { CollectionProps } from 'mongodb-collection-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
 
@@ -80,7 +81,17 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
-  console.log({ collections, namespace });
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const hasStat = useCallback(
+    (stat?: unknown) => enableDbAndCollStats && stat !== undefined,
+    [enableDbAndCollStats]
+  );
+  const hasStats = useCallback(
+    (stats?: unknown[]) =>
+      enableDbAndCollStats &&
+      stats?.filter((stat) => stat === undefined).length === 0,
+    [enableDbAndCollStats]
+  );
   return (
     <div className={pageContainerStyles}>
       <ItemsGrid
@@ -115,39 +126,51 @@ const CollectionsList: React.FunctionComponent<{
               ? [
                   {
                     label: 'Storage size',
-                    value: compactBytes(
-                      coll.storage_size - coll.free_storage_size
-                    ),
-                    hint: `Uncompressed data size: ${compactBytes(
-                      coll.document_size
-                    )}`,
+                    value: enableDbAndCollStats
+                      ? compactBytes(coll.storage_size - coll.free_storage_size)
+                      : 'N/A',
+                    hint:
+                      enableDbAndCollStats &&
+                      `Uncompressed data size: ${compactBytes(
+                        coll.document_size
+                      )}`,
                   },
                 ]
               : [
                   {
                     label: 'Storage size',
-                    value: compactBytes(
-                      coll.storage_size - coll.free_storage_size
-                    ),
-                    hint: `Uncompressed data size: ${compactBytes(
-                      coll.document_size
-                    )}`,
+                    value: enableDbAndCollStats
+                      ? compactBytes(coll.storage_size - coll.free_storage_size)
+                      : 'N/A',
+                    hint:
+                      enableDbAndCollStats &&
+                      `Uncompressed data size: ${compactBytes(
+                        coll.document_size
+                      )}`,
                   },
                   {
                     label: 'Documents',
-                    value: compactNumber(coll.document_count),
+                    value: enableDbAndCollStats
+                      ? compactNumber(coll.document_count)
+                      : 'N/A',
                   },
                   {
                     label: 'Avg. document size',
-                    value: compactBytes(coll.avg_document_size),
+                    value: enableDbAndCollStats
+                      ? compactBytes(coll.avg_document_size)
+                      : 'N/A',
                   },
                   {
                     label: 'Indexes',
-                    value: compactNumber(coll.index_count),
+                    value: enableDbAndCollStats
+                      ? compactNumber(coll.index_count)
+                      : 'N/A',
                   },
                   {
                     label: 'Total index size',
-                    value: compactBytes(coll.index_size),
+                    value: enableDbAndCollStats
+                      ? compactBytes(coll.index_size)
+                      : 'N/A',
                   },
                 ];
 

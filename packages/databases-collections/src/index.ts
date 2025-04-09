@@ -19,6 +19,7 @@ import {
   favoriteQueryStorageAccessLocator,
   pipelineStorageLocator,
 } from '@mongodb-js/my-queries-storage/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CollectionsWorkspaceTab: WorkspaceComponent<'Collections'> = {
   name: 'Collections' as const,
@@ -42,6 +43,7 @@ export const CreateNamespacePlugin = registerHadronPlugin(
     connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     workspaces: workspacesServiceLocator,
+    preferences: preferencesLocator,
   }
 );
 

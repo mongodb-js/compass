@@ -72,7 +72,7 @@ export function createInstancesStore(
       await instance.fetchDatabases({ dataService });
       await Promise.all(
         instance.databases.map((db) => {
-          return db.fetchCollections({ dataService });
+          return db.fetchCollections({ dataService, preferences });
         })
       );
     } catch (error) {
@@ -91,7 +91,7 @@ export function createInstancesStore(
   const refreshInstance = async (
     refreshOptions: Omit<
       Parameters<MongoDBInstance['refresh']>[0],
-      'dataService'
+      'dataService' | 'preferences'
     > = {},
     { connectionId }: { connectionId?: string } = {}
   ) => {
@@ -105,16 +105,10 @@ export function createInstancesStore(
         instancesManager.getMongoDBInstanceForConnection(connectionId);
       const dataService = connections.getDataServiceForConnection(connectionId);
       isFirstRun = instance.status === 'initial';
-      const { enableDbAndCollStats } = preferences.getPreferences();
       await instance.refresh({
         dataService,
         ...refreshOptions,
-        fetchDbStats: enableDbAndCollStats
-          ? refreshOptions.fetchDbStats
-          : false,
-        fetchCollStats: enableDbAndCollStats
-          ? refreshOptions.fetchCollStats
-          : false,
+        preferences,
       });
     } catch (err: any) {
       log.warn(
@@ -165,7 +159,7 @@ export function createInstancesStore(
       await instance.fetchDatabases({ dataService, force: true });
       await Promise.allSettled(
         instance.databases.map((db) =>
-          db.fetchCollections({ dataService, force: true })
+          db.fetchCollections({ dataService, preferences, force: true })
         )
       );
     } catch (err: any) {
@@ -353,7 +347,7 @@ export function createInstancesStore(
           connections.getDataServiceForConnection(connectionId);
         void instance.databases
           .get(databaseId)
-          ?.fetchCollections({ dataService });
+          ?.fetchCollections({ dataService, preferences });
       } catch (error) {
         log.warn(
           mongoLogId(1_001_000_323),

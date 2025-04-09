@@ -461,7 +461,12 @@ export const openSavedItem =
   async (
     dispatch,
     getState,
-    { instancesManager, connections, logger: { log, mongoLogId } }
+    {
+      instancesManager,
+      connections,
+      logger: { log, mongoLogId },
+      preferencesAccess: preferences,
+    }
   ) => {
     const {
       savedItems: { items },
@@ -494,6 +499,7 @@ export const openSavedItem =
           dataService,
           database,
           collection,
+          preferences,
         });
 
         if (coll) {
@@ -594,7 +600,11 @@ export const openSelectedItem =
 
 export const databaseSelected =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { instancesManager, connections }) => {
+  async (
+    dispatch,
+    getState,
+    { instancesManager, connections, preferencesAccess: preferences }
+  ) => {
     const {
       openItem: { selectedDatabase, selectedConnection },
     } = getState();
@@ -621,7 +631,7 @@ export const databaseSelected =
         throw new Error('Database not found');
       }
 
-      await db.fetchCollections({ dataService });
+      await db.fetchCollections({ dataService, preferences });
       // Check with the the current value in case db was re-selected while we
       // were fetching
       if (database === getState().openItem.selectedDatabase) {
