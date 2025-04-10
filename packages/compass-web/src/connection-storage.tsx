@@ -280,47 +280,48 @@ export class AtlasCloudConnectionStorage
   private async _loadAndNormalizeClusterDescriptionInfoV2(): Promise<
     ConnectionInfo[]
   > {
-    return this.atlasService
-      .authenticatedFetch(
-        this.atlasService.cloudEndpoint(
-          `/explorer/v1/groups/${this.projectId}/clusters/connectionInfo`
-        )
+    const res = await this.atlasService.authenticatedFetch(
+      this.atlasService.cloudEndpoint(
+        `/explorer/v1/groups/${this.projectId}/clusters/connectionInfo`
       )
-      .then((res) => {
-        return res.json();
-      })
-      .then((connectionInfoList) => {
-        return connectionInfoList.map((connectionInfo: ConnectionInfo) => {
-          if (
-            !connectionInfo.connectionOptions.connectionString ||
-            !connectionInfo.atlasMetadata ||
-            // TODO(COMPASS-8228): do not filter out those connections, display
-            // them in navigation, but in a way that doesn't allow connecting
-            !CONNECTABLE_CLUSTER_STATES.includes(
-              connectionInfo.atlasMetadata.clusterState
-            )
-          ) {
-            return null;
-          }
+    );
 
-          const clusterName = connectionInfo.atlasMetadata.clusterName;
+    const connectionInfoList = (await res.json()) as ConnectionInfo[];
 
-          return {
-            ...connectionInfo,
-            connectionOptions: {
-              ...connectionInfo.connectionOptions,
-              lookup: () => {
-                return {
-                  wsURL: this.atlasService.driverProxyEndpoint(
-                    `/clusterConnection/${this.projectId}`
-                  ),
-                  projectId: this.projectId,
-                  clusterName,
-                };
-              },
+    return connectionInfoList
+      .map((connectionInfo: ConnectionInfo): ConnectionInfo | null => {
+        if (
+          !connectionInfo.connectionOptions.connectionString ||
+          !connectionInfo.atlasMetadata ||
+          // TODO(COMPASS-8228): do not filter out those connections, display
+          // them in navigation, but in a way that doesn't allow connecting
+          !CONNECTABLE_CLUSTER_STATES.includes(
+            connectionInfo.atlasMetadata.clusterState
+          )
+        ) {
+          return null;
+        }
+
+        const clusterName = connectionInfo.atlasMetadata.clusterName;
+
+        return {
+          ...connectionInfo,
+          connectionOptions: {
+            ...connectionInfo.connectionOptions,
+            lookup: () => {
+              return {
+                wsURL: this.atlasService.driverProxyEndpoint(
+                  `/clusterConnection/${this.projectId}`
+                ),
+                projectId: this.projectId,
+                clusterName,
+              };
             },
-          };
-        });
+          },
+        };
+      })
+      .filter((connectionInfo): connectionInfo is ConnectionInfo => {
+        return !!connectionInfo;
       });
   }
 
