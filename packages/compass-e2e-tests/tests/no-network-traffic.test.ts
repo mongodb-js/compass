@@ -65,9 +65,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
-      // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
-      // Probably the welcome modal.
-      firstRun: false,
+      firstRun: true,
     });
     const browser = compass.browser;
 
@@ -117,7 +115,11 @@ describe('networkTraffic: false / Isolated Edition', function () {
 
     if (
       [...connectTargets].some(
-        (target) => !/^127.0.0.1:|^\[::1\]:/.test(target)
+        // Chromium heuristically detects IPv4-only networks by attempting a UDP connection
+        // to 2001:4860:4860::8888 (the IPv6 address for Google Public DNS).
+        (target) =>
+          !/^127.0.0.1:|^\[::1\]:/.test(target) &&
+          !/^\[2001:4860:4860::8888\]:443$/.test(target)
       )
     ) {
       throw new Error(`Connected to unexpected host! ${[...connectTargets]}`);
