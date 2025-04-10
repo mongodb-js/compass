@@ -186,6 +186,11 @@ describe('buildConnectionInfoFromClusterDescription', function () {
         clusterDescription.replicationSpecList?.[0].regionConfigs.slice().pop()
           ?.electableSpecs.instanceSize;
 
+      // We test these separately in another test
+      if (connectionInfo.atlasMetadata?.supports) {
+        delete (connectionInfo.atlasMetadata as { supports?: any }).supports;
+      }
+
       expect(connectionInfo)
         .to.have.property('atlasMetadata')
         .deep.eq({
@@ -199,12 +204,9 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           clusterUniqueId: '123abc',
           metricsType: type === 'sharded' ? 'cluster' : type,
           instanceSize: expectedInstanceSize,
-          regionalBaseUrl: 'https://example.com',
+          regionalBaseUrl: null,
           clusterType: clusterDescription.clusterType,
-          geoSharding: {
-            selfManagedSharding:
-              clusterDescription.geoSharding?.selfManagedSharding,
-          },
+          clusterState: 'IDLE',
         });
     });
   }

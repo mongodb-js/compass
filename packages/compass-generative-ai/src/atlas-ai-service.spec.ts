@@ -26,12 +26,17 @@ const mockConnectionInfo: ConnectionInfo = {
     orgId: 'testOrg',
     projectId: 'testProject',
     clusterName: 'pineapple',
-    regionalBaseUrl: 'https://example.com',
+    regionalBaseUrl: null,
     metricsId: 'metricsId',
     metricsType: 'replicaSet',
     instanceSize: 'M10',
     clusterType: 'REPLICASET',
     clusterUniqueId: 'clusterUniqueId',
+    clusterState: 'IDLE',
+    supports: {
+      globalWrites: false,
+      rollingIndexes: false,
+    },
   },
 };
 

@@ -68,6 +68,9 @@ describe('regular-indexes module', function () {
           atlasMetadata: {
             metricsType: 'cluster',
             instanceSize: 'M10',
+            supports: {
+              rollingIndexes: true,
+            },
           },
         },
       } as ConnectionInfoRef;
