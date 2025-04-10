@@ -17,20 +17,6 @@ function runUpdateExe(args: string[]): Promise<void> {
   });
 }
 
-function getShortcutName() {
-  // The shortcut name is the app name plus the channel name if it is not
-  // stable. ie. "MongoDB Compass Readonly Beta"
-
-  const parts: string[] = [process.env.HADRON_PRODUCT_NAME];
-  if (process.env.HADRON_CHANNEL !== 'stable') {
-    parts.push(
-      process.env.HADRON_CHANNEL.charAt(0).toUpperCase() +
-        process.env.HADRON_CHANNEL.slice(1)
-    );
-  }
-  return `"${parts.join(' ')}"`;
-}
-
 /*
 Squirrel will spawn Compass with command line flags on first run, updates, and
 uninstalls. It is very important that we handle these events as early as
@@ -42,7 +28,10 @@ export async function handleSquirrelWindowsStartup(): Promise<boolean> {
     return false;
   }
 
-  const shortcutName = getShortcutName();
+  // This has to be an executable that was packaged up with the app. There's no
+  // way to control what the shortcut name will be - it is always the same as
+  // the executable.
+  const shortcutName = path.basename(process.execPath);
 
   const cmd = process.argv[1];
   debug('processing squirrel command `%s`', cmd);

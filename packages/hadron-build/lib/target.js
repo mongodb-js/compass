@@ -314,7 +314,7 @@ class Target {
      * remoteToken: this.githubToken,
      */
     Object.assign(this.packagerOptions, {
-      name: this.productName.replace(/ /g, ''),
+      name: this.productName,
       icon: this.src(platformSettings.icon),
       'version-string': {
         CompanyName: this.author,
@@ -451,12 +451,12 @@ class Target {
         outputDirectory: this.packagerOptions.out,
         exe: this.packagerOptions.name,
         name: this.productName,
+        // NOTE: falling back to author would result in MongoDB Inc
+        shortcutFolderName: this.shortcutFolderName || this.author,
         shortcutName: this.productName,
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
-        // NOTE: falling back to author would result in MongoDB Inc
-        shortcutFolderName: this.shortcutFolderName || this.author,
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
         upgradeCode: this.upgradeCode,
