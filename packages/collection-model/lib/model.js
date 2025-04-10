@@ -244,19 +244,24 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   /**
    * @param {{
    *    dataService: import('mongodb-data-service').DataService,
-   *    preferences: import('compass-preferences-model').PreferencesAccess,
    *    fetchInfo: boolean,
    *    force: boolean
    * }} options
    * @returns
    */
-  async fetch({ dataService, fetchInfo = true, preferences, force = false }) {
+  async fetch({ dataService, fetchInfo = true, force = false }) {
     if (!shouldFetch(this.status, force)) {
       console.log('[collection-model]', 'not should fetch', this.status, force);
       return;
     }
 
-    const { enableDbAndCollStats } = preferences.getPreferences();
+    const instanceModel = getParentByType(this, 'Instance');
+    console.log(
+      'PREFERENCES in COLL',
+      instanceModel.preferences,
+      instanceModel
+    );
+    const { enableDbAndCollStats } = instanceModel.preferences.getPreferences();
 
     try {
       console.log('[collection-model]', 'starting');
@@ -296,12 +301,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    * that events like open-in-new-tab, select-namespace, edit-view require
    * @param {{
    *    dataService: import('mongodb-data-service').DataService,
-   *    preferences: import('compass-preferences-model').PreferencesAccess,
    * }} options
    */
-  async fetchMetadata({ dataService, preferences }) {
+  async fetchMetadata({ dataService }) {
     try {
-      await this.fetch({ dataService, preferences });
+      await this.fetch({ dataService });
     } catch (e) {
       if (e.name !== 'MongoServerError') {
         throw e;

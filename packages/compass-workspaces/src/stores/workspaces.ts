@@ -729,7 +729,7 @@ const fetchCollectionInfo = (
       });
 
       if (coll) {
-        await coll.fetch({ dataService, preferences });
+        await coll.fetch({ dataService });
         const info = {
           isTimeSeries: coll.isTimeSeries,
           isReadonly: coll.readonly ?? coll.isView,
@@ -765,7 +765,7 @@ const fetchDatabaseInfo = (
   return async (
     dispatch,
     getState,
-    { connections, instancesManager, logger, preferences }
+    { connections, instancesManager, logger }
   ) => {
     const { databaseInfo } = getState();
     const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
@@ -785,7 +785,7 @@ const fetchDatabaseInfo = (
       const db = instance.databases.get(workspaceOptions.namespace);
       if (db) {
         console.log('DB FETCH');
-        await db.fetch({ dataService, preferences });
+        await db.fetch({ dataService });
         const info = {
           isNonExistent: db.is_non_existent,
         };

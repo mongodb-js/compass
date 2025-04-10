@@ -32,7 +32,6 @@ export type CollectionTabServices = {
   collection: Collection;
   localAppRegistry: AppRegistry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-  preferences: PreferencesAccess;
 };
 
 export function activatePlugin(
@@ -45,7 +44,6 @@ export function activatePlugin(
     collection: collectionModel,
     localAppRegistry,
     workspaces,
-    preferences,
   } = services;
 
   if (!collectionModel) {
@@ -87,11 +85,9 @@ export function activatePlugin(
     store.dispatch(selectTab('Schema'));
   });
 
-  void collectionModel
-    .fetchMetadata({ dataService, preferences })
-    .then((metadata) => {
-      store.dispatch(collectionMetadataFetched(metadata));
-    });
+  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
+    store.dispatch(collectionMetadataFetched(metadata));
+  });
 
   return {
     store,
