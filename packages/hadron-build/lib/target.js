@@ -394,6 +394,10 @@ class Target {
       iconUrl: platformSettings.favicon_url,
       appDirectory: this.appPath,
       outputDirectory: this.packagerOptions.out,
+      // NOTE: This also becomes the name of the shortcut folder. Will be
+      // "MongoDB Inc" if it uses this.author. Tempting to use
+      // this.shortcutFolderName so it becomes MongoDB like for the .msi, but
+      // who knows what else will be affected.
       authors: this.author,
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
