@@ -22,7 +22,7 @@ function printVar(name, value) {
 function printCompassEnv() {
   let {
     // This is an env var set in bash that we exported in print-compass-env.sh
-    OSTYPE
+    OSTYPE,
   } = process.env;
 
   // We have to operate on bash's PATH env var where the c:\ style paths have
@@ -55,6 +55,13 @@ function printCompassEnv() {
 
   const pathsToPrepend = [];
 
+  if (process.env.PLATFORM === 'linux') {
+    // To build node modules on linux post electron 13 we need a newer c++
+    // compiler version and at least python v3.9, this adds it.
+    // https://jira.mongodb.org/browse/COMPASS-5150
+    pathsToPrepend.unshift('/opt/devtools/bin');
+  }
+
   if (OSTYPE === 'cygwin') {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
@@ -66,13 +73,6 @@ function printCompassEnv() {
     printVar('APPDATA', 'Z:\\;');
   } else {
     pathsToPrepend.unshift(`${newPWD}/.deps/bin`);
-  }
-
-  if (process.env.PLATFORM === 'linux') {
-    // To build node modules on linux post electron 13 we need a newer c++
-    // compiler version and at least python v3.9, this adds it.
-    // https://jira.mongodb.org/browse/COMPASS-5150
-    pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
   }
 
   pathsToPrepend.unshift(`${originalPWD}/.evergreen/docker-config/bin`);
