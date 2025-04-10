@@ -314,7 +314,7 @@ class Target {
      * remoteToken: this.githubToken,
      */
     Object.assign(this.packagerOptions, {
-      name: this.productName,
+      name: this.productName.replace(/ /g, '\\ '),
       icon: this.src(platformSettings.icon),
       'version-string': {
         CompanyName: this.author,
