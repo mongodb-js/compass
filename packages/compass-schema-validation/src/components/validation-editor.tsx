@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -10,9 +9,14 @@ import {
   Body,
   spacing,
   Banner,
+  Icon,
   palette,
+  showConfirmation,
   useDarkMode,
   KeylineCard,
+  ButtonVariant,
+  SpinLoader,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -36,25 +40,32 @@ import {
   validationActionChanged,
   validationLevelChanged,
 } from '../modules/validation';
-import { namespaceChanged } from '../modules/namespace';
 import { clearSampleDocuments } from '../modules/sample-documents';
+import { enableEditRules } from '../modules/edit-mode';
+import { usePreference } from 'compass-preferences-model/provider';
+import { generateValidationRules } from '../modules/rules-generation';
 
 const validationEditorStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const validationOptionsStyles = css({
   display: 'flex',
 });
 
+const generateButtonContainerStyles = css({
+  flexGrow: 1,
+});
+
 const actionsStyles = css({
   display: 'flex',
   alignItems: 'center',
-  marginTop: spacing[3],
+  justifyContent: 'flex-end',
+  marginTop: spacing[400],
 });
 
 const editorStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const editorStylesLight = css({
@@ -66,11 +77,19 @@ const editorStylesDark = css({
 });
 
 const modifiedMessageStyles = css({
+  color: palette.yellow.dark2,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
   flex: 1,
 });
 
+const modifiedMessageDarkStyles = css({
+  color: palette.yellow.light2,
+});
+
 const buttonStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 type ValidationCodeEditorProps = Pick<
@@ -101,6 +120,7 @@ const ValidationCodeEditor = ({
       text={text}
       onChangeText={onChangeText}
       readOnly={readOnly}
+      formattable={!readOnly}
       completer={completer}
     />
   );
@@ -109,11 +129,13 @@ const ValidationCodeEditor = ({
 type ValidationEditorProps = {
   namespace: string;
   clearSampleDocuments: () => void;
+  onClickEnableEditRules: () => void;
   validatorChanged: (text: string) => void;
   validationActionChanged: (action: ValidationServerAction) => void;
   validationLevelChanged: (level: ValidationLevel) => void;
   cancelValidation: () => void;
   saveValidation: (text: Validation) => void;
+  generateValidationRules: () => void;
   serverVersion: string;
   validation: Pick<
     ValidationState,
@@ -125,6 +147,9 @@ type ValidationEditorProps = {
     | 'error'
   >;
   isEditable: boolean;
+  isEditingEnabled: boolean;
+  isRulesGenerationInProgress: boolean;
+  isSavingInProgress: boolean;
 };
 
 /**
@@ -135,15 +160,21 @@ export const ValidationEditor: React.FunctionComponent<
 > = ({
   namespace,
   clearSampleDocuments,
+  onClickEnableEditRules,
   validatorChanged,
   validationActionChanged,
   validationLevelChanged,
   cancelValidation,
   saveValidation,
+  generateValidationRules,
   serverVersion,
   validation,
   isEditable,
+  isEditingEnabled,
+  isRulesGenerationInProgress,
+  isSavingInProgress,
 }) => {
+  const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
 
@@ -193,29 +224,32 @@ export const ValidationEditor: React.FunctionComponent<
     [debounceValidatorChanged]
   );
 
-  const onValidatorSave = useCallback(() => {
-    saveValidationRef.current(validationRef.current);
-  }, []);
-
   const darkMode = useDarkMode();
 
   const { validationAction, validationLevel, error, syntaxError, isChanged } =
     validation;
 
-  const hasErrors = !!(error || syntaxError);
+  const onClickApplyValidation = useCallback(async () => {
+    const confirmed = await showConfirmation({
+      title: 'Are you sure you want to apply these validation rules?',
+      description:
+        'These rules will be enforced on updates & inserts of your document. Please make sure you have reviewed the rules before applying them.',
+    });
+    if (!confirmed) {
+      return;
+    }
 
-  let message = '';
-  let variant: BannerVariant = 'info';
+    saveValidationRef.current(validationRef.current);
+  }, [showConfirmation]);
 
-  if (syntaxError) {
-    message = syntaxError.message;
-    variant = 'danger';
-  } else if (error) {
-    message = error.message;
-    variant = 'warning';
-  }
-
-  const hasChangedAndEditable = isChanged && isEditable;
+  const isEmpty = useMemo<boolean>(() => {
+    if (!validation.validator || validation.validator.length === 0) return true;
+    try {
+      return Object.keys(JSON.parse(validation.validator)).length === 0;
+    } catch {
+      return false;
+    }
+  }, [validation.validator]);
 
   return (
     <KeylineCard
@@ -223,13 +257,36 @@ export const ValidationEditor: React.FunctionComponent<
       className={validationEditorStyles}
     >
       <div className={validationOptionsStyles}>
+        {enableExportSchema && (
+          <div className={generateButtonContainerStyles}>
+            <Tooltip
+              enabled={!isEmpty}
+              trigger={
+                <Button
+                  data-testid="generate-rules-button"
+                  disabled={!isEmpty}
+                  isLoading={isRulesGenerationInProgress}
+                  loadingIndicator={<SpinLoader />}
+                  onClick={generateValidationRules}
+                  variant={ButtonVariant.Primary}
+                  size="small"
+                >
+                  Generate rules
+                </Button>
+              }
+            >
+              Clear existing rules before generating new ones
+            </Tooltip>
+          </div>
+        )}
         <ActionSelector
-          isEditable={isEditable}
+          isEditable={isEditable && isEditingEnabled}
           validationActionChanged={validationActionChanged}
           validationAction={validationAction}
+          serverVersion={serverVersion}
         />
         <LevelSelector
-          isEditable={isEditable}
+          isEditable={isEditable && isEditingEnabled}
           validationLevelChanged={validationLevelChanged}
           validationLevel={validationLevel}
         />
@@ -246,38 +303,67 @@ export const ValidationEditor: React.FunctionComponent<
           onChangeText={(text) => {
             onValidatorChange(text);
           }}
-          readOnly={!isEditable}
+          readOnly={!isEditable || !isEditingEnabled}
           serverVersion={serverVersion}
         />
       </div>
-      {variant && message && <Banner variant={variant}>{message}</Banner>}
-      {hasChangedAndEditable && (
+      {syntaxError && <Banner variant="danger">{syntaxError.message}</Banner>}
+      {!syntaxError && error && (
+        <Banner variant="danger">{error.message}</Banner>
+      )}
+      {isEditable && (
         <div className={actionsStyles}>
-          <Body
-            className={modifiedMessageStyles}
-            data-testid="validation-action-message"
-          >
-            Validation modified
-          </Body>
-          <Button
-            type="button"
-            className={buttonStyles}
-            variant="default"
-            data-testid="cancel-validation-button"
-            onClick={cancelValidation}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            className={buttonStyles}
-            variant="primary"
-            data-testid="update-validation-button"
-            onClick={onValidatorSave}
-            disabled={hasErrors}
-          >
-            Update
-          </Button>
+          {isEditingEnabled ? (
+            <>
+              {isChanged && (
+                <Body
+                  className={cx(
+                    modifiedMessageStyles,
+                    darkMode && modifiedMessageDarkStyles
+                  )}
+                  data-testid="validation-action-message"
+                >
+                  <Icon glyph="InfoWithCircle" /> Rules are modified &amp; not
+                  applied. Please review before applying.
+                </Body>
+              )}
+              <Button
+                type="button"
+                className={buttonStyles}
+                variant="default"
+                data-testid="cancel-validation-button"
+                onClick={cancelValidation}
+              >
+                Cancel
+              </Button>
+              {isChanged && (
+                <Button
+                  type="button"
+                  className={buttonStyles}
+                  variant="primary"
+                  data-testid="update-validation-button"
+                  onClick={() => {
+                    void onClickApplyValidation();
+                  }}
+                  isLoading={isSavingInProgress}
+                  loadingIndicator={<SpinLoader title="Updating validation…" />}
+                  disabled={!!syntaxError}
+                >
+                  Apply
+                </Button>
+              )}
+            </>
+          ) : (
+            <Button
+              type="button"
+              leftGlyph={<Icon glyph="Edit" />}
+              variant="primaryOutline"
+              data-testid="enable-edit-validation-button"
+              onClick={onClickEnableEditRules}
+            >
+              Edit rules
+            </Button>
+          )}
         </div>
       )}
     </KeylineCard>
@@ -286,8 +372,11 @@ export const ValidationEditor: React.FunctionComponent<
 
 const mapStateToProps = (state: RootState) => ({
   serverVersion: state.serverVersion,
+  isEditingEnabled: state.editMode.isEditingEnabledByUser,
   validation: state.validation,
   namespace: state.namespace.ns,
+  isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
+  isSavingInProgress: state.validation.isSaving,
 });
 
 /**
@@ -298,7 +387,8 @@ export default connect(mapStateToProps, {
   validatorChanged,
   cancelValidation,
   saveValidation,
-  namespaceChanged,
+  onClickEnableEditRules: enableEditRules,
   validationActionChanged,
   validationLevelChanged,
+  generateValidationRules,
 })(ValidationEditor);

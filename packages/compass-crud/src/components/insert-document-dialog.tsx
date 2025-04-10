@@ -1,15 +1,23 @@
-import { pull } from 'lodash';
-import React from 'react';
+import { without } from 'lodash';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
   Banner,
+  Button,
   css,
   FormModal,
   Icon,
   SegmentedControl,
   SegmentedControlOption,
   spacing,
+  showErrorDetails,
 } from '@mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
@@ -19,6 +27,7 @@ import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { WriteError } from '../stores/crud-store';
 
 /**
  * The insert invalid message.
@@ -29,17 +38,21 @@ const INSERT_INVALID_MESSAGE =
 const documentViewId = 'insert-document-view';
 
 const toolbarStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
   display: 'flex',
   justifyContent: 'flex-end',
 });
 
 const documentViewContainer = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const bannerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
+});
+
+const errorDetailsBtnStyles = css({
+  float: 'right',
 });
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
@@ -49,7 +62,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
-  message: string;
+  error: WriteError;
   mode: 'modifying' | 'error';
   version: string;
   updateJsonDoc: (value: string | null) => void;
@@ -63,133 +76,86 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   track?: TrackFunction;
 };
 
-type InsertDocumentDialogState = {
-  insertInProgress: boolean;
+const DocumentOrJsonView: React.FC<{
+  jsonView: InsertDocumentDialogProps['jsonView'];
+  doc: InsertDocumentDialogProps['doc'];
+  hasManyDocuments: () => boolean;
+  updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
+  jsonDoc: InsertDocumentDialogProps['jsonDoc'];
+  isCommentNeeded: InsertDocumentDialogProps['isCommentNeeded'];
+  updateComment: InsertDocumentDialogProps['updateComment'];
+}> = ({
+  jsonView,
+  doc,
+  hasManyDocuments,
+  updateJsonDoc,
+  jsonDoc,
+  isCommentNeeded,
+  updateComment,
+}) => {
+  if (jsonView) {
+    return (
+      <InsertJsonDocument
+        updateJsonDoc={updateJsonDoc}
+        jsonDoc={jsonDoc}
+        isCommentNeeded={isCommentNeeded}
+        updateComment={updateComment}
+      />
+    );
+  }
+
+  if (hasManyDocuments()) {
+    return (
+      <Banner variant="warning">
+        This view is not supported for multiple documents. To specify data types
+        and use other functionality of this view, please insert documents one at
+        a time.
+      </Banner>
+    );
+  }
+
+  if (!doc) {
+    return null;
+  }
+
+  return <InsertDocument doc={doc} />;
 };
 
 /**
  * Component for the insert document dialog.
  */
-class InsertDocumentDialog extends React.PureComponent<
-  InsertDocumentDialogProps,
-  InsertDocumentDialogState
-> {
-  invalidElements: Document['uuid'][];
+const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
+  isOpen,
+  jsonView,
+  jsonDoc,
+  doc,
+  isCommentNeeded,
+  error: _error,
+  ns,
+  csfleState,
+  track,
+  insertMany,
+  insertDocument,
+  toggleInsertDocument,
+  toggleInsertDocumentView,
+  updateJsonDoc,
+  updateComment,
+  closeInsertDocumentDialog,
+}) => {
+  const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
+    []
+  );
+  const [insertInProgress, setInsertInProgress] = useState(false);
 
-  /**
-   * The component constructor.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props: InsertDocumentDialogProps) {
-    super(props);
-    this.state = { insertInProgress: false };
-    this.invalidElements = [];
-  }
-
-  /**
-   * Handle subscriptions to the document.
-   *
-   * @param {Object} prevProps - The previous properties.
-   */
-  componentDidUpdate(
-    prevProps: InsertDocumentDialogProps,
-    state: InsertDocumentDialogState
-  ) {
-    if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-      this.props.track &&
-        this.props.track(
-          'Screen',
-          { name: 'insert_document_modal' },
-          undefined
-        );
+  const hasManyDocuments = useCallback(() => {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonDoc);
+    } catch {
+      return false;
     }
-
-    if (this.props.isOpen && !this.hasManyDocuments()) {
-      if (prevProps.jsonView && !this.props.jsonView) {
-        // When switching to Hadron Document View.
-        // Reset the invalid elements list, which contains the
-        // uuids of each element that has BSON type cast errors.
-        this.invalidElements = [];
-        // Subscribe to the validation errors for BSON types on the document.
-        this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
-        this.props.doc.on(Element.Events.Valid, this.handleValid);
-      } else if (!prevProps.jsonView && this.props.jsonView) {
-        // When switching to JSON View.
-        // Remove the listeners to the BSON type validation errors in order to clean up properly.
-        this.props.doc.removeListener(
-          Element.Events.Invalid,
-          this.handleInvalid
-        );
-        this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
-      }
-    }
-
-    if (state.insertInProgress) {
-      this.setState({ insertInProgress: false });
-    }
-  }
-
-  componentWillUnount() {
-    if (!this.hasManyDocuments()) {
-      // When closing the modal.
-      // Remove the listeners to the BSON type validation errors in order to clean up properly.
-      this.props.doc.removeListener(Element.Events.Invalid, this.handleInvalid);
-      this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
-    }
-  }
-
-  /**
-   * Handles an element in the document becoming valid from invalid.
-   *
-   * @param {Element} el - Element
-   */
-  handleValid = (el: Element) => {
-    if (this.hasErrors()) {
-      pull(this.invalidElements, el.uuid);
-      this.forceUpdate();
-    }
-  };
-
-  /**
-   * Handles a valid element in the document becoming invalid.
-   *
-   * @param {Element} el - Element
-   */
-  handleInvalid = (el: Element) => {
-    if (!this.invalidElements.includes(el.uuid)) {
-      this.invalidElements.push(el.uuid);
-      this.forceUpdate();
-    }
-  };
-
-  /**
-   * Handle the insert.
-   */
-  handleInsert() {
-    this.setState({ insertInProgress: true });
-    if (this.hasManyDocuments()) {
-      this.props.insertMany();
-    } else {
-      this.props.insertDocument();
-    }
-  }
-
-  /**
-   * Switches between JSON and Hadron Document views.
-   *
-   * In case of multiple documents, only switches the this.props.insert.jsonView
-   * In other cases, also modifies this.props.insert.doc/jsonDoc to keep data in place.
-   *
-   * @param {String} view - which view we are looking at: JSON or LIST.
-   */
-  switchInsertDocumentView(view: string) {
-    if (!this.hasManyDocuments()) {
-      this.props.toggleInsertDocument(view as 'JSON' | 'List');
-    } else {
-      this.props.toggleInsertDocumentView(view as 'JSON' | 'List');
-    }
-  }
+    return Array.isArray(parsed);
+  }, [jsonDoc]);
 
   /**
    * Does the document have errors with the bson types?  Checks for
@@ -201,150 +167,216 @@ class InsertDocumentDialog extends React.PureComponent<
    *
    * @returns {Boolean} If the document has errors.
    */
-  hasErrors() {
-    if (this.props.jsonView) {
+  const hasErrors = useCallback(() => {
+    if (jsonView) {
       try {
-        JSON.parse(this.props.jsonDoc);
+        JSON.parse(jsonDoc);
         return false;
       } catch {
         return true;
       }
     }
-    return this.invalidElements.length > 0;
-  }
+    return invalidElements.length > 0;
+  }, [invalidElements, jsonDoc, jsonView]);
 
-  /**
-   * Check if the json pasted is multiple documents (array).
-   *
-   * @returns {bool} If many documents are currently being inserted.
-   */
-  hasManyDocuments() {
-    let jsonDoc: unknown;
-    try {
-      jsonDoc = JSON.parse(this.props.jsonDoc);
-    } catch {
-      return false;
-    }
-    return Array.isArray(jsonDoc);
-  }
+  const handleInvalid = useCallback(
+    (el: Element) => {
+      if (!invalidElements.includes(el.uuid)) {
+        setInvalidElements((elements) => [...elements, el.uuid]);
+      }
+    },
+    [invalidElements]
+  );
 
-  /**
-   * Render the document or json editor.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderDocumentOrJsonView() {
-    if (!this.props.jsonView) {
-      if (this.hasManyDocuments()) {
-        return (
-          <Banner variant="warning">
-            This view is not supported for multiple documents. To specify data
-            types and use other functionality of this view, please insert
-            documents one at a time.
-          </Banner>
+  const handleValid = useCallback(
+    (el: Element) => {
+      if (hasErrors()) {
+        setInvalidElements((invalidElements) =>
+          without(invalidElements, el.uuid)
         );
       }
+    },
+    [hasErrors, setInvalidElements]
+  );
 
-      if (!this.props.doc) {
-        return;
-      }
-
-      return <InsertDocument doc={this.props.doc} />;
+  useEffect(() => {
+    if (isOpen && track) {
+      track('Screen', { name: 'insert_document_modal' }, undefined);
     }
+  }, [isOpen, track]);
 
-    return (
-      <InsertJsonDocument
-        updateJsonDoc={this.props.updateJsonDoc}
-        jsonDoc={this.props.jsonDoc}
-        isCommentNeeded={this.props.isCommentNeeded}
-        updateComment={this.props.updateComment}
-      />
-    );
-  }
+  const prevJsonView = useRef(jsonView);
+  useEffect(() => {
+    const viewHasChanged = prevJsonView.current !== jsonView;
+    prevJsonView.current = jsonView;
+    if (isOpen && !hasManyDocuments() && viewHasChanged) {
+      if (!jsonView) {
+        // When switching to Hadron Document View.
+        // Reset the invalid elements list, which contains the
+        // uuids of each element that has BSON type cast errors.
+        setInvalidElements([]);
+        // Subscribe to the validation errors for BSON types on the document.
+        doc.on(Element.Events.Invalid, handleInvalid);
+        doc.on(Element.Events.Valid, handleValid);
+        doc.on(Element.Events.Removed, handleValid);
+      } else {
+        // When switching to JSON View.
+        // Remove the listeners to the BSON type validation errors in order to clean up properly.
+        doc.removeListener(Element.Events.Invalid, handleInvalid);
+        doc.removeListener(Element.Events.Valid, handleValid);
+        doc.removeListener(Element.Events.Removed, handleValid);
+      }
+    }
+  }, [isOpen, jsonView, doc, handleValid, handleInvalid, hasManyDocuments]);
+
+  useEffect(() => {
+    if (insertInProgress) {
+      setInsertInProgress(false);
+    }
+  }, [insertInProgress]);
+
+  const docRef = useRef(doc);
+  useEffect(() => {
+    if (isOpen) {
+      docRef.current = doc;
+      return;
+    }
+    // When closing the modal.
+    if (!hasManyDocuments() && docRef.current) {
+      // Remove the listeners to the BSON type validation errors in order to clean up properly.
+      docRef.current.removeListener(Element.Events.Invalid, handleInvalid);
+      docRef.current.removeListener(Element.Events.Valid, handleValid);
+      docRef.current.removeListener(Element.Events.Removed, handleValid);
+    }
+  }, [isOpen, doc, handleInvalid, handleValid, hasManyDocuments]);
+
+  const handleInsert = useCallback(() => {
+    setInsertInProgress(true);
+    if (hasManyDocuments()) {
+      insertMany();
+    } else {
+      insertDocument();
+    }
+  }, [setInsertInProgress, insertMany, insertDocument, hasManyDocuments]);
 
   /**
-   * Render the modal dialog.
+   * Switches between JSON and Hadron Document views.
    *
-   * @returns {React.Component} The react component.
+   * In case of multiple documents, only switches the this.props.insert.jsonView
+   * In other cases, also modifies this.props.insert.doc/jsonDoc to keep data in place.
+   *
+   * @param {String} view - which view we are looking at: JSON or LIST.
    */
-  render() {
-    const currentView = this.props.jsonView ? 'JSON' : 'List';
-    const variant = this.state.insertInProgress ? 'info' : 'danger';
+  const switchInsertDocumentView = useCallback(
+    (view: string) => {
+      if (!hasManyDocuments()) {
+        toggleInsertDocument(view as 'JSON' | 'List');
+      } else {
+        toggleInsertDocumentView(view as 'JSON' | 'List');
+      }
+    },
+    [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
+  );
 
-    let message = this.props.message;
+  const currentView = jsonView ? 'JSON' : 'List';
+  const variant = insertInProgress ? 'info' : 'danger';
 
-    if (this.hasErrors()) {
-      message = INSERT_INVALID_MESSAGE;
+  const error = useMemo(() => {
+    if (hasErrors()) {
+      return { message: INSERT_INVALID_MESSAGE };
     }
-
-    if (this.state.insertInProgress) {
-      message = 'Inserting Document';
+    if (insertInProgress) {
+      return { message: 'Inserting Document' };
     }
+    return _error;
+  }, [_error, hasErrors, insertInProgress]);
 
-    return (
-      <FormModal
-        title="Insert Document"
-        subtitle={`To collection ${this.props.ns}`}
-        className="insert-document-dialog"
-        open={this.props.isOpen}
-        onSubmit={this.handleInsert.bind(this)}
-        onCancel={this.props.closeInsertDocumentDialog}
-        submitButtonText="Insert"
-        submitDisabled={this.hasErrors()}
-        data-testid="insert-document-modal"
-        minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
-      >
-        <div className={toolbarStyles}>
-          <SegmentedControl
-            label="View"
-            size="xsmall"
-            value={currentView}
-            aria-controls={documentViewId}
-            onChange={this.switchInsertDocumentView.bind(this)}
-          >
-            <SegmentedControlOption
-              disabled={this.hasErrors()}
-              data-testid="insert-document-dialog-view-json"
-              aria-label="E-JSON View"
-              value="JSON"
-              glyph={<Icon glyph="CurlyBraces" />}
-              onClick={(evt) => {
-                // We override the `onClick` functionality to prevent form submission.
-                // The value changing occurs in the `onChange` in the `SegmentedControl`.
-                evt.preventDefault();
-              }}
-            ></SegmentedControlOption>
-            <SegmentedControlOption
-              disabled={this.hasErrors()}
-              data-testid="insert-document-dialog-view-list"
-              aria-label="Document list"
-              value="List"
-              onClick={(evt) => {
-                // We override the `onClick` functionality to prevent form submission.
-                // The value changing occurs in the `onChange` in the `SegmentedControl`.
-                evt.preventDefault();
-              }}
-              glyph={<Icon glyph="Menu" />}
-            ></SegmentedControlOption>
-          </SegmentedControl>
-        </div>
-        <div className={documentViewContainer} id={documentViewId}>
-          {this.renderDocumentOrJsonView()}
-        </div>
-        {message && (
-          <Banner
-            data-testid="insert-document-banner"
-            data-variant={variant}
-            variant={variant}
-            className={bannerStyles}
-          >
-            {message}
-          </Banner>
-        )}
-        <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
-      </FormModal>
-    );
-  }
-}
+  return (
+    <FormModal
+      title="Insert Document"
+      subtitle={`To collection ${ns}`}
+      className="insert-document-dialog"
+      open={isOpen}
+      onSubmit={handleInsert.bind(this)}
+      onCancel={closeInsertDocumentDialog}
+      submitButtonText="Insert"
+      submitDisabled={hasErrors()}
+      data-testid="insert-document-modal"
+      minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
+    >
+      <div className={toolbarStyles}>
+        <SegmentedControl
+          label="View"
+          size="xsmall"
+          value={currentView}
+          aria-controls={documentViewId}
+          onChange={switchInsertDocumentView.bind(this)}
+        >
+          <SegmentedControlOption
+            disabled={hasErrors()}
+            data-testid="insert-document-dialog-view-json"
+            aria-label="E-JSON View"
+            value="JSON"
+            glyph={<Icon glyph="CurlyBraces" />}
+            onClick={(evt) => {
+              // We override the `onClick` functionality to prevent form submission.
+              // The value changing occurs in the `onChange` in the `SegmentedControl`.
+              evt.preventDefault();
+            }}
+          ></SegmentedControlOption>
+          <SegmentedControlOption
+            disabled={hasErrors()}
+            data-testid="insert-document-dialog-view-list"
+            aria-label="Document list"
+            value="List"
+            onClick={(evt) => {
+              // We override the `onClick` functionality to prevent form submission.
+              // The value changing occurs in the `onChange` in the `SegmentedControl`.
+              evt.preventDefault();
+            }}
+            glyph={<Icon glyph="Menu" />}
+          ></SegmentedControlOption>
+        </SegmentedControl>
+      </div>
+      <div className={documentViewContainer} id={documentViewId}>
+        <DocumentOrJsonView
+          jsonView={jsonView}
+          doc={doc}
+          hasManyDocuments={hasManyDocuments}
+          updateJsonDoc={updateJsonDoc}
+          jsonDoc={jsonDoc}
+          isCommentNeeded={isCommentNeeded}
+          updateComment={updateComment}
+        />
+      </div>
+      {error && (
+        <Banner
+          data-testid="insert-document-banner"
+          data-variant={variant}
+          variant={variant}
+          className={bannerStyles}
+        >
+          {error?.message}
+          {error?.info && (
+            <Button
+              size="xsmall"
+              className={errorDetailsBtnStyles}
+              onClick={() =>
+                showErrorDetails({
+                  details: error.info!,
+                  closeAction: 'back',
+                })
+              }
+              data-testid="insert-document-error-details-button"
+            >
+              VIEW ERROR DETAILS
+            </Button>
+          )}
+        </Banner>
+      )}
+      <InsertCSFLEWarningBanner csfleState={csfleState} />
+    </FormModal>
+  );
+};
 
 export default withLogger(InsertDocumentDialog, 'COMPASS-CRUD-UI');

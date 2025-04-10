@@ -108,7 +108,7 @@ export const featureFlags: Required<{
    * Feature flag for export schema. Epic: COMPASS-6862.
    */
   enableExportSchema: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable schema export',
     },

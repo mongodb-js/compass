@@ -57,7 +57,7 @@ describe('setAppNameParamIfMissing', function () {
         connectionString: 'mongodb://atlas/',
       })
     ).to.deep.equal({
-      connectionString: 'mongodb://atlas/?appName=defaultAppName-789-123',
+      connectionString: 'mongodb://atlas/?appName=defaultAppName--789--123',
     });
   });
 });

@@ -10,6 +10,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -507,6 +508,139 @@ describe('Collection import', function () {
       Selectors.closeToastButton(Selectors.ImportToast)
     );
     await toastElement.waitForDisplayed({ reverse: true });
+  });
+
+  context('with validation', function () {
+    beforeEach(async function () {
+      const FAILING_VALIDATOR =
+        '{ $jsonSchema: { bsonType: "object", required: [ "abcdefgh" ] } }';
+      await browser.setValidation({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        database: 'test',
+        collection: 'extended-json-file',
+        validator: FAILING_VALIDATOR,
+      });
+    });
+
+    afterEach(async function () {
+      await browser.navigateWithinCurrentCollectionTabs('Validation');
+      await browser.setValidationWithinValidationTab('{}');
+    });
+
+    it('with JSON + abort on error checked, it displays a validation error with details', async function () {
+      // 4.x doesn't provide validation details
+      if (serverSatisfies('< 5.0.0')) {
+        this.skip();
+      }
+
+      const jsonPath = path.resolve(
+        __dirname,
+        '..',
+        'fixtures',
+        'three-documents.json'
+      );
+
+      await browser.navigateWithinCurrentCollectionTabs('Documents');
+
+      // open the import modal
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
+
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+      // Wait for the modal to appear.
+      const importModal = browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+
+      // Click the stop on errors checkbox.
+      const stopOnErrorsCheckbox = browser.$(
+        Selectors.ImportStopOnErrorsCheckbox
+      );
+      const stopOnErrorsLabel = stopOnErrorsCheckbox.parentElement();
+      await stopOnErrorsLabel.click();
+
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
+
+      // Wait for the modal to go away.
+      await importModal.waitForDisplayed({ reverse: true });
+
+      // Wait for the error toast to appear
+      const toastElement = browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      const errorText = await toastElement.getText();
+      expect(errorText).to.include('Document failed validation');
+
+      // Visit error details
+      await browser.clickVisible(Selectors.ImportToastErrorDetailsBtn);
+      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
+      await errorDetailsJson.waitForDisplayed();
+      expect(await errorDetailsJson.getText()).to.include(
+        'schemaRulesNotSatisfied'
+      );
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+    });
+
+    it('with CSV + abort on error unchecked, it includes the details in a file', async function () {
+      // 4.x doesn't provide validation details
+      if (serverSatisfies('< 5.0.0')) {
+        this.skip();
+      }
+
+      const filename = 'array-documents.csv';
+      const csvPath = path.resolve(__dirname, '..', 'fixtures', filename);
+
+      await browser.navigateWithinCurrentCollectionTabs('Documents');
+
+      // open the import modal
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
+
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, csvPath);
+      // Wait for the modal to appear.
+      const importModal = browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
+
+      // Wait for the modal to go away.
+      await importModal.waitForDisplayed({ reverse: true });
+
+      // Wait for the error toast to appear
+      const toastElement = browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      const errorText = await toastElement.getText();
+      expect(errorText).to.include('Document failed validation');
+      expect(errorText).to.include('VIEW LOG');
+
+      // Find the log file
+      const logFilePath = path.resolve(
+        compass.userDataPath || '',
+        compass.appName || '',
+        'ImportErrorLogs',
+        `import-${filename}.log`
+      );
+      await expect(fs.stat(logFilePath)).to.not.be.rejected;
+
+      // Check the log file contents for 3 errors.
+      const logFileContent = await fs.readFile(logFilePath, 'utf-8');
+      expect(logFileContent.includes('schemaRulesNotSatisfied:'));
+
+      // Close the toast
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+    });
   });
 
   it('supports CSV files', async function () {

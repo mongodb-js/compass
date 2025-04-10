@@ -18,25 +18,34 @@ const statusFieldStyles = css({
   alignItems: 'baseline',
 });
 
-const iconBadgeStyles = css({
-  gap: spacing[200],
-});
-
-const ErrorBadgeWithTooltip: React.FunctionComponent<{
+const BadgeWithTooltip: React.FunctionComponent<{
   ['data-testid']?: string;
-  text: string;
   tooltip?: string | null;
   darkMode?: boolean;
-}> = ({ ['data-testid']: dataTestId, text, tooltip, darkMode }) => {
+  variant?: BadgeVariant;
+  children: React.ReactNode;
+}> = ({
+  ['data-testid']: dataTestId,
+  children,
+  tooltip,
+  darkMode,
+  variant,
+}) => {
   return (
     <Tooltip
       enabled={!!tooltip}
       darkMode={darkMode}
-      trigger={
-        <Badge data-testid={dataTestId} variant={BadgeVariant.Red}>
-          {text}
-        </Badge>
-      }
+      trigger={({
+        children: tooltipChildren,
+        ...tooltipTriggerProps
+      }: React.HTMLProps<HTMLDivElement>) => (
+        <div {...tooltipTriggerProps}>
+          <Badge data-testid={dataTestId} variant={variant}>
+            {children}
+          </Badge>
+          {tooltipChildren}
+        </div>
+      )}
     >
       <Body>{tooltip}</Body>
     </Tooltip>
@@ -63,13 +72,13 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
       )}
 
       {status === 'building' && (
-        <Badge
+        <BadgeWithTooltip
           data-testid="index-building"
           variant={BadgeVariant.Blue}
-          className={iconBadgeStyles}
+          tooltip="This index is being built in a rolling process"
         >
           Building
-        </Badge>
+        </BadgeWithTooltip>
       )}
 
       {status === 'inprogress' && (
@@ -79,12 +88,14 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
       )}
 
       {status === 'failed' && (
-        <ErrorBadgeWithTooltip
+        <BadgeWithTooltip
           data-testid="index-failed"
-          text="Failed"
           tooltip={error ? error : ''}
           darkMode={darkMode}
-        />
+          variant={BadgeVariant.Red}
+        >
+          Failed
+        </BadgeWithTooltip>
       )}
     </div>
   );

@@ -10,6 +10,7 @@ const path = require('path');
 const os = require('os');
 const { promises: fs } = require('fs');
 const { deepStrictEqual } = require('assert');
+const semver = require('semver');
 const { Octokit } = require('@octokit/rest');
 const { GithubRepo } = require('@mongodb-js/devtools-github-repo');
 const { diffString } = require('json-diff');
@@ -19,6 +20,7 @@ const {
   getKeyPrefix,
   downloadManifest,
   uploadAsset,
+  uploadAssetNew,
   uploadManifest,
 } = require('../lib/download-center');
 
@@ -235,6 +237,7 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
     );
     if (!dryRun) {
       await uploadAsset(channel, asset);
+      await uploadAssetNew(channel, asset);
     }
     cli.info(`${asset.name}: upload to download center completed.`);
   });
@@ -251,7 +254,7 @@ async function getLatestRelease(channel = 'stable') {
     auth: process.env.GITHUB_TOKEN,
   });
 
-  const page = 1;
+  let page = 1;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -277,14 +280,24 @@ async function getLatestRelease(channel = 'stable') {
       return null;
     }
 
-    const latestRelease = releases.find((release) => {
-      return (
-        !release.draft &&
-        (channel === 'beta'
-          ? isBeta(release.tag_name)
-          : isStable(release.tag_name))
-      );
-    });
+    const latestRelease = releases
+      .sort((a, b) => {
+        if (semver.lt(a.tag_name, b.tag_name)) {
+          return 1;
+        }
+        if (semver.gt(a.tag_name, b.tag_name)) {
+          return -1;
+        }
+        return 0;
+      })
+      .find((release) => {
+        return (
+          !release.draft &&
+          (channel === 'beta'
+            ? isBeta(release.tag_name)
+            : isStable(release.tag_name))
+        );
+      });
 
     if (latestRelease) {
       return latestRelease;

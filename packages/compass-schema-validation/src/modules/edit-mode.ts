@@ -1,22 +1,46 @@
 import type { RootAction } from '.';
+import { isAction } from '../util';
+import {
+  type EmptyValidationFetchedAction,
+  ValidationActions,
+  type ValidationCanceledAction,
+  type ValidationFetchedAction,
+} from './validation';
 
 /**
  * The edit mode changed action.
  */
 export const EDIT_MODE_CHANGED =
-  'validation/namespace/EDIT_MODE_CHANGED' as const;
-interface EditModeChangedAction {
+  'validation/edit-mode/EDIT_MODE_CHANGED' as const;
+export const ENABLE_EDIT_RULES =
+  'validation/edit-mode/ENABLE_EDIT_RULES' as const;
+export const DISABLE_EDIT_RULES =
+  'validation/edit-mode/DISABLE_EDIT_RULES' as const;
+
+type EditModeChangedAction = {
   type: typeof EDIT_MODE_CHANGED;
   editMode: Partial<EditModeState>;
-}
+};
 
-export type EditModeAction = EditModeChangedAction;
+type EnableEditRulesAction = {
+  type: typeof ENABLE_EDIT_RULES;
+};
+
+type DisableModeChangedAction = {
+  type: typeof DISABLE_EDIT_RULES;
+};
+
+export type EditModeAction =
+  | EditModeChangedAction
+  | EnableEditRulesAction
+  | DisableModeChangedAction;
 
 export interface EditModeState {
   collectionReadOnly: boolean;
   collectionTimeSeries: boolean;
   writeStateStoreReadOnly: boolean;
   oldServerReadOnly: boolean;
+  isEditingEnabledByUser: boolean;
 }
 
 /**
@@ -27,6 +51,7 @@ export const INITIAL_STATE: EditModeState = {
   collectionTimeSeries: false,
   writeStateStoreReadOnly: false,
   oldServerReadOnly: false,
+  isEditingEnabledByUser: false,
 };
 
 /**
@@ -45,6 +70,41 @@ export default function reducer(
     return { ...state, ...action.editMode };
   }
 
+  if (action.type === ENABLE_EDIT_RULES) {
+    return { ...state, isEditingEnabledByUser: true };
+  }
+
+  if (action.type === DISABLE_EDIT_RULES) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<EmptyValidationFetchedAction>(
+      action,
+      ValidationActions.EmptyValidationFetched
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: true };
+  }
+
+  if (
+    isAction<ValidationFetchedAction>(
+      action,
+      ValidationActions.ValidationFetched
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
+  if (
+    isAction<ValidationCanceledAction>(
+      action,
+      ValidationActions.ValidationCanceled
+    )
+  ) {
+    return { ...state, isEditingEnabledByUser: false };
+  }
+
   return state;
 }
 
@@ -60,4 +120,12 @@ export const editModeChanged = (
 ): EditModeChangedAction => ({
   type: EDIT_MODE_CHANGED,
   editMode,
+});
+
+export const enableEditRules = (): EnableEditRulesAction => ({
+  type: ENABLE_EDIT_RULES,
+});
+
+export const disableEditRules = (): DisableModeChangedAction => ({
+  type: DISABLE_EDIT_RULES,
 });

@@ -26,12 +26,17 @@ const mockConnectionInfo: ConnectionInfo = {
     orgId: 'testOrg',
     projectId: 'testProject',
     clusterName: 'pineapple',
-    regionalBaseUrl: 'https://example.com',
+    regionalBaseUrl: null,
     metricsId: 'metricsId',
     metricsType: 'replicaSet',
     instanceSize: 'M10',
     clusterType: 'REPLICASET',
     clusterUniqueId: 'clusterUniqueId',
+    clusterState: 'IDLE',
+    supports: {
+      globalWrites: false,
+      rollingIndexes: false,
+    },
   },
 };
 
@@ -77,7 +82,6 @@ describe('AtlasAiService', function () {
     {
       apiURLPreset: 'admin-api',
       expectedEndpoints: {
-        'user-access': 'http://example.com/unauth/ai/api/v1/hello/1234',
         'mql-aggregation': `http://example.com/ai/api/v1/mql-aggregation?request_id=abc`,
         'mql-query': `http://example.com/ai/api/v1/mql-query?request_id=abc`,
       },
@@ -85,7 +89,6 @@ describe('AtlasAiService', function () {
     {
       apiURLPreset: 'cloud',
       expectedEndpoints: {
-        'user-access': '/cloud/ai/v1/hello/1234',
         'mql-aggregation':
           '/cloud/ai/v1/groups/testProject/mql-aggregation?request_id=abc',
         'mql-query': '/cloud/ai/v1/groups/testProject/mql-query?request_id=abc',
@@ -293,7 +296,7 @@ describe('AtlasAiService', function () {
           });
         });
 
-        it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
+        it('should set the cloudFeatureRolloutAccess true', async function () {
           const fetchStub = sandbox.stub().resolves(
             makeResponse({
               features: {
@@ -311,93 +314,11 @@ describe('AtlasAiService', function () {
 
           await atlasAiService['setupAIAccess']();
 
-          const { args } = fetchStub.firstCall;
-
-          expect(fetchStub).to.have.been.calledOnce;
-
-          expect(args[0]).to.equal(expectedEndpoints['user-access']);
-
           currentCloudFeatureRolloutAccess =
             preferences.getPreferences().cloudFeatureRolloutAccess;
           expect(currentCloudFeatureRolloutAccess).to.deep.equal({
             GEN_AI_COMPASS: true,
           });
-        });
-
-        it('should set the cloudFeatureRolloutAccess false when returned false', async function () {
-          const fetchStub = sandbox.stub().resolves(
-            makeResponse({
-              features: {
-                GEN_AI_COMPASS: {
-                  enabled: false,
-                },
-              },
-            })
-          );
-          global.fetch = fetchStub;
-
-          let currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-          await atlasAiService['setupAIAccess']();
-
-          const { args } = fetchStub.firstCall;
-
-          expect(fetchStub).to.have.been.calledOnce;
-          expect(args[0]).to.equal(expectedEndpoints['user-access']);
-
-          currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-            GEN_AI_COMPASS: false,
-          });
-        });
-
-        it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
-          const fetchStub = sandbox.stub().resolves(
-            makeResponse({
-              features: null,
-            })
-          );
-          global.fetch = fetchStub;
-
-          let currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-          await atlasAiService['setupAIAccess']();
-
-          const { args } = fetchStub.firstCall;
-
-          expect(fetchStub).to.have.been.calledOnce;
-          expect(args[0]).to.equal(expectedEndpoints['user-access']);
-
-          currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-            GEN_AI_COMPASS: false,
-          });
-        });
-
-        it('should not set the cloudFeatureRolloutAccess false when returned false', async function () {
-          const fetchStub = sandbox.stub().throws(new Error('error'));
-          global.fetch = fetchStub;
-
-          let currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-          await atlasAiService['setupAIAccess']();
-
-          const { args } = fetchStub.firstCall;
-
-          expect(fetchStub).to.have.been.calledOnce;
-          expect(args[0]).to.equal(expectedEndpoints['user-access']);
-
-          currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.deep.equal(undefined);
         });
       });
     });

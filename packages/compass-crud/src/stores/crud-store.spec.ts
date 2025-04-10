@@ -285,7 +285,7 @@ describe('store', function () {
         debouncingLoad: false,
         loadingCount: false,
         collection: 'test',
-        count: 0,
+        count: null,
         docs: [],
         docsPerPage: 25,
         end: 0,
@@ -296,7 +296,6 @@ describe('store', function () {
           isOpen: false,
           jsonDoc: null,
           jsonView: false,
-          message: '',
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
@@ -501,7 +500,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('remove-error', (message) => {
+        hadronDoc.on('remove-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -611,7 +610,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal(
             'Unable to update, no changes have been made.'
           );
@@ -634,7 +633,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -726,7 +725,7 @@ describe('store', function () {
         const invalidHadronDoc = new HadronDocument(doc);
         (invalidHadronDoc as any).getId = null;
 
-        invalidHadronDoc.on('update-error', (message) => {
+        invalidHadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal(
             'An error occured when attempting to update the document: this.getId is not a function'
           );
@@ -996,7 +995,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', (message) => {
+        hadronDoc.on('update-error', ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -1125,7 +1124,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           store.state.insert.doc = doc;
@@ -1153,7 +1152,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           void store.insertDocument();
@@ -1171,6 +1170,7 @@ describe('store', function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         it('does not insert the document and sets the error', async function () {
@@ -1181,7 +1181,8 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
             expect(state.insert.mode).to.equal('error');
           });
 
@@ -1202,6 +1203,7 @@ describe('store', function () {
           store.state.insert.jsonView = true;
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         afterEach(function () {
@@ -1216,7 +1218,8 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
           });
 
           void store.insertDocument();
@@ -1232,6 +1235,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.insert.doc = doc;
           store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
         });
 
         afterEach(function () {
@@ -1246,10 +1250,46 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.not.equal('');
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
           });
 
           store.state.insert.doc = doc;
+          void store.insertDocument();
+
+          await listener;
+        });
+      });
+
+      context('when it is a validation error', function () {
+        const hadronDoc = new HadronDocument({});
+        // this should be invalid according to the validation rules
+        const jsonDoc = '{ "status": "testing" }';
+
+        beforeEach(function () {
+          store.state.insert.jsonView = true;
+          store.state.insert.doc = hadronDoc;
+          store.state.insert.jsonDoc = jsonDoc;
+          store.state.count = 0;
+        });
+
+        afterEach(async function () {
+          await dataService.deleteMany('compass-crud.test', {});
+        });
+
+        it('does not insert the document', async function () {
+          const listener = waitForState(store, (state) => {
+            expect(state.docs.length).to.equal(0);
+            expect(state.count).to.equal(0);
+            expect(state.insert.doc).to.deep.equal(hadronDoc);
+            expect(state.insert.jsonDoc).to.equal(jsonDoc);
+            expect(state.insert.isOpen).to.equal(true);
+            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.error).to.exist;
+            expect(state.insert.error.message).to.not.be.empty;
+            expect(state.insert.error.info).not.to.be.empty;
+          });
+
           void store.insertDocument();
 
           await listener;
@@ -1287,7 +1327,7 @@ describe('store', function () {
               expect(state.insert.jsonDoc).to.equal(null);
               expect(state.insert.isOpen).to.equal(false);
               expect(state.insert.jsonView).to.equal(false);
-              expect(state.insert.message).to.equal('');
+              expect(state.insert.error).to.equal(undefined);
 
               expect(state.status).to.equal('fetching');
               expect(state.abortController).to.not.be.null;
@@ -1347,7 +1387,7 @@ describe('store', function () {
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
             expect(state.insert.jsonView).to.equal(false);
-            expect(state.insert.message).to.equal('');
+            expect(state.insert.error).to.equal(undefined);
           });
 
           store.state.insert.jsonDoc = docs;
@@ -1389,6 +1429,7 @@ describe('store', function () {
 
       beforeEach(function () {
         store.state.insert.jsonDoc = JSON.stringify(docs);
+        store.state.count = 0;
       });
 
       afterEach(function () {
@@ -1403,7 +1444,10 @@ describe('store', function () {
           expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
           expect(state.insert.jsonView).to.equal(true);
-          expect(state.insert.message).to.equal('Document failed validation');
+          expect(state.insert.error).to.not.be.null;
+          expect(state.insert.error?.message).to.equal(
+            'Document failed validation'
+          );
         });
 
         store.state.insert.jsonDoc = docs;

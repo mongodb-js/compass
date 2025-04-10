@@ -4,18 +4,17 @@ import reducer, {
   INITIAL_STATE,
   CLEAR_SAMPLE_DOCUMENTS,
   clearSampleDocuments,
-  fetchingValidDocument,
-  FETCHING_VALID_DOCUMENT,
   fetchedValidDocument,
   FETCHED_VALID_DOCUMENT,
-  fetchingInvalidDocument,
-  FETCHING_INVALID_DOCUMENT,
   fetchedInvalidDocument,
   FETCHED_INVALID_DOCUMENT,
   fetchingValidDocumentFailed,
   FETCHING_INVALID_DOCUMENT_FAILED,
   fetchingInvalidDocumentFailed,
   FETCHING_VALID_DOCUMENT_FAILED,
+  fetchingSampleDocuments,
+  FETCHING_SAMPLE_DOCUMENTS,
+  type SampleDocumentState,
 } from './sample-documents';
 
 const SAMPLE_DOCUMENT = {
@@ -31,14 +30,8 @@ describe('sample-documents module', function () {
     });
 
     it('returns the FETCHING_VALID_DOCUMENT action', function () {
-      expect(fetchingValidDocument()).to.deep.equal({
-        type: FETCHING_VALID_DOCUMENT,
-      });
-    });
-
-    it('returns the FETCHING_INVALID_DOCUMENT action', function () {
-      expect(fetchingInvalidDocument()).to.deep.equal({
-        type: FETCHING_INVALID_DOCUMENT,
+      expect(fetchingSampleDocuments()).to.deep.equal({
+        type: FETCHING_SAMPLE_DOCUMENTS,
       });
     });
 
@@ -93,66 +86,74 @@ describe('sample-documents module', function () {
       });
     });
 
-    context('when the action is FETCHING_VALID_DOCUMENT', function () {
+    context('when the action is FETCHING_SAMPLE_DOCUMENTS', function () {
       it('returns a loading state', function () {
-        const sampleDocuments = reducer(undefined, fetchingValidDocument());
+        const sampleDocuments = reducer(undefined, fetchingSampleDocuments());
         expect(sampleDocuments.validDocumentState).to.equal('loading');
-      });
-    });
-
-    context('when the action is FETCHING_INVALID_DOCUMENT', function () {
-      it('returns a loading state', function () {
-        const sampleDocuments = reducer(undefined, fetchingInvalidDocument());
         expect(sampleDocuments.invalidDocumentState).to.equal('loading');
       });
     });
 
-    context('when the action is FETCHED_VALID_DOCUMENT', function () {
-      it('updates the state with the document', function () {
-        for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
+    context('fetch results', function () {
+      let loadingState: SampleDocumentState;
+      beforeEach(function () {
+        loadingState = reducer(undefined, fetchingSampleDocuments());
+      });
+
+      context('when the action is FETCHED_VALID_DOCUMENT', function () {
+        it('updates the state with the document', function () {
+          for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
+            const sampleDocuments = reducer(
+              loadingState,
+              fetchedValidDocument(document)
+            );
+            expect(sampleDocuments.validDocumentState).to.equal('success');
+            expect(sampleDocuments.validDocument).to.deep.equal(document);
+            expect(sampleDocuments.invalidDocumentState).to.equal('loading');
+          }
+        });
+      });
+
+      context('when the action is FETCHED_INVALID_DOCUMENT', function () {
+        it('updates the invalid document state', function () {
+          for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
+            const sampleDocuments = reducer(
+              loadingState,
+              fetchedInvalidDocument(document)
+            );
+            expect(sampleDocuments.invalidDocumentState).to.equal('success');
+            expect(sampleDocuments.invalidDocument).to.deep.equal(document);
+            expect(sampleDocuments.validDocumentState).to.equal('loading');
+          }
+        });
+      });
+
+      context('when the action is FETCHING_VALID_DOCUMENT_FAILED', function () {
+        it('updates an error state', function () {
           const sampleDocuments = reducer(
-            undefined,
-            fetchedValidDocument(document)
+            loadingState,
+            fetchingValidDocumentFailed()
           );
-          expect(sampleDocuments.validDocumentState).to.equal('success');
-          expect(sampleDocuments.validDocument).to.deep.equal(document);
+          expect(sampleDocuments.validDocumentState).to.equal('error');
+          expect(sampleDocuments.validDocument).to.equal(undefined);
+          expect(sampleDocuments.invalidDocumentState).to.equal('loading');
+        });
+      });
+
+      context(
+        'when the action is FETCHING_INVALID_DOCUMENT_FAILED',
+        function () {
+          it('updates an error state', function () {
+            const sampleDocuments = reducer(
+              loadingState,
+              fetchingInvalidDocumentFailed()
+            );
+            expect(sampleDocuments.invalidDocumentState).to.equal('error');
+            expect(sampleDocuments.invalidDocument).to.deep.equal(undefined);
+            expect(sampleDocuments.validDocumentState).to.equal('loading');
+          });
         }
-      });
-    });
-
-    context('when the action is FETCHED_INVALID_DOCUMENT', function () {
-      it('updates the state with the document', function () {
-        for (const document of [null, undefined, SAMPLE_DOCUMENT] as any[]) {
-          const sampleDocuments = reducer(
-            undefined,
-            fetchedInvalidDocument(document)
-          );
-          expect(sampleDocuments.invalidDocumentState).to.equal('success');
-          expect(sampleDocuments.invalidDocument).to.deep.equal(document);
-        }
-      });
-    });
-
-    context('when the action is FETCHING_VALID_DOCUMENT_FAILED', function () {
-      it('updates an error state', function () {
-        const sampleDocuments = reducer(
-          undefined,
-          fetchingValidDocumentFailed()
-        );
-        expect(sampleDocuments.validDocumentState).to.equal('error');
-        expect(sampleDocuments.validDocument).to.equal(undefined);
-      });
-    });
-
-    context('when the action is FETCHING_INVALID_DOCUMENT_FAILED', function () {
-      it('updates an error state', function () {
-        const sampleDocuments = reducer(
-          undefined,
-          fetchingInvalidDocumentFailed()
-        );
-        expect(sampleDocuments.invalidDocumentState).to.equal('error');
-        expect(sampleDocuments.invalidDocument).to.deep.equal(undefined);
-      });
+      );
     });
   });
 });

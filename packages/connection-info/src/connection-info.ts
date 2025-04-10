@@ -1,21 +1,57 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 
+/**
+ * Atlas metadata for clusters, refer to the backend implementation to see how
+ * the values are derived
+ *
+ * https://github.com/10gen/mms/blob/1efe59a9bb4646635d946d979e5c9f4423f95b10/server/src/main/com/xgen/svc/mms/res/view/explorer/DataExplorerConnectionInfoView.java#L223-L302
+ */
 export interface AtlasClusterMetadata {
-  orgId: string;
   /**
-   * Project ID that uniquely identifies an Atlas project. Legacy name is "groupId"
-   * as projects were previously identified as "groups".
+   * Atlas organization id
+   */
+  orgId: string;
+
+  /**
+   * Project ID that uniquely identifies an Atlas project. Legacy name is
+   * "groupId" as projects were previously identified as "groups".
+   *
    * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#project-id
    */
   projectId: string;
+
   /**
    * Unique id returned with the clusterDescription
    */
   clusterUniqueId: string;
+
   /**
    * Cluster name, unique inside same project
    */
   clusterName: string;
+
+  /**
+   * Possible types of Atlas clusters.
+   *
+   * https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/clusterDescription.ts#L12-L16
+   */
+  clusterType: 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
+
+  /**
+   * Cluster states
+   *
+   * `DELETED` is never returned from backend, but can be derived by connection
+   * missing when polling connection info list
+   */
+  clusterState:
+    | 'CREATING'
+    | 'UPDATING'
+    | 'PAUSED'
+    | 'IDLE'
+    | 'REPARING'
+    | 'DELETING'
+    | 'DELETED';
+
   /**
    * A special id and type that are only relevant in context of mms metrics
    * features. These are deployment items props (with a special exception for
@@ -25,12 +61,12 @@ export interface AtlasClusterMetadata {
    * https://github.com/10gen/mms/blob/43b0049a85196b44e465feb9b96ef942d6f2c8f4/client/js/legacy/core/models/deployment
    */
   metricsId: string;
+
   /**
    * Somewhat related to the clusterType provided as part of clusterDescription,
-   * but way less granular:
+   * but accounting for special shared cluster types. Used for `/metrics/*`
+   * routing and automation agent jobs
    *
-   *   - `host`:       CM/OM clusters not managed by Atlas (in theory should
-   *                   never appear in our runtime)
    *   - `cluster`:    any sharded cluster type (sharded or geo sharded /
    *                   "global writes" one)
    *   - `replicaSet`: anything that is not sharded (both dedicated or "free
@@ -39,28 +75,36 @@ export interface AtlasClusterMetadata {
    *   - `flex`:       new type that replaces serverless and some shared
    *                   clusters
    */
-  metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless' | 'flex';
+  metricsType: 'replicaSet' | 'cluster' | 'serverless' | 'flex';
+
   /**
    * Atlas API base url to be used when making control plane requests for a
-   * regionalized cluster
+   * regionalized cluster. Always `null` while compass-web is disabled for
+   * those types of clusters
    */
-  regionalBaseUrl: string;
+  regionalBaseUrl: null;
+
   /*
    * At the time of writing these are the possible instance sizes. If we include
    * the list in the type here , then we'll have to maintain it..
+   *
    * https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/provider.ts#L60-L107
    */
   instanceSize?: string;
 
   /**
-   * Possible types of Atlas clusters.
-   * Copied from:
-   *  https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/clusterDescription.ts#L12-L16
+   * Flags indicating Atlas cluster-level control plane feature support
    */
-  clusterType: 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
+  supports: {
+    /**
+     * True if cluster is geo sharded and not self managed
+     */
+    globalWrites: boolean;
 
-  geoSharding?: {
-    selfManagedSharding?: boolean;
+    /**
+     * True for dedicated clusters
+     */
+    rollingIndexes: boolean;
   };
 }
 

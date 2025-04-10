@@ -24,6 +24,7 @@ import {
   DEFAULT_CONNECTION_NAMES,
   isTestingWeb,
 } from '../helpers/test-runner-context';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -162,25 +163,8 @@ async function assertCannotInsertData(
     'Documents'
   );
 
-  // browse to the "Insert to Collection" modal
-  await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
-  await insertDocumentOption.waitForDisplayed();
-  await browser.clickVisible(Selectors.InsertDocumentOption);
-
-  // wait for the modal to appear
-  const insertDialog = browser.$(Selectors.InsertDialog);
-  await insertDialog.waitForDisplayed();
-
   // go with the default text which should just be a random new id and therefore valid
-
-  // confirm
-  const insertConfirm = browser.$(Selectors.InsertConfirm);
-  // this selector is very brittle, so just make sure it works
-  expect(await insertConfirm.isDisplayed()).to.be.true;
-  expect(await insertConfirm.getText()).to.equal('Insert');
-  await insertConfirm.waitForEnabled();
-  await browser.clickVisible(Selectors.InsertConfirm);
+  await tryToInsertDocument(browser);
 
   // make sure that there's an error and that the insert button is disabled
   const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
@@ -190,6 +174,7 @@ async function assertCannotInsertData(
   );
 
   // cancel and wait for the modal to go away
+  const insertDialog = browser.$(Selectors.InsertDialog);
   await browser.clickVisible(Selectors.InsertCancel);
   await insertDialog.waitForDisplayed({ reverse: true });
 }
