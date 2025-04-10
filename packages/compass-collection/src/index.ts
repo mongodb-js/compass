@@ -9,7 +9,6 @@ import {
 import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CollectionTabPlugin = registerHadronPlugin(
   {
@@ -21,7 +20,6 @@ export const CollectionTabPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
     collection: collectionModelLocator,
     workspaces: workspacesServiceLocator,
-    preferences: preferencesLocator,
   }
 );
 

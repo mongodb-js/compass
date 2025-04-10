@@ -133,14 +133,20 @@ const DatabaseModel = AmpersandModel.extend(
     /**
      * @param {{
      *    dataService: import('mongodb-data-service').DataService,
-     *    preferences: import('compass-preferences-model').PreferencesAccess,
      *    force: boolean
      * }} options
      * @param force
      * @returns {Promise<void>}
      */
-    async fetch({ dataService, preferences, force = false }) {
-      const { enableDbAndCollStats } = preferences.getPreferences();
+    async fetch({ dataService, force = false }) {
+      const instanceModel = getParentByType(this, 'Instance');
+      console.log(
+        'PREFERENCES in DB',
+        instanceModel.preferences,
+        instanceModel
+      );
+      const { enableDbAndCollStats } =
+        instanceModel.preferences.getPreferences();
 
       if (!shouldFetch(this.status, force)) {
         console.log('[database-model]', 'not should fetch', this.status, force);
@@ -173,12 +179,11 @@ const DatabaseModel = AmpersandModel.extend(
     /**
      * @param {{
      *    dataService: import('mongodb-data-service').DataService,
-     *    preferences: import('compass-preferences-model').PreferencesAccess,
      *    force: boolean
      * }} options
      * @returns {Promise<void>}
      */
-    async fetchCollections({ dataService, preferences, force = false }) {
+    async fetchCollections({ dataService, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
         console.log('[database-model]', 'skipping collection');
         return;
@@ -191,10 +196,9 @@ const DatabaseModel = AmpersandModel.extend(
         console.log(
           '[database-model]',
           'Fetching collections',
-          preferences,
           this.collections.fetch
         );
-        await this.collections.fetch({ dataService, preferences, force });
+        await this.collections.fetch({ dataService, force });
         console.log('[database-model]', 'Done with collections');
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
@@ -209,13 +213,11 @@ const DatabaseModel = AmpersandModel.extend(
 
     async fetchCollectionsDetails({
       dataService,
-      preferences,
       nameOnly = false,
       force = false,
     }) {
       await this.fetchCollections({
         dataService,
-        preferences,
         force,
       });
 
@@ -229,7 +231,6 @@ const DatabaseModel = AmpersandModel.extend(
         this.collections.map((coll) => {
           return coll.fetch({
             dataService,
-            preferences,
             // We already fetched it with fetchCollections
             fetchInfo: false,
             force,
@@ -266,7 +267,6 @@ const DatabaseCollection = AmpersandCollection.extend(
         );
       }
 
-      // TODO?
       const dbs = await dataService.listDatabases({
         nameOnly: true,
         privileges: instanceModel.auth.privileges,

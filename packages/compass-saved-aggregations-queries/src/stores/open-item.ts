@@ -600,11 +600,7 @@ export const openSelectedItem =
 
 export const databaseSelected =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (
-    dispatch,
-    getState,
-    { instancesManager, connections, preferencesAccess: preferences }
-  ) => {
+  async (dispatch, getState, { instancesManager, connections }) => {
     const {
       openItem: { selectedDatabase, selectedConnection },
     } = getState();
@@ -631,7 +627,7 @@ export const databaseSelected =
         throw new Error('Database not found');
       }
 
-      await db.fetchCollections({ dataService, preferences });
+      await db.fetchCollections({ dataService });
       // Check with the the current value in case db was re-selected while we
       // were fetching
       if (database === getState().openItem.selectedDatabase) {

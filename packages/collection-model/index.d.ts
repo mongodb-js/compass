@@ -1,4 +1,3 @@
-import type { PreferencesAccess } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 
 type CollectionMetadata = {
@@ -70,13 +69,13 @@ interface CollectionProps {
   pipeline: unknown[];
   validation: unknown;
   is_capped?: boolean;
-  document_count?: number;
-  document_size?: number;
-  avg_document_size?: number;
-  storage_size?: number;
-  free_storage_size?: number;
-  index_count?: number;
-  index_size?: number;
+  document_count: number | undefined;
+  document_size: number | undefined;
+  avg_document_size: number | undefined;
+  storage_size: number | undefined;
+  free_storage_size: number | undefined;
+  index_count: number | undefined;
+  index_size: number | undefined;
   isTimeSeries: boolean;
   isView: boolean;
   /** Only relevant for a view and identifies collection/view from which this view was created. */
@@ -97,13 +96,11 @@ type CollectionDataService = Pick<
 interface Collection extends CollectionProps {
   fetch(opts: {
     dataService: CollectionDataService;
-    preferences: PreferencesAccess;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchMetadata(opts: {
     dataService: CollectionDataService;
-    preferences: PreferencesAccess;
   }): Promise<CollectionMetadata>;
   on(evt: string, fn: (...args: any) => void);
   off(evt: string, fn: (...args: any) => void);

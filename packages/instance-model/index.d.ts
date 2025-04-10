@@ -106,6 +106,7 @@ declare class MongoDBInstanceProps {
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
   topologyDescription: TopologyDescription;
+  preferences: PreferencesAccess;
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {

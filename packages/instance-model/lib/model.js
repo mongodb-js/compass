@@ -136,6 +136,10 @@ const InstanceModel = AmpersandModel.extend(
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
     },
+    initialize: function ({ preferences, ...props }) {
+      this.preferences = preferences;
+      AmpersandModel.prototype.initialize.call(this, props);
+    },
     derived: {
       isRefreshing: {
         deps: ['refreshingStatus'],
@@ -237,6 +241,7 @@ const InstanceModel = AmpersandModel.extend(
     collections: {
       databases: MongoDbDatabaseCollection,
     },
+    services: {},
 
     /**
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
@@ -301,13 +306,12 @@ const InstanceModel = AmpersandModel.extend(
 
     async refresh({
       dataService,
-      preferences,
       fetchDatabases = false,
       fetchDbStats = false,
       fetchCollections = false,
       fetchCollStats = false,
     }) {
-      console.log('[instance-model]', 'refreshing', preferences);
+      console.log('[instance-model]', 'refreshing');
       this.set({
         refreshingStatus:
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
@@ -344,12 +348,11 @@ const InstanceModel = AmpersandModel.extend(
             .map((db) => {
               return [
                 shouldRefresh(db.status, fetchDbStats) &&
-                  db.fetch({ dataService, force: true, preferences }),
+                  db.fetch({ dataService, force: true }),
                 ...db.collections.map((coll) => {
                   if (shouldRefresh(coll.status, fetchCollStats)) {
                     return coll.fetch({
                       dataService,
-                      preferences,
                       // We already fetched it with fetchCollections
                       fetchInfo: false,
                       force: true,
@@ -371,13 +374,13 @@ const InstanceModel = AmpersandModel.extend(
       }
     },
 
-    async getNamespace({ dataService, database, collection, preferences }) {
+    async getNamespace({ dataService, database, collection }) {
       await this.fetchDatabases({ dataService });
       const db = this.databases.get(database);
       if (!db) {
         return null;
       }
-      await db.fetchCollections({ dataService, preferences });
+      await db.fetchCollections({ dataService });
       const coll = db.collections.get(collection, 'name');
       if (!coll) {
         return null;

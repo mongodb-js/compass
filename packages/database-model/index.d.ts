@@ -9,32 +9,26 @@ interface DatabaseProps {
   statusError: string | null;
   collectionsStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   collectionsStatusError: string | null;
-  collection_count?: number;
-  document_count?: number;
-  storage_size?: number;
-  data_size?: number;
-  index_count?: number;
-  index_size?: number;
+  collection_count: number | undefined;
+  document_count: number | undefined;
+  storage_size: number | undefined;
+  data_size: number | undefined;
+  index_count: number | undefined;
+  index_size: number | undefined;
   collectionsLength: number;
   collections: CollectionCollection;
   is_non_existent: boolean;
 }
 
 interface Database extends DatabaseProps {
-  fetch(opts: {
-    dataService: DataService;
-    preferences: PreferenceAccess;
-    force?: boolean;
-  }): Promise<void>;
+  fetch(opts: { dataService: DataService; force?: boolean }): Promise<void>;
   fetchCollections(opts: {
     dataService: DataService;
-    preferences: PreferenceAccess;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchCollectionsDetails(opts: {
     dataService: DataService;
-    preferences: PreferenceAccess;
     nameOnly?: boolean;
     force?: boolean;
   }): Promise<void>;

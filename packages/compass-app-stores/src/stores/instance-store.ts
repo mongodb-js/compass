@@ -72,7 +72,7 @@ export function createInstancesStore(
       await instance.fetchDatabases({ dataService });
       await Promise.all(
         instance.databases.map((db) => {
-          return db.fetchCollections({ dataService, preferences });
+          return db.fetchCollections({ dataService });
         })
       );
     } catch (error) {
@@ -159,7 +159,7 @@ export function createInstancesStore(
       await instance.fetchDatabases({ dataService, force: true });
       await Promise.allSettled(
         instance.databases.map((db) =>
-          db.fetchCollections({ dataService, preferences, force: true })
+          db.fetchCollections({ dataService, force: true })
         )
       );
     } catch (err: any) {
@@ -192,8 +192,8 @@ export function createInstancesStore(
       console.log('Refresh Namespace Stats');
       // We don't care if this fails
       await Promise.allSettled([
-        db?.fetch({ dataService, preferences, force: true }),
-        coll?.fetch({ dataService, preferences, force: true }),
+        db?.fetch({ dataService, force: true }),
+        coll?.fetch({ dataService, force: true }),
       ]);
     } catch (error) {
       log.warn(
@@ -239,11 +239,10 @@ export function createInstancesStore(
       // collection model updates
       console.log('Maybe add and refresh');
       await db
-        .fetch({ dataService, preferences, force: true })
+        .fetch({ dataService, force: true })
         .then(() => {
           return coll?.fetch({
             dataService,
-            preferences,
             force: true,
             // We only need to fetch info in case of new collection being created
             fetchInfo: newCollection,
@@ -298,6 +297,7 @@ export function createInstancesStore(
       topologyDescription: getTopologyDescription(
         dataService.getLastSeenTopology()
       ),
+      preferences,
     };
     const instance = instancesManager.createMongoDBInstanceForConnection(
       instanceConnectionId,
@@ -347,7 +347,7 @@ export function createInstancesStore(
           connections.getDataServiceForConnection(connectionId);
         void instance.databases
           .get(databaseId)
-          ?.fetchCollections({ dataService, preferences });
+          ?.fetchCollections({ dataService });
       } catch (error) {
         log.warn(
           mongoLogId(1_001_000_323),
@@ -445,11 +445,9 @@ export function createInstancesStore(
           db.collections.remove(coll);
           MongoDBInstance.removeAllListeners(coll);
           // Update db stats to account for db stats affected by collection stats
-          void db
-            ?.fetch({ dataService, preferences, force: true })
-            .catch(() => {
-              // noop, we ignore stats fetching failures
-            });
+          void db?.fetch({ dataService, force: true }).catch(() => {
+            // noop, we ignore stats fetching failures
+          });
         }
       } catch (error) {
         log.warn(
@@ -544,7 +542,7 @@ export function createInstancesStore(
         void instance.databases
           .get(database)
           ?.collections.get(namespace, '_id')
-          ?.fetch({ dataService, preferences, force: true });
+          ?.fetch({ dataService, force: true });
       } catch (error) {
         log.warn(
           mongoLogId(1_001_000_321),

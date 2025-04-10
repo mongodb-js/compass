@@ -20,7 +20,6 @@ import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
-import { usePreferences } from 'compass-preferences-model/provider';
 
 export {
   MongoDBInstancesManagerEvents,
@@ -131,7 +130,6 @@ export const NamespaceProvider = createServiceProvider(
     const ns = useMemo(() => {
       return toNS(namespace);
     }, [namespace]);
-    const preferences = usePreferences(['enableDbAndCollStats']);
     const [namespaceModel, setNamespaceModel] = useState<
       Database | Collection | null
     >(() => {
@@ -168,7 +166,7 @@ export const NamespaceProvider = createServiceProvider(
           return;
         }
 
-        await db.fetchCollections({ dataService, preferences }).catch(() => {
+        await db.fetchCollections({ dataService }).catch(() => {
           // See above
         });
         const coll = db.collections.get(ns.ns);
@@ -192,7 +190,6 @@ export const NamespaceProvider = createServiceProvider(
       ns.collection,
       ns.database,
       ns.ns,
-      preferences,
     ]);
 
     if (!namespaceModel) {
