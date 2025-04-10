@@ -51,7 +51,7 @@ export async function handleSquirrelWindowsStartup(): Promise<boolean> {
   For more detailed info on these commands, so Electron, electron-winstaller and Squirrel Windows'
   documentation:
 
-  https://github.com/electron/windows-installer
+  https://github.com/electron/windows-installer?tab=readme-ov-file#handling-squirrel-events
   https://github.com/electron-archive/grunt-electron-installer?tab=readme-ov-file#handling-squirrel-events
   https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/custom-squirrel-events-non-cs.md
   https://github.com/Squirrel/Squirrel.Windows/blob/master/docs/using/install-process.md
