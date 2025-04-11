@@ -5,6 +5,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalBody,
+  Link,
+  palette,
 } from '@mongodb-js/compass-components';
 import {
   fieldAdded,
@@ -23,6 +25,8 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+import { fireExperimentViewed, TestName } from '@mongodb-js/compass-utils';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -70,13 +74,47 @@ function CreateIndexModal({
     undefined
   );
 
+  // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
+  const enableInIndexesGuidanceExp = usePreference('enableIndexesGuidanceExp');
+  const showIndexesGuidanceVariant = usePreference(
+    'showIndexesGuidanceVariant'
+  );
+
+  fireExperimentViewed({
+    testName: TestName.earlyJourneyIndexesGuidance,
+    shouldFire: enableInIndexesGuidanceExp || true,
+  });
+
   return (
     <Modal
       open={isVisible}
       setOpen={onSetOpen}
       data-testid="create-index-modal"
+      size={showIndexesGuidanceVariant ? 'large' : 'default'}
     >
-      <ModalHeader title="Create Index" subtitle={namespace} />
+      {showIndexesGuidanceVariant ? (
+        <ModalHeader
+          title="Create Index"
+          subtitle={
+            <span style={{ color: palette.gray.dark1 }}>
+              The best indexes for your application should consider a number of
+              factors, such as your data model, and the queries you use most
+              often. To learn more about indexing best practices, read the{' '}
+              <Link
+                href="https://docs.mongodb.com/manual/applications/indexes/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Index Strategies Documentation
+              </Link>
+              .
+            </span>
+          }
+          useLeafyGreenStyling={true}
+        />
+      ) : (
+        <ModalHeader title="Create Index" subtitle={namespace} />
+      )}
 
       <ModalBody>
         <CreateIndexForm namespace={namespace} {...props} />
