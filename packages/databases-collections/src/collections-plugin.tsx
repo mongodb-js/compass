@@ -10,7 +10,6 @@ import {
   type DataServiceLocator,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export const CollectionsPlugin = registerHadronPlugin(
   {
@@ -22,6 +21,5 @@ export const CollectionsPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     database: databaseModelLocator,
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
-    preferences: preferencesLocator,
   }
 );

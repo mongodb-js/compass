@@ -26,10 +26,7 @@ import type {
 } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
 import type { ViewType } from './use-view-type';
-import {
-  usePreference,
-  usePreferences,
-} from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 
 const cardTitleGroup = css({
   display: 'flex',

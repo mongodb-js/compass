@@ -9,7 +9,6 @@ import reducer, {
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type CollectionTabOptions = {
   /**

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
