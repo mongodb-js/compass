@@ -673,31 +673,41 @@ class CompassAutoUpdateManager {
       const response = await this.fetch((await this.getUpdateCheckURL()).href);
 
       if (response.status === 426) {
-        const json = await response.json();
-        assert(
-          typeof json === 'object' && json !== null,
-          'Expected response to be an object'
-        );
-        if ('reason' in json && json.reason === 'outdated-operating-system') {
+        try {
+          const json = await response.json();
           assert(
-            'expectedVersion' in json,
-            "Expected 'expectedVersion' in response"
+            typeof json === 'object' && json !== null,
+            'Expected response to be an object'
           );
-          const { expectedVersion } = json;
-          assert(
-            typeof expectedVersion === 'string',
-            "Expected 'expectedVersion' in response"
+          if ('reason' in json && json.reason === 'outdated-operating-system') {
+            assert(
+              'expectedVersion' in json,
+              "Expected 'expectedVersion' in response"
+            );
+            const { expectedVersion } = json;
+            assert(
+              typeof expectedVersion === 'string',
+              "Expected 'expectedVersion' in response"
+            );
+            return {
+              available: false,
+              reason: 'outdated-operating-system',
+              expectedVersion,
+            };
+          } else {
+            // Some future reason that no update is available
+            return {
+              available: false,
+            };
+          }
+        } catch (err) {
+          log.warn(
+            mongoLogId(1_001_000_347),
+            'AutoUpdateManager',
+            'Failed to parse HTTP 426 (Upgrade Required) response',
+            { error: err instanceof Error ? err.message : 'Unknown error' }
           );
-          return {
-            available: false,
-            reason: 'outdated-operating-system',
-            expectedVersion,
-          };
-        } else {
-          // Some future reason that no update is available
-          return {
-            available: false,
-          };
+          return { available: false };
         }
       } else if (response.status !== 200) {
         return { available: false };
