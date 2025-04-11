@@ -5,3 +5,4 @@ export type {
   IdentifyTraits,
   ExtraConnectionData,
 } from './types';
+export { TestName, useFireExperimentViewed } from './growth-experiments';

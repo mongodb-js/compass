@@ -7,7 +7,7 @@ export enum TestName {
   earlyJourneyIndexesGuidance = 'EARLY_JOURNEY_INDEXES_GUIDANCE_20250328',
 }
 
-export const fireExperimentViewed = ({
+export const useFireExperimentViewed = ({
   testName,
   shouldFire = true,
 }: {
