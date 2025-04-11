@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Apr 08 2025.
+This document was automatically generated on Fri Apr 11 2025.
 
 ## List of dependencies
 
@@ -208,7 +208,7 @@ This document was automatically generated on Tue Apr 08 2025.
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3       | MIT                                 |
 | **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9        | MIT                                 |
 | **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**                                              | 1.0.5        | MIT                                 |
-| **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**                                        | 3.1.8        | MIT                                 |
+| **[cross-fetch](#a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7)**                                        | 3.2.0        | MIT                                 |
 | **[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**                                        | 7.0.5        | MIT                                 |
 | **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**                                         | 4.3.0        | MIT                                 |
 | **[d3-flextree](#d4848a862048d0f4733db2a8631b802f3b5f86f2d4a1efb77fc8b8cf9a06bf73)**                                        | 2.1.2        | WTFPL                               |
@@ -311,7 +311,7 @@ This document was automatically generated on Tue Apr 08 2025.
 | **[interruptor](#e8a35d2ce64b947fb7a1aba891bc1e4eb166be57a59249cda1fcc689e767b6bc)**                                        | 1.0.2        | Apache-2.0                          |
 | **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**                                         | 9.0.5        | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
-| **[ipaddr.js](#d8a1c47a5dc5581d8d9e84268efa779a5140196540c2a4425e8317c1eeb93fb7)**                                          | 2.1.0        | MIT                                 |
+| **[ipaddr.js](#4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577)**                                          | 2.2.0        | MIT                                 |
 | **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**                                     | 1.0.1        | MIT                                 |
 | **[is-docker](#893885e21608c60de02539fa3bd5a98f7068127aa5fab86a215bfec41a3119a4)**                                          | 2.2.1        | MIT                                 |
 | **[is-docker](#b21de9a8d47c7c165b912be5c7a36eae3939076531e05733aa2ac7f1099dc46d)**                                          | 3.0.0        | MIT                                 |
@@ -429,7 +429,7 @@ This document was automatically generated on Tue Apr 08 2025.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
 | **[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**                          | 6.3.0        | Apache-2.0                          |
-| **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**                                 | 2.1.2        | Apache-2.0                          |
+| **[mongodb-cloud-info](#5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75)**                                 | 2.1.7        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#88666983cb95a6ccc6128f1044a0dcc126ed2a0291334daa221a96de19595c42)**                                 | 2.4.0        | Apache-2.0                          |
 | **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**                                         | 2.4.2        | MIT                                 |
@@ -17769,9 +17769,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5"></a>
+<a id="a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7"></a>
 
-### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 3.1.8)
+### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 3.2.0)
 
 License tags: MIT
 
@@ -21903,9 +21903,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="d8a1c47a5dc5581d8d9e84268efa779a5140196540c2a4425e8317c1eeb93fb7"></a>
+<a id="4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577"></a>
 
-### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.1.0)
+### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.2.0)
 
 License tags: MIT
 
@@ -26366,9 +26366,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46"></a>
+<a id="5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.1.2)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.1.7)
 
 License tags: Apache-2.0
 

@@ -36,6 +36,7 @@ async function renderValidationEditor(
         validation={validation}
         generateValidationRules={() => {}}
         isRulesGenerationInProgress={false}
+        isValidatorGenerated={false}
         isSavingInProgress={false}
         isEditable
         isEditingEnabled

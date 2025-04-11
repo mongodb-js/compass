@@ -1,14 +1,6 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 export type ConnectionFeature = 'rollingIndexCreation' | 'globalWrites';
 
-function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
-  if (!instanceSize) {
-    return false;
-  }
-
-  return ['M0', 'M2', 'M5'].includes(instanceSize);
-}
-
 function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {
   const atlasMetadata = connectionInfo.atlasMetadata;
 
@@ -16,11 +8,7 @@ function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {
     return false;
   }
 
-  const { metricsType, instanceSize } = atlasMetadata;
-  return (
-    (metricsType === 'cluster' || metricsType === 'replicaSet') &&
-    !isFreeOrSharedTierCluster(instanceSize)
-  );
+  return atlasMetadata.supports.rollingIndexes;
 }
 
 function supportsGlobalWrites(connectionInfo: ConnectionInfo) {
@@ -30,10 +18,7 @@ function supportsGlobalWrites(connectionInfo: ConnectionInfo) {
     return false;
   }
 
-  return (
-    atlasMetadata.clusterType === 'GEOSHARDED' &&
-    !atlasMetadata.geoSharding?.selfManagedSharding
-  );
+  return atlasMetadata.supports.globalWrites;
 }
 
 export function connectionSupports(
