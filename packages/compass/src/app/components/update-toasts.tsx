@@ -110,9 +110,23 @@ export function onAutoupdateFailed(reason?: 'outdated-operating-system') {
     variant: 'warning',
     title: 'Failed to download Compass update',
     description:
-      reason === 'outdated-operating-system'
-        ? 'The version of your operating system is no longer supported.'
-        : 'Downloading a newer Compass version failed',
+      reason === 'outdated-operating-system' ? (
+        <>
+          <Body>
+            The version of your operating system is no longer supported.
+          </Body>
+          <Link
+            data-testid="system-requirements-link"
+            as="a"
+            target="_blank"
+            href="https://www.mongodb.com/docs/compass/current/install/"
+          >
+            See Documentation on System Requirements
+          </Link>
+        </>
+      ) : (
+        'Downloading a newer Compass version failed'
+      ),
   });
 }
 export function onAutoupdateSuccess({
