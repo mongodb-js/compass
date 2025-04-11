@@ -1,6 +1,5 @@
 import type { CollectionCollection } from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
 
 interface DatabaseProps {
   _id: string;

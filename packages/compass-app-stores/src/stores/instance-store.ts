@@ -189,7 +189,6 @@ export function createInstancesStore(
       const { database } = toNS(ns);
       const db = instance.databases.get(database);
       const coll = db?.collections.get(ns);
-      console.log('Refresh Namespace Stats');
       // We don't care if this fails
       await Promise.allSettled([
         db?.fetch({ dataService, force: true }),
