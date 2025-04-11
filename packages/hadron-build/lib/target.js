@@ -314,7 +314,12 @@ class Target {
      * remoteToken: this.githubToken,
      */
     Object.assign(this.packagerOptions, {
-      name: this.productName.replace(/ /g, '\\ '),
+      // This name becomes the .exe name, but it is also used to determine
+      // various other parts including the nupkg file and its metadata and the
+      // code that makes that validates that the filename does not contain
+      // spaces. So basically the .exe we build is not allowed to contain
+      // spaces and it is out of our control.
+      name: this.productName.replace(/ /g, ''),
       icon: this.src(platformSettings.icon),
       'version-string': {
         CompanyName: this.author,

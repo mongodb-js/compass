@@ -1,3 +1,5 @@
+import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import { spawn } from 'child_process';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -17,6 +19,64 @@ function runUpdateExe(args: string[]): Promise<void> {
   });
 }
 
+function getShortcutName() {
+  // The shortcut name is the app name plus the channel name if it is not
+  // stable. ie. "MongoDB Compass Readonly Beta"
+
+  const parts: string[] = [process.env.HADRON_PRODUCT_NAME];
+  if (process.env.HADRON_CHANNEL !== 'stable') {
+    parts.push(
+      process.env.HADRON_CHANNEL.charAt(0).toUpperCase() +
+        process.env.HADRON_CHANNEL.slice(1)
+    );
+  }
+  return `"${parts.join(' ')}"`;
+}
+
+async function renameShortcuts(from: string, to: string) {
+  const folders: string[] = [];
+
+  if (process.env.APPDATA) {
+    // start menu shortcut
+    // NOTE: This includes the non-ideal "MongoDB Inc" folder name as opposed to
+    // "MongoDB".
+    folders.push(
+      path.join(
+        process.env.APPDATA,
+        'Microsoft',
+        'Windows',
+        'Start Menu',
+        'Programs',
+        'MongoDB Inc'
+      )
+    );
+  }
+
+  // desktop shortcut
+  folders.push(path.join(os.homedir(), 'Desktop'));
+
+  for (const folder of folders) {
+    const source = path.join(folder, from);
+    const destination = path.join(folder, to);
+    try {
+      // only rename the shortcut if it exists at the standard, expected location
+      if (await fs.stat(source)) {
+        debug('renaming shortcut from %s to %s', source, destination);
+        await fs.rename(source, destination);
+      } else {
+        debug('shortcut %s does not exist, skipping rename', source);
+      }
+    } catch (err: unknown) {
+      debug(
+        'error renaming shortcut from %s to %s: %s',
+        source,
+        destination,
+        err
+      );
+    }
+  }
+}
+
 /*
 Squirrel will spawn Compass with command line flags on first run, updates, and
 uninstalls. It is very important that we handle these events as early as
@@ -31,7 +91,13 @@ export async function handleSquirrelWindowsStartup(): Promise<boolean> {
   // This has to be an executable that was packaged up with the app. There's no
   // way to control what the shortcut name will be - it is always the same as
   // the executable.
-  const shortcutName = path.basename(process.execPath);
+  const exeName = path.basename(process.execPath);
+
+  // We want the desktop and start menu shortcuts to be named with spaces in
+  // them so that when the user searches for "compass" in the start menu it will
+  // find it.
+  const correctShortcutName = getShortcutName() + '.lnk';
+  const wrongShortcutName = getShortcutName().replace(/ /g, '') + '.lnk';
 
   const cmd = process.argv[1];
   debug('processing squirrel command `%s`', cmd);
@@ -49,12 +115,17 @@ export async function handleSquirrelWindowsStartup(): Promise<boolean> {
   switch (cmd) {
     case '--squirrel-install':
     case '--squirrel-updated':
-      await runUpdateExe([`--createShortcut=${shortcutName}`]);
+      await runUpdateExe([`--createShortcut=${exeName}`]);
+      // Rename the shortcut that was just created to be what we want it to be.
+      await renameShortcuts(wrongShortcutName, correctShortcutName);
       debug(`${cmd} handled sucessfully`);
       return true;
 
     case '--squirrel-uninstall':
-      await runUpdateExe([`--removeShortcut=${shortcutName}`]);
+      // Rename the shortcut back to the original name so it can be removed as
+      // usual.
+      await renameShortcuts(correctShortcutName, wrongShortcutName);
+      await runUpdateExe([`--removeShortcut=${exeName}`]);
       debug(`${cmd} handled sucessfully`);
       return true;
 
