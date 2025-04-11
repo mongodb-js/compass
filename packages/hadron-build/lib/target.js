@@ -313,6 +313,11 @@ class Target {
      * remoteToken: this.githubToken,
      */
     Object.assign(this.packagerOptions, {
+      // This name becomes the .exe name, but it is also used to determine
+      // various other parts including the nupkg file and its metadata and the
+      // code that makes that validates that the filename does not contain
+      // spaces. So basically the .exe we build is not allowed to contain
+      // spaces and it is out of our control.
       name: this.productName.replace(/ /g, ''),
       icon: this.src(platformSettings.icon),
       'version-string': {
@@ -393,6 +398,10 @@ class Target {
       iconUrl: platformSettings.favicon_url,
       appDirectory: this.appPath,
       outputDirectory: this.packagerOptions.out,
+      // NOTE: This also becomes the name of the shortcut folder. Will be
+      // "MongoDB Inc" if it uses this.author. Tempting to use
+      // this.shortcutFolderName so it becomes MongoDB like for the .msi, but
+      // who knows what else will be affected.
       authors: this.author,
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
@@ -450,10 +459,12 @@ class Target {
         outputDirectory: this.packagerOptions.out,
         exe: this.packagerOptions.name,
         name: this.productName,
+        // NOTE: falling back to author would result in MongoDB Inc
+        shortcutFolderName: this.shortcutFolderName || this.author,
+        shortcutName: this.productName,
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
-        shortcutFolderName: this.shortcutFolderName || this.author,
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
         upgradeCode: this.upgradeCode,
