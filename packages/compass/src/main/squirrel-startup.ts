@@ -20,17 +20,7 @@ function runUpdateExe(args: string[]): Promise<void> {
 }
 
 function getShortcutName() {
-  // The shortcut name is the app name plus the channel name if it is not
-  // stable. ie. "MongoDB Compass Readonly Beta"
-
-  const parts: string[] = [process.env.HADRON_PRODUCT_NAME];
-  if (process.env.HADRON_CHANNEL !== 'stable') {
-    parts.push(
-      process.env.HADRON_CHANNEL.charAt(0).toUpperCase() +
-        process.env.HADRON_CHANNEL.slice(1)
-    );
-  }
-  return `"${parts.join(' ')}"`;
+  return process.env.HADRON_PRODUCT_NAME ?? 'MongoDB Compass';
 }
 
 async function renameShortcuts(from: string, to: string) {
