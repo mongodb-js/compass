@@ -184,13 +184,26 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
     if (fromState === AutoUpdateManagerState.UserPromptedManualCheck) {
-      void dialog.showMessageBox({
-        icon: COMPASS_ICON,
-        message:
-          updateInfo.reason === 'outdated-operating-system'
-            ? `The version of your operating system is no longer supported. Expected at least ${updateInfo.expectedVersion}`
-            : 'There are currently no updates available.',
-      });
+      if (updateInfo.reason === 'outdated-operating-system') {
+        void dialog
+          .showMessageBox({
+            icon: COMPASS_ICON,
+            message: `The version of your operating system is no longer supported. Expected at least ${updateInfo.expectedVersion}.`,
+            buttons: ['OK', 'Visit Documentation on System Requirements'],
+          })
+          .then(async (value) => {
+            if (value.response === 1) {
+              await shell.openExternal(
+                'https://www.mongodb.com/docs/compass/current/install/'
+              );
+            }
+          });
+      } else {
+        void dialog.showMessageBox({
+          icon: COMPASS_ICON,
+          message: 'There are currently no updates available.',
+        });
+      }
     }
 
     if (updateInfo.reason === 'outdated-operating-system') {
