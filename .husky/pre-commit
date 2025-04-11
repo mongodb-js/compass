@@ -4,4 +4,8 @@
 # listings staged files only
 fileList=$(git diff --diff-filter=AM --cached --name-only)
 
-npm run precommit $fileList
+if [ -n "$fileList" ]; then
+  echo "Prettifying staged files..."
+  npx prettier-compass --write --ignore-unknown $fileList
+  git add $fileList
+fi

@@ -593,6 +593,7 @@ export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
+export const EditDocumentButton = '[data-testid="edit-document-button"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';
 export const ImportFileOption =
@@ -608,6 +609,8 @@ export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
 export const DocumentFooter = '[data-testid="document-footer"]';
 export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
+export const DocumentFooterErrorDetailsButton =
+  '[data-testid="edit-actions-footer-error-details-button"]';
 export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 export const JSONDocumentCard = '[data-testid="editable-json"]';
@@ -615,12 +618,15 @@ export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const ErrorDetailsJson = '[data-testid="error-details-json"]';
 
 // Insert Document modal
 
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
+export const InsertDialogErrorDetailsBtn =
+  'button[data-testid="insert-document-error-details-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
@@ -647,6 +653,8 @@ export const ImportAnalyzeError =
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
+export const ImportToastErrorDetailsBtn =
+  '[data-testid="toast-import-toast"] [data-testid="import-error-details-button"]';
 export const ImportToastAbort = '[data-testid="toast-action-stop"]';
 export const ImportFieldLabel =
   '[data-testid="import-modal"] .import-field-label';
@@ -824,6 +832,7 @@ export const AggregationWriteOperationConfirmationModalDescription = `${Aggregat
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
+export const AggregationPipelineName = '[data-testid="pipeline-name"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
 export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
@@ -1144,14 +1153,18 @@ export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const EnableEditValidationButton =
+  '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
+export const ValidationSuccessToast =
+  '[data-testid="toast-schema-validation-update"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
-export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
+export const ValidationLoadSampleDocumentsBtn = `[data-testid="load-sample-documents"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
 export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
@@ -1159,6 +1172,8 @@ export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =
   '[data-testid="validation-level-selector"]';
+export const GenerateValidationRulesButton =
+  '[data-testid="generate-rules-button"]';
 
 // Find (Documents and Schema tabs)
 export const queryBar = (tabName: string): string => {
@@ -1305,11 +1320,11 @@ export const ConfirmationModalInput = `${ConfirmationModal} input`;
 
 export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
+) => `${modalSelector} [role=dialog] [data-testid*="confirm_button"]`;
 
 export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
-) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
+) => `${modalSelector} [role=dialog] [data-testid*="cancel_button"]`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';

@@ -25,12 +25,18 @@ import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type {
   ConnectionInfoRef,
-  DataService,
+  DataService as OriginalDataService,
 } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { RulesGenerationState } from './rules-generation';
+import {
+  INITIAL_STATE as RULES_GENERATION_STATE,
+  rulesGenerationReducer,
+} from './rules-generation';
+import type { analyzeSchema } from '@mongodb-js/compass-schema';
 
 /**
  * Reset action constant.
@@ -44,6 +50,7 @@ export interface RootState {
   namespace: NamespaceState;
   serverVersion: ServerVersionState;
   validation: ValidationState;
+  rulesGeneration: RulesGenerationState;
   sampleDocuments: SampleDocumentState;
   isZeroState: IsZeroStateState;
   isLoaded: IsLoadedState;
@@ -60,17 +67,25 @@ export type RootAction =
   | EditModeAction
   | ResetAction;
 
+export type DataService = Pick<
+  OriginalDataService,
+  | 'aggregate'
+  | 'collectionInfo'
+  | 'updateCollection'
+  | 'sample'
+  | 'isCancelError'
+>;
+
 export type SchemaValidationExtraArgs = {
-  dataService: Pick<
-    DataService,
-    'aggregate' | 'collectionInfo' | 'updateCollection'
-  >;
+  dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;
   workspaces: WorkspacesService;
   logger: Logger;
   track: TrackFunction;
+  rulesGenerationAbortControllerRef: { current?: AbortController };
+  analyzeSchema: typeof analyzeSchema;
 };
 
 export type SchemaValidationThunkAction<
@@ -85,6 +100,7 @@ export const INITIAL_STATE: RootState = {
   namespace: NS_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
   validation: VALIDATION_STATE,
+  rulesGeneration: RULES_GENERATION_STATE,
   sampleDocuments: SAMPLE_DOCUMENTS_STATE,
   isZeroState: IS_ZERO_STATE,
   isLoaded: IS_LOADED_STATE,
@@ -94,7 +110,7 @@ export const INITIAL_STATE: RootState = {
 /**
  * The reducer.
  */
-const appReducer = combineReducers<RootState, RootAction>({
+const appReducer = combineReducers<RootState, AnyAction>({
   namespace,
   serverVersion,
   validation,
@@ -102,6 +118,7 @@ const appReducer = combineReducers<RootState, RootAction>({
   isZeroState,
   isLoaded,
   editMode,
+  rulesGeneration: rulesGenerationReducer,
 });
 
 /**

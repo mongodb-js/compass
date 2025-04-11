@@ -470,6 +470,23 @@ class CompassApplication {
     // Accessing defaultSession is not allowed when app is not ready
     await app.whenReady();
 
+    session.defaultSession.on(
+      'will-download',
+      function (event, item, webContents) {
+        item.once('done', (event, state) => {
+          if (state === 'completed') {
+            webContents.send('download-finished', {
+              path: item.getSavePath(),
+            });
+          } else if (state === 'interrupted') {
+            webContents.send('download-failed', {
+              filename: item.getFilename(),
+            });
+          }
+        });
+      }
+    );
+
     session.defaultSession.webRequest.onBeforeSendHeaders(
       allowedCloudEndpoints,
       (details, callback) => {

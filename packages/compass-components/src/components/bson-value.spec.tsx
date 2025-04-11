@@ -46,6 +46,21 @@ describe('BSONValue', function () {
       expected: "UUID('3132303d')",
     },
     {
+      type: 'Binary',
+      value: Binary.fromInt8Array(new Int8Array([1, 2, 3])),
+      expected: 'Binary.fromInt8Array(new Int8Array([1, 2, 3]))',
+    },
+    {
+      type: 'Binary',
+      value: Binary.fromFloat32Array(new Float32Array([1.1, 2.2, 3.3])),
+      expected: 'Binary.fromFloat32Array(new Float32Array([1.1, 2.2, 3.3]))',
+    },
+    {
+      type: 'Binary',
+      value: Binary.fromPackedBits(new Uint8Array([1, 2, 3])),
+      expected: 'Binary.fromPackedBits(new Uint8Array([1, 2, 3]))',
+    },
+    {
       type: 'Code',
       value: new Code('var a = 1', { foo: 2 }),
       expected: 'Code(\'var a = 1\', {"foo":2})',

@@ -2,6 +2,7 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
+import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -267,10 +268,15 @@ export type InsertCSFLEState = {
   encryptedFields?: string[];
 };
 
+export type WriteError = {
+  message: string;
+  info?: Record<string, unknown>;
+};
+
 type InsertState = {
   doc: null | Document;
   jsonDoc: null | string;
-  message: string;
+  error?: WriteError;
   csfleState: InsertCSFLEState;
   mode: 'modifying' | 'error';
   jsonView: boolean;
@@ -420,7 +426,7 @@ class CrudStoreImpl
       end: 0,
       page: 0,
       view: LIST,
-      count: 0,
+      count: null,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
       bulkDelete: this.getInitialBulkDeleteState(),
@@ -463,7 +469,6 @@ class CrudStoreImpl
     return {
       doc: null,
       jsonDoc: null,
-      message: '',
       csfleState: { state: 'none' },
       mode: MODIFYING,
       jsonView: false,
@@ -531,6 +536,13 @@ class CrudStoreImpl
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
+  }
+
+  getWriteError(error: Error): WriteError {
+    return {
+      message: error.message,
+      info: (error as MongoServerError).errInfo,
+    };
   }
 
   updateMaxDocumentsPerPage(docsPerPage: number) {
@@ -1005,7 +1017,7 @@ class CrudStoreImpl
         doc: hadronDoc,
         jsonDoc: jsonDoc,
         jsonView: true,
-        message: '',
+        error: undefined,
         csfleState,
         mode: MODIFYING,
         isOpen: true,
@@ -1268,7 +1280,7 @@ class CrudStoreImpl
           doc: this.state.insert.doc,
           jsonView: true,
           jsonDoc: jsonDoc ?? null,
-          message: '',
+          error: undefined,
           csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
@@ -1289,7 +1301,7 @@ class CrudStoreImpl
           doc: hadronDoc,
           jsonView: false,
           jsonDoc: this.state.insert.jsonDoc,
-          message: '',
+          error: undefined,
           csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
@@ -1311,7 +1323,7 @@ class CrudStoreImpl
         doc: new Document({}),
         jsonDoc: this.state.insert.jsonDoc,
         jsonView: jsonView,
-        message: '',
+        error: undefined,
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
         isOpen: true,
@@ -1332,7 +1344,7 @@ class CrudStoreImpl
         doc: new Document({}),
         jsonDoc: value,
         jsonView: true,
-        message: '',
+        error: undefined,
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
         isOpen: true,
@@ -1345,19 +1357,19 @@ class CrudStoreImpl
    * Insert a single document.
    */
   async insertMany() {
-    const docs = HadronDocument.FromEJSONArray(
-      this.state.insert.jsonDoc ?? ''
-    ).map((doc) => doc.generateObject());
-    this.track(
-      'Document Inserted',
-      {
-        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-        multiple: docs.length > 1,
-      },
-      this.connectionInfoRef.current
-    );
-
     try {
+      const docs = HadronDocument.FromEJSONArray(
+        this.state.insert.jsonDoc ?? ''
+      ).map((doc) => doc.generateObject());
+      this.track(
+        'Document Inserted',
+        {
+          mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
+          multiple: docs.length > 1,
+        },
+        this.connectionInfoRef.current
+      );
+
       await this.dataService.insertMany(this.state.ns, docs);
       // track mode for analytics events
       const payload = {
@@ -1381,7 +1393,7 @@ class CrudStoreImpl
           doc: new Document({}),
           jsonDoc: this.state.insert.jsonDoc,
           jsonView: true,
-          message: (error as Error).message,
+          error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
           isOpen: true,
@@ -1443,7 +1455,7 @@ class CrudStoreImpl
           doc: this.state.insert.doc,
           jsonDoc: this.state.insert.jsonDoc,
           jsonView: this.state.insert.jsonView,
-          message: (error as Error).message,
+          error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
           isOpen: true,
@@ -1901,7 +1913,7 @@ class CrudStoreImpl
 
     const confirmation = await showConfirmation({
       title: 'Are you absolutely sure?',
-      buttonText: `Delete ${affected || 0} document${
+      buttonText: `Delete ${affected ? `${affected} ` : ''} document${
         affected !== 1 ? 's' : ''
       }`,
       description: `This action can not be undone. This will permanently delete ${

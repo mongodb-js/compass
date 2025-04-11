@@ -374,7 +374,7 @@ describe('CompassConnections store', function () {
         expect(titleNode).to.be.visible;
 
         const descriptionNode = screen.getByText(
-          'Reason: Insufficient permissions. To use continue to use this connection either disconnect and reconnect, or refresh your page.'
+          'Reason: Insufficient permissions. To continue to use this connection either disconnect and reconnect, or refresh your page.'
         );
         expect(descriptionNode).to.be.visible;
       });

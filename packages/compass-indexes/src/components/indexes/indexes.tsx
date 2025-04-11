@@ -7,6 +7,7 @@ import {
   WorkspaceContainer,
   css,
   spacing,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
@@ -49,13 +50,22 @@ const containerStyles = css({
 
 const linkTitle = 'Atlas Search.';
 
+const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
+  'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
 const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
   const { atlasMetadata } = useConnectionInfo();
-  if (!atlasMetadata) {
+  const [dismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
+  if (!atlasMetadata || dismissed) {
     return null;
   }
+
   return (
-    <Banner variant="info">
+    <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (

@@ -629,7 +629,9 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
       (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path =
         params.path;
-      this.gridApi.setRowData(this.createRowData(this.props.docs, 1));
+      this.gridApi.setRowData(
+        this.createRowData(this.props.docs, this.props.start)
+      );
       this.gridApi.setColumnDefs(headers);
     }
     this.gridApi.refreshCells({ force: true });

@@ -87,13 +87,17 @@ export const updateItem =
       return;
     }
 
-    if (item.type === 'query') {
-      await queryStorage?.updateAttributes(id, {
-        _name: attributes.name,
-        _dateModified: new Date(),
-      });
-    } else {
-      await pipelineStorage?.updateAttributes(id, attributes);
+    switch (item.type) {
+      case 'aggregation':
+        await pipelineStorage?.updateAttributes(id, attributes);
+        break;
+      case 'query':
+      case 'updatemany':
+        await queryStorage?.updateAttributes(id, {
+          _name: attributes.name,
+          _dateModified: new Date(),
+        });
+        break;
     }
 
     dispatch({

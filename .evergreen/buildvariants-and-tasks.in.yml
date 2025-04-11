@@ -248,7 +248,11 @@ buildvariants:
         variant: <%= buildVariant.depends_on %>
     tasks:
     <% for (const group of E2E_TEST_GROUPS) { %>
+    <% if (['test-packaged-app-macos-11-arm', 'test-packaged-app-macos-11-x64'].includes(buildVariant.name)) { %>
+    - name: test-packaged-app-macos13-<%= group.number %>
+    <% } else { %>
     - name: test-packaged-app-<%= group.number %>
+    <% } %>
     <% } %>
 <% } %>
 
@@ -497,6 +501,32 @@ tasks:
       - func: test-packaged-app
         vars:
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
+          compass_distribution: compass
+          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
+          e2e_test_group: <%= group.number %>
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  - name: test-packaged-app-macos13-<%= group.number %>
+    tags:
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          mongodb_version: 8.0.5
           compass_distribution: compass
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
