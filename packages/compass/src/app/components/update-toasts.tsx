@@ -105,11 +105,28 @@ export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
     title: `Compass ${newVersion} is downloading`,
   });
 }
-export function onAutoupdateFailed() {
+export function onAutoupdateFailed(reason?: 'outdated-operating-system') {
   openToast(updateToastId, {
     variant: 'warning',
     title: 'Failed to download Compass update',
-    description: 'Downloading a newer Compass version failed',
+    description:
+      reason === 'outdated-operating-system' ? (
+        <>
+          <Body>
+            The version of your operating system is no longer supported.
+          </Body>
+          <Link
+            data-testid="system-requirements-link"
+            as="a"
+            target="_blank"
+            href="https://www.mongodb.com/docs/compass/current/install/"
+          >
+            See Documentation on System Requirements
+          </Link>
+        </>
+      ) : (
+        'Downloading a newer Compass version failed'
+      ),
   });
 }
 export function onAutoupdateSuccess({

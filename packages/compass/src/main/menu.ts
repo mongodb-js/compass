@@ -516,24 +516,14 @@ class CompassMenu {
     app.on('auto-updater:new-state', (state) => {
       const updateManagerState = ((): UpdateManagerState => {
         switch (state) {
-          case AutoUpdateManagerState.Initial:
-          case AutoUpdateManagerState.Disabled:
-          case AutoUpdateManagerState.UserPromptedManualCheck:
-          case AutoUpdateManagerState.CheckingForUpdatesForManualCheck:
-          case AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck:
-          case AutoUpdateManagerState.NoUpdateAvailable:
-          case AutoUpdateManagerState.UpdateAvailable:
-          case AutoUpdateManagerState.UpdateDismissed:
-          case AutoUpdateManagerState.DownloadingError:
-          case AutoUpdateManagerState.PromptToUpdateExternally:
-          case AutoUpdateManagerState.Restarting:
-            return 'idle';
           case AutoUpdateManagerState.ManualDownload:
           case AutoUpdateManagerState.DownloadingUpdate:
             return 'installing updates';
           case AutoUpdateManagerState.RestartDismissed:
           case AutoUpdateManagerState.PromptForRestart:
             return 'ready to restart';
+          default:
+            return 'idle';
         }
       })();
       this.updateMenu({ updateManagerState });

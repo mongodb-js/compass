@@ -371,7 +371,12 @@ const app = {
         onAutoupdateStarted({ newVersion });
       }
     );
-    ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
+    ipcRenderer?.on(
+      'autoupdate:update-download-failed',
+      (_, reason?: 'outdated-operating-system') => {
+        onAutoupdateFailed(reason);
+      }
+    );
     ipcRenderer?.on(
       'autoupdate:update-download-success',
       (_, { newVersion }: { newVersion: string }) => {
