@@ -3,7 +3,11 @@ import { zeroStateChanged } from './zero-state';
 import { enableEditRules } from './edit-mode';
 import type { MongoError } from 'mongodb';
 import type { Action, Reducer } from 'redux';
-import { validationLevelChanged, validatorChanged } from './validation';
+import {
+  ValidationActions,
+  validationLevelChanged,
+  validatorChanged,
+} from './validation';
 import {
   type analyzeSchema as analyzeSchemaType,
   calculateSchemaMetadata,
@@ -48,6 +52,7 @@ export type RulesGenerationError = {
 
 export interface RulesGenerationState {
   isInProgress: boolean;
+  isGenerated: boolean;
   error?: RulesGenerationError;
 }
 
@@ -56,6 +61,7 @@ export interface RulesGenerationState {
  */
 export const INITIAL_STATE: RulesGenerationState = {
   isInProgress: false,
+  isGenerated: false,
 };
 
 function getErrorDetails(error: Error): RulesGenerationError {
@@ -103,6 +109,7 @@ export const rulesGenerationReducer: Reducer<RulesGenerationState, Action> = (
     return {
       ...state,
       isInProgress: false,
+      isGenerated: true,
     };
   }
 
@@ -116,6 +123,26 @@ export const rulesGenerationReducer: Reducer<RulesGenerationState, Action> = (
       ...state,
       isInProgress: false,
       error: getErrorDetails(action.error),
+    };
+  }
+
+  if (
+    isAction(action, ValidationActions.ValidatorChanged) &&
+    state.isGenerated
+  ) {
+    return {
+      ...state,
+      isGenerated: false, // the generated validator has been changed
+    };
+  }
+
+  if (
+    isAction(action, ValidationActions.ValidationSaveEnded) &&
+    state.isGenerated
+  ) {
+    return {
+      ...state,
+      isGenerated: false, // the generated validator has been saved
     };
   }
 
