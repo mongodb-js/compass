@@ -26,7 +26,10 @@ import type {
 } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
 import type { ViewType } from './use-view-type';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  usePreference,
+  usePreferences,
+} from 'compass-preferences-model/provider';
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -225,7 +228,10 @@ export const NamespaceItemCard: React.FunctionComponent<
   isNonExistent,
   ...props
 }) => {
-  const readOnly = usePreference('readOnly');
+  const { readOnly, enableDbAndCollStats } = usePreferences([
+    'readOnly',
+    'enableDbAndCollStats',
+  ]);
   const darkMode = useDarkMode();
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
@@ -330,21 +336,23 @@ export const NamespaceItemCard: React.FunctionComponent<
 
       {viewType === 'grid' && badgesGroup}
 
-      <div className={cx(namespaceDataGroup, viewType === 'grid' && column)}>
-        {data.map(({ label, value, hint, insights }, idx) => {
-          return (
-            <NamespaceParam
-              key={idx}
-              label={label}
-              hint={!isNonExistent && hint}
-              value={value}
-              status={status}
-              viewType={viewType}
-              insights={insights}
-            ></NamespaceParam>
-          );
-        })}
-      </div>
+      {enableDbAndCollStats && (
+        <div className={cx(namespaceDataGroup, viewType === 'grid' && column)}>
+          {data.map(({ label, value, hint, insights }, idx) => {
+            return (
+              <NamespaceParam
+                key={idx}
+                label={label}
+                hint={!isNonExistent && hint}
+                value={value}
+                status={status}
+                viewType={viewType}
+                insights={insights}
+              ></NamespaceParam>
+            );
+          })}
+        </div>
+      )}
     </Card>
   );
 };

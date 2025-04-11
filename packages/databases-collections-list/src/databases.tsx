@@ -10,8 +10,10 @@ import { usePreference } from 'compass-preferences-model/provider';
 const DATABASE_CARD_WIDTH = spacing[1600] * 4;
 
 const DATABASE_CARD_HEIGHT = 154;
+const DATABASE_CARD_WITHOUT_STATS_HEIGHT = DATABASE_CARD_HEIGHT - 85;
 
 const DATABASE_CARD_LIST_HEIGHT = 118;
+const DATABASE_CARD_WITHOUT_STATS_LIST_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 40;
 
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
@@ -34,8 +36,16 @@ const DatabasesList: React.FunctionComponent<{
       items={databases}
       itemType="database"
       itemGridWidth={DATABASE_CARD_WIDTH}
-      itemGridHeight={DATABASE_CARD_HEIGHT}
-      itemListHeight={DATABASE_CARD_LIST_HEIGHT}
+      itemGridHeight={
+        enableDbAndCollStats
+          ? DATABASE_CARD_HEIGHT
+          : DATABASE_CARD_WITHOUT_STATS_HEIGHT
+      }
+      itemListHeight={
+        enableDbAndCollStats
+          ? DATABASE_CARD_LIST_HEIGHT
+          : DATABASE_CARD_WITHOUT_STATS_LIST_HEIGHT
+      }
       sortBy={[
         { name: 'name', label: 'Database Name' },
         { name: 'storage_size', label: 'Storage size' },

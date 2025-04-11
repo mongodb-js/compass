@@ -10,6 +10,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
 
 const COLLECTION_CARD_HEIGHT = 238;
+const COLLECTION_CARD_WITHOUT_STATS_HEIGHT = COLLECTION_CARD_HEIGHT - 40 - 16;
 
 const COLLECTION_CARD_LIST_HEIGHT = 118;
 
@@ -99,7 +100,11 @@ const CollectionsList: React.FunctionComponent<{
         items={collections}
         itemType="collection"
         itemGridWidth={COLLECTION_CARD_WIDTH}
-        itemGridHeight={COLLECTION_CARD_HEIGHT}
+        itemGridHeight={
+          enableDbAndCollStats
+            ? COLLECTION_CARD_HEIGHT
+            : COLLECTION_CARD_WITHOUT_STATS_HEIGHT
+        }
         itemListHeight={COLLECTION_CARD_LIST_HEIGHT}
         sortBy={[
           { name: 'name', label: 'Collection Name' },
