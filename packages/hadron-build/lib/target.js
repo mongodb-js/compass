@@ -71,7 +71,6 @@ function getPkg(directory) {
   }
 
   _.defaults(pkg, {
-    // NOTE: If nothing overrides this it would result in MongoDB Inc
     productName: pkg.name,
     author: pkg.authors,
     electronVersion: require('electron/package.json').version,
