@@ -27,7 +27,7 @@ import { runPipelineConfirmationDescription } from '../utils/modal-descriptions'
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import toNS from 'mongodb-ns';
-import { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 const WRITE_STAGE_LINK = {
   $merge:

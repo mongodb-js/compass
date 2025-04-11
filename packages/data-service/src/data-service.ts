@@ -1113,6 +1113,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     collectionName: string
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
+
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll

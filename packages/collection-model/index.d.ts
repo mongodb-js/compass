@@ -68,7 +68,7 @@ interface CollectionProps {
   collation: unknown;
   pipeline: unknown[];
   validation: unknown;
-  is_capped?: boolean;
+  is_capped: boolean | undefined;
   document_count: number | undefined;
   document_size: number | undefined;
   avg_document_size: number | undefined;

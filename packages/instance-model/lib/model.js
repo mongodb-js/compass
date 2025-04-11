@@ -241,7 +241,6 @@ const InstanceModel = AmpersandModel.extend(
     collections: {
       databases: MongoDbDatabaseCollection,
     },
-    services: {},
 
     /**
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
