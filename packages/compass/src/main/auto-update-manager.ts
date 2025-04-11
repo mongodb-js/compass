@@ -188,7 +188,7 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
         icon: COMPASS_ICON,
         message:
           updateInfo.reason === 'outdated-operating-system'
-            ? `The version of your operating system is no longer supported. Expected at least v${updateInfo.expectedVersion}`
+            ? `The version of your operating system is no longer supported. Expected at least ${updateInfo.expectedVersion}`
             : 'There are currently no updates available.',
       });
     }
