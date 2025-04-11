@@ -137,6 +137,16 @@ export const rulesGenerationReducer: Reducer<RulesGenerationState, Action> = (
   }
 
   if (
+    isAction(action, ValidationActions.ValidationSaveEnded) &&
+    state.isGenerated
+  ) {
+    return {
+      ...state,
+      isGenerated: false, // the generated validator has been saved
+    };
+  }
+
+  if (
     isAction<RulesGenerationErrorCleared>(
       action,
       RulesGenerationActions.generationErrorCleared
