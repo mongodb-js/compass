@@ -28,7 +28,6 @@ const DatabasesList: React.FunctionComponent<{
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
-  console.log({ databases });
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   return (
     <ItemsGrid

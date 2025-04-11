@@ -140,25 +140,16 @@ const DatabaseModel = AmpersandModel.extend(
      */
     async fetch({ dataService, force = false }) {
       const instanceModel = getParentByType(this, 'Instance');
-      console.log(
-        'PREFERENCES in DB',
-        instanceModel.preferences,
-        instanceModel
-      );
       const { enableDbAndCollStats } =
         instanceModel.preferences.getPreferences();
 
       if (!shouldFetch(this.status, force)) {
-        console.log('[database-model]', 'not should fetch', this.status, force);
         return;
       }
 
       if (!enableDbAndCollStats) {
-        console.log('[database-model]', 'Skipping');
         this.set({ status: 'ready' });
         return;
-      } else {
-        console.log('[database-model]', 'Not skipping');
       }
 
       try {
@@ -185,7 +176,6 @@ const DatabaseModel = AmpersandModel.extend(
      */
     async fetchCollections({ dataService, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
-        console.log('[database-model]', 'skipping collection');
         return;
       }
 
@@ -193,16 +183,9 @@ const DatabaseModel = AmpersandModel.extend(
         const newStatus =
           this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
-        console.log(
-          '[database-model]',
-          'Fetching collections',
-          this.collections.fetch
-        );
         await this.collections.fetch({ dataService, force });
-        console.log('[database-model]', 'Done with collections');
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
-        console.log('[database-model]', 'failure', err);
         this.set({
           collectionsStatus: 'error',
           collectionsStatusError: err.message,

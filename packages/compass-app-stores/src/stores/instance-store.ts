@@ -237,7 +237,6 @@ export function createInstancesStore(
       }
       // Fetch in sequence to avoid race conditions between database and
       // collection model updates
-      console.log('Maybe add and refresh');
       await db
         .fetch({ dataService, force: true })
         .then(() => {
@@ -263,6 +262,28 @@ export function createInstancesStore(
       );
     }
   };
+
+  preferences.onPreferenceValueChanged(
+    'enableDbAndCollStats',
+    (enableDbAndCollStats) => {
+      if (enableDbAndCollStats) {
+        const connectedConnectionIds = Array.from(
+          instancesManager.listMongoDBInstances().keys()
+        );
+        connectedConnectionIds.forEach(
+          (connectionId) =>
+            void refreshInstance(
+              {
+                fetchDbStats: true,
+              },
+              {
+                connectionId,
+              }
+            )
+        );
+      }
+    }
+  );
 
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {

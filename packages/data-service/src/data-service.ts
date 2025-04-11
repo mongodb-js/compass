@@ -1113,7 +1113,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     collectionName: string
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
-    console.log('[data-service]', '!!!collStats!!!');
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll
@@ -2569,7 +2568,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
     const db = this._database(name, 'META');
-    console.log('[data-service]', '!!!dbStats!!!');
     const stats = await runCommand(
       db,
       { dbStats: 1 },

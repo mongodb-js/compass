@@ -311,7 +311,6 @@ const InstanceModel = AmpersandModel.extend(
       fetchCollections = false,
       fetchCollStats = false,
     }) {
-      console.log('[instance-model]', 'refreshing');
       this.set({
         refreshingStatus:
           this.refreshingStatus === 'initial' ? 'fetching' : 'refreshing',
