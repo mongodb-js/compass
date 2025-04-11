@@ -784,7 +784,6 @@ const fetchDatabaseInfo = (
 
       const db = instance.databases.get(workspaceOptions.namespace);
       if (db) {
-        console.log('DB FETCH');
         await db.fetch({ dataService });
         const info = {
           isNonExistent: db.is_non_existent,

@@ -83,13 +83,13 @@ const CollectionsList: React.FunctionComponent<{
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const hasStat = useCallback(
-    (stat?: unknown) => enableDbAndCollStats && stat !== undefined,
+    (stat?: number): stat is number =>
+      enableDbAndCollStats && stat !== undefined,
     [enableDbAndCollStats]
   );
   const hasStats = useCallback(
-    (stats?: unknown[]) =>
-      enableDbAndCollStats &&
-      stats?.filter((stat) => stat === undefined).length === 0,
+    (stats: (number | undefined)[]): stats is number[] =>
+      enableDbAndCollStats && stats.every((stat) => stat !== undefined),
     [enableDbAndCollStats]
   );
   return (
@@ -126,11 +126,14 @@ const CollectionsList: React.FunctionComponent<{
               ? [
                   {
                     label: 'Storage size',
-                    value: enableDbAndCollStats
-                      ? compactBytes(coll.storage_size - coll.free_storage_size)
+                    value: hasStats([coll.storage_size, coll.free_storage_size])
+                      ? compactBytes(
+                          (coll.storage_size as number) -
+                            (coll.free_storage_size as number)
+                        )
                       : 'N/A',
                     hint:
-                      enableDbAndCollStats &&
+                      hasStat(coll.document_size) &&
                       `Uncompressed data size: ${compactBytes(
                         coll.document_size
                       )}`,
@@ -139,36 +142,39 @@ const CollectionsList: React.FunctionComponent<{
               : [
                   {
                     label: 'Storage size',
-                    value: enableDbAndCollStats
-                      ? compactBytes(coll.storage_size - coll.free_storage_size)
+                    value: hasStats([coll.storage_size, coll.free_storage_size])
+                      ? compactBytes(
+                          (coll.storage_size as number) -
+                            (coll.free_storage_size as number)
+                        )
                       : 'N/A',
                     hint:
-                      enableDbAndCollStats &&
+                      hasStat(coll.document_size) &&
                       `Uncompressed data size: ${compactBytes(
                         coll.document_size
                       )}`,
                   },
                   {
                     label: 'Documents',
-                    value: enableDbAndCollStats
+                    value: hasStat(coll.document_count)
                       ? compactNumber(coll.document_count)
                       : 'N/A',
                   },
                   {
                     label: 'Avg. document size',
-                    value: enableDbAndCollStats
+                    value: hasStat(coll.avg_document_size)
                       ? compactBytes(coll.avg_document_size)
                       : 'N/A',
                   },
                   {
                     label: 'Indexes',
-                    value: enableDbAndCollStats
+                    value: hasStat(coll.index_count)
                       ? compactNumber(coll.index_count)
                       : 'N/A',
                   },
                   {
                     label: 'Total index size',
-                    value: enableDbAndCollStats
+                    value: hasStat(coll.index_size)
                       ? compactBytes(coll.index_size)
                       : 'N/A',
                   },

@@ -251,20 +251,13 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    */
   async fetch({ dataService, fetchInfo = true, force = false }) {
     if (!shouldFetch(this.status, force)) {
-      console.log('[collection-model]', 'not should fetch', this.status, force);
       return;
     }
 
     const instanceModel = getParentByType(this, 'Instance');
-    console.log(
-      'PREFERENCES in COLL',
-      instanceModel.preferences,
-      instanceModel
-    );
     const { enableDbAndCollStats } = instanceModel.preferences.getPreferences();
 
     try {
-      console.log('[collection-model]', 'starting');
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
@@ -273,7 +266,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
           : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
-      console.log('[collection-model]', 'DONE and ready');
       this.set({
         status: 'ready',
         statusError: null,
