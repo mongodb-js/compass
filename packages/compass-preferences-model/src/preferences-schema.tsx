@@ -21,10 +21,17 @@ export type THEMES = typeof THEMES_VALUES[number];
 
 const EnableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">dbStats</Link>
-    and <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">collStats</Link> command return
-    storage statistics for a given database or collection. Disabling this setting can help reduce Compass&apos;
-    overhead on your MongoDB deployments.
+    The{' '}
+    <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
+      dbStats
+    </Link>
+    and{' '}
+    <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
+      collStats
+    </Link>{' '}
+    command return storage statistics for a given database or collection.
+    Disabling this setting can help reduce Compass&apos; overhead on your
+    MongoDB deployments.
   </>
 );
 
@@ -504,7 +511,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Database and Collection Statistics',
-      long: 'The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass\' overhead on your MongoDB deployments.',
+      long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
       longReact: EnableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),

@@ -83,16 +83,6 @@ const CollectionsList: React.FunctionComponent<{
   onRefreshClick,
 }) => {
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
-  const hasStat = useCallback(
-    (stat?: number): stat is number =>
-      enableDbAndCollStats && stat !== undefined,
-    [enableDbAndCollStats]
-  );
-  const hasStats = useCallback(
-    (stats: (number | undefined)[]): stats is number[] =>
-      enableDbAndCollStats && stats.every((stat) => stat !== undefined),
-    [enableDbAndCollStats]
-  );
   return (
     <div className={pageContainerStyles}>
       <ItemsGrid
@@ -131,14 +121,15 @@ const CollectionsList: React.FunctionComponent<{
               ? [
                   {
                     label: 'Storage size',
-                    value: hasStats([coll.storage_size, coll.free_storage_size])
-                      ? compactBytes(
-                          (coll.storage_size as number) -
-                            (coll.free_storage_size as number)
-                        )
-                      : 'N/A',
+                    value:
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined
+                        ? compactBytes(
+                            coll.storage_size - coll.free_storage_size
+                          )
+                        : 'N/A',
                     hint:
-                      hasStat(coll.document_size) &&
+                      coll.document_size !== undefined &&
                       `Uncompressed data size: ${compactBytes(
                         coll.document_size
                       )}`,
@@ -147,41 +138,46 @@ const CollectionsList: React.FunctionComponent<{
               : [
                   {
                     label: 'Storage size',
-                    value: hasStats([coll.storage_size, coll.free_storage_size])
-                      ? compactBytes(
-                          (coll.storage_size as number) -
-                            (coll.free_storage_size as number)
-                        )
-                      : 'N/A',
+                    value:
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined
+                        ? compactBytes(
+                            coll.storage_size - coll.free_storage_size
+                          )
+                        : 'N/A',
                     hint:
-                      hasStat(coll.document_size) &&
+                      coll.document_size !== undefined &&
                       `Uncompressed data size: ${compactBytes(
                         coll.document_size
                       )}`,
                   },
                   {
                     label: 'Documents',
-                    value: hasStat(coll.document_count)
-                      ? compactNumber(coll.document_count)
-                      : 'N/A',
+                    value:
+                      coll.document_count !== undefined
+                        ? compactNumber(coll.document_count)
+                        : 'N/A',
                   },
                   {
                     label: 'Avg. document size',
-                    value: hasStat(coll.avg_document_size)
-                      ? compactBytes(coll.avg_document_size)
-                      : 'N/A',
+                    value:
+                      coll.avg_document_size !== undefined
+                        ? compactBytes(coll.avg_document_size)
+                        : 'N/A',
                   },
                   {
                     label: 'Indexes',
-                    value: hasStat(coll.index_count)
-                      ? compactNumber(coll.index_count)
-                      : 'N/A',
+                    value:
+                      coll.index_count !== undefined
+                        ? compactNumber(coll.index_count)
+                        : 'N/A',
                   },
                   {
                     label: 'Total index size',
-                    value: hasStat(coll.index_size)
-                      ? compactBytes(coll.index_size)
-                      : 'N/A',
+                    value:
+                      coll.index_size !== undefined
+                        ? compactBytes(coll.index_size)
+                        : 'N/A',
                   },
                 ];
 
