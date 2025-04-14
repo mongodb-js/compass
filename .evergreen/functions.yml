@@ -606,8 +606,8 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
-          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups|1}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group|1}
           ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
@@ -638,8 +638,9 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
-          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups|1}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group|1}
+          COMPASS_E2E_TEST_FILTER: ${e2e_test_filter|}
         script: |
           set -e
           # Load environment variables
@@ -720,8 +721,8 @@ functions:
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_BROWSER_NAME: ${browser_name}
-          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
-          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups|1}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group|1}
         script: |
           set -e
           # Load environment variables
