@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Apr 06 2025.
+This document was automatically generated on Sun Apr 13 2025.
 
 ## List of dependencies
 
@@ -208,7 +208,7 @@ This document was automatically generated on Sun Apr 06 2025.
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3       | MIT                                 |
 | **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9        | MIT                                 |
 | **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**                                              | 1.0.5        | MIT                                 |
-| **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**                                        | 3.1.8        | MIT                                 |
+| **[cross-fetch](#a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7)**                                        | 3.2.0        | MIT                                 |
 | **[cross-spawn](#18650458ca35439e7a812c8f7c2ed7a891653f9c6686fd1f0456eb4f645d367d)**                                        | 7.0.5        | MIT                                 |
 | **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**                                         | 4.3.0        | MIT                                 |
 | **[d3-flextree](#d4848a862048d0f4733db2a8631b802f3b5f86f2d4a1efb77fc8b8cf9a06bf73)**                                        | 2.1.2        | WTFPL                               |
@@ -239,7 +239,6 @@ This document was automatically generated on Sun Apr 06 2025.
 | **[dset](#f51cb933ffb40a4dfeed4e6c3f7e6299cf7d05c42528b3fccc5bc7cab310914c)**                                               | 3.1.4        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
 | **[electron](#da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4)**                                           | 32.3.3       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
@@ -311,7 +310,7 @@ This document was automatically generated on Sun Apr 06 2025.
 | **[interruptor](#e8a35d2ce64b947fb7a1aba891bc1e4eb166be57a59249cda1fcc689e767b6bc)**                                        | 1.0.2        | Apache-2.0                          |
 | **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**                                         | 9.0.5        | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
-| **[ipaddr.js](#d8a1c47a5dc5581d8d9e84268efa779a5140196540c2a4425e8317c1eeb93fb7)**                                          | 2.1.0        | MIT                                 |
+| **[ipaddr.js](#4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577)**                                          | 2.2.0        | MIT                                 |
 | **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**                                     | 1.0.1        | MIT                                 |
 | **[is-docker](#893885e21608c60de02539fa3bd5a98f7068127aa5fab86a215bfec41a3119a4)**                                          | 2.2.1        | MIT                                 |
 | **[is-docker](#b21de9a8d47c7c165b912be5c7a36eae3939076531e05733aa2ac7f1099dc46d)**                                          | 3.0.0        | MIT                                 |
@@ -429,7 +428,7 @@ This document was automatically generated on Sun Apr 06 2025.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
 | **[mongodb-client-encryption](#4bfa384a74d9b7da2ef68a7c6792e662d64dd2dc08303f7400c63fda55922482)**                          | 6.3.0        | Apache-2.0                          |
-| **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**                                 | 2.1.2        | Apache-2.0                          |
+| **[mongodb-cloud-info](#5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75)**                                 | 2.1.7        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#88666983cb95a6ccc6128f1044a0dcc126ed2a0291334daa221a96de19595c42)**                                 | 2.4.0        | Apache-2.0                          |
 | **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**                                         | 2.4.2        | MIT                                 |
@@ -17769,9 +17768,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5"></a>
+<a id="a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7"></a>
 
-### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 3.1.8)
+### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 3.2.0)
 
 License tags: MIT
 
@@ -18931,218 +18930,6 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349"></a>
-
-### [electron-squirrel-startup](https://www.npmjs.com/package/electron-squirrel-startup) (version 1.0.1)
-
-License tags: Apache-2.0
-
-License files:
-
-- LICENSE:
-
-      Apache License
-      Version 2.0, January 2004
-      http://www.apache.org/licenses/
-
-      TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-      1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-      2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-      3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-      4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-      Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-      stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-      that You distribute, all copyright, patent, trademark, and
-      attribution notices from the Source form of the Work,
-      excluding those notices that do not pertain to any part of
-      the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-      distribution, then any Derivative Works that You distribute must
-      include a readable copy of the attribution notices contained
-      within such NOTICE file, excluding those notices that do not
-      pertain to any part of the Derivative Works, in at least one
-      of the following places: within a NOTICE text file distributed
-      as part of the Derivative Works; within the Source form or
-      documentation, if provided along with the Derivative Works; or,
-      within a display generated by the Derivative Works, if and
-      wherever such third-party notices normally appear. The contents
-      of the NOTICE file are for informational purposes only and
-      do not modify the License. You may add Your own attribution
-      notices within Derivative Works that You distribute, alongside
-      or as an addendum to the NOTICE text from the Work, provided
-      that such additional attribution notices cannot be construed
-      as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-      5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-      6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-      7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-      8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-      9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-      END OF TERMS AND CONDITIONS
-
-      APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-      Copyright {yyyy} {name of copyright owner}
-
-      Licensed under the Apache License, Version 2.0 (the "License");
-      you may not use this file except in compliance with the License.
-      You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-      Unless required by applicable law or agreed to in writing, software
-      distributed under the License is distributed on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      See the License for the specific language governing permissions and
-      limitations under the License.
 
 <a id="da91300bea41a751562f598db5e2efdb2b1048b4e5b781743650958d3895c8f4"></a>
 
@@ -21903,9 +21690,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="d8a1c47a5dc5581d8d9e84268efa779a5140196540c2a4425e8317c1eeb93fb7"></a>
+<a id="4995da0c4dcb2b5992f306ab16aeed26ed94f375597565c205c98d1925713577"></a>
 
-### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.1.0)
+### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.2.0)
 
 License tags: MIT
 
@@ -26366,9 +26153,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46"></a>
+<a id="5437e58440df6b1fefae8943353daf4f333e29974720113bcddd634c6bcc3f75"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.1.2)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.1.7)
 
 License tags: Apache-2.0
 

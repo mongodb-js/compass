@@ -35,11 +35,17 @@ const BadgeWithTooltip: React.FunctionComponent<{
     <Tooltip
       enabled={!!tooltip}
       darkMode={darkMode}
-      trigger={
-        <Badge data-testid={dataTestId} variant={variant}>
-          {children}
-        </Badge>
-      }
+      trigger={({
+        children: tooltipChildren,
+        ...tooltipTriggerProps
+      }: React.HTMLProps<HTMLDivElement>) => (
+        <div {...tooltipTriggerProps}>
+          <Badge data-testid={dataTestId} variant={variant}>
+            {children}
+          </Badge>
+          {tooltipChildren}
+        </div>
+      )}
     >
       <Body>{tooltip}</Body>
     </Tooltip>

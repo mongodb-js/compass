@@ -32,10 +32,10 @@ describe('compass-schema utils', function () {
       expect(
         getAtlasPerformanceAdvisorLink({
           metricsId: '123456',
-          metricsType: 'host',
+          metricsType: 'replicaSet',
           clusterName: 'Cluster0',
         })
-      ).to.equal('#/metrics/host/123456/advisor');
+      ).to.equal('#/metrics/replicaSet/123456/advisor');
     });
     it('encodes the parameters', function () {
       expect(

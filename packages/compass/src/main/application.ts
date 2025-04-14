@@ -39,6 +39,7 @@ import {
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
+import { handleSquirrelWindowsStartup } from './squirrel-startup';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -121,8 +122,8 @@ class CompassApplication {
     );
 
     // needs to happen after setupProtocolHandlers
-    if ((await import('electron-squirrel-startup')).default) {
-      debug('electron-squirrel-startup event handled sucessfully\n');
+    if (await handleSquirrelWindowsStartup()) {
+      app.quit();
       return;
     }
 

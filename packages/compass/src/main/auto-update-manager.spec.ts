@@ -109,7 +109,7 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve(null);
+          return Promise.resolve({ available: false });
         });
 
       expect(
@@ -128,7 +128,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -147,7 +152,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -165,7 +175,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return wait(100, {
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       CompassAutoUpdateManager.setState(
@@ -191,7 +206,7 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
-    describe('when electron does not support plaform updates', function () {
+    describe('when electron does not support platform updates', function () {
       before(function () {
         if (supportsAutoupdates) {
           // eslint-disable-next-line no-console
@@ -233,7 +248,7 @@ describe('CompassAutoUpdateManager', function () {
       });
     });
 
-    describe('when electron supports plaform updates', function () {
+    describe('when electron supports platform updates', function () {
       before(function () {
         if (!supportsAutoupdates) {
           // eslint-disable-next-line no-console

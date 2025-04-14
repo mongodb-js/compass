@@ -124,6 +124,7 @@ async function main() {
   const args = process.argv.slice(2);
   const interactive = args.includes('--interactive');
   const command = args.find((arg) => !arg.startsWith('-'));
+  const since = args.includes('--force-all') ? '' : ' --since origin/HEAD';
 
   /** @type {{ name: string }[]} */
   const changedPackages = await withProgress(
@@ -131,7 +132,7 @@ async function main() {
     async function () {
       const spinner = this;
       const { stdout } = await runInDir(
-        'npx lerna list --all --since origin/HEAD --json --exclude-dependents'
+        `npx lerna list --all${since} --json --exclude-dependents --toposort`
       );
       const result = JSON.parse(stdout);
       spinner.text =
