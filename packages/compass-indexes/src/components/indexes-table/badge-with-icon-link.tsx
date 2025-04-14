@@ -34,7 +34,6 @@ type BadgeWithIconLinkProps = {
 const BadgeWithIconLink: React.FunctionComponent<BadgeWithIconLinkProps> = ({
   text,
   link,
-  children,
 }) => {
   return (
     <Badge
@@ -51,7 +50,6 @@ const BadgeWithIconLink: React.FunctionComponent<BadgeWithIconLinkProps> = ({
       >
         <Icon glyph="InfoWithCircle" />
       </Link>
-      {children}
     </Badge>
   );
 };
