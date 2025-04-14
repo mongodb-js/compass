@@ -8,16 +8,30 @@ import {
 import { expect } from 'chai';
 import { DatabasesList, CollectionsList } from './index';
 import Sinon from 'sinon';
+import {
+  type PreferencesAccess,
+  PreferencesProvider,
+} from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 function createDatabase(name) {
   return {
     _id: name,
     name: name,
     status: 'ready' as const,
-    storage_size: 0,
-    data_size: 0,
-    index_count: 0,
-    collectionsLength: 0,
+    statusError: null,
+    collectionsLength: 35,
+    collectionsStatus: 'ready' as const,
+    collectionsStatusError: null,
+    collection_count: 1,
+    collections: [] as any,
+    is_non_existent: false,
+    // dbStats
+    document_count: 10,
+    storage_size: 1500,
+    data_size: 1000,
+    index_count: 25,
+    index_size: 100,
   };
 }
 
@@ -27,31 +41,43 @@ function createCollection(name) {
     name: name,
     type: 'collection' as const,
     status: 'ready' as const,
-    document_count: 0,
-    document_size: 0,
-    avg_document_size: 0,
-    storage_size: 0,
-    free_storage_size: 0,
-    index_count: 0,
-    index_size: 0,
+    statusError: null,
+    ns: `db.${name}`,
+    database: 'db',
+    system: true,
+    oplog: true,
+    command: true,
+    special: false,
+    specialish: false,
+    normal: false,
+    readonly: false,
+    view_on: null,
+    collation: '',
+    pipeline: [],
+    validation: '',
     properties: [],
+    is_capped: false,
+    isTimeSeries: false,
+    isView: false,
+    is_non_existent: false,
+    /** Only relevant for a view and identifies collection/view from which this view was created. */
+    sourceName: null,
+    source: {} as any,
+    // collStats
+    document_count: 10,
+    document_size: 11,
+    avg_document_size: 12,
+    storage_size: 13,
+    free_storage_size: 14,
+    index_count: 15,
+    index_size: 16,
   };
 }
 
 function createTimeSeries(name) {
   return {
-    _id: name,
-    name: name,
+    ...createCollection(name),
     type: 'timeseries' as const,
-    status: 'ready' as const,
-    document_count: 0,
-    document_size: 0,
-    avg_document_size: 0,
-    storage_size: 0,
-    free_storage_size: 0,
-    index_count: 0,
-    index_size: 0,
-    properties: [],
   };
 }
 
@@ -94,6 +120,64 @@ describe('databases and collections list', function () {
       userEvent.click(screen.getByText('foo'));
 
       expect(clickSpy).to.be.calledWith('foo');
+    });
+
+    it('should render database with dbStats when dbStats are enabled', async function () {
+      const clickSpy = Sinon.spy();
+
+      const db = createDatabase('foo');
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableDbAndCollStats: true });
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesList
+            databases={[db]}
+            onDatabaseClick={clickSpy}
+          ></DatabasesList>
+        </PreferencesProvider>
+      );
+
+      expect(screen.getByTestId('database-grid')).to.exist;
+
+      expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(1);
+      expect(screen.getByText('foo')).to.exist;
+
+      expect(screen.getByText(/Storage size/)).to.exist;
+      expect(screen.getByText('1.50 kB')).to.exist;
+      expect(screen.getByText(/Collections/)).to.exist;
+      expect(screen.getByText('35')).to.exist;
+      expect(screen.getByText(/Indexes/)).to.exist;
+      expect(screen.getByText('25')).to.exist;
+    });
+
+    it('should render database without dbStats when dbStats are disabled', async function () {
+      const clickSpy = Sinon.spy();
+
+      const db = createDatabase('foo');
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableDbAndCollStats: false });
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesList
+            databases={[db]}
+            onDatabaseClick={clickSpy}
+          ></DatabasesList>
+        </PreferencesProvider>
+      );
+
+      expect(screen.getByTestId('database-grid')).to.exist;
+
+      expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(1);
+      expect(screen.getByText('foo')).to.exist;
+
+      expect(screen.queryByText(/Storage size/)).not.to.exist;
+      expect(screen.queryByText('1.50 kB')).not.to.exist;
+      expect(screen.queryByText(/Collections/)).not.to.exist;
+      expect(screen.queryByText('35')).not.to.exist;
+      expect(screen.queryByText(/Indexes/)).not.to.exist;
+      expect(screen.queryByText('25')).not.to.exist;
     });
   });
 
