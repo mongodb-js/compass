@@ -163,6 +163,7 @@ describe('CompassMenu', function () {
               AutoUpdateManagerState.UpdateDismissed,
               AutoUpdateManagerState.DownloadingError,
               AutoUpdateManagerState.Restarting,
+              AutoUpdateManagerState.OutdatedOperatingSystem,
             ];
             for (const state of idleStates) {
               App.emit('auto-updater:new-state', state);
@@ -233,6 +234,7 @@ describe('CompassMenu', function () {
                 AutoUpdateManagerState.UpdateDismissed,
                 AutoUpdateManagerState.DownloadingError,
                 AutoUpdateManagerState.Restarting,
+                AutoUpdateManagerState.OutdatedOperatingSystem,
               ];
               for (const state of idleStates) {
                 App.emit('auto-updater:new-state', state);
