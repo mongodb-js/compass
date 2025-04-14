@@ -35,6 +35,7 @@ function buildCommonArgs(yargs: Argv) {
       type: 'string',
       description: 'Filter the spec files picked up for testing',
       default: '*',
+      coerce: (arg) => (arg === '' ? '*' : arg),
     })
     .option('webdriver-waitfor-timeout', {
       type: 'number',
