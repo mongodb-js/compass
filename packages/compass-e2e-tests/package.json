@@ -1,6 +1,6 @@
 {
   "name": "compass-e2e-tests",
-  "version": "1.29.8",
+  "version": "1.29.9",
   "private": true,
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
@@ -54,7 +54,7 @@
     "electron-to-chromium": "^1.5.113",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
-    "hadron-build": "^25.7.8",
+    "hadron-build": "^25.7.9",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.14.1",
