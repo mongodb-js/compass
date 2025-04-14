@@ -3,6 +3,7 @@ import { createServiceLocator } from 'hadron-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';
+import { TestName } from './growth-experiments';
 
 const noop = () => {
   // noop
@@ -101,4 +102,38 @@ export function useTrackOnChange(
   }, [...dependencies, track, options.skipOnMount]);
 }
 
+/**
+ * Hook that fires Experiment Viewed if user is in an experiment
+ *
+ * @param testName - The name of the experiment to track.
+ * @param shouldFire - A boolean indicating whether to fire the event. Defaults to true.
+ *
+ * @example
+ * useFireExperimentViewed({
+ *   testName: TestName.earlyJourneyIndexesGuidance,
+ *   shouldFire: enableInIndexesGuidanceExp ,
+ * });
+ */
+export const useFireExperimentViewed = ({
+  testName,
+  shouldFire = true,
+}: {
+  testName: TestName;
+  shouldFire?: boolean;
+}) => {
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      if (!shouldFire) {
+        return;
+      }
+      track('Experiment Viewed', {
+        test_name: testName,
+      });
+    },
+    [shouldFire, testName],
+    undefined
+  );
+};
+
 export type { TrackFunction };
+export { TestName };
