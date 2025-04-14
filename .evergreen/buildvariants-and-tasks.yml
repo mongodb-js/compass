@@ -62,7 +62,7 @@ buildvariants:
     expansions:
       target_platform: macos
     display_name: Package MacOS Intel
-    run_on: macos-14
+    run_on: macos-11
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -71,7 +71,7 @@ buildvariants:
     expansions:
       target_platform: macos-arm
     display_name: Package MacOS Arm64
-    run_on: macos-14-arm64
+    run_on: macos-11-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated

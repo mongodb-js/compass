@@ -49,13 +49,13 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-11',
     target_platform: 'macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-11-arm64',
     target_platform: 'macos-arm',
   }
 ];
