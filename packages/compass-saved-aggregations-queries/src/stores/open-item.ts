@@ -499,7 +499,6 @@ export const openSavedItem =
           dataService,
           database,
           collection,
-          preferences,
         });
 
         if (coll) {

@@ -260,7 +260,6 @@ const confirmWriteOperationIfNeeded = async ({
         dataService,
         database,
         collection,
-        preferences,
       }));
     } else {
       isOverwritingCollection = true;

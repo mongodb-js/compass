@@ -703,7 +703,7 @@ const fetchCollectionInfo = (
   return async (
     dispatch,
     getState,
-    { connections, instancesManager, logger, preferences }
+    { connections, instancesManager, logger }
   ) => {
     const namespaceId = `${workspaceOptions.connectionId}.${workspaceOptions.namespace}`;
     if (getState().collectionInfo[namespaceId]) {
@@ -725,7 +725,6 @@ const fetchCollectionInfo = (
         dataService,
         database,
         collection,
-        preferences,
       });
 
       if (coll) {

@@ -13,7 +13,7 @@ const DATABASE_CARD_HEIGHT = 154;
 const DATABASE_CARD_WITHOUT_STATS_HEIGHT = DATABASE_CARD_HEIGHT - 85;
 
 const DATABASE_CARD_LIST_HEIGHT = 118;
-const DATABASE_CARD_WITHOUT_STATS_LIST_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 40;
+const DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 50;
 
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
@@ -44,7 +44,7 @@ const DatabasesList: React.FunctionComponent<{
       itemListHeight={
         enableDbAndCollStats
           ? DATABASE_CARD_LIST_HEIGHT
-          : DATABASE_CARD_WITHOUT_STATS_LIST_HEIGHT
+          : DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT
       }
       sortBy={[
         { name: 'name', label: 'Database Name' },

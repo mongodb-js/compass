@@ -108,7 +108,6 @@ export function createInstancesStore(
       await instance.refresh({
         dataService,
         ...refreshOptions,
-        preferences,
       });
     } catch (err: any) {
       log.warn(

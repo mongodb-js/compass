@@ -10,9 +10,11 @@ import { usePreference } from 'compass-preferences-model/provider';
 const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
 
 const COLLECTION_CARD_HEIGHT = 238;
-const COLLECTION_CARD_WITHOUT_STATS_HEIGHT = COLLECTION_CARD_HEIGHT - 40 - 16;
+const COLLECTION_CARD_WITHOUT_STATS_HEIGHT = COLLECTION_CARD_HEIGHT - 150;
 
 const COLLECTION_CARD_LIST_HEIGHT = 118;
+const COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT =
+  COLLECTION_CARD_LIST_HEIGHT - 50;
 
 function collectionPropertyToBadge({
   id,
@@ -95,7 +97,11 @@ const CollectionsList: React.FunctionComponent<{
             ? COLLECTION_CARD_HEIGHT
             : COLLECTION_CARD_WITHOUT_STATS_HEIGHT
         }
-        itemListHeight={COLLECTION_CARD_LIST_HEIGHT}
+        itemListHeight={
+          enableDbAndCollStats
+            ? COLLECTION_CARD_LIST_HEIGHT
+            : COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT
+        }
         sortBy={[
           { name: 'name', label: 'Collection Name' },
           { name: 'document_count', label: 'Documents' },

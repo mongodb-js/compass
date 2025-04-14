@@ -17,16 +17,10 @@ import {
   Option,
   FormFieldContainer,
   Badge,
-  palette,
 } from '@mongodb-js/compass-components';
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
-
-const inputDescriptionStyles = css({
-  display: 'block',
-  color: palette.gray.dark1,
-});
 
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
@@ -88,8 +82,7 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
           </span>
         )}
       </Label>
-      {long && !longReact && <Description>{long}</Description>}
-      {longReact && <div className={inputDescriptionStyles}>{longReact}</div>}
+      {(longReact || long) && <Description>{longReact ?? long}</Description>}
     </>
   );
 }

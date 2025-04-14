@@ -118,7 +118,6 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   }): Promise<void>;
   refresh(opts: {
     dataService: DataService;
-    preferences: PreferencesAccess;
     fetchDatabases?: boolean;
     fetchDbStats?: boolean;
     fetchCollections?: boolean;
@@ -127,7 +126,6 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   }): Promise<void>;
   getNamespace(opts: {
     dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>;
-    preferences: PreferencesAccess;
     database: string;
     collection: string;
   }): Promise<Collection | null>;

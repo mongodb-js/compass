@@ -19,7 +19,7 @@ import { Link } from '@mongodb-js/compass-components';
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
 
-const EnableDbAndCollStatsDescription: React.ReactNode = (
+const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
     The{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
@@ -512,7 +512,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Database and Collection Statistics',
       long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
-      longReact: EnableDbAndCollStatsDescription,
+      longReact: enableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
