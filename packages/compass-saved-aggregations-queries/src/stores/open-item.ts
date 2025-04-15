@@ -461,12 +461,7 @@ export const openSavedItem =
   async (
     dispatch,
     getState,
-    {
-      instancesManager,
-      connections,
-      logger: { log, mongoLogId },
-      preferencesAccess: preferences,
-    }
+    { instancesManager, connections, logger: { log, mongoLogId } }
   ) => {
     const {
       savedItems: { items },
