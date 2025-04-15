@@ -12,6 +12,7 @@ import {
   ErrorSummary,
   Select,
   Option,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -199,7 +200,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
   );
-
   return (
     <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
@@ -210,7 +210,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           onApply={onApplyClicked}
           onReset={onResetClicked}
           showExplainButton={enableExplainPlan}
-          insights={insights}
         />
       </div>
       <div className={crudBarStyles}>
@@ -258,6 +257,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               }
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
+          )}
+          {insights && (
+            <SignalPopover signals={insights} isExpandedByDefault={true} />
           )}
         </div>
         <div className={toolbarRightActionStyles}>
