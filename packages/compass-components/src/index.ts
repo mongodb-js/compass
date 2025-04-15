@@ -83,6 +83,7 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
+export { H3, Body } from '@leafygreen-ui/typography';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';

@@ -28,6 +28,7 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import CreateIndexModalHeader from './create-index-modal-header';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -77,9 +78,8 @@ function CreateIndexModal({
 
   // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
   const enableInIndexesGuidanceExp = usePreference('enableIndexesGuidanceExp');
-  const showIndexesGuidanceVariant = usePreference(
-    'showIndexesGuidanceVariant'
-  );
+  const showIndexesGuidanceVariant =
+    usePreference('showIndexesGuidanceVariant') && enableInIndexesGuidanceExp;
 
   useFireExperimentViewed({
     testName: TestName.earlyJourneyIndexesGuidance,
@@ -94,25 +94,7 @@ function CreateIndexModal({
       size={showIndexesGuidanceVariant ? 'large' : 'default'}
     >
       {showIndexesGuidanceVariant ? (
-        <ModalHeader
-          title="Create Index"
-          subtitle={
-            <span style={{ color: palette.gray.dark1 }}>
-              The best indexes for your application should consider a number of
-              factors, such as your data model, and the queries you use most
-              often. To learn more about indexing best practices, read the{' '}
-              <Link
-                href="https://docs.mongodb.com/manual/applications/indexes/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Index Strategies Documentation
-              </Link>
-              .
-            </span>
-          }
-          useLeafyGreenStyling={true}
-        />
+        <CreateIndexModalHeader />
       ) : (
         <ModalHeader title="Create Index" subtitle={namespace} />
       )}
