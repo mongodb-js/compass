@@ -27,7 +27,10 @@ import {
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
+import mongodbBuildInfo, {
+  getGenuineMongoDB,
+  isAtlas,
+} from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -1556,7 +1559,9 @@ const connectWithOptions = (
               ),
               connectionInfo: {
                 id: connectionInfo.id,
-                isAtlas: !!connectionInfo.atlasMetadata,
+                isAtlas: isAtlas(
+                  connectionInfo.connectionOptions.connectionString
+                ),
               },
               defaultAppName: appName,
               preferences: {
