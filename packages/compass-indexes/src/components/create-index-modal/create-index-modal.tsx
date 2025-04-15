@@ -5,8 +5,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalBody,
-  Link,
-  palette,
 } from '@mongodb-js/compass-components';
 import {
   fieldAdded,

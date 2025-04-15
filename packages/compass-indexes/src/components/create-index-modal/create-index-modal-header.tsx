@@ -17,11 +17,12 @@ const headerStyle = css({
 const CreateIndexModalHeader = () => {
   return (
     <div className={cx(headerStyle)}>
-      <H3 data-testid="modal-title" id="modal-title">
-        Create Index
-      </H3>
+      <H3 data-testid="create-index-modal-header-title">Create Index</H3>
 
-      <Body style={{ color: palette.gray.dark1 }}>
+      <Body
+        data-testid="create-index-modal-header-subtitle"
+        style={{ color: palette.gray.dark1 }}
+      >
         The best indexes for your application should consider a number of
         factors, such as your data model, and the queries you use most often. To
         learn more about indexing best practices, read the{' '}
