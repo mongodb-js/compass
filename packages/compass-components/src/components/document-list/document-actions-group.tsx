@@ -171,7 +171,6 @@ const DocumentActionsGroup: React.FunctionComponent<
         />
       )}
       <span className={actionsGroupItemSeparator}></span>
-
       {insights && (
         <div
           className={cx(actionsGroupItem, actionsGroupSignalPopover)}

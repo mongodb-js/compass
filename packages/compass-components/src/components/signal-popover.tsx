@@ -124,7 +124,7 @@ type SignalPopoverProps = {
   darkMode?: boolean;
   onPopoverOpenChange?: (open: boolean) => void;
   className?: string;
-  isExpandedByDefault?: boolean;
+  shouldExpandBadge?: boolean;
 };
 
 const signalCardContentStyles = css({
@@ -442,7 +442,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   darkMode: _darkMode,
   onPopoverOpenChange: _onPopoverOpenChange,
   className,
-  isExpandedByDefault,
+  shouldExpandBadge,
 }) => {
   const hooks = useContext(TrackingHooksContext);
   const darkMode = useDarkMode(_darkMode);
@@ -451,23 +451,6 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const [hoverProps, isHovered, setHovered] = useHoverState();
   const [currentSignalIndex, setCurrentSignalIndex] = useState(0);
   const signals = Array.isArray(_signals) ? _signals : [_signals];
-  // const signals = [
-  //   {
-  //     id: 'unbounded-array',
-  //     title: 'Unbounded array detected',
-  //     description:
-  //       'As arrays get larger, queries and indexes on that array field become less efficient. Ensure your arrays are bounded to maintain optimal query performance.',
-  //     learnMoreLink: 'https://example.com',
-  //     primaryActionButtonLabel: 'Bound those arrays',
-  //   },
-  //   {
-  //     id: 'bloated-docs',
-  //     title: 'Possibly bloated documents',
-  //     description:
-  //       'Large documents can slow down queries by decreasing the number of documents that can be stored in RAM. Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.',
-  //     learnMoreLink: 'https://example.com',
-  //   },
-  // ];
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = isHovered || popoverOpen;
@@ -608,7 +591,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                   ),
                   style: {
                     width:
-                      isActive || isExpandedByDefault ? activeBadgeWidth : 18,
+                      isActive || shouldExpandBadge ? activeBadgeWidth : 18,
                   },
                   ref: triggerRef,
                 },
@@ -633,9 +616,10 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                         badgeLabelStyles,
                         !multiSignals && singleInsightBadge
                       )}
+                      data-testid="insight-badge-text"
                       style={{
                         width: activeBadgeWidth,
-                        opacity: isActive || isExpandedByDefault ? 1 : 0,
+                        opacity: isActive || shouldExpandBadge ? 1 : 0,
                       }}
                     >
                       {badgeLabel}

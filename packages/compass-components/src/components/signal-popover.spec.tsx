@@ -44,6 +44,23 @@ describe('SignalPopover', function () {
     expect(screen.getByText('Possibly bloated documents')).to.exist;
   });
 
+  it('should show insights badge text only if shouldExpandBadge is true', function () {
+    const { rerender } = render(
+      <SignalPopover signals={signals[0]} shouldExpandBadge={false} />
+    );
+
+    // opacity: 0 means that the text will not show up
+    expect(screen.getByTestId('insight-badge-text').style.opacity).to.equal(
+      '0'
+    );
+
+    rerender(<SignalPopover signals={signals[0]} shouldExpandBadge={true} />);
+    // opacity: 1 means that the text will show up
+    expect(screen.getByTestId('insight-badge-text').style.opacity).to.equal(
+      '1'
+    );
+  });
+
   describe('SignalHooksProvider', function () {
     it('should call hooks through the signal lifecycle', function () {
       const hooks: React.ComponentProps<typeof SignalHooksProvider> = {

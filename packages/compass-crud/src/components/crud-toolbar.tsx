@@ -259,7 +259,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             ></DeleteMenu>
           )}
           {insights && (
-            <SignalPopover signals={insights} isExpandedByDefault={true} />
+            <SignalPopover signals={insights} shouldExpandBadge={true} />
           )}
         </div>
         <div className={toolbarRightActionStyles}>
