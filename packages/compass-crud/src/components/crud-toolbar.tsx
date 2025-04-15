@@ -33,7 +33,7 @@ const crudToolbarStyles = css({
   flexDirection: 'column',
   alignItems: 'center',
   gap: spacing[300],
-  padding: spacing[300],
+  padding: spacing[400],
 });
 
 const crudBarStyles = css({
