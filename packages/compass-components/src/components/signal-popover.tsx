@@ -451,9 +451,11 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const [hoverProps, isHovered, setHovered] = useHoverState();
   const [currentSignalIndex, setCurrentSignalIndex] = useState(0);
   const signals = Array.isArray(_signals) ? _signals : [_signals];
+
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = isHovered || popoverOpen;
+  const shouldShowFullBadge = isActive || shouldExpandBadge;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -590,8 +592,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                     className
                   ),
                   style: {
-                    width:
-                      isActive || shouldExpandBadge ? activeBadgeWidth : 18,
+                    width: shouldShowFullBadge ? activeBadgeWidth : 18,
                   },
                   ref: triggerRef,
                 },
@@ -609,7 +610,8 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       glyph="Bulb"
                       size="small"
                       className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
-                      style={{ opacity: isActive ? 0 : 1 }}
+                      data-testid="insight-badge-icon"
+                      style={{ opacity: shouldShowFullBadge ? 0 : 1 }}
                     ></Icon>
                     <strong
                       className={cx(
@@ -619,7 +621,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       data-testid="insight-badge-text"
                       style={{
                         width: activeBadgeWidth,
-                        opacity: isActive || shouldExpandBadge ? 1 : 0,
+                        opacity: shouldShowFullBadge ? 1 : 0,
                       }}
                     >
                       {badgeLabel}

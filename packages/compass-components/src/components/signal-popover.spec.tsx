@@ -42,9 +42,16 @@ describe('SignalPopover', function () {
     expect(screen.getByText('Unbounded array detected')).to.exist;
     userEvent.click(screen.getByTitle('Show next insight'));
     expect(screen.getByText('Possibly bloated documents')).to.exist;
+
+    it('and the badge should read 2 insights without the icon showing up', function () {
+      expect(screen.getByText('2 insights')).to.exist;
+      expect(screen.getByTestId('insight-badge-icon').style.opacity).to.equal(
+        '0'
+      );
+    });
   });
 
-  it('should show insights badge text only if shouldExpandBadge is true', function () {
+  it('should show insights badge text by default if shouldExpandBadge is true', function () {
     const { rerender } = render(
       <SignalPopover signals={signals[0]} shouldExpandBadge={false} />
     );
