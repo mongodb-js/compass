@@ -1554,10 +1554,7 @@ const connectWithOptions = (
                 cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
-              connectionInfo: {
-                id: connectionInfo.id,
-                isAtlas: !!connectionInfo.atlasMetadata,
-              },
+              connectionId: connectionInfo.id,
               defaultAppName: appName,
               preferences: {
                 forceConnectionOptions: forceConnectionOptions ?? [],
