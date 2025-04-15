@@ -231,7 +231,6 @@ const confirmWriteOperationIfNeeded = async ({
   dataService,
   namespace,
   pipeline,
-  preferences,
 }: {
   instance: MongoDBInstance;
   dataService: DataService;
