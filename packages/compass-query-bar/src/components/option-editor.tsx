@@ -78,30 +78,6 @@ const editorWithErrorStyles = css({
   },
 });
 
-const queryBarEditorOptionInsightsStyles = css({
-  alignSelf: 'flex-start',
-  // To align the icon in the middle of the first line of the editor input
-  // (<input height> - <insight badge height>) / 2
-  paddingTop: 3,
-  paddingBottom: 3,
-  paddingLeft: 3,
-  paddingRight: 3,
-
-  // We make container the size of the collapsed insight to avoid additional
-  // shrinking of the editor content when hoveing over the icon. In this case
-  // it's okay for the content to be hidden by the expanded badge as user is
-  // interacting with the badge
-  width: spacing[4],
-  height: spacing[4],
-  overflow: 'visible',
-  display: 'flex',
-  justifyContent: 'flex-end',
-});
-
-const insightsBadgeStyles = css({
-  flex: 'none',
-});
-
 type OptionEditorProps = {
   optionName: QueryOptionOfTypeDocument;
   namespace: string;
@@ -119,7 +95,6 @@ type OptionEditorProps = {
   serverVersion?: string;
   value?: string;
   ['data-testid']?: string;
-  insights?: Signal | Signal[];
   disabled?: boolean;
   recentQueries: AutoCompleteRecentQuery[];
   favoriteQueries: AutoCompleteFavoriteQuery[];
@@ -139,13 +114,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   serverVersion = '3.6.0',
   value = '',
   ['data-testid']: dataTestId,
-  insights,
   disabled = false,
   recentQueries,
   favoriteQueries,
   onApplyQuery,
 }) => {
-  const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
   const isQueryHistoryAutocompleteEnabled = usePreference(
@@ -299,14 +272,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         onPaste={onPaste}
         onBlur={onBlur}
       />
-      {showInsights && insights && (
-        <div className={queryBarEditorOptionInsightsStyles}>
-          <SignalPopover
-            className={insightsBadgeStyles}
-            signals={insights}
-          ></SignalPopover>
-        </div>
-      )}
     </div>
   );
 };
