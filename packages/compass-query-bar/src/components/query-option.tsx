@@ -1,5 +1,4 @@
 import React, { useCallback, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
   TextInput,

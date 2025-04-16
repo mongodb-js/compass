@@ -15,7 +15,6 @@ import {
 } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
-import type { Signal } from '@mongodb-js/compass-components';
 
 import {
   OPTION_DEFINITION,

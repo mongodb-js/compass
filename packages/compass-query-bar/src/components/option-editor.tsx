@@ -1,12 +1,10 @@
 import React, { useMemo, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
   useFocusRing,
   palette,
   spacing,
-  SignalPopover,
   rafraf,
   useDarkMode,
 } from '@mongodb-js/compass-components';
