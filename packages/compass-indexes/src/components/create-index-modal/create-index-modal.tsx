@@ -6,6 +6,7 @@ import {
   ModalHeader,
   ModalBody,
 } from '@mongodb-js/compass-components';
+import type { Tab } from '../../modules/create-index';
 import {
   fieldAdded,
   fieldRemoved,
@@ -14,6 +15,7 @@ import {
   errorCleared,
   createIndexFormSubmitted,
   createIndexClosed,
+  tabUpdated,
 } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
@@ -32,15 +34,18 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
+  currentTab: Tab;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
+  onTabClick: (tab: Tab) => void;
 };
 
 function CreateIndexModal({
   isVisible,
   namespace,
   error,
+  currentTab,
   onErrorBannerCloseClick,
   onCreateIndexClick,
   onCancelCreateIndexClick,
@@ -98,7 +103,12 @@ function CreateIndexModal({
       )}
 
       <ModalBody>
-        <CreateIndexForm namespace={namespace} {...props} />
+        <CreateIndexForm
+          {...props}
+          namespace={namespace}
+          showIndexesGuidanceVariant={showIndexesGuidanceVariant}
+          currentTab={currentTab}
+        />
       </ModalBody>
 
       <ModalFooter>
@@ -114,13 +124,14 @@ function CreateIndexModal({
 }
 
 const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
-  const { fields, error, isVisible } = createIndex;
+  const { fields, error, isVisible, currentTab } = createIndex;
   return {
     fields,
     error,
     isVisible,
     namespace,
     serverVersion,
+    currentTab,
   };
 };
 
@@ -132,6 +143,7 @@ const mapDispatch = {
   onRemoveFieldClick: fieldRemoved,
   onSelectFieldNameClick: updateFieldName,
   onSelectFieldTypeClick: fieldTypeUpdated,
+  onTabClick: tabUpdated,
 };
 
 export default connect(mapState, mapDispatch)(CreateIndexModal);
