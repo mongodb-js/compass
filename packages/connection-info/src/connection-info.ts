@@ -136,7 +136,7 @@ export interface ConnectionInfo {
   connectionOptions: ConnectionOptions;
 
   /**
-   * The metdata for the Atlas cluster
+   * The metadata for the Atlas cluster. Set from Atlas control plane when using compass-web.
    */
   atlasMetadata?: AtlasClusterMetadata;
 }

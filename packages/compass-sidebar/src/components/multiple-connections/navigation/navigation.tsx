@@ -11,6 +11,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import React from 'react';
 
 const navigationItem = css({
@@ -98,7 +99,9 @@ export function Navigation({
   currentLocation: string | null;
 }): React.ReactElement {
   const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace } = useOpenWorkspace();
+  const { openMyQueriesWorkspace, openDataModelingWorkspace } =
+    useOpenWorkspace();
+  const isDataModelingEnabled = usePreference('enableDataModeling');
   return (
     <div>
       {hasWorkspacePlugin('My Queries') && (
@@ -107,6 +110,14 @@ export function Navigation({
           glyph="CurlyBraces"
           label="My Queries"
           isActive={currentLocation === 'My Queries'}
+        />
+      )}
+      {isDataModelingEnabled && (
+        <NavigationItem
+          onClick={openDataModelingWorkspace}
+          glyph="Diagram"
+          label="Data Modeling"
+          isActive={currentLocation === 'Data Modeling'}
         />
       )}
     </div>

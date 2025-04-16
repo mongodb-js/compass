@@ -70,6 +70,7 @@
     "@mongodb-js/compass-components": "^1.34.8",
     "@mongodb-js/compass-connections": "^1.50.8",
     "@mongodb-js/compass-crud": "^13.50.8",
+    "@mongodb-js/compass-data-modeling": "^1.0.0",
     "@mongodb-js/compass-databases-collections": "^1.49.8",
     "@mongodb-js/compass-explain-plan": "^6.50.8",
     "@mongodb-js/compass-export-to-language": "^9.26.8",

@@ -4,6 +4,7 @@ import type { AnyWorkspace, WorkspaceComponent } from '../';
 export type AnyWorkspaceComponent =
   | WorkspaceComponent<'Welcome'>
   | WorkspaceComponent<'My Queries'>
+  | WorkspaceComponent<'Data Modeling'>
   | WorkspaceComponent<'Shell'>
   | WorkspaceComponent<'Performance'>
   | WorkspaceComponent<'Databases'>
