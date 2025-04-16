@@ -1,0 +1,90 @@
+{
+  "name": "@mongodb-js/compass-data-modeling",
+  "description": "Data modeling diagram workspace and all related services",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
+  "private": true,
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "SSPL",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./provider": "./dist/provider/index.js",
+    "./renderer": "./dist/services/data-model-storage-electron.js",
+    "./web": "./dist/services/data-model-storage-web.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts",
+    "./provider": "./src/provider/index.ts",
+    "./renderer": "./src/services/data-model-storage-electron.ts",
+    "./web": "./src/services/data-model-storage-web.ts"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "bootstrap": "npm run compile",
+    "compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "eslint": "eslint-compass",
+    "prettier": "prettier-compass",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "test-ci-electron": "npm run test-electron",
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+  },
+  "dependencies": {
+    "@mongodb-js/compass-connections": "^1.50.8",
+    "@mongodb-js/compass-logging": "^1.6.8",
+    "@mongodb-js/compass-telemetry": "^1.4.8",
+    "@mongodb-js/compass-workspaces": "^0.31.8",
+    "compass-preferences-model": "^2.33.8",
+    "hadron-app-registry": "^9.4.8",
+    "react": "^17.0.2",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.2"
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "^1.3.8",
+    "@mongodb-js/mocha-config-compass": "^1.6.8",
+    "@mongodb-js/prettier-config-compass": "^1.2.8",
+    "@mongodb-js/testing-library-compass": "^1.2.8",
+    "@mongodb-js/tsconfig-compass": "^1.2.8",
+    "@types/chai": "^4.2.21",
+    "@types/chai-dom": "^0.0.10",
+    "@types/mocha": "^9.0.0",
+    "@types/react": "^17.0.5",
+    "@types/react-dom": "^17.0.10",
+    "@types/sinon-chai": "^3.2.5",
+    "chai": "^4.3.6",
+    "depcheck": "^1.4.1",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "react-dom": "^17.0.2",
+    "sinon": "^17.0.1",
+    "typescript": "^5.0.4",
+    "xvfb-maybe": "^0.2.1"
+  },
+  "is_compass_plugin": true
+}
