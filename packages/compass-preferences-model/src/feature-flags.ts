@@ -23,6 +23,7 @@ export type FeatureFlags = {
   enableProxySupport: boolean;
   enableRollingIndexes: boolean;
   enableGlobalWrites: boolean;
+  enableDataModeling: boolean;
 };
 
 export const featureFlags: Required<{
@@ -109,6 +110,16 @@ export const featureFlags: Required<{
     stage: 'released',
     description: {
       short: 'Enable schema export',
+    },
+  },
+
+  /**
+   * https://jira.mongodb.org/browse/INIT-592
+   */
+  enableDataModeling: {
+    stage: 'development',
+    description: {
+      short: 'Design, Visualize, and Evolve your Data Model',
     },
   },
 };
