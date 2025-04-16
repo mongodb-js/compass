@@ -182,6 +182,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: tab.type,
             iconGlyph: 'CurlyBraces',
           } as const;
+        case 'Data Modeling':
+          return {
+            id: tab.id,
+            type: tab.type,
+            title: tab.type,
+            iconGlyph: 'Diagram' as const,
+          };
         case 'Shell': {
           const connectionName =
             getConnectionById(tab.connectionId)?.title || '';
@@ -306,7 +313,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
       case 'Welcome':
-      case 'My Queries': {
+      case 'My Queries':
+      case 'Data Modeling': {
         const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }

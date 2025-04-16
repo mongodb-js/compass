@@ -236,6 +236,7 @@ export type { OpenWorkspaceOptions, WorkspaceTab, CollectionTabInfo };
 export type {
   WelcomeWorkspace,
   MyQueriesWorkspace,
+  DataModelingWorkspace,
   ServerStatsWorkspace,
   ShellWorkspace,
   DatabasesWorkspace,
