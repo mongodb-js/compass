@@ -35,7 +35,7 @@ const createIndexModalFlowsStyles = css({
   marginBottom: spacing[600],
 });
 
-type CreateIndexFormProps = {
+export type CreateIndexFormProps = {
   namespace: string;
   fields: Field[];
   serverVersion: string;
