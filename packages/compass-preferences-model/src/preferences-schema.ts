@@ -135,8 +135,6 @@ export type AtlasProjectPreferences = {
 
 export type AtlasOrgPreferences = {
   enableGenAIFeaturesAtlasOrg: boolean;
-  enableIndexesGuidanceExp: boolean;
-  showIndexesGuidanceVariant: boolean;
 };
 
 export type AllPreferences = UserPreferences &

@@ -81,7 +81,7 @@ function CreateIndexModal({
 
   useFireExperimentViewed({
     testName: TestName.earlyJourneyIndexesGuidance,
-    shouldFire: enableInIndexesGuidanceExp,
+    shouldFire: enableInIndexesGuidanceExp && isVisible,
   });
 
   return (
