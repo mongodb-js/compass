@@ -87,7 +87,6 @@ function ModalHeader({
           />
         </div>
       )}
-
       <h1
         className={cx(titleStyle, darkMode && titleStyleDark)}
         data-testid="modal-title"
@@ -95,7 +94,6 @@ function ModalHeader({
       >
         {title}
       </h1>
-
       {subtitle && <Body>{subtitle}</Body>}
     </div>
   );
