@@ -1,5 +1,4 @@
 import React, { useCallback, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
   TextInput,
@@ -90,7 +89,6 @@ type QueryOptionProps = {
   onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
-  insights?: Signal | Signal[];
   disabled?: boolean;
 };
 
@@ -122,7 +120,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   name,
   value,
   onApply,
-  insights,
   disabled = false,
 }) => {
   const track = useTelemetry();
@@ -199,7 +196,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             value={value}
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
-            insights={insights}
             disabled={disabled}
           />
         ) : (
