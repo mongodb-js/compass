@@ -24,7 +24,7 @@ const resultsStyles = css({
 });
 
 const workspaceContainerStyles = css({
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
 });

@@ -57,7 +57,7 @@ const editorContainerStyles = css({
   paddingLeft: 4,
   paddingRight: 0,
   border: '1px solid transparent',
-  borderRadius: spacing[1],
+  borderRadius: spacing[100],
   overflow: 'visible',
 });
 
@@ -69,7 +69,7 @@ const editorWithErrorStyles = css({
     right: -1,
     bottom: -1,
     zIndex: 2,
-    borderRadius: spacing[1],
+    borderRadius: spacing[100],
     border: `1px solid ${palette.red.base}`,
     pointerEvents: 'none',
   },
@@ -91,8 +91,8 @@ const queryBarEditorOptionInsightsStyles = css({
   // shrinking of the editor content when hoveing over the icon. In this case
   // it's okay for the content to be hidden by the expanded badge as user is
   // interacting with the badge
-  width: spacing[4],
-  height: spacing[4],
+  width: spacing[600],
+  height: spacing[600],
   overflow: 'visible',
   display: 'flex',
   justifyContent: 'flex-end',

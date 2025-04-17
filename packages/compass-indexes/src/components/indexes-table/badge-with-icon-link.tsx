@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const badgeStyles = css({
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const linkStyles = css(

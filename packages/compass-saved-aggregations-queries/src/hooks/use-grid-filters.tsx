@@ -28,8 +28,8 @@ const selectContainer = css({
 });
 
 const selectStyles = css({
-  marginRight: spacing[2],
-  width: `calc(16ch + ${spacing[6]}px)`,
+  marginRight: spacing[200],
+  width: `calc(16ch + ${spacing[1600]}px)`,
 });
 
 const filterStyles = css({
@@ -38,7 +38,7 @@ const filterStyles = css({
 
 const searchInputStyles = css({
   width: '300px',
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 const FilterSelect: React.FunctionComponent<{

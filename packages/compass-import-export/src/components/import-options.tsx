@@ -15,19 +15,19 @@ import type { Delimiter } from '../csv/csv-types';
 import { ImportFileInput } from './import-file-input';
 
 const formStyles = css({
-  paddingTop: spacing[3],
+  paddingTop: spacing[400],
 });
 
 const optionsHeadingStyles = css({
   fontWeight: 'bold',
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const inlineFieldStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const inlineLabelStyles = css({
@@ -39,7 +39,7 @@ const delimiterSelectStyles = css({
 });
 
 const checkboxStyles = css({
-  margin: `${spacing[2]}px 0`,
+  margin: `${spacing[200]}px 0`,
 });
 
 const delimiters: {

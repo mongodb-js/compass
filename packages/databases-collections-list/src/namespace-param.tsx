@@ -21,7 +21,7 @@ const namespaceParam = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   minWidth: 0,
-  maxWidth: spacing[6] * 4,
+  maxWidth: spacing[1600] * 4,
 });
 
 const multiline = css({
@@ -44,7 +44,7 @@ const namespaceParamValueContainer = css({
 const namespaceParamValueContainerWithInsights = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const namespaceParamValue = css({

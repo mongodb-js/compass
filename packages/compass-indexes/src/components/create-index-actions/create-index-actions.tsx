@@ -7,7 +7,7 @@ const containerStyles = css({
   width: '100%',
   justifyContent: 'flex-end',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const bannerStyles = css({

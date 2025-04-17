@@ -132,10 +132,10 @@ const signalCardContentStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr',
   gridTemplateRows: 'auto 1fr auto',
-  paddingTop: spacing[4],
-  paddingBottom: spacing[4],
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
+  paddingTop: spacing[600],
+  paddingBottom: spacing[600],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
   backgroundColor: 'var(--signalCardBackgroundColor)',
 });
 
@@ -150,8 +150,8 @@ const signalCardContentDarkModeStyles = css({
 });
 
 const signalCardTitleStyles = css({
-  marginBottom: spacing[2],
-  fontSize: spacing[3],
+  marginBottom: spacing[200],
+  fontSize: spacing[400],
 });
 
 // This is to avoid the longer card title getting shadowed under the close icon
@@ -161,7 +161,7 @@ const signalCardTitleStylesWithOneSignal = css({
 });
 
 const signalCardDescriptionStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const signalCardActionGroupStyles = css({
@@ -262,11 +262,11 @@ const multiSignalHeaderContainerStyles = css({
   '--multiSignalHeaderBackgroundColor': palette.gray.light3,
   display: 'flex',
   alignItems: 'center',
-  paddingTop: spacing[1],
-  paddingBottom: spacing[1],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[4],
-  gap: spacing[1],
+  paddingTop: spacing[100],
+  paddingBottom: spacing[100],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[600],
+  gap: spacing[100],
   backgroundColor: 'var(--multiSignalHeaderBackgroundColor)',
   boxShadow: `inset 0 -1px 0 var(--multiSignalHeaderBorderColor)`,
   fontVariantNumeric: 'tabular-nums',
@@ -541,7 +541,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
       }
       open={popoverOpen}
       setOpen={onPopoverOpenChange}
-      spacing={spacing[2]}
+      spacing={spacing[200]}
       trigger={({ children, ...triggerProps }) => {
         const onTriggerClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
           evt.stopPropagation();

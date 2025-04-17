@@ -26,7 +26,7 @@ type SortFieldState = {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
   width: 'max-content',
   maxWidth: '100%',
 });
@@ -35,7 +35,7 @@ const formGroupStyles = css({
   display: 'flex',
   justifyContent: 'flex-start',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const labelStyles = css({

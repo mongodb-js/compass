@@ -7,11 +7,11 @@ import { Subtitle, Button } from './leafygreen';
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  maxWidth: spacing[6] * 8,
+  maxWidth: spacing[1600] * 8,
 });
 
 const textStyles = css({
@@ -95,7 +95,11 @@ function SpinLoaderWithLabel({
 
   return (
     <div className={cx(containerStyles, className)} data-testid={dataTestId}>
-      <SpinLoader size={spacing[4]} darkMode={darkMode} {...props}></SpinLoader>
+      <SpinLoader
+        size={spacing[600]}
+        darkMode={darkMode}
+        {...props}
+      ></SpinLoader>
       <Subtitle className={cx(textStyles, darkMode && textDarkStyles)}>
         {progressText}
       </Subtitle>

@@ -13,15 +13,15 @@ import {
 import { usePreference } from 'compass-preferences-model/provider';
 
 const createIndexModalFieldsStyles = css({
-  margin: `${spacing[4]}px 0 ${spacing[5]}px 0`,
+  margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
 });
 
 const indexFieldsHeaderStyles = css({
-  marginBottom: spacing[1],
+  marginBottom: spacing[100],
 });
 
 const createIndexModalOptionStyles = css({
-  paddingLeft: spacing[1] + 2,
+  paddingLeft: spacing[100] + 2,
 });
 
 type CreateIndexFormProps = {

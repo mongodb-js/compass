@@ -231,8 +231,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         outline: 'none',
       },
       '& .cm-content': {
-        paddingTop: `${spacing[1]}px`,
-        paddingBottom: `${spacing[1]}px`,
+        paddingTop: `${spacing[100]}px`,
+        paddingBottom: `${spacing[100]}px`,
         caretColor: editorPalette[theme].cursorColor,
       },
       '[contenteditable="false"] ': {
@@ -255,7 +255,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         border: 'none',
       },
       '& .cm-gutter-lint': {
-        width: `${spacing[3]}px`,
+        width: `${spacing[400]}px`,
       },
       '& .cm-gutter-lint .cm-gutterElement': {
         padding: '0',
@@ -264,8 +264,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         userSelect: 'none',
       },
       '& .cm-gutter-lint .cm-lint-marker': {
-        width: `${spacing[3]}px`,
-        height: `${spacing[3]}px`,
+        width: `${spacing[400]}px`,
+        height: `${spacing[400]}px`,
         padding: '2px',
       },
       '& .cm-gutter-lint .cm-lint-marker-info': {
@@ -293,8 +293,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         padding: '0 2px',
       },
       '& .foldMarker': {
-        width: `${spacing[3]}px`,
-        height: `${spacing[3]}px`,
+        width: `${spacing[400]}px`,
+        height: `${spacing[400]}px`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -451,9 +451,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
-        marginRight: `${spacing[2]}px`,
-        marginTop: `${spacing[2]}px`,
-        marginBottom: `${spacing[2]}px`,
+        marginRight: `${spacing[200]}px`,
+        marginTop: `${spacing[200]}px`,
+        marginBottom: `${spacing[200]}px`,
       },
       '& .cm-tooltip .completion-info p:first-child': {
         marginTop: 0,
@@ -1395,7 +1395,7 @@ const multilineEditorContainerStyle = css({
 });
 
 const multilineEditorContainerWithActionsStyle = css({
-  minHeight: spacing[5] - 2,
+  minHeight: spacing[800] - 2,
 });
 
 const multilineEditorContainerWithExpandStyle = css({

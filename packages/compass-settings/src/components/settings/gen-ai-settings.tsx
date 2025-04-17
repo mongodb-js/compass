@@ -7,7 +7,7 @@ import SettingsList from './settings-list';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
 
 const atlasSettingsContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 export const GenAISettings: React.FunctionComponent<{

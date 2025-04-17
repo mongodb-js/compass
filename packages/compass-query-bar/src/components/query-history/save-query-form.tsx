@@ -21,8 +21,8 @@ const textInputStyles = css({
 });
 
 const submitButtonStyles = css({
-  marginLeft: '6px', // spacing[1] makes the shadows overlap, spacing[2] is too much
-  marginRight: spacing[1],
+  marginLeft: '6px', // spacing[100] makes the shadows overlap, spacing[200] is too much
+  marginRight: spacing[100],
 });
 
 type SaveQueryFormProps = {

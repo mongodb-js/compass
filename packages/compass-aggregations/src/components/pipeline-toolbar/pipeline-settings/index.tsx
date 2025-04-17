@@ -14,7 +14,7 @@ import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
   justifyContent: 'space-between',
   whiteSpace: 'nowrap',
@@ -22,7 +22,7 @@ const containerStyles = css({
 
 const settingsStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
   flex: 'none',
 });

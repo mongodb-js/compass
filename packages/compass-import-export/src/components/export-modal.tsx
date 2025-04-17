@@ -86,15 +86,15 @@ function useExport(): [
 }
 
 const closeButtonStyles = css({
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 const messageBannerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const modalBodyStyles = css({
-  paddingTop: spacing[3],
+  paddingTop: spacing[400],
 });
 
 type ExportModalProps = {

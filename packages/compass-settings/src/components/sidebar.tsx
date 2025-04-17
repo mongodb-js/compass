@@ -9,13 +9,13 @@ import {
 import type { SettingsTabId } from '../stores/settings';
 
 const buttonStyles = css({
-  borderRadius: spacing[1],
+  borderRadius: spacing[100],
   cursor: 'pointer',
-  marginBottom: spacing[1],
+  marginBottom: spacing[100],
   background: 'none',
   border: 'none',
   width: '100%',
-  padding: spacing[2],
+  padding: spacing[200],
   textAlign: 'left',
   fontWeight: 500,
 });

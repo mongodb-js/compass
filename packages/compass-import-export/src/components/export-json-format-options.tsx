@@ -12,11 +12,11 @@ import {
 import type { ExportJSONFormat } from '../export/export-json';
 
 const radioGroupStyles = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
 });
 
 const bannerContainerStyles = css({
-  margin: `${spacing[2]}px 0`,
+  margin: `${spacing[200]}px 0`,
 });
 
 function JSONFileTypeOptions({

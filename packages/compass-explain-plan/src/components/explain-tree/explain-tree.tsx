@@ -29,7 +29,7 @@ const explainTreeStyles = css({
 
 const TREE_VERTICAL_SPACING = 38;
 const TREE_VERTICAL_SPACING_BELOW_SHARD_CARD = 12;
-const TREE_HORIZONTAL_SPACING = spacing[6];
+const TREE_HORIZONTAL_SPACING = spacing[1600];
 
 const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
   // Note: these values must match the actual styles of the explain stage card:
@@ -61,13 +61,13 @@ const getLinkWidth = (
 ): number => {
   if (sourceNode.isShard || targetNode.isShard) {
     if (metaData?.isFirstVerticalHalf) {
-      return spacing[4];
+      return spacing[600];
     }
 
-    return spacing[2];
+    return spacing[200];
   }
 
-  return spacing[1];
+  return spacing[100];
 };
 
 const getNodeKey = (node: ExplainTreeNodeData) => node.id;

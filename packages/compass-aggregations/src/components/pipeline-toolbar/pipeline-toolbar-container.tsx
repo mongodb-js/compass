@@ -7,12 +7,12 @@ import {
 import React from 'react';
 
 const containerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const containerDisplayStyles = css({
   display: 'grid',
-  gap: spacing[3],
+  gap: spacing[400],
   gridTemplateAreas: `
   "headerAndOptionsRow"
   "settingsRow"

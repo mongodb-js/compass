@@ -41,9 +41,9 @@ import type { SchemaPath } from '../export/gather-fields';
 const headerContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  marginBottom: spacing[3],
-  marginTop: spacing[2],
-  gap: spacing[2],
+  marginBottom: spacing[400],
+  marginTop: spacing[200],
+  gap: spacing[200],
 });
 
 const tableContainerStyles = css({
@@ -52,32 +52,32 @@ const tableContainerStyles = css({
 });
 
 const smallCellContainerStyle = css({
-  width: spacing[5],
+  width: spacing[800],
   margin: '0 auto',
 });
 
 const textInputStyles = css({
-  padding: `${spacing[1]}px 0`,
+  padding: `${spacing[100]}px 0`,
   minWidth: spacing[7] * 3,
 });
 
 const enterToAddStyles = css({
   display: 'inline-flex',
   alignItems: 'center',
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const placeholderStyles = css({
-  margin: spacing[1],
+  margin: spacing[100],
 });
 
 const retryButtonContainerStyles = css({
-  margin: spacing[2],
+  margin: spacing[200],
   textAlign: 'center',
 });
 
 const addNewFieldRowStyles = css({
-  marginBottom: spacing[5],
+  marginBottom: spacing[800],
 });
 
 const loadingPlaceholderCount = 6;

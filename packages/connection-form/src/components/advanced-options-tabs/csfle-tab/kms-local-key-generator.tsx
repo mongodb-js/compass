@@ -16,7 +16,7 @@ import type {
 } from '../../../utils/csfle-kms-fields';
 
 const bannerContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 function KMSLocalKeyGenerator({

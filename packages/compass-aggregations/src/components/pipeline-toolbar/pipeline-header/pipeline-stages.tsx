@@ -22,13 +22,13 @@ import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipe
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 
 const aiExperienceContainerStyles = css({
   display: 'inline-block',
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const descriptionStyles = css({

@@ -17,7 +17,7 @@ const keyListStyles = css({
 const badgeStyles = css({
   // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
   textTransform: 'none',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 type KeyListProps = {

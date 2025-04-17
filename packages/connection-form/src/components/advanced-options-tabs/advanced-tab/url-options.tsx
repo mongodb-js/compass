@@ -13,12 +13,12 @@ import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form'
 import UrlOptionsListEditor from './url-options-list-editor';
 
 const urlOptionsContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const urlOptionsDescriptionStyles = css({
-  marginTop: spacing[1],
-  marginBottom: spacing[2],
+  marginTop: spacing[100],
+  marginBottom: spacing[200],
 });
 
 function UrlOptions({

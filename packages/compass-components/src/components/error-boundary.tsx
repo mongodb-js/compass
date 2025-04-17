@@ -6,7 +6,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { Banner } from './leafygreen';
 
 const errorContainerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   width: '100%',
 });
 

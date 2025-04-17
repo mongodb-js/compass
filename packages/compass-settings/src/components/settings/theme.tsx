@@ -26,20 +26,20 @@ type ThemeSettingsProps = {
 };
 
 const checkboxStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[3],
+  marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const radioBoxStyles = css({
   div: {
     textAlign: 'left',
-    padding: spacing[3],
+    padding: spacing[400],
     justifyContent: 'flex-start',
   },
 });
 
 const themePreviewStyles = css({
-  marginRight: spacing[2],
+  marginRight: spacing[200],
   maxWidth: '50%',
 });
 

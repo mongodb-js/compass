@@ -51,7 +51,7 @@ const queryBarFormStyles = css({
   background: palette.white,
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: '6px',
-  padding: spacing[2],
+  padding: spacing[200],
 });
 
 const queryBarFormDarkStyles = css({
@@ -66,7 +66,7 @@ const queryBarFirstRowStyles = css({
   // `flex-start` here. It is more brittle as it does require the other elements
   // to account for their height individually.
   alignItems: 'flex-start',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const filterContainerStyles = css({
@@ -74,21 +74,21 @@ const filterContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   alignItems: 'flex-start',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const aiEntryContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  height: spacing[4] + spacing[1],
+  height: spacing[600] + spacing[100],
 });
 
 const queryOptionsContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  marginTop: spacing[2],
-  padding: `0 ${spacing[2]}px`,
-  gap: spacing[2],
+  marginTop: spacing[200],
+  padding: `0 ${spacing[200]}px`,
+  gap: spacing[200],
 });
 
 const QueryOptionsToggle = connect(

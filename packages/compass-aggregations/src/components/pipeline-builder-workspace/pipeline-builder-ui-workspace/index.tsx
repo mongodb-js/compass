@@ -21,7 +21,7 @@ import PipelineBuilderDndWrapper from './dnd-wrapper';
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
   height: '100%',
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
 });
@@ -87,8 +87,8 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
               left: '0px', // default is -5px
               // The sidepanel container is a card with radius.
               // Having padding top, cleans the UI.
-              paddingTop: spacing[2],
-              height: `calc(100% - ${spacing[2]}px)`,
+              paddingTop: spacing[200],
+              height: `calc(100% - ${spacing[200]}px)`,
             },
           }}
         >

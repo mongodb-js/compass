@@ -37,8 +37,8 @@ const MAX_PREVIEW_LENGTH = 1000;
 
 const columnHeaderStyles = css({
   display: 'flex',
-  gap: spacing[1],
-  minWidth: spacing[6] * 2,
+  gap: spacing[100],
+  minWidth: spacing[1600] * 2,
   flexDirection: 'column',
   alignItems: 'flex-start',
 });
@@ -95,13 +95,13 @@ const rowIndexStyles = css({
 const fieldTypeContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const infoIconCommonStyles = css({
   // Hack: Align the icon relative to the SelectBox.
-  marginBottom: `-${spacing[1]}px`,
-  marginTop: `-${spacing[1]}px`,
+  marginBottom: `-${spacing[100]}px`,
+  marginTop: `-${spacing[100]}px`,
 });
 
 const infoIconLightStyles = css({
@@ -113,9 +113,9 @@ const infoIconDarkStyles = css({
 });
 
 const warningIconCommonStyles = css(infoIconCommonStyles, {
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
-  paddingTop: spacing[1],
+  marginLeft: spacing[100],
+  marginRight: spacing[100],
+  paddingTop: spacing[100],
 });
 
 const warningIconLightStyles = css({
@@ -127,11 +127,11 @@ const warningIconDarkStyles = css({
 });
 
 const typesListStyles = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
 });
 
 const selectStyles = css({
-  minWidth: spacing[3] * 9,
+  minWidth: spacing[400] * 9,
 });
 
 const arrayTextStyles = css({

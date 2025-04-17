@@ -125,7 +125,7 @@ const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
   padding: '14px',
-  borderRadius: spacing[2],
+  borderRadius: spacing[200],
 });
 
 const cardStylesDarkMode = css({
@@ -135,7 +135,7 @@ const cardStylesDarkMode = css({
 const stageTitleContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   cursor: 'pointer',
 });
 
@@ -146,19 +146,19 @@ const stageTitleStyles = css({
 });
 
 const separatorStyles = css({
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
+  marginTop: spacing[200],
+  marginBottom: spacing[200],
 });
 
 const contentStyles = css({ position: 'relative' });
 const clockStyles = css({
   position: 'absolute',
-  top: -spacing[5],
-  right: -(8 + spacing[5]),
+  top: -spacing[800],
+  right: -(8 + spacing[800]),
 });
 
 const codeContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   height: '100%',
   overflow: 'hidden',
 });
@@ -173,9 +173,9 @@ const executionStatsStyle = css({
 
 const statsBadgeCircle = css({
   display: 'inline-block',
-  width: spacing[4] - 4,
-  height: spacing[4] - 4,
-  lineHeight: `${spacing[4] - 4}px`,
+  width: spacing[600] - 4,
+  height: spacing[600] - 4,
+  lineHeight: `${spacing[600] - 4}px`,
   borderRadius: '100px',
   textAlign: 'center',
   fontWeight: 700,
@@ -186,7 +186,7 @@ const statsBadgeCircle = css({
 
 const statsBadgeOval = css({
   width: 'auto',
-  padding: `0 ${spacing[2]}px`,
+  padding: `0 ${spacing[200]}px`,
 });
 
 const statsBadgeColorDark = css({
@@ -198,9 +198,9 @@ const shardViewContainerStyles = css({
   borderRadius: 0,
   borderColor: palette.gray.base,
   width: defaultCardWidth,
-  height: spacing[5],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  height: spacing[800],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

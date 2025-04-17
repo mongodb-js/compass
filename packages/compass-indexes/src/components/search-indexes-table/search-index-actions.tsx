@@ -21,7 +21,7 @@ type SearchIndexAction = 'drop' | 'edit';
 const actionGroupStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const runAggregateStyles = css({

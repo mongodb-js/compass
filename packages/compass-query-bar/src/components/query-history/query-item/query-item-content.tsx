@@ -6,7 +6,7 @@ import { type BaseQuery } from '../../../constants/query-properties';
 const queryLabelStyles = css({
   textTransform: 'capitalize',
   fontWeight: 'bold',
-  margin: `${spacing[2]}px 0`,
+  margin: `${spacing[200]}px 0`,
 });
 
 const queryCodeStyles = css({

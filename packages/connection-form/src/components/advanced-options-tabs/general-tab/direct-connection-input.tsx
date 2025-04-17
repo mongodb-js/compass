@@ -12,7 +12,7 @@ import type { MongoClientOptions } from 'mongodb';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 const descriptionStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 function DirectConnectionInput({

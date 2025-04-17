@@ -15,7 +15,7 @@ const listStyles = css({
 
 const listItemStyles = css({
   position: 'relative',
-  marginBottom: spacing[1],
+  marginBottom: spacing[100],
 
   '&:last-child': {
     marginBottom: 0,

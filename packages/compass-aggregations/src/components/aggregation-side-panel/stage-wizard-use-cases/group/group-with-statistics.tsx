@@ -45,7 +45,7 @@ function isSupportedAccumulator(c: Completion): c is SupportedAccumulator {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
   width: 'max-content',
   maxWidth: '100%',
 });
@@ -53,7 +53,7 @@ const containerStyles = css({
 const groupRowStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const groupLabelStyles = css({

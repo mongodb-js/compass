@@ -154,7 +154,7 @@ export function mapMatchFormStateToMatchStage(matchGroup: MatchGroup) {
 const formContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[4],
+  gap: spacing[600],
   width: '100%',
   maxWidth: '1000px',
 });

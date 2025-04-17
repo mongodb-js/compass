@@ -17,10 +17,10 @@ const contentStyles = css({
 
 const modalFullScreenStyles = css({
   '& > div': {
-    paddingTop: spacing[4],
-    paddingBottom: spacing[4],
-    paddingLeft: spacing[5],
-    paddingRight: spacing[5],
+    paddingTop: spacing[600],
+    paddingBottom: spacing[600],
+    paddingLeft: spacing[800],
+    paddingRight: spacing[800],
     height: '100vh',
     maxHeight: '100vh',
   },

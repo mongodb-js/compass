@@ -78,14 +78,14 @@ function isSupportedAccumulatorKey(
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const formGroupStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const groupLabelStyles = css({

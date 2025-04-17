@@ -74,7 +74,7 @@ const cellContainerStyle = css({
   display: 'flex',
   alignItems: 'center',
   flexDirection: 'row',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const decrypdedIconStyles = css({

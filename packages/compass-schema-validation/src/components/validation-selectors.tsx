@@ -24,12 +24,12 @@ const LEVEL_HELP_URL =
 
 const validationOptionStyles = css({
   display: 'flex',
-  marginLeft: spacing[4],
+  marginLeft: spacing[600],
   alignItems: 'center',
 });
 
 const selectStyles = css({
-  width: spacing[6] * 2,
+  width: spacing[1600] * 2,
 });
 
 type ActionSelectorProps = {

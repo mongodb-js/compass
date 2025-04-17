@@ -17,13 +17,13 @@ type SavePipelineCardProps = {
 };
 
 const containerStyles = css({
-  margin: spacing[2],
+  margin: spacing[200],
 });
 
 const card = css({
   display: 'flex',
   alignItems: 'center',
-  padding: spacing[2],
+  padding: spacing[200],
   '&:hover .controls': {
     visibility: 'visible',
   },
@@ -34,7 +34,7 @@ const controls = css({
   marginLeft: 'auto',
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   visibility: 'hidden',
 });
 

@@ -19,7 +19,7 @@ const serverStatsToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const serverStatsToolbarDarkThemeStyles = css({
@@ -33,9 +33,9 @@ const serverStatsToolbarLightThemeStyles = css({
 });
 
 const timeStyles = css({
-  padding: `${spacing[2]}px ${spacing[5]}px`,
+  padding: `${spacing[200]}px ${spacing[800]}px`,
   borderRadius: '3px',
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const timeLightThemeStyles = css({

@@ -8,7 +8,7 @@ type NoSavedItemsIconProps = {
   size?: number;
 };
 
-const defaultSize = spacing[4] * 3;
+const defaultSize = spacing[600] * 3;
 
 const NoSavedItemsIcon: React.FunctionComponent<NoSavedItemsIconProps> = ({
   size = defaultSize,

@@ -30,7 +30,7 @@ import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipe
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 

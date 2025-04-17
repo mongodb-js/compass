@@ -29,11 +29,11 @@ const containerStyles = css({
   flexDirection: 'column',
   height: '100%',
   backgroundColor: palette.gray.light3,
-  paddingTop: spacing[3],
-  paddingBottom: spacing[2],
-  gap: spacing[2],
-  marginRight: spacing[1],
-  borderRadius: spacing[2],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[200],
+  gap: spacing[200],
+  marginRight: spacing[100],
+  borderRadius: spacing[200],
 });
 
 const containerDarkStyles = css({
@@ -56,8 +56,8 @@ const codeEditorStyles = css({
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
+  marginLeft: spacing[400],
+  marginRight: spacing[400],
 });
 
 export type PipelineEditorProps = {

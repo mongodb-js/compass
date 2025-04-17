@@ -9,7 +9,7 @@ import { mergeProps } from '../utils/merge-props';
 
 const containerStyles = css({
   border: `1px solid ${palette.gray.light2}`,
-  borderRadius: spacing[2],
+  borderRadius: spacing[200],
   transition: `${transitionDuration.default}ms ease-in-out`,
   transitionProperty: `border, box-shadow`,
 });

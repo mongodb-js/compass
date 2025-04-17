@@ -14,8 +14,8 @@ import {
 } from '@mongodb-js/connection-info';
 
 const modalBodyStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[2],
+  marginTop: spacing[400],
+  marginBottom: spacing[200],
 });
 
 export function showNonGenuineMongoDBWarningModal(
