@@ -21,8 +21,12 @@ import type { RootState } from '../../modules';
 import {
   useTrackOnChange,
   type TrackFunction,
+  useFireExperimentViewed,
+  TestName,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+import CreateIndexModalHeader from './create-index-modal-header';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -70,13 +74,28 @@ function CreateIndexModal({
     undefined
   );
 
+  // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
+  const enableInIndexesGuidanceExp = usePreference('enableIndexesGuidanceExp');
+  const showIndexesGuidanceVariant =
+    usePreference('showIndexesGuidanceVariant') && enableInIndexesGuidanceExp;
+
+  useFireExperimentViewed({
+    testName: TestName.earlyJourneyIndexesGuidance,
+    shouldFire: enableInIndexesGuidanceExp && isVisible,
+  });
+
   return (
     <Modal
       open={isVisible}
       setOpen={onSetOpen}
       data-testid="create-index-modal"
+      size={showIndexesGuidanceVariant ? 'large' : 'default'}
     >
-      <ModalHeader title="Create Index" subtitle={namespace} />
+      {showIndexesGuidanceVariant ? (
+        <CreateIndexModalHeader />
+      ) : (
+        <ModalHeader title="Create Index" subtitle={namespace} />
+      )}
 
       <ModalBody>
         <CreateIndexForm namespace={namespace} {...props} />
