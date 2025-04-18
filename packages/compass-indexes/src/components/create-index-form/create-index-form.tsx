@@ -4,8 +4,6 @@ import {
   spacing,
   Accordion,
   Body,
-  palette,
-  Button,
   RadioBoxGroup,
   RadioBox,
 } from '@mongodb-js/compass-components';
@@ -20,6 +18,7 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import IndexFlowSection from './index-flow-section';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -35,19 +34,6 @@ const createIndexModalOptionStyles = css({
 
 const createIndexModalFlowsStyles = css({
   marginBottom: spacing[600],
-});
-
-const plainBorderedCalloutStyles = css({
-  border: `1px solid ${palette.gray.light2}`,
-  borderRadius: '12px',
-  padding: spacing[600],
-  minHeight: '132px',
-});
-
-const coveredQueriesButtonStyles = css({
-  height: spacing[600] + 4,
-  float: 'right',
-  marginTop: spacing[400],
 });
 
 export type CreateIndexFormProps = {
@@ -94,67 +80,106 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
+  const showIndexesGuidanceIndexFlow =
+    showIndexesGuidanceVariant && currentTab === 'IndexFlow';
+
+  // Default / Control view
+  if (!showIndexesGuidanceVariant) {
+    return (
+      <div
+        className={createIndexModalFieldsStyles}
+        data-testid="create-index-form"
+      >
+        <Body weight="medium" className={indexFieldsHeaderStyles}>
+          Index fields
+        </Body>
+        {fields.length > 0 &&
+        (!showIndexesGuidanceVariant || showIndexesGuidanceIndexFlow) ? (
+          <CreateIndexFields
+            schemaFields={schemaFieldNames}
+            fields={fields}
+            serverVersion={serverVersion}
+            isRemovable={!(fields.length > 1)}
+            onSelectFieldNameClick={onSelectFieldNameClick}
+            onSelectFieldTypeClick={onSelectFieldTypeClick}
+            onAddFieldClick={onAddFieldClick}
+            onRemoveFieldClick={onRemoveFieldClick}
+          />
+        ) : null}
+
+        <Accordion
+          data-testid="create-index-modal-toggle-options"
+          text="Options"
+        >
+          <div
+            data-testid="create-index-modal-options"
+            className={createIndexModalOptionStyles}
+          >
+            <CheckboxInput name="unique"></CheckboxInput>
+            <CollapsibleInput name="name"></CollapsibleInput>
+            <CollapsibleInput name="expireAfterSeconds"></CollapsibleInput>
+            <CollapsibleInput name="partialFilterExpression"></CollapsibleInput>
+            <CollapsibleInput name="wildcardProjection"></CollapsibleInput>
+            <CollapsibleInput name="collation"></CollapsibleInput>
+            {hasColumnstoreIndexesSupport(serverVersion) && (
+              <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
+            )}
+            <CheckboxInput name="sparse"></CheckboxInput>
+            {showRollingIndexOption && (
+              <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
+            )}
+          </div>
+        </Accordion>
+      </div>
+    );
+  }
+
+  // Indexes Guidance Variant View
   return (
     <>
       <div
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        {showIndexesGuidanceVariant ? (
-          <RadioBoxGroup
-            aria-labelledby="index-flows"
-            data-testid="create-index-form-flows"
-            id="create-index-form-flows"
-            onChange={(e) => {
-              onTabClick(e.target.value as Tab);
-            }}
-            value={currentTab}
-            className={createIndexModalFlowsStyles}
-          >
-            <RadioBox id="index-flow" value={'IndexFlow'}>
-              Start with an Index
-            </RadioBox>
-            <RadioBox id="query-flow" value={'QueryFlow'}>
-              Start with a Query
-            </RadioBox>
-          </RadioBoxGroup>
-        ) : (
-          <Body weight="medium" className={indexFieldsHeaderStyles}>
-            Index fields
-          </Body>
-        )}
-
-        {/* Only show the fields if user is in the Start with an index flow or if they're in the control */}
-        <div
-          className={
-            showIndexesGuidanceVariant ? plainBorderedCalloutStyles : ''
-          }
+        <RadioBoxGroup
+          aria-labelledby="index-flows"
+          data-testid="create-index-form-flows"
+          id="create-index-form-flows"
+          onChange={(e) => {
+            onTabClick(e.target.value as Tab);
+          }}
+          value={currentTab}
+          className={createIndexModalFlowsStyles}
         >
-          {fields.length > 0 &&
-          (!showIndexesGuidanceVariant || currentTab === 'IndexFlow') ? (
-            <CreateIndexFields
-              schemaFields={schemaFieldNames}
-              fields={fields}
-              serverVersion={serverVersion}
-              isRemovable={!(fields.length > 1)}
-              onSelectFieldNameClick={onSelectFieldNameClick}
-              onSelectFieldTypeClick={onSelectFieldTypeClick}
-              onAddFieldClick={onAddFieldClick}
-              onRemoveFieldClick={onRemoveFieldClick}
-            />
-          ) : null}
-          <Button
-            className={coveredQueriesButtonStyles}
-            onClick={() => {
-              // TODO in CLOUDP-311782
-              // TODO in CLOUDP-311783
-            }}
-          >
-            Show me covered queries
-          </Button>
-        </div>
+          <RadioBox id="index-flow" value={'IndexFlow'}>
+            Start with an Index
+          </RadioBox>
+          <RadioBox id="query-flow" value={'QueryFlow'}>
+            Start with a Query
+          </RadioBox>
+        </RadioBoxGroup>
       </div>
 
+      {showIndexesGuidanceIndexFlow && (
+        <IndexFlowSection
+          createIndexFieldsComponent={
+            fields.length > 0 ? (
+              <CreateIndexFields
+                schemaFields={schemaFieldNames}
+                fields={fields}
+                serverVersion={serverVersion}
+                isRemovable={!(fields.length > 1)}
+                onSelectFieldNameClick={onSelectFieldNameClick}
+                onSelectFieldTypeClick={onSelectFieldTypeClick}
+                onAddFieldClick={onAddFieldClick}
+                onRemoveFieldClick={onRemoveFieldClick}
+              />
+            ) : null
+          }
+        />
+      )}
+
+      {/* TODO in CLOUDP-314036: update the accordion design */}
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
         <div
           data-testid="create-index-modal-options"
