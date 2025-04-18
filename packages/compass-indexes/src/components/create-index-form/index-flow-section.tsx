@@ -6,6 +6,7 @@ import {
   Link,
   palette,
   spacing,
+  Toggle,
   Tooltip,
 } from '@mongodb-js/compass-components';
 import React from 'react';
@@ -14,12 +15,22 @@ const headerStyles = css({
   marginBottom: spacing[200],
 });
 
+const indexFieldsHeaderContainterStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
 const indexFieldsCalloutStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: '12px',
   padding: spacing[600],
-  minHeight: '132px',
   marginBottom: spacing[600],
+});
+
+const coveredQueriesHeaderContainterStyles = css({
+  display: 'flex',
+  alignItems: 'center',
 });
 
 const coveredQueriesCalloutStyles = css({
@@ -28,6 +39,11 @@ const coveredQueriesCalloutStyles = css({
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
+});
+
+const buttonContainerStyles = css({
+  display: 'flex',
+  justifyContent: 'right',
 });
 
 const coveredQueriesButtonStyles = css({
@@ -52,25 +68,43 @@ const IndexFlowSection = ({
 }) => {
   return (
     <div>
-      <Body baseFontSize={16} weight="medium" className={headerStyles}>
-        Input Index
-      </Body>
+      <div className={indexFieldsHeaderContainterStyles}>
+        <Body baseFontSize={16} weight="medium" className={headerStyles}>
+          Input Index
+        </Body>
+        <Toggle
+          size="xsmall"
+          aria-label="Toggle Auto Preview"
+          onChange={() => {
+            () => {
+              // TODO in CLOUDP-311784
+            };
+          }}
+          checked={false}
+        >
+          Code Equivalent
+        </Toggle>
+      </div>
       <div className={indexFieldsCalloutStyles}>
         {createIndexFieldsComponent}
 
-        <Button
-          className={coveredQueriesButtonStyles}
-          onClick={() => {
-            // TODO in CLOUDP-311782 generate covered queries
-            // TODO in CLOUDP-311783 generate optimal queries
-          }}
-        >
-          Show me covered queries
-        </Button>
+        <div className={buttonContainerStyles}>
+          <Button
+            className={coveredQueriesButtonStyles}
+            onClick={() => {
+              // TODO in CLOUDP-311782 generate covered queries
+              // TODO in CLOUDP-311783 generate optimal queries
+            }}
+          >
+            Show me covered queries
+          </Button>
+        </div>
       </div>
 
-      <Body baseFontSize={16} weight="medium" className={headerStyles}>
-        Covered Queries{' '}
+      <div className={coveredQueriesHeaderContainterStyles}>
+        <Body baseFontSize={16} weight="medium" className={headerStyles}>
+          Covered Queries
+        </Body>
         <Tooltip
           enabled={true}
           trigger={
@@ -89,7 +123,7 @@ const IndexFlowSection = ({
           index and does not have to examine any documents. If a query is
           covered, it is highly performant.
         </Tooltip>
-      </Body>
+      </div>
 
       <div className={coveredQueriesCalloutStyles}>
         {/* Covered Queries, clean up with actual covered queries examples in CLOUDP-311782 */}
@@ -105,7 +139,7 @@ const IndexFlowSection = ({
           </u>
           {/* Optimal queries, clean up with actual optimal queries in CLOUDP-311783 */}
           <Body baseFontSize={13} className={codeStyles}>
-            {`{awards.wins : 5, imdb.rating: {$gt : 5} }.sort({ awards.nominations : 1 }`}
+            {`{ awards.wins : 5, imdb.rating: {$gt : 5} }.sort({ awards.nominations : 1 }`}
           </Body>
         </p>
 
