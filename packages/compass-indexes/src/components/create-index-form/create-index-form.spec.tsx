@@ -3,18 +3,15 @@ import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { CreateIndexForm } from './create-index-form';
 import type { Field } from '../../modules/create-index';
 import { expect } from 'chai';
+import type { SinonSpy } from 'sinon';
 
 import sinon from 'sinon';
 
 describe('CreateIndexForm', () => {
-  let onTabClickSpy;
+  let onTabClickSpy: SinonSpy;
 
   beforeEach(function () {
     onTabClickSpy = sinon.spy();
-  });
-
-  afterEach(function () {
-    onTabClickSpy = null;
   });
 
   const renderComponent = ({
