@@ -15,7 +15,6 @@ import {
 } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
-import type { Signal } from '@mongodb-js/compass-components';
 
 import {
   OPTION_DEFINITION,
@@ -124,7 +123,6 @@ type QueryBarProps = {
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
   onExplain?: () => void;
-  insights?: Signal | Signal[];
   isAIInputVisible?: boolean;
   isAIFetching?: boolean;
   onShowAIInputClick: () => void;
@@ -153,7 +151,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   expanded: isQueryOptionsExpanded,
   placeholders,
   onExplain,
-  insights,
   isAIInputVisible = false,
   isAIFetching = false,
   onShowAIInputClick,
@@ -229,7 +226,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             id={filterQueryOptionId}
             onApply={onApply}
             placeholder={filterPlaceholder}
-            insights={insights}
             disabled={isAIFetching}
           />
           {showAIEntryButton && (
