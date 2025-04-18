@@ -85,7 +85,7 @@ function CreateIndexForm({
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        {showIndexesGuidanceVariant && (
+        {showIndexesGuidanceVariant ? (
           <RadioBoxGroup
             aria-labelledby="index-flows"
             data-testid="create-index-form-flows"
@@ -103,12 +103,15 @@ function CreateIndexForm({
               Start with a Query
             </RadioBox>
           </RadioBoxGroup>
+        ) : (
+          <Body weight="medium" className={indexFieldsHeaderStyles}>
+            Index fields
+          </Body>
         )}
 
-        <Body weight="medium" className={indexFieldsHeaderStyles}>
-          Index fields
-        </Body>
-        {fields.length > 0 ? (
+        {/* Only show the fields if user is in the Start with an index flow or if they're in the control */}
+        {fields.length > 0 &&
+        (showIndexesGuidanceVariant ? currentTab === 'IndexFlow' : true) ? (
           <CreateIndexFields
             schemaFields={schemaFieldNames}
             fields={fields}
