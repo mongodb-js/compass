@@ -32,7 +32,7 @@ const aggregationLimitLabelId = 'aggregation-settings-limit-label';
 
 const headerStyles = css({
   display: 'flex',
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  padding: `${spacing[100]}px ${spacing[200]}px`,
   alignItems: 'center',
   justifyContent: 'space-between',
   borderBottom: `1px solid ${palette.gray.light2}`,
@@ -47,7 +47,7 @@ const headerDarkStyles = css({
 const headerButtonGroupStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const containerStyles = css({
@@ -71,8 +71,8 @@ const containerDarkStyles = css({
 });
 
 const inputGroupStyles = css({
-  margin: spacing[2],
-  padding: `${spacing[2]}px ${spacing[3]}px`,
+  margin: spacing[200],
+  padding: `${spacing[200]}px ${spacing[400]}px`,
   backgroundColor: palette.white,
   display: 'flex',
   alignItems: 'center',
@@ -88,7 +88,7 @@ const inputControlStyles = css({
   'input[type="text"], input[type="number"]': { width: spacing[7] },
 });
 
-const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[2] } });
+const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[200] } });
 
 export type SettingsProps = {
   isCommenting: boolean;

@@ -12,7 +12,7 @@ export type BreadcrumbItem = {
 
 const breadcrumbStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
   alignItems: 'center',
   minWidth: 0,
 });

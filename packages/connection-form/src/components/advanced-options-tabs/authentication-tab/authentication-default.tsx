@@ -21,7 +21,7 @@ import {
 } from '../../../utils/connection-string-helpers';
 
 const textInputWithLabelStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 const defaultAuthMechanismOptions: {

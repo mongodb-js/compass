@@ -16,7 +16,7 @@ const selectFieldsRadioBoxStyles = css({
 });
 
 const messageBannerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const selectFieldsToExportId = 'select-fields-to-export';

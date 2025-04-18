@@ -5,7 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { RadioBoxGroup as LeafyGreenRadioBoxGroup } from './leafygreen';
 
 const radioBoxGroupStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 function RadioBoxGroup(

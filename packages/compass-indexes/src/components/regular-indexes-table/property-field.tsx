@@ -7,8 +7,8 @@ import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[1],
-  minWidth: spacing[3] * 7,
+  gap: spacing[100],
+  minWidth: spacing[400] * 7,
   alignItems: 'baseline',
 });
 

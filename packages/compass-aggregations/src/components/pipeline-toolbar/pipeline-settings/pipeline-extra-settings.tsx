@@ -25,14 +25,14 @@ import {
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   justifyItems: 'center',
 });
 
 const toggleStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const toggleLabelStyles = css({

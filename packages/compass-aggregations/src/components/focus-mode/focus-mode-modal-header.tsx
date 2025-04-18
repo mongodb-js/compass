@@ -49,13 +49,13 @@ type FocusModeModalHeaderProps = {
 const controlsContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const controlContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const fakeToggleLabelStyles = css({
@@ -73,7 +73,7 @@ const menuStyles = css({
 const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const tooltipContentItemStyles = css({
@@ -167,7 +167,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           return label.length;
         })
       )
-    )}ch + ${spacing[5]}px)`,
+    )}ch + ${spacing[800]}px)`,
   };
 
   return (

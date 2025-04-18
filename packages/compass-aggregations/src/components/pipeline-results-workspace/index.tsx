@@ -33,22 +33,22 @@ const resultsStyles = css({
   height: '100%',
   overflowY: 'auto',
   '&:not(:first-child)': {
-    height: `calc(100% - ${spacing[3]}px)`,
-    marginTop: spacing[3],
+    height: `calc(100% - ${spacing[400]}px)`,
+    marginTop: spacing[400],
   },
 });
 
 const results = css({
   display: 'flex',
   alignItems: 'flex-start',
-  paddingLeft: spacing[3] + spacing[1],
-  paddingRight: spacing[5] + spacing[1],
+  paddingLeft: spacing[400] + spacing[100],
+  paddingRight: spacing[800] + spacing[100],
 });
 
 const centered = css({
   width: '100%',
   height: '100%',
-  paddingTop: spacing[6] * 2,
+  paddingTop: spacing[1600] * 2,
   justifyContent: 'center',
 });
 
@@ -63,10 +63,10 @@ const outResult = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: spacing[2],
-  maxWidth: spacing[6] * 8,
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
+  gap: spacing[200],
+  maxWidth: spacing[1600] * 8,
+  marginTop: spacing[200],
+  marginBottom: spacing[200],
 });
 
 const outResultText = css({

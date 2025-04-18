@@ -11,9 +11,9 @@ const containerStyles = css({
   flexDirection: 'column',
   alignItems: 'center',
   textAlign: 'center',
-  margin: `${spacing[3]}px auto`,
+  margin: `${spacing[400]}px auto`,
   marginTop: spacing[7],
-  padding: `0 ${spacing[3]}px`,
+  padding: `0 ${spacing[400]}px`,
 });
 
 const iconStyles = css({
@@ -22,7 +22,7 @@ const iconStyles = css({
   maxHeight: '80px',
 });
 const titleStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 const titleLightStyles = css({
   color: palette.green.dark2,
@@ -31,15 +31,15 @@ const titleDarkStyles = css({
   color: palette.green.light1,
 });
 const subTitleStyles = css({
-  marginTop: spacing[2],
-  maxWidth: spacing[6] * 6,
+  marginTop: spacing[200],
+  maxWidth: spacing[1600] * 6,
 });
 const callToActionStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[600],
   maxWidth: '600px',
 });
 const callToActionLinkContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   maxWidth: '600px',
 });
 

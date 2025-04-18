@@ -10,8 +10,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 const queryStyles = css({
-  padding: spacing[3],
-  marginTop: spacing[3],
+  padding: spacing[400],
+  marginTop: spacing[400],
 });
 
 const queryHoveredStyles = css({

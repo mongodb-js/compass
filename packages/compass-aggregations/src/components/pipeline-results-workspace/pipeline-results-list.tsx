@@ -6,7 +6,7 @@ import { css, spacing } from '@mongodb-js/compass-components';
 export type ResultsViewType = 'document' | 'json';
 
 const containerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const PipelineResultsList: React.FunctionComponent<{

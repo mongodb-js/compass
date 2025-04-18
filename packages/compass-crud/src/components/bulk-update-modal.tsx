@@ -41,10 +41,10 @@ const modalContentStyles = css({
 });
 
 const columnsStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[600],
   display: 'grid',
   width: '100%',
-  gap: spacing[4],
+  gap: spacing[600],
   // make sure the readonly filter field starts scrolling for large/complicated
   // filters rather than the 1st column taking up all the space and then leaving
   // nothing for the preview
@@ -53,7 +53,7 @@ const columnsStyles = css({
 
 const queryStyles = css({
   display: 'flex',
-  gap: spacing[4],
+  gap: spacing[600],
   flexDirection: 'column',
 });
 
@@ -64,7 +64,7 @@ const updateFieldStyles = css({
 });
 
 const descriptionStyles = css({
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const previewDescriptionStyles = css({
@@ -72,8 +72,8 @@ const previewDescriptionStyles = css({
 });
 
 const codeContainerStyles = css({
-  paddingTop: spacing[2],
-  paddingBottom: spacing[2],
+  paddingTop: spacing[200],
+  paddingBottom: spacing[200],
 });
 
 const codeDarkContainerStyles = css({});
@@ -83,33 +83,33 @@ const codeLightContainerStyles = css({
 });
 
 const multilineContainerStyles = css({
-  height: `calc(100% - ${spacing[6]})`,
+  height: `calc(100% - ${spacing[1600]})`,
 });
 
 const bannerContainerStyles = css({
   // don't jump when an error appears
-  minHeight: spacing[4] * 2 + 2,
+  minHeight: spacing[600] * 2 + 2,
   overflow: 'hidden',
 });
 
 const bannerStyles = css({
   flex: 'none',
-  marginTop: spacing[2],
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  marginTop: spacing[200],
+  marginLeft: spacing[200],
+  marginRight: spacing[200],
   textAlign: 'left',
 });
 
 const emptyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const updatePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
   contain: 'size',
   height: 'calc(100% - 20px)',
   overflowY: 'scroll',
@@ -124,7 +124,7 @@ const modalFooterToolbarSpacingStyles = css({
 const modalFooterFormActionsStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const modalFooterAdditionalActionsStyles = css({});
@@ -132,8 +132,8 @@ const modalFooterAdditionalActionsStyles = css({});
 const inlineSaveQueryModalStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  padding: spacing[3],
-  gap: spacing[3],
+  padding: spacing[400],
+  gap: spacing[400],
 });
 
 const inlineSaveQueryModalInputStyles = css({
@@ -245,7 +245,7 @@ const previewZeroStateIconStyles = css({
   margin: 'auto',
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 
@@ -501,7 +501,7 @@ export default function BulkUpdateModal({
 }
 
 const previewCardStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 function UpdatePreviewDocument({

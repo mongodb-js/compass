@@ -101,7 +101,7 @@ const nonSelectable = css({
 
 const encryptedHelpLinkStyle = css({
   color: 'inherit',
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({

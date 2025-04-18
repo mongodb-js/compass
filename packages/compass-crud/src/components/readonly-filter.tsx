@@ -12,18 +12,18 @@ import {
 
 const queryLabelStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 
 const readOnlyFilterStyles = css({
-  padding: spacing[2],
+  padding: spacing[200],
   overflow: 'scroll',
   width: '100%',
   whiteSpace: 'nowrap',
   display: 'inline-block',
   verticalAlign: 'middle',
-  lineHeight: `${spacing[3] + 2}px`,
+  lineHeight: `${spacing[400] + 2}px`,
   '::-webkit-scrollbar': {
     display: 'none',
   },

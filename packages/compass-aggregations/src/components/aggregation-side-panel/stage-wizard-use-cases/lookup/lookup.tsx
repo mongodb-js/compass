@@ -27,7 +27,7 @@ type LookupFormState = {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const titleStyles = css({
@@ -37,7 +37,7 @@ const titleStyles = css({
 
 const formGroup = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 

@@ -26,9 +26,9 @@ const countButtonStyles = css({
   backgroundColor: 'transparent',
   border: 'none',
   display: 'inline',
-  height: spacing[4] + spacing[1],
+  height: spacing[600] + spacing[100],
   ':focus': {
-    outline: `${spacing[1]}px auto ${palette.blue.light1}`,
+    outline: `${spacing[100]}px auto ${palette.blue.light1}`,
   },
 });
 
@@ -40,8 +40,8 @@ const countDocsContainerStyles = css({
 // As we want to align the refresh button and loader icon,
 // we need to set the same size as the IconButton.
 const spinnerStyles = css({
-  width: spacing[4] + spacing[1], // LG IconButton width
-  height: spacing[4] + spacing[1], // LG IconButton height
+  width: spacing[600] + spacing[100], // LG IconButton width
+  height: spacing[600] + spacing[100], // LG IconButton height
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

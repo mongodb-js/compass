@@ -17,9 +17,9 @@ import {
 import CollectionFields from './collection-fields';
 
 const collectionNameInfoBanner = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   '&:not(:last-child)': {
-    marginBottom: spacing[2],
+    marginBottom: spacing[200],
   },
 });
 

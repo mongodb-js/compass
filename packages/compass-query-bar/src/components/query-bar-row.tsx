@@ -12,7 +12,7 @@ const rowStyles = css({
   display: 'flex',
   flexGrow: 1,
   position: 'relative',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 type QueryBarRowProps = {

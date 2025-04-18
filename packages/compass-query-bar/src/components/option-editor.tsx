@@ -55,7 +55,7 @@ const editorContainerStyles = css({
   paddingLeft: 4,
   paddingRight: 0,
   border: '1px solid transparent',
-  borderRadius: spacing[1],
+  borderRadius: spacing[100],
   overflow: 'visible',
 });
 
@@ -67,7 +67,7 @@ const editorWithErrorStyles = css({
     right: -1,
     bottom: -1,
     zIndex: 2,
-    borderRadius: spacing[1],
+    borderRadius: spacing[100],
     border: `1px solid ${palette.red.base}`,
     pointerEvents: 'none',
   },

@@ -302,7 +302,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       submitButtonText="Insert"
       submitDisabled={hasErrors()}
       data-testid="insert-document-modal"
-      minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
+      minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
       <div className={toolbarStyles}>
         <SegmentedControl

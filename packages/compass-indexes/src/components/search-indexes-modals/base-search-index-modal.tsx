@@ -61,13 +61,13 @@ function parseShellBSON(source: string): Document[] {
 const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const templateToolbarStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const templateToolbarTextDescriptionStyles = css({
@@ -82,22 +82,22 @@ const templateToolbarDropdownStyles = css({
 const formContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
   overflow: 'auto',
   // This is to accomodate for the focus ring that is visible
   // when the index name input is focussed.
-  padding: spacing[1],
+  padding: spacing[100],
 });
 
 const formFieldContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const footerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 export const DEFAULT_INDEX_DEFINITION = `{

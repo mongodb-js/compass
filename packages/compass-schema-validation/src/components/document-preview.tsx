@@ -10,7 +10,7 @@ import { Document } from '@mongodb-js/compass-crud';
 
 const previewStyles = css({
   display: 'flex',
-  height: spacing[6] * 3,
+  height: spacing[1600] * 3,
   padding: 0,
   overflow: 'auto',
   position: 'relative',
@@ -21,7 +21,7 @@ const noPreviewStyles = css({
 });
 
 const noPreviewTextStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   textAlign: 'center',
   fontStyle: 'italic',
   width: '100%',

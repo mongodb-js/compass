@@ -23,7 +23,7 @@ const tableStyles = css({
 });
 
 const existingFavoriteBadgeStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const selectTableColumns = [['displayName', 'Connection Name']] as const;

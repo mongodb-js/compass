@@ -15,13 +15,13 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 
 const shortcutsTableContainerStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
   maxHeight: '50vh',
   overflow: 'auto',
 });
 
 const shortcutsTitleStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[600],
 });
 
 function ShellInfoModal({

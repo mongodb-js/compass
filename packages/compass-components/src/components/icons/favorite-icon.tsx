@@ -9,7 +9,7 @@ function FavoriteIcon({
   isFavorite = false,
   favoriteColor = palette.yellow.base,
   showCircle = true,
-  size = spacing[4],
+  size = spacing[600],
 }: {
   isFavorite?: boolean;
   favoriteColor?: string;

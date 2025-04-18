@@ -16,7 +16,7 @@ import FLE2Fields, { ENCRYPTED_FIELDS_PLACEHOLDER } from './fle2-fields';
 import Collation from './collation';
 
 const advancedCollectionOptionsContainerStyles = css({
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[400],
 });
 
 function asNumber(value) {

@@ -15,7 +15,7 @@ const focusRingStyles = css({
     right: 3,
     bottom: 3,
     left: 3,
-    borderRadius: spacing[1],
+    borderRadius: spacing[100],
     boxShadow: `0 0 0 0 transparent`,
     transition: 'box-shadow .16s ease-in',
     zIndex: 1,
@@ -79,7 +79,7 @@ const focusRingHover = (darkMode: boolean) =>
  * @param options.outer show focus ring outside the component (default: false)
  * @param options.focusWithin show focus ring on focus within instead of focus visible (default: false)
  * @param options.hover show focus ring on hover in addition to focus (default: false)
- * @param options.radius focus ring radius (default: 4px or spacing[1] from leafygreen)
+ * @param options.radius focus ring radius (default: 4px or spacing[100] from leafygreen)
  * @returns props to apply to the component
  */
 export function useFocusRing({
@@ -94,7 +94,7 @@ export function useFocusRing({
   focusWithin?: boolean;
   /** show focus ring on hover in addition to focus (default: false) */
   hover?: boolean;
-  /** focus ring radius (default: 4px or spacing[1] from leafygreen) */
+  /** focus ring radius (default: 4px or spacing[100] from leafygreen) */
   radius?: number;
 } = {}) {
   const darkMode = useDarkMode();

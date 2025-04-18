@@ -32,7 +32,7 @@ const centeredContent = css({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100%',
-  padding: spacing[3],
+  padding: spacing[400],
   flexDirection: 'column',
 });
 
@@ -73,7 +73,7 @@ function NoPreviewDocuments() {
 }
 
 const documentsStyles = css({
-  gap: spacing[2],
+  gap: spacing[200],
   display: 'flex',
   alignItems: 'stretch',
   width: '100%',
@@ -87,7 +87,7 @@ const documentContainerStyles = css({
   flex: 'none',
   flexShrink: 0,
   width: '384px',
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const documentStyles = css({
@@ -168,8 +168,8 @@ function StagePreviewBody({
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[3],
-  gap: spacing[2],
+  padding: spacing[400],
+  gap: spacing[200],
   flex: 1,
 });
 

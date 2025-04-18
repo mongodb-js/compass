@@ -24,7 +24,7 @@ import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
 const editorStyles = css({
-  minHeight: spacing[5] + spacing[3],
+  minHeight: spacing[800] + spacing[400],
   // Special case only for this view that doesn't make sense to make part of
   // the editor component
   '& .cm-editor': {

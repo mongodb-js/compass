@@ -18,7 +18,7 @@ import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form'
 
 const optionInputContainerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 

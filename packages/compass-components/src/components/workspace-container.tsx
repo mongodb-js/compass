@@ -30,7 +30,7 @@ const scrollBoxStyles = css({
   zIndex: 0,
 });
 
-const shadowHeight = spacing[4];
+const shadowHeight = spacing[600];
 
 const fadeIn = keyframes({
   from: {
@@ -62,7 +62,7 @@ const boxShadow = (color: string) => `0px 2px ${shadowHeight}px -1px ${color}`;
 
 const shadowStyles = css({
   height: shadowHeight,
-  borderRadius: spacing[2],
+  borderRadius: spacing[200],
 
   width: `calc(100% - ${shadowHeight}px)`,
   margin: '0 auto',

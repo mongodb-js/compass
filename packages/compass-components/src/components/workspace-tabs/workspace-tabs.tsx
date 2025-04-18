@@ -43,7 +43,7 @@ const tabsContainerStyles = css({
   whiteSpace: 'nowrap',
   '::-webkit-scrollbar': {
     ':horizontal': {
-      height: spacing[1],
+      height: spacing[100],
     },
   },
   minHeight: 36,
@@ -80,7 +80,7 @@ const newTabContainerStyles = css({
 });
 
 const createNewTabButtonStyles = css({
-  margin: spacing[1],
+  margin: spacing[100],
 });
 
 const sortableItemContainerStyles = css({

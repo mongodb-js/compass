@@ -36,7 +36,7 @@ const tableStyles = css({
   height: '100%',
   // So that the last element has some spacing from the container bottom when
   // scrolled to the very bottom of the list
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[400],
 });
 
 const indexActionsCellClassName = 'index-actions-cell';

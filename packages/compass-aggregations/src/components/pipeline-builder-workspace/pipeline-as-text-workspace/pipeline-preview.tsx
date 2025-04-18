@@ -31,9 +31,9 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  padding: spacing[3],
-  paddingBottom: spacing[2],
-  gap: spacing[2],
+  padding: spacing[400],
+  paddingBottom: spacing[200],
+  gap: spacing[200],
 });
 
 const previewHeaderStyles = css({
@@ -51,7 +51,7 @@ const centerStyles = css({
   textAlign: 'center',
 });
 
-const messageStyles = css({ marginTop: spacing[3] });
+const messageStyles = css({ marginTop: spacing[400] });
 
 const documentListStyles = css({
   overflow: 'auto',

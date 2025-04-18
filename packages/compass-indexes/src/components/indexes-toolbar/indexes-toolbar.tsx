@@ -29,7 +29,7 @@ import { indexViewChanged } from '../../modules/index-view';
 const toolbarButtonsContainer = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[2],
+  gap: spacing[200],
   justifyContent: 'flex-start',
   alignItems: 'center',
 });
@@ -38,7 +38,7 @@ const alignSelfEndStyles = css({
   marginLeft: 'auto',
 });
 
-const spinnerStyles = css({ marginRight: spacing[2] });
+const spinnerStyles = css({ marginRight: spacing[200] });
 
 const createIndexButtonContainerStyles = css({
   display: 'inline-block',

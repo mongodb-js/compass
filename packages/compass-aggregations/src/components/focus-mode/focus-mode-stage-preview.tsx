@@ -31,14 +31,14 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const headerStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'flex-start',
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
   flexWrap: 'wrap',
 });
 
@@ -57,7 +57,7 @@ const centerStyles = css({
   textAlign: 'center',
 });
 
-const messageStyles = css({ marginTop: spacing[3] });
+const messageStyles = css({ marginTop: spacing[400] });
 
 const documentListStyles = css({
   overflowY: 'auto',
@@ -73,7 +73,7 @@ const pipelineOutputMenuStyles = css({
 const loaderStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 type FocusModePreviewProps = {

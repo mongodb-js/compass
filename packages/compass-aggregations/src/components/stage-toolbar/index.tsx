@@ -31,8 +31,8 @@ const toolbarStyles = css({
   borderBottomWidth: '1px',
   borderBottomStyle: 'solid',
 
-  padding: `0 ${spacing[2]}px`,
-  height: spacing[5] + spacing[1],
+  padding: `0 ${spacing[200]}px`,
+  height: spacing[800] + spacing[100],
 
   flexShrink: 0,
   flexDirection: 'row',
@@ -67,14 +67,14 @@ const leftStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
-  gap: spacing[1] * 3,
+  gap: spacing[100] * 3,
   width: '388px', // default width of the stage editor
 });
 
 const shortSpacedStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
+  gap: spacing[100],
   whiteSpace: 'nowrap',
 });
 
@@ -84,14 +84,14 @@ const textStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   // align with the text on stage preview header
-  paddingLeft: spacing[2],
+  paddingLeft: spacing[200],
 });
 
 const rightStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 type StageToolbarProps = {

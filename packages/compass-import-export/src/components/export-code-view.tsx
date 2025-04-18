@@ -14,7 +14,7 @@ import {
 export const codeElementId = 'export-collection-code-preview-wrapper';
 
 const containerStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const codeStyles = css({

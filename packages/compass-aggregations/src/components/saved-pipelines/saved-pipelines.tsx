@@ -42,8 +42,8 @@ const toolbarContentStyles = css({
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[3],
-  paddingRight: spacing[5], // Extra right padding to account for close button.
+  padding: spacing[400],
+  paddingRight: spacing[800], // Extra right padding to account for close button.
 });
 
 const cardsContainerStyles = css({
@@ -53,7 +53,7 @@ const cardsContainerStyles = css({
 
 const emptyMessageStyles = css({
   fontStyle: 'italic',
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 type SavedPipelinesProps = {

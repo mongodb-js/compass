@@ -23,7 +23,7 @@ const containerStyle = css({
 
 const contentStyles = css({
   overflowY: 'auto',
-  padding: spacing[3],
+  padding: spacing[400],
   paddingTop: 0,
 });
 

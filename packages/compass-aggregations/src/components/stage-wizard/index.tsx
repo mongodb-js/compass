@@ -38,38 +38,38 @@ import { useFieldsSchema } from '@mongodb-js/compass-field-store';
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const headerStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  gap: spacing[2],
-  padding: spacing[3],
+  gap: spacing[200],
+  padding: spacing[400],
   cursor: 'grab',
 });
 
 const headingStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const wizardContentStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const cardFooterStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const cardActionStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   marginLeft: 'auto',
 });
 

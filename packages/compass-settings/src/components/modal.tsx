@@ -45,19 +45,19 @@ type SettingsModalProps = {
 const contentStyles = css({
   display: 'flex',
   height: spacing[7] * 5,
-  paddingTop: spacing[2],
+  paddingTop: spacing[200],
 });
 
 const sideNavStyles = css({
   position: 'absolute',
-  width: spacing[6] * 3,
+  width: spacing[1600] * 3,
 });
 
 const settingsStyles = css(
   {
     width: '80%',
-    marginLeft: spacing[6] * 3,
-    padding: `0 ${spacing[2]}px 0 ${spacing[3]}px`,
+    marginLeft: spacing[1600] * 3,
+    padding: `0 ${spacing[200]}px 0 ${spacing[400]}px`,
   },
   focusRing
 );
@@ -133,7 +133,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       submitDisabled={!hasChangedSettings}
       onCancel={onClose}
       data-testid="settings-modal"
-      minBodyHeight={spacing[6] * 2}
+      minBodyHeight={spacing[1600] * 2}
     >
       <div className={contentStyles}>
         <div className={sideNavStyles}>

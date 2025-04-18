@@ -55,8 +55,8 @@ const stagePreviewContainerStyles = css({
 });
 
 const stageEditorContainerStyles = css({
-  paddingTop: spacing[2],
-  paddingBottom: spacing[2],
+  paddingTop: spacing[200],
+  paddingBottom: spacing[200],
 });
 
 const RESIZABLE_DIRECTIONS = {

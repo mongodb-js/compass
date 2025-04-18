@@ -5,8 +5,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { Icon, IconButton } from './leafygreen';
 
 const infoButtonStyles = css({
-  marginTop: -spacing[2],
-  marginBottom: -spacing[2],
+  marginTop: -spacing[200],
+  marginBottom: -spacing[200],
 });
 
 type InlineInfoLinkProps = {

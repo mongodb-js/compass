@@ -24,7 +24,7 @@ const droppableContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: spacing[5],
+  minHeight: spacing[800],
   position: 'relative',
 });
 
@@ -32,9 +32,9 @@ const dropMarkerStyles = css({
   position: 'absolute',
   width: '100%',
   top: '50%',
-  height: spacing[1] / 4,
+  height: spacing[100] / 4,
   background: palette.green.dark1,
-  borderRadius: spacing[2],
+  borderRadius: spacing[200],
 });
 
 const UseCaseDroppableArea = ({

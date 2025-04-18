@@ -327,8 +327,8 @@ const typeEditor = css({
   appearance: 'none',
   // Accounting for the margin that `appearance: auto` will add to the shadow
   // dom inside select node
-  paddingLeft: spacing[1],
-  width: `calc(${longestTypeNameCharLength}ch + ${spacing[4]}px)`,
+  paddingLeft: spacing[100],
+  width: `calc(${longestTypeNameCharLength}ch + ${spacing[600]}px)`,
   '&:hover': {
     color: 'inherit',
     cursor: 'pointer',

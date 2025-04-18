@@ -27,7 +27,7 @@ const defaultFormatter = (_: unknown) => String(_);
 const statsStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const statsTextStyles = css({
@@ -56,15 +56,15 @@ const ExplainPlanSummaryStat = <T extends string | boolean | number>({
     { className: statsStyles },
     glyph
       ? React.cloneElement(glyph, {
-          viewBox: `0 0 ${spacing[3]} ${spacing[3]}`,
-          width: spacing[3],
-          height: spacing[3],
+          viewBox: `0 0 ${spacing[400]} ${spacing[400]}`,
+          width: spacing[400],
+          height: spacing[400],
         })
       : null,
     <InlineDefinition
       definition={definition}
       className={statsTextStyles}
-      tooltipProps={{ align: 'left', spacing: spacing[3] }}
+      tooltipProps={{ align: 'left', spacing: spacing[400] }}
       data-testid={dataTestId}
     >
       {typeof value === 'undefined' ? (
@@ -97,10 +97,10 @@ const summaryCardStyles = css({
 });
 
 const summaryHeadingStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[400],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
   backgroundColor: palette.gray.light3,
   boxShadow: `0 0 0 1px ${palette.gray.light2}`,
 });
@@ -112,11 +112,11 @@ const summaryHeadingDarkModeStyles = css({
 
 const statsListStyles = css({
   display: 'grid',
-  gap: spacing[3],
-  paddingTop: spacing[3],
-  paddingBottom: spacing[4],
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
+  gap: spacing[400],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[600],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
   overflow: 'auto',
 });
 
@@ -124,7 +124,7 @@ const indexesSummaryStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const indexIconDescriptionStyles = css({

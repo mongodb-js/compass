@@ -41,8 +41,8 @@ const workspaceBackgroundStyles = css({
 });
 
 const workspaceStyles = css({
-  padding: spacing[4],
-  marginBottom: spacing[6],
+  padding: spacing[600],
+  marginBottom: spacing[1600],
   display: 'flex',
   flexWrap: 'wrap',
   justifyContent: 'space-around',
@@ -53,7 +53,7 @@ const workspaceStyles = css({
 });
 
 const mongosWarningStyles = css({
-  margin: spacing[2],
+  margin: spacing[200],
   marginBottom: 0,
 });
 

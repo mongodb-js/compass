@@ -24,10 +24,10 @@ import type { CollectionStats } from '../modules/collection-stats';
 
 const headerStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
   alignItems: 'center',
   width: '100%',
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  padding: `${spacing[100]}px ${spacing[200]}px`,
 });
 
 const headerTextStyles = css({
@@ -36,7 +36,7 @@ const headerTextStyles = css({
 
 const bodyStyles = css({
   position: 'relative',
-  padding: `${spacing[2]}px ${spacing[2] + spacing[1]}px`,
+  padding: `${spacing[200]}px ${spacing[200] + spacing[100]}px`,
   borderTopWidth: '1px',
   borderTopStyle: 'solid',
 });
@@ -50,11 +50,11 @@ const bodyStylesDark = css({
 });
 
 const documentsContainerStyles = css({
-  marginTop: spacing[2],
-  paddingBottom: spacing[2],
+  marginTop: spacing[200],
+  paddingBottom: spacing[200],
   display: 'flex',
   overflowX: 'scroll',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const documentContainerStyles = css({

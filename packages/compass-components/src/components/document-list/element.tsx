@@ -257,7 +257,7 @@ const elementActions = css({
 const elementLineNumber = css({
   flex: 'none',
   position: 'relative',
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
   boxSizing: 'content-box',
 });
 
@@ -313,7 +313,7 @@ const elementSpacer = css({
 });
 
 const elementExpand = css({
-  width: spacing[3],
+  width: spacing[400],
   flex: 'none',
   display: 'flex',
   alignItems: 'center',
@@ -342,7 +342,7 @@ const elementValue = css({
 
 const elementType = css({
   flex: 'none',
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const actions = css({
@@ -455,7 +455,7 @@ export const HadronElement: React.FunctionComponent<{
     // Only account for ~ line count length if we are in editing mode
     if (editingEnabled) {
       const charCount = String(lineNumberSize).length;
-      return charCount > 2 ? `${charCount}.5ch` : spacing[3];
+      return charCount > 2 ? `${charCount}.5ch` : spacing[400];
     }
     return spacing[400];
   }, [lineNumberSize, editingEnabled]);

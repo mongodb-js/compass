@@ -19,7 +19,7 @@ import ReadonlyDocument from './readonly-document';
 import type { Document } from 'bson';
 
 const modalFooterSpacingStyles = css({
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const documentListWrapper = css({
@@ -28,31 +28,31 @@ const documentListWrapper = css({
   flex: 'none',
   flexShrink: 0,
   overflow: 'auto',
-  marginBottom: spacing[2],
-  gap: spacing[2],
+  marginBottom: spacing[200],
+  gap: spacing[200],
   maxHeight: '340px',
 });
 
 const documentContainerStyles = css({
   display: 'flex',
   flexShrink: 0,
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const modalBodySpacingStyles = css({
-  marginTop: spacing[3] - spacing[1], // see queryBarStyles below
-  paddingLeft: spacing[5],
+  marginTop: spacing[400] - spacing[100], // see queryBarStyles below
+  paddingLeft: spacing[800],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const queryBarStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: spacing[3],
-  marginTop: spacing[1], // don't cut off the focus/hover ring on the Export button
+  gap: spacing[400],
+  marginTop: spacing[100], // don't cut off the focus/hover ring on the Export button
 });
 
 const exportToLanguageButtonStyles = css({

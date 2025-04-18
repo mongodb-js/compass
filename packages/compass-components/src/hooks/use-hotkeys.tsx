@@ -6,7 +6,7 @@ import { css } from '@leafygreen-ui/emotion';
 
 const shortcutContainerStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const isMac = () => navigator.userAgent.indexOf('Mac') !== -1;

@@ -15,7 +15,7 @@ export const Variant = {
 export type Variant = typeof Variant[keyof typeof Variant];
 
 const headerStyle = css({
-  padding: spacing[5],
+  padding: spacing[800],
   paddingBottom: 0,
 });
 

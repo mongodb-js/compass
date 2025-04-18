@@ -10,7 +10,7 @@ import type { ConnectionFormError } from '../../../utils/validation';
 import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
 
 const iconStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
   display: 'block',
 });
 

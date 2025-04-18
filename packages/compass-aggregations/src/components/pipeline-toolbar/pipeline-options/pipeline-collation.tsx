@@ -17,20 +17,20 @@ import { DEFAULT_MAX_TIME_MS } from '../../../constants';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
-  paddingTop: spacing[1],
+  paddingTop: spacing[100],
   display: 'flex',
   alignItems: 'center',
 });
 
 const labelStyles = css({
   // A bit of vertical padding so users can click the label easier.
-  padding: `${spacing[2]}px 0`,
-  marginRight: spacing[2],
+  padding: `${spacing[200]}px 0`,
+  marginRight: spacing[200],
 });
 
 const collationInputStyles = css({
   flexGrow: 1,
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 const inputStyles = css({

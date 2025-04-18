@@ -21,8 +21,8 @@ import {
 const modalContent = css({
   display: 'grid',
   gridAutoColumns: '1fr',
-  rowGap: spacing[4],
-  columnGap: spacing[3],
+  rowGap: spacing[600],
+  columnGap: spacing[400],
   gridTemplateAreas: `
     'description'
     'connection'

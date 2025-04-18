@@ -20,21 +20,21 @@ const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 
 const listStyle = css({
   listStyle: 'decimal',
-  paddingLeft: spacing[5],
+  paddingLeft: spacing[800],
   li: {
-    marginTop: spacing[1],
-    marginBottom: spacing[1],
+    marginTop: spacing[100],
+    marginBottom: spacing[100],
   },
 });
 
 const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const bannerContentStyles = css({
-  maxHeight: spacing[6] * 2,
+  maxHeight: spacing[1600] * 2,
   overflowY: 'scroll',
 });
 

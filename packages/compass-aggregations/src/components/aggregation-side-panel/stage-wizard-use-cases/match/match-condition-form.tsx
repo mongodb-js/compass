@@ -110,7 +110,7 @@ const conditionContainerStyles = css({
   display: 'flex',
   width: '100%',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 const fieldComboboxStyles = css({ flex: '1 1 50%' });
 const operatorSelectStyles = css({ flex: '1 0 70px' });

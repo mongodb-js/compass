@@ -62,9 +62,9 @@ const codeEditorStyles = css({
 
 const bannerStyles = css({
   flex: 'none',
-  marginTop: spacing[2],
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  marginTop: spacing[200],
+  marginLeft: spacing[200],
+  marginRight: spacing[200],
   textAlign: 'left',
 });
 

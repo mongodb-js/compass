@@ -11,7 +11,7 @@ const containerStyles = css({
   position: 'absolute',
   width: '1.1px',
   height: '100%',
-  marginRight: spacing[1],
+  marginRight: spacing[100],
 });
 
 const containerStylesDark = css({

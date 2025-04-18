@@ -9,7 +9,7 @@ import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 import { ModalFooterButton } from './modal-footer-button';
 
-const paddingBottomStyles = css({ paddingBottom: spacing[5] });
+const paddingBottomStyles = css({ paddingBottom: spacing[800] });
 
 type InfoModalProps = React.ComponentProps<typeof Modal> & {
   title: string;

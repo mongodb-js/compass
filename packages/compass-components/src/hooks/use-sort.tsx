@@ -7,7 +7,7 @@ import { Button, Icon, Label, Option, Select } from '../components/leafygreen';
 const controlsContainer = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const label = css({
@@ -86,7 +86,7 @@ export function useSortControls<T extends string>(
           aria-labelledby={labelId}
           allowDeselect={false}
           className={select}
-          style={{ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` }}
+          style={{ minWidth: `calc(${longestLabel}ch + ${spacing[1600]}px)` }}
           onChange={(value) => {
             dispatch({ type: 'change-name', name: (value as T) || null });
           }}

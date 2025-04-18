@@ -14,7 +14,7 @@ type ConnectionInfo = {
 };
 
 const infoContainer = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
 });
 
 function InfoTerm({ children }: { children: React.ReactChild }) {
