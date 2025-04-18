@@ -6,8 +6,10 @@ import {
   Body,
   palette,
   Button,
+  RadioBoxGroup,
+  RadioBox,
 } from '@mongodb-js/compass-components';
-import type { Field } from '../../modules/create-index';
+import type { Field, Tab } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
@@ -31,6 +33,10 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[100] + 2,
 });
 
+const createIndexModalFlowsStyles = css({
+  marginBottom: spacing[600],
+});
+
 const plainBorderedCalloutStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: '12px',
@@ -44,24 +50,30 @@ const coveredQueriesButtonStyles = css({
   marginTop: spacing[400],
 });
 
-type CreateIndexFormProps = {
+export type CreateIndexFormProps = {
   namespace: string;
   fields: Field[];
   serverVersion: string;
+  currentTab: Tab;
   onSelectFieldNameClick: (idx: number, name: string) => void;
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
+  onTabClick: (tab: Tab) => void;
+  showIndexesGuidanceVariant?: boolean;
 };
 
 function CreateIndexForm({
   namespace,
   fields,
   serverVersion,
+  currentTab,
   onSelectFieldNameClick,
   onSelectFieldTypeClick,
   onAddFieldClick,
   onRemoveFieldClick,
+  onTabClick,
+  showIndexesGuidanceVariant,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
   const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
@@ -82,22 +94,44 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
-  const showIndexesGuidanceVariant = true;
   return (
     <>
       <div
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        <Body weight="medium" className={indexFieldsHeaderStyles}>
-          Index fields
-        </Body>
+        {showIndexesGuidanceVariant ? (
+          <RadioBoxGroup
+            aria-labelledby="index-flows"
+            data-testid="create-index-form-flows"
+            id="create-index-form-flows"
+            onChange={(e) => {
+              onTabClick(e.target.value as Tab);
+            }}
+            value={currentTab}
+            className={createIndexModalFlowsStyles}
+          >
+            <RadioBox id="index-flow" value={'IndexFlow'}>
+              Start with an Index
+            </RadioBox>
+            <RadioBox id="query-flow" value={'QueryFlow'}>
+              Start with a Query
+            </RadioBox>
+          </RadioBoxGroup>
+        ) : (
+          <Body weight="medium" className={indexFieldsHeaderStyles}>
+            Index fields
+          </Body>
+        )}
+
+        {/* Only show the fields if user is in the Start with an index flow or if they're in the control */}
         <div
           className={
             showIndexesGuidanceVariant ? plainBorderedCalloutStyles : ''
           }
         >
-          {fields.length > 0 ? (
+          {fields.length > 0 &&
+          (!showIndexesGuidanceVariant || currentTab === 'IndexFlow') ? (
             <CreateIndexFields
               schemaFields={schemaFieldNames}
               fields={fields}

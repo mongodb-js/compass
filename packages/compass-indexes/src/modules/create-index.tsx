@@ -25,11 +25,14 @@ export enum ActionTypes {
   CreateIndexClosed = 'compass-indexes/create-index/create-index-hidden',
 
   CreateIndexFormSubmitted = 'compass-indexes/create-index/create-index-form-submitted',
+
+  TabUpdated = 'compass-indexes/create-index/tab-updated',
 }
 
 // fields
 
 export type Field = { name: string; type: string };
+export type Tab = 'QueryFlow' | 'IndexFlow';
 
 const INITIAL_FIELDS_STATE = [{ name: '', type: '' }];
 
@@ -82,6 +85,11 @@ type CreateIndexFormSubmittedAction = {
   type: ActionTypes.CreateIndexFormSubmitted;
 };
 
+type TabUpdatedAction = {
+  type: ActionTypes.TabUpdated;
+  currentTab: Tab;
+};
+
 export const fieldAdded = () => ({
   type: ActionTypes.FieldAdded,
 });
@@ -95,6 +103,11 @@ export const fieldTypeUpdated = (idx: number, fType: string) => ({
   type: ActionTypes.FieldTypeUpdated,
   idx: idx,
   fType,
+});
+
+export const tabUpdated = (tab: Tab) => ({
+  type: ActionTypes.TabUpdated,
+  currentTab: tab,
 });
 
 const fieldsChanged = (fields: Field[]) => ({
@@ -280,6 +293,9 @@ export type State = {
 
   // index options
   options: Options;
+
+  // current tab that user is on (Query Flow or Index Flow)
+  currentTab: Tab;
 };
 
 export const INITIAL_STATE: State = {
@@ -288,6 +304,7 @@ export const INITIAL_STATE: State = {
   error: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
+  currentTab: 'IndexFlow',
 };
 
 function getInitialState(): State {
@@ -587,6 +604,13 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+    };
+  }
+
+  if (isAction<TabUpdatedAction>(action, ActionTypes.TabUpdated)) {
+    return {
+      ...state,
+      currentTab: action.currentTab,
     };
   }
 
