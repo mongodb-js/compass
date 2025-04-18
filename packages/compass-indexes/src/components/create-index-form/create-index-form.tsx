@@ -1,5 +1,12 @@
 import React, { useMemo } from 'react';
-import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Accordion,
+  Body,
+  palette,
+  Button,
+} from '@mongodb-js/compass-components';
 import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
@@ -22,6 +29,19 @@ const indexFieldsHeaderStyles = css({
 
 const createIndexModalOptionStyles = css({
   paddingLeft: spacing[100] + 2,
+});
+
+const plainBorderedCalloutStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: '12px',
+  padding: spacing[600],
+  minHeight: '132px',
+});
+
+const coveredQueriesButtonStyles = css({
+  height: spacing[600] + 4,
+  float: 'right',
+  marginTop: spacing[400],
 });
 
 type CreateIndexFormProps = {
@@ -62,6 +82,7 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
+  const showIndexesGuidanceVariant = true;
   return (
     <>
       <div
@@ -71,19 +92,35 @@ function CreateIndexForm({
         <Body weight="medium" className={indexFieldsHeaderStyles}>
           Index fields
         </Body>
-        {fields.length > 0 ? (
-          <CreateIndexFields
-            schemaFields={schemaFieldNames}
-            fields={fields}
-            serverVersion={serverVersion}
-            isRemovable={!(fields.length > 1)}
-            onSelectFieldNameClick={onSelectFieldNameClick}
-            onSelectFieldTypeClick={onSelectFieldTypeClick}
-            onAddFieldClick={onAddFieldClick}
-            onRemoveFieldClick={onRemoveFieldClick}
-          />
-        ) : null}
+        <div
+          className={
+            showIndexesGuidanceVariant ? plainBorderedCalloutStyles : ''
+          }
+        >
+          {fields.length > 0 ? (
+            <CreateIndexFields
+              schemaFields={schemaFieldNames}
+              fields={fields}
+              serverVersion={serverVersion}
+              isRemovable={!(fields.length > 1)}
+              onSelectFieldNameClick={onSelectFieldNameClick}
+              onSelectFieldTypeClick={onSelectFieldTypeClick}
+              onAddFieldClick={onAddFieldClick}
+              onRemoveFieldClick={onRemoveFieldClick}
+            />
+          ) : null}
+          <Button
+            className={coveredQueriesButtonStyles}
+            onClick={() => {
+              // TODO in CLOUDP-311782
+              // TODO in CLOUDP-311783
+            }}
+          >
+            Show me covered queries
+          </Button>
+        </div>
       </div>
+
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
         <div
           data-testid="create-index-modal-options"
