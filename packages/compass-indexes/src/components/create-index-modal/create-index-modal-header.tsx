@@ -3,25 +3,28 @@ import {
   Body,
   spacing,
   css,
-  cx,
   palette,
   Link,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
 const headerStyle = css({
-  padding: spacing[5],
+  padding: spacing[800],
   paddingBottom: 0,
+});
+
+const subtitleStyle = css({
+  color: palette.gray.dark1,
 });
 
 const CreateIndexModalHeader = () => {
   return (
-    <div className={cx(headerStyle)}>
+    <div className={headerStyle}>
       <H3 data-testid="create-index-modal-header-title">Create Index</H3>
 
       <Body
         data-testid="create-index-modal-header-subtitle"
-        style={{ color: palette.gray.dark1 }}
+        className={subtitleStyle}
       >
         The best indexes for your application should consider a number of
         factors, such as your data model, and the queries you use most often. To
