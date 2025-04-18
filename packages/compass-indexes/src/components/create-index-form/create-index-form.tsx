@@ -111,7 +111,7 @@ function CreateIndexForm({
 
         {/* Only show the fields if user is in the Start with an index flow or if they're in the control */}
         {fields.length > 0 &&
-        (showIndexesGuidanceVariant ? currentTab === 'IndexFlow' : true) ? (
+        (!showIndexesGuidanceVariant || currentTab === 'IndexFlow') ? (
           <CreateIndexFields
             schemaFields={schemaFieldNames}
             fields={fields}
