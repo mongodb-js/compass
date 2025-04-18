@@ -45,7 +45,7 @@ export type CreateIndexFormProps = {
   onAddFieldClick: () => void; // Plus icon.
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
   onTabClick: (tab: Tab) => void;
-  showIndexesGuidanceVariant: boolean;
+  showIndexesGuidanceVariant?: boolean;
 };
 
 function CreateIndexForm({
