@@ -67,11 +67,13 @@ const infoWithCircleIconStyles = css({
   marginLeft: spacing[200],
 });
 
+export type IndexFlowSectionProps = {
+  createIndexFieldsComponent: JSX.Element | null;
+};
+
 const IndexFlowSection = ({
   createIndexFieldsComponent,
-}: {
-  createIndexFieldsComponent: JSX.Element | null;
-}) => {
+}: IndexFlowSectionProps) => {
   return (
     <div>
       <div
@@ -130,6 +132,7 @@ const IndexFlowSection = ({
               <Icon
                 glyph="InfoWithCircle"
                 className={cx(infoWithCircleIconStyles, flexContainerStyles)}
+                data-testid="index-flow-section-covered-queries-tooltip"
               />
             </span>
           }
@@ -145,7 +148,11 @@ const IndexFlowSection = ({
 
       <div className={coveredQueriesCalloutStyles}>
         {/* Covered Queries, clean up with actual covered queries examples in CLOUDP-311782 */}
-        <Body baseFontSize={13} className={codeStyles}>
+        <Body
+          baseFontSize={13}
+          className={codeStyles}
+          data-testid="index-flow-section-covered-queries-examples"
+        >
           {`{ awards.wins:3 }`} <br />
           {`{ awards.wins:3, imdb.rating:5 }`} <br />
           {`{ awards.wins:3, imdb.rating:5, awards.nominations:8 }`} <br />
@@ -156,7 +163,11 @@ const IndexFlowSection = ({
             optimal for queries that have this pattern:
           </u>
           {/* Optimal queries, clean up with actual optimal queries in CLOUDP-311783 */}
-          <Body baseFontSize={13} className={codeStyles}>
+          <Body
+            baseFontSize={13}
+            className={codeStyles}
+            data-testid="index-flow-section-optimal-query-examples"
+          >
             {`{ awards.wins : 5, imdb.rating: {$gt : 5} }.sort({ awards.nominations : 1 }`}
           </Body>
         </p>
