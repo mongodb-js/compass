@@ -1,6 +1,6 @@
 {
   "name": "compass-e2e-tests",
-  "version": "1.29.10",
+  "version": "1.29.11",
   "private": true,
   "description": "E2E test suite for Compass app that follows smoke tests / feature testing matrix",
   "scripts": {
@@ -46,7 +46,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "clipboardy": "^2.3.0",
-    "compass-preferences-model": "^2.33.9",
+    "compass-preferences-model": "^2.34.0",
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
