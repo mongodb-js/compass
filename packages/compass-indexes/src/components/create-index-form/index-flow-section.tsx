@@ -2,7 +2,9 @@ import {
   Body,
   Button,
   css,
+  cx,
   Icon,
+  Label,
   Link,
   palette,
   spacing,
@@ -11,14 +13,14 @@ import {
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
-const headerStyles = css({
-  marginBottom: spacing[200],
-});
-
-const indexFieldsHeaderContainterStyles = css({
+const flexContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
+});
+
+const indexFieldsHeaderContainerStyles = css({
   justifyContent: 'space-between',
+  marginBottom: spacing[200],
 });
 
 const indexFieldsCalloutStyles = css({
@@ -28,9 +30,13 @@ const indexFieldsCalloutStyles = css({
   marginBottom: spacing[600],
 });
 
-const coveredQueriesHeaderContainterStyles = css({
-  display: 'flex',
-  alignItems: 'center',
+const codeEquivalentToggleLabelStyles = css({
+  marginRight: spacing[100],
+  fontWeight: 'normal',
+});
+
+const coveredQueriesHeaderContainerStyles = css({
+  marginBottom: spacing[200],
 });
 
 const coveredQueriesCalloutStyles = css({
@@ -68,22 +74,32 @@ const IndexFlowSection = ({
 }) => {
   return (
     <div>
-      <div className={indexFieldsHeaderContainterStyles}>
-        <Body baseFontSize={16} weight="medium" className={headerStyles}>
+      <div
+        className={cx(indexFieldsHeaderContainerStyles, flexContainerStyles)}
+      >
+        <Body baseFontSize={16} weight="medium">
           Input Index
         </Body>
-        <Toggle
-          size="xsmall"
-          aria-label="Toggle Auto Preview"
-          onChange={() => {
-            () => {
-              // TODO in CLOUDP-311784
-            };
-          }}
-          checked={false}
-        >
-          Code Equivalent
-        </Toggle>
+        <div className={flexContainerStyles}>
+          <Label
+            className={codeEquivalentToggleLabelStyles}
+            htmlFor="code-equivalent-toggle"
+          >
+            Code Equivalent
+          </Label>
+
+          <Toggle
+            size="xsmall"
+            id="code-equivalent-toggle"
+            aria-label="Toggle Code Equivalent"
+            onChange={() => {
+              () => {
+                // TODO in CLOUDP-311784
+              };
+            }}
+            // checked={false}
+          />
+        </div>
       </div>
       <div className={indexFieldsCalloutStyles}>
         {createIndexFieldsComponent}
@@ -101,8 +117,10 @@ const IndexFlowSection = ({
         </div>
       </div>
 
-      <div className={coveredQueriesHeaderContainterStyles}>
-        <Body baseFontSize={16} weight="medium" className={headerStyles}>
+      <div
+        className={cx(coveredQueriesHeaderContainerStyles, flexContainerStyles)}
+      >
+        <Body baseFontSize={16} weight="medium">
           Covered Queries
         </Body>
         <Tooltip
@@ -111,7 +129,7 @@ const IndexFlowSection = ({
             <span>
               <Icon
                 glyph="InfoWithCircle"
-                className={infoWithCircleIconStyles}
+                className={cx(infoWithCircleIconStyles, flexContainerStyles)}
               />
             </span>
           }
