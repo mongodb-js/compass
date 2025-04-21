@@ -20,19 +20,19 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const collectionHeaderStyles = css({
-  padding: spacing[3],
-  paddingTop: spacing[2],
+  padding: spacing[400],
+  paddingTop: spacing[200],
   paddingBottom: 0,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const breadcrumbStyles = css({
-  paddingTop: spacing[2],
-  paddingBottom: spacing[2],
+  paddingTop: spacing[200],
+  paddingBottom: spacing[200],
 });
 
 const collectionHeaderLightStyles = css({

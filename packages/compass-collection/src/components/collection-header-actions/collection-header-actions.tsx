@@ -17,7 +17,7 @@ const collectionHeaderActionsStyles = css({
   display: 'flex',
   alignItems: 'center',
   overflow: 'hidden',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 function buildChartsUrl(

@@ -14,8 +14,8 @@ const atlasContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: spacing[5],
-  gap: spacing[3],
+  padding: spacing[800],
+  gap: spacing[400],
   textAlign: 'center',
 });
 

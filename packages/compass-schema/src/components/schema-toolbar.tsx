@@ -29,8 +29,8 @@ const schemaToolbarStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: spacing[3],
-  padding: spacing[3],
+  gap: spacing[400],
+  padding: spacing[400],
 });
 
 const schemaQueryBarStyles = css({
@@ -50,8 +50,8 @@ const schemaToolbarActionBarRightStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: spacing[2],
-  paddingLeft: spacing[2],
+  gap: spacing[200],
+  paddingLeft: spacing[200],
 });
 
 const ERROR_WARNING = 'An error occurred during schema analysis';

@@ -1,0 +1,2 @@
+# Ignoring templates for .yml files as they contain non-yaml syntax
+*.in.yml

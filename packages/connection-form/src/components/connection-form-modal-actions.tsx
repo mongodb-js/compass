@@ -15,21 +15,21 @@ import type {
 import { useConnectionFormSetting } from '../hooks/use-connect-form-settings';
 
 const formActionStyles = css({
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
 });
 
 const formActionItemStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   '&:last-child': {
-    marginBottom: spacing[3],
+    marginBottom: spacing[400],
   },
 });
 
 const formActionButtonsStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const saveAndConnectStyles = css({

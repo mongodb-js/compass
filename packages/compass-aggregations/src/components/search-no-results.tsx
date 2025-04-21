@@ -14,7 +14,7 @@ const centeredContent = css({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100%',
-  padding: spacing[3],
+  padding: spacing[400],
   flexDirection: 'column',
   textAlign: 'center',
 });

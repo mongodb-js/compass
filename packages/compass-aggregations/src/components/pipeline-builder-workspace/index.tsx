@@ -9,9 +9,9 @@ import PipelineAsTextWorkspace from './pipeline-as-text-workspace';
 const containerStyles = css({
   display: 'flex',
   overflow: 'hidden',
-  paddingRight: spacing[3],
-  paddingLeft: spacing[3],
-  gap: spacing[2],
+  paddingRight: spacing[400],
+  paddingLeft: spacing[400],
+  gap: spacing[200],
   height: '100%',
 });
 

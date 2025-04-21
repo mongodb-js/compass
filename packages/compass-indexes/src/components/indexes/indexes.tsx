@@ -35,12 +35,12 @@ import CreateIndexModal from '../create-index-modal/create-index-modal';
 const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 const containerStyles = css({
-  paddingTop: spacing[3],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingTop: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
   // No padding bottom so that the table can scroll visibly to the bottom
   paddingBottom: 0,
-  gap: spacing[3],
+  gap: spacing[400],
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -102,10 +102,10 @@ function isRefreshingStatus(status: FetchStatus) {
 }
 
 const indexesContainersStyles = css({
-  paddingTop: spacing[3],
+  paddingTop: spacing[400],
   display: 'grid',
   gridTemplateColumns: '100%',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 export function Indexes({

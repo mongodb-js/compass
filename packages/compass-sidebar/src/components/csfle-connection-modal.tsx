@@ -16,9 +16,9 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 
 const toggleStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[3],
-  marginRight: spacing[3],
+  marginTop: spacing[400],
+  marginBottom: spacing[400],
+  marginRight: spacing[400],
 });
 
 const toggleContainerStyles = css({
@@ -27,7 +27,7 @@ const toggleContainerStyles = css({
 });
 
 const csfleBannerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 export type CSFLEConnectionModalProps = {

@@ -12,7 +12,7 @@ import {
 import React from 'react';
 
 const shellHeaderStyles = css({
-  height: spacing[5],
+  height: spacing[800],
   display: 'flex',
   color: palette.gray.light1,
 });
@@ -62,14 +62,14 @@ const plainShellHeaderStyles = css({
 
 const shellHeaderRightStyles = css({
   display: 'flex',
-  paddingTop: spacing[1] / 2,
-  paddingRight: spacing[2],
-  gap: spacing[2],
+  paddingTop: spacing[100] / 2,
+  paddingRight: spacing[200],
+  gap: spacing[200],
 });
 
 const operationInProgressStyles = css({
   color: palette.green.light2,
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 export interface ShellHeaderProps {

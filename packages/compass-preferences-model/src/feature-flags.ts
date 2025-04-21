@@ -23,6 +23,9 @@ export type FeatureFlags = {
   enableProxySupport: boolean;
   enableRollingIndexes: boolean;
   enableGlobalWrites: boolean;
+  enableDataModeling: boolean;
+  enableIndexesGuidanceExp: boolean;
+  showIndexesGuidanceVariant: boolean;
 };
 
 export const featureFlags: Required<{
@@ -109,6 +112,35 @@ export const featureFlags: Required<{
     stage: 'released',
     description: {
       short: 'Enable schema export',
+    },
+  },
+
+  /**
+   * https://jira.mongodb.org/browse/INIT-592
+   */
+  enableDataModeling: {
+    stage: 'development',
+    description: {
+      short: 'Design, Visualize, and Evolve your Data Model',
+    },
+  },
+
+  /**
+   * Feature flags for Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
+   * These are passed from MMS and not editable by user
+   */
+  enableIndexesGuidanceExp: {
+    stage: 'development',
+    description: {
+      short: 'Enable Indexes Guidance Experiment',
+    },
+  },
+
+  showIndexesGuidanceVariant: {
+    stage: 'development',
+    description: {
+      short:
+        'Used to check if user is in the Indexes Guidance Experiment Variant',
     },
   },
 };

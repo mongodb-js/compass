@@ -24,8 +24,8 @@ import {
 const { base: redBaseColor } = palette.red;
 
 const containerStyles = css({
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
+  marginTop: spacing[200],
+  marginBottom: spacing[200],
   marginRight: 'auto',
   marginLeft: 'auto',
 });
@@ -33,7 +33,7 @@ const containerStyles = css({
 const formItemSmallStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const formItemHorizontalStyles = css({
@@ -47,14 +47,14 @@ const removeFileLineStyles = css({
 });
 
 const removeFileButtonStyles = css({
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const buttonSmallStyles = css({
   border: 'none',
   background: 'none',
   fontWeight: 'normal',
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 
   '&:hover': {
     background: 'none',
@@ -85,12 +85,12 @@ const errorMessageStyles = css({
 
 const labelHorizontalStyles = css({
   width: '90%',
-  paddingRight: spacing[3],
+  paddingRight: spacing[400],
 });
 
 const optionalLabelStyles = css({
   color: palette.gray.base,
-  marginTop: spacing[1],
+  marginTop: spacing[100],
   fontStyle: 'italic',
   fontWeight: 'normal',
   fontSize: 12,

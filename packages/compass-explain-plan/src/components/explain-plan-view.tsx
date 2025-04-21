@@ -34,7 +34,7 @@ const zoomableTreeContentStyles = css({
 const zoomableTreeControlsStyles = css({
   position: 'absolute',
   left: 0,
-  bottom: spacing[3],
+  bottom: spacing[400],
 });
 
 const ZoomableExplainTree: React.FunctionComponent<
@@ -62,18 +62,18 @@ const viewStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr',
   gridTemplateRows: 'auto 1fr',
-  rowGap: spacing[4],
+  rowGap: spacing[600],
 });
 
 const viewHeaderStyles = css({
   display: 'grid',
-  rowGap: spacing[4],
+  rowGap: spacing[600],
 });
 
 const viewBodyContainerStyles = css({
   display: 'flex',
   overflow: 'hidden',
-  gap: spacing[4],
+  gap: spacing[600],
 });
 
 const contentStyles = css({
@@ -88,7 +88,7 @@ const editorContainerStyles = css({
 
 const editorStyles = css({
   '& .cm-editor': {
-    paddingLeft: spacing[2],
+    paddingLeft: spacing[200],
   },
 });
 

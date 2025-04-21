@@ -63,11 +63,11 @@ const schemaStyles = css({
 });
 
 const contentStyles = css({
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
   height: '100%',
 });
 

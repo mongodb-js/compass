@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Apr 13, 2025
+Generated on Sun, Apr 20, 2025
 
 ## Table of Contents
 
@@ -152,6 +152,7 @@ Generated on Sun, Apr 13, 2025
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
 - [Screen](#event--ScreenEvent)
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
+- [Experiment Viewed](#event--ExperimentViewedEvent)
 
 ### Performance Tab
 
@@ -1778,6 +1779,15 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 This event is fired at startup when we detect that the application is running on
 a system that doesn't offer a suitable secret storage backend.
+
+<a name="event--ExperimentViewedEvent"></a>
+
+### Experiment Viewed
+
+**Properties**:
+
+- **test_name** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
 
 ## Performance Tab
 

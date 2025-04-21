@@ -44,18 +44,18 @@ type SupportedPreferences =
   | StringPreferences;
 
 const inputStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[3],
+  marginTop: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const devBadgeStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const fieldContainerStyles = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
   fieldset: {
-    paddingLeft: `${spacing[4]}px`,
+    paddingLeft: `${spacing[600]}px`,
   },
 });
 

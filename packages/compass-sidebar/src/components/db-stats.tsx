@@ -23,8 +23,8 @@ type RefreshingStatus =
 const dbStats = css({
   display: 'flex',
   alignItems: 'center',
-  padding: `${spacing[5]}px ${spacing[3]}px`,
-  gap: spacing[5],
+  padding: `${spacing[800]}px ${spacing[400]}px`,
+  gap: spacing[800],
 });
 
 const dbStatNumberDark = css({

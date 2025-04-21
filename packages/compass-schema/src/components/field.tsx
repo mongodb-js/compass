@@ -37,7 +37,7 @@ const fieldNameStyles = css({
 
 const expandCollapseFieldButtonStyles = css({
   display: 'flex',
-  marginLeft: -spacing[3],
+  marginLeft: -spacing[400],
   alignItems: 'center',
   border: 'none',
   background: 'none',
@@ -57,13 +57,13 @@ const expandCollapseFieldButtonStyles = css({
 });
 
 const fieldContainerStyles = css({
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const fieldStyles = css({
   overflow: 'hidden',
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const fieldExpandedStyles = css({
@@ -71,28 +71,28 @@ const fieldExpandedStyles = css({
 });
 
 const fieldListContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   position: 'relative',
 });
 
 const fieldTypeListStyles = css({
-  paddingTop: spacing[1],
+  paddingTop: spacing[100],
 });
 
 const fieldNameContainerStyles = css({
   display: 'flex',
-  paddingTop: spacing[2],
+  paddingTop: spacing[200],
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const fieldRowStyles = css({
-  padding: `0px ${spacing[3]}px`,
+  padding: `0px ${spacing[400]}px`,
   display: 'grid',
 
   gridTemplateAreas: '"description chart"',
   gridTemplateColumns: '1fr 2fr',
-  columnGap: spacing[6],
+  columnGap: spacing[1600],
   position: 'relative',
 });
 
@@ -105,7 +105,7 @@ const fieldChartContainerStyles = css({
 });
 
 const nestedFieldStyles = css({
-  margin: spacing[2],
+  margin: spacing[200],
 });
 
 type FieldProps = {

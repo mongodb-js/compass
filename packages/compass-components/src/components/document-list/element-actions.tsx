@@ -82,7 +82,7 @@ const addFieldButton = css({
 const menu = css({
   width: 'auto',
   // Replicating leafygreen ~200px but as a min width instead of static width
-  minWidth: spacing[6] * 3,
+  minWidth: spacing[1600] * 3,
 });
 
 const menuItem = css({

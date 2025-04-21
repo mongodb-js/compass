@@ -25,10 +25,10 @@ import { usePreferences } from 'compass-preferences-model/provider';
 type Item = { _id: string } & Record<string, any>;
 
 const rowStyles = css({
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
-  paddingBottom: spacing[2],
-  columnGap: spacing[2],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[200],
+  columnGap: spacing[200],
 });
 
 const containerStyles = css({
@@ -360,7 +360,7 @@ export const ItemsGrid = <T extends Item>({
           return (
             <VirtualGrid
               itemMinWidth={itemWidth}
-              itemHeight={itemHeight + (spacing[2] as number)}
+              itemHeight={itemHeight + (spacing[200] as number)}
               itemsCount={sortedItems.length}
               colCount={viewType === 'list' ? 1 : undefined}
               renderItem={renderItem}

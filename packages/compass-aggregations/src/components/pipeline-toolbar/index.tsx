@@ -23,7 +23,7 @@ const headerAndOptionsRowStyles = css({
   border: '1px solid',
   borderRadius: '6px',
   borderColor: palette.gray.light2,
-  padding: spacing[2],
+  padding: spacing[200],
   background: palette.white,
 });
 
@@ -37,7 +37,7 @@ const settingsRowStyles = css({
 });
 
 const optionsStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 export type PipelineToolbarProps = {

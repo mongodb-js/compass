@@ -16,7 +16,7 @@ const containerStyles = css({
 
 const tabsContainerStyles = css({
   flex: 'none',
-  padding: `0 ${spacing[3]}px`,
+  padding: `0 ${spacing[400]}px`,
 });
 
 const tabsContainerDarkStyles = css({

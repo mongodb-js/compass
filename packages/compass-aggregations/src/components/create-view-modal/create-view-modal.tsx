@@ -17,7 +17,7 @@ import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider'
 
 const progressContainerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 

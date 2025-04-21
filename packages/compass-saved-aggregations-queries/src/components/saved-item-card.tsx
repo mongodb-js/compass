@@ -31,7 +31,7 @@ export type SavedItemCardProps = Pick<
 const namespacePart = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   minWidth: 0,
 });
 
@@ -60,7 +60,7 @@ const NamespacePart: React.FunctionComponent<{
   );
 };
 
-export const CARD_WIDTH = spacing[6] * 4;
+export const CARD_WIDTH = spacing[1600] * 4;
 
 export const CARD_HEIGHT = 218;
 
@@ -68,10 +68,10 @@ const card = css({
   // Workaround for uncollapsible text in flex children
   minWidth: 0,
   width: '100%',
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const actionsRow = css({
@@ -82,7 +82,7 @@ const actionsRow = css({
   // container to avoid it jumping when the actions button becomes visible (this
   // size is also not part of leafygreen, so we can't use spacing here)
   minHeight: 28,
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
 });
 
 const cardBadge = css({
@@ -104,8 +104,8 @@ const cardNameLight = css({
 
 const cardName = css({
   fontWeight: 'bold',
-  height: spacing[4] * 2,
-  marginBottom: spacing[3],
+  height: spacing[600] * 2,
+  marginBottom: spacing[400],
 
   // WebkitLineClamp css property is in a very weird state in the spec and
   // requires using deprecated flexbox spec props, but this does work in
@@ -122,8 +122,8 @@ const cardName = css({
 
 const namespaceGroup = css({
   display: 'grid',
-  gap: spacing[2],
-  marginBottom: spacing[3],
+  gap: spacing[200],
+  marginBottom: spacing[400],
 });
 
 const lastModifiedLabel = css({

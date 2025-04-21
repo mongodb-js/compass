@@ -31,7 +31,7 @@ const loadingOverlayStylesLight = css({
 });
 
 const textStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 type LoadingOverlayProps = {

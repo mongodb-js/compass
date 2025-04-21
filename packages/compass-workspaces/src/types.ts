@@ -14,6 +14,10 @@ export type MyQueriesWorkspace = {
   type: 'My Queries';
 };
 
+export type DataModelingWorkspace = {
+  type: 'Data Modeling';
+};
+
 export type ShellWorkspace = {
   type: 'Shell';
   connectionId: string;
@@ -57,6 +61,7 @@ export type CollectionWorkspace = {
 export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
+  | DataModelingWorkspace
   | ShellWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace

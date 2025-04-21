@@ -26,13 +26,13 @@ const containerStyles = css({
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
   overflow: 'hidden',
-  padding: spacing[5],
+  padding: spacing[800],
   paddingBottom: 0,
   height: '100%',
 });
 
 const headerStyles = css({
-  paddingBottom: spacing[2],
+  paddingBottom: spacing[200],
 });
 
 const bodyStyles = css({
@@ -42,13 +42,13 @@ const bodyStyles = css({
 });
 
 const inputResizerStyles = css({
-  paddingTop: spacing[4],
-  paddingRight: spacing[2],
+  paddingTop: spacing[600],
+  paddingRight: spacing[200],
 });
 
 const outputResizerStyles = css({
-  paddingTop: spacing[4],
-  paddingLeft: spacing[2],
+  paddingTop: spacing[600],
+  paddingLeft: spacing[200],
 });
 
 const previewAreaStyles = css({
@@ -57,7 +57,7 @@ const previewAreaStyles = css({
 
 const editorAreaBaseStyles = css({
   flex: 1,
-  paddingTop: spacing[4],
+  paddingTop: spacing[600],
 });
 
 const editorAreaDarkStyles = css({

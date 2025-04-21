@@ -24,7 +24,7 @@ enum MONGODB_SCHEME {
 }
 
 const descriptionStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const regularSchemeDescription =

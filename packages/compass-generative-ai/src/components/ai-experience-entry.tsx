@@ -32,8 +32,8 @@ const aiEntryStyles = css(
     boxShadow: 'none',
     // A bit of a hack to make the focus ring look nice without
     // moving the component around.
-    padding: `${spacing[1]}px ${spacing[2]}px`,
-    margin: `${-spacing[1]}px ${-spacing[2]}px`,
+    padding: `${spacing[100]}px ${spacing[200]}px`,
+    margin: `${-spacing[100]}px ${-spacing[200]}px`,
     background: 'none',
     whiteSpace: 'normal',
     position: 'relative',
@@ -44,7 +44,7 @@ const aiEntryStyles = css(
 
     // Aligning elements.
     display: 'inline-flex',
-    gap: `${spacing[1]}px`,
+    gap: `${spacing[100]}px`,
 
     transition: 'color 0.16s ease-in',
     path: {

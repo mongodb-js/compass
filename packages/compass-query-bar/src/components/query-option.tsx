@@ -1,5 +1,4 @@
 import React, { useCallback, useRef } from 'react';
-import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
   TextInput,
@@ -33,11 +32,11 @@ const documentEditorOptionContainerStyles = css({
 });
 
 const queryOptionLabelStyles = css({
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 const documentEditorQueryOptionLabelStyles = css(queryOptionLabelStyles, {
-  minWidth: spacing[5] * 2,
+  minWidth: spacing[800] * 2,
 });
 
 const documentEditorOptionStyles = css({
@@ -67,7 +66,7 @@ const optionInputWithErrorStyles = css({
 const queryOptionLabelContainerStyles = css({
   // Hardcoded height as we want the label not to vertically
   // center on the input area when it's expanded.
-  height: spacing[4] + spacing[1],
+  height: spacing[600] + spacing[100],
   textTransform: 'capitalize',
   display: 'flex',
   alignItems: 'center',
@@ -76,7 +75,7 @@ const queryOptionLabelContainerStyles = css({
 export const documentEditorLabelContainerStyles = css(
   queryOptionLabelContainerStyles,
   {
-    minWidth: spacing[5] * 2,
+    minWidth: spacing[800] * 2,
   }
 );
 
@@ -90,7 +89,6 @@ type QueryOptionProps = {
   onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
-  insights?: Signal | Signal[];
   disabled?: boolean;
 };
 
@@ -122,7 +120,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   name,
   value,
   onApply,
-  insights,
   disabled = false,
 }) => {
   const track = useTelemetry();
@@ -199,7 +196,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             value={value}
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
-            insights={insights}
             disabled={disabled}
           />
         ) : (

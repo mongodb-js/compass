@@ -20,8 +20,8 @@ const findInPageContainerStyles = css({
   position: 'fixed',
   zIndex: 4,
   top: 0,
-  right: spacing[4],
-  width: spacing[6] * 4, // 256px
+  right: spacing[600],
+  width: spacing[1600] * 4, // 256px
   boxShadow: `0px 2px 5px ${rgba(palette.black, 0.3)}`,
 });
 
@@ -36,8 +36,8 @@ const containerDarkThemeStyles = css({
 });
 
 const descriptionStyles = css({
-  paddingLeft: spacing[2],
-  paddingTop: spacing[2],
+  paddingLeft: spacing[200],
+  paddingTop: spacing[200],
   fontSize: '11px',
 });
 
@@ -57,13 +57,13 @@ const findStyles = css({
 });
 
 const formStyles = css({
-  padding: spacing[2],
-  paddingRight: spacing[1],
+  padding: spacing[200],
+  paddingRight: spacing[100],
   flex: 1,
 });
 
 const closeButtonStyles = css({
-  margin: `0px ${spacing[1]}px`,
+  margin: `0px ${spacing[100]}px`,
 });
 
 type FindInPageInputProps = {

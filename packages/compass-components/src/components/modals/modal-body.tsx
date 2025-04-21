@@ -12,16 +12,16 @@ export const Variant = {
 export type Variant = typeof Variant[keyof typeof Variant];
 
 const contentStyle = css({
-  padding: `0 ${spacing[5]}px`,
-  paddingBottom: spacing[1], // space needed for the focus ring on the last field
+  padding: `0 ${spacing[800]}px`,
+  paddingBottom: spacing[100], // space needed for the focus ring on the last field
   fontFamily: fontFamilies.default,
   fontSize: '13px',
   lineHeight: '20px',
-  maxHeight: `calc(100vh - ${spacing[6] * 5}px)`,
+  maxHeight: `calc(100vh - ${spacing[1600] * 5}px)`,
   overflow: 'auto',
 
   '&:first-child': {
-    paddingTop: spacing[5],
+    paddingTop: spacing[800],
   },
 });
 
@@ -35,7 +35,7 @@ const variantStyle = {
 // Leafygreen adds an upper border
 // to the footer in dark mode
 const darkModeStyle = css({
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[400],
 });
 
 type ModalBodyProps = {

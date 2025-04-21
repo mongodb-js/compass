@@ -29,7 +29,7 @@ const bannerStyles = css({
 
 const contentStyles = css({
   display: 'flex',
-  gap: spacing[3],
+  gap: spacing[400],
   alignItems: 'center',
   justifyContent: 'space-between',
 });

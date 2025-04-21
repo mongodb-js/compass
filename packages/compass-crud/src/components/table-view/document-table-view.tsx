@@ -960,7 +960,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
       editable: false,
       pinned: 'right',
       // button group width + padding (8 * 2)
-      width: spacing[7] + spacing[3],
+      width: spacing[7] + spacing[400],
     });
 
     /* Return the updated column definitions */

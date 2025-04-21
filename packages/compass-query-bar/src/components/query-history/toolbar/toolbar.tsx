@@ -19,8 +19,8 @@ const titleStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  lineHeight: `${spacing[4]}px`,
-  marginBottom: spacing[3],
+  lineHeight: `${spacing[600]}px`,
+  marginBottom: spacing[400],
 });
 
 const titleStylesDark = css({
@@ -32,13 +32,13 @@ const titleStylesLight = css({
 });
 
 const toolbarStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   paddingBottom: 0, // each item has top margin
-  paddingRight: spacing[5], // Extra right padding to account for close button.
+  paddingRight: spacing[800], // Extra right padding to account for close button.
 });
 
 const viewSwitcherStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 type ToolbarProps = {

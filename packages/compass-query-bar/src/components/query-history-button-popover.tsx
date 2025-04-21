@@ -22,7 +22,7 @@ const openQueryHistoryButtonStyles = css(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2] - 2, // -2px for border.
+    padding: spacing[200] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
@@ -33,7 +33,7 @@ const openQueryHistoryButtonStyles = css(
 const queryHistoryPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
   maxHeight: 'calc(100vh - 270px)',
-  marginTop: spacing[1],
+  marginTop: spacing[100],
   display: 'flex',
 });
 

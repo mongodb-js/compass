@@ -26,7 +26,7 @@ const titleStyles = css({
 });
 
 const descriptionStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const sectionDarkModeStyles = css({

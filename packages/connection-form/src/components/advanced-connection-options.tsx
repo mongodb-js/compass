@@ -16,9 +16,9 @@ const disabledOverlayStyles = css({
   position: 'absolute',
   top: 0,
   // Space around it to ensure added focus borders are covered.
-  bottom: -spacing[1],
-  left: -spacing[1],
-  right: -spacing[1],
+  bottom: -spacing[100],
+  left: -spacing[100],
+  right: -spacing[100],
   backgroundColor: rgba(palette.white, 0.5),
   zIndex: 1,
   cursor: 'not-allowed',

@@ -53,12 +53,12 @@ type ExportToLanguageState = {
 };
 
 const bannerStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const formFieldContainerStyles = css({
   display: 'flex',
-  gap: spacing[4],
+  gap: spacing[600],
 });
 
 const fieldStyles = css({
@@ -66,17 +66,17 @@ const fieldStyles = css({
 });
 
 const editorHeadingStyles = css({
-  marginBottom: spacing[2],
+  marginBottom: spacing[200],
   display: 'block',
 });
 
 const codeStyles = css({
   alignItems: 'start',
-  height: `${spacing[6] * 4 - spacing[5]}px`,
+  height: `${spacing[1600] * 4 - spacing[800]}px`,
 });
 
 const checkboxStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
   width: 'auto', // don't overflow and cause extra scrollbars
 });
 

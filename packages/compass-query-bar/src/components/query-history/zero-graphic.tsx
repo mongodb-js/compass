@@ -9,10 +9,10 @@ import {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
-  padding: spacing[3],
+  gap: spacing[200],
+  padding: spacing[400],
   textAlign: 'center',
-  marginTop: spacing[3], // same spacing as query item
+  marginTop: spacing[400], // same spacing as query item
 });
 
 const iconContainerStyles = css({
@@ -28,7 +28,7 @@ function ZeroGraphic({ text }: { text: string }) {
   return (
     <div className={containerStyles}>
       <div className={iconContainerStyles}>
-        <NoSavedItemsIcon size={spacing[4] * 2} />
+        <NoSavedItemsIcon size={spacing[600] * 2} />
       </div>
       <Body className={descriptionStyles}>{text}</Body>
     </div>

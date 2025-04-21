@@ -124,6 +124,7 @@ type SignalPopoverProps = {
   darkMode?: boolean;
   onPopoverOpenChange?: (open: boolean) => void;
   className?: string;
+  shouldExpandBadge?: boolean;
 };
 
 const signalCardContentStyles = css({
@@ -132,10 +133,10 @@ const signalCardContentStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr',
   gridTemplateRows: 'auto 1fr auto',
-  paddingTop: spacing[4],
-  paddingBottom: spacing[4],
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
+  paddingTop: spacing[600],
+  paddingBottom: spacing[600],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
   backgroundColor: 'var(--signalCardBackgroundColor)',
 });
 
@@ -150,8 +151,8 @@ const signalCardContentDarkModeStyles = css({
 });
 
 const signalCardTitleStyles = css({
-  marginBottom: spacing[2],
-  fontSize: spacing[3],
+  marginBottom: spacing[200],
+  fontSize: spacing[400],
 });
 
 // This is to avoid the longer card title getting shadowed under the close icon
@@ -161,7 +162,7 @@ const signalCardTitleStylesWithOneSignal = css({
 });
 
 const signalCardDescriptionStyles = css({
-  marginBottom: spacing[3],
+  marginBottom: spacing[400],
 });
 
 const signalCardActionGroupStyles = css({
@@ -262,11 +263,11 @@ const multiSignalHeaderContainerStyles = css({
   '--multiSignalHeaderBackgroundColor': palette.gray.light3,
   display: 'flex',
   alignItems: 'center',
-  paddingTop: spacing[1],
-  paddingBottom: spacing[1],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[4],
-  gap: spacing[1],
+  paddingTop: spacing[100],
+  paddingBottom: spacing[100],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[600],
+  gap: spacing[100],
   backgroundColor: 'var(--multiSignalHeaderBackgroundColor)',
   boxShadow: `inset 0 -1px 0 var(--multiSignalHeaderBorderColor)`,
   fontVariantNumeric: 'tabular-nums',
@@ -441,6 +442,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   darkMode: _darkMode,
   onPopoverOpenChange: _onPopoverOpenChange,
   className,
+  shouldExpandBadge,
 }) => {
   const hooks = useContext(TrackingHooksContext);
   const darkMode = useDarkMode(_darkMode);
@@ -449,9 +451,11 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const [hoverProps, isHovered, setHovered] = useHoverState();
   const [currentSignalIndex, setCurrentSignalIndex] = useState(0);
   const signals = Array.isArray(_signals) ? _signals : [_signals];
+
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = isHovered || popoverOpen;
+  const shouldShowFullBadge = isActive || shouldExpandBadge;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -541,7 +545,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
       }
       open={popoverOpen}
       setOpen={onPopoverOpenChange}
-      spacing={spacing[2]}
+      spacing={spacing[200]}
       trigger={({ children, ...triggerProps }) => {
         const onTriggerClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
           evt.stopPropagation();
@@ -587,7 +591,9 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                         ]),
                     className
                   ),
-                  style: { width: isActive ? activeBadgeWidth : 18 },
+                  style: {
+                    width: shouldShowFullBadge ? activeBadgeWidth : 18,
+                  },
                   ref: triggerRef,
                 },
                 { ref: guideCueRef }
@@ -604,16 +610,18 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       glyph="Bulb"
                       size="small"
                       className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
-                      style={{ opacity: isActive ? 0 : 1 }}
+                      data-testid="insight-badge-icon"
+                      style={{ opacity: shouldShowFullBadge ? 0 : 1 }}
                     ></Icon>
                     <strong
                       className={cx(
                         badgeLabelStyles,
                         !multiSignals && singleInsightBadge
                       )}
+                      data-testid="insight-badge-text"
                       style={{
                         width: activeBadgeWidth,
-                        opacity: isActive ? 1 : 0,
+                        opacity: shouldShowFullBadge ? 1 : 0,
                       }}
                     >
                       {badgeLabel}

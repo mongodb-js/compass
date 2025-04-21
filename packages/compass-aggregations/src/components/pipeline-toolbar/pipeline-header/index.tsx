@@ -27,7 +27,7 @@ const openSavedPipelinesStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2] - 2, // -2px for border.
+    padding: spacing[200] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
@@ -50,8 +50,8 @@ const savedAggregationsPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
   maxHeight: 'calc(100vh - 260px)',
   display: 'flex',
-  marginLeft: -spacing[2] - 1, // Align to the left of the bar.
-  marginTop: spacing[1],
+  marginLeft: -spacing[200] - 1, // Align to the left of the bar.
+  marginTop: spacing[100],
 });
 
 type PipelineHeaderProps = {

@@ -23,14 +23,14 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 const containerStyles = css({
   height: '100%',
 
-  paddingTop: spacing[1],
+  paddingTop: spacing[100],
   borderBottomRightRadius: 0,
   borderBottomLeftRadius: 0,
   borderBottom: 'none',
   backgroundColor: palette.gray.light3,
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const darkModeContainerStyles = css({
@@ -55,19 +55,19 @@ const titleStylesLight = css({
 });
 
 const headerContainerStyles = css({
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
 });
 
 const contentStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
   overflow: 'auto',
-  paddingTop: spacing[1],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
-  paddingBottom: spacing[3],
+  paddingTop: spacing[100],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[400],
 });
 
 type AggregationSidePanelProps = {

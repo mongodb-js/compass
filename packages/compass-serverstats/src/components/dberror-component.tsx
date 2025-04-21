@@ -3,7 +3,7 @@ import type { Store } from 'reflux';
 import { ErrorSummary, css, spacing } from '@mongodb-js/compass-components';
 
 const errorContainerStyles = css({
-  padding: spacing[2],
+  padding: spacing[200],
   position: 'relative',
 });
 

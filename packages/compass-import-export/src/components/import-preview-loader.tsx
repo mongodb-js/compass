@@ -16,15 +16,15 @@ import type { RootImportState } from '../stores/import-store';
 import { skipCSVAnalyze } from '../modules/import';
 
 const loaderStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[1],
+  gap: spacing[100],
   alignItems: 'center',
 });
 
 const explanationTextStyles = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
   width: '350px',
   textAlign: 'center',
 });
@@ -33,7 +33,7 @@ const analyzeStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  padding: `${spacing[4]}px 0`,
+  padding: `${spacing[600]}px 0`,
 });
 
 const analyzeStylesDark = css({

@@ -43,6 +43,11 @@ export type WorkspacesService = {
   openMyQueriesWorkspace(this: void, tabOptions?: TabOptions): void;
 
   /**
+   * Open "Data Modeling" workspace
+   */
+  openDataModelingWorkspace(this: void): void;
+
+  /**
    * Open "Shell" workspace
    */
   openShellWorkspace(
@@ -204,6 +209,7 @@ const noopWorkspacesService = {
     return null;
   },
   openMyQueriesWorkspace: throwIfNotTestEnv,
+  openDataModelingWorkspace: throwIfNotTestEnv,
   openShellWorkspace: throwIfNotTestEnv,
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
@@ -239,6 +245,11 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       openMyQueriesWorkspace: (tabOptions) => {
         return void store.dispatch(
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
+        );
+      },
+      openDataModelingWorkspace: () => {
+        return void store.dispatch(
+          openWorkspaceAction({ type: 'Data Modeling' })
         );
       },
       openShellWorkspace(connectionId, options = {}) {
@@ -331,6 +342,7 @@ export function useOpenWorkspace() {
     openCollectionsWorkspace,
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
+    openDataModelingWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   } = useWorkspacesService();
@@ -341,6 +353,7 @@ export function useOpenWorkspace() {
     openCollectionsWorkspace,
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
+    openDataModelingWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   });
