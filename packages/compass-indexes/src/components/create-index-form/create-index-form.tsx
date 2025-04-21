@@ -86,27 +86,27 @@ function CreateIndexForm({
   // Default / Control view
   if (!showIndexesGuidanceVariant) {
     return (
-      <div
-        className={createIndexModalFieldsStyles}
-        data-testid="create-index-form"
-      >
-        <Body weight="medium" className={indexFieldsHeaderStyles}>
-          Index fields
-        </Body>
-        {fields.length > 0 &&
-        (!showIndexesGuidanceVariant || showIndexesGuidanceIndexFlow) ? (
-          <CreateIndexFields
-            schemaFields={schemaFieldNames}
-            fields={fields}
-            serverVersion={serverVersion}
-            isRemovable={!(fields.length > 1)}
-            onSelectFieldNameClick={onSelectFieldNameClick}
-            onSelectFieldTypeClick={onSelectFieldTypeClick}
-            onAddFieldClick={onAddFieldClick}
-            onRemoveFieldClick={onRemoveFieldClick}
-          />
-        ) : null}
-
+      <>
+        <div
+          className={createIndexModalFieldsStyles}
+          data-testid="create-index-form"
+        >
+          <Body weight="medium" className={indexFieldsHeaderStyles}>
+            Index fields
+          </Body>
+          {fields.length > 0 ? (
+            <CreateIndexFields
+              schemaFields={schemaFieldNames}
+              fields={fields}
+              serverVersion={serverVersion}
+              isRemovable={!(fields.length > 1)}
+              onSelectFieldNameClick={onSelectFieldNameClick}
+              onSelectFieldTypeClick={onSelectFieldTypeClick}
+              onAddFieldClick={onAddFieldClick}
+              onRemoveFieldClick={onRemoveFieldClick}
+            />
+          ) : null}
+        </div>
         <Accordion
           data-testid="create-index-modal-toggle-options"
           text="Options"
@@ -130,7 +130,7 @@ function CreateIndexForm({
             )}
           </div>
         </Accordion>
-      </div>
+      </>
     );
   }
 
