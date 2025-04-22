@@ -295,7 +295,7 @@ export type State = {
   options: Options;
 
   // current tab that user is on (Query Flow or Index Flow)
-  currentTab: Tab | null;
+  currentTab: Tab;
 };
 
 export const INITIAL_STATE: State = {
@@ -304,7 +304,7 @@ export const INITIAL_STATE: State = {
   error: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
-  currentTab: null,
+  currentTab: 'IndexFlow',
 };
 
 function getInitialState(): State {
@@ -365,16 +365,20 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   void,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, preferences }) => {
+    // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
     const currentTab = getState().createIndex.currentTab;
+    const { enableIndexesGuidanceExp, showIndexesGuidanceVariant } =
+      preferences.getPreferences();
 
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
-      flow: currentTab
-        ? currentTab === 'IndexFlow'
-          ? 'Start with Index'
-          : 'Start with Query'
-        : undefined,
+      flow:
+        enableIndexesGuidanceExp && showIndexesGuidanceVariant
+          ? currentTab === 'IndexFlow'
+            ? 'Start with Index'
+            : 'Start with Query'
+          : undefined,
     });
 
     // Check for field errors.

@@ -39,7 +39,7 @@ export type CreateIndexFormProps = {
   namespace: string;
   fields: Field[];
   serverVersion: string;
-  currentTab: Tab | null;
+  currentTab: Tab;
   onSelectFieldNameClick: (idx: number, name: string) => void;
   onSelectFieldTypeClick: (idx: number, fType: string) => void;
   onAddFieldClick: () => void; // Plus icon.
@@ -85,7 +85,7 @@ function CreateIndexForm({
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        {showIndexesGuidanceVariant && !!currentTab ? (
+        {showIndexesGuidanceVariant ? (
           <RadioBoxGroup
             aria-labelledby="index-flows"
             data-testid="create-index-form-flows"

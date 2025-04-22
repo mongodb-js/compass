@@ -2678,11 +2678,13 @@ type ExperimentViewedEvent = CommonEvent<{
   payload: { test_name: string };
 }>;
 
+export type CreateIndexModalContext = 'Create Index Modal';
+
 type CreateIndexButtonClickedEvent = CommonEvent<{
   name: 'Create Index Button Clicked';
   payload: {
     flow: 'Start with Query' | 'Start with Index' | undefined;
-    context: string;
+    context: CreateIndexModalContext;
   };
 }>;
 
