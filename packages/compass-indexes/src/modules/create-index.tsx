@@ -367,13 +367,14 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 > => {
   return (dispatch, getState, { track }) => {
     const currentTab = getState().createIndex.currentTab;
+
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
-      flow: !currentTab
-        ? undefined
-        : currentTab === 'IndexFlow'
-        ? 'Start with Index'
-        : 'Start with Query',
+      flow: currentTab
+        ? currentTab === 'IndexFlow'
+          ? 'Start with Index'
+          : 'Start with Query'
+        : undefined,
     });
 
     // Check for field errors.
