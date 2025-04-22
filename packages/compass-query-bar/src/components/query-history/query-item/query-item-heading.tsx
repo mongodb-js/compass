@@ -7,7 +7,7 @@ const queryHeadingStyles = css({
 
 const queryHeadingTextStyles = css({
   fontSize: '16px',
-  lineHeight: `${spacing[5]}px`, // line up with hover icons
+  lineHeight: `${spacing[800]}px`, // line up with hover icons
   fontWeight: 'bold',
   overflow: 'hidden',
   textOverflow: 'ellipsis',

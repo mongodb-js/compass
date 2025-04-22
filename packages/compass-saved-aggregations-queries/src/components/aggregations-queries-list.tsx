@@ -46,16 +46,16 @@ const sortBy: { name: keyof Item; label: string }[] = [
 ];
 
 const headerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   display: 'flex',
   justifyContent: 'space-between',
 });
 
 const rowStyles = css({
-  gap: spacing[2],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
-  paddingBottom: spacing[2],
+  gap: spacing[200],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[200],
 });
 
 const noSavedItemsStyles = css({
@@ -253,12 +253,12 @@ export const AggregationsQueriesList = ({
       <VirtualGrid
         data-testid="my-queries-list"
         itemMinWidth={CARD_WIDTH}
-        itemHeight={CARD_HEIGHT + spacing[2]}
+        itemHeight={CARD_HEIGHT + spacing[200]}
         itemsCount={sortedItems.length}
         renderItem={renderItem}
         itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
-        headerHeight={spacing[5] + 36}
+        headerHeight={spacing[800] + 36}
         renderEmptyList={NoSearchResults}
         classNames={{ row: rowStyles }}
         resetActiveItemOnBlur={false}

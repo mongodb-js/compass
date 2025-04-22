@@ -60,7 +60,7 @@ const Placeholder: React.FunctionComponent<
   minChar = 5,
   maxChar = 15,
   width: propsWidth,
-  height: propsHeight = spacing[3],
+  height: propsHeight = spacing[400],
   gradientStart,
   gradientEnd,
   style: propsStyle,

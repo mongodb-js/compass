@@ -8,6 +8,7 @@ import type {
   CollectionsWorkspace,
   DatabasesWorkspace,
   MyQueriesWorkspace,
+  DataModelingWorkspace,
   ShellWorkspace,
   ServerStatsWorkspace,
   WelcomeWorkspace,
@@ -85,6 +86,7 @@ function isAction<A extends AnyAction>(
 type WorkspaceTabProps =
   | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
+  | Omit<DataModelingWorkspace, 'tabId'>
   | Omit<ShellWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
@@ -334,10 +336,8 @@ const reducer: Reducer<WorkspacesState, Action> = (
         // if both the new workspace and the existing one are connection scoped,
         // make sure we do not replace tabs between different connections
         if (
-          action.workspace.type !== 'Welcome' &&
-          action.workspace.type !== 'My Queries' &&
-          currentActiveTab.type !== 'Welcome' &&
-          currentActiveTab.type !== 'My Queries'
+          'connectionId' in action.workspace &&
+          'connectionId' in currentActiveTab
         ) {
           forceNewTab =
             action.workspace.connectionId !== currentActiveTab.connectionId;
@@ -345,8 +345,9 @@ const reducer: Reducer<WorkspacesState, Action> = (
 
         // ... check if we can replace the current tab based on its
         // replace handlers and force new tab opening if we can't
-        if (!forceNewTab)
+        if (!forceNewTab) {
           forceNewTab = canReplaceTab(currentActiveTab) === false;
+        }
       }
     }
 
@@ -526,10 +527,9 @@ const reducer: Reducer<WorkspacesState, Action> = (
       WorkspacesActions.ConnectionDisconnected
     )
   ) {
-    const isToBeClosed = (tab: WorkspaceTab) =>
-      tab.type !== 'My Queries' &&
-      tab.type !== 'Welcome' &&
-      tab.connectionId === action.connectionId;
+    const isToBeClosed = (tab: WorkspaceTab) => {
+      return 'connectionId' in tab && tab.connectionId === action.connectionId;
+    };
 
     return _bulkTabsClose({
       state,
@@ -639,6 +639,7 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
+  | Pick<Workspace<'Data Modeling'>, 'type'>
   | Pick<
       Workspace<'Shell'>,
       'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'

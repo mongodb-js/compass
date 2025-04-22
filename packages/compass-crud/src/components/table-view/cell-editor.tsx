@@ -40,14 +40,14 @@ const BEM_BASE = 'table-view-cell-editor';
 const VALUE_CLASS = 'editable-element-value';
 
 const textInputStyle = css({
-  width: spacing[6] * 2,
-  marginRight: spacing[1],
+  width: spacing[1600] * 2,
+  marginRight: spacing[100],
 });
 
 const actionsStyle = css({
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
   display: 'flex',
-  gap: spacing[1] / 2,
+  gap: spacing[100] / 2,
 });
 
 export interface DocumentTableRowNode extends RowNode {

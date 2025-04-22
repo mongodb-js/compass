@@ -3,7 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import React from 'react';
 
 const formFieldContainerStyles = css({
-  margin: `${spacing[4]}px 0`,
+  margin: `${spacing[600]}px 0`,
 });
 
 function FormFieldContainer({

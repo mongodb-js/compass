@@ -19,8 +19,8 @@ const valueBubbleValueStyles = css({
   backgroundColor: palette.gray.light2,
   border: '1px solid transparent',
   color: palette.gray.dark3,
-  padding: `${spacing[1] / 2} ${spacing[1]}`,
-  borderRadius: spacing[1],
+  padding: `${spacing[100] / 2} ${spacing[100]}`,
+  borderRadius: spacing[100],
   '&:hover': {
     cursor: 'pointer',
   },

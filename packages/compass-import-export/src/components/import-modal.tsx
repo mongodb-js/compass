@@ -45,12 +45,12 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 
 const closeButtonStyles = css({
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 const fieldsHeadingStyles = css({
   fontWeight: 'bold',
-  paddingBottom: spacing[2],
+  paddingBottom: spacing[200],
 });
 
 const fieldsHeadingStylesDark = css({
@@ -68,7 +68,7 @@ const analyzeContainerStyles = css({
 });
 
 const dataTypesLinkStyles = css({
-  marginLeft: spacing[3],
+  marginLeft: spacing[400],
 });
 
 type ImportModalProps = {

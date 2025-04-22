@@ -15,7 +15,7 @@ import {
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const errorContainerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
   width: '100%',
 });
 

@@ -22,7 +22,7 @@ import { WelcomeTabImage } from './welcome-image';
 
 const sectionContainerStyles = css({
   margin: 0,
-  padding: spacing[4],
+  padding: spacing[600],
   paddingBottom: 0,
   maxWidth: '450px',
   borderRadius: spacing[200],
@@ -44,11 +44,11 @@ const titleStyles = css({
 });
 
 const descriptionStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const createClusterContainerStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const createClusterButtonStyles = css({

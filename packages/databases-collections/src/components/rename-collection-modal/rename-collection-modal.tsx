@@ -35,7 +35,7 @@ export interface RenameCollectionModalProps {
 
 const progressContainerStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
 });
 
@@ -43,7 +43,7 @@ const bannerTextStyles = css({
   marginTop: 0,
   marginBottom: 0,
   '&:not(:last-child)': {
-    marginBottom: spacing[2],
+    marginBottom: spacing[200],
   },
 });
 function ConfirmationModalContent({

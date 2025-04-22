@@ -13,7 +13,7 @@ import type { ResultsViewType } from './pipeline-results-list';
 const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   flex: 'none',
 });
 

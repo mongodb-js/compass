@@ -15,10 +15,10 @@ const optionsButtonStyles = css({
   // Reset button styles.
   backgroundColor: 'transparent',
   border: 'none',
-  paddingTop: spacing[1],
-  paddingBottom: spacing[1],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingTop: spacing[100],
+  paddingBottom: spacing[100],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
 });
 
 const optionStyles = css({
@@ -56,7 +56,7 @@ export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
     const maxLabelLength = Math.max(label(true).length, label(false).length);
     return {
       // Maximum char length of the more / less label + icon size + button padding
-      width: `calc(${maxLabelLength}ch + ${spacing[3]}px + ${spacing[2]}px)`,
+      width: `calc(${maxLabelLength}ch + ${spacing[400]}px + ${spacing[200]}px)`,
     };
   }, [label]);
   const optionsAriaLabel = ariaLabel(isExpanded);

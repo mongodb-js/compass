@@ -20,8 +20,8 @@ export const documentStyles = css({
 });
 
 export const documentContentStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[400],
 });
 
 export type ReadonlyDocumentProps = {

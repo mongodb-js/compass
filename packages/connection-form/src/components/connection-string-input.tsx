@@ -18,8 +18,8 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
-  marginTop: spacing[1],
-  marginBottom: spacing[3],
+  marginTop: spacing[100],
+  marginBottom: spacing[400],
 });
 
 const uriLabelContainerStyles = css({
@@ -35,7 +35,7 @@ const editToggleContainerStyles = css({
 
 const connectionStringStyles = css({
   textarea: {
-    fontSize: spacing[2] * 1.75,
+    fontSize: spacing[200] * 1.75,
     minHeight: spacing[7],
     resize: 'vertical',
   },
@@ -45,7 +45,7 @@ const editToggleStyles = css({
   height: 14,
   width: 26,
   margin: 0,
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const editToggleLabelStyles = css({
@@ -55,7 +55,7 @@ const editToggleLabelStyles = css({
 });
 
 const textAreaLabelContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
   display: 'flex',
   flexDirection: 'row',
 });

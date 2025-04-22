@@ -11,7 +11,7 @@ import {
 import type { Element } from 'hadron-document';
 
 const castableTypes = TypeChecker.castableTypes(true);
-const selectStyles = css({ minWidth: spacing[3] * 10 });
+const selectStyles = css({ minWidth: spacing[400] * 10 });
 
 type TypesDropdownProps = { element: Element };
 

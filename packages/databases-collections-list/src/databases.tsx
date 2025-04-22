@@ -6,7 +6,7 @@ import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { DatabaseProps } from 'mongodb-database-model';
 
-const DATABASE_CARD_WIDTH = spacing[6] * 4;
+const DATABASE_CARD_WIDTH = spacing[1600] * 4;
 
 const DATABASE_CARD_HEIGHT = 154;
 

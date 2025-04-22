@@ -69,6 +69,7 @@ import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormSetting } from './use-connect-form-settings';
 import ConnectionString from 'mongodb-connection-string-url';
+import { isAtlas } from 'mongodb-build-info';
 
 export type ConnectionPersonalizationOptions = {
   name: string;
@@ -843,16 +844,13 @@ function setInitialState({
 
 export function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
-  connectionInfo,
+  connectionId,
   defaultAppName,
   notifyDeviceFlow,
   preferences,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
-  connectionInfo: {
-    id: string;
-    isAtlas: boolean;
-  };
+  connectionId: string;
   defaultAppName?: string;
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
@@ -871,8 +869,8 @@ export function adjustConnectionOptionsBeforeConnect({
     unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing({
       defaultAppName,
-      connectionId: connectionInfo.id,
-      isAtlas: connectionInfo.isAtlas,
+      connectionId,
+      isAtlas: isAtlas(connectionOptions.connectionString),
       telemetryAnonymousId: preferences.telemetryAnonymousId,
     }),
     adjustOIDCConnectionOptionsBeforeConnect({

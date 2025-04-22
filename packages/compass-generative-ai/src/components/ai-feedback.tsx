@@ -15,7 +15,7 @@ import {
 const suggestionActionButtonStyles = css({
   flexShrink: 0,
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const fadeOutAnimationTimeMS = 2000;

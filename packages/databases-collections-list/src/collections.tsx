@@ -6,7 +6,7 @@ import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { CollectionProps } from 'mongodb-collection-model';
 
-const COLLECTION_CARD_WIDTH = spacing[6] * 4;
+const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
 
 const COLLECTION_CARD_HEIGHT = 238;
 

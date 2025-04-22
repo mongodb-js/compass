@@ -629,7 +629,9 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
       (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path =
         params.path;
-      this.gridApi.setRowData(this.createRowData(this.props.docs, 1));
+      this.gridApi.setRowData(
+        this.createRowData(this.props.docs, this.props.start)
+      );
       this.gridApi.setColumnDefs(headers);
     }
     this.gridApi.refreshCells({ force: true });
@@ -958,7 +960,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
       editable: false,
       pinned: 'right',
       // button group width + padding (8 * 2)
-      width: spacing[7] + spacing[3],
+      width: spacing[7] + spacing[400],
     });
 
     /* Return the updated column definitions */

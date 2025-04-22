@@ -1,3 +1,4 @@
+import assert from 'assert/strict';
 import { EventEmitter } from 'events';
 import os from 'os';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -139,6 +140,7 @@ export const enum AutoUpdateManagerState {
   Restarting = 'restarting',
   RestartDismissed = 'restart-dismissed',
   PromptToUpdateExternally = 'prompt-to-update-externally',
+  OutdatedOperatingSystem = 'outdated-operating-system',
 }
 
 type UpdateInfo = {
@@ -178,14 +180,35 @@ const checkForUpdates: StateEnterAction = async function checkForUpdates(
 
   this.maybeInterrupt();
 
-  if (updateInfo) {
+  if (updateInfo.available) {
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
     if (fromState === AutoUpdateManagerState.UserPromptedManualCheck) {
-      void dialog.showMessageBox({
-        icon: COMPASS_ICON,
-        message: 'There are currently no updates available.',
-      });
+      if (updateInfo.reason === 'outdated-operating-system') {
+        void dialog
+          .showMessageBox({
+            icon: COMPASS_ICON,
+            message: `The version of your operating system is no longer supported. Expected at least ${updateInfo.expectedVersion}.`,
+            buttons: ['OK', 'Visit Documentation on System Requirements'],
+          })
+          .then(async (value) => {
+            if (value.response === 1) {
+              await shell.openExternal(
+                'https://www.mongodb.com/docs/compass/current/install/'
+              );
+            }
+          });
+      } else {
+        void dialog.showMessageBox({
+          icon: COMPASS_ICON,
+          message: 'There are currently no updates available.',
+        });
+      }
+    }
+
+    if (updateInfo.reason === 'outdated-operating-system') {
+      updateManager.setState(AutoUpdateManagerState.OutdatedOperatingSystem);
+      return;
     }
 
     this.maybeInterrupt();
@@ -269,6 +292,7 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.NoUpdateAvailable,
       AutoUpdateManagerState.Disabled,
       AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerState.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
@@ -278,6 +302,7 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.NoUpdateAvailable,
       AutoUpdateManagerState.Disabled,
       AutoUpdateManagerState.UserPromptedManualCheck,
+      AutoUpdateManagerState.OutdatedOperatingSystem,
     ],
     enter: checkForUpdates,
   },
@@ -470,6 +495,20 @@ const STATE_UPDATE: Record<
       );
     },
   },
+  [AutoUpdateManagerState.OutdatedOperatingSystem]: {
+    nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
+    enter: () => {
+      ipcMain?.broadcast(
+        'autoupdate:update-download-failed',
+        'outdated-operating-system'
+      );
+      log.info(
+        mongoLogId(1_001_000_346),
+        'AutoUpdateManager',
+        'Outdated operating system'
+      );
+    },
+  },
   [AutoUpdateManagerState.DownloadingError]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
     enter: (_updateManager, _fromState, error) => {
@@ -575,6 +614,23 @@ export type AutoUpdateManagerOptions = {
   initialUpdateDelay: number;
 };
 
+type AutoUpdateResponse =
+  | {
+      available: true;
+      name: string;
+      from: string;
+      to: string;
+    }
+  | {
+      available: false;
+      reason?: never;
+    }
+  | {
+      available: false;
+      reason: 'outdated-operating-system';
+      expectedVersion: string;
+    };
+
 const emitter = new EventEmitter();
 
 class CompassAutoUpdateManager {
@@ -605,31 +661,87 @@ class CompassAutoUpdateManager {
       os_release: release,
       os_linux_dist,
       os_linux_release,
+      os_darwin_product_version,
     } = await getOsInfo();
     const url = new URL(
       `${endpoint}/api/v2/update/${product}/${channel}/${platform}-${arch}/${version}/check`
     );
 
-    release && url.searchParams.set('release', release);
-    os_linux_dist && url.searchParams.set('os_linux_dist', os_linux_dist);
-    os_linux_release &&
-      url.searchParams.set('os_linux_release', os_linux_release);
+    for (const [key, value] of Object.entries({
+      release,
+      os_linux_dist,
+      os_linux_release,
+      os_darwin_product_version,
+    })) {
+      if (typeof value === 'string') {
+        url.searchParams.set(key, value);
+      }
+    }
 
     return url;
   }
 
-  static async checkForUpdate(): Promise<{
-    name: string;
-    from: string;
-    to: string;
-  } | null> {
+  static async checkForUpdate(): Promise<AutoUpdateResponse> {
     try {
       const response = await this.fetch((await this.getUpdateCheckURL()).href);
-      if (response.status !== 200) {
-        return null;
+
+      if (response.status === 426) {
+        try {
+          const json = await response.json();
+          assert(
+            typeof json === 'object' && json !== null,
+            'Expected response to be an object'
+          );
+          if ('reason' in json && json.reason === 'outdated-operating-system') {
+            assert(
+              'expectedVersion' in json,
+              "Expected 'expectedVersion' in response"
+            );
+            const { expectedVersion } = json;
+            assert(
+              typeof expectedVersion === 'string',
+              "Expected 'expectedVersion' in response"
+            );
+            return {
+              available: false,
+              reason: 'outdated-operating-system',
+              expectedVersion,
+            };
+          } else {
+            // Some future reason that no update is available
+            return {
+              available: false,
+            };
+          }
+        } catch (err) {
+          log.warn(
+            mongoLogId(1_001_000_347),
+            'AutoUpdateManager',
+            'Failed to parse HTTP 426 (Upgrade Required) response',
+            { error: err instanceof Error ? err.message : 'Unknown error' }
+          );
+          return { available: false };
+        }
+      } else if (response.status !== 200) {
+        return { available: false };
       }
+
       try {
-        return (await response.json()) as any;
+        const json = await response.json();
+        assert(
+          typeof json === 'object' && json !== null,
+          'Expected response to be an object'
+        );
+        assert('name' in json, 'Expected "name" in response');
+        assert('to' in json, 'Expected "to" in response');
+        assert('from' in json, 'Expected "from" in response');
+
+        const { name, from, to } = json;
+        assert(typeof name === 'string', 'Expected "name" to be a string');
+        assert(typeof from === 'string', 'Expected "from" to be a string');
+        assert(typeof to === 'string', 'Expected "to" to be a string');
+
+        return { available: true, name, from, to };
       } catch (err) {
         log.warn(
           mongoLogId(1_001_000_163),
@@ -637,7 +749,7 @@ class CompassAutoUpdateManager {
           'Failed to parse update info',
           { error: (err as Error).message }
         );
-        return null;
+        return { available: false };
       }
     } catch (err) {
       log.warn(
@@ -646,7 +758,7 @@ class CompassAutoUpdateManager {
         'Failed to check for update',
         { error: (err as Error).message }
       );
-      return null;
+      return { available: false };
     }
   }
 

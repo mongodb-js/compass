@@ -9,7 +9,7 @@ import { rgba } from 'polished';
 import { useDarkMode } from '../hooks/use-theme';
 import { useHotkeys } from '../hooks/use-hotkeys';
 
-const borderRadius = spacing[2];
+const borderRadius = spacing[200];
 
 const contentContainerStyles = css({
   display: 'flex',
@@ -37,8 +37,8 @@ const contentContainerStylesDark = css({
 
 const closeButtonStyles = css({
   position: 'absolute',
-  top: spacing[2],
-  right: spacing[2],
+  top: spacing[200],
+  right: spacing[200],
 });
 
 type InteractivePopoverProps<TriggerElement extends HTMLElement> = {

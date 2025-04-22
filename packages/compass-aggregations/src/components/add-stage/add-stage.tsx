@@ -12,8 +12,8 @@ import { PIPELINE_HELP_URI } from '../../constants';
 const containerStyles = css({ textAlign: 'center' });
 
 const linkContainerStyles = css({
-  marginTop: spacing[2],
-  marginBottom: spacing[5],
+  marginTop: spacing[200],
+  marginBottom: spacing[800],
   position: 'relative',
 });
 

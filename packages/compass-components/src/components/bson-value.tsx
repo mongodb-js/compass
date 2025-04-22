@@ -101,7 +101,7 @@ const nonSelectable = css({
 
 const encryptedHelpLinkStyle = css({
   color: 'inherit',
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
@@ -156,6 +156,37 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
       }
 
       return { stringifiedValue: `UUID('${uuid}')` };
+    }
+    if (value.sub_type === Binary.SUBTYPE_VECTOR) {
+      const vectorType = value.buffer[0];
+      if (vectorType === Binary.VECTOR_TYPE.Int8) {
+        const truncatedSerializedBuffer = truncate(
+          value.toInt8Array().slice(0, 100).join(', '),
+          100
+        );
+        return {
+          stringifiedValue: `Binary.fromInt8Array(new Int8Array([${truncatedSerializedBuffer}]))`,
+        };
+      } else if (vectorType === Binary.VECTOR_TYPE.Float32) {
+        const truncatedSerializedBuffer = truncate(
+          [...value.toFloat32Array().slice(0, 100)]
+            // Using a limited precision and removing trailing zeros for better displaying
+            .map((num) => num.toPrecision(8).replace(/\.?0+$/, ''))
+            .join(', '),
+          100
+        );
+        return {
+          stringifiedValue: `Binary.fromFloat32Array(new Float32Array([${truncatedSerializedBuffer}]))`,
+        };
+      } else if (vectorType === Binary.VECTOR_TYPE.PackedBit) {
+        const truncatedSerializedBuffer = truncate(
+          value.toPackedBits().slice(0, 100).join(', '),
+          100
+        );
+        return {
+          stringifiedValue: `Binary.fromPackedBits(new Uint8Array([${truncatedSerializedBuffer}]))`,
+        };
+      }
     }
     return {
       stringifiedValue: `Binary.createFromBase64('${truncate(

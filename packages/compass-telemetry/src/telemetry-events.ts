@@ -2673,6 +2673,11 @@ type SecretStorageNotAvailableEvent = CommonEvent<{
   payload: Record<string, never>;
 }>;
 
+type ExperimentViewedEvent = CommonEvent<{
+  name: 'Experiment Viewed';
+  payload: { test_name: string };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2793,4 +2798,5 @@ export type TelemetryEvent =
   | LargestContentfulPaintEvent
   | FirstInputDelayEvent
   | CumulativeLayoutShiftEvent
-  | TimeToFirstByteEvent;
+  | TimeToFirstByteEvent
+  | ExperimentViewedEvent;

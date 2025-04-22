@@ -12,7 +12,7 @@ import {
 const styles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 type OptionMenuItemProps = {

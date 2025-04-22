@@ -35,16 +35,16 @@ const explainPlanModalContentStyles = css({
 
 const explainPlanModalLoadingStyles = css({
   flex: 1,
-  minHeight: spacing[6] * 2,
+  minHeight: spacing[1600] * 2,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 });
 
 const explainPlanModalBodyStyles = css({
-  paddingTop: spacing[3],
-  paddingLeft: spacing[5],
-  paddingRight: spacing[5],
+  paddingTop: spacing[400],
+  paddingLeft: spacing[800],
+  paddingRight: spacing[800],
   overflow: 'hidden',
 });
 

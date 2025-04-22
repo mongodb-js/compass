@@ -6,17 +6,14 @@ import {
   cx,
   spacing,
   palette,
-  InlineDefinition,
   useDarkMode,
   Button,
   ButtonVariant,
 } from '@mongodb-js/compass-components';
-import { fetchSampleDocuments, SAMPLE_SIZE } from '../modules/sample-documents';
+import { fetchSampleDocuments } from '../modules/sample-documents';
 import { DocumentPreview } from './document-preview';
 import { connect } from 'react-redux';
 import type { RootState } from '../modules';
-
-const SAMPLE_DEFINITION = `A sample is fetched from a sample-space of ${SAMPLE_SIZE} randomly selected documents`;
 
 /**
  * The Sample Documents editor component.
@@ -152,9 +149,7 @@ const InitialState: React.FC<{
           darkMode && previewHeaderDarkModeStyles
         )}
       >
-        <InlineDefinition definition={SAMPLE_DEFINITION}>
-          Preview sample documents
-        </InlineDefinition>
+        Preview sample documents
       </div>
       <div>
         This section displays one document that passed validation and one that

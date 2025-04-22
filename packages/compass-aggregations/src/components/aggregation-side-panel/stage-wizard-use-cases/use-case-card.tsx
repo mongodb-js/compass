@@ -21,7 +21,7 @@ type UseCaseCardProps = DraggedUseCase & {
 };
 
 const cardStyles = css({
-  padding: `${spacing[2]}px ${spacing[3]}px`,
+  padding: `${spacing[200]}px ${spacing[400]}px`,
   textAlign: 'left',
   width: '100%',
 });
@@ -36,7 +36,7 @@ const cardStylesDropping = css({
 
 const cardBodyStyles = css({
   display: 'inline',
-  marginRight: spacing[2],
+  marginRight: spacing[200],
 });
 
 type UseCaseCardLayoutProps = DraggedUseCase & {

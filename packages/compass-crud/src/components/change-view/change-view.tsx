@@ -45,7 +45,7 @@ const expandButtonStyles = css({
   display: 'flex',
   alignSelf: 'center',
   color: 'inherit',
-  paddingRight: spacing[1],
+  paddingRight: spacing[100],
 });
 
 const addedStylesDark = css({
@@ -89,7 +89,7 @@ const changeArrayItemStyles = css({
 const changeKeyIndexStyles = css({
   fontWeight: 'bold',
   alignSelf: 'flex-start',
-  paddingRight: spacing[1],
+  paddingRight: spacing[100],
 });
 
 const changeSummaryStyles = css({
@@ -193,7 +193,7 @@ function ChangeArrayItemObject({ item }: { item: ObjectItemBranch }) {
 }
 
 const changeLeafStyles = css({
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[400],
 });
 
 function ChangeArrayItemLeaf({ item }: { item: ItemBranch }) {
@@ -231,7 +231,7 @@ function ChangeArrayItem({ item }: { item: ItemBranch }) {
 }
 
 const sepStyles = css({
-  marginRight: spacing[1],
+  marginRight: spacing[100],
 });
 
 function Sep() {
@@ -241,7 +241,7 @@ function Sep() {
 const changeArrayStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[400],
 });
 
 const changeArrayInlineWrapStyles = css({
@@ -249,7 +249,7 @@ const changeArrayInlineWrapStyles = css({
 });
 
 const changeArrayInlineStyles = css({
-  marginLeft: spacing[4] + spacing[1],
+  marginLeft: spacing[600] + spacing[100],
   display: 'inline-flex', // so the green/red background colour doesn't stretch all the way to the end
   flexWrap: 'wrap',
 });
@@ -420,7 +420,7 @@ function ChangeObjectProperty({ property }: { property: PropertyBranch }) {
 const changeObjectStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  paddingLeft: spacing[3] /* indent all nested properties*/,
+  paddingLeft: spacing[400] /* indent all nested properties*/,
 });
 
 const rootChangeObjectStyles = css({
@@ -499,7 +499,7 @@ function lookupValue(path: ObjectPath, value: any): any {
 const changeValueStyles = css({
   display: 'inline-flex',
   flexWrap: 'wrap',
-  columnGap: spacing[1], // when removed and added are next to each other
+  columnGap: spacing[100], // when removed and added are next to each other
   rowGap: '1px', // when removed & added wrapped
 });
 

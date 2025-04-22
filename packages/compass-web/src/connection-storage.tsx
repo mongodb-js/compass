@@ -200,6 +200,12 @@ export function buildConnectionInfoFromClusterDescription(
     deployment
   );
 
+  const { metricsId, metricsType } = getMetricsIdAndType(
+    description,
+    deploymentItem
+  );
+  const instanceSize = getInstanceSize(description);
+
   return {
     // Cluster name is unique inside the project (hence using it in the backend
     // urls as identifier) and using it as an id makes our job of mapping routes
@@ -220,17 +226,32 @@ export function buildConnectionInfoFromClusterDescription(
       orgId: orgId,
       projectId: projectId,
       clusterUniqueId: description.uniqueId,
-      clusterName: description.name,
-      regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
-      ...getMetricsIdAndType(description, deploymentItem),
-      instanceSize: getInstanceSize(description),
       clusterType: description.clusterType,
-      geoSharding: {
-        selfManagedSharding: description.geoSharding?.selfManagedSharding,
+      clusterName: description.name,
+      clusterState: description.state as AtlasClusterMetadata['clusterState'],
+      regionalBaseUrl: null,
+      metricsId,
+      metricsType,
+      instanceSize,
+      supports: {
+        globalWrites:
+          description.clusterType === 'GEOSHARDED' &&
+          !description.geoSharding?.selfManagedSharding,
+        rollingIndexes: Boolean(
+          ['cluster', 'replicaSet'].includes(metricsType) &&
+            instanceSize &&
+            !['M0', 'M2', 'M5'].includes(instanceSize)
+        ),
       },
     },
   };
 }
+
+const CONNECTABLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
+  'IDLE',
+  'REPARING',
+  'UPDATING',
+];
 
 /**
  * @internal exported for testing purposes
@@ -240,6 +261,7 @@ export class AtlasCloudConnectionStorage
   implements ConnectionStorage
 {
   private loadAllPromise: Promise<ConnectionInfo[]> | undefined;
+  private canUseNewConnectionInfoEndpoint = true;
   constructor(
     private atlasService: AtlasService,
     private orgId: string,
@@ -255,15 +277,63 @@ export class AtlasCloudConnectionStorage
     });
   }
 
-  private async _loadAndNormalizeClusterDescriptionInfo(): Promise<
+  private async _loadAndNormalizeClusterDescriptionInfoV2(): Promise<
+    ConnectionInfo[]
+  > {
+    const res = await this.atlasService.authenticatedFetch(
+      this.atlasService.cloudEndpoint(
+        `/explorer/v1/groups/${this.projectId}/clusters/connectionInfo`
+      )
+    );
+
+    const connectionInfoList = (await res.json()) as ConnectionInfo[];
+
+    return connectionInfoList
+      .map((connectionInfo: ConnectionInfo): ConnectionInfo | null => {
+        if (
+          !connectionInfo.connectionOptions.connectionString ||
+          !connectionInfo.atlasMetadata ||
+          // TODO(COMPASS-8228): do not filter out those connections, display
+          // them in navigation, but in a way that doesn't allow connecting
+          !CONNECTABLE_CLUSTER_STATES.includes(
+            connectionInfo.atlasMetadata.clusterState
+          )
+        ) {
+          return null;
+        }
+
+        const clusterName = connectionInfo.atlasMetadata.clusterName;
+
+        return {
+          ...connectionInfo,
+          connectionOptions: {
+            ...connectionInfo.connectionOptions,
+            lookup: () => {
+              return {
+                wsURL: this.atlasService.driverProxyEndpoint(
+                  `/clusterConnection/${this.projectId}`
+                ),
+                projectId: this.projectId,
+                clusterName,
+              };
+            },
+          },
+        };
+      })
+      .filter((connectionInfo): connectionInfo is ConnectionInfo => {
+        return !!connectionInfo;
+      });
+  }
+
+  /**
+   * TODO(COMPASS-9263): clean-up when new endpoint is fully rolled out
+   */
+  private async _loadAndNormalizeClusterDescriptionInfoV1(): Promise<
     ConnectionInfo[]
   > {
     const [clusterDescriptions, deployment] = await Promise.all([
       this.atlasService
         .authenticatedFetch(
-          // TODO(CLOUDP-249088): replace with the list request that already
-          // contains regional data when it exists instead of fetching
-          // one-by-one after the list fetch
           this.atlasService.cloudEndpoint(`/nds/clusters/${this.projectId}`)
         )
         .then((res) => {
@@ -348,10 +418,19 @@ export class AtlasCloudConnectionStorage
   }
 
   loadAll(): Promise<ConnectionInfo[]> {
-    this.loadAllPromise ??=
-      this._loadAndNormalizeClusterDescriptionInfo().finally(() => {
-        delete this.loadAllPromise;
-      });
+    this.loadAllPromise ??= (async () => {
+      if (this.canUseNewConnectionInfoEndpoint === false) {
+        return this._loadAndNormalizeClusterDescriptionInfoV1();
+      }
+      try {
+        return await this._loadAndNormalizeClusterDescriptionInfoV2();
+      } catch (err) {
+        this.canUseNewConnectionInfoEndpoint = false;
+        return this._loadAndNormalizeClusterDescriptionInfoV1();
+      }
+    })().finally(() => {
+      delete this.loadAllPromise;
+    });
     return this.loadAllPromise;
   }
 }

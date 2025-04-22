@@ -38,8 +38,8 @@ import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 const kmsProviderComponentWrapperStyles = css({
-  paddingLeft: spacing[3],
-  marginBottom: spacing[3],
+  paddingLeft: spacing[400],
+  marginBottom: spacing[400],
 });
 
 interface KMSProviderMetadata {
@@ -75,7 +75,7 @@ const options: KMSProviderMetadata[] = [
 ];
 
 const accordionContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[400],
 });
 
 const titleStyles = css({

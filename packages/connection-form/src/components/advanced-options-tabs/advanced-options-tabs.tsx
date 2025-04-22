@@ -23,7 +23,7 @@ import { defaultConnectionString } from '../../constants/default-connection';
 import { useConnectionFormSetting } from '../../hooks/use-connect-form-settings';
 
 const tabsStyles = css({
-  marginTop: spacing[2],
+  marginTop: spacing[200],
 });
 
 const tabContentStyles = css({
@@ -38,11 +38,11 @@ const tabWithErrorIndicatorStyles = css({
   position: 'relative',
   '&::after': {
     position: 'absolute',
-    top: -spacing[2],
-    right: -spacing[2],
+    top: -spacing[200],
+    right: -spacing[200],
     content: '""',
-    width: spacing[2],
-    height: spacing[2],
+    width: spacing[200],
+    height: spacing[200],
     borderRadius: '50%',
     backgroundColor: palette.red.base,
   },

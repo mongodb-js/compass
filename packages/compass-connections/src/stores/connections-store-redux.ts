@@ -1415,7 +1415,7 @@ const openConnectionClosedWithNonRetryableErrorToast = (
     title: `Unable to connect to ${getConnectionTitle(connectionInfo)}`,
     description: `Reason: ${getDescriptionForNonRetryableError(
       error
-    )}. To use continue to use this connection either disconnect and reconnect, or refresh your page.`,
+    )}. To continue to use this connection either disconnect and reconnect, or refresh your page.`,
     variant: 'warning',
   });
 };
@@ -1554,10 +1554,7 @@ const connectWithOptions = (
                 cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
-              connectionInfo: {
-                id: connectionInfo.id,
-                isAtlas: !!connectionInfo.atlasMetadata,
-              },
+              connectionId: connectionInfo.id,
               defaultAppName: appName,
               preferences: {
                 forceConnectionOptions: forceConnectionOptions ?? [],

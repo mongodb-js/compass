@@ -15,7 +15,7 @@ const schemaFieldTypeLabelStyles = css({
 });
 
 const typeContainerStyles = css({
-  lineHeight: `${spacing[1]}px`,
+  lineHeight: `${spacing[100]}px`,
   display: 'inline-block',
   verticalAlign: 'top',
 });

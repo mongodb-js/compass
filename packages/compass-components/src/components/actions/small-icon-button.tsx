@@ -20,8 +20,8 @@ const buttonSizeStyle: Record<ItemActionButtonSize, string | undefined> = {
   default: undefined,
   small: css({
     flex: 'none',
-    width: `${spacing[4]}px !important`,
-    height: `${spacing[4]}px !important`,
+    width: `${spacing[600]}px !important`,
+    height: `${spacing[600]}px !important`,
   }),
   xsmall: css({
     flex: 'none',

@@ -25,17 +25,17 @@ type PipelineResultsHeaderProps = {
 const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const pipelineOptionsStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const pipelinePaginationStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   marginLeft: 'auto',
 });
 

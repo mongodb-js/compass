@@ -7,8 +7,8 @@ import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 const containerStyles = css({
   display: 'flex',
-  gap: spacing[1],
-  minWidth: spacing[3] * 7,
+  gap: spacing[100],
+  minWidth: spacing[400] * 7,
   alignItems: 'baseline',
 });
 
@@ -43,7 +43,16 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
   return (
     <Tooltip
       enabled={!!tooltip}
-      trigger={<BadgeWithIconLink link={link} text={text} />}
+      trigger={({
+        children: tooltipChildren,
+        ...tooltipTriggerProps
+      }: React.HTMLProps<HTMLDivElement>) => (
+        <div {...tooltipTriggerProps}>
+          <BadgeWithIconLink link={link} text={text} />
+          {tooltipChildren}
+        </div>
+      )}
+      triggerEvent="hover"
     >
       <Body>{tooltip}</Body>
     </Tooltip>

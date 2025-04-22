@@ -84,6 +84,18 @@ const modifiedMessageStyles = css({
   flex: 1,
 });
 
+const generatedMessageStyles = css({
+  color: palette.green.dark2,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+  flex: 1,
+});
+
+const generatedMessageDarkStyles = css({
+  color: palette.green.light2,
+});
+
 const modifiedMessageDarkStyles = css({
   color: palette.yellow.light2,
 });
@@ -150,6 +162,7 @@ type ValidationEditorProps = {
   isEditingEnabled: boolean;
   isRulesGenerationInProgress: boolean;
   isSavingInProgress: boolean;
+  isValidatorGenerated: boolean;
 };
 
 /**
@@ -173,6 +186,7 @@ export const ValidationEditor: React.FunctionComponent<
   isEditingEnabled,
   isRulesGenerationInProgress,
   isSavingInProgress,
+  isValidatorGenerated,
 }) => {
   const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
@@ -315,7 +329,7 @@ export const ValidationEditor: React.FunctionComponent<
         <div className={actionsStyles}>
           {isEditingEnabled ? (
             <>
-              {isChanged && (
+              {isChanged && !isValidatorGenerated && (
                 <Body
                   className={cx(
                     modifiedMessageStyles,
@@ -325,6 +339,18 @@ export const ValidationEditor: React.FunctionComponent<
                 >
                   <Icon glyph="InfoWithCircle" /> Rules are modified &amp; not
                   applied. Please review before applying.
+                </Body>
+              )}
+              {isValidatorGenerated && (
+                <Body
+                  className={cx(
+                    generatedMessageStyles,
+                    darkMode && generatedMessageDarkStyles
+                  )}
+                  data-testid="validation-action-message"
+                >
+                  <Icon glyph="Checkmark" /> Rules generated. Please review
+                  before applying.
                 </Body>
               )}
               <Button
@@ -376,6 +402,7 @@ const mapStateToProps = (state: RootState) => ({
   validation: state.validation,
   namespace: state.namespace.ns,
   isRulesGenerationInProgress: state.rulesGeneration.isInProgress,
+  isValidatorGenerated: state.rulesGeneration.isGenerated,
   isSavingInProgress: state.validation.isSaving,
 });
 

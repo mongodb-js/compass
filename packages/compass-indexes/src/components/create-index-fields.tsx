@@ -29,7 +29,7 @@ const DEFAULT_FIELD = {
 
 const createIndexFieldsStyles = css({
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const createIndexFieldsNameStyles = css({
@@ -71,9 +71,9 @@ function CreateIndexFields({
     );
     const longestLabel = Math.max(...INDEX_TYPES.map((type) => type.length));
     const additionalSpacing =
-      spacing[6] +
+      spacing[1600] +
       // For the preview badge
-      (serverSupportsColumnStoreIndex ? spacing[6] : 0);
+      (serverSupportsColumnStoreIndex ? spacing[1600] : 0);
 
     const selectorWidth = `calc(${longestLabel}ch + ${additionalSpacing}px)`;
     return [indexTypes, selectorWidth];

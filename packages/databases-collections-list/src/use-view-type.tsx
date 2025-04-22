@@ -37,7 +37,7 @@ function setViewTypeSettingsFromSessionStorage(val: ViewType) {
 const controlsContainer = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const label = css({

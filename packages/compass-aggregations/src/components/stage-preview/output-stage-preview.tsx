@@ -27,7 +27,7 @@ const stagePreviewStyles = css({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const stagePreviewTextStyles = css({
@@ -44,7 +44,7 @@ const stagePreviewLinkStyles = css({
 const loaderStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 type OutputStageProps = {

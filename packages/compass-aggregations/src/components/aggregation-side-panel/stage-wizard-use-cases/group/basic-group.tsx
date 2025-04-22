@@ -7,7 +7,7 @@ import { FieldCombobox } from '../field-combobox';
 const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const comboboxStyles = css({ width: '350px' });

@@ -6,13 +6,13 @@ import { IconButton, Icon } from './leafygreen';
 const listEditorStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const listItemStyles = css({
   alignItems: 'center',
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 const itemContentStyles = css({

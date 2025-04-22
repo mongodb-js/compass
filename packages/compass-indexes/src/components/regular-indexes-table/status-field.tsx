@@ -13,8 +13,8 @@ import type { InProgressIndex } from '../../modules/regular-indexes';
 
 const statusFieldStyles = css({
   display: 'flex',
-  gap: spacing[1],
-  minWidth: spacing[3] * 7,
+  gap: spacing[100],
+  minWidth: spacing[400] * 7,
   alignItems: 'baseline',
 });
 
@@ -35,11 +35,17 @@ const BadgeWithTooltip: React.FunctionComponent<{
     <Tooltip
       enabled={!!tooltip}
       darkMode={darkMode}
-      trigger={
-        <Badge data-testid={dataTestId} variant={variant}>
-          {children}
-        </Badge>
-      }
+      trigger={({
+        children: tooltipChildren,
+        ...tooltipTriggerProps
+      }: React.HTMLProps<HTMLDivElement>) => (
+        <div {...tooltipTriggerProps}>
+          <Badge data-testid={dataTestId} variant={variant}>
+            {children}
+          </Badge>
+          {tooltipChildren}
+        </div>
+      )}
     >
       <Body>{tooltip}</Body>
     </Tooltip>

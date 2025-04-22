@@ -12,7 +12,7 @@ const selectFileTypeLabelId = 'select-file-type-label';
 const radioBoxGroupId = 'radio-box-group-id';
 
 const containerStyles = css({
-  margin: `${spacing[3]}px 0`,
+  margin: `${spacing[400]}px 0`,
 });
 
 function SelectFileType({

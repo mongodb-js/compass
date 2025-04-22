@@ -21,7 +21,7 @@ import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
 export const checkboxDescriptionStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 export const disabledCheckboxDescriptionStyles = css({

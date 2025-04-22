@@ -13,22 +13,22 @@ const containerStyles = css({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const headerStyles = css({
   display: 'flex',
   justifyContent: 'flex-start',
-  gap: spacing[2],
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  gap: spacing[200],
+  marginLeft: spacing[200],
+  marginRight: spacing[200],
   flexWrap: 'wrap',
 });
 
 const editorStyles = css({
   flex: 1,
   overflowY: 'auto',
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[400],
 });
 
 export const FocusModeStageEditor = ({

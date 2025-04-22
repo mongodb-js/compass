@@ -42,9 +42,9 @@ import { usePreference } from 'compass-preferences-model/provider';
 // Table has its own scrollable container.
 const tableStyles = css({
   paddingTop: 0,
-  paddingRight: spacing[3],
-  paddingBottom: spacing[5], // avoid double scroll
-  paddingLeft: spacing[3],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[800], // avoid double scroll
+  paddingLeft: spacing[400],
 });
 
 const documentsContainerStyles = css({

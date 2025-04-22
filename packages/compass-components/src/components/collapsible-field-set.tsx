@@ -6,11 +6,11 @@ import { Link, Checkbox, Label } from './leafygreen';
 import FormFieldContainer from './form-field-container';
 
 const infoLinkStyles = css({
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
 });
 
 const fieldsetStyles = css({
-  paddingLeft: spacing[4],
+  paddingLeft: spacing[600],
 });
 
 export type CollapsibleFieldSetProps = {

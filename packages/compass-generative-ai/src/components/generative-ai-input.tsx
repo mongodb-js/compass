@@ -43,7 +43,7 @@ const inputBarContainerStyles = css({
   display: 'flex',
   width: '100%',
   paddingTop: spacing[100],
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const gradientWidth = spacing[50];
@@ -176,7 +176,7 @@ const generateButtonStyles = css({
   height: spacing[600] - spacing[100],
   display: 'flex',
   fontSize: '12px',
-  borderRadius: spacing[1],
+  borderRadius: spacing[100],
 });
 
 const generateButtonLightModeStyles = css({

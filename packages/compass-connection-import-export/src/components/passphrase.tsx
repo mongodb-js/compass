@@ -4,7 +4,7 @@ import { css, Icon, spacing, TextInput } from '@mongodb-js/compass-components';
 const passphraseInputStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 type PassphraseProps = {

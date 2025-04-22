@@ -11,8 +11,8 @@ import {
 
 const badgeContainerStyles = css({
   lineHeight: 1,
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const badgeButtonStyles = css({

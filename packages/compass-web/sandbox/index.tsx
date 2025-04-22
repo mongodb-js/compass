@@ -143,6 +143,7 @@ const App = () => {
                 isAtlas && !!enableGenAIFeaturesAtlasOrg,
               optInDataExplorerGenAIFeatures:
                 isAtlas && !!optInDataExplorerGenAIFeatures,
+              enableDataModeling: false,
             }}
             onTrack={sandboxTelemetry.track}
             onDebug={sandboxLogger.debug}

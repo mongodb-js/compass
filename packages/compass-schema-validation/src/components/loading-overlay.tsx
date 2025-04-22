@@ -15,7 +15,7 @@ const loadingOverlayStyles = css({
   left: 0,
   bottom: 0,
   right: 0,
-  borderRadius: spacing[2],
+  borderRadius: spacing[200],
   zIndex: 1000,
   display: 'flex',
   alignItems: 'center',

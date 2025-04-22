@@ -94,18 +94,18 @@ export const createGroup = makeCreateGroup(createCondition);
 // Components - Group
 const baseGroupStyles = css({
   display: 'flex',
-  gap: spacing[3],
+  gap: spacing[400],
   flexDirection: 'column',
 });
 
 const nestedGroupBaseStyles = css({
-  padding: spacing[4],
-  paddingTop: spacing[4] / 2,
-  borderRadius: spacing[4] / 2,
+  padding: spacing[600],
+  paddingTop: spacing[600] / 2,
+  borderRadius: spacing[600] / 2,
 });
 
 const nestedGroupContainerStyles = css({
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const oddNestedGroupStylesLight = css({
@@ -128,7 +128,7 @@ const groupHeaderStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: spacing[3],
+  gap: spacing[400],
 });
 
 const MatchGroupForm = ({
@@ -147,7 +147,7 @@ const MatchGroupForm = ({
   // condition list in nested groups", we calculate the right padding
   // dynamically using the nesting depth and current nesting level.
   const conditionListStyles: CSSProperties = {
-    paddingRight: (nestingDepth - nestingLevel) * spacing[4],
+    paddingRight: (nestingDepth - nestingLevel) * spacing[600],
   };
 
   const handleOperatorChange = (operator: LogicalOperator) => {

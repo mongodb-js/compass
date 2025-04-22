@@ -26,7 +26,7 @@ import {
 const ERROR_WARNING = 'An error occurred while loading collections';
 
 const collectionsErrorStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 type CollectionsListProps = {

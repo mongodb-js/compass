@@ -34,7 +34,7 @@ type TextSearchState = {
 };
 
 const containerStyles = css({
-  gap: spacing[2],
+  gap: spacing[200],
   width: '100%',
   maxWidth: '800px',
   display: 'grid',
@@ -49,7 +49,7 @@ const rowStyles = css({
 const inputWithLabelStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const labelStyles = css({

@@ -103,13 +103,18 @@ describe('CompassAutoUpdateManager', function () {
         expect(url.searchParams.get('os_linux_dist')).to.exist;
         expect(url.searchParams.get('os_linux_release')).to.exist;
       }
+
+      const isDarwin = process.platform === 'darwin';
+      if (isDarwin) {
+        expect(url.searchParams.get('os_darwin_product_version')).to.exist;
+      }
     });
 
     it('should check for update and transition to update not available if backend returned nothing', async function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve(null);
+          return Promise.resolve({ available: false });
         });
 
       expect(
@@ -128,7 +133,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -147,7 +157,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return Promise.resolve({
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       expect(
@@ -165,7 +180,12 @@ describe('CompassAutoUpdateManager', function () {
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
-          return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+          return wait(100, {
+            available: true,
+            from: '0.0.0',
+            to: '1.0.0',
+            name: '1.0.0',
+          });
         });
 
       CompassAutoUpdateManager.setState(
@@ -191,7 +211,7 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
-    describe('when electron does not support plaform updates', function () {
+    describe('when electron does not support platform updates', function () {
       before(function () {
         if (supportsAutoupdates) {
           // eslint-disable-next-line no-console
@@ -233,7 +253,7 @@ describe('CompassAutoUpdateManager', function () {
       });
     });
 
-    describe('when electron supports plaform updates', function () {
+    describe('when electron supports platform updates', function () {
       before(function () {
         if (!supportsAutoupdates) {
           // eslint-disable-next-line no-console
@@ -424,6 +444,84 @@ describe('CompassAutoUpdateManager', function () {
       ).to.eq(true);
 
       expect(restartToastIpcPrompt).to.be.calledOnce;
+    });
+  });
+
+  describe('when operating system is outdated', () => {
+    beforeEach(async () => {
+      const fetchStub = sandbox.stub();
+      CompassAutoUpdateManager['fetch'] = fetchStub;
+
+      const updateUrl = await CompassAutoUpdateManager.getUpdateCheckURL();
+      fetchStub.callsFake((url) => {
+        expect(url).equals(updateUrl.toString());
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              available: false,
+              reason: 'outdated-operating-system',
+              expectedVersion: '1.2.3',
+            }),
+            { status: 426 }
+          )
+        );
+      });
+    });
+
+    it('return expected result when checking for update', async () => {
+      const result = await CompassAutoUpdateManager.checkForUpdate();
+      expect(result).to.deep.equal({
+        available: false,
+        reason: 'outdated-operating-system',
+        expectedVersion: '1.2.3',
+      });
+    });
+
+    it('should transition to outdated operating system state (automatically)', async () => {
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerState.OutdatedOperatingSystem
+        )
+      ).to.be.true;
+    });
+
+    it('should transition to outdated operating system state (manually)', async () => {
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+          AutoUpdateManagerState.OutdatedOperatingSystem
+        )
+      ).to.be.true;
+    });
+
+    it('should broadcast a message on the main ipc channel', () => {
+      const restartToastIpcPrompt = sandbox
+        .stub(ipcMain!, 'broadcast')
+        .callsFake((eventName, reason) => {
+          expect(eventName).to.equal('autoupdate:update-download-failed');
+          expect(reason).to.equal('outdated-operating-system');
+        });
+
+      // Automatic check
+      CompassAutoUpdateManager['state'] =
+        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.OutdatedOperatingSystem
+      );
+
+      expect(restartToastIpcPrompt).to.be.calledOnce;
+
+      // Manual check
+      CompassAutoUpdateManager['state'] =
+        AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.OutdatedOperatingSystem
+      );
+
+      expect(restartToastIpcPrompt).to.be.calledTwice;
     });
   });
 });

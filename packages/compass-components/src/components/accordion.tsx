@@ -35,7 +35,7 @@ const buttonDarkThemeStyles = css({
   color: palette.white,
 });
 const buttonIconContainerStyles = css({
-  padding: spacing[1] / 2, // matches the line-height (16 + 4)
+  padding: spacing[100] / 2, // matches the line-height (16 + 4)
   paddingLeft: 0,
 });
 const buttonTextStyles = css({
@@ -43,7 +43,7 @@ const buttonTextStyles = css({
 });
 const buttonHintStyles = css({
   margin: 0,
-  marginLeft: spacing[1],
+  marginLeft: spacing[100],
   padding: 0,
   display: 'inline',
 });

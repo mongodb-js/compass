@@ -57,7 +57,7 @@ export const AIGuideCue = ({
 
   return (
     <LGGuideCue
-      spacing={spacing[3]}
+      spacing={spacing[400]}
       open={showGuideCue}
       setOpen={() => {
         // noop, we don't allow leafygreen to control visibility of the guide cue

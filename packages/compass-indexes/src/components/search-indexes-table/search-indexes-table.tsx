@@ -126,15 +126,15 @@ function SearchIndexType({ type, link }: { type: string; link: string }) {
 
 const searchIndexDetailsStyles = css({
   display: 'inline-flex',
-  gap: spacing[1],
-  marginBottom: spacing[2],
-  padding: `0px ${spacing[6]}px`,
+  gap: spacing[100],
+  marginBottom: spacing[200],
+  padding: `0px ${spacing[1600]}px`,
 });
 
 const searchIndexFieldStyles = css({
   // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
   textTransform: 'none',
-  gap: spacing[1],
+  gap: spacing[100],
 });
 
 function VectorSearchIndexDetails({ definition }: { definition: Document }) {
@@ -148,9 +148,15 @@ function VectorSearchIndexDetails({ definition }: { definition: Document }) {
             align="top"
             key={field.path}
             justify="middle"
-            trigger={
-              <Badge className={searchIndexFieldStyles}>{field.path}</Badge>
-            }
+            trigger={({
+              children: tooltipChildren,
+              ...tooltipTriggerProps
+            }: React.HTMLProps<HTMLDivElement>) => (
+              <div {...tooltipTriggerProps}>
+                <Badge className={searchIndexFieldStyles}>{field.path}</Badge>
+                {tooltipChildren}
+              </div>
+            )}
           >
             {JSON.stringify(field, null, 2)}
           </Tooltip>
