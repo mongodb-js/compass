@@ -67,7 +67,7 @@ async function notarize(src, notarizeOptions) {
         '-t',
         'app',
         '-m',
-        'notarizeAndSign',
+        process.env.DEV_VERSION_IDENTIFIER ? 'sign' : 'notarizeAndSign',
         '-u',
         process.env.MACOS_NOTARY_API_URL,
         '-b',
