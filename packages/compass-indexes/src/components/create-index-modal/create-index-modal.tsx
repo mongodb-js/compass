@@ -34,7 +34,7 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
-  currentTab: Tab;
+  currentTab: Tab | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
@@ -83,6 +83,10 @@ function CreateIndexModal({
   const enableInIndexesGuidanceExp = usePreference('enableIndexesGuidanceExp');
   const showIndexesGuidanceVariant =
     usePreference('showIndexesGuidanceVariant') && enableInIndexesGuidanceExp;
+  if (showIndexesGuidanceVariant && !currentTab) {
+    // If user is in the variant and there has not been a currentTab set, default it to IndexFlow
+    props.onTabClick('IndexFlow');
+  }
 
   useFireExperimentViewed({
     testName: TestName.earlyJourneyIndexesGuidance,

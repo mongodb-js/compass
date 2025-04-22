@@ -295,7 +295,7 @@ export type State = {
   options: Options;
 
   // current tab that user is on (Query Flow or Index Flow)
-  currentTab: Tab;
+  currentTab: Tab | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -304,7 +304,7 @@ export const INITIAL_STATE: State = {
   error: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
-  currentTab: 'IndexFlow',
+  currentTab: null,
 };
 
 function getInitialState(): State {
@@ -365,7 +365,17 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   void,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
+    const currentTab = getState().createIndex.currentTab;
+    track('Create Index Button Clicked', {
+      context: 'Create Index Modal',
+      flow: !currentTab
+        ? undefined
+        : currentTab === 'IndexFlow'
+        ? 'Start with Index'
+        : 'Start with Query',
+    });
+
     // Check for field errors.
     if (
       getState().createIndex.fields.some(
