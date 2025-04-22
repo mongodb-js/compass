@@ -5,6 +5,7 @@ import {
   Body,
   fontFamilies,
   Code,
+  Link,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
@@ -25,20 +26,18 @@ const headerStyles = css({
 const queryInputStyles = css({
   div: {
     border: 0,
-
-    '&::hover': {
-      border: 0,
-    },
-    '&::focus': {
-      border: 0,
-    },
   },
   input: {
-    fontFamily: fontFamilies.code,
+    fontFamily: `${fontFamilies.code} !important`,
     '&::placeholder': {
       fontFamily: fontFamilies.code,
     },
   },
+});
+
+const suggestedIndexContainerStyles = css({
+  flexDirection: 'column',
+  display: 'flex',
 });
 
 const suggestedIndexButtonStyles = css({
@@ -46,7 +45,25 @@ const suggestedIndexButtonStyles = css({
   marginTop: spacing[400],
 });
 
+const programmingLanguageLinkStyles = css({
+  marginLeft: 'auto',
+  marginTop: spacing[100],
+});
+
 const QueryFlowSection = () => {
+  // TODO in CLOUDP-311786, replace hardcoded values with actual data
+  const db_name = 'sample_mflix';
+  const collection_name = 'comments';
+
+  const formatSuggestedIndex = () => {
+    return `
+db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
+  "awards.win": "1",
+  "imdb.rating": "1",
+});
+`;
+  };
+
   return (
     <>
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -71,21 +88,22 @@ const QueryFlowSection = () => {
           </Button>
         </div>
       </div>
-
-      <div>
-        <Body baseFontSize={16} weight="medium" className={headerStyles}>
-          Suggested Index
-        </Body>
-
-        {/* Fill in actual data in CLOUDP-311786 */}
-        <Code language="javascript">
-          {`
-db.getSiblingDB("sample_mflix").getCollection("comments").createIndex(
-  "awards.win": "1",
-  "imdb.rating": "1",
-})
-`}
-        </Code>
+      <Body baseFontSize={16} weight="medium" className={headerStyles}>
+        Suggested Index
+      </Body>{' '}
+      <div className={suggestedIndexContainerStyles}>
+        <Code language="javascript">{formatSuggestedIndex()}</Code>
+        <span className={programmingLanguageLinkStyles}>
+          View programming language driver syntax{' '}
+          <Link
+            href="https://www.mongodb.com/docs/manual/core/indexes/create-index/"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            here
+          </Link>
+          .
+        </span>
       </div>
     </>
   );
