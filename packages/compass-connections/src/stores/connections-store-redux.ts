@@ -1479,6 +1479,13 @@ const connectWithOptions = (
       return inflightConnection;
     }
     inflightConnection = (async () => {
+      if (
+        getCurrentConnectionStatus(getState(), connectionInfo.id) ===
+        'connected'
+      ) {
+        return;
+      }
+
       const isAutoconnectAttempt = isAutoconnectInfo(
         getState(),
         connectionInfo.id

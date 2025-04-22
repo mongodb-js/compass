@@ -99,7 +99,7 @@ const darkThemeStyles = css({
 });
 
 type WorkspaceContainerProps = {
-  toolbar?: React.ReactNode;
+  toolbar?: React.ReactNode | (() => void);
   toolbarRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
   initialTopInView?: boolean;
@@ -148,7 +148,7 @@ function WorkspaceContainer({
     >
       {toolbar && (
         <div ref={toolbarRef} className={toolbarStyles}>
-          {toolbar}
+          {typeof toolbar === 'function' ? toolbar() : toolbar}
         </div>
       )}
       <div className={scrollBoxStyles} ref={scrollContainer}>

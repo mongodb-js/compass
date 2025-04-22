@@ -61,6 +61,7 @@ import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
+import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -340,61 +341,63 @@ const CompassWeb = ({
             <LoggerProvider value={logger}>
               <TelemetryProvider options={telemetryOptions.current}>
                 <WithAtlasProviders>
-                  <AtlasCloudConnectionStorageProvider
-                    orgId={orgId}
-                    projectId={projectId}
-                  >
-                    <CompassConnections
-                      appName={appName ?? 'Compass Web'}
-                      onFailToLoadConnections={onFailToLoadConnections}
-                      onExtraConnectionDataRequest={() => {
-                        return Promise.resolve([{}, null] as [
-                          Record<string, unknown>,
-                          null
-                        ]);
-                      }}
-                      onAutoconnectInfoRequest={(connectionStore) => {
-                        if (autoconnectId) {
-                          return connectionStore.loadAll().then(
-                            (connections) => {
-                              return connections.find(
-                                (connectionInfo) =>
-                                  connectionInfo.id === autoconnectId
-                              );
-                            },
-                            (err) => {
-                              const { log, mongoLogId } = logger;
-                              log.warn(
-                                mongoLogId(1_001_000_329),
-                                'Compass Web',
-                                'Could not load connections when trying to autoconnect',
-                                { err: err.message }
-                              );
-                              return undefined;
-                            }
-                          );
-                        }
-                        return Promise.resolve(undefined);
-                      }}
+                  <DataModelStorageServiceProviderInMemory>
+                    <AtlasCloudConnectionStorageProvider
+                      orgId={orgId}
+                      projectId={projectId}
                     >
-                      <CompassInstanceStorePlugin>
-                        <FieldStorePlugin>
-                          <WithConnectionsStore>
-                            <CompassWorkspace
-                              initialWorkspaceTabs={
-                                initialWorkspaceTabsRef.current
+                      <CompassConnections
+                        appName={appName ?? 'Compass Web'}
+                        onFailToLoadConnections={onFailToLoadConnections}
+                        onExtraConnectionDataRequest={() => {
+                          return Promise.resolve([{}, null] as [
+                            Record<string, unknown>,
+                            null
+                          ]);
+                        }}
+                        onAutoconnectInfoRequest={(connectionStore) => {
+                          if (autoconnectId) {
+                            return connectionStore.loadAll().then(
+                              (connections) => {
+                                return connections.find(
+                                  (connectionInfo) =>
+                                    connectionInfo.id === autoconnectId
+                                );
+                              },
+                              (err) => {
+                                const { log, mongoLogId } = logger;
+                                log.warn(
+                                  mongoLogId(1_001_000_329),
+                                  'Compass Web',
+                                  'Could not load connections when trying to autoconnect',
+                                  { err: err.message }
+                                );
+                                return undefined;
                               }
-                              onActiveWorkspaceTabChange={
-                                onActiveWorkspaceTabChange
-                              }
-                              onOpenConnectViaModal={onOpenConnectViaModal}
-                            ></CompassWorkspace>
-                          </WithConnectionsStore>
-                        </FieldStorePlugin>
-                        <CompassGenerativeAIPlugin projectId={projectId} />
-                      </CompassInstanceStorePlugin>
-                    </CompassConnections>
-                  </AtlasCloudConnectionStorageProvider>
+                            );
+                          }
+                          return Promise.resolve(undefined);
+                        }}
+                      >
+                        <CompassInstanceStorePlugin>
+                          <FieldStorePlugin>
+                            <WithConnectionsStore>
+                              <CompassWorkspace
+                                initialWorkspaceTabs={
+                                  initialWorkspaceTabsRef.current
+                                }
+                                onActiveWorkspaceTabChange={
+                                  onActiveWorkspaceTabChange
+                                }
+                                onOpenConnectViaModal={onOpenConnectViaModal}
+                              ></CompassWorkspace>
+                            </WithConnectionsStore>
+                          </FieldStorePlugin>
+                          <CompassGenerativeAIPlugin projectId={projectId} />
+                        </CompassInstanceStorePlugin>
+                      </CompassConnections>
+                    </AtlasCloudConnectionStorageProvider>
+                  </DataModelStorageServiceProviderInMemory>
                 </WithAtlasProviders>
               </TelemetryProvider>
             </LoggerProvider>

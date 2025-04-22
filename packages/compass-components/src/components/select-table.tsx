@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react';
 import {
   Cell,
   Checkbox,
@@ -7,8 +8,7 @@ import {
   Table,
   TableBody,
   TableHead,
-} from '@mongodb-js/compass-components';
-import React, { useCallback } from 'react';
+} from './leafygreen';
 
 type SelectItem = {
   id: string;
