@@ -82,102 +82,65 @@ function CreateIndexForm({
 
   const showIndexesGuidanceIndexFlow =
     showIndexesGuidanceVariant && currentTab === 'IndexFlow';
+  const showIndexesGuidanceQueryFlow =
+    showIndexesGuidanceVariant && currentTab === 'QueryFlow';
 
-  // Default / Control view
-  if (!showIndexesGuidanceVariant) {
-    return (
-      <>
-        <div
-          className={createIndexModalFieldsStyles}
-          data-testid="create-index-form"
-        >
-          <Body weight="medium" className={indexFieldsHeaderStyles}>
-            Index fields
-          </Body>
-          {fields.length > 0 ? (
-            <CreateIndexFields
-              schemaFields={schemaFieldNames}
-              fields={fields}
-              serverVersion={serverVersion}
-              isRemovable={!(fields.length > 1)}
-              onSelectFieldNameClick={onSelectFieldNameClick}
-              onSelectFieldTypeClick={onSelectFieldTypeClick}
-              onAddFieldClick={onAddFieldClick}
-              onRemoveFieldClick={onRemoveFieldClick}
-            />
-          ) : null}
-        </div>
-        <Accordion
-          data-testid="create-index-modal-toggle-options"
-          text="Options"
-        >
-          <div
-            data-testid="create-index-modal-options"
-            className={createIndexModalOptionStyles}
-          >
-            <CheckboxInput name="unique"></CheckboxInput>
-            <CollapsibleInput name="name"></CollapsibleInput>
-            <CollapsibleInput name="expireAfterSeconds"></CollapsibleInput>
-            <CollapsibleInput name="partialFilterExpression"></CollapsibleInput>
-            <CollapsibleInput name="wildcardProjection"></CollapsibleInput>
-            <CollapsibleInput name="collation"></CollapsibleInput>
-            {hasColumnstoreIndexesSupport(serverVersion) && (
-              <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
-            )}
-            <CheckboxInput name="sparse"></CheckboxInput>
-            {showRollingIndexOption && (
-              <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
-            )}
-          </div>
-        </Accordion>
-      </>
-    );
-  }
+  const RenderCreateIndexFields = () => {
+    if (fields.length > 0 && !showIndexesGuidanceQueryFlow) {
+      return (
+        <CreateIndexFields
+          schemaFields={schemaFieldNames}
+          fields={fields}
+          serverVersion={serverVersion}
+          isRemovable={!(fields.length > 1)}
+          onSelectFieldNameClick={onSelectFieldNameClick}
+          onSelectFieldTypeClick={onSelectFieldTypeClick}
+          onAddFieldClick={onAddFieldClick}
+          onRemoveFieldClick={onRemoveFieldClick}
+        />
+      );
+    }
+    return null;
+  };
 
-  // Indexes Guidance Variant View
   return (
     <>
       <div
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        <RadioBoxGroup
-          aria-labelledby="index-flows"
-          data-testid="create-index-form-flows"
-          id="create-index-form-flows"
-          onChange={(e) => {
-            onTabClick(e.target.value as Tab);
-          }}
-          value={currentTab}
-          className={createIndexModalFlowsStyles}
-        >
-          <RadioBox id="index-flow" value={'IndexFlow'}>
-            Start with an Index
-          </RadioBox>
-          <RadioBox id="query-flow" value={'QueryFlow'}>
-            Start with a Query
-          </RadioBox>
-        </RadioBoxGroup>
-      </div>
+        {!showIndexesGuidanceVariant ? (
+          <Body weight="medium" className={indexFieldsHeaderStyles}>
+            Index fields
+          </Body>
+        ) : (
+          <RadioBoxGroup
+            aria-labelledby="index-flows"
+            data-testid="create-index-form-flows"
+            id="create-index-form-flows"
+            onChange={(e) => {
+              onTabClick(e.target.value as Tab);
+            }}
+            value={currentTab}
+            className={createIndexModalFlowsStyles}
+          >
+            <RadioBox id="index-flow" value={'IndexFlow'}>
+              Start with an Index
+            </RadioBox>
+            <RadioBox id="query-flow" value={'QueryFlow'}>
+              Start with a Query
+            </RadioBox>
+          </RadioBoxGroup>
+        )}
 
-      {showIndexesGuidanceIndexFlow && (
-        <IndexFlowSection
-          createIndexFieldsComponent={
-            fields.length > 0 ? (
-              <CreateIndexFields
-                schemaFields={schemaFieldNames}
-                fields={fields}
-                serverVersion={serverVersion}
-                isRemovable={!(fields.length > 1)}
-                onSelectFieldNameClick={onSelectFieldNameClick}
-                onSelectFieldTypeClick={onSelectFieldTypeClick}
-                onAddFieldClick={onAddFieldClick}
-                onRemoveFieldClick={onRemoveFieldClick}
-              />
-            ) : null
-          }
-        />
-      )}
+        {showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
+          <IndexFlowSection
+            createIndexFieldsComponent={RenderCreateIndexFields()}
+          />
+        ) : (
+          RenderCreateIndexFields()
+        )}
+      </div>
 
       {/* TODO in CLOUDP-314036: update the accordion design */}
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">

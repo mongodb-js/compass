@@ -10,6 +10,7 @@ import {
   spacing,
   Toggle,
   Tooltip,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -53,13 +54,16 @@ const buttonContainerStyles = css({
 });
 
 const coveredQueriesButtonStyles = css({
-  height: spacing[600] + 4,
   float: 'right',
   marginTop: spacing[400],
 });
 
+const underlineStyles = css({
+  textDecoration: 'underline',
+});
+
 const codeStyles = css({
-  fontFamily: 'Source Code Pro',
+  fontFamily: fontFamilies.code,
 });
 
 const infoWithCircleIconStyles = css({
@@ -113,6 +117,7 @@ const IndexFlowSection = ({
               // TODO in CLOUDP-311782 generate covered queries
               // TODO in CLOUDP-311783 generate optimal queries
             }}
+            size="small"
           >
             Show me covered queries
           </Button>
@@ -149,7 +154,6 @@ const IndexFlowSection = ({
       <div className={coveredQueriesCalloutStyles}>
         {/* Covered Queries, clean up with actual covered queries examples in CLOUDP-311782 */}
         <Body
-          baseFontSize={13}
           className={codeStyles}
           data-testid="index-flow-section-covered-queries-examples"
         >
@@ -158,13 +162,12 @@ const IndexFlowSection = ({
           {`{ awards.wins:3, imdb.rating:5, awards.nominations:8 }`} <br />
         </Body>
         <p>
-          <u>
+          <span className={underlineStyles}>
             Follow the Equality, Sort, Range (ESR) Rule and this index is
             optimal for queries that have this pattern:
-          </u>
+          </span>
           {/* Optimal queries, clean up with actual optimal queries in CLOUDP-311783 */}
           <Body
-            baseFontSize={13}
             className={codeStyles}
             data-testid="index-flow-section-optimal-query-examples"
           >
