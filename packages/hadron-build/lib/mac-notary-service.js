@@ -67,7 +67,7 @@ async function notarize(src, notarizeOptions) {
         '-t',
         'app',
         '-m',
-        process.env.DEV_VERSION_IDENTIFIER ? 'sign' : 'notarizeAndSign',
+        process.env.REQUESTER === 'github_pr' ? 'sign' : 'notarizeAndSign',
         '-u',
         process.env.MACOS_NOTARY_API_URL,
         '-b',
