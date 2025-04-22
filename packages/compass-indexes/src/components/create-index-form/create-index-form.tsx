@@ -18,6 +18,7 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import QueryFlowSection from './query-flow-section';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -123,6 +124,8 @@ function CreateIndexForm({
             onRemoveFieldClick={onRemoveFieldClick}
           />
         ) : null}
+
+        {currentTab === 'QueryFlow' && <QueryFlowSection />}
       </div>
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
         <div
