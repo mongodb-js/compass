@@ -3,14 +3,13 @@ import {
   Button,
   css,
   cx,
-  Icon,
   Label,
   Link,
   palette,
   spacing,
   Toggle,
-  Tooltip,
   fontFamilies,
+  InfoSprinkle,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -66,9 +65,8 @@ const codeStyles = css({
   fontFamily: fontFamilies.code,
 });
 
-const infoWithCircleIconStyles = css({
-  color: palette.gray.dark1,
-  marginLeft: spacing[200],
+const coveredQueriesHeaderStyles = css({
+  marginRight: spacing[200],
 });
 
 export type IndexFlowSectionProps = {
@@ -127,28 +125,20 @@ const IndexFlowSection = ({
       <div
         className={cx(coveredQueriesHeaderContainerStyles, flexContainerStyles)}
       >
-        <Body baseFontSize={16} weight="medium">
+        <Body
+          baseFontSize={16}
+          weight="medium"
+          className={coveredQueriesHeaderStyles}
+        >
           Covered Queries
         </Body>
-        <Tooltip
-          enabled={true}
-          trigger={
-            <span>
-              <Icon
-                glyph="InfoWithCircle"
-                className={cx(infoWithCircleIconStyles, flexContainerStyles)}
-                data-testid="index-flow-section-covered-queries-tooltip"
-              />
-            </span>
-          }
-          triggerEvent="hover"
-          align="top"
-          justify="middle"
-        >
+
+        <InfoSprinkle align="top" justify="middle">
+          {' '}
           A covered query is a query that can be satisfied entirely using an
           index and does not have to examine any documents. If a query is
           covered, it is highly performant.
-        </Tooltip>
+        </InfoSprinkle>
       </div>
 
       <div className={coveredQueriesCalloutStyles}>

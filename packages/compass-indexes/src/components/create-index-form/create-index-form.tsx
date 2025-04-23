@@ -85,24 +85,6 @@ function CreateIndexForm({
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
 
-  const RenderCreateIndexFields = () => {
-    if (fields.length > 0 && !showIndexesGuidanceQueryFlow) {
-      return (
-        <CreateIndexFields
-          schemaFields={schemaFieldNames}
-          fields={fields}
-          serverVersion={serverVersion}
-          isRemovable={!(fields.length > 1)}
-          onSelectFieldNameClick={onSelectFieldNameClick}
-          onSelectFieldTypeClick={onSelectFieldTypeClick}
-          onAddFieldClick={onAddFieldClick}
-          onRemoveFieldClick={onRemoveFieldClick}
-        />
-      );
-    }
-    return null;
-  };
-
   return (
     <>
       <div
@@ -133,13 +115,39 @@ function CreateIndexForm({
           </RadioBoxGroup>
         )}
 
-        {showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
-          <IndexFlowSection
-            createIndexFieldsComponent={RenderCreateIndexFields()}
-          />
-        ) : (
-          RenderCreateIndexFields()
-        )}
+        {fields.length > 0 ? (
+          // Variant UI
+          showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
+            <IndexFlowSection
+              createIndexFieldsComponent={
+                <CreateIndexFields
+                  schemaFields={schemaFieldNames}
+                  fields={fields}
+                  serverVersion={serverVersion}
+                  isRemovable={!(fields.length > 1)}
+                  onSelectFieldNameClick={onSelectFieldNameClick}
+                  onSelectFieldTypeClick={onSelectFieldTypeClick}
+                  onAddFieldClick={onAddFieldClick}
+                  onRemoveFieldClick={onRemoveFieldClick}
+                />
+              }
+            />
+          ) : (
+            // Control UI
+            !showIndexesGuidanceQueryFlow && (
+              <CreateIndexFields
+                schemaFields={schemaFieldNames}
+                fields={fields}
+                serverVersion={serverVersion}
+                isRemovable={!(fields.length > 1)}
+                onSelectFieldNameClick={onSelectFieldNameClick}
+                onSelectFieldTypeClick={onSelectFieldTypeClick}
+                onAddFieldClick={onAddFieldClick}
+                onRemoveFieldClick={onRemoveFieldClick}
+              />
+            )
+          )
+        ) : null}
       </div>
 
       {/* TODO in CLOUDP-314036: update the accordion design */}
