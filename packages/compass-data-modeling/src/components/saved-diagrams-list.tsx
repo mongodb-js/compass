@@ -6,16 +6,24 @@ import {
   Card,
   EmptyContent,
   Icon,
+  ItemActionMenu,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
-import { openDiagram } from '../store/diagram';
+import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 
 const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
-}> = ({ onCreateDiagramClick, onOpenDiagramClick }) => {
+  onDiagramDeleteClick: (id: string) => void;
+  onDiagramRenameClick: (id: string) => void;
+}> = ({
+  onCreateDiagramClick,
+  onOpenDiagramClick,
+  onDiagramRenameClick,
+  onDiagramDeleteClick,
+}) => {
   const { items, status } = useDataModelSavedItems();
 
   if (status === 'INITIAL' || status === 'LOADING') {
@@ -32,13 +40,28 @@ const SavedDiagramsList: React.FunctionComponent<{
         {items.map((diagram) => {
           return (
             <Card
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 8, display: 'flex' }}
               key={diagram.id}
               onClick={() => {
                 onOpenDiagramClick(diagram);
               }}
             >
               {diagram.name}
+              <ItemActionMenu
+                isVisible
+                actions={[
+                  { action: 'rename', label: 'Rename' },
+                  { action: 'delete', label: 'Delete' },
+                ]}
+                onAction={(action) => {
+                  if (action === 'rename') {
+                    onDiagramRenameClick(diagram.id);
+                  }
+                  if (action === 'delete') {
+                    onDiagramDeleteClick(diagram.id);
+                  }
+                }}
+              ></ItemActionMenu>
             </Card>
           );
         })}
@@ -90,4 +113,6 @@ const SavedDiagramsList: React.FunctionComponent<{
 export default connect(null, {
   onCreateDiagramClick: createNewDiagram,
   onOpenDiagramClick: openDiagram,
+  onDiagramDeleteClick: deleteDiagram,
+  onDiagramRenameClick: renameDiagram,
 })(SavedDiagramsList);

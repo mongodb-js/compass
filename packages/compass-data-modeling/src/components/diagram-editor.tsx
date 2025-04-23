@@ -4,6 +4,7 @@ import type { DataModelingState } from '../store/reducer';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   applyEdit,
+  getCurrentDiagramFromState,
   redoEdit,
   selectCurrentModel,
   undoEdit,
@@ -228,9 +229,11 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      hasUndo: diagram.prev.length > 0,
-      hasRedo: diagram.next.length > 0,
-      model: diagram.current ? selectCurrentModel(diagram.current) : null,
+      hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
+      hasRedo: (diagram?.edits.next.length ?? 0) > 0,
+      model: diagram
+        ? selectCurrentModel(getCurrentDiagramFromState(state))
+        : null,
     };
   },
   {

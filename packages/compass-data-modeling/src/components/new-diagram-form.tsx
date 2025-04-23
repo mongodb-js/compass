@@ -18,6 +18,7 @@ import {
   selectDatabase,
 } from '../store/generate-diagram-wizard';
 import {
+  Banner,
   Button,
   css,
   FormFieldContainer,
@@ -214,6 +215,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
               label=""
               value={selectedConnectionId ?? ''}
               onChange={onConnectionSelect}
+              disabled={connections.length === 0}
             >
               {connections.map((connection) => {
                 return (
@@ -223,6 +225,11 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
                 );
               })}
             </Select>
+            {connections.length === 0 && (
+              <Banner variant="warning">
+                You do not have any connections, create a new connection first
+              </Banner>
+            )}
           </FormFieldContainer>
         );
       case 'select-database':

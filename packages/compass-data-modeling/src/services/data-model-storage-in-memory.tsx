@@ -11,8 +11,15 @@ class DataModelStorageInMemory implements DataModelStorage {
     this.items.set(description.id, description);
     return Promise.resolve(true);
   }
+  delete(id: MongoDBDataModelDescription['id']): Promise<boolean> {
+    this.items.delete(id);
+    return Promise.resolve(true);
+  }
   loadAll(): Promise<MongoDBDataModelDescription[]> {
     return Promise.resolve(Array.from(this.items.values()));
+  }
+  load(id: string): Promise<MongoDBDataModelDescription | null> {
+    return Promise.resolve(this.items.get(id) ?? null);
   }
 }
 

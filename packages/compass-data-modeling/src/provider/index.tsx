@@ -19,8 +19,14 @@ const noopDataModelStorageService: DataModelStorageServiceState &
   save: () => {
     return Promise.resolve(false);
   },
+  delete: () => {
+    return Promise.resolve(false);
+  },
   loadAll: () => {
     return Promise.resolve([]);
+  },
+  load: () => {
+    return Promise.resolve(null);
   },
 };
 
@@ -41,15 +47,33 @@ export const DataModelStorageServiceProvider: React.FunctionComponent<{
   const service = useMemo(() => {
     return {
       ...serviceState,
-      async save(item: MongoDBDataModelDescription) {
-        const hasSaved = await storageRef.current.save(item);
-        if (hasSaved) {
-          void this.loadAll().catch(() => {
-            // We can ignore the error when refreshing, loadAll will keep this
-            // state around for us
+      async save(toSave: MongoDBDataModelDescription) {
+        setServiceState((prevState) => {
+          const itemIdx = prevState.items.findIndex((item) => {
+            return item.id === toSave.id;
           });
-        }
-        return hasSaved;
+          if (itemIdx === -1) {
+            prevState.items.push(toSave);
+          } else {
+            prevState.items[itemIdx] = toSave;
+          }
+          return {
+            ...prevState,
+            items: [...prevState.items],
+          };
+        });
+        return storageRef.current.save(toSave);
+      },
+      async delete(id: MongoDBDataModelDescription['id']) {
+        setServiceState((prevState) => {
+          return {
+            ...prevState,
+            items: prevState.items.filter((item) => {
+              return item.id !== id;
+            }),
+          };
+        });
+        return storageRef.current.delete(id);
       },
       async loadAll() {
         setServiceState((prevState) => {
@@ -70,6 +94,13 @@ export const DataModelStorageServiceProvider: React.FunctionComponent<{
           });
           throw err;
         }
+      },
+      async load(id: string) {
+        return (
+          (await this.loadAll()).find((item) => {
+            return item.id === id;
+          }) ?? null
+        );
       },
     };
   }, [serviceState]);
@@ -95,7 +126,9 @@ export const dataModelStorageServiceLocator = createServiceLocator(() => {
   const service = useContext(DataModelStorageServiceContext);
   return {
     save: service.save.bind(service),
+    delete: service.delete.bind(service),
     loadAll: service.loadAll.bind(service),
+    load: service.load.bind(service),
   };
 }, 'dataModelStorageServiceLocator');
 

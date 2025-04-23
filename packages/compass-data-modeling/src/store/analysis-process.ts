@@ -1,7 +1,8 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
-import { parseSchema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
+import { getCurrentDiagramFromState } from './diagram';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -157,9 +158,14 @@ export function startAnalysis(
       const samples = await Promise.all(
         namespaces.map(async (ns) => {
           // TODO
-          const sample = await dataService.sample(ns, { size: 10 }, undefined, {
-            abortSignal: cancelController.signal,
-          });
+          const sample = await dataService.sample(
+            ns,
+            { size: 100 },
+            undefined,
+            {
+              abortSignal: cancelController.signal,
+            }
+          );
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
             namespace: ns,
@@ -169,8 +175,12 @@ export function startAnalysis(
       );
       const schema = await Promise.all(
         samples.map(async ({ ns, sample }) => {
-          const schema = await parseSchema(sample, {
+          const schema = await analyzeDocuments(sample, {
             signal: cancelController.signal,
+          }).then((accessor) => {
+            return accessor.getMongoDBJsonSchema({
+              signal: cancelController.signal,
+            });
           });
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
@@ -192,7 +202,9 @@ export function startAnalysis(
         schema: Object.fromEntries(schema),
         relations: [],
       });
-      void services.dataModelStorage.save(getState().diagram.current!);
+      void services.dataModelStorage.save(
+        getCurrentDiagramFromState(getState())
+      );
     } catch (err) {
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });

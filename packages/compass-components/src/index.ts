@@ -180,6 +180,7 @@ export {
   ConfirmationModalVariant,
   ConfirmationModalArea,
   showConfirmation,
+  showPrompt,
 } from './hooks/use-confirmation';
 export { showErrorDetails } from './hooks/use-error-details';
 export {

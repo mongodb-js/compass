@@ -21,7 +21,7 @@ export type MongoDBDataModelDescription = z.output<
 
 export interface DataModelStorage {
   save(description: MongoDBDataModelDescription): Promise<boolean>;
-  loadAll(options?: {
-    force?: boolean;
-  }): Promise<MongoDBDataModelDescription[]>;
+  delete(id: MongoDBDataModelDescription['id']): Promise<boolean>;
+  loadAll(): Promise<MongoDBDataModelDescription[]>;
+  load(id: string): Promise<MongoDBDataModelDescription | null>;
 }
