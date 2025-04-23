@@ -88,7 +88,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
-  const [searchIndexesBannerDismissed] = usePersistedState(
+  const [dismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false
   );
@@ -140,7 +140,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             </Button>
             {!isReadonlyView &&
               !isSearchManagementActive &&
-              searchIndexesBannerDismissed &&
+              dismissed &&
               atlasMetadata && (
                 <Link
                   href={getAtlasSearchIndexesLink({
