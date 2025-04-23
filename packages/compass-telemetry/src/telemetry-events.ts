@@ -2678,6 +2678,16 @@ type ExperimentViewedEvent = CommonEvent<{
   payload: { test_name: string };
 }>;
 
+export type CreateIndexModalContext = 'Create Index Modal';
+
+type CreateIndexButtonClickedEvent = CommonEvent<{
+  name: 'Create Index Button Clicked';
+  payload: {
+    flow: 'Start with Query' | 'Start with Index' | undefined;
+    context: CreateIndexModalContext;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2799,4 +2809,5 @@ export type TelemetryEvent =
   | FirstInputDelayEvent
   | CumulativeLayoutShiftEvent
   | TimeToFirstByteEvent
-  | ExperimentViewedEvent;
+  | ExperimentViewedEvent
+  | CreateIndexButtonClickedEvent;

@@ -18,6 +18,7 @@ import {
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import IndexFlowSection from './index-flow-section';
 import QueryFlowSection from './query-flow-section';
 
 const createIndexModalFieldsStyles = css({
@@ -80,6 +81,8 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
+  const showIndexesGuidanceIndexFlow =
+    showIndexesGuidanceVariant && currentTab === 'IndexFlow';
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
 
@@ -89,7 +92,11 @@ function CreateIndexForm({
         className={createIndexModalFieldsStyles}
         data-testid="create-index-form"
       >
-        {showIndexesGuidanceVariant ? (
+        {!showIndexesGuidanceVariant ? (
+          <Body weight="medium" className={indexFieldsHeaderStyles}>
+            Index fields
+          </Body>
+        ) : (
           <RadioBoxGroup
             aria-labelledby="index-flows"
             data-testid="create-index-form-flows"
@@ -107,29 +114,46 @@ function CreateIndexForm({
               Start with a Query
             </RadioBox>
           </RadioBoxGroup>
-        ) : (
-          <Body weight="medium" className={indexFieldsHeaderStyles}>
-            Index fields
-          </Body>
         )}
 
-        {/* Only show the fields if user is in the Start with an index flow or if they're in the control */}
-        {fields.length > 0 &&
-        (!showIndexesGuidanceVariant || currentTab === 'IndexFlow') ? (
-          <CreateIndexFields
-            schemaFields={schemaFieldNames}
-            fields={fields}
-            serverVersion={serverVersion}
-            isRemovable={!(fields.length > 1)}
-            onSelectFieldNameClick={onSelectFieldNameClick}
-            onSelectFieldTypeClick={onSelectFieldTypeClick}
-            onAddFieldClick={onAddFieldClick}
-            onRemoveFieldClick={onRemoveFieldClick}
-          />
+        {fields.length > 0 ? (
+          // Variant UI
+          showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
+            <IndexFlowSection
+              createIndexFieldsComponent={
+                <CreateIndexFields
+                  schemaFields={schemaFieldNames}
+                  fields={fields}
+                  serverVersion={serverVersion}
+                  isRemovable={!(fields.length > 1)}
+                  onSelectFieldNameClick={onSelectFieldNameClick}
+                  onSelectFieldTypeClick={onSelectFieldTypeClick}
+                  onAddFieldClick={onAddFieldClick}
+                  onRemoveFieldClick={onRemoveFieldClick}
+                />
+              }
+            />
+          ) : (
+            // Control UI
+            !showIndexesGuidanceQueryFlow && (
+              <CreateIndexFields
+                schemaFields={schemaFieldNames}
+                fields={fields}
+                serverVersion={serverVersion}
+                isRemovable={!(fields.length > 1)}
+                onSelectFieldNameClick={onSelectFieldNameClick}
+                onSelectFieldTypeClick={onSelectFieldTypeClick}
+                onAddFieldClick={onAddFieldClick}
+                onRemoveFieldClick={onRemoveFieldClick}
+              />
+            )
+          )
         ) : null}
-
-        {showIndexesGuidanceQueryFlow && <QueryFlowSection />}
       </div>
+
+      {showIndexesGuidanceQueryFlow && <QueryFlowSection />}
+
+      {/* TODO in CLOUDP-314036: update the accordion design */}
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
         <div
           data-testid="create-index-modal-options"

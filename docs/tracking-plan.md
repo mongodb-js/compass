@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Apr 21, 2025
+Generated on Wed, Apr 23, 2025
 
 ## Table of Contents
 
@@ -153,6 +153,7 @@ Generated on Mon, Apr 21, 2025
 - [Screen](#event--ScreenEvent)
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
+- [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
 
 ### Performance Tab
 
@@ -1787,6 +1788,16 @@ a system that doesn't offer a suitable secret storage backend.
 **Properties**:
 
 - **test_name** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexButtonClickedEvent"></a>
+
+### Create Index Button Clicked
+
+**Properties**:
+
+- **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
+- **context** (required): `"Create Index Modal"`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Performance Tab
