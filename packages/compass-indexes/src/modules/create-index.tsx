@@ -365,7 +365,22 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   void,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track, preferences }) => {
+    // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
+    const currentTab = getState().createIndex.currentTab;
+    const { enableIndexesGuidanceExp, showIndexesGuidanceVariant } =
+      preferences.getPreferences();
+
+    track('Create Index Button Clicked', {
+      context: 'Create Index Modal',
+      flow:
+        enableIndexesGuidanceExp && showIndexesGuidanceVariant
+          ? currentTab === 'IndexFlow'
+            ? 'Start with Index'
+            : 'Start with Query'
+          : undefined,
+    });
+
     // Check for field errors.
     if (
       getState().createIndex.fields.some(
