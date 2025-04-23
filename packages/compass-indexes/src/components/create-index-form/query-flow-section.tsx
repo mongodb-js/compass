@@ -92,7 +92,12 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
         Suggested Index
       </Body>{' '}
       <div className={suggestedIndexContainerStyles}>
-        <Code language="javascript">{formatSuggestedIndex()}</Code>
+        <Code
+          data-testid="query-flow-section-suggested-index"
+          language="javascript"
+        >
+          {formatSuggestedIndex()}
+        </Code>
         <span className={programmingLanguageLinkStyles}>
           View programming language driver syntax{' '}
           <Link
