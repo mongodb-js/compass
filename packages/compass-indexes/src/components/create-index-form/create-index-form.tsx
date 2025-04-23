@@ -80,6 +80,9 @@ function CreateIndexForm({
       });
   }, [schemaFields]);
 
+  const showIndexesGuidanceQueryFlow =
+    showIndexesGuidanceVariant && currentTab === 'QueryFlow';
+
   return (
     <>
       <div
@@ -125,7 +128,7 @@ function CreateIndexForm({
           />
         ) : null}
 
-        {currentTab === 'QueryFlow' && <QueryFlowSection />}
+        {showIndexesGuidanceQueryFlow && <QueryFlowSection />}
       </div>
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
         <div
