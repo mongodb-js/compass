@@ -1,5 +1,15 @@
-import { Code } from '@mongodb-js/compass-components';
+import { Code, Link, css, spacing } from '@mongodb-js/compass-components';
 import React from 'react';
+
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const programmingLanguageLinkStyles = css({
+  marginLeft: 'auto',
+  marginTop: spacing[100],
+});
 
 const MDBCodeViewer = ({
   dbName,
@@ -30,9 +40,22 @@ const MDBCodeViewer = ({
   };
 
   return (
-    <Code data-testid="mdb-code-viewer" language="javascript">
-      {generateCode()}
-    </Code>
+    <div className={containerStyles}>
+      <Code data-testid="mdb-code-viewer" language="javascript">
+        {generateCode()}
+      </Code>
+      <span className={programmingLanguageLinkStyles}>
+        View programming language driver syntax{' '}
+        <Link
+          href="https://www.mongodb.com/docs/manual/core/indexes/create-index/"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          here
+        </Link>
+        .
+      </span>
+    </div>
   );
 };
 
