@@ -120,6 +120,7 @@ function CreateIndexForm({
           showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
             <IndexFlowSection
               fields={fields}
+              namespace={namespace}
               createIndexFieldsComponent={
                 <CreateIndexFields
                   schemaFields={schemaFieldNames}

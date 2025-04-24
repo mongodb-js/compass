@@ -74,11 +74,13 @@ const coveredQueriesHeaderStyles = css({
 export type IndexFlowSectionProps = {
   fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
+  namespace: string;
 };
 
 const IndexFlowSection = ({
   createIndexFieldsComponent,
   fields,
+  namespace,
 }: IndexFlowSectionProps) => {
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
@@ -102,6 +104,10 @@ const IndexFlowSection = ({
     },
     {}
   );
+
+  const dbCollectionNames = namespace.split('.');
+  const dbName = dbCollectionNames[0];
+  const collectionName = dbCollectionNames[1];
 
   return (
     <div>
@@ -132,10 +138,10 @@ const IndexFlowSection = ({
       <div className={indexFieldsCalloutStyles}>
         {isCodeEquivalentToggleChecked ? (
           <MDBCodeViewer
-            dbName="hi"
-            collectionName="bye"
+            dbName={dbName}
+            collectionName={collectionName}
             indexNameTypeMap={indexNameTypeMap}
-          ></MDBCodeViewer>
+          />
         ) : (
           createIndexFieldsComponent
         )}

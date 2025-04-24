@@ -11,12 +11,18 @@ const MDBCodeViewer = ({
   indexNameTypeMap: { [key: string]: string };
 }) => {
   const generateCode = () => {
-    let codeStr = `db.getSiblingDB("${dbName}").getCollection("${collectionName}").createIndex(\n`;
+    let codeStr = `db.getSiblingDB("${dbName}").getCollection("${collectionName}").createIndex{(\n`;
 
-    Object.entries(indexNameTypeMap).forEach(([name, type]) => {
-      // replacing everything inside the parenthesis i.e. (asc)
-      const parsedType = type.trim().replace(/\(.*?\)/g, '');
-      codeStr += `  ${name}: "${parsedType}"\n`;
+    Object.entries(indexNameTypeMap).forEach(([name, type], index) => {
+      // Replacing everything inside the parenthesis i.e. (asc)
+      const parsedType = type.replace(/\(.*?\)/g, '').trim();
+      codeStr += `  ${name}: "${parsedType}"`;
+
+      if (index !== Object.keys(indexNameTypeMap).length - 1) {
+        codeStr += ',';
+      }
+
+      codeStr += '\n';
     });
 
     codeStr += `});`;
@@ -24,10 +30,7 @@ const MDBCodeViewer = ({
   };
 
   return (
-    <Code
-      data-testid="query-flow-section-suggested-index"
-      language="javascript"
-    >
+    <Code data-testid="mdb-code-viewer" language="javascript">
       {generateCode()}
     </Code>
   );
