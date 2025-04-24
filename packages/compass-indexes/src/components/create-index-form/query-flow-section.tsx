@@ -5,7 +5,7 @@ import {
   Code,
   Link,
 } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorInlineEditor,
@@ -61,6 +61,14 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
   };
 
   const [inputQuery, setInputQuery] = React.useState('');
+  const completer = useMemo(
+    () =>
+      createQueryAutocompleter({
+        fields: schemaFields,
+        serverVersion,
+      }),
+    [schemaFields, serverVersion]
+  );
 
   return (
     <>
@@ -75,10 +83,7 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
             text={inputQuery}
             onChangeText={(text) => setInputQuery(text)}
             placeholder="Type a query: { field: 'value' }"
-            completer={createQueryAutocompleter({
-              fields: schemaFields,
-              serverVersion,
-            })}
+            completer={completer}
           />
         </div>
 
