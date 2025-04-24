@@ -9,6 +9,8 @@ import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
+import FormFieldContainer from '../components/form-field-container';
+import { TextInput } from '../components/leafygreen';
 
 export { ConfirmationModalVariant };
 
@@ -207,3 +209,32 @@ export const ConfirmationModalArea: React.FunctionComponent = ({
     </ConfirmationModalAreaMountedContext.Provider>
   );
 };
+
+export async function showPrompt(
+  props: Omit<ConfirmationProperties, 'requiredInputText'> & {
+    label: string;
+    defaultValue?: string;
+  }
+): Promise<string | null> {
+  let userInput = props.defaultValue ?? '';
+  const submitted = await showConfirmation({
+    ...props,
+    description: (
+      <>
+        {props.description && <div>{props.description}</div>}
+        <div>
+          <FormFieldContainer>
+            <TextInput
+              label={props.label}
+              defaultValue={userInput}
+              onChange={(e) => {
+                userInput = e.currentTarget.value;
+              }}
+            ></TextInput>
+          </FormFieldContainer>
+        </div>
+      </>
+    ),
+  });
+  return submitted ? userInput : null;
+}

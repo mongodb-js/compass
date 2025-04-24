@@ -271,14 +271,15 @@ export function useConnectionIds(
 export function useConnectionsList(
   filter?: (connection: ConnectionState) => boolean
 ) {
-  return useSelector<ConnectionState[]>(
+  return useSelector<(ConnectionState & { title: string })[]>(
     (state) => {
       return state.connections.ids
         .filter((id) => {
           return filter?.(state.connections.byId[id]) ?? true;
         })
         .map((id) => {
-          return state.connections.byId[id];
+          const connection = state.connections.byId[id];
+          return { ...connection, title: getConnectionTitle(connection.info) };
         });
     },
     (a, b) => {

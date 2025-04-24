@@ -8,15 +8,20 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import DataModelingComponent from './components/data-modeling';
 import reducer from './store/reducer';
+import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
+import { dataModelStorageServiceLocator } from './provider';
 
 const DataModelingPlugin = registerHadronPlugin(
   {
     name: 'DataModeling',
     component: DataModelingComponent,
     activate(initialProps, services, { cleanup }) {
+      const cancelControllerRef = { current: null };
       const store = createStore(
         reducer,
-        applyMiddleware(thunk.withExtraArgument(services))
+        applyMiddleware(
+          thunk.withExtraArgument({ ...services, cancelControllerRef })
+        )
       );
       return { store, deactivate: cleanup };
     },
@@ -24,7 +29,9 @@ const DataModelingPlugin = registerHadronPlugin(
   {
     preferences: preferencesLocator,
     connections: connectionsLocator,
-    telemetry: telemetryLocator,
+    instanceManager: mongoDBInstancesManagerLocator,
+    dataModelStorage: dataModelStorageServiceLocator,
+    track: telemetryLocator,
     logger: createLoggerLocator('COMPASS-DATA-MODELING'),
   }
 );
