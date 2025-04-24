@@ -1,13 +1,32 @@
 'use strict';
 const { expect } = require('chai');
 const { MongoDBInstance } = require('../');
+const {
+  createSandboxFromDefaultPreferences,
+} = require('compass-preferences-model');
 
 describe('mongodb-instance-model', function () {
+  let preferences;
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
+
   it('should be in initial state when created', function () {
-    const instance = new MongoDBInstance({ _id: 'abc' });
+    const instance = new MongoDBInstance({ _id: 'abc', preferences });
     expect(instance).to.have.property('status', 'initial');
     expect(instance.build.toJSON()).to.be.an('object').that.is.empty;
     expect(instance.host.toJSON()).to.be.an('object').that.is.empty;
+  });
+
+  it('should answer shouldFetchDbAndCollStats based on preferences', async function () {
+    const instance = new MongoDBInstance({ _id: 'abc', preferences });
+
+    await preferences.savePreferences({ enableDbAndCollStats: true });
+    expect(instance.shouldFetchDbAndCollStats).to.equal(true);
+
+    await preferences.savePreferences({ enableDbAndCollStats: false });
+    expect(instance.shouldFetchDbAndCollStats).to.equal(false);
   });
 
   context('with mocked dataService', function () {
@@ -24,7 +43,7 @@ describe('mongodb-instance-model', function () {
     };
 
     it('should fetch and populate instance info when fetch called', async function () {
-      const instance = new MongoDBInstance({ _id: 'abc' });
+      const instance = new MongoDBInstance({ _id: 'abc', preferences });
 
       await instance.fetch({ dataService });
 
@@ -61,6 +80,7 @@ describe('mongodb-instance-model', function () {
         _id: 'foo',
         hostname: 'foo.com',
         port: 1234,
+        preferences,
         topologyDescription: getTopologyDescription(),
       });
 

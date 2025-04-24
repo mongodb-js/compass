@@ -139,15 +139,16 @@ const DatabaseModel = AmpersandModel.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService, force = false }) {
-      const instanceModel = getParentByType(this, 'Instance');
-      const { enableDbAndCollStats } =
-        instanceModel.preferences.getPreferences();
+      const shouldFetchDbAndCollStats = getParentByType(
+        this,
+        'Instance'
+      ).shouldFetchDbAndCollStats;
 
       if (!shouldFetch(this.status, force)) {
         return;
       }
 
-      if (!enableDbAndCollStats) {
+      if (!shouldFetchDbAndCollStats) {
         this.set({ status: 'ready' });
         return;
       }

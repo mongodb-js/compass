@@ -135,9 +135,23 @@ const InstanceModel = AmpersandModel.extend(
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
+      shouldFetchDbAndCollStats: { type: 'boolean', default: false },
     },
     initialize: function ({ preferences, ...props }) {
-      this.preferences = preferences;
+      // Initialize the property directly from preferences
+      this.set({
+        shouldFetchDbAndCollStats:
+          preferences.getPreferences().enableDbAndCollStats,
+      });
+
+      // Listen to preference changes using the preferences API
+      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
+        'enableDbAndCollStats',
+        (value) => {
+          this.set({ shouldFetchDbAndCollStats: value });
+        }
+      );
+
       AmpersandModel.prototype.initialize.call(this, props);
     },
     derived: {
@@ -387,6 +401,10 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     removeAllListeners() {
+      // Clean up preference listeners
+      if (this._preferenceUnsubscribe) {
+        this._preferenceUnsubscribe();
+      }
       InstanceModel.removeAllListeners(this);
     },
 

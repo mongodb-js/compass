@@ -266,15 +266,15 @@ describe('databases and collections list', function () {
       });
 
       expect(screen.queryByText(/Storage size/)).not.to.exist;
-      // expect(screen.queryByText('1.50 kB')).not.to.exist;
-      // expect(screen.queryByText(/Documents/)).not.to.exist;
-      // expect(screen.queryByText('10')).not.to.exist;
-      // expect(screen.queryByText(/Avg. document size/)).not.to.exist;
-      // expect(screen.queryByText('150.00 B')).not.to.exist;
-      // expect(screen.queryByText(/Indexes/)).not.to.exist;
-      // expect(screen.queryByText('15')).not.to.exist;
-      // expect(screen.queryByText(/Total index size/)).not.to.exist;
-      // expect(screen.queryByText('16.00 B')).not.to.exist;
+      expect(screen.queryByText('1.50 kB')).not.to.exist;
+      expect(screen.queryByText(/Documents/)).not.to.exist;
+      expect(screen.queryByText('10')).not.to.exist;
+      expect(screen.queryByText(/Avg. document size/)).not.to.exist;
+      expect(screen.queryByText('150.00 B')).not.to.exist;
+      expect(screen.queryByText(/Indexes/)).not.to.exist;
+      expect(screen.queryByText('15')).not.to.exist;
+      expect(screen.queryByText(/Total index size/)).not.to.exist;
+      expect(screen.queryByText('16.00 B')).not.to.exist;
     });
   });
 });

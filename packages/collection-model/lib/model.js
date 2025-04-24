@@ -254,14 +254,16 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       return;
     }
 
-    const instanceModel = getParentByType(this, 'Instance');
-    const { enableDbAndCollStats } = instanceModel.preferences.getPreferences();
+    const shouldFetchDbAndCollStats = getParentByType(
+      this,
+      'Instance'
+    ).shouldFetchDbAndCollStats;
 
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
-        enableDbAndCollStats
+        shouldFetchDbAndCollStats
           ? dataService.collectionStats(this.database, this.name)
           : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
