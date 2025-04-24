@@ -121,10 +121,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       ...state,
       edits: {
         prev: [...state.edits.prev, state.edits.current],
-        current: {
-          ...state.edits.current,
-          edits: [...state.edits.current, action.edit],
-        },
+        current: [...state.edits.current, action.edit],
         next: [],
       },
     };
