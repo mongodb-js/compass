@@ -11,7 +11,9 @@ import {
   fontFamilies,
   InfoSprinkle,
 } from '@mongodb-js/compass-components';
+import { forEach } from 'lodash';
 import React from 'react';
+import { Field } from '../../modules/create-index';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -70,12 +72,26 @@ const coveredQueriesHeaderStyles = css({
 });
 
 export type IndexFlowSectionProps = {
+  fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
 };
 
 const IndexFlowSection = ({
   createIndexFieldsComponent,
+  fields,
 }: IndexFlowSectionProps) => {
+  const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
+    useState(false);
+
+  const areAllFieldsFilledIn = fields.every((field) => {
+    return field.name && field.type;
+  });
+  const isCoveredQueriesButtonDisabled =
+    !areAllFieldsFilledIn ||
+    fields.some((field) => {
+      return field.type === '2dsphere' || field.type === 'text';
+    });
+
   return (
     <div>
       <div
@@ -96,12 +112,9 @@ const IndexFlowSection = ({
             size="xsmall"
             id="code-equivalent-toggle"
             aria-label="Toggle Code Equivalent"
-            onChange={() => {
-              () => {
-                // TODO in CLOUDP-311784
-              };
-            }}
-            // checked={false}
+            onChange={(value) => setIsCodeEquivalentToggleChecked(value)}
+            checked={isCodeEquivalentToggleChecked}
+            disabled={!areAllFieldsFilledIn}
           />
         </div>
       </div>
@@ -116,6 +129,7 @@ const IndexFlowSection = ({
               // TODO in CLOUDP-311783 generate optimal queries
             }}
             size="small"
+            disabled={isCoveredQueriesButtonDisabled}
           >
             Show me covered queries
           </Button>
