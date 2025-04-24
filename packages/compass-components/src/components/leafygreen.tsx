@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // This file exports `@leafygreen-ui` components and wraps some of them.
 
@@ -67,7 +67,7 @@ export type {
 } from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
-import TextInput from '@leafygreen-ui/text-input';
+import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
 export type { ToastProps } from '@leafygreen-ui/toast';
 export { ToastProvider, useToast } from '@leafygreen-ui/toast';
@@ -111,6 +111,29 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 // We wrap these so that we can add the utm_source and utm_medium parameters to
 // all hrefs.
 export { Link, Button, IconButton } from './links/link';
+
+// Working around leafygreen lack of support for `defaultValue` property
+const TextInput: typeof LeafyGreenTextInput = React.forwardRef(
+  function TextInput({ defaultValue, value, onChange, ...props }, ref) {
+    const [uncontrolledValue, setUncontrolledValue] = useState(
+      String(defaultValue) ?? ''
+    );
+    const isControlled = typeof defaultValue === 'undefined';
+    return (
+      <LeafyGreenTextInput
+        {...props}
+        value={isControlled ? value : uncontrolledValue}
+        onChange={(e) => {
+          setUncontrolledValue(e.currentTarget.value);
+          onChange?.(e);
+        }}
+        ref={ref}
+      ></LeafyGreenTextInput>
+    );
+  }
+);
+
+TextInput.displayName = 'TextInput';
 
 // 3. Export the leafygreen components.
 export {

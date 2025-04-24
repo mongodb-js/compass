@@ -1479,60 +1479,67 @@ const connectWithOptions = (
       return inflightConnection;
     }
     inflightConnection = (async () => {
-      const isAutoconnectAttempt = isAutoconnectInfo(
-        getState(),
-        connectionInfo.id
-      );
-
       const deviceAuthAbortController = new AbortController();
 
-      connectionInfo = cloneDeep(connectionInfo);
-
-      const {
-        forceConnectionOptions,
-        browserCommandForOIDCAuth,
-        maximumNumberOfActiveConnections,
-        telemetryAnonymousId,
-      } = preferences.getPreferences();
-
-      const connectionProgress = getNotificationTriggers();
-
-      if (
-        typeof maximumNumberOfActiveConnections !== 'undefined' &&
-        getActiveConnectionsCount(getState().connections) >=
-          maximumNumberOfActiveConnections
-      ) {
-        connectionProgress.openMaximumConnectionsReachedToast(
-          maximumNumberOfActiveConnections
-        );
-        return;
-      }
-
-      dispatch({
-        type: ActionTypes.ConnectionAttemptStart,
-        connectionInfo,
-        options: { forceSave: options.forceSave },
-      });
-
-      track(
-        'Connection Attempt',
-        {
-          is_favorite: connectionInfo.savedConnectionType === 'favorite',
-          is_new: isNewConnection(getState(), connectionInfo.id),
-        },
-        connectionInfo
-      );
-
-      debug('connecting with connectionInfo', connectionInfo);
-
-      log.info(
-        mongoLogId(1_001_000_004),
-        'Connection UI',
-        'Initiating connection attempt',
-        { isAutoconnectAttempt }
-      );
-
       try {
+        if (
+          getCurrentConnectionStatus(getState(), connectionInfo.id) ===
+          'connected'
+        ) {
+          return;
+        }
+
+        const isAutoconnectAttempt = isAutoconnectInfo(
+          getState(),
+          connectionInfo.id
+        );
+
+        connectionInfo = cloneDeep(connectionInfo);
+
+        const {
+          forceConnectionOptions,
+          browserCommandForOIDCAuth,
+          maximumNumberOfActiveConnections,
+          telemetryAnonymousId,
+        } = preferences.getPreferences();
+
+        const connectionProgress = getNotificationTriggers();
+
+        if (
+          typeof maximumNumberOfActiveConnections !== 'undefined' &&
+          getActiveConnectionsCount(getState().connections) >=
+            maximumNumberOfActiveConnections
+        ) {
+          connectionProgress.openMaximumConnectionsReachedToast(
+            maximumNumberOfActiveConnections
+          );
+          return;
+        }
+
+        dispatch({
+          type: ActionTypes.ConnectionAttemptStart,
+          connectionInfo,
+          options: { forceSave: options.forceSave },
+        });
+
+        track(
+          'Connection Attempt',
+          {
+            is_favorite: connectionInfo.savedConnectionType === 'favorite',
+            is_new: isNewConnection(getState(), connectionInfo.id),
+          },
+          connectionInfo
+        );
+
+        debug('connecting with connectionInfo', connectionInfo);
+
+        log.info(
+          mongoLogId(1_001_000_004),
+          'Connection UI',
+          'Initiating connection attempt',
+          { isAutoconnectAttempt }
+        );
+
         // Connection form allows to start connecting with invalid connection
         // strings, so throw fast if it's not valid before doing anything else
         ensureWellFormedConnectionString(
