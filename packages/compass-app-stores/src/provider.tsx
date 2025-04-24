@@ -40,6 +40,15 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
   private _instance: MongoDBInstance;
   constructor(instanceProps = {} as Partial<MongoDBInstanceProps>) {
     super();
+    if (!instanceProps.preferences) {
+      instanceProps.preferences = {
+        getPreferences: () => ({} as AllPreferences),
+        setPreferences: () => Promise.resolve(),
+        onPreferenceValueChanged: () => () => {
+          /* no-op */
+        },
+      } as unknown as PreferencesAccess;
+    }
     this._instance = new MongoDBInstance(instanceProps as MongoDBInstanceProps);
   }
   getMongoDBInstanceForConnection() {
@@ -55,15 +64,7 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
 export const MongoDBInstancesManagerContext =
   createContext<MongoDBInstancesManager | null>(
     process.env.NODE_ENV === 'test'
-      ? (new TestMongoDBInstanceManager({
-          preferences: {
-            getPreferences: () =>
-              ({ enableDbAndCollStats: true } as AllPreferences),
-            onPreferenceValueChanged: () => () => {
-              /* noop unsubscribe */
-            },
-          } as unknown as PreferencesAccess,
-        }) as unknown as MongoDBInstancesManager)
+      ? (new TestMongoDBInstanceManager() as unknown as MongoDBInstancesManager)
       : null
   );
 

@@ -34,7 +34,6 @@ describe('NamespaceProvider', function () {
   it('should immediately render content if database exists', async function () {
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo' }] as any,
-      preferences,
     });
     await renderWithActiveConnection(
       <PreferencesProvider value={preferences}>
@@ -49,7 +48,6 @@ describe('NamespaceProvider', function () {
   it('should immediately render content if collection exists', async function () {
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo', collections: [{ _id: 'foo.bar' }] }] as any,
-      preferences,
     });
     await renderWithActiveConnection(
       <PreferencesProvider value={preferences}>
@@ -62,7 +60,7 @@ describe('NamespaceProvider', function () {
   });
 
   it("should not render content when namespace doesn't exist", async function () {
-    const instanceManager = new TestMongoDBInstanceManager({ preferences });
+    const instanceManager = new TestMongoDBInstanceManager();
     await renderWithActiveConnection(
       <PreferencesProvider value={preferences}>
         <MongoDBInstancesManagerProvider value={instanceManager}>
@@ -74,7 +72,7 @@ describe('NamespaceProvider', function () {
   });
 
   it('should render content eventually if namespace is resolved async', async function () {
-    const instanceManager = new TestMongoDBInstanceManager({ preferences });
+    const instanceManager = new TestMongoDBInstanceManager();
     const instance = instanceManager.getMongoDBInstanceForConnection();
     sandbox.stub(instance, 'fetchDatabases').callsFake(() => {
       instance.databases.add({ _id: 'foo' });
@@ -100,7 +98,6 @@ describe('NamespaceProvider', function () {
     const onNamespaceFallbackSelect = sandbox.spy();
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo' }] as any,
-      preferences,
     });
     await renderWithActiveConnection(
       <PreferencesProvider value={preferences}>
@@ -121,9 +118,7 @@ describe('NamespaceProvider', function () {
 
   it('should call onNamespaceFallbackSelect with `null` if namespace is not found', async function () {
     const onNamespaceFallbackSelect = sandbox.spy();
-    const instanceManager = new TestMongoDBInstanceManager({
-      preferences,
-    });
+    const instanceManager = new TestMongoDBInstanceManager();
     await renderWithActiveConnection(
       <PreferencesProvider value={preferences}>
         <MongoDBInstancesManagerProvider value={instanceManager}>
