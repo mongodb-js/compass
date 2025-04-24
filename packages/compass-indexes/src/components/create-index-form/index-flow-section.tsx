@@ -11,9 +11,9 @@ import {
   fontFamilies,
   InfoSprinkle,
 } from '@mongodb-js/compass-components';
-import { forEach } from 'lodash';
-import React from 'react';
-import { Field } from '../../modules/create-index';
+import React, { useState } from 'react';
+import type { Field } from '../../modules/create-index';
+import MDBCodeViewer from './mdb-code-viewer';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -86,11 +86,22 @@ const IndexFlowSection = ({
   const areAllFieldsFilledIn = fields.every((field) => {
     return field.name && field.type;
   });
+
   const isCoveredQueriesButtonDisabled =
     !areAllFieldsFilledIn ||
     fields.some((field) => {
       return field.type === '2dsphere' || field.type === 'text';
     });
+
+  const indexNameTypeMap = fields.reduce<Record<string, string>>(
+    (accumulator, currentValue) => {
+      if (currentValue.name && currentValue.type) {
+        accumulator[currentValue.name] = currentValue.type;
+      }
+      return accumulator;
+    },
+    {}
+  );
 
   return (
     <div>
@@ -119,7 +130,15 @@ const IndexFlowSection = ({
         </div>
       </div>
       <div className={indexFieldsCalloutStyles}>
-        {createIndexFieldsComponent}
+        {isCodeEquivalentToggleChecked ? (
+          <MDBCodeViewer
+            dbName="hi"
+            collectionName="bye"
+            indexNameTypeMap={indexNameTypeMap}
+          ></MDBCodeViewer>
+        ) : (
+          createIndexFieldsComponent
+        )}
 
         <div className={buttonContainerStyles}>
           <Button

@@ -119,6 +119,7 @@ function CreateIndexForm({
           // Variant UI
           showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
             <IndexFlowSection
+              fields={fields}
               createIndexFieldsComponent={
                 <CreateIndexFields
                   schemaFields={schemaFieldNames}
