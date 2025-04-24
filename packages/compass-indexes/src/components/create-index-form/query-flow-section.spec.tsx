@@ -13,9 +13,9 @@ describe('QueryFlowSection', () => {
     expect(codeEditor).to.be.visible;
   });
 
-  it('renders the "Show me suggested index" button', () => {
+  it('renders the "Show suggested index" button', () => {
     renderComponent();
-    const buttonElement = screen.getByText('Show me suggested index');
+    const buttonElement = screen.getByText('Show suggested index');
     expect(buttonElement).to.be.visible;
   });
 

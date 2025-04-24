@@ -117,7 +117,7 @@ const IndexFlowSection = ({
             }}
             size="small"
           >
-            Show me covered queries
+            Show covered queries
           </Button>
         </div>
       </div>

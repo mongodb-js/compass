@@ -93,8 +93,9 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
               // TODO in CLOUDP-311786
             }}
             className={suggestedIndexButtonStyles}
+            size="small"
           >
-            Show me suggested index
+            Show suggested index
           </Button>
         </div>
       </div>
