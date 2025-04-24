@@ -37,6 +37,7 @@ const suggestedIndexButtonStyles = css({
   position: 'absolute',
   right: spacing[600],
   bottom: spacing[600],
+  marginBottom: spacing[400],
 });
 
 const editorContainerRadius = spacing[300];
@@ -44,15 +45,18 @@ const editorContainerRadius = spacing[300];
 const codeEditorContainerStyles = css({
   border: `1px solid ${palette.gray.base}`,
   borderRadius: editorContainerRadius,
+  marginBottom: spacing[600],
 });
 
 const codeEditorStyles = css({
   borderRadius: editorContainerRadius,
   '& .cm-editor': {
-    background: 'transparent !important',
+    background: `${palette.white} !important`,
+    borderRadius: editorContainerRadius,
   },
   '& .cm-content': {
     padding: spacing[600],
+    paddingBottom: spacing[1400],
   },
 });
 
