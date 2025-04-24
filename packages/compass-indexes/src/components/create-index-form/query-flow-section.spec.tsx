@@ -4,12 +4,10 @@ import QueryFlowSection from './query-flow-section';
 import { expect } from 'chai';
 
 describe('QueryFlowSection', () => {
-  it('renders the input query section with placeholder text', () => {
+  it('renders the input query section with a code editor', () => {
     render(<QueryFlowSection />);
-    const inputElement = screen.getByPlaceholderText(
-      "Type a query: { field: 'value' }"
-    );
-    expect(inputElement).to.be.visible;
+    const codeEditor = screen.getByTestId('query-flow-section-json-editor');
+    expect(codeEditor).to.be.visible;
   });
 
   it('renders the "Show me suggested index" button', () => {

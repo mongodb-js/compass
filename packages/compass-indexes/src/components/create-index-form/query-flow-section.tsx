@@ -1,14 +1,13 @@
 import {
   Button,
   palette,
-  TextInput,
   Body,
-  fontFamilies,
   Code,
   Link,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
+import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
@@ -21,18 +20,6 @@ const inputQueryContainerStyles = css({
 
 const headerStyles = css({
   marginBottom: spacing[200],
-});
-
-const queryInputStyles = css({
-  div: {
-    border: 0,
-  },
-  input: {
-    fontFamily: `${fontFamilies.code} !important`,
-    '&::placeholder': {
-      fontFamily: fontFamilies.code,
-    },
-  },
 });
 
 const suggestedIndexContainerStyles = css({
@@ -64,6 +51,8 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
 `;
   };
 
+  const [inputQuery, setInputQuery] = React.useState('');
+
   return (
     <>
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -71,10 +60,13 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
       </Body>
       <div className={inputQueryContainerStyles}>
         <div>
-          <TextInput
+          <CodemirrorInlineEditor
+            data-testid="query-flow-section-json-editor"
+            language="json"
+            text={inputQuery}
+            onChangeText={(text) => setInputQuery(text)}
+            initialJSONFoldAll={false}
             placeholder="Type a query: { field: 'value' }"
-            aria-labelledby="query-text-area"
-            className={queryInputStyles}
           />
         </div>
         <div>
