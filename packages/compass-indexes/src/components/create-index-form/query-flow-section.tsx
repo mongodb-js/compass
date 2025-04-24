@@ -7,7 +7,10 @@ import {
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
-import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorInlineEditor,
+  createQueryAutocompleter,
+} from '@mongodb-js/compass-editor';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
@@ -37,7 +40,13 @@ const programmingLanguageLinkStyles = css({
   marginTop: spacing[100],
 });
 
-const QueryFlowSection = () => {
+const QueryFlowSection = ({
+  schemaFields,
+  serverVersion,
+}: {
+  schemaFields: { name: string; description?: string }[];
+  serverVersion: string;
+}) => {
   // TODO in CLOUDP-311786, replace hardcoded values with actual data
   const db_name = 'sample_mflix';
   const collection_name = 'comments';
@@ -61,14 +70,18 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
       <div className={inputQueryContainerStyles}>
         <div>
           <CodemirrorInlineEditor
-            data-testid="query-flow-section-json-editor"
-            language="json"
+            data-testid="query-flow-section-code-editor"
+            language="javascript-expression"
             text={inputQuery}
             onChangeText={(text) => setInputQuery(text)}
-            initialJSONFoldAll={false}
             placeholder="Type a query: { field: 'value' }"
+            completer={createQueryAutocompleter({
+              fields: schemaFields,
+              serverVersion,
+            })}
           />
         </div>
+
         <div>
           <Button
             onClick={() => {

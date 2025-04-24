@@ -151,7 +151,12 @@ function CreateIndexForm({
         ) : null}
       </div>
 
-      {showIndexesGuidanceQueryFlow && <QueryFlowSection />}
+      {showIndexesGuidanceQueryFlow && (
+        <QueryFlowSection
+          schemaFields={schemaFields}
+          serverVersion={serverVersion}
+        />
+      )}
 
       {/* TODO in CLOUDP-314036: update the accordion design */}
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
