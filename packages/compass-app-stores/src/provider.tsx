@@ -20,6 +20,10 @@ import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
+import type {
+  AllPreferences,
+  PreferencesAccess,
+} from 'compass-preferences-model';
 
 export {
   MongoDBInstancesManagerEvents,
@@ -46,10 +50,20 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
   }
 }
 
+// We need to create the context with a proper mock for testing
+// that includes default preferences
 export const MongoDBInstancesManagerContext =
   createContext<MongoDBInstancesManager | null>(
     process.env.NODE_ENV === 'test'
-      ? (new TestMongoDBInstanceManager() as unknown as MongoDBInstancesManager)
+      ? (new TestMongoDBInstanceManager({
+          preferences: {
+            getPreferences: () =>
+              ({ enableDbAndCollStats: true } as AllPreferences),
+            onPreferenceValueChanged: () => () => {
+              /* noop unsubscribe */
+            },
+          } as unknown as PreferencesAccess,
+        }) as unknown as MongoDBInstancesManager)
       : null
   );
 
