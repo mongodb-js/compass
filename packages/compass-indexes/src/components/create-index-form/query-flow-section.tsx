@@ -16,7 +16,6 @@ const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
   border: `1px solid ${palette.gray.base}`,
   borderRadius: spacing[300],
-  padding: spacing[600],
   display: 'flex',
   flexDirection: 'column',
 });
@@ -32,7 +31,14 @@ const suggestedIndexContainerStyles = css({
 
 const suggestedIndexButtonStyles = css({
   float: 'right',
-  marginTop: spacing[400],
+  marginRight: spacing[600],
+  marginBottom: spacing[600],
+});
+
+const codeEditorStyles = css({
+  '.cm-content': {
+    padding: spacing[600],
+  },
 });
 
 const programmingLanguageLinkStyles = css({
@@ -84,6 +90,7 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
             onChangeText={(text) => setInputQuery(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
+            className={codeEditorStyles}
           />
         </div>
 
