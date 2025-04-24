@@ -4,18 +4,18 @@ import {
   Body,
   Code,
   Link,
+  cx,
+  useFocusRing,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
-  CodemirrorInlineEditor,
+  CodemirrorMultilineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
-  border: `1px solid ${palette.gray.base}`,
-  borderRadius: spacing[300],
   display: 'flex',
   flexDirection: 'column',
 });
@@ -29,14 +29,29 @@ const suggestedIndexContainerStyles = css({
   display: 'flex',
 });
 
+const editorActionContainerStyles = css({
+  position: 'relative',
+});
+
 const suggestedIndexButtonStyles = css({
-  float: 'right',
-  marginRight: spacing[600],
-  marginBottom: spacing[600],
+  position: 'absolute',
+  right: spacing[600],
+  bottom: spacing[600],
+});
+
+const editorContainerRadius = spacing[300];
+
+const codeEditorContainerStyles = css({
+  border: `1px solid ${palette.gray.base}`,
+  borderRadius: editorContainerRadius,
 });
 
 const codeEditorStyles = css({
-  '.cm-content': {
+  borderRadius: editorContainerRadius,
+  '& .cm-editor': {
+    background: 'transparent !important',
+  },
+  '& .cm-content': {
     padding: spacing[600],
   },
 });
@@ -76,16 +91,31 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
     [schemaFields, serverVersion]
   );
 
+  const focusRingProps = useFocusRing({
+    outer: true,
+    focusWithin: true,
+    hover: true,
+    radius: editorContainerRadius,
+  });
+
   return (
     <>
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
         Input Query
       </Body>
       <div className={inputQueryContainerStyles}>
-        <div>
-          <CodemirrorInlineEditor
+        <div
+          className={cx(focusRingProps.className, codeEditorContainerStyles)}
+        >
+          <CodemirrorMultilineEditor
             data-testid="query-flow-section-code-editor"
             language="javascript-expression"
+            showLineNumbers={false}
+            minLines={5}
+            showFoldGutter={false}
+            showAnnotationsGutter={false}
+            copyable={false}
+            formattable={false}
             text={inputQuery}
             onChangeText={(text) => setInputQuery(text)}
             placeholder="Type a query: { field: 'value' }"
@@ -94,7 +124,7 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
           />
         </div>
 
-        <div>
+        <div className={editorActionContainerStyles}>
           <Button
             onClick={() => {
               // TODO in CLOUDP-311786
