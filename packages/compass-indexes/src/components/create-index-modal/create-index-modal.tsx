@@ -82,7 +82,9 @@ function CreateIndexModal({
   // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
   const enableInIndexesGuidanceExp = usePreference('enableIndexesGuidanceExp');
   const showIndexesGuidanceVariant =
-    usePreference('showIndexesGuidanceVariant') && enableInIndexesGuidanceExp;
+    (usePreference('showIndexesGuidanceVariant') &&
+      enableInIndexesGuidanceExp) ||
+    true;
 
   useFireExperimentViewed({
     testName: TestName.earlyJourneyIndexesGuidance,

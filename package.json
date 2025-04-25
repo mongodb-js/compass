@@ -103,5 +103,8 @@
     "chai-enzyme": {
       "cheerio": "1.0.0-rc.10"
     }
+  },
+  "dependencies": {
+    "mongodb-mql-engines": "^0.0.3"
   }
 }

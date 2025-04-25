@@ -11,7 +11,8 @@ import {
   fontFamilies,
   InfoSprinkle,
 } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useEffect } from 'react';
+import * as mql from 'mongodb-mql-engines';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -76,6 +77,28 @@ export type IndexFlowSectionProps = {
 const IndexFlowSection = ({
   createIndexFieldsComponent,
 }: IndexFlowSectionProps) => {
+  const sampleDocuments = [
+    { a: 1, b: 2 },
+    { a: 5, b: true },
+  ];
+
+  const ns = mql.analyzeNamespace(
+    {
+      database: 'mydb',
+      collection: 'mycoll',
+    },
+    sampleDocuments
+  );
+  const query = mql.parseQuery({ a: 1, b: 2 }, ns);
+
+  useEffect(() => {
+    const func = async () => {
+      const index = await mql.suggestIndex([query]);
+      console.log({ index });
+    };
+
+    func();
+  }, [query]);
   return (
     <div>
       <div
