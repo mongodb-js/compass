@@ -21,9 +21,9 @@ describe('IndexFlowSection', () => {
     expect(screen.getByLabelText('Toggle Code Equivalent')).to.be.visible;
   });
 
-  it('renders the Show me covered queries button', () => {
+  it('renders the Show covered queries button', () => {
     renderComponent();
-    expect(screen.getByText('Show me covered queries')).to.be.visible;
+    expect(screen.getByText('Show covered queries')).to.be.visible;
   });
 
   it('renders the Covered Queries header', () => {

@@ -156,7 +156,7 @@ const IndexFlowSection = ({
             size="small"
             disabled={isCoveredQueriesButtonDisabled}
           >
-            Show me covered queries
+            Show covered queries
           </Button>
         </div>
       </div>
@@ -192,8 +192,8 @@ const IndexFlowSection = ({
         </Body>
         <p>
           <span className={underlineStyles}>
-            Follow the Equality, Sort, Range (ESR) Rule and this index is
-            optimal for queries that have this pattern:
+            Follow the Equality, Sort, Range (ESR) Rule. This index is optimal
+            for queries that have this pattern:
           </span>
           {/* Optimal queries, clean up with actual optimal queries in CLOUDP-311783 */}
           <Body
