@@ -26,6 +26,7 @@ const headerStyles = css({
 const suggestedIndexContainerStyles = css({
   flexDirection: 'column',
   display: 'flex',
+  marginBottom: spacing[600],
 });
 
 const editorActionContainerStyles = css({
