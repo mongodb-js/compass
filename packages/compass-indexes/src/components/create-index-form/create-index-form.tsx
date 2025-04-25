@@ -86,6 +86,10 @@ function CreateIndexForm({
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
 
+  const dbCollectionNames = namespace.split('.');
+  const dbName = dbCollectionNames[0];
+  const collectionName = dbCollectionNames[1];
+
   return (
     <>
       <div
@@ -121,7 +125,8 @@ function CreateIndexForm({
           showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
             <IndexFlowSection
               fields={fields}
-              namespace={namespace}
+              dbName={dbName}
+              collectionName={collectionName}
               createIndexFieldsComponent={
                 <CreateIndexFields
                   schemaFields={schemaFieldNames}
@@ -157,6 +162,8 @@ function CreateIndexForm({
         <QueryFlowSection
           schemaFields={schemaFields}
           serverVersion={serverVersion}
+          dbName={dbName}
+          collectionName={collectionName}
         />
       )}
 

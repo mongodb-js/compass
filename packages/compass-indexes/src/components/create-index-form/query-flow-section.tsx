@@ -2,8 +2,6 @@ import {
   Button,
   palette,
   Body,
-  Code,
-  Link,
   cx,
   useFocusRing,
 } from '@mongodb-js/compass-components';
@@ -13,6 +11,7 @@ import {
   CodemirrorMultilineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
+import MDBCodeViewer from './mdb-code-viewer';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
@@ -60,31 +59,17 @@ const codeEditorStyles = css({
   },
 });
 
-const programmingLanguageLinkStyles = css({
-  marginLeft: 'auto',
-  marginTop: spacing[100],
-});
-
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
+  dbName,
+  collectionName,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
+  dbName: string;
+  collectionName: string;
 }) => {
-  // TODO in CLOUDP-311786, replace hardcoded values with actual data
-  const db_name = 'sample_mflix';
-  const collection_name = 'comments';
-
-  const formatSuggestedIndex = () => {
-    return `
-db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
-  "awards.win": "1",
-  "imdb.rating": "1",
-});
-`;
-  };
-
   const [inputQuery, setInputQuery] = React.useState('');
   const completer = useMemo(
     () =>
@@ -144,23 +129,13 @@ db.getSiblingDB("${db_name}").getCollection("${collection_name}").createIndex(
         Suggested Index
       </Body>{' '}
       <div className={suggestedIndexContainerStyles}>
-        <Code
-          data-testid="query-flow-section-suggested-index"
-          language="javascript"
-        >
-          {formatSuggestedIndex()}
-        </Code>
-        <span className={programmingLanguageLinkStyles}>
-          View programming language driver syntax{' '}
-          <Link
-            href="https://www.mongodb.com/docs/manual/core/indexes/create-index/"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            here
-          </Link>
-          .
-        </span>
+        {/* TODO in CLOUDP-311786, replace hardcoded values with actual data */}
+        <MDBCodeViewer
+          dataTestId="query-flow-section-suggested-index"
+          dbName={dbName}
+          collectionName={collectionName}
+          indexNameTypeMap={{ 'awards.win': '1', 'imdb.rating': '1' }}
+        />
       </div>
     </>
   );

@@ -74,13 +74,15 @@ const coveredQueriesHeaderStyles = css({
 export type IndexFlowSectionProps = {
   fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
-  namespace: string;
+  dbName: string;
+  collectionName: string;
 };
 
 const IndexFlowSection = ({
   createIndexFieldsComponent,
   fields,
-  namespace,
+  dbName,
+  collectionName,
 }: IndexFlowSectionProps) => {
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
@@ -104,10 +106,6 @@ const IndexFlowSection = ({
     },
     {}
   );
-
-  const dbCollectionNames = namespace.split('.');
-  const dbName = dbCollectionNames[0];
-  const collectionName = dbCollectionNames[1];
 
   return (
     <div>

@@ -15,10 +15,12 @@ const MDBCodeViewer = ({
   dbName,
   collectionName,
   indexNameTypeMap,
+  dataTestId,
 }: {
   dbName: string;
   collectionName: string;
   indexNameTypeMap: { [key: string]: string };
+  dataTestId?: string;
 }) => {
   const generateCode = () => {
     let codeStr = `db.getSiblingDB("${dbName}").getCollection("${collectionName}").createIndex{(\n`;
@@ -26,7 +28,7 @@ const MDBCodeViewer = ({
     Object.entries(indexNameTypeMap).forEach(([name, type], index) => {
       // Replacing everything inside the parenthesis i.e. (asc)
       const parsedType = type.replace(/\(.*?\)/g, '').trim();
-      codeStr += `  ${name}: "${parsedType}"`;
+      codeStr += `  "${name}": "${parsedType}"`;
 
       if (index !== Object.keys(indexNameTypeMap).length - 1) {
         codeStr += ',';
@@ -41,7 +43,7 @@ const MDBCodeViewer = ({
 
   return (
     <div className={containerStyles}>
-      <Code data-testid="mdb-code-viewer" language="javascript">
+      <Code data-testid={dataTestId || 'mdb-code-viewer'} language="javascript">
         {generateCode()}
       </Code>
       <span className={programmingLanguageLinkStyles}>

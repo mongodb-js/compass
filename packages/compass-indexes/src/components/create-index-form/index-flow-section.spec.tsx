@@ -8,6 +8,9 @@ describe('IndexFlowSection', () => {
     render(
       <IndexFlowSection
         createIndexFieldsComponent={createIndexFieldsComponent ?? null}
+        fields={[]}
+        dbName={'fakeDBName'}
+        collectionName={'fakeCollectionName'}
       />
     );
   };
