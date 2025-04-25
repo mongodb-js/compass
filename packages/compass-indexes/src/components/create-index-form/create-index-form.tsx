@@ -20,6 +20,7 @@ import {
 import { usePreference } from 'compass-preferences-model/provider';
 import IndexFlowSection from './index-flow-section';
 import QueryFlowSection from './query-flow-section';
+import toNS from 'mongodb-ns';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -86,6 +87,8 @@ function CreateIndexForm({
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
 
+  const { database: dbName, collection: collectionName } = toNS(namespace);
+
   return (
     <>
       <div
@@ -120,6 +123,9 @@ function CreateIndexForm({
           // Variant UI
           showIndexesGuidanceVariant && showIndexesGuidanceIndexFlow ? (
             <IndexFlowSection
+              fields={fields}
+              dbName={dbName}
+              collectionName={collectionName}
               createIndexFieldsComponent={
                 <CreateIndexFields
                   schemaFields={schemaFieldNames}
@@ -155,6 +161,8 @@ function CreateIndexForm({
         <QueryFlowSection
           schemaFields={schemaFields}
           serverVersion={serverVersion}
+          dbName={dbName}
+          collectionName={collectionName}
         />
       )}
 

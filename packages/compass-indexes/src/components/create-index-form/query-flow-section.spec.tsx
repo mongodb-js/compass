@@ -5,7 +5,14 @@ import { expect } from 'chai';
 
 describe('QueryFlowSection', () => {
   const renderComponent = () => {
-    render(<QueryFlowSection schemaFields={[]} serverVersion="5.0.0" />);
+    render(
+      <QueryFlowSection
+        schemaFields={[]}
+        serverVersion="5.0.0"
+        dbName={'fakeDBName'}
+        collectionName={'fakeCollectionName'}
+      />
+    );
   };
   it('renders the input query section with a code editor', () => {
     renderComponent();
@@ -25,11 +32,5 @@ describe('QueryFlowSection', () => {
       'query-flow-section-suggested-index'
     );
     expect(codeElement).to.be.visible;
-  });
-
-  it('renders the link to the MongoDB documentation', () => {
-    renderComponent();
-    const linkElement = screen.getByText('here');
-    expect(linkElement).to.be.visible;
   });
 });

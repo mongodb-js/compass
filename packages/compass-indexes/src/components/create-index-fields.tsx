@@ -108,6 +108,7 @@ function CreateIndexFields({
               size="default"
               clearable={false}
               overflow="scroll-x"
+              inputValue={field.name}
               onChange={(fieldName: string | null) =>
                 onSelectFieldName(index, fieldName)
               }

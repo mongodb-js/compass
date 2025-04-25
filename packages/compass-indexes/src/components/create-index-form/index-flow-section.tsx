@@ -11,7 +11,9 @@ import {
   fontFamilies,
   InfoSprinkle,
 } from '@mongodb-js/compass-components';
-import React from 'react';
+import React, { useState } from 'react';
+import type { Field } from '../../modules/create-index';
+import MDBCodeViewer from './mdb-code-viewer';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -70,12 +72,41 @@ const coveredQueriesHeaderStyles = css({
 });
 
 export type IndexFlowSectionProps = {
+  fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
+  dbName: string;
+  collectionName: string;
 };
 
 const IndexFlowSection = ({
   createIndexFieldsComponent,
+  fields,
+  dbName,
+  collectionName,
 }: IndexFlowSectionProps) => {
+  const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
+    useState(false);
+
+  const areAllFieldsFilledIn = fields.every((field) => {
+    return field.name && field.type;
+  });
+
+  const isCoveredQueriesButtonDisabled =
+    !areAllFieldsFilledIn ||
+    fields.some((field) => {
+      return field.type === '2dsphere' || field.type === 'text';
+    });
+
+  const indexNameTypeMap = fields.reduce<Record<string, string>>(
+    (accumulator, currentValue) => {
+      if (currentValue.name && currentValue.type) {
+        accumulator[currentValue.name] = currentValue.type;
+      }
+      return accumulator;
+    },
+    {}
+  );
+
   return (
     <div>
       <div
@@ -96,17 +127,22 @@ const IndexFlowSection = ({
             size="xsmall"
             id="code-equivalent-toggle"
             aria-label="Toggle Code Equivalent"
-            onChange={() => {
-              () => {
-                // TODO in CLOUDP-311784
-              };
-            }}
-            // checked={false}
+            onChange={(value) => setIsCodeEquivalentToggleChecked(value)}
+            checked={isCodeEquivalentToggleChecked}
+            disabled={!areAllFieldsFilledIn}
           />
         </div>
       </div>
       <div className={indexFieldsCalloutStyles}>
-        {createIndexFieldsComponent}
+        {isCodeEquivalentToggleChecked ? (
+          <MDBCodeViewer
+            dbName={dbName}
+            collectionName={collectionName}
+            indexNameTypeMap={indexNameTypeMap}
+          />
+        ) : (
+          createIndexFieldsComponent
+        )}
 
         <div className={buttonContainerStyles}>
           <Button
@@ -116,6 +152,7 @@ const IndexFlowSection = ({
               // TODO in CLOUDP-311783 generate optimal queries
             }}
             size="small"
+            disabled={isCoveredQueriesButtonDisabled}
           >
             Show covered queries
           </Button>
