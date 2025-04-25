@@ -177,7 +177,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
                 onClick={() =>
                   showErrorDetails({
                     details: error.info!,
-                    closeAction: 'back',
+                    closeAction: 'close',
                   })
                 }
                 data-testid="pipeline-results-error-details-button"
