@@ -19,6 +19,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import IndexFlowSection from './index-flow-section';
+import QueryFlowSection from './query-flow-section';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -149,6 +150,13 @@ function CreateIndexForm({
           )
         ) : null}
       </div>
+
+      {showIndexesGuidanceQueryFlow && (
+        <QueryFlowSection
+          schemaFields={schemaFields}
+          serverVersion={serverVersion}
+        />
+      )}
 
       {/* TODO in CLOUDP-314036: update the accordion design */}
       <Accordion data-testid="create-index-modal-toggle-options" text="Options">
