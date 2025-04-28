@@ -53,19 +53,23 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
-const AtlasIndexesBanner = ({ namespace }: { namespace: string }) => {
+const AtlasIndexesBanner = ({
+  namespace,
+  dismissed,
+  onDismissClick,
+}: {
+  namespace: string;
+  dismissed: boolean;
+  onDismissClick: () => void;
+}) => {
   const { atlasMetadata } = useConnectionInfo();
-  const [dismissed, setDismissed] = usePersistedState(
-    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
-    false
-  );
 
   if (!atlasMetadata || dismissed) {
     return null;
   }
 
   return (
-    <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
+    <Banner variant="info" dismissible onClose={onDismissClick}>
       <Body weight="medium">Looking for search indexes?</Body>
       These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
@@ -117,6 +121,11 @@ export function Indexes({
   refreshRegularIndexes,
   refreshSearchIndexes,
 }: IndexesProps) {
+  const [atlasBannerDismissed, setDismissed] = usePersistedState(
+    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
+    false
+  );
+
   const errorMessage =
     currentIndexesView === 'regular-indexes'
       ? regularIndexes.error
@@ -147,12 +156,23 @@ export function Indexes({
             hasTooManyIndexes={hasTooManyIndexes}
             isRefreshing={isRefreshing}
             onRefreshIndexes={onRefreshIndexes}
+            showAtlasSearchLink={
+              !isReadonlyView &&
+              !enableAtlasSearchIndexes &&
+              atlasBannerDismissed
+            }
           />
         }
       >
         <div className={indexesContainersStyles}>
           {!isReadonlyView && !enableAtlasSearchIndexes && (
-            <AtlasIndexesBanner namespace={namespace} />
+            <AtlasIndexesBanner
+              namespace={namespace}
+              dismissed={atlasBannerDismissed}
+              onDismissClick={() => {
+                setDismissed(true);
+              }}
+            />
           )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />

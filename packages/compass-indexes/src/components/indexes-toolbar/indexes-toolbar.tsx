@@ -19,7 +19,6 @@ import {
   DropdownMenuButton,
   SegmentedControl,
   SegmentedControlOption,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
@@ -54,6 +53,7 @@ type IndexesToolbarProps = {
   indexView: IndexView;
   errorMessage: string | null;
   hasTooManyIndexes: boolean;
+  showAtlasSearchLink: boolean;
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
   onIndexViewChanged: (newView: IndexView) => void;
@@ -68,9 +68,6 @@ type IndexesToolbarProps = {
   readOnly?: boolean;
 };
 
-const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedSearchIndexesBanner' as const;
-
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   namespace,
   indexView,
@@ -82,16 +79,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
+  showAtlasSearchLink,
   isSearchIndexesSupported,
   onRefreshIndexes,
   onIndexViewChanged,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
-  const [dismissed, setDismissed] = usePersistedState(
-    DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
-    false
-  );
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
@@ -138,21 +132,18 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             >
               Refresh
             </Button>
-            {!isReadonlyView &&
-              !isSearchManagementActive &&
-              dismissed &&
-              atlasMetadata && (
-                <Link
-                  href={getAtlasSearchIndexesLink({
-                    clusterName: atlasMetadata.clusterName,
-                    namespace,
-                  })}
-                  hideExternalIcon
-                  arrowAppearance="persist"
-                >
-                  Manage your search indexes
-                </Link>
-              )}
+            {showAtlasSearchLink && atlasMetadata && (
+              <Link
+                href={getAtlasSearchIndexesLink({
+                  clusterName: atlasMetadata.clusterName,
+                  namespace,
+                })}
+                hideExternalIcon
+                arrowAppearance="persist"
+              >
+                Manage your search indexes
+              </Link>
+            )}
             {showInsights && hasTooManyIndexes && (
               <SignalPopover
                 signals={PerformanceSignals.get('too-many-indexes')}
