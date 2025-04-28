@@ -78,6 +78,68 @@ export type IndexFlowSectionProps = {
   collectionName: string;
 };
 
+const generateCoveredQueries = (
+  coveredQueriesArr: Array<Record<string, number>>
+) => {
+  const examples = [];
+  let i = 0;
+  while (i < coveredQueriesArr.length) {
+    const currentRow = Object.assign({}, ...coveredQueriesArr.slice(0, i + 1));
+    examples.push(currentRow);
+    i++;
+  }
+
+  return examples;
+};
+
+const generateOptimalQueries = (
+  coveredQueriesArr: Array<Record<string, number>>
+) => {
+  const numOfFields = coveredQueriesArr.length;
+
+  // Do not show for 1 field or less
+  if (numOfFields < 2) {
+    return;
+  }
+
+  const lastField = coveredQueriesArr[numOfFields - 1];
+  const lastFieldKey = Object.keys(lastField)[0];
+
+  // If there are only two fields, we want to show two examples
+  // i.e. {a:1, b: {$gt:2}} and {a:1}.sort({b: 2})
+  if (numOfFields === 2) {
+    const firstField = coveredQueriesArr[0];
+    const firstFieldKey = Object.keys(firstField)[0];
+
+    return (
+      <>
+        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}}`}
+        <br />
+        {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
+      </>
+    );
+  }
+
+  // If there are more than two fields, we want to show a longer optimal query with gt and sort
+  // i.e. {a:1, b:2, c:{gt:3}}.sort({d:1})
+  const optimalQueries = coveredQueriesArr
+    .slice(0, -1)
+    .reduce<Record<string, unknown>>((acc, obj, index) => {
+      const key = Object.keys(obj)[0];
+      const value = obj[key];
+
+      if (index === numOfFields - 2) {
+        acc[key] = { $gt: value };
+      } else {
+        acc[key] = value;
+      }
+
+      return acc;
+    }, {});
+
+  return JSON.stringify(optimalQueries) + `.sort(${lastFieldKey}: 1})`;
+};
+
 const IndexFlowSection = ({
   createIndexFieldsComponent,
   fields,
@@ -106,6 +168,13 @@ const IndexFlowSection = ({
     },
     {}
   );
+
+  const coveredQueriesArr = fields.map((field, index) => {
+    return { [field.name]: index + 1 };
+  });
+
+  const coveredQueriesExamples = generateCoveredQueries(coveredQueriesArr);
+  const optimalQueriesExamples = generateOptimalQueries(coveredQueriesArr);
 
   return (
     <div>
@@ -179,29 +248,32 @@ const IndexFlowSection = ({
       </div>
 
       <div className={coveredQueriesCalloutStyles}>
-        {/* Covered Queries, clean up with actual covered queries examples in CLOUDP-311782 */}
+        {/* Covered Queries */}
         <Body
           className={codeStyles}
           data-testid="index-flow-section-covered-queries-examples"
         >
-          {`{ awards.wins:3 }`} <br />
-          {`{ awards.wins:3, imdb.rating:5 }`} <br />
-          {`{ awards.wins:3, imdb.rating:5, awards.nominations:8 }`} <br />
+          {coveredQueriesExamples.map((example, index) => (
+            <React.Fragment key={index}>
+              {JSON.stringify(example)}
+              <br />
+            </React.Fragment>
+          ))}
         </Body>
+
         <p>
           <span className={underlineStyles}>
             Follow the Equality, Sort, Range (ESR) Rule. This index is optimal
             for queries that have this pattern:
           </span>
-          {/* Optimal queries, clean up with actual optimal queries in CLOUDP-311783 */}
+          {/* Optimal queries */}
           <Body
             className={codeStyles}
             data-testid="index-flow-section-optimal-query-examples"
           >
-            {`{ awards.wins : 5, imdb.rating: {$gt : 5} }.sort({ awards.nominations : 1 }`}
+            {optimalQueriesExamples}
           </Body>
         </p>
-
         <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
           Learn More
         </Link>
