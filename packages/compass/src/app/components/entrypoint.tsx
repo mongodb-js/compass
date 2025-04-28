@@ -29,6 +29,7 @@ import {
   type TelemetryServiceOptions,
   createIpcSendTrack,
 } from '@mongodb-js/compass-telemetry';
+import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -85,7 +86,9 @@ export const WithStorageProviders: React.FC = ({ children }) => {
     <PipelineStorageProvider value={pipelineStorage.current}>
       <FavoriteQueryStorageProvider value={favoriteQueryStorage.current}>
         <RecentQueryStorageProvider value={recentQueryStorage.current}>
-          {children}
+          <DataModelStorageServiceProviderElectron>
+            {children}
+          </DataModelStorageServiceProviderElectron>
         </RecentQueryStorageProvider>
       </FavoriteQueryStorageProvider>
     </PipelineStorageProvider>
