@@ -10,6 +10,7 @@ import {
   Toggle,
   fontFamilies,
   InfoSprinkle,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import type { Field } from '../../modules/create-index';
@@ -81,15 +82,17 @@ export type IndexFlowSectionProps = {
 const generateCoveredQueries = (
   coveredQueriesArr: Array<Record<string, number>>
 ) => {
-  const examples = [];
-  let i = 0;
-  while (i < coveredQueriesArr.length) {
+  const rows = [];
+  for (let i = 0; i < coveredQueriesArr.length; i++) {
     const currentRow = Object.assign({}, ...coveredQueriesArr.slice(0, i + 1));
-    examples.push(currentRow);
-    i++;
+    rows.push(
+      <>
+        {JSON.stringify(currentRow)} <br />
+      </>
+    );
   }
 
-  return examples;
+  return <>{rows}</>;
 };
 
 const generateOptimalQueries = (
@@ -99,7 +102,7 @@ const generateOptimalQueries = (
 
   // Do not show for 1 field or less
   if (numOfFields < 2) {
-    return;
+    return '';
   }
 
   const lastField = coveredQueriesArr[numOfFields - 1];
@@ -153,11 +156,12 @@ const IndexFlowSection = ({
     return field.name && field.type;
   });
 
+  const hasUnsupportedQueryTypes = fields.some((field) => {
+    return field.type === '2dsphere' || field.type === 'text';
+  });
+
   const isCoveredQueriesButtonDisabled =
-    !areAllFieldsFilledIn ||
-    fields.some((field) => {
-      return field.type === '2dsphere' || field.type === 'text';
-    });
+    !areAllFieldsFilledIn || hasUnsupportedQueryTypes;
 
   const indexNameTypeMap = fields.reduce<Record<string, string>>(
     (accumulator, currentValue) => {
@@ -173,8 +177,21 @@ const IndexFlowSection = ({
     return { [field.name]: index + 1 };
   });
 
-  const coveredQueriesExamples = generateCoveredQueries(coveredQueriesArr);
-  const optimalQueriesExamples = generateOptimalQueries(coveredQueriesArr);
+  const [coveredQueriesExamples, setCoveredQueriesExamples] =
+    useState<JSX.Element>(<></>);
+  const [optimalQueriesExamples, setOptimalQueriesExamples] = useState<
+    string | JSX.Element
+  >('');
+  const [showCoveredQueries, setShowCoveredQueries] = useState(false);
+
+  const onCoveredQueriesButtonClick = () => {
+    generateCoveredQueries(coveredQueriesArr);
+    generateOptimalQueries(coveredQueriesArr);
+
+    setCoveredQueriesExamples(generateCoveredQueries(coveredQueriesArr));
+    setOptimalQueriesExamples(generateOptimalQueries(coveredQueriesArr));
+    setShowCoveredQueries(true);
+  };
 
   return (
     <div>
@@ -214,70 +231,81 @@ const IndexFlowSection = ({
         )}
 
         <div className={buttonContainerStyles}>
-          <Button
-            className={coveredQueriesButtonStyles}
-            onClick={() => {
-              // TODO in CLOUDP-311782 generate covered queries
-              // TODO in CLOUDP-311783 generate optimal queries
-            }}
-            size="small"
-            disabled={isCoveredQueriesButtonDisabled}
+          <Tooltip
+            trigger={
+              <Button
+                data-testid="index-flow-section-covered-queries-button"
+                className={coveredQueriesButtonStyles}
+                onClick={onCoveredQueriesButtonClick}
+                size="small"
+                disabled={isCoveredQueriesButtonDisabled}
+              >
+                Show covered queries
+              </Button>
+            }
+            align="top"
+            justify="middle"
+            enabled={hasUnsupportedQueryTypes}
           >
-            Show covered queries
-          </Button>
+            Example queries are unavailable for 2dsphere and text
+          </Tooltip>
         </div>
       </div>
-
-      <div
-        className={cx(coveredQueriesHeaderContainerStyles, flexContainerStyles)}
-      >
-        <Body
-          baseFontSize={16}
-          weight="medium"
-          className={coveredQueriesHeaderStyles}
-        >
-          Covered Queries
-        </Body>
-
-        <InfoSprinkle align="top" justify="middle">
-          {' '}
-          A covered query is a query that can be satisfied entirely using an
-          index and does not have to examine any documents. If a query is
-          covered, it is highly performant.
-        </InfoSprinkle>
-      </div>
-
-      <div className={coveredQueriesCalloutStyles}>
-        {/* Covered Queries */}
-        <Body
-          className={codeStyles}
-          data-testid="index-flow-section-covered-queries-examples"
-        >
-          {coveredQueriesExamples.map((example, index) => (
-            <React.Fragment key={index}>
-              {JSON.stringify(example)}
-              <br />
-            </React.Fragment>
-          ))}
-        </Body>
-
-        <p>
-          <span className={underlineStyles}>
-            Follow the Equality, Sort, Range (ESR) Rule. This index is optimal
-            for queries that have this pattern:
-          </span>
-          {/* Optimal queries */}
-          <Body
-            className={codeStyles}
-            data-testid="index-flow-section-optimal-query-examples"
+      {showCoveredQueries && (
+        <>
+          <div
+            className={cx(
+              coveredQueriesHeaderContainerStyles,
+              flexContainerStyles
+            )}
           >
-            {optimalQueriesExamples}
-          </Body>
-        </p>
-        <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
-          Learn More
-        </Link>
-      </div>
+            <Body
+              baseFontSize={16}
+              weight="medium"
+              className={coveredQueriesHeaderStyles}
+            >
+              Covered Queries
+            </Body>
+
+            <InfoSprinkle align="top" justify="middle">
+              A covered query is a query that can be satisfied entirely using an
+              index and does not have to examine any documents. If a query is
+              covered, it is highly performant.
+            </InfoSprinkle>
+          </div>
+
+          <div className={coveredQueriesCalloutStyles}>
+            {/* Covered Queries */}
+            <Body
+              className={codeStyles}
+              data-testid="index-flow-section-covered-queries-examples"
+            >
+              {coveredQueriesExamples}
+            </Body>
+
+            {!!optimalQueriesExamples && (
+              <>
+                <p>
+                  <span className={underlineStyles}>
+                    Follow the Equality, Sort, Range (ESR) Rule. This index is
+                    optimal for queries that have this pattern:
+                  </span>
+                  {/* Optimal queries */}
+                  <Body
+                    className={codeStyles}
+                    data-testid="index-flow-section-optimal-queries-examples"
+                  >
+                    {optimalQueriesExamples}
+                  </Body>
+                </p>
+                <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
+                  Learn More
+                </Link>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };
