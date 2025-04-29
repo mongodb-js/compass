@@ -12,7 +12,7 @@ import {
   InfoSprinkle,
   Tooltip,
 } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import type { Field } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
 
@@ -173,25 +173,30 @@ const IndexFlowSection = ({
     {}
   );
 
-  const coveredQueriesArr = fields.map((field, index) => {
-    return { [field.name]: index + 1 };
+  const [coveredQueriesObj, setCoveredQueriesObj] = useState<{
+    coveredQueries: JSX.Element;
+    optimalQueries: string | JSX.Element;
+    showCoveredQueries: boolean;
+  }>({
+    coveredQueries: <></>,
+    optimalQueries: '',
+    showCoveredQueries: false,
   });
 
-  const [coveredQueriesExamples, setCoveredQueriesExamples] =
-    useState<JSX.Element>(<></>);
-  const [optimalQueriesExamples, setOptimalQueriesExamples] = useState<
-    string | JSX.Element
-  >('');
-  const [showCoveredQueries, setShowCoveredQueries] = useState(false);
+  const onCoveredQueriesButtonClick = useCallback(() => {
+    const coveredQueriesArr = fields.map((field, index) => {
+      return { [field.name]: index + 1 };
+    });
 
-  const onCoveredQueriesButtonClick = () => {
-    generateCoveredQueries(coveredQueriesArr);
-    generateOptimalQueries(coveredQueriesArr);
+    setCoveredQueriesObj({
+      coveredQueries: generateCoveredQueries(coveredQueriesArr),
+      optimalQueries: generateOptimalQueries(coveredQueriesArr),
+      showCoveredQueries: true,
+    });
+  }, [fields]);
 
-    setCoveredQueriesExamples(generateCoveredQueries(coveredQueriesArr));
-    setOptimalQueriesExamples(generateOptimalQueries(coveredQueriesArr));
-    setShowCoveredQueries(true);
-  };
+  const { coveredQueries, optimalQueries, showCoveredQueries } =
+    coveredQueriesObj;
 
   return (
     <div>
@@ -280,10 +285,10 @@ const IndexFlowSection = ({
               className={codeStyles}
               data-testid="index-flow-section-covered-queries-examples"
             >
-              {coveredQueriesExamples}
+              {coveredQueries}
             </Body>
 
-            {!!optimalQueriesExamples && (
+            {!!optimalQueries && (
               <>
                 <p>
                   <span className={underlineStyles}>
@@ -295,7 +300,7 @@ const IndexFlowSection = ({
                     className={codeStyles}
                     data-testid="index-flow-section-optimal-queries-examples"
                   >
-                    {optimalQueriesExamples}
+                    {optimalQueries}
                   </Body>
                 </p>
                 <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
