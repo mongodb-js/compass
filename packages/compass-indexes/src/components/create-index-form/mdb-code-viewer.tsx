@@ -32,7 +32,7 @@ const generateCode = ({
 
   Object.entries(indexNameTypeMap).forEach(([name, type], index) => {
     // Replacing everything inside the parenthesis i.e. (asc)
-    let parsedType = escapeText(type.replace(/\(.*?\)/g, '')).trim();
+    let parsedType = escapeText(`${type}`.replace(/\(.*?\)/g, '')).trim();
     if (!NUMERIC_INDEX_TYPES.includes(Number(parsedType))) {
       parsedType = `"${parsedType}"`;
     }

@@ -5,13 +5,15 @@ import {
   cx,
   useFocusRing,
 } from '@mongodb-js/compass-components';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import { EJSON } from 'bson';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import MDBCodeViewer from './mdb-code-viewer';
+import * as mql from 'mongodb-mql-engines';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
@@ -88,6 +90,35 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
+  // const sampleDocuments: Array<Document> = await dataService.sample(
+  //   `${dbName}.${collectionName}`,
+  //   { size: 50 }
+  // );
+
+  // const sampleDocuments = [
+  //   { a: 1, b: 2 },
+  //   { a: 5, b: true },
+  // ];
+
+  const [indexNameTypeMap, setIndexNameTypeMap] = React.useState<
+    Record<string, string> | undefined
+  >();
+  const onSuggestedIndexesButtonClick = useCallback(async () => {
+    const namespace = mql.analyzeNamespace(
+      { database: dbName, collection: collectionName },
+      []
+    );
+    const query = mql.parseQuery(
+      EJSON.parse(inputQuery, { relaxed: false }),
+      namespace
+    );
+    const results = await mql.suggestIndex([query]);
+    console.log('index', results.index);
+    setIndexNameTypeMap(results?.index);
+
+    console.log({ inputQuery, query });
+  }, [dbName, collectionName, inputQuery]);
+
   return (
     <>
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -117,7 +148,7 @@ const QueryFlowSection = ({
         <div className={editorActionContainerStyles}>
           <Button
             onClick={() => {
-              // TODO in CLOUDP-311786
+              onSuggestedIndexesButtonClick();
             }}
             className={suggestedIndexButtonStyles}
             size="small"
@@ -126,18 +157,22 @@ const QueryFlowSection = ({
           </Button>
         </div>
       </div>
-      <Body baseFontSize={16} weight="medium" className={headerStyles}>
-        Suggested Index
-      </Body>{' '}
-      <div className={suggestedIndexContainerStyles}>
-        {/* TODO in CLOUDP-311786, replace hardcoded values with actual data */}
-        <MDBCodeViewer
-          dataTestId="query-flow-section-suggested-index"
-          dbName={dbName}
-          collectionName={collectionName}
-          indexNameTypeMap={{ 'awards.win': '1', 'imdb.rating': '1' }}
-        />
-      </div>
+      {indexNameTypeMap && (
+        <>
+          <Body baseFontSize={16} weight="medium" className={headerStyles}>
+            Suggested Index
+          </Body>{' '}
+          <div className={suggestedIndexContainerStyles}>
+            {/* TODO in CLOUDP-311786, replace hardcoded values with actual data */}
+            <MDBCodeViewer
+              dataTestId="query-flow-section-suggested-index"
+              dbName={dbName}
+              collectionName={collectionName}
+              indexNameTypeMap={indexNameTypeMap}
+            />
+          </div>
+        </>
+      )}
     </>
   );
 };
