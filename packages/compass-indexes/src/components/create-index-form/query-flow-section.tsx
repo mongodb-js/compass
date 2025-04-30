@@ -14,6 +14,13 @@ import {
 } from '@mongodb-js/compass-editor';
 import MDBCodeViewer from './mdb-code-viewer';
 import * as mql from 'mongodb-mql-engines';
+import type { RootState } from '../../modules';
+import { suggestedIndexFetched } from '../../modules/create-index';
+import type {
+  IndexSuggestionState,
+  SuggestedIndexFetchedProps,
+} from '../../modules/create-index';
+import { connect } from 'react-redux';
 
 const inputQueryContainerStyles = css({
   marginBottom: spacing[600],
@@ -67,11 +74,19 @@ const QueryFlowSection = ({
   serverVersion,
   dbName,
   collectionName,
+  onSuggestedIndexButtonClick,
+  indexSuggestions,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
   dbName: string;
   collectionName: string;
+  onSuggestedIndexButtonClick: ({
+    indexSuggestions,
+    error,
+    indexSuggestionsState,
+  }: SuggestedIndexFetchedProps) => void;
+  indexSuggestions: Record<string, number> | null;
 }) => {
   const [inputQuery, setInputQuery] = React.useState('');
   const completer = useMemo(
@@ -90,34 +105,41 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  // const sampleDocuments: Array<Document> = await dataService.sample(
-  //   `${dbName}.${collectionName}`,
-  //   { size: 50 }
-  // );
+  const handleSuggestedIndexButtonClick = useCallback(async () => {
+    try {
+      const sanitizedInputQuery = inputQuery.trim();
+      const namespace = mql.analyzeNamespace(
+        { database: dbName, collection: collectionName },
+        []
+      );
+      const query = mql.parseQuery(
+        EJSON.parse(sanitizedInputQuery, { relaxed: false }),
+        namespace
+      );
+      const results = await mql.suggestIndex([query]);
 
-  // const sampleDocuments = [
-  //   { a: 1, b: 2 },
-  //   { a: 5, b: true },
-  // ];
-
-  const [indexNameTypeMap, setIndexNameTypeMap] = React.useState<
-    Record<string, string> | undefined
-  >();
-  const onSuggestedIndexesButtonClick = useCallback(async () => {
-    const namespace = mql.analyzeNamespace(
-      { database: dbName, collection: collectionName },
-      []
-    );
-    const query = mql.parseQuery(
-      EJSON.parse(inputQuery, { relaxed: false }),
-      namespace
-    );
-    const results = await mql.suggestIndex([query]);
-    console.log('index', results.index);
-    setIndexNameTypeMap(results?.index);
-
-    console.log({ inputQuery, query });
-  }, [dbName, collectionName, inputQuery]);
+      if (results?.index) {
+        onSuggestedIndexButtonClick({
+          indexSuggestions: results.index,
+          error: null,
+          indexSuggestionsState: 'success',
+        });
+      } else {
+        onSuggestedIndexButtonClick({
+          indexSuggestions: null,
+          error:
+            'No suggested index found. Please choose Start with an Index at the top to continue.',
+          indexSuggestionsState: 'error',
+        });
+      }
+    } catch (error) {
+      onSuggestedIndexButtonClick({
+        indexSuggestions: null,
+        error: 'Error parsing query. Please follow query structure.',
+        indexSuggestionsState: 'error',
+      });
+    }
+  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
 
   return (
     <>
@@ -148,7 +170,7 @@ const QueryFlowSection = ({
         <div className={editorActionContainerStyles}>
           <Button
             onClick={() => {
-              onSuggestedIndexesButtonClick();
+              void handleSuggestedIndexButtonClick();
             }}
             className={suggestedIndexButtonStyles}
             size="small"
@@ -157,7 +179,7 @@ const QueryFlowSection = ({
           </Button>
         </div>
       </div>
-      {indexNameTypeMap && (
+      {indexSuggestions && (
         <>
           <Body baseFontSize={16} weight="medium" className={headerStyles}>
             Suggested Index
@@ -168,7 +190,7 @@ const QueryFlowSection = ({
               dataTestId="query-flow-section-suggested-index"
               dbName={dbName}
               collectionName={collectionName}
-              indexNameTypeMap={indexNameTypeMap}
+              indexNameTypeMap={indexSuggestions}
             />
           </div>
         </>
@@ -177,4 +199,15 @@ const QueryFlowSection = ({
   );
 };
 
-export default QueryFlowSection;
+const mapState = ({ createIndex }: RootState) => {
+  const { indexSuggestions } = createIndex;
+  return {
+    indexSuggestions,
+  };
+};
+
+const mapDispatch = {
+  onSuggestedIndexButtonClick: suggestedIndexFetched,
+};
+
+export default connect(mapState, mapDispatch)(QueryFlowSection);

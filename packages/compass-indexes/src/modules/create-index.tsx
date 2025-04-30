@@ -27,6 +27,9 @@ export enum ActionTypes {
   CreateIndexFormSubmitted = 'compass-indexes/create-index/create-index-form-submitted',
 
   TabUpdated = 'compass-indexes/create-index/tab-updated',
+
+  SuggestedIndexesRequested = 'compass-indexes/create-index/suggested-indexes-requested',
+  SuggestedIndexesFetched = 'compass-indexes/create-index/suggested-indexes-fetched',
 }
 
 // fields
@@ -274,7 +277,7 @@ const INITIAL_OPTIONS_STATE = Object.fromEntries(
   })
 ) as Options;
 
-// other
+export type IndexSuggestionState = 'initial' | 'fetching' | 'success' | 'error';
 
 export type State = {
   // A unique id assigned to the create index modal on open, will be used when
@@ -296,6 +299,10 @@ export type State = {
 
   // current tab that user is on (Query Flow or Index Flow)
   currentTab: Tab;
+
+  fetchingSuggestionsState: IndexSuggestionState;
+  fetchingSuggestionsError: Error | string | null;
+  indexSuggestions: Record<string, number> | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -305,6 +312,9 @@ export const INITIAL_STATE: State = {
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
+  fetchingSuggestionsState: 'initial',
+  fetchingSuggestionsError: null,
+  indexSuggestions: null,
 };
 
 function getInitialState(): State {
@@ -335,6 +345,62 @@ export const errorCleared = (): ErrorClearedAction => ({
 
 export type CreateIndexSpec = {
   [key: string]: string | number;
+};
+
+type SuggestedIndexesRequestedAction = {
+  type: ActionTypes.SuggestedIndexesRequested;
+};
+
+export const suggestedIndexesRequested =
+  (): SuggestedIndexesRequestedAction => ({
+    type: ActionTypes.SuggestedIndexesRequested,
+  });
+
+export type SuggestedIndexFetchedAction = {
+  type: ActionTypes.SuggestedIndexesFetched;
+  sampleDocs: Array<Document>;
+  indexSuggestions: { [key: string]: number } | null;
+  error: string | null;
+  indexSuggestionsState: IndexSuggestionState;
+};
+
+export type SuggestedIndexFetchedProps = {
+  indexSuggestions: { [key: string]: number } | null;
+  error: string | null;
+  indexSuggestionsState: IndexSuggestionState;
+};
+
+// TODO: dispatch sample docs in here
+export const suggestedIndexFetched = ({
+  indexSuggestions,
+  error,
+  indexSuggestionsState,
+}: {
+  indexSuggestions: { [key: string]: number } | null;
+  error: string | null;
+  indexSuggestionsState: IndexSuggestionState;
+}): IndexesThunkAction<
+  void,
+  SuggestedIndexFetchedAction | ErrorEncounteredAction
+> => {
+  return (dispatch, getState, { track, preferences }) => {
+    if (error) {
+      dispatch(errorEncountered(error));
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.SuggestedIndexesFetched,
+      sampleDocs: [],
+      indexSuggestions,
+      error,
+      indexSuggestionsState,
+    });
+
+    if (error) {
+      dispatch(errorEncountered(error));
+    }
+  };
 };
 
 function isEmptyValue(value: unknown) {
@@ -626,6 +692,34 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       currentTab: action.currentTab,
+    };
+  }
+
+  if (
+    isAction<SuggestedIndexesRequestedAction>(
+      action,
+      ActionTypes.SuggestedIndexesRequested
+    )
+  ) {
+    return {
+      ...state,
+      fetchingSuggestionsState: 'fetching',
+      fetchingSuggestionsError: null,
+      indexSuggestions: null,
+    };
+  }
+
+  if (
+    isAction<SuggestedIndexFetchedAction>(
+      action,
+      ActionTypes.SuggestedIndexesFetched
+    )
+  ) {
+    return {
+      ...state,
+      fetchingSuggestionsState: action.indexSuggestionsState,
+      fetchingSuggestionsError: action.error,
+      indexSuggestions: action.indexSuggestions,
     };
   }
 

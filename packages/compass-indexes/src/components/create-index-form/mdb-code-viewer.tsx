@@ -24,7 +24,7 @@ const generateCode = ({
 }: {
   dbName: string;
   collectionName: string;
-  indexNameTypeMap: { [key: string]: string };
+  indexNameTypeMap: Record<string, string | number>;
 }) => {
   let codeStr = `db.getSiblingDB("${dbName}").getCollection("${escapeText(
     collectionName
@@ -59,7 +59,7 @@ const MDBCodeViewer = ({
 }: {
   dbName: string;
   collectionName: string;
-  indexNameTypeMap: { [key: string]: string };
+  indexNameTypeMap: Record<string, string | number>;
   dataTestId?: string;
 }) => {
   const GeneratedCode = generateCode({
