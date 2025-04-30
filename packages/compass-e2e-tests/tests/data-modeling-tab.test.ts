@@ -148,6 +148,7 @@ describe('Data Modeling tab', function () {
       Selectors.DataModelsListItemActions(dataModelName)
     );
     await browser.clickVisible(Selectors.DataModelsListItemDeleteButton);
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await browser
       .$(Selectors.DataModelsListItem(dataModelName))
       .waitForDisplayed({ reverse: true });
