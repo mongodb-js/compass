@@ -1489,6 +1489,15 @@ const connectWithOptions = (
           return;
         }
 
+        const atlasClusterState = connectionInfo.atlasMetadata?.clusterState;
+        if (
+          atlasClusterState === 'DELETED' ||
+          atlasClusterState === 'PAUSED' ||
+          atlasClusterState === 'CREATING'
+        ) {
+          return;
+        }
+
         const isAutoconnectAttempt = isAutoconnectInfo(
           getState(),
           connectionInfo.id
