@@ -45,6 +45,8 @@ const SavedDiagramsList: React.FunctionComponent<{
               onClick={() => {
                 onOpenDiagramClick(diagram);
               }}
+              data-testid="saved-diagram-card"
+              data-diagram-name={diagram.name}
             >
               {diagram.name}
               <ItemActionMenu

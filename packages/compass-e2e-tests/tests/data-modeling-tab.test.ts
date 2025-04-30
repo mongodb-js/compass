@@ -51,9 +51,10 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.CreateNewDataModelButton);
 
     // Fill in model details
+    const dataModelName = 'Test Data Model';
     await browser.setValueVisible(
       Selectors.CreateDataModelNameInput,
-      'Test Data Model'
+      dataModelName
     );
     await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
@@ -79,10 +80,76 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
+    // Verify that the diagram is displayed and contains both collections
     const text = await browser.getCodemirrorEditorText(
-      Selectors.DataModelEditor
+      Selectors.DataModelPreview
     );
     expect(text).to.include('"test.testCollection1": ');
     expect(text).to.include('"test.testCollection2": ');
+
+    // Apply change to the model
+    const newModel = {
+      type: 'SetModel',
+      model: { schema: { coll1: {}, coll2: {} } },
+    };
+    const newPreview = JSON.stringify(newModel.model, null, 2);
+    await browser.setCodemirrorEditorValue(
+      Selectors.DataModelApplyEditor,
+      JSON.stringify(newModel)
+    );
+    await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+
+    // Verify that the model is updated
+    const updatedText = await browser.getCodemirrorEditorText(
+      Selectors.DataModelPreview
+    );
+    expect(updatedText).to.equal(newPreview);
+
+    // Undo the change
+    await browser.clickVisible(Selectors.DataModelUndoButton);
+    await browser.waitUntil(async () => {
+      const textAfterUndo = await browser.getCodemirrorEditorText(
+        Selectors.DataModelPreview
+      );
+      return (
+        textAfterUndo.includes('"test.testCollection1": ') &&
+        textAfterUndo.includes('"test.testCollection2": ')
+      );
+    });
+
+    // Redo the change
+    await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
+    await browser.clickVisible(Selectors.DataModelRedoButton);
+    await browser.waitUntil(async () => {
+      const redoneText = await browser.getCodemirrorEditorText(
+        Selectors.DataModelPreview
+      );
+      return redoneText === newPreview;
+    });
+
+    // Open a new tab
+    await browser.openNewTab();
+
+    // Open the saved diagram
+    await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
+    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+
+    // Verify that the diagram has the latest changes
+    const savedText = await browser.getCodemirrorEditorText(
+      Selectors.DataModelPreview
+    );
+    expect(savedText).to.equal(newPreview);
+
+    // Open a new tab
+    await browser.openNewTab();
+
+    // Delete the saved diagram
+    await browser.clickVisible(
+      Selectors.DataModelsListItemActions(dataModelName)
+    );
+    await browser.clickVisible(Selectors.DataModelsListItemDeleteButton);
+    await browser
+      .$(Selectors.DataModelsListItem(dataModelName))
+      .waitForDisplayed({ reverse: true });
   });
 });

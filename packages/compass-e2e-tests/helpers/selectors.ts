@@ -1438,3 +1438,13 @@ export const CreateDataModelCollectionCheckbox = (
 ): string =>
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
+export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
+export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
+export const DataModelUndoButton = 'button[aria-label="Undo"]';
+export const DataModelRedoButton = 'button[aria-label="Redo"]';
+export const DataModelsListItem = (diagramName: string) =>
+  `[data-testid="saved-diagram-card"][data-diagram-name="${diagramName}"]`;
+export const DataModelsListItemActions = (diagramName: string) =>
+  `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
+export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
