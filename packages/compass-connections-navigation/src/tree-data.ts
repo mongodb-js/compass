@@ -124,6 +124,24 @@ export type SidebarActionableItem =
 
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
+export function clusterIsConnectable(
+  item: SidebarTreeItem,
+  getConnectionById: any
+): boolean {
+  if (item.type === 'connection') {
+    const clusterState = item.connectionInfo.atlasMetadata?.clusterState;
+    return !['DELETING', 'DELETED', 'CREATING', 'PAUSED'].includes(
+      clusterState
+    );
+  } else if (item.type === 'database' || item.type === 'collection') {
+    const connection = getConnectionById(item.connectionId);
+    return !['DELETING', 'DELETED', 'CREATING', 'PAUSED'].includes(
+      connection.info.atlasMetadata?.clusterState
+    );
+  }
+  return true;
+}
+
 const notConnectedConnectionToItems = ({
   connection: { name, connectionInfo, connectionStatus },
   connectionIndex,

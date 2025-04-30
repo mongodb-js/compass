@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { getVirtualTreeItems } from './tree-data';
+import { clusterIsConnectable, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
 import type { Actions } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
@@ -21,6 +21,7 @@ import {
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
+import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import {
   collectionItemActions,
   connectedConnectionItemActions,
@@ -57,6 +58,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const id = useId();
+  const { getConnectionById } = useConnectionsListRef();
 
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
@@ -69,6 +71,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
+      const isConnectableCluster = clusterIsConnectable(
+        item,
+        getConnectionById
+      );
+      if (!isConnectableCluster) {
+        return;
+      }
+
       if (item.type === 'connection') {
         if (item.connectionStatus === 'connected') {
           onItemAction(item, 'select-connection');
@@ -83,7 +93,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction]
+    [onItemAction, getConnectionById]
   );
 
   const activeItemId = useMemo(() => {
@@ -144,6 +154,15 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
+      const isConnectableCluster = clusterIsConnectable(
+        item,
+        getConnectionById
+      );
+      if (!isConnectableCluster) {
+        return {
+          actions: [],
+        };
+      }
       switch (item.type) {
         case 'placeholder':
           return {
@@ -192,7 +211,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           };
       }
     },
-    [isRenameCollectionEnabled, getCollapseAfterForConnectedItem]
+    [
+      isRenameCollectionEnabled,
+      getCollapseAfterForConnectedItem,
+      getConnectionById,
+    ]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

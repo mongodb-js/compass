@@ -4,7 +4,8 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
-import type { SidebarTreeItem } from './tree-data';
+import { clusterIsConnectable, type SidebarTreeItem } from './tree-data';
+import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
@@ -29,6 +30,8 @@ export default function StyledNavigationItem({
     () => (isDarkMode ? palette.gray.light1 : palette.gray.dark1),
     [isDarkMode]
   );
+  const { getConnectionById } = useConnectionsListRef();
+  const isConnectableCluster = clusterIsConnectable(item, getConnectionById);
 
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
@@ -44,17 +47,22 @@ export default function StyledNavigationItem({
       style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
     }
 
-    if (isDisconnectedConnection || isNonExistentNamespace) {
+    if (
+      isDisconnectedConnection ||
+      isNonExistentNamespace ||
+      !isConnectableCluster
+    ) {
       style['--item-color'] = inactiveColor;
     }
 
-    // For a non-existent namespace, even if its active, we show it as inactive
-    if (isNonExistentNamespace) {
+    // We always show these as inactive
+    if (isNonExistentNamespace || !isConnectableCluster) {
       style['--item-color-active'] = inactiveColor;
     }
     return style;
   }, [
     inactiveColor,
+    isConnectableCluster,
     item,
     colorCode,
     connectionColorToHex,

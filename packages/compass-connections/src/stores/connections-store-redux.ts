@@ -530,9 +530,12 @@ function mergeConnections(
     ? newConnections
     : [newConnections];
 
+  const removedConnectionIds = new Set(connectionsState.ids);
+
   let newConnectionsById = connectionsState.byId;
 
   for (const connectionInfo of newConnections) {
+    removedConnectionIds.delete(connectionInfo.id);
     const existingConnection = newConnectionsById[connectionInfo.id];
 
     // If we got a new connection, just create a default state for this
@@ -555,6 +558,25 @@ function mergeConnections(
         [connectionInfo.id]: {
           ...existingConnection,
           info: connectionInfo,
+        },
+      };
+    }
+  }
+
+  for (const connectionId of removedConnectionIds) {
+    const removedConnection = newConnectionsById[connectionId];
+    if (removedConnection.info.atlasMetadata) {
+      newConnectionsById = {
+        ...newConnectionsById,
+        [connectionId]: {
+          ...removedConnection,
+          info: {
+            ...removedConnection.info,
+            atlasMetadata: {
+              ...removedConnection.info.atlasMetadata,
+              clusterState: 'DELETED',
+            },
+          },
         },
       };
     }
@@ -1491,9 +1513,9 @@ const connectWithOptions = (
 
         const atlasClusterState = connectionInfo.atlasMetadata?.clusterState;
         if (
-          atlasClusterState === 'DELETED' ||
-          atlasClusterState === 'PAUSED' ||
-          atlasClusterState === 'CREATING'
+          ['DELETING', 'DELETED', 'CREATING', 'PAUSED'].includes(
+            atlasClusterState
+          )
         ) {
           return;
         }

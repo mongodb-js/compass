@@ -97,8 +97,17 @@ const ClusterStateBadge: React.FunctionComponent<{
   state: string;
 }> = ({ state }) => {
   const badgeVariant =
-    state === 'CREATING' ? BadgeVariant.Blue : BadgeVariant.LightGray;
-  const badgeText = state === 'DELETING' ? 'TERMINATING' : state;
+    state === 'CREATING'
+      ? BadgeVariant.Blue
+      : state === 'DELETED'
+      ? BadgeVariant.Red
+      : BadgeVariant.LightGray;
+  const badgeText =
+    state === 'DELETING'
+      ? 'TERMINATING'
+      : state === 'DELETED'
+      ? 'TERMINATED'
+      : state;
 
   return (
     <Badge variant={badgeVariant} data-testid="navigation-item-state-badge">
@@ -112,32 +121,31 @@ const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
 }> = ({ item }) => {
   const isDarkMode = useDarkMode();
 
-  if (item.type === 'connection') {
-    const atlasClusterState = item.connectionInfo.atlasMetadata?.clusterState;
-    if (atlasClusterState === 'PAUSED') {
-      return (
-        <Tooltip
-          enabled={true}
-          darkMode={isDarkMode}
-          trigger={({
-            children: tooltipChildren,
-            ...tooltipTriggerProps
-          }: React.HTMLProps<HTMLDivElement>) => (
-            <div {...tooltipTriggerProps}>
-              <ClusterStateBadge state={atlasClusterState} />
-              {tooltipChildren}
-            </div>
-          )}
-        >
-          <Body>Unpause your cluster to connect to it</Body>
-        </Tooltip>
-      );
-    } else if (
-      atlasClusterState === 'DELETING' ||
-      atlasClusterState === 'CREATING'
-    ) {
-      return <ClusterStateBadge state={atlasClusterState} />;
-    }
+  const atlasClusterState = item.connectionInfo?.atlasMetadata?.clusterState;
+  if (atlasClusterState === 'PAUSED') {
+    return (
+      <Tooltip
+        enabled={true}
+        darkMode={isDarkMode}
+        trigger={({
+          children: tooltipChildren,
+          ...tooltipTriggerProps
+        }: React.HTMLProps<HTMLDivElement>) => (
+          <div {...tooltipTriggerProps}>
+            <ClusterStateBadge state={atlasClusterState} />
+            {tooltipChildren}
+          </div>
+        )}
+      >
+        <Body>Unpause your cluster to connect to it</Body>
+      </Tooltip>
+    );
+  } else if (
+    atlasClusterState === 'DELETING' ||
+    atlasClusterState === 'CREATING' ||
+    atlasClusterState === 'DELETED'
+  ) {
+    return <ClusterStateBadge state={atlasClusterState} />;
   }
 
   return null;

@@ -63,6 +63,22 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
     return <Icon glyph="TimeSeries" />;
   }
   if (item.type === 'connection') {
+    const atlasClusterState = item.connectionInfo.atlasMetadata?.clusterState;
+    if (atlasClusterState === 'DELETING' || atlasClusterState === 'CREATING') {
+      return (
+        <WithStatusMarker status={'disconnected'}>
+          <Icon glyph="Refresh" />
+        </WithStatusMarker>
+      );
+    }
+    if (atlasClusterState === 'PAUSED' || atlasClusterState === 'DELETED') {
+      return (
+        <WithStatusMarker status={'disconnected'}>
+          <ServerIcon />
+        </WithStatusMarker>
+      );
+    }
+
     const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
     if (isFavorite) {
       return (
@@ -75,16 +91,6 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
       return (
         <WithStatusMarker status={item.connectionStatus}>
           <Icon glyph="Laptop" />
-        </WithStatusMarker>
-      );
-    }
-    if (
-      item.connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
-      item.connectionInfo.atlasMetadata?.clusterState === 'CREATING'
-    ) {
-      return (
-        <WithStatusMarker status={item.connectionStatus}>
-          <Icon glyph="Refresh" />
         </WithStatusMarker>
       );
     }

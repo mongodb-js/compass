@@ -146,13 +146,6 @@ export const notConnectedConnectionItemActions = ({
   connectionInfo: ConnectionInfo;
   connectionStatus: NotConnectedConnectionStatus;
 }): NavigationItemActions => {
-  if (
-    connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
-    connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
-    connectionInfo.atlasMetadata?.clusterState === 'CREATING'
-  ) {
-    return [];
-  }
   const commonActions = commonConnectionItemActions({ connectionInfo });
   if (connectionStatus === 'connecting') {
     return commonActions;
