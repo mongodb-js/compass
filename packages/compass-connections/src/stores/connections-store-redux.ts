@@ -1513,9 +1513,10 @@ const connectWithOptions = (
 
         const atlasClusterState = connectionInfo.atlasMetadata?.clusterState;
         if (
-          ['DELETING', 'DELETED', 'CREATING', 'PAUSED'].includes(
-            atlasClusterState
-          )
+          atlasClusterState === 'DELETED' ||
+          atlasClusterState === 'DELETING' ||
+          atlasClusterState === 'CREATING' ||
+          atlasClusterState === 'PAUSED'
         ) {
           return;
         }
