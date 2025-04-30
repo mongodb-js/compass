@@ -48,7 +48,7 @@ export interface AtlasClusterMetadata {
     | 'UPDATING'
     | 'PAUSED'
     | 'IDLE'
-    | 'REPARING'
+    | 'REPAIRING'
     | 'DELETING'
     | 'DELETED';
 

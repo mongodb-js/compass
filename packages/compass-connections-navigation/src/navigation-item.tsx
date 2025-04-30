@@ -111,14 +111,23 @@ export function NavigationItem({
   onItemExpand,
   getItemActions,
 }: NavigationItemProps) {
+  let isDisabled = false;
+  if (item.type === 'connection') {
+    const connectionInfo = item.connectionInfo;
+    isDisabled =
+      connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
+      connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
+      connectionInfo.atlasMetadata?.clusterState === 'CREATING';
+  }
+
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
     (action: Actions) => {
-      if (item.type !== 'placeholder') {
+      if (item.type !== 'placeholder' || !isDisabled) {
         onItemAction(item, action);
       }
     },
-    [item, onItemAction]
+    [item, onItemAction, isDisabled]
   );
 
   const style = useMemo(() => getTreeItemStyles(item), [item]);
@@ -201,10 +210,10 @@ export function NavigationItem({
   }, [item, isDarkMode]);
 
   const toggleExpand = useCallback(() => {
-    if (item.type !== 'placeholder') {
+    if (item.type !== 'placeholder' || isDisabled) {
       onItemExpand(item, !item.isExpanded);
     }
-  }, [onItemExpand, item]);
+  }, [onItemExpand, item, isDisabled]);
 
   return (
     <StyledNavigationItem item={item}>
@@ -212,6 +221,7 @@ export function NavigationItem({
         <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
+          item={item}
           isActive={isActive}
           isFocused={isFocused}
           isExpanded={!!item.isExpanded}

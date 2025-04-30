@@ -5,12 +5,16 @@ import {
   css,
   ItemActionControls,
   cx,
+  Badge,
+  BadgeVariant,
 } from '@mongodb-js/compass-components';
 import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
 import { type NavigationItemActions } from './item-actions';
+import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 
 type NavigationBaseItemProps = {
+  item: SidebarTreeItem;
   name: string;
   isActive: boolean;
   isExpandVisible: boolean;
@@ -87,6 +91,7 @@ const actionControlsWrapperStyles = css({
 });
 
 export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
+  item,
   isActive,
   actionProps,
   name,
@@ -101,6 +106,26 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   toggleExpand,
   children,
 }) => {
+  // TODO: add extra UI stuff here
+
+  let isDisabled = false;
+  let status = '';
+  let variant = BadgeVariant.LightGray;
+  if (item.type === 'connection') {
+    const connectionInfo = item.connectionInfo;
+    isDisabled =
+      connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
+      connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
+      connectionInfo.atlasMetadata?.clusterState === 'CREATING';
+    if (isDisabled) {
+      status = connectionInfo.atlasMetadata?.clusterState;
+      if (status === 'CREATING') {
+        variant = BadgeVariant.Blue;
+      }
+      console.log(status);
+    }
+  }
+
   const [hoverProps, isHovered] = useHoverState();
   return (
     <div
@@ -127,6 +152,18 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
           {icon}
           <span title={name}>{name}</span>
         </div>
+        {isDisabled && (
+          <Badge
+            variant={variant}
+            className={css({
+              verticalAlign: 'middle',
+              marginLeft: spacing[100],
+            })}
+            data-testid="navigation-item-state-badge"
+          >
+            {status}
+          </Badge>
+        )}
         <div className={actionControlsWrapperStyles}>
           <ItemActionControls
             menuClassName={menuStyles}

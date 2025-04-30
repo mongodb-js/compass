@@ -247,10 +247,13 @@ export function buildConnectionInfoFromClusterDescription(
   };
 }
 
-const CONNECTABLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
+const VISIBLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
   'IDLE',
-  'REPARING',
+  'REPAIRING',
   'UPDATING',
+  'PAUSED',
+  'CREATING',
+  'DELETING',
 ];
 
 /**
@@ -288,19 +291,20 @@ export class AtlasCloudConnectionStorage
 
     const connectionInfoList = (await res.json()) as ConnectionInfo[];
 
-    return connectionInfoList
+    console.log(connectionInfoList);
+
+    const cil = connectionInfoList
       .map((connectionInfo: ConnectionInfo): ConnectionInfo | null => {
         if (
-          !connectionInfo.connectionOptions.connectionString ||
           !connectionInfo.atlasMetadata ||
-          // TODO(COMPASS-8228): do not filter out those connections, display
-          // them in navigation, but in a way that doesn't allow connecting
-          !CONNECTABLE_CLUSTER_STATES.includes(
+          !VISIBLE_CLUSTER_STATES.includes(
             connectionInfo.atlasMetadata.clusterState
           )
         ) {
           return null;
         }
+
+        console.log(connectionInfo);
 
         const clusterName = connectionInfo.atlasMetadata.clusterName;
 
@@ -323,6 +327,10 @@ export class AtlasCloudConnectionStorage
       .filter((connectionInfo): connectionInfo is ConnectionInfo => {
         return !!connectionInfo;
       });
+
+    console.log('FILTERED');
+    console.log(cil);
+    return cil;
   }
 
   /**
