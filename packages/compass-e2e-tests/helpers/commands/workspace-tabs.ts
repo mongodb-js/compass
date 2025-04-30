@@ -11,6 +11,13 @@ export async function navigateToMyQueries(browser: CompassBrowser) {
     .waitForDisplayed();
 }
 
+export async function navigateToDataModeling(browser: CompassBrowser) {
+  await browser.clickVisible(Selectors.SidebarDataModelingTab);
+  await browser
+    .$(Selectors.workspaceTab({ type: 'Data Modeling', active: true }))
+    .waitForDisplayed();
+}
+
 async function closeTab(
   browser: CompassBrowser,
   selectorOptions: WorkspaceTabSelectorOptions,

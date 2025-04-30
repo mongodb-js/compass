@@ -61,6 +61,7 @@ const FormStepContainer: React.FunctionComponent<{
           onClick={onNextClick}
           disabled={isNextDisabled}
           isLoading={isLoading}
+          data-testid="new-diagram-confirm-button"
           variant="primary"
         >
           {nextLabel}
@@ -202,6 +203,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <TextInput
               label="New data model name"
               value={diagramName}
+              data-testId="new-diagram-name-input"
               onChange={(e) => {
                 onNameChange(e.currentTarget.value);
               }}
@@ -214,6 +216,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <Select
               label=""
               value={selectedConnectionId ?? ''}
+              data-testid="new-diagram-connection-selector"
               onChange={onConnectionSelect}
               disabled={connections.length === 0}
             >
@@ -238,6 +241,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <Select
               label=""
               value={selectedDatabase ?? ''}
+              data-testid="new-diagram-database-selector"
               onChange={onDatabaseSelect}
             >
               {databases.map((db) => {
@@ -259,6 +263,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
                 return {
                   id: collName,
                   selected: selectedCollections.includes(collName),
+                  'data-testid': `new-diagram-collection-checkbox-${collName}`,
                 };
               })}
               columns={[['id', 'Collection Name']]}
@@ -294,6 +299,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   return (
     <Modal
       open={isModalOpen}
+      data-testid="new-diagram-modal"
       setOpen={(open) => {
         if (!open) {
           onCancel();

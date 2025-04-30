@@ -159,7 +159,10 @@ const DiagramEditor: React.FunctionComponent<{
 
   if (step === 'EDITING') {
     content = (
-      <div className={modelPreviewContainerStyles}>
+      <div
+        className={modelPreviewContainerStyles}
+        data-testid="diagram-editor-container"
+      >
         <div className={modelPreviewStyles}>
           <CodemirrorMultilineEditor
             language="json"

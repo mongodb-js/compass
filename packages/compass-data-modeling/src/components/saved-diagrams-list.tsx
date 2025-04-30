@@ -81,7 +81,11 @@ const SavedDiagramsList: React.FunctionComponent<{
           </>
         }
         callToAction={
-          <Button onClick={onCreateDiagramClick} variant="primary">
+          <Button
+            onClick={onCreateDiagramClick}
+            variant="primary"
+            data-testid="create-diagram-button"
+          >
             Create diagram
           </Button>
         }
@@ -98,6 +102,7 @@ const SavedDiagramsList: React.FunctionComponent<{
               onClick={onCreateDiagramClick}
               variant="primary"
               size="xsmall"
+              data-testid="create-diagram-button"
             >
               Create diagram
             </Button>

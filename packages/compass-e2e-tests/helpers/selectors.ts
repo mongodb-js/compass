@@ -1424,3 +1424,17 @@ export const AutoUpdateDownloadLink =
   '[data-testid="auto-update-download-link"]';
 export const AutoUpdateReleaseNotesLink =
   '[data-testid="auto-update-release-notes-link"]';
+
+// Data Modeling
+export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
+export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
+export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
+export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
+export const CreateDataModelNameInput = `${CreateDataModelModal} [data-testid="new-diagram-name-input"]`;
+export const CreateDataModelConnectionSelector = `${CreateDataModelModal} [data-testid="new-diagram-connection-selector"]`;
+export const CreateDataModelDatabaseSelector = `${CreateDataModelModal} [data-testid="new-diagram-database-selector"]`;
+export const CreateDataModelCollectionCheckbox = (
+  collectionName: string
+): string =>
+  `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
+export const DataModelEditor = '[data-testid="diagram-editor-container"]';
