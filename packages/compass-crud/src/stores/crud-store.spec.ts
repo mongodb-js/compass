@@ -249,6 +249,7 @@ describe('store', function () {
       dataLake: {
         isDataLake: false,
       },
+      preferences,
     } as any);
 
     sinon.restore();

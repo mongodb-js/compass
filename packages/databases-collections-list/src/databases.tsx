@@ -5,12 +5,15 @@ import { compactBytes, compactNumber } from './format';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { DatabaseProps } from 'mongodb-database-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const DATABASE_CARD_WIDTH = spacing[1600] * 4;
 
 const DATABASE_CARD_HEIGHT = 154;
+const DATABASE_CARD_WITHOUT_STATS_HEIGHT = DATABASE_CARD_HEIGHT - 85;
 
 const DATABASE_CARD_LIST_HEIGHT = 118;
+const DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT = DATABASE_CARD_LIST_HEIGHT - 50;
 
 const DatabasesList: React.FunctionComponent<{
   databases: DatabaseProps[];
@@ -27,13 +30,22 @@ const DatabasesList: React.FunctionComponent<{
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   return (
     <ItemsGrid
       items={databases}
       itemType="database"
       itemGridWidth={DATABASE_CARD_WIDTH}
-      itemGridHeight={DATABASE_CARD_HEIGHT}
-      itemListHeight={DATABASE_CARD_LIST_HEIGHT}
+      itemGridHeight={
+        enableDbAndCollStats
+          ? DATABASE_CARD_HEIGHT
+          : DATABASE_CARD_WITHOUT_STATS_HEIGHT
+      }
+      itemListHeight={
+        enableDbAndCollStats
+          ? DATABASE_CARD_LIST_HEIGHT
+          : DATABASE_CARD_LIST_WITHOUT_STATS_HEIGHT
+      }
       sortBy={[
         { name: 'name', label: 'Database Name' },
         { name: 'storage_size', label: 'Storage size' },
@@ -63,12 +75,20 @@ const DatabasesList: React.FunctionComponent<{
             data={[
               {
                 label: 'Storage size',
-                value: compactBytes(db.storage_size),
-                hint: `Uncompressed data size: ${compactBytes(db.data_size)}`,
+                value:
+                  enableDbAndCollStats && db.storage_size !== undefined
+                    ? compactBytes(db.storage_size)
+                    : 'N/A',
+                hint:
+                  enableDbAndCollStats &&
+                  db.data_size !== undefined &&
+                  `Uncompressed data size: ${compactBytes(db.data_size)}`,
               },
               {
                 label: 'Collections',
-                value: compactNumber(db.collectionsLength),
+                value: enableDbAndCollStats
+                  ? compactNumber(db.collectionsLength)
+                  : 'N/A',
                 insights:
                   db.collectionsLength >= 10_000
                     ? PerformanceSignals.get('too-many-collections')
@@ -76,7 +96,10 @@ const DatabasesList: React.FunctionComponent<{
               },
               {
                 label: 'Indexes',
-                value: compactNumber(db.index_count),
+                value:
+                  enableDbAndCollStats && db.index_count !== undefined
+                    ? compactNumber(db.index_count)
+                    : 'N/A',
               },
             ]}
             onItemClick={onItemClick}

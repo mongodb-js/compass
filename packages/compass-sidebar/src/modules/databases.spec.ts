@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import databasesReducer, { INITIAL_STATE, changeDatabases } from './databases';
 
@@ -6,13 +7,16 @@ import { createInstance } from '../../test/helpers';
 
 const CONNECTION_ID = 'webscale';
 
-function createDatabases(dbs: any[] = []) {
-  const data = createInstance(dbs).databases.map((db) => {
-    return {
-      ...db.toJSON(),
-      collections: db.collections.toJSON(),
-    };
-  });
+async function createDatabases(dbs: any[] = []) {
+  const preferences = await createSandboxFromDefaultPreferences();
+  const data = createInstance(dbs, undefined, preferences).databases.map(
+    (db) => {
+      return {
+        ...db.toJSON(),
+        collections: db.collections.toJSON(),
+      };
+    }
+  );
   return data.map(({ is_non_existent, collections, ...rest }) => ({
     ...rest,
     isNonExistent: is_non_existent,
@@ -26,8 +30,8 @@ function createDatabases(dbs: any[] = []) {
 describe('sidebar databases', function () {
   describe('#reducer', function () {
     context('when changing databases', function () {
-      it('sets databases as-is', function () {
-        const dbs = createDatabases([{ _id: 'foo' }, { _id: 'bar' }]);
+      it('sets databases as-is', async function () {
+        const dbs = await createDatabases([{ _id: 'foo' }, { _id: 'bar' }]);
 
         expect(
           databasesReducer(undefined, changeDatabases(CONNECTION_ID, dbs))

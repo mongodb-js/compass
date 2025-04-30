@@ -131,11 +131,25 @@ const DatabaseModel = AmpersandModel.extend(
       collections: MongoDbCollectionCollection,
     },
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{
+     *    dataService: import('mongodb-data-service').DataService,
+     *    force: boolean
+     * }} options
+     * @param force
      * @returns {Promise<void>}
      */
     async fetch({ dataService, force = false }) {
+      const shouldFetchDbAndCollStats = getParentByType(
+        this,
+        'Instance'
+      ).shouldFetchDbAndCollStats;
+
       if (!shouldFetch(this.status, force)) {
+        return;
+      }
+
+      if (!shouldFetchDbAndCollStats) {
+        this.set({ status: 'ready' });
         return;
       }
 
@@ -143,7 +157,11 @@ const DatabaseModel = AmpersandModel.extend(
         const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
         this.set({ status: newStatus });
         const stats = await dataService.databaseStats(this.getId());
-        this.set({ status: 'ready', statusError: null, ...stats });
+        this.set({
+          status: 'ready',
+          statusError: null,
+          ...stats,
+        });
       } catch (err) {
         this.set({ status: 'error', statusError: err.message });
         throw err;
@@ -151,7 +169,10 @@ const DatabaseModel = AmpersandModel.extend(
     },
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{
+     *    dataService: import('mongodb-data-service').DataService,
+     *    force: boolean
+     * }} options
      * @returns {Promise<void>}
      */
     async fetchCollections({ dataService, force = false }) {
@@ -196,7 +217,7 @@ const DatabaseModel = AmpersandModel.extend(
             dataService,
             // We already fetched it with fetchCollections
             fetchInfo: false,
-            force
+            force,
           });
         })
       );
@@ -233,10 +254,16 @@ const DatabaseCollection = AmpersandCollection.extend(
       const dbs = await dataService.listDatabases({
         nameOnly: true,
         privileges: instanceModel.auth.privileges,
-        roles: instanceModel.auth.roles
+        roles: instanceModel.auth.roles,
       });
 
-      this.set(dbs.map(({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })));
+      this.set(
+        dbs.map(({ _id, name, is_non_existent }) => ({
+          _id,
+          name,
+          is_non_existent,
+        }))
+      );
     },
 
     toJSON(opts = { derived: true }) {

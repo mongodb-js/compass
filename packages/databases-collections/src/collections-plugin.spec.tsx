@@ -11,6 +11,10 @@ import {
 import { expect } from 'chai';
 import { CollectionsPlugin } from './collections-plugin';
 import Sinon from 'sinon';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
 
 describe('Collections [Plugin]', function () {
   let dataService: any;
@@ -18,8 +22,10 @@ describe('Collections [Plugin]', function () {
   let appRegistry: Sinon.SinonSpiedInstance<
     RenderWithConnectionsResult['globalAppRegistry']
   >;
+  let preferences: PreferencesAccess;
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     mongodbInstance = Sinon.spy(
       new MongoDBInstance({
         databases: [
@@ -30,6 +36,7 @@ describe('Collections [Plugin]', function () {
           },
         ],
         topologyDescription: { type: 'ReplicaSetWithPrimary' },
+        preferences,
       } as any)
     );
     for (const db of mongodbInstance.databases) {

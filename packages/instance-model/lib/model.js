@@ -135,6 +135,24 @@ const InstanceModel = AmpersandModel.extend(
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
+      shouldFetchDbAndCollStats: { type: 'boolean', default: false },
+    },
+    initialize: function ({ preferences, ...props }) {
+      // Initialize the property directly from preferences
+      this.set({
+        shouldFetchDbAndCollStats:
+          preferences.getPreferences().enableDbAndCollStats,
+      });
+
+      // Listen to preference changes using the preferences API
+      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
+        'enableDbAndCollStats',
+        (value) => {
+          this.set({ shouldFetchDbAndCollStats: value });
+        }
+      );
+
+      AmpersandModel.prototype.initialize.call(this, props);
     },
     derived: {
       isRefreshing: {
@@ -146,8 +164,8 @@ const InstanceModel = AmpersandModel.extend(
       isTopologyWritable: {
         deps: ['topologyDescription.type'],
         fn() {
-          return TopologyType.isWritable(this.topologyDescription.type)
-        }
+          return TopologyType.isWritable(this.topologyDescription.type);
+        },
       },
       singleServerType: {
         deps: ['topologyDescription.type', 'topologyDescription.servers'],
@@ -156,16 +174,23 @@ const InstanceModel = AmpersandModel.extend(
             return this.topologyDescription.servers[0].type;
           }
           return null;
-        }
+        },
       },
       isServerWritable: {
         deps: ['singleServerType'],
         fn() {
-          return this.singleServerType !== null && ServerType.isWritable(this.singleServerType);
-        }
+          return (
+            this.singleServerType !== null &&
+            ServerType.isWritable(this.singleServerType)
+          );
+        },
       },
       isWritable: {
-        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable'],
+        deps: [
+          'topologyDescription.type',
+          'isTopologyWritable',
+          'isServerWritable',
+        ],
         fn() {
           if (this.isTopologyWritable) {
             if (this.topologyDescription.type === TopologyType.SINGLE) {
@@ -176,22 +201,35 @@ const InstanceModel = AmpersandModel.extend(
           } else {
             return false;
           }
-        }
+        },
       },
       description: {
-        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable', 'singleServerType'],
+        deps: [
+          'topologyDescription.type',
+          'isTopologyWritable',
+          'isServerWritable',
+          'singleServerType',
+        ],
         fn() {
           const topologyType = this.topologyDescription.type;
 
           if (this.isTopologyWritable) {
             if (topologyType === TopologyType.SINGLE) {
-              const message = this.isServerWritable ? 'is writable' : 'is not writable';
-              return `Single connection to server type: ${ServerType.humanize(this.singleServerType)} ${message}`;
+              const message = this.isServerWritable
+                ? 'is writable'
+                : 'is not writable';
+              return `Single connection to server type: ${ServerType.humanize(
+                this.singleServerType
+              )} ${message}`;
             }
-            return `Topology type: ${TopologyType.humanize(topologyType)} is writable`;
+            return `Topology type: ${TopologyType.humanize(
+              topologyType
+            )} is writable`;
           }
-          return `Topology type: ${TopologyType.humanize(topologyType)} is not writable`;
-        }
+          return `Topology type: ${TopologyType.humanize(
+            topologyType
+          )} is not writable`;
+        },
       },
       env: {
         deps: ['isAtlas', 'isLocalAtlas', 'dataLake'],
@@ -203,8 +241,8 @@ const InstanceModel = AmpersandModel.extend(
             return Environment.ATLAS;
           }
           return Environment.ON_PREM;
-        }
-      }
+        },
+      },
     },
     children: {
       host: HostInfo,
@@ -363,7 +401,11 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     removeAllListeners() {
-      InstanceModel.removeAllListeners(this)
+      // Clean up preference listeners
+      if (this._preferenceUnsubscribe) {
+        this._preferenceUnsubscribe();
+      }
+      InstanceModel.removeAllListeners(this);
     },
 
     toJSON(opts = { derived: true }) {

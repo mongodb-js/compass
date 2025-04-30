@@ -6,11 +6,15 @@ import { setupInstance } from './instance';
 import type { RootState } from '.';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  MongoDBInstance,
+  MongoDBInstancesManager,
+} from '@mongodb-js/compass-app-stores/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 describe('sidebar instance', function () {
-  const instance = createInstance();
   let instanceOnSpy: SinonSpy;
+  let instance: MongoDBInstance;
   const globalAppRegistry = {} as any as AppRegistry;
   const connectionsService = {
     getDataServiceForConnection() {
@@ -31,7 +35,9 @@ describe('sidebar instance', function () {
   let logger: Logger;
   let listMongoDBInstancesStub: SinonStub;
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    instance = createInstance(undefined, undefined, preferences);
     instanceOnSpy = spy();
     instance.on = instanceOnSpy;
     instancesManager = {

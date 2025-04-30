@@ -3,6 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 import Database from 'mongodb-database-model';
 import { CollectionCollection } from 'mongodb-collection-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 declare const ServerType: {
   humanize(serverType: string): string;
@@ -105,6 +106,7 @@ declare class MongoDBInstanceProps {
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
   topologyDescription: TopologyDescription;
+  preferences: PreferencesAccess;
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {

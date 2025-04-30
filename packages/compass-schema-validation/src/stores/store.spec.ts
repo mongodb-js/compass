@@ -34,13 +34,7 @@ const topologyDescription = {
   servers: [{ type: 'Unknown' }],
 };
 
-const fakeInstance = new MongoDBInstance({
-  _id: '123',
-  topologyDescription,
-  build: {
-    version: '6.0.0',
-  },
-} as any);
+let fakeInstance: MongoDBInstance;
 
 const fakeDataService = {
   collectionInfo: () =>
@@ -61,6 +55,16 @@ const getMockedStore = async (analyzeSchema: any) => {
   const connectionInfoRef = {
     current: {},
   } as ConnectionInfoRef;
+  const preferences = await createSandboxFromDefaultPreferences();
+
+  fakeInstance = new MongoDBInstance({
+    _id: '123',
+    topologyDescription,
+    build: {
+      version: '6.0.0',
+    },
+    preferences,
+  } as any);
   const activateResult = onActivated(
     { namespace: 'test.test' } as any,
     {
@@ -68,7 +72,7 @@ const getMockedStore = async (analyzeSchema: any) => {
       dataService: fakeDataService,
       instance: fakeInstance,
       workspaces: fakeWorkspaces,
-      preferences: await createSandboxFromDefaultPreferences(),
+      preferences,
       logger: createNoopLogger(),
       track: createNoopTrack(),
       connectionInfoRef,

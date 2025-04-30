@@ -1,3 +1,4 @@
+import React from 'react';
 import { z } from 'zod';
 import {
   type FeatureFlagDefinition,
@@ -13,9 +14,26 @@ import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
+import { Link } from '@mongodb-js/compass-components';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
+
+const enableDbAndCollStatsDescription: React.ReactNode = (
+  <>
+    The{' '}
+    <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
+      dbStats
+    </Link>
+    and{' '}
+    <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
+      collStats
+    </Link>{' '}
+    command return storage statistics for a given database or collection.
+    Disabling this setting can help reduce Compass&apos; overhead on your
+    MongoDB deployments.
+  </>
+);
 
 export const SORT_ORDER_VALUES = [
   '',
@@ -43,6 +61,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     networkTraffic: boolean;
     readOnly: boolean;
     enableShell: boolean;
+    enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
@@ -203,6 +222,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     : {
         short: string;
         long?: string;
+        longReact?: React.ReactNode;
         options?: AllPreferences[K] extends string
           ? { [k in AllPreferences[K]]: { label: string; description: string } }
           : never;
@@ -479,6 +499,21 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Switch to enable/disable dbStats and collStats calls.
+   */
+  enableDbAndCollStats: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Database and Collection Statistics',
+      long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
+      longReact: enableDbAndCollStatsDescription,
+    },
     validator: z.boolean().default(true),
     type: 'boolean',
   },

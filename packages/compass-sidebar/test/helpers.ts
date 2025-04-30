@@ -1,3 +1,4 @@
+import { type PreferencesAccess } from 'compass-preferences-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 
 export function createInstance(
@@ -9,7 +10,8 @@ export function createInstance(
     type: 'Unknown',
     servers: [],
     setName: 'foo',
-  }
+  },
+  preferences: PreferencesAccess
 ) {
   return new MongoDBInstance({
     _id: '123',
@@ -26,5 +28,6 @@ export function createInstance(
       };
     }),
     topologyDescription,
+    preferences,
   } as any);
 }

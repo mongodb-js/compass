@@ -9,6 +9,8 @@ import { createInstancesStore } from './stores';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { type MongoDBInstancesManager } from './instances-manager';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 interface MongoDBInstancesProviderProps {
   children?: React.ReactNode;
@@ -37,10 +39,12 @@ export const CompassInstanceStorePlugin = registerHadronPlugin(
       {
         connections,
         logger,
+        preferences,
         globalAppRegistry,
       }: {
         connections: ConnectionsService;
         logger: Logger;
+        preferences: PreferencesAccess;
         globalAppRegistry: AppRegistry;
       },
       helpers: ActivateHelpers
@@ -49,6 +53,7 @@ export const CompassInstanceStorePlugin = registerHadronPlugin(
         {
           connections,
           logger,
+          preferences,
           globalAppRegistry,
         },
         helpers
@@ -63,6 +68,7 @@ export const CompassInstanceStorePlugin = registerHadronPlugin(
   },
   {
     logger: createLoggerLocator('COMPASS-INSTANCE-STORE'),
+    preferences: preferencesLocator,
     connections: connectionsLocator,
   }
 );
