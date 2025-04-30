@@ -34,7 +34,6 @@ export default function StyledNavigationItem({
     const style: AcceptedStyles = {};
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
-
     const isNonExistentNamespace =
       (item.type === 'database' || item.type === 'collection') &&
       item.isNonExistent;
@@ -45,21 +44,12 @@ export default function StyledNavigationItem({
       style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
     }
 
-    if (isDisconnectedConnection) {
+    if (isDisconnectedConnection || isNonExistentNamespace) {
       style['--item-color'] = inactiveColor;
-      const connectionInfo = item.connectionInfo;
-      if (
-        connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
-        connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
-        connectionInfo.atlasMetadata?.clusterState === 'CREATING'
-      ) {
-        style['--item-color-active'] = inactiveColor;
-      }
     }
 
     // For a non-existent namespace, even if its active, we show it as inactive
     if (isNonExistentNamespace) {
-      style['--item-color'] = inactiveColor;
       style['--item-color-active'] = inactiveColor;
     }
     return style;

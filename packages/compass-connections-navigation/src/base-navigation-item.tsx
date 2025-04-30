@@ -7,11 +7,14 @@ import {
   cx,
   Badge,
   BadgeVariant,
+  Tooltip,
+  useDarkMode,
+  Body,
 } from '@mongodb-js/compass-components';
 import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
 import { type NavigationItemActions } from './item-actions';
-import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
+import type { SidebarTreeItem } from './tree-data';
 
 type NavigationBaseItemProps = {
   item: SidebarTreeItem;
@@ -90,6 +93,55 @@ const actionControlsWrapperStyles = css({
   gap: spacing[100],
 });
 
+const ClusterStateBadge: React.FunctionComponent<{
+  state: string;
+}> = ({ state }) => {
+  const badgeVariant =
+    state === 'CREATING' ? BadgeVariant.Blue : BadgeVariant.LightGray;
+
+  return (
+    <Badge variant={badgeVariant} data-testid="navigation-item-state-badge">
+      {state}
+    </Badge>
+  );
+};
+
+const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
+  item: SidebarTreeItem;
+}> = ({ item }) => {
+  const isDarkMode = useDarkMode();
+
+  if (item.type === 'connection') {
+    const atlasClusterState = item.connectionInfo.atlasMetadata?.clusterState;
+    if (atlasClusterState === 'PAUSED') {
+      return (
+        <Tooltip
+          enabled={true}
+          darkMode={isDarkMode}
+          trigger={({
+            children: tooltipChildren,
+            ...tooltipTriggerProps
+          }: React.HTMLProps<HTMLDivElement>) => (
+            <div {...tooltipTriggerProps}>
+              <ClusterStateBadge state={atlasClusterState} />
+              {tooltipChildren}
+            </div>
+          )}
+        >
+          <Body>Unpause your cluster to connect to it</Body>
+        </Tooltip>
+      );
+    } else if (
+      atlasClusterState === 'DELETING' ||
+      atlasClusterState === 'CREATING'
+    ) {
+      return <ClusterStateBadge state={atlasClusterState} />;
+    }
+  }
+
+  return null;
+};
+
 export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   item,
   isActive,
@@ -106,26 +158,6 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   toggleExpand,
   children,
 }) => {
-  // TODO: add extra UI stuff here
-
-  let isDisabled = false;
-  let status = '';
-  let variant = BadgeVariant.LightGray;
-  if (item.type === 'connection') {
-    const connectionInfo = item.connectionInfo;
-    isDisabled =
-      connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
-      connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
-      connectionInfo.atlasMetadata?.clusterState === 'CREATING';
-    if (isDisabled) {
-      status = connectionInfo.atlasMetadata?.clusterState;
-      if (status === 'CREATING') {
-        variant = BadgeVariant.Blue;
-      }
-      console.log(status);
-    }
-  }
-
   const [hoverProps, isHovered] = useHoverState();
   return (
     <div
@@ -152,18 +184,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
           {icon}
           <span title={name}>{name}</span>
         </div>
-        {isDisabled && (
-          <Badge
-            variant={variant}
-            className={css({
-              verticalAlign: 'middle',
-              marginLeft: spacing[100],
-            })}
-            data-testid="navigation-item-state-badge"
-          >
-            {status}
-          </Badge>
-        )}
+        <ClusterStateBadgeWithTooltip item={item} />
         <div className={actionControlsWrapperStyles}>
           <ItemActionControls
             menuClassName={menuStyles}

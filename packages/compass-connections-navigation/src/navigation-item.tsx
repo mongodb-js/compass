@@ -111,23 +111,14 @@ export function NavigationItem({
   onItemExpand,
   getItemActions,
 }: NavigationItemProps) {
-  let isDisabled = false;
-  if (item.type === 'connection') {
-    const connectionInfo = item.connectionInfo;
-    isDisabled =
-      connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
-      connectionInfo.atlasMetadata?.clusterState === 'PAUSED' ||
-      connectionInfo.atlasMetadata?.clusterState === 'CREATING';
-  }
-
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
     (action: Actions) => {
-      if (item.type !== 'placeholder' || !isDisabled) {
+      if (item.type !== 'placeholder') {
         onItemAction(item, action);
       }
     },
-    [item, onItemAction, isDisabled]
+    [item, onItemAction]
   );
 
   const style = useMemo(() => getTreeItemStyles(item), [item]);
@@ -210,10 +201,10 @@ export function NavigationItem({
   }, [item, isDarkMode]);
 
   const toggleExpand = useCallback(() => {
-    if (item.type !== 'placeholder' || isDisabled) {
+    if (item.type !== 'placeholder') {
       onItemExpand(item, !item.isExpanded);
     }
-  }, [onItemExpand, item, isDisabled]);
+  }, [onItemExpand, item]);
 
   return (
     <StyledNavigationItem item={item}>

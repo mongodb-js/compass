@@ -291,9 +291,7 @@ export class AtlasCloudConnectionStorage
 
     const connectionInfoList = (await res.json()) as ConnectionInfo[];
 
-    console.log(connectionInfoList);
-
-    const cil = connectionInfoList
+    return connectionInfoList
       .map((connectionInfo: ConnectionInfo): ConnectionInfo | null => {
         if (
           !connectionInfo.atlasMetadata ||
@@ -303,8 +301,6 @@ export class AtlasCloudConnectionStorage
         ) {
           return null;
         }
-
-        console.log(connectionInfo);
 
         const clusterName = connectionInfo.atlasMetadata.clusterName;
 
@@ -327,10 +323,6 @@ export class AtlasCloudConnectionStorage
       .filter((connectionInfo): connectionInfo is ConnectionInfo => {
         return !!connectionInfo;
       });
-
-    console.log('FILTERED');
-    console.log(cil);
-    return cil;
   }
 
   /**

@@ -78,6 +78,16 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
         </WithStatusMarker>
       );
     }
+    if (
+      item.connectionInfo.atlasMetadata?.clusterState === 'DELETING' ||
+      item.connectionInfo.atlasMetadata?.clusterState === 'CREATING'
+    ) {
+      return (
+        <WithStatusMarker status={item.connectionStatus}>
+          <Icon glyph="Refresh" />
+        </WithStatusMarker>
+      );
+    }
     return (
       <WithStatusMarker status={item.connectionStatus}>
         <ServerIcon />

@@ -11,7 +11,6 @@ enum Theme {
 export function useDarkMode(localDarkMode?: boolean): boolean | undefined {
   const darkMode = useLeafyGreenDarkMode(localDarkMode);
   return darkMode.darkMode;
-  // return false;
 }
 
 interface WithDarkModeProps {
