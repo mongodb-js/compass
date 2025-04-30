@@ -72,11 +72,11 @@ describe('PipelineResultsWorkspace', function () {
     const onRetry = spy();
     await renderPipelineResultsWorkspace({
       isError: true,
-      error: 'Something bad happened',
+      error: { message: 'Something bad happened' },
       onRetry,
     });
     expect(screen.getByText('Something bad happened')).to.exist;
-    userEvent.click(screen.getByText('Retry'), undefined, {
+    userEvent.click(screen.getByText('RETRY'), undefined, {
       skipPointerEventsCheck: true,
     });
     expect(onRetry).to.be.calledOnce;
