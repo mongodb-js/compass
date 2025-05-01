@@ -234,7 +234,7 @@ const WithConnectionsStore: React.FunctionComponent<{
   useEffect(() => {
     const intervalId = setInterval(() => {
       void actions.refreshConnections();
-    }, /* Matches default polling intervals in mms codebase */ 5_000);
+    }, /* Matches default polling intervals in mms codebase */ 60_000);
     return () => {
       clearInterval(intervalId);
     };
@@ -286,8 +286,6 @@ const CompassWeb = ({
       ? initialWorkspaceRef.current.connectionId
       : initialAutoconnectId ?? undefined;
 
-  console.log('AUTOCONNECT ID', autoconnectId);
-
   const onTrackRef = useRef(onTrack);
 
   const telemetryOptions = useRef<TelemetryServiceOptions>({
@@ -302,7 +300,7 @@ const CompassWeb = ({
     <GlobalAppRegistryProvider value={appRegistry.current}>
       <AppRegistryProvider scopeName="Compass Web Root">
         <CompassComponentsProvider
-          darkMode={false}
+          darkMode={darkMode}
           // Making sure that compass-web modals and tooltips are definitely not
           // hidden by Cloud UI sidebar and page header
           stackedElementsZIndex={10_000}

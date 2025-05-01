@@ -306,7 +306,6 @@ export class AtlasCloudConnectionStorage
 
         return {
           ...connectionInfo,
-          id: connectionInfo.atlasMetadata.clusterUniqueId,
           connectionOptions: {
             ...connectionInfo.connectionOptions,
             lookup: () => {
