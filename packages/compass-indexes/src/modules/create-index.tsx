@@ -312,7 +312,7 @@ export type State = {
   indexSuggestions: Record<string, number> | null;
 
   // sample documents used for getting index suggestions
-  sampleDocs: Array<Document>;
+  sampleDocs: Array<Document> | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -325,7 +325,7 @@ export const INITIAL_STATE: State = {
   fetchingSuggestionsState: 'initial',
   fetchingSuggestionsError: null,
   indexSuggestions: null,
-  sampleDocs: [],
+  sampleDocs: null,
 };
 
 function getInitialState(): State {
@@ -393,16 +393,19 @@ export const fetchIndexSuggestions = ({
       type: ActionTypes.SuggestedIndexesRequested,
     });
     const namespace = `${dbName}.${collectionName}`;
-    let sampleDocuments: Array<Document> =
-      getState().createIndex.sampleDocs || [];
 
     // Get sample documents from state if it's already there, otherwise fetch it
-    if (!sampleDocuments || sampleDocuments.length === 0) {
+    let sampleDocuments: Array<Document> | null =
+      getState().createIndex.sampleDocs || null;
+
+    // If it's null, that means it has not been fetched before
+    if (sampleDocuments === null) {
       try {
         sampleDocuments =
           (await dataService.sample(namespace, { size: 50 })) || [];
       } catch (e) {
         // Swallow the error because mql package still will work fine with empty sampleDocuments
+        sampleDocuments = [];
       }
     }
 
@@ -770,6 +773,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       fetchingSuggestionsState: action.indexSuggestionsState,
       fetchingSuggestionsError: action.fetchingSuggestionsError,
       indexSuggestions: action.indexSuggestions,
+      sampleDocs: action.sampleDocs,
     };
   }
 
