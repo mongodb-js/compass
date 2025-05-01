@@ -23,7 +23,7 @@ import {
   ConnectionActionsProvider,
 } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
-export { connectionSupports } from './utils/connection-supports';
+export { connectionSupports, connectable } from './utils/connection-supports';
 
 const ConnectionsComponent: React.FunctionComponent<{
   /**

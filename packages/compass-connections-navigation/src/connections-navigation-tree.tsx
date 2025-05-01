@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { clusterIsConnectable, getVirtualTreeItems } from './tree-data';
+import { getConnectionId, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
 import type { Actions } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
@@ -18,10 +18,10 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
+import { useConnectableRef } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
-import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import {
   collectionItemActions,
   connectedConnectionItemActions,
@@ -58,7 +58,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const id = useId();
-  const { getConnectionById } = useConnectionsListRef();
+  const { getConnectable } = useConnectableRef();
 
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
@@ -71,11 +71,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
-      const isConnectableCluster = clusterIsConnectable(
-        item,
-        getConnectionById
-      );
-      if (!isConnectableCluster) {
+      const connectionId = getConnectionId(item);
+      if (!getConnectable(connectionId)) {
         return;
       }
 
@@ -93,7 +90,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectionById]
+    [onItemAction, getConnectable]
   );
 
   const activeItemId = useMemo(() => {
@@ -154,11 +151,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
-      const isConnectableCluster = clusterIsConnectable(
-        item,
-        getConnectionById
-      );
-      if (!isConnectableCluster) {
+      const connectionId = getConnectionId(item);
+      if (!getConnectable(connectionId)) {
         return {
           actions: [],
         };
@@ -214,7 +208,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     [
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
-      getConnectionById,
+      getConnectable,
     ]
   );
 

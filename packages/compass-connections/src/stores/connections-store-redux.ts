@@ -32,6 +32,7 @@ import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import { connectable } from '../utils/connection-supports';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -563,6 +564,7 @@ function mergeConnections(
     }
   }
 
+  // If an Atlas connection was removed, it means that the cluster was deleted
   for (const connectionId of removedConnectionIds) {
     const removedConnection = newConnectionsById[connectionId];
     if (removedConnection.info.atlasMetadata) {
@@ -1511,13 +1513,7 @@ const connectWithOptions = (
           return;
         }
 
-        const atlasClusterState = connectionInfo.atlasMetadata?.clusterState;
-        if (
-          atlasClusterState === 'DELETED' ||
-          atlasClusterState === 'DELETING' ||
-          atlasClusterState === 'CREATING' ||
-          atlasClusterState === 'PAUSED'
-        ) {
+        if (!connectable(connectionInfo)) {
           return;
         }
 
