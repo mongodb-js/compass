@@ -30,6 +30,7 @@ import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-for
 import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
+import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 import { connectable } from '../utils/connection-supports';
@@ -1819,6 +1820,25 @@ const connectWithOptions = (
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
         }
+
+        void dataService.instance().then(
+          (instance) => {
+            if (instance.build.isEndOfLife) {
+              dispatch(
+                showEndOfLifeMongoDBWarningModal(
+                  connectionInfo.id,
+                  instance.build.version
+                )
+              );
+            }
+          },
+          (err) => {
+            debug(
+              'failed to get instance details to determine if the server version is end-of-life',
+              err
+            );
+          }
+        );
       } catch (err) {
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
@@ -2139,6 +2159,17 @@ export const showNonGenuineMongoDBWarningModal = (
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
     track('Screen', { name: 'non_genuine_mongodb_modal' }, connectionInfo);
     void _showNonGenuineMongoDBWarningModal(connectionInfo);
+  };
+};
+
+export const showEndOfLifeMongoDBWarningModal = (
+  connectionId: string,
+  version: string
+): ConnectionsThunkAction<void> => {
+  return (_dispatch, getState, { track }) => {
+    const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
+    track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
+    void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
   };
 };
 
