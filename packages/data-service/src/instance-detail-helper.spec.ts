@@ -7,6 +7,8 @@ import {
   getDatabasesByRoles,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
+  isEndOfLifeVersion,
+  adaptBuildInfo,
 } from './instance-detail-helper';
 
 import * as fixtures from '../test/fixtures';
@@ -627,6 +629,55 @@ describe('instance-detail-helper', function () {
           },
         })
       ).to.deep.equal(['aws', 'local']);
+    });
+  });
+
+  describe('isEndOfLifeVersion', function () {
+    it('returns true for v4.4 and below', () => {
+      expect(isEndOfLifeVersion('4.4.0')).to.equal(true);
+      expect(isEndOfLifeVersion('4.3.0')).to.equal(true);
+      expect(isEndOfLifeVersion('4.0')).to.equal(true);
+      expect(isEndOfLifeVersion('4.0-beta.0')).to.equal(true);
+      expect(isEndOfLifeVersion('1.0.0')).to.equal(true);
+      expect(isEndOfLifeVersion('0.0.1')).to.equal(true);
+      expect(isEndOfLifeVersion('3.999.0')).to.equal(true);
+    });
+
+    it('returns true for v4.5 and above', () => {
+      expect(isEndOfLifeVersion('4.5.0')).to.equal(false);
+      expect(isEndOfLifeVersion('5.0.0')).to.equal(false);
+      expect(isEndOfLifeVersion('5.0.25')).to.equal(false);
+      expect(isEndOfLifeVersion('6.0.0')).to.equal(false);
+      expect(isEndOfLifeVersion('7.0.0')).to.equal(false);
+      expect(isEndOfLifeVersion('8.0.0')).to.equal(false);
+    });
+  });
+
+  describe('adaptBuildInfo', function () {
+    it('propagate isEndOfLife as expected', function () {
+      expect(adaptBuildInfo({ version: '4.4.0' })).to.deep.equal({
+        version: '4.4.0',
+        isEndOfLife: true,
+        isEnterprise: false,
+      });
+      // Missing version
+      expect(adaptBuildInfo({})).to.deep.equal({
+        version: '',
+        isEndOfLife: false,
+        isEnterprise: false,
+      });
+      // Malformed version
+      expect(adaptBuildInfo({ version: 'what?' })).to.deep.equal({
+        version: 'what?',
+        isEndOfLife: false,
+        isEnterprise: false,
+      });
+      // Newer version
+      expect(adaptBuildInfo({ version: '8.0.0' })).to.deep.equal({
+        version: '8.0.0',
+        isEndOfLife: false,
+        isEnterprise: false,
+      });
     });
   });
 });

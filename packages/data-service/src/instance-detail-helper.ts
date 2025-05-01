@@ -28,6 +28,7 @@ import { debug } from './logger';
 
 type BuildInfoDetails = {
   isEnterprise: boolean;
+  isEndOfLife: boolean;
   version: string;
 };
 
@@ -350,11 +351,23 @@ function adaptHostInfo(rawHostInfo: Partial<HostInfo>): HostInfoDetails {
   };
 }
 
-function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
+export function isEndOfLifeVersion(version: string) {
+  try {
+    const [major, minor] = version.split('.').map((part) => parseInt(part, 10));
+    return (major === 4 && minor <= 4) || major < 4;
+  } catch {
+    return false;
+  }
+}
+
+export function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
   return {
     version: rawBuildInfo.version ?? '',
     // Cover both cases of detecting enterprise module, see SERVER-18099.
     isEnterprise: isEnterprise(rawBuildInfo),
+    isEndOfLife: rawBuildInfo.version
+      ? isEndOfLifeVersion(rawBuildInfo.version)
+      : false,
   };
 }
 
