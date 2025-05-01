@@ -14,7 +14,12 @@ import {
 import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
 import { type NavigationItemActions } from './item-actions';
-import type { SidebarTreeItem } from './tree-data';
+import type {
+  ConnectedConnectionTreeItem,
+  NotConnectedConnectionTreeItem,
+  SidebarActionableItem,
+  SidebarTreeItem,
+} from './tree-data';
 
 type NavigationBaseItemProps = {
   item: SidebarTreeItem;
@@ -117,11 +122,11 @@ const ClusterStateBadge: React.FunctionComponent<{
 };
 
 const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
-  item: SidebarTreeItem;
+  item: ConnectedConnectionTreeItem | NotConnectedConnectionTreeItem;
 }> = ({ item }) => {
   const isDarkMode = useDarkMode();
 
-  const atlasClusterState = item.connectionInfo?.atlasMetadata?.clusterState;
+  const atlasClusterState = item.connectionInfo.atlasMetadata?.clusterState;
   if (atlasClusterState === 'PAUSED') {
     return (
       <Tooltip
@@ -168,6 +173,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   children,
 }) => {
   const [hoverProps, isHovered] = useHoverState();
+
   return (
     <div
       data-testid="base-navigation-item"
@@ -193,7 +199,9 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
           {icon}
           <span title={name}>{name}</span>
         </div>
-        <ClusterStateBadgeWithTooltip item={item} />
+        {item.type === 'connection' && (
+          <ClusterStateBadgeWithTooltip item={item} />
+        )}
         <div className={actionControlsWrapperStyles}>
           <ItemActionControls
             menuClassName={menuStyles}
