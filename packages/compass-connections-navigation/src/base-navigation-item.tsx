@@ -17,7 +17,6 @@ import { type NavigationItemActions } from './item-actions';
 import type {
   ConnectedConnectionTreeItem,
   NotConnectedConnectionTreeItem,
-  SidebarActionableItem,
   SidebarTreeItem,
 } from './tree-data';
 
