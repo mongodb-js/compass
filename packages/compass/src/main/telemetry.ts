@@ -101,6 +101,7 @@ class CompassTelemetry {
         telemetryCapableEnvironment,
         hasAnalytics: !!this.analytics,
         telemetryAnonymousId: this.telemetryAnonymousId,
+        telemetryDeviceId: this.telemetryDeviceId,
         state: this.state,
         queuedEvents: this.queuedEvents.length,
       }
