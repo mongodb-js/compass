@@ -40,11 +40,11 @@ export function showEndOfLifeMongoDBWarningModal(
           performance improvements.{' '}
         </Body>
         <Link
-          href="https://www.mongodb.com/docs/manual/release-notes/"
+          href="https://www.mongodb.com/legal/support-policy/lifecycles"
           target="_blank"
           data-testid="end-of-life-warning-modal-learn-more-link"
         >
-          Learn more from the MongoDB release notes.
+          Learn more from the MongoDB Lifecycle Schedules.
         </Link>
       </>
     ),
