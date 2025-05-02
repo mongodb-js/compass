@@ -21,7 +21,7 @@ const renderWebWelcomeTab = (connections: ConnectionInfo[] = []) => {
 describe('WebWelcomeTab', function () {
   it('renders with title', function () {
     renderWebWelcomeTab();
-    expect(screen.getByText('Welcome! Explore')).to.exist;
+    expect(screen.getByText('Welcome! Explore your data')).to.exist;
   });
 
   context('with no connections', function () {
