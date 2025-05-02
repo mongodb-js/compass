@@ -14,6 +14,9 @@ import {
 } from 'mongodb-build-info';
 import toNS from 'mongodb-ns';
 
+import semverSatisfies from 'semver/functions/satisfies';
+import semverCoerce from 'semver/functions/coerce';
+
 import type {
   BuildInfo,
   CollectionInfo,
@@ -25,6 +28,7 @@ import type {
 } from './run-command';
 import { runCommand } from './run-command';
 import { debug } from './logger';
+import { getLatestEndOfLifeServerVersion } from './end-of-life-server';
 
 type BuildInfoDetails = {
   isEnterprise: boolean;
@@ -123,6 +127,7 @@ export async function getInstance(
     getParameterResult,
     atlasVersionResult,
     isLocalAtlas,
+    latestEndOfLifeServerVersion,
   ] = await Promise.all([
     runCommand(
       adminDb,
@@ -159,13 +164,14 @@ export async function getInstance(
         return await client.db(db).collection(collection).countDocuments(query);
       }
     ),
+    getLatestEndOfLifeServerVersion(),
   ]);
 
   const isAtlas = !!atlasVersionResult.atlasVersion || checkIsAtlas(uri);
 
   return {
     auth: adaptAuthInfo(connectionStatus),
-    build: adaptBuildInfo(buildInfoResult),
+    build: adaptBuildInfo(buildInfoResult, latestEndOfLifeServerVersion),
     host: adaptHostInfo(hostInfoResult),
     genuineMongoDB: buildGenuineMongoDBInfo(uri),
     dataLake: buildDataLakeInfo(buildInfoResult),
@@ -351,22 +357,32 @@ function adaptHostInfo(rawHostInfo: Partial<HostInfo>): HostInfoDetails {
   };
 }
 
-export function isEndOfLifeVersion(version: string) {
+export function isEndOfLifeVersion(
+  version: string,
+  latestEndOfLifeServerVersion: string
+) {
   try {
-    const [major, minor] = version.split('.').map((part) => parseInt(part, 10));
-    return (major === 4 && minor <= 4) || major < 4;
-  } catch {
+    const coercedVersion = semverCoerce(version);
+    return coercedVersion
+      ? semverSatisfies(coercedVersion, `<=${latestEndOfLifeServerVersion}`)
+      : false;
+  } catch (error) {
+    debug('Error comparing versions', { error });
+    // If the version is not a valid semver, we can't reliably determine if it's EOL
     return false;
   }
 }
 
-export function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
+export function adaptBuildInfo(
+  rawBuildInfo: Partial<BuildInfo>,
+  latestEndOfLifeServerVersion: string
+): BuildInfoDetails {
   return {
     version: rawBuildInfo.version ?? '',
     // Cover both cases of detecting enterprise module, see SERVER-18099.
     isEnterprise: isEnterprise(rawBuildInfo),
     isEndOfLife: rawBuildInfo.version
-      ? isEndOfLifeVersion(rawBuildInfo.version)
+      ? isEndOfLifeVersion(rawBuildInfo.version, latestEndOfLifeServerVersion)
       : false,
   };
 }
