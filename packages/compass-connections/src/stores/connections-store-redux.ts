@@ -562,7 +562,7 @@ function mergeConnections(
         },
       };
 
-      // TODO: if an Atlas connection is going from PAUSED state to unpaused, we should
+      // TODO(COMPASS-9319): if an Atlas connection is going from PAUSED state to unpaused, we should
       // reconnect the data service, since it would previously have been disconnected
       // due to non-retryable error code.
     }
