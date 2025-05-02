@@ -24,6 +24,7 @@ export function showEndOfLifeMongoDBWarningModal(
 ) {
   return showConfirmation({
     title: 'End-of-life MongoDB Detected',
+    hideCancelButton: true,
     description: (
       <>
         <Banner variant={BannerVariant.Warning}>

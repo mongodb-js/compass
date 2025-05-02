@@ -23,6 +23,7 @@ export function showNonGenuineMongoDBWarningModal(
 ) {
   return showConfirmation({
     title: 'Non-Genuine MongoDB Detected',
+    hideCancelButton: true,
     description: (
       <>
         <Banner variant={BannerVariant.Warning}>
