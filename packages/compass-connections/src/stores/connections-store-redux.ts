@@ -561,6 +561,10 @@ function mergeConnections(
           info: connectionInfo,
         },
       };
+
+      // TODO: if an Atlas connection is going from PAUSED state to unpaused, we should
+      // reconnect the data service, since it would previously have been disconnected
+      // due to non-retryable error code.
     }
   }
 
@@ -1423,7 +1427,9 @@ function getDescriptionForNonRetryableError(error: Error): string {
   // to the generic error description.
   const reason = error.message.match(/code: \d+, reason: (.*)$/)?.[1];
   return reason && reason.length > 0
-    ? reason
+    ? reason.endsWith('.')
+      ? reason.slice(0, -1)
+      : reason // Remove trailing period
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
