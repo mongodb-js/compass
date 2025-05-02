@@ -32,7 +32,7 @@ export default function WebWelcomeTab() {
     <div className={welcomeTabStyles}>
       <WelcomeTabImage />
       <div>
-        <H3>Welcome! Explore</H3>
+        <H3>Welcome! Explore your data</H3>
         <div className={contentBodyStyles}>
           <Body>
             {numConnections === 0
