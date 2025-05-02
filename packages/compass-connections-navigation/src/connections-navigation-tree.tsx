@@ -18,7 +18,7 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
-import { useConnectableRef } from '@mongodb-js/compass-connections/provider';
+import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
@@ -58,7 +58,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const id = useId();
-  const { getConnectable } = useConnectableRef();
+  const getConnectable = useConnectable();
 
   const treeData = useMemo(() => {
     return getVirtualTreeItems({

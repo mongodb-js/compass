@@ -30,12 +30,12 @@ export default function StyledNavigationItem({
     () => (isDarkMode ? palette.gray.light1 : palette.gray.dark1),
     [isDarkMode]
   );
-
-  const connectionId = getConnectionId(item);
-  const isConnectable = useConnectable(connectionId);
+  const getConnectable = useConnectable();
 
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
+    const connectionId = getConnectionId(item);
+    const isConnectable = getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const isNonExistentNamespace =
@@ -59,9 +59,9 @@ export default function StyledNavigationItem({
     return style;
   }, [
     inactiveColor,
-    isConnectable,
     item,
     colorCode,
+    getConnectable,
     connectionColorToHex,
     connectionColorToHexActive,
   ]);

@@ -254,6 +254,7 @@ const VISIBLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
   'PAUSED',
   'CREATING',
   'DELETING',
+  'DELETED',
 ];
 
 /**

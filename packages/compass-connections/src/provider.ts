@@ -69,7 +69,7 @@ export type { ConnectionsService } from './stores/store-context';
 
 export { useConnectionSupports } from './hooks/use-connection-supports';
 
-export { useConnectable, useConnectableRef } from './hooks/use-connectable';
+export { useConnectable } from './hooks/use-connectable';
 
 const ConnectionStatus = {
   /**
