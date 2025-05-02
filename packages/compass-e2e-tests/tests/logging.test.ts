@@ -179,6 +179,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.not.exist;
             expect(actual.telemetryAnonymousId).to.be.a('string');
+            expect(actual.telemetryDeviceId).to.match(/^[a-f0-9]{64}$/);
             expect(actual.state).to.equal('enabled');
           },
         },
