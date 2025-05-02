@@ -55,7 +55,16 @@ const FormStepContainer: React.FunctionComponent<{
   return (
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
-      <ModalBody>{children}</ModalBody>
+      <ModalBody>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onNextClick();
+          }}
+        >
+          {children}
+        </form>
+      </ModalBody>
       <ModalFooter>
         <Button
           onClick={onNextClick}
