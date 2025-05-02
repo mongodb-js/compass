@@ -44,7 +44,7 @@ describe('Data Modeling tab', function () {
     await screenshotIfFailed(compass, this.currentTest);
   });
 
-  it.only('creates a new data model using an existing connection', async function () {
+  it('creates a new data model using an existing connection', async function () {
     await browser.navigateToDataModeling();
 
     // Click on create new data model button
