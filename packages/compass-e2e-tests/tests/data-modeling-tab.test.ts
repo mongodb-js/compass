@@ -72,7 +72,7 @@ describe('Data Modeling tab', function () {
     );
     await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
-    // TODO: Confirm all collections are selected by default (COMPASS-XXXX)
+    // TODO: Confirm all collections are selected by default (COMPASS-9309)
     // Note: We'll need to change the UI, right now the labels are disconnected from the checkboxes
     await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
