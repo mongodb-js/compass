@@ -123,7 +123,7 @@ describe('NewDiagramForm', function () {
             connect() {
               throw new Error('Can not connect');
             },
-            getConnectionById(id) {
+            getConnectionById(id: string) {
               return {
                 info: { id },
               };
@@ -232,7 +232,7 @@ describe('NewDiagramForm', function () {
             connect() {
               return Promise.resolve();
             },
-            getConnectionById(id) {
+            getConnectionById(id: string) {
               return {
                 info: { id },
               };
@@ -357,7 +357,7 @@ describe('NewDiagramForm', function () {
             connect() {
               return Promise.resolve();
             },
-            getConnectionById(id) {
+            getConnectionById(id: string) {
               return {
                 info: { id },
               };
