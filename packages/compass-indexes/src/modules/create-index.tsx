@@ -450,7 +450,7 @@ export const fetchIndexSuggestions = ({
         indexSuggestions: null,
         fetchingSuggestionsError:
           e instanceof Error
-            ? e.message
+            ? 'Error parsing query. Please follow query structure. ' + e.message
             : 'Error parsing query. Please follow query structure.',
         indexSuggestionsState: 'error',
       });
