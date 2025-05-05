@@ -103,9 +103,5 @@
     "chai-enzyme": {
       "cheerio": "1.0.0-rc.10"
     }
-  },
-  "dependencies": {
-    "@leafygreen-ui/skeleton-loader": "^2.0.11",
-    "mongodb-mql-engines": "^0.0.4"
   }
 }

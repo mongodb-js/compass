@@ -306,7 +306,7 @@ export type State = {
   fetchingSuggestionsState: IndexSuggestionState;
 
   // error specific to fetching index suggestions
-  fetchingSuggestionsError: Error | string | null;
+  fetchingSuggestionsError: string | null;
 
   // index suggestions in a format such as {fieldName: 1}
   indexSuggestions: Record<string, number> | null;
@@ -430,7 +430,7 @@ export const fetchIndexSuggestions = ({
           sampleDocs: sampleDocuments,
           indexSuggestions,
           fetchingSuggestionsError:
-            'No suggested index found. Please choose Start with an Index at the top to continue.',
+            'No suggested index found. Please choose "Start with an Index" at the top to continue.',
           indexSuggestionsState: 'error',
         });
         return;
@@ -444,6 +444,7 @@ export const fetchIndexSuggestions = ({
         indexSuggestionsState: 'success',
       });
     } catch (e) {
+      console.log('e', e.message);
       dispatch({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,

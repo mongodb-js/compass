@@ -113,10 +113,10 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  const handleSuggestedIndexButtonClick = useCallback(async () => {
+  const handleSuggestedIndexButtonClick = useCallback(() => {
     const sanitizedInputQuery = inputQuery.trim();
 
-    await onSuggestedIndexButtonClick({
+    void onSuggestedIndexButtonClick({
       dbName,
       collectionName,
       inputQuery: sanitizedInputQuery,
@@ -153,9 +153,7 @@ const QueryFlowSection = ({
 
         <div className={editorActionContainerStyles}>
           <Button
-            onClick={() => {
-              void handleSuggestedIndexButtonClick();
-            }}
+            onClick={handleSuggestedIndexButtonClick}
             className={suggestedIndexButtonStyles}
             size="small"
           >
