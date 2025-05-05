@@ -9,7 +9,6 @@ import { activateDataModelingStore } from '../src/store';
 import type { DataModelingStoreServices } from '../src/store';
 import { noopDataModelStorageService } from '../src/provider';
 import { Provider } from 'react-redux';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 type ConnectionInfoWithMockData = ConnectionInfo & {
   databases: Array<{
@@ -134,11 +133,10 @@ const testConnections = [
   },
 ];
 
-export const setupStore = async (
+export const setupStore = (
   services: Partial<DataModelingStoreServices> = {},
   connections: ConnectionInfoWithMockData[] = testConnections
 ) => {
-  const preferences = await createSandboxFromDefaultPreferences();
   return activateDataModelingStore(
     {},
     {
@@ -174,7 +172,7 @@ export const setupStore = async (
           };
         },
       } as any,
-      preferences,
+      preferences: {} as any,
       instanceManager: new TestMongoDBInstanceManager(),
       dataModelStorage: noopDataModelStorageService,
       ...services,
@@ -182,7 +180,7 @@ export const setupStore = async (
     createActivateHelpers()
   ).store;
 };
-export const renderWithStore = async (
+export const renderWithStore = (
   component: JSX.Element,
   {
     services = {},
@@ -192,7 +190,7 @@ export const renderWithStore = async (
     connections?: ConnectionInfoWithMockData[];
   } = {}
 ) => {
-  const store = await setupStore(services, connections);
+  const store = setupStore(services, connections);
   const renderResult = renderWithConnections(
     <Provider store={store}>{component}</Provider>,
     { connections }

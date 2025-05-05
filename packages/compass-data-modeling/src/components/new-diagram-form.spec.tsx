@@ -6,7 +6,7 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import DiagramForm from './new-diagram-form';
+import NewDiagramForm from './new-diagram-form';
 import { changeName, createNewDiagram } from '../store/generate-diagram-wizard';
 import { renderWithStore } from '../../tests/setup-store';
 import type { DataModelingStore } from '../../tests/setup-store';
@@ -16,8 +16,8 @@ describe('NewDiagramForm', function () {
     let store: DataModelingStore;
     let modal: HTMLElement;
 
-    beforeEach(async () => {
-      const { store: setupStore } = await renderWithStore(<DiagramForm />);
+    beforeEach(() => {
+      const { store: setupStore } = renderWithStore(<NewDiagramForm />);
       store = setupStore;
       store.dispatch(createNewDiagram());
       modal = screen.getByTestId('new-diagram-modal');
@@ -54,8 +54,8 @@ describe('NewDiagramForm', function () {
   });
 
   context('select-connection step', function () {
-    it('shows warning if there are no connections', async function () {
-      const { store } = await renderWithStore(<DiagramForm />, {
+    it('shows warning if there are no connections', function () {
+      const { store } = renderWithStore(<NewDiagramForm />, {
         connections: [],
       });
       store.dispatch(createNewDiagram());
@@ -74,7 +74,7 @@ describe('NewDiagramForm', function () {
     });
 
     it('shows list of connections and allows user to select one', async function () {
-      const { store } = await renderWithStore(<DiagramForm />);
+      const { store } = renderWithStore(<NewDiagramForm />);
 
       {
         // Navigate to connections step
@@ -122,7 +122,7 @@ describe('NewDiagramForm', function () {
 
   context('select-database step', function () {
     it('shows list of databases and allows user to select one', async function () {
-      const { store } = await renderWithStore(<DiagramForm />);
+      const { store } = renderWithStore(<NewDiagramForm />);
 
       {
         // Navigate to connections step
@@ -185,7 +185,7 @@ describe('NewDiagramForm', function () {
 
   context('select-collections step', function () {
     it('shows list of collections', async function () {
-      const { store } = await renderWithStore(<DiagramForm />);
+      const { store } = renderWithStore(<NewDiagramForm />);
 
       {
         // Navigate to connections step
