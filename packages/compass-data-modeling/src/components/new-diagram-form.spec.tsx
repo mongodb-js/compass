@@ -116,8 +116,53 @@ describe('NewDiagramForm', function () {
       );
     });
 
-    // TODO
-    it.skip('shows error if it fails to connect');
+    it('shows error if it fails to connect', async function () {
+      const { store } = renderWithStore(<NewDiagramForm />, {
+        services: {
+          connections: {
+            connect() {
+              throw new Error('Can not connect');
+            },
+            getConnectionById(id) {
+              return {
+                info: { id },
+              };
+            },
+          } as any,
+        },
+      });
+
+      {
+        // Navigate to connections step
+        store.dispatch(createNewDiagram());
+        store.dispatch(changeName('diagram1'));
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /next/i,
+          })
+        );
+      }
+
+      userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+      userEvent.click(screen.getByText('Conn2'));
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.step).to.equal(
+          'SELECT_CONNECTION'
+        );
+      });
+
+      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
+        'Can not connect'
+      );
+      const alert = screen.getByRole('alert');
+      expect(alert.textContent).to.contain('Can not connect');
+    });
   });
 
   context('select-database step', function () {
@@ -179,8 +224,61 @@ describe('NewDiagramForm', function () {
         'SELECT_COLLECTIONS'
       );
     });
-    // TODO
-    it.skip('shows error if it fails to fetch list of databases');
+
+    it('shows error if it fails to fetch list of databases', async function () {
+      const { store } = renderWithStore(<NewDiagramForm />, {
+        services: {
+          connections: {
+            connect() {
+              return Promise.resolve();
+            },
+            getConnectionById(id) {
+              return {
+                info: { id },
+              };
+            },
+            getDataServiceForConnection() {
+              return {
+                listDatabases() {
+                  throw new Error('Can not list databases');
+                },
+              };
+            },
+          } as any,
+        },
+      });
+
+      {
+        // Navigate to connections step
+        store.dispatch(createNewDiagram());
+        store.dispatch(changeName('diagram1'));
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /next/i,
+          })
+        );
+      }
+
+      userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+      userEvent.click(screen.getByText('Conn2'));
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      await waitFor(() => {
+        expect(store.getState().generateDiagramWizard.step).to.equal(
+          'SELECT_CONNECTION'
+        );
+      });
+
+      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
+        'Can not list databases'
+      );
+      const alert = screen.getByRole('alert');
+      expect(alert.textContent).to.contain('Can not list databases');
+    });
   });
 
   context('select-collections step', function () {
@@ -251,7 +349,87 @@ describe('NewDiagramForm', function () {
         expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
       });
     });
-    // TODO
-    it.skip('shows error if it fails to fetch list of collections');
+
+    it('shows error if it fails to fetch list of collections', async function () {
+      const { store } = renderWithStore(<NewDiagramForm />, {
+        services: {
+          connections: {
+            connect() {
+              return Promise.resolve();
+            },
+            getConnectionById(id) {
+              return {
+                info: { id },
+              };
+            },
+            getDataServiceForConnection() {
+              return {
+                listDatabases() {
+                  return [
+                    {
+                      _id: 'sample_airbnb',
+                      name: 'sample_airbnb',
+                    },
+                  ];
+                },
+                listCollections() {
+                  throw new Error('Can not list collections');
+                },
+              };
+            },
+          } as any,
+        },
+      });
+
+      {
+        // Navigate to connections step
+        store.dispatch(createNewDiagram());
+        store.dispatch(changeName('diagram1'));
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /next/i,
+          })
+        );
+      }
+
+      {
+        // Navigate to databases list
+        userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+        userEvent.click(screen.getByText('Conn2'));
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /next/i,
+          })
+        );
+        await waitFor(() => {
+          expect(store.getState().generateDiagramWizard.step).to.equal(
+            'SELECT_DATABASE'
+          );
+        });
+      }
+
+      {
+        // Navigate to collections
+        userEvent.click(screen.getByTestId('new-diagram-database-selector'));
+        userEvent.click(screen.getByText('sample_airbnb'));
+        userEvent.click(
+          screen.getByRole('button', {
+            name: /next/i,
+          })
+        );
+        // When it fails to load collections, we are back at SELECT_DATABASE
+        await waitFor(() => {
+          expect(store.getState().generateDiagramWizard.step).to.equal(
+            'SELECT_DATABASE'
+          );
+        });
+      }
+
+      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
+        'Can not list collections'
+      );
+      const alert = screen.getByRole('alert');
+      expect(alert.textContent).to.contain('Can not list collections');
+    });
   });
 });
