@@ -2,35 +2,82 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import QueryFlowSection from './query-flow-section';
 import { expect } from 'chai';
+import { Provider } from 'react-redux';
+import { setupStore } from '../../../test/setup-store';
+import { ActionTypes } from '../../modules/create-index';
 
 describe('QueryFlowSection', () => {
+  let store;
   const renderComponent = () => {
+    store = setupStore();
+
     render(
-      <QueryFlowSection
-        schemaFields={[]}
-        serverVersion="5.0.0"
-        dbName={'fakeDBName'}
-        collectionName={'fakeCollectionName'}
-      />
+      <Provider store={store}>
+        <QueryFlowSection
+          schemaFields={[]}
+          serverVersion="5.0.0"
+          dbName={'fakeDBName'}
+          collectionName={'fakeCollectionName'}
+        />
+      </Provider>
     );
   };
-  it('renders the input query section with a code editor', () => {
-    renderComponent();
-    const codeEditor = screen.getByTestId('query-flow-section-code-editor');
-    expect(codeEditor).to.be.visible;
+
+  describe('in the initial state', () => {
+    beforeEach(() => {
+      renderComponent();
+    });
+    it('renders the input query section with a code editor', () => {
+      const codeEditor = screen.getByTestId('query-flow-section-code-editor');
+      expect(codeEditor).to.be.visible;
+    });
+
+    it('renders the "Show suggested index" button', () => {
+      const buttonElement = screen.getByText('Show suggested index');
+      expect(buttonElement).to.be.visible;
+    });
+    it('does not render the suggested index section with formatted index code', () => {
+      const codeElement = screen.queryByTestId(
+        'query-flow-section-suggested-index'
+      );
+      expect(codeElement).to.be.null;
+    });
   });
 
-  it('renders the "Show suggested index" button', () => {
-    renderComponent();
-    const buttonElement = screen.getByText('Show suggested index');
-    expect(buttonElement).to.be.visible;
+  describe('when fetching for index suggestions', () => {
+    beforeEach(() => {
+      renderComponent();
+
+      store.dispatch({
+        type: ActionTypes.SuggestedIndexesRequested,
+      });
+    });
+    it('renders the suggested index section with formatted index code', () => {
+      const loader = screen.getByTestId('query-flow-section-code-loader');
+      expect(loader).to.be.visible;
+    });
   });
 
-  it('renders the suggested index section with formatted index code', () => {
-    renderComponent();
-    const codeElement = screen.getByTestId(
-      'query-flow-section-suggested-index'
-    );
-    expect(codeElement).to.be.visible;
+  describe('when index suggestions is fetched', () => {
+    beforeEach(async () => {
+      renderComponent();
+
+      await store.dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: [],
+        indexSuggestions: { a: 1, b: 2 },
+        fetchingSuggestionsError: null,
+        indexSuggestionsState: 'success',
+      });
+    });
+
+    it('renders the suggested index section with formatted index code', () => {
+      const codeElement = screen.getByTestId(
+        'query-flow-section-suggested-index'
+      );
+      expect(codeElement).to.be.visible;
+
+      // TODO: create tests to see that db name, collection name, and queries show up
+    });
   });
 });

@@ -171,7 +171,10 @@ const QueryFlowSection = ({
       )}
 
       {isFetchingIndexSuggestions ? (
-        <ParagraphSkeleton className={indexSuggestionsLoaderStyles} />
+        <ParagraphSkeleton
+          data-testid="query-flow-section-code-loader"
+          className={indexSuggestionsLoaderStyles}
+        />
       ) : (
         indexSuggestions && (
           <>
