@@ -443,14 +443,15 @@ export const fetchIndexSuggestions = ({
         fetchingSuggestionsError: null,
         indexSuggestionsState: 'success',
       });
-    } catch (e) {
-      console.log('e', e.message);
+    } catch (e: unknown) {
       dispatch({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
         indexSuggestions: null,
         fetchingSuggestionsError:
-          'Error parsing query. Please follow query structure.',
+          e instanceof Error
+            ? e.message
+            : 'Error parsing query. Please follow query structure.',
         indexSuggestionsState: 'error',
       });
     }
