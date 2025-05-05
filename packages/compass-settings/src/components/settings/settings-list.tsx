@@ -71,7 +71,7 @@ export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
 };
 
 function SettingLabel({ name }: { name: SupportedPreferences }) {
-  const { short, long } = getSettingDescription(name).description;
+  const { short, long, longReact } = getSettingDescription(name).description;
   return (
     <>
       <Label htmlFor={name} id={`${name}-label`}>
@@ -82,7 +82,7 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
           </span>
         )}
       </Label>
-      {long && <Description>{long}</Description>}
+      {(longReact || long) && <Description>{longReact ?? long}</Description>}
     </>
   );
 }

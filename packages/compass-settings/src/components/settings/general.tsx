@@ -13,6 +13,7 @@ const generalFields = [
     ? (['installURLHandlers'] as const)
     : []),
   'enableShowDialogOnQuit',
+  'enableDbAndCollStats',
 ] as const;
 
 export const GeneralSettings: React.FunctionComponent = () => {

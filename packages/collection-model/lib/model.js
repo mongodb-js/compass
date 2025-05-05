@@ -104,7 +104,17 @@ function pickCollectionInfo({
   fle2,
   is_non_existent,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation, clustered, fle2, is_non_existent };
+  return {
+    type,
+    readonly,
+    view_on,
+    collation,
+    pipeline,
+    validation,
+    clustered,
+    fle2,
+    is_non_existent,
+  };
 }
 
 /**
@@ -232,18 +242,30 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   },
 
   /**
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+   * @param {{
+   *    dataService: import('mongodb-data-service').DataService,
+   *    fetchInfo: boolean,
+   *    force: boolean
+   * }} options
    * @returns
    */
   async fetch({ dataService, fetchInfo = true, force = false }) {
     if (!shouldFetch(this.status, force)) {
       return;
     }
+
+    const shouldFetchDbAndCollStats = getParentByType(
+      this,
+      'Instance'
+    ).shouldFetchDbAndCollStats;
+
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
-        dataService.collectionStats(this.database, this.name),
+        shouldFetchDbAndCollStats
+          ? dataService.collectionStats(this.database, this.name)
+          : null,
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
       this.set({
@@ -255,7 +277,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // If the collection is not unprovisioned `is_non_existent` anymore,
       // let's update the parent database model to reflect the change.
       // This happens when a user tries to insert first document into a
-      // collection that doesn't exist yet or creates a new collection 
+      // collection that doesn't exist yet or creates a new collection
       // for an unprovisioned database.
       if (!this.is_non_existent) {
         getParentByType(this, 'Database').set({
@@ -271,7 +293,9 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   /**
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
-   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+   * @param {{
+   *    dataService: import('mongodb-data-service').DataService,
+   * }} options
    */
   async fetchMetadata({ dataService }) {
     try {

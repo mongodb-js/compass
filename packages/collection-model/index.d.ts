@@ -64,18 +64,18 @@ interface CollectionProps {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
-  view_on: string;
+  view_on: string | null;
   collation: unknown;
   pipeline: unknown[];
   validation: unknown;
-  is_capped: boolean;
-  document_count: number;
-  document_size: number;
-  avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
-  index_count: number;
-  index_size: number;
+  is_capped: boolean | undefined;
+  document_count: number | undefined;
+  document_size: number | undefined;
+  avg_document_size: number | undefined;
+  storage_size: number | undefined;
+  free_storage_size: number | undefined;
+  index_count: number | undefined;
+  index_size: number | undefined;
   isTimeSeries: boolean;
   isView: boolean;
   /** Only relevant for a view and identifies collection/view from which this view was created. */
@@ -85,7 +85,13 @@ interface CollectionProps {
   is_non_existent: boolean;
 }
 
-type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
+type CollectionDataService = Pick<
+  DataService,
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported'
+>;
 
 interface Collection extends CollectionProps {
   fetch(opts: {
@@ -106,7 +112,10 @@ interface Collection extends CollectionProps {
 }
 
 interface CollectionCollection extends Array<Collection> {
-  fetch(opts: { dataService: CollectionDataService; fetchInfo?: boolean }): Promise<void>;
+  fetch(opts: {
+    dataService: CollectionDataService;
+    fetchInfo?: boolean;
+  }): Promise<void>;
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;

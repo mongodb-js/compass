@@ -6,13 +6,19 @@ import {
 } from './instances-manager';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 describe('InstancesManager', function () {
   let instancesManager: MongoDBInstancesManager;
-  beforeEach(function () {
+  let preferences: PreferencesAccess;
+  beforeEach(async function () {
     instancesManager = new MongoDBInstancesManager();
+    preferences = await createSandboxFromDefaultPreferences();
   });
 
   it('should be able to create and return a MongoDB instance', function () {
@@ -27,6 +33,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     expect(instance).to.be.instanceOf(MongoDBInstance);
@@ -44,6 +51,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     expect(instancesManager.listMongoDBInstances()).to.have.lengthOf(1);
@@ -66,6 +74,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     expect(onInstanceCreatedStub).to.be.calledOnceWithExactly(
@@ -89,6 +98,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     expect(() =>
@@ -108,6 +118,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     expect(() =>
@@ -138,6 +149,7 @@ describe('InstancesManager', function () {
           servers: [],
           setName: '',
         },
+        preferences,
       }
     );
     instancesManager.removeMongoDBInstanceForConnection(

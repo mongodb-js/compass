@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import numeral from 'numeral';
 import { css, Tooltip, Badge, spacing } from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const tooltipContentStyles = css({
   listStyleType: 'none',
@@ -88,6 +89,8 @@ export const CrudTabTitle = ({
       avgDocumentSize: format(avg_document_size, 'b'),
     };
   }, [collectionStats]);
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+
   const details = [
     `Documents: ${documentCount}`,
     `Storage Size: ${storageSize}`,
@@ -97,7 +100,9 @@ export const CrudTabTitle = ({
   return (
     <div data-testid="documents-tab-title" className={containerStyles}>
       Documents
-      <CollectionStats text={documentCount} details={details} />
+      {enableDbAndCollStats && (
+        <CollectionStats text={documentCount} details={details} />
+      )}
     </div>
   );
 };

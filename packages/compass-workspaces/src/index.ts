@@ -37,12 +37,15 @@ import {
   type MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
   instancesManager: MongoDBInstancesManager;
   connections: ConnectionsService;
   logger: Logger;
+  preferences: PreferencesAccess;
 };
 
 export function configureStore(
@@ -79,6 +82,7 @@ export function activateWorkspacePlugin(
     instancesManager,
     connections,
     logger,
+    preferences,
   }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -87,6 +91,7 @@ export function activateWorkspacePlugin(
     instancesManager,
     connections,
     logger,
+    preferences,
   });
 
   addCleanup(cleanupLocalAppRegistries);
@@ -227,6 +232,7 @@ const WorkspacesPlugin = registerHadronPlugin(
     instancesManager: mongoDBInstancesManagerLocator,
     connections: connectionsLocator,
     logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
+    preferences: preferencesLocator,
   }
 );
 
