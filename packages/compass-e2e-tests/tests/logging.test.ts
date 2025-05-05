@@ -59,6 +59,15 @@ describe('Logging and Telemetry integration', function () {
         );
       });
 
+      it('tracks device_id in telemetry events', function () {
+        const events = telemetry.events();
+        const event = events.find((e) => e.properties?.device_id);
+
+        expect(event).to.exist;
+        expect(event.properties.device_id).to.not.equal('unknown');
+        expect(event.properties.device_id).to.match(/^[a-f0-9]{64}$/);
+      });
+
       it('tracks an event for identify call', function () {
         const identify = telemetry
           .events()
@@ -179,7 +188,6 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.not.exist;
             expect(actual.telemetryAnonymousId).to.be.a('string');
-            expect(actual.telemetryDeviceId).to.match(/^[a-f0-9]{64}$/);
             expect(actual.state).to.equal('enabled');
           },
         },
