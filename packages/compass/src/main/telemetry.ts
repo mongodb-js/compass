@@ -6,7 +6,8 @@ import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyTraits } from '@mongodb-js/compass-telemetry';
-import { getDeviceId } from './device-id';
+import { getDeviceId } from '@mongodb-js/device-id';
+import { getMachineId } from 'native-machine-id';
 
 const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
@@ -143,6 +144,8 @@ class CompassTelemetry {
     this.telemetryAnonymousId = telemetryAnonymousId ?? '';
     this.telemetryAtlasUserId = telemetryAtlasUserId;
     this.telemetryDeviceId = await getDeviceId({
+      getMachineId: () => getMachineId({ raw: true }),
+      isNodeMachineId: false,
       onError: (err) =>
         log.error(
           mongoLogId(1_001_000_348),
@@ -150,7 +153,7 @@ class CompassTelemetry {
           'Failed to get device ID',
           { err: err.message }
         ),
-    });
+    }).value;
 
     try {
       this.osInfo = await getOsInfo();

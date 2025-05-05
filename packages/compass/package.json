@@ -180,6 +180,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/device-id": "^0.2.0",
     "@mongosh/node-runtime-worker-thread": "^3.3.6",
     "clipboard": "^2.0.6",
     "kerberos": "^2.2.1",
