@@ -23,6 +23,7 @@ export type GenerateDiagramWizardState = {
   databaseCollections: string[] | null;
   selectedCollections: string[] | null;
   automaticallyInferRelations: boolean;
+  error: Error | null;
 };
 
 export enum GenerateDiagramWizardActionTypes {
@@ -97,6 +98,7 @@ export type DatabasesFetchedAction = {
 
 export type ConnectionFailedAction = {
   type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED;
+  error: Error;
 };
 
 export type SelectDatabaseAction = {
@@ -121,6 +123,7 @@ export type CollectionsFetchedAction = {
 
 export type CollectionsFetchFailedAction = {
   type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED;
+  error: Error;
 };
 
 export type SelectCollectionsAction = {
@@ -151,13 +154,16 @@ export type GenerateDiagramWizardActions =
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
-  | ConfirmSelectedCollectionsAction;
+  | ConfirmSelectedCollectionsAction
+  | CollectionsFetchFailedAction
+  | ConnectionFailedAction;
 
 const INITIAL_STATE: GenerateDiagramWizardState = {
   inProgress: false,
   step: 'ENTER_NAME',
   diagramName: '',
   selectedConnectionId: null,
+  error: null,
   connectionDatabases: null,
   selectedDatabase: null,
   databaseCollections: null,
@@ -186,6 +192,7 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME)) {
     return {
       ...state,
+      error: null,
       step: 'ENTER_NAME',
     };
   }
@@ -193,6 +200,7 @@ export const generateDiagramWizardReducer: Reducer<
     return {
       ...state,
       selectedConnectionId: action.id,
+      error: null,
     };
   }
   if (
@@ -287,7 +295,8 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CONNECTION_FAILED)) {
     return {
       ...state,
-      inProgress: false,
+      error: action.error,
+      step: 'SELECT_CONNECTION',
     };
   }
   if (
@@ -295,7 +304,8 @@ export const generateDiagramWizardReducer: Reducer<
   ) {
     return {
       ...state,
-      inProgress: false,
+      error: action.error,
+      step: 'SELECT_DATABASE',
     };
   }
   return state;
@@ -342,6 +352,13 @@ export function confirmSelectConnection(): DataModelingThunkAction<
         return;
       }
       await services.connections.connect(connectionInfo);
+      // ConnectionsService.connect does not throw an error if it fails to establish a connection,
+      // so explicitly checking if error is in the connection item and throwing it.
+      const connectionError =
+        services.connections.getConnectionById(selectedConnectionId)?.error;
+      if (connectionError) {
+        throw connectionError;
+      }
       dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED });
       const mongoDBInstance =
         services.instanceManager.getMongoDBInstanceForConnection(
@@ -362,7 +379,16 @@ export function confirmSelectConnection(): DataModelingThunkAction<
           }),
       });
     } catch (err) {
-      dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED });
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_348),
+        'DataModeling',
+        'Failed to select connection',
+        { err }
+      );
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
+        error: err as Error,
+      });
     }
   };
 }
@@ -414,8 +440,15 @@ export function confirmSelectDatabase(): DataModelingThunkAction<
           }),
       });
     } catch (err) {
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_349),
+        'DataModeling',
+        'Failed to select database',
+        { err }
+      );
       dispatch({
         type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED,
+        error: err as Error,
       });
     }
   };

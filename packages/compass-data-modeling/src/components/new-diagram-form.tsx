@@ -21,6 +21,7 @@ import {
   Banner,
   Button,
   css,
+  ErrorSummary,
   FormFieldContainer,
   Modal,
   ModalBody,
@@ -29,8 +30,13 @@ import {
   Option,
   Select,
   SelectTable,
+  spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
+
+const footerStyles = css({
+  gap: spacing[200],
+});
 
 const FormStepContainer: React.FunctionComponent<{
   title: string;
@@ -56,7 +62,7 @@ const FormStepContainer: React.FunctionComponent<{
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
       <ModalBody>{children}</ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
         <Button
           onClick={onNextClick}
           disabled={isNextDisabled}
@@ -89,6 +95,7 @@ type NewDiagramFormProps = {
   selectedDatabase: string | null;
   collections: string[];
   selectedCollections: string[];
+  error: Error | null;
 
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -104,7 +111,7 @@ type NewDiagramFormProps = {
   onCollectionsSelectionConfirm: () => void;
 };
 
-const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
+export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   isModalOpen,
   formStep: currentStep,
   isLoading,
@@ -114,6 +121,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   selectedDatabase,
   collections,
   selectedCollections,
+  error,
   onCancel,
   onNameChange,
   onNameConfirm,
@@ -213,6 +221,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           <FormFieldContainer>
             <Select
               label=""
+              aria-label="Select connection"
               value={selectedConnectionId ?? ''}
               onChange={onConnectionSelect}
               disabled={connections.length === 0}
@@ -237,6 +246,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           <FormFieldContainer>
             <Select
               label=""
+              aria-label="Select database"
               value={selectedDatabase ?? ''}
               onChange={onDatabaseSelect}
             >
@@ -311,6 +321,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         isLoading={isLoading}
       >
         {formContent}
+        {error && <ErrorSummary errors={[error.message]} />}
       </FormStepContainer>
     </Modal>
   );
@@ -345,6 +356,7 @@ export default connect(
       selectedDatabase,
       databaseCollections,
       selectedCollections,
+      error,
     } = state.generateDiagramWizard;
     return {
       isModalOpen: inProgress,
@@ -360,6 +372,7 @@ export default connect(
       selectedDatabase,
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections ?? [],
+      error,
     };
   },
   {

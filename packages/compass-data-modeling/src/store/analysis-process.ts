@@ -209,6 +209,12 @@ export function startAnalysis(
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
       } else {
+        services.logger.log.error(
+          services.logger.mongoLogId(1_001_000_350),
+          'DataModeling',
+          'Failed to analyze schema',
+          { err }
+        );
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,
