@@ -179,6 +179,7 @@ describe('Collection documents tab', function () {
       has_projection: false,
       has_skip: false,
       has_sort: false,
+      mode: 'list',
       used_regex: false,
     });
 
@@ -218,6 +219,7 @@ describe('Collection documents tab', function () {
       has_projection: true,
       has_sort: true,
       has_skip: true,
+      mode: 'list',
       used_regex: false,
     });
 
