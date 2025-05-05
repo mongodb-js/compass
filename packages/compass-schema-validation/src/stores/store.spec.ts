@@ -42,7 +42,12 @@ const fakeDataService = {
       /* never resolves */
     }),
   isCancelError: () => false,
-  sample: () => [{ prop1: 'abc' }],
+  sampleCursor: () =>
+    ({
+      *[Symbol.asyncIterator]() {
+        yield* [{ prop1: 'abc' }];
+      },
+    } as any),
 } as any;
 
 const fakeWorkspaces = {
