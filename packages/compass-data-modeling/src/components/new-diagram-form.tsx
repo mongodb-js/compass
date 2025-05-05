@@ -112,7 +112,7 @@ type NewDiagramFormProps = {
   onCollectionsSelectionConfirm: () => void;
 };
 
-export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
+const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   isModalOpen,
   formStep: currentStep,
   isLoading,
@@ -182,7 +182,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
-            !selectedCollections || selectCollections.length === 0,
+            !selectedCollections || selectedCollections.length === 0,
           onCancelAction: onDatabaseSelectCancel,
           cancelLabel: 'Back',
         };
@@ -211,7 +211,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <TextInput
               label="New data model name"
               value={diagramName}
-              data-testId="new-diagram-name-input"
+              data-testid="new-diagram-name-input"
               onChange={(e) => {
                 onNameChange(e.currentTarget.value);
               }}

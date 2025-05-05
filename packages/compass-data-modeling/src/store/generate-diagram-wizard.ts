@@ -308,6 +308,14 @@ export const generateDiagramWizardReducer: Reducer<
       step: 'SELECT_DATABASE',
     };
   }
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE)
+  ) {
+    return {
+      ...state,
+      step: 'LOADING_COLLECTIONS',
+    };
+  }
   return state;
 };
 
