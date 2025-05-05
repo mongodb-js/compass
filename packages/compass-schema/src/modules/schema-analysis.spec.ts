@@ -67,19 +67,6 @@ const testDocs = [
   },
 ];
 
-// function createTestingCursor<T>(docs: T[]): AbstractCursor<T> {
-//   return {
-//     *[Symbol.asyncIterator](): AsyncIterable<T, void, void> {
-//       // AsyncGenerator<T, void, void>
-//       // Iterator<T>
-//       yield* docs;
-//     },
-//     toArray() {
-//       return Promise.resolve(docs);
-//     },
-//   };
-// }
-
 const dummyLogger = createNoopLogger('TEST');
 let preferences: PreferencesAccess;
 
