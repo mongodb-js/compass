@@ -8,16 +8,18 @@ import { ActionTypes } from '../../modules/create-index';
 
 describe('QueryFlowSection', () => {
   let store;
+  const dbName = 'fakeDBName';
+  const collectionName = 'fakeCollectionName';
   const renderComponent = () => {
-    store = setupStore();
+    const store = setupStore();
 
     render(
       <Provider store={store}>
         <QueryFlowSection
           schemaFields={[]}
           serverVersion="5.0.0"
-          dbName={'fakeDBName'}
-          collectionName={'fakeCollectionName'}
+          dbName={dbName}
+          collectionName={collectionName}
         />
       </Provider>
     );
@@ -52,7 +54,7 @@ describe('QueryFlowSection', () => {
         type: ActionTypes.SuggestedIndexesRequested,
       });
     });
-    it('renders the suggested index section with formatted index code', () => {
+    it('renders a loader for the code section', () => {
       const loader = screen.getByTestId('query-flow-section-code-loader');
       expect(loader).to.be.visible;
     });
@@ -76,8 +78,9 @@ describe('QueryFlowSection', () => {
         'query-flow-section-suggested-index'
       );
       expect(codeElement).to.be.visible;
-
-      // TODO: create tests to see that db name, collection name, and queries show up
+      expect(codeElement).to.have.text(
+        `db.getSiblingDB("${dbName}").getCollection("${collectionName}").createIndex({  "a": 1,  "b": "2"});`
+      );
     });
   });
 });
