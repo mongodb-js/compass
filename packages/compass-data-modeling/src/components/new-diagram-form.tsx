@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
@@ -29,8 +29,27 @@ import {
   Option,
   Select,
   SelectTable,
+  spacing,
+  SpinLoader,
+  Body,
   TextInput,
+  SearchInput,
 } from '@mongodb-js/compass-components';
+
+const footerStyles = css({
+  flexDirection: 'row',
+  alignItems: 'center',
+});
+
+const footerTextStyles = css({ marginRight: 'auto' });
+
+const footerActionsStyles = css({ display: 'flex', gap: spacing[200] });
+
+const formContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+});
 
 const FormStepContainer: React.FunctionComponent<{
   title: string;
@@ -41,6 +60,7 @@ const FormStepContainer: React.FunctionComponent<{
   isNextDisabled: boolean;
   nextLabel: string;
   previousLabel: string;
+  footerText?: React.ReactNode;
 }> = ({
   title,
   description,
@@ -51,22 +71,27 @@ const FormStepContainer: React.FunctionComponent<{
   nextLabel,
   previousLabel,
   children,
+  footerText,
 }) => {
   return (
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
       <ModalBody>{children}</ModalBody>
-      <ModalFooter>
-        <Button
-          onClick={onNextClick}
-          disabled={isNextDisabled}
-          isLoading={isLoading}
-          data-testid="new-diagram-confirm-button"
-          variant="primary"
-        >
-          {nextLabel}
-        </Button>
-        <Button onClick={onPreviousClick}>{previousLabel}</Button>
+      <ModalFooter className={footerStyles}>
+        {footerText && <Body className={footerTextStyles}>{footerText}</Body>}
+        <div className={footerActionsStyles}>
+          <Button onClick={onPreviousClick}>{previousLabel}</Button>
+          <Button
+            onClick={onNextClick}
+            disabled={isNextDisabled}
+            isLoading={isLoading}
+            data-testid="new-diagram-confirm-button"
+            variant="primary"
+            loadingIndicator={<SpinLoader />}
+          >
+            {nextLabel}
+          </Button>
+        </div>
       </ModalFooter>
     </>
   );
@@ -75,6 +100,54 @@ const FormStepContainer: React.FunctionComponent<{
 const selectTableStyles = css({
   maxHeight: 300,
 });
+
+function SelectCollectionsStep({
+  collections,
+  selectedCollections,
+  onCollectionsSelect,
+}: {
+  collections: string[];
+  selectedCollections: string[];
+  onCollectionsSelect: (colls: string[]) => void;
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const filteredCollections = useMemo(() => {
+    return collections.filter((x) => x.match(searchTerm));
+  }, [collections, searchTerm]);
+  return (
+    <FormFieldContainer className={formContainerStyles}>
+      <SearchInput
+        aria-label="Search collections"
+        value={searchTerm}
+        data-testId="new-diagram-search-collections"
+        onChange={(e) => {
+          setSearchTerm(e.currentTarget.value);
+        }}
+      />
+      <SelectTable
+        className={selectTableStyles}
+        items={filteredCollections.map((collName) => {
+          return {
+            id: collName,
+            selected: selectedCollections.includes(collName),
+            'data-testid': `new-diagram-collection-checkbox-${collName}`,
+          };
+        })}
+        columns={[['id', 'Collection Name']]}
+        onChange={(items) => {
+          const selectedItems = items
+            .filter((item) => {
+              return item.selected;
+            })
+            .map((item) => {
+              return item.id;
+            });
+          onCollectionsSelect(selectedItems);
+        }}
+      ></SelectTable>
+    </FormFieldContainer>
+  );
+}
 
 type NewDiagramFormProps = {
   isModalOpen: boolean;
@@ -137,6 +210,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     isConfirmDisabled,
     onCancelAction,
     cancelLabel,
+    footerText,
   } = useMemo(() => {
     switch (currentStep) {
       case 'enter-name':
@@ -170,13 +244,19 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         return {
           title: `Select collections for ${selectedDatabase ?? ''}`,
           description:
-            'These collections will be included to the generated diagram',
+            'These collections will be included in your generated diagram.',
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
             !selectedCollections || selectCollections.length === 0,
           onCancelAction: onDatabaseSelectCancel,
           cancelLabel: 'Back',
+          footerText: (
+            <>
+              <strong>{selectedCollections.length}</strong>/
+              <strong>{collections.length}</strong> total collections selected.
+            </>
+          ),
         };
     }
   }, [
@@ -193,6 +273,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     selectedCollections,
     selectedConnectionId,
     selectedDatabase,
+    collections,
   ]);
 
   const formContent = useMemo(() => {
@@ -212,7 +293,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
       case 'select-connection':
         return (
-          <FormFieldContainer>
+          <FormFieldContainer className={formContainerStyles}>
             <Select
               label=""
               value={selectedConnectionId ?? ''}
@@ -256,29 +337,11 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
       case 'select-collections':
         return (
-          <FormFieldContainer>
-            <SelectTable
-              className={selectTableStyles}
-              items={collections.map((collName) => {
-                return {
-                  id: collName,
-                  selected: selectedCollections.includes(collName),
-                  'data-testid': `new-diagram-collection-checkbox-${collName}`,
-                };
-              })}
-              columns={[['id', 'Collection Name']]}
-              onChange={(items) => {
-                const selectedItems = items
-                  .filter((item) => {
-                    return item.selected;
-                  })
-                  .map((item) => {
-                    return item.id;
-                  });
-                onCollectionsSelect(selectedItems);
-              }}
-            ></SelectTable>
-          </FormFieldContainer>
+          <SelectCollectionsStep
+            collections={collections}
+            onCollectionsSelect={onCollectionsSelect}
+            selectedCollections={selectedCollections}
+          />
         );
     }
   }, [
@@ -315,6 +378,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         previousLabel={cancelLabel}
         isNextDisabled={isConfirmDisabled}
         isLoading={isLoading}
+        footerText={footerText}
       >
         {formContent}
       </FormStepContainer>
