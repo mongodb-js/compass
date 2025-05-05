@@ -10,6 +10,7 @@ import type { IndexesThunkAction } from '.';
 import type { RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -417,7 +418,7 @@ export const fetchIndexSuggestions = ({
       );
 
       const query = mql.parseQuery(
-        EJSON.parse(inputQuery, { relaxed: false }),
+        _parseShellBSON(inputQuery, { mode: ParseMode.Loose }),
         analyzedNamespace
       );
       const results = await mql.suggestIndex([query]);
