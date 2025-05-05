@@ -114,7 +114,7 @@ export function Navigation({
       )}
       {isDataModelingEnabled && (
         <NavigationItem
-          onClick={openDataModelingWorkspace}
+          onClick={() => openDataModelingWorkspace({ newTab: true })}
           glyph="Diagram"
           label="Data Modeling"
           isActive={currentLocation === 'Data Modeling'}

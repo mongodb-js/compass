@@ -45,7 +45,7 @@ export type WorkspacesService = {
   /**
    * Open "Data Modeling" workspace
    */
-  openDataModelingWorkspace(this: void): void;
+  openDataModelingWorkspace(this: void, tabOptions?: TabOptions): void;
 
   /**
    * Open "Shell" workspace
@@ -247,9 +247,9 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openDataModelingWorkspace: () => {
+      openDataModelingWorkspace: (tabOptions) => {
         return void store.dispatch(
-          openWorkspaceAction({ type: 'Data Modeling' })
+          openWorkspaceAction({ type: 'Data Modeling' }, tabOptions)
         );
       },
       openShellWorkspace(connectionId, options = {}) {
