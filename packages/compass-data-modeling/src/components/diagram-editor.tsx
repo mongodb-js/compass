@@ -159,8 +159,11 @@ const DiagramEditor: React.FunctionComponent<{
 
   if (step === 'EDITING') {
     content = (
-      <div className={modelPreviewContainerStyles}>
-        <div className={modelPreviewStyles}>
+      <div
+        className={modelPreviewContainerStyles}
+        data-testid="diagram-editor-container"
+      >
+        <div className={modelPreviewStyles} data-testid="model-preview">
           <CodemirrorMultilineEditor
             language="json"
             text={modelStr}
@@ -168,7 +171,7 @@ const DiagramEditor: React.FunctionComponent<{
             initialJSONFoldAll={false}
           ></CodemirrorMultilineEditor>
         </div>
-        <div className={editorContainerStyles}>
+        <div className={editorContainerStyles} data-testid="apply-editor">
           <div>
             <CodemirrorMultilineEditor
               language="json"
@@ -182,6 +185,7 @@ const DiagramEditor: React.FunctionComponent<{
               onClick={() => {
                 onApplyClick(JSON.parse(applyInput));
               }}
+              data-testid="apply-button"
               disabled={!isEditValid}
             >
               Apply

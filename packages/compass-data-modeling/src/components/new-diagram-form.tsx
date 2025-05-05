@@ -67,6 +67,7 @@ const FormStepContainer: React.FunctionComponent<{
           onClick={onNextClick}
           disabled={isNextDisabled}
           isLoading={isLoading}
+          data-testid="new-diagram-confirm-button"
           variant="primary"
         >
           {nextLabel}
@@ -210,6 +211,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <TextInput
               label="New data model name"
               value={diagramName}
+              data-testId="new-diagram-name-input"
               onChange={(e) => {
                 onNameChange(e.currentTarget.value);
               }}
@@ -223,6 +225,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
               label=""
               aria-label="Select connection"
               value={selectedConnectionId ?? ''}
+              data-testid="new-diagram-connection-selector"
               onChange={onConnectionSelect}
               disabled={connections.length === 0}
             >
@@ -248,6 +251,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
               label=""
               aria-label="Select database"
               value={selectedDatabase ?? ''}
+              data-testid="new-diagram-database-selector"
               onChange={onDatabaseSelect}
             >
               {databases.map((db) => {
@@ -269,6 +273,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
                 return {
                   id: collName,
                   selected: selectedCollections.includes(collName),
+                  'data-testid': `new-diagram-collection-checkbox-${collName}`,
                 };
               })}
               columns={[['id', 'Collection Name']]}
@@ -304,6 +309,7 @@ export const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   return (
     <Modal
       open={isModalOpen}
+      data-testid="new-diagram-modal"
       setOpen={(open) => {
         if (!open) {
           onCancel();
