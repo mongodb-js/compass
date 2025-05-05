@@ -7,12 +7,10 @@ import { setupStore } from '../../../test/setup-store';
 import { ActionTypes } from '../../modules/create-index';
 
 describe('QueryFlowSection', () => {
-  let store;
+  const store = setupStore();
   const dbName = 'fakeDBName';
   const collectionName = 'fakeCollectionName';
   const renderComponent = () => {
-    const store = setupStore();
-
     render(
       <Provider store={store}>
         <QueryFlowSection
@@ -61,10 +59,10 @@ describe('QueryFlowSection', () => {
   });
 
   describe('when index suggestions is fetched', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       renderComponent();
 
-      await store.dispatch({
+      store.dispatch({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: [],
         indexSuggestions: { a: 1, b: 2 },
