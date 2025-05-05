@@ -1,3 +1,4 @@
+import { Key } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { WorkspaceTabSelectorOptions } from '../selectors';
@@ -8,6 +9,13 @@ export async function navigateToMyQueries(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.SidebarMyQueriesTab);
   await browser
     .$(Selectors.workspaceTab({ type: 'My Queries', active: true }))
+    .waitForDisplayed();
+}
+
+export async function navigateToDataModeling(browser: CompassBrowser) {
+  await browser.clickVisible(Selectors.SidebarDataModelingTab);
+  await browser
+    .$(Selectors.workspaceTab({ type: 'Data Modeling', active: true }))
     .waitForDisplayed();
 }
 
@@ -86,4 +94,16 @@ export async function closeWorkspaceTab(
   selectorOptions: WorkspaceTabSelectorOptions
 ): Promise<void> {
   await closeTab(browser, selectorOptions, true);
+}
+
+export async function openNewTab(browser: CompassBrowser): Promise<void> {
+  const countTabs = async () => {
+    return await browser.$$(Selectors.workspaceTab()).length;
+  };
+  const tabsBefore = await countTabs();
+  await browser.keys([Key.Ctrl, 't']);
+  await browser.waitUntil(async () => {
+    const tabsAfter = await countTabs();
+    return tabsAfter === tabsBefore + 1;
+  });
 }
