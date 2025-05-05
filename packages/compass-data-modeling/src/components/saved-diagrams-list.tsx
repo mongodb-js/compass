@@ -4,14 +4,83 @@ import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
   Button,
   Card,
+  css,
   EmptyContent,
-  Icon,
   ItemActionMenu,
+  Link,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import CollaborateIcon from './icons/Collaborate';
+import SchemaVisualizationIcon from './icons/schema-visualization';
+import FlexibilityIcon from './icons/flexibility';
+import InsightIcon from './icons/insight';
+
+const subTitleStyles = css({
+  maxWidth: '750px',
+});
+
+type Feature = 'visualization' | 'collaboration' | 'interactive' | 'insights';
+const featureDescription: Record<
+  Feature,
+  { icon: React.FunctionComponent; title: string; subtitle: string }
+> = {
+  visualization: {
+    icon: SchemaVisualizationIcon,
+    title: 'Quick Visualization & Refactoring',
+    subtitle: 'Instantly visualize and refactor data models',
+  },
+  collaboration: {
+    icon: CollaborateIcon,
+    title: 'Collaboration & Sharing with your team',
+    subtitle: 'Collaborate and share schemas across teams',
+  },
+  interactive: {
+    icon: FlexibilityIcon,
+    title: 'Interactive Diagram Analysis',
+    subtitle: 'Explore and annotate interactive diagrams',
+  },
+  insights: {
+    icon: InsightIcon,
+    title: 'Performance Insights & Optimization',
+    subtitle: 'Uncover performance insights & best practices',
+  },
+};
+
+const featuresListStyles = css({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+  gap: '16px',
+  marginTop: '16px',
+});
+
+const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
+  features,
+}) => {
+  return (
+    <div className={featuresListStyles}>
+      {features.map((feature, key) => {
+        const { icon: Icon, title, subtitle } = featureDescription[feature];
+        return (
+          <div
+            key={key}
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            })}
+          >
+            <Icon />
+            <h3>{title}</h3>
+            <p>{subtitle}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
@@ -72,7 +141,6 @@ const SavedDiagramsList: React.FunctionComponent<{
   } else {
     content = (
       <EmptyContent
-        icon={() => <Icon size={80} glyph="Diagram"></Icon>}
         title="Design, Visualize, and Evolve your Data Model"
         subTitle={
           <>
@@ -80,15 +148,27 @@ const SavedDiagramsList: React.FunctionComponent<{
             applications evolve, so must your schema—intelligently and
             strategically. Minimize complexity, prevent performance bottlenecks,
             and keep your development agile.
+            <FeaturesList
+              features={[
+                'visualization',
+                'collaboration',
+                'interactive',
+                'insights',
+              ]}
+            />
+            <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
+              Data Modeling Documentation
+            </Link>
           </>
         }
+        subTitleClassName={subTitleStyles}
         callToAction={
           <Button
             onClick={onCreateDiagramClick}
             variant="primary"
             data-testid="create-diagram-button"
           >
-            Create diagram
+            Generate diagram
           </Button>
         }
       ></EmptyContent>
@@ -106,7 +186,7 @@ const SavedDiagramsList: React.FunctionComponent<{
               size="xsmall"
               data-testid="create-diagram-button"
             >
-              Create diagram
+              Generate new diagram
             </Button>
           </>
         ) : null;
