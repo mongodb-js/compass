@@ -265,8 +265,9 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-collections':
         return {
           title: `Select collections for ${selectedDatabase ?? ''}`,
-          description:
-            'These collections will be included in your generated diagram.',
+          description: `${
+            collections.length === 1 ? 'This collection' : 'These collections'
+          } will be included in your generated diagram.`,
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
@@ -276,7 +277,9 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           footerText: (
             <>
               <strong>{selectedCollections.length}</strong>/
-              <strong>{collections.length}</strong> total collections selected.
+              <strong>{collections.length}</strong> total{' '}
+              {collections.length === 1 ? 'collection' : 'collections'}{' '}
+              selected.
             </>
           ),
         };
