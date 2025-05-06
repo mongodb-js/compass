@@ -247,10 +247,14 @@ export function buildConnectionInfoFromClusterDescription(
   };
 }
 
-const CONNECTABLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
+const VISIBLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
   'IDLE',
-  'REPARING',
+  'REPAIRING',
   'UPDATING',
+  'PAUSED',
+  'CREATING',
+  'DELETING',
+  'DELETED',
 ];
 
 /**
@@ -291,11 +295,8 @@ export class AtlasCloudConnectionStorage
     return connectionInfoList
       .map((connectionInfo: ConnectionInfo): ConnectionInfo | null => {
         if (
-          !connectionInfo.connectionOptions.connectionString ||
           !connectionInfo.atlasMetadata ||
-          // TODO(COMPASS-8228): do not filter out those connections, display
-          // them in navigation, but in a way that doesn't allow connecting
-          !CONNECTABLE_CLUSTER_STATES.includes(
+          !VISIBLE_CLUSTER_STATES.includes(
             connectionInfo.atlasMetadata.clusterState
           )
         ) {

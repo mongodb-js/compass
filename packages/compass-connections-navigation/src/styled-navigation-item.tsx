@@ -4,7 +4,9 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
-import type { SidebarTreeItem } from './tree-data';
+import { getConnectionId, type SidebarTreeItem } from './tree-data';
+import { useConnectable } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
@@ -21,6 +23,7 @@ export default function StyledNavigationItem({
   item: SidebarTreeItem;
   children: React.ReactChild;
 }): React.ReactElement {
+  const showDisabledConnections = !!usePreference('showDisabledConnections');
   const isDarkMode = useDarkMode();
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
@@ -29,9 +32,13 @@ export default function StyledNavigationItem({
     () => (isDarkMode ? palette.gray.light1 : palette.gray.dark1),
     [isDarkMode]
   );
+  const getConnectable = useConnectable();
 
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
+    const connectionId = getConnectionId(item);
+    const isConnectable =
+      !showDisabledConnections || getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const isNonExistentNamespace =
@@ -44,12 +51,12 @@ export default function StyledNavigationItem({
       style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
     }
 
-    if (isDisconnectedConnection || isNonExistentNamespace) {
+    if (isDisconnectedConnection || isNonExistentNamespace || !isConnectable) {
       style['--item-color'] = inactiveColor;
     }
 
-    // For a non-existent namespace, even if its active, we show it as inactive
-    if (isNonExistentNamespace) {
+    // We always show these as inactive
+    if (isNonExistentNamespace || !isConnectable) {
       style['--item-color-active'] = inactiveColor;
     }
     return style;
@@ -57,6 +64,8 @@ export default function StyledNavigationItem({
     inactiveColor,
     item,
     colorCode,
+    getConnectable,
+    showDisabledConnections,
     connectionColorToHex,
     connectionColorToHexActive,
   ]);

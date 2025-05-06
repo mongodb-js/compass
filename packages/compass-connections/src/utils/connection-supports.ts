@@ -11,6 +11,19 @@ function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {
   return atlasMetadata.supports.rollingIndexes;
 }
 
+export function connectable(connectionInfo: ConnectionInfo) {
+  const atlasClusterState = connectionInfo.atlasMetadata?.clusterState;
+  if (
+    atlasClusterState === 'DELETED' ||
+    atlasClusterState === 'DELETING' ||
+    atlasClusterState === 'CREATING' ||
+    atlasClusterState === 'PAUSED'
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function supportsGlobalWrites(connectionInfo: ConnectionInfo) {
   const atlasMetadata = connectionInfo.atlasMetadata;
 
