@@ -103,7 +103,7 @@ export function SelectList<T extends SelectItem>(
               name={`select-${item.id}`}
               data-testid={`select-${item.id}`}
               label={item[label[0]]}
-              aria-label={`Select ${item[label[0]]}`}
+              aria-label={item[label[0]]}
               onChange={handleSelectItemChange}
               checked={item.selected}
               disabled={disabled}
