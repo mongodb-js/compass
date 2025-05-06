@@ -9,17 +9,32 @@ import {
   ItemActionMenu,
   Link,
   WorkspaceContainer,
+  spacing,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
-import CollaborateIcon from './icons/Collaborate';
+import CollaborateIcon from './icons/collaborate';
 import SchemaVisualizationIcon from './icons/schema-visualization';
 import FlexibilityIcon from './icons/flexibility';
 import InsightIcon from './icons/insight';
 
 const subTitleStyles = css({
   maxWidth: '750px',
+});
+
+const featuresListStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  gap: spacing[600],
+  marginTop: spacing[400],
+});
+
+const featureItemStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing[400],
 });
 
 type Feature = 'visualization' | 'collaboration' | 'interactive' | 'insights';
@@ -49,13 +64,6 @@ const featureDescription: Record<
   },
 };
 
-const featuresListStyles = css({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-  gap: '16px',
-  marginTop: '16px',
-});
-
 const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
   features,
 }) => {
@@ -64,14 +72,7 @@ const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
       {features.map((feature, key) => {
         const { icon: Icon, title, subtitle } = featureDescription[feature];
         return (
-          <div
-            key={key}
-            className={css({
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            })}
-          >
+          <div key={key} className={featureItemStyles}>
             <Icon />
             <h3>{title}</h3>
             <p>{subtitle}</p>
@@ -82,7 +83,7 @@ const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
   );
 };
 
-const SavedDiagramsList: React.FunctionComponent<{
+export const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
