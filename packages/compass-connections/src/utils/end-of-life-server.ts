@@ -1,5 +1,9 @@
+import semverSatisfies from 'semver/functions/satisfies';
+import semverCoerce from 'semver/functions/coerce';
+
 import { createLogger } from '@mongodb-js/compass-logging';
-const { mongoLogId, log } = createLogger('END-OF-LIFE-SERVER');
+
+const { mongoLogId, log, debug } = createLogger('END-OF-LIFE-SERVER');
 
 const FALLBACK_END_OF_LIFE_SERVER_VERSION = '4.4';
 const {
@@ -60,4 +64,20 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
   }
   // Return a cached or in-flight value
   return latestEndOfLifeServerVersion;
+}
+
+export function isEndOfLifeVersion(
+  version: string,
+  latestEndOfLifeServerVersion: string
+) {
+  try {
+    const coercedVersion = semverCoerce(version);
+    return coercedVersion
+      ? semverSatisfies(coercedVersion, `<=${latestEndOfLifeServerVersion}`)
+      : false;
+  } catch (error) {
+    debug('Error comparing versions', { error });
+    // If the version is not a valid semver, we can't reliably determine if it's EOL
+    return false;
+  }
 }

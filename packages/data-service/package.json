@@ -60,8 +60,7 @@
     "mongodb": "^6.16.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-ns": "^2.4.2",
-    "semver": "^7.6.2"
+    "mongodb-ns": "^2.4.2"
   },
   "devDependencies": {
     "@mongodb-js/compass-test-server": "^0.3.8",
@@ -72,7 +71,6 @@
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "@mongodb-js/tsconfig-compass": "^1.2.8",
     "@types/lodash": "^4.14.188",
-    "@types/semver": "^7.3.9",
     "@types/whatwg-url": "^8.2.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",

@@ -7,8 +7,6 @@ import {
   getDatabasesByRoles,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
-  isEndOfLifeVersion,
-  adaptBuildInfo,
 } from './instance-detail-helper';
 
 import * as fixtures from '../test/fixtures';
@@ -629,72 +627,6 @@ describe('instance-detail-helper', function () {
           },
         })
       ).to.deep.equal(['aws', 'local']);
-    });
-  });
-
-  describe('isEndOfLifeVersion', function () {
-    const LATEST_END_OF_LIFE_VERSION = '4.4.x';
-
-    function expectVersions(versions: string[], expected: boolean) {
-      for (const version of versions) {
-        expect(
-          isEndOfLifeVersion(version, LATEST_END_OF_LIFE_VERSION)
-        ).to.equal(
-          expected,
-          `Expected ${version} to be ${
-            expected ? 'end of life' : 'not end of life'
-          }`
-        );
-      }
-    }
-
-    it('returns true for v4.4 and below', () => {
-      expectVersions(
-        ['4.4.0', '4.3.0', '4.0', '4.0-beta.0', '1.0.0', '0.0.1', '3.999.0'],
-        true
-      );
-    });
-
-    it('returns true for v4.5 and above', () => {
-      expectVersions(
-        ['4.5.0', '5.0.0', '5.0.25', '6.0.0', '7.0.0', '8.0.0'],
-        false
-      );
-    });
-  });
-
-  describe('adaptBuildInfo', function () {
-    const LATEST_END_OF_LIFE_VERSION = '4.4.0';
-    it('propagate isEndOfLife as expected', function () {
-      expect(
-        adaptBuildInfo({ version: '4.4.0' }, LATEST_END_OF_LIFE_VERSION)
-      ).to.deep.equal({
-        version: '4.4.0',
-        isEndOfLife: true,
-        isEnterprise: false,
-      });
-      // Missing version
-      expect(adaptBuildInfo({}, LATEST_END_OF_LIFE_VERSION)).to.deep.equal({
-        version: '',
-        isEndOfLife: false,
-        isEnterprise: false,
-      });
-      // Malformed version
-      expect(
-        adaptBuildInfo({ version: 'what?' }, LATEST_END_OF_LIFE_VERSION)
-      ).to.deep.equal({
-        version: 'what?',
-        isEndOfLife: false,
-        isEnterprise: false,
-      });
-      // Newer version
-      expect(
-        adaptBuildInfo({ version: '8.0.0' }, LATEST_END_OF_LIFE_VERSION)
-      ).to.deep.equal({
-        version: '8.0.0',
-        isEndOfLife: false,
-        isEnterprise: false,
-      });
     });
   });
 });

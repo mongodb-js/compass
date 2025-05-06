@@ -34,6 +34,10 @@ import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal }
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 import { connectable } from '../utils/connection-supports';
+import {
+  getLatestEndOfLifeServerVersion,
+  isEndOfLifeVersion,
+} from '../utils/end-of-life-server';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -1819,10 +1823,14 @@ const connectWithOptions = (
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else {
-          void dataService.instance().then(
-            (instance) => {
-              if (instance.build.isEndOfLife) {
+        } else if (preferences.getPreferences().networkTraffic) {
+          void dataService
+            .instance()
+            .then(async (instance) => {
+              const { version } = instance.build;
+              const latestEndOfLifeServerVersion =
+                await getLatestEndOfLifeServerVersion();
+              if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
                 dispatch(
                   showEndOfLifeMongoDBWarningModal(
                     connectionInfo.id,
@@ -1830,14 +1838,13 @@ const connectWithOptions = (
                   )
                 );
               }
-            },
-            (err) => {
+            })
+            .catch((err) => {
               debug(
                 'failed to get instance details to determine if the server version is end-of-life',
                 err
               );
-            }
-          );
+            });
         }
       } catch (err) {
         dispatch(connectionAttemptError(connectionInfo, err));
