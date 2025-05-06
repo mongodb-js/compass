@@ -41,6 +41,7 @@ const FormStepContainer: React.FunctionComponent<{
   isNextDisabled: boolean;
   nextLabel: string;
   previousLabel: string;
+  step: string;
 }> = ({
   title,
   description,
@@ -51,6 +52,7 @@ const FormStepContainer: React.FunctionComponent<{
   nextLabel,
   previousLabel,
   children,
+  step,
 }) => {
   return (
     <>
@@ -71,10 +73,13 @@ const FormStepContainer: React.FunctionComponent<{
           disabled={isNextDisabled}
           isLoading={isLoading}
           variant="primary"
+          key={`${step}-next`}
         >
           {nextLabel}
         </Button>
-        <Button onClick={onPreviousClick}>{previousLabel}</Button>
+        <Button onClick={onPreviousClick} key={`${step}-previous`}>
+          {previousLabel}
+        </Button>
       </ModalFooter>
     </>
   );
@@ -318,6 +323,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         previousLabel={cancelLabel}
         isNextDisabled={isConfirmDisabled}
         isLoading={isLoading}
+        step={currentStep}
       >
         {formContent}
       </FormStepContainer>

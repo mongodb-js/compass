@@ -9,6 +9,12 @@ import {
   TableBody,
   TableHead,
 } from './leafygreen';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css } from '@leafygreen-ui/emotion';
+
+const checkboxStyles = css({
+  padding: spacing[100],
+});
 
 type SelectItem = {
   id: string;
@@ -61,6 +67,7 @@ export function SelectTable<T extends SelectItem>(
           <HeaderRow>
             <HeaderCell key="select-table-all-checkbox">
               <Checkbox
+                className={checkboxStyles}
                 data-testid="select-table-all-checkbox"
                 aria-label="Select all"
                 onChange={handleSelectAllChange}
@@ -79,6 +86,7 @@ export function SelectTable<T extends SelectItem>(
             <Row key={item.id}>
               <Cell>
                 <Checkbox
+                  className={checkboxStyles}
                   key={`select-${item.id}`}
                   name={`select-${item.id}`}
                   data-testid={`select-${item.id}`}
