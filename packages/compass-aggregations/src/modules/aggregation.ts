@@ -27,6 +27,7 @@ import { runPipelineConfirmationDescription } from '../utils/modal-descriptions'
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import toNS from 'mongodb-ns';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 const WRITE_STAGE_LINK = {
   $merge:
@@ -73,9 +74,14 @@ export type AggregationFinishedAction = {
   isLast: boolean;
 };
 
+export type AggregationError = {
+  message: string;
+  info?: Record<string, unknown>;
+};
+
 export type AggregationFailedAction = {
   type: ActionTypes.AggregationFailed;
-  error: string;
+  error: AggregationError;
   page: number;
 };
 
@@ -110,7 +116,7 @@ export type State = {
   isLast: boolean;
   loading: boolean;
   abortController?: AbortController;
-  error?: string;
+  error?: AggregationError;
   previousPageData?: PreviousPageData;
   resultsViewType: 'document' | 'json';
 };
@@ -124,6 +130,13 @@ export const INITIAL_STATE: State = {
   loading: false,
   resultsViewType: 'document',
 };
+
+function getAggregationError(error: Error): AggregationError {
+  return {
+    message: error.message,
+    info: (error as MongoServerError).errInfo,
+  };
+}
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
@@ -225,12 +238,18 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const confirmWriteOperationIfNeeded = async (
-  instance: MongoDBInstance,
-  dataService: DataService,
-  namespace: string,
-  pipeline: Document[]
-) => {
+const confirmWriteOperationIfNeeded = async ({
+  instance,
+  dataService,
+  namespace,
+  pipeline,
+}: {
+  instance: MongoDBInstance;
+  dataService: DataService;
+  namespace: string;
+  pipeline: Document[];
+  preferences: PreferencesAccess;
+}) => {
   const lastStageOperator = getStageOperator(pipeline[pipeline.length - 1]);
   let typeOfWrite;
 
@@ -289,17 +308,25 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService, track, connectionInfoRef }
+    {
+      pipelineBuilder,
+      instance,
+      dataService,
+      track,
+      connectionInfoRef,
+      preferences,
+    }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     if (
-      !(await confirmWriteOperationIfNeeded(
+      !(await confirmWriteOperationIfNeeded({
         instance,
         dataService,
-        getState().namespace,
-        pipeline
-      ))
+        namespace: getState().namespace,
+        pipeline,
+        preferences,
+      }))
     ) {
       return;
     }
@@ -477,7 +504,7 @@ const fetchAggregationData = (
       if ((e as MongoServerError).code) {
         dispatch({
           type: ActionTypes.AggregationFailed,
-          error: (e as Error).message,
+          error: getAggregationError(e as Error),
           page,
         });
         if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {

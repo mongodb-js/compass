@@ -6,13 +6,19 @@ import {
   cx,
   spacing,
   CancelLoader,
-  ErrorSummary,
   Subtitle,
   Button,
   palette,
+  Banner,
+  BannerVariant,
+  showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
-import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
+import {
+  type AggregationError,
+  cancelAggregation,
+  retryAggregation,
+} from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
 import {
@@ -50,6 +56,23 @@ const centered = css({
   height: '100%',
   paddingTop: spacing[1600] * 2,
   justifyContent: 'center',
+});
+
+const errorBannerStyles = css({
+  width: '100%',
+});
+
+const errorBannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+});
+
+const errorBannerTextStyles = css({
+  flex: 1,
+});
+
+const errorDetailsBtnStyles = css({
+  marginLeft: spacing[100],
 });
 
 const ResultsContainer: React.FunctionComponent<{ center?: boolean }> = ({
@@ -102,7 +125,7 @@ type PipelineResultsWorkspaceProps = {
   documents: HadronDocument[];
   isLoading?: boolean;
   isError?: boolean;
-  error?: string | null;
+  error?: AggregationError;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
   mergeOrOutDestination?: string | null;
@@ -133,12 +156,38 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   if (isError && error) {
     results = (
       <ResultsContainer>
-        <ErrorSummary
+        <Banner
           data-testid="pipeline-results-error"
-          errors={error}
-          onAction={onRetry}
-          actionText="Retry"
-        />
+          variant={BannerVariant.Danger}
+          className={errorBannerStyles}
+        >
+          <div className={errorBannerContentStyles}>
+            <div className={errorBannerTextStyles}>{error?.message}</div>
+            <Button
+              size="xsmall"
+              onClick={onRetry}
+              data-testid="pipeline-results-error-retry-button"
+              className={errorDetailsBtnStyles}
+            >
+              RETRY
+            </Button>
+            {error?.info && (
+              <Button
+                size="xsmall"
+                onClick={() =>
+                  showErrorDetails({
+                    details: error.info!,
+                    closeAction: 'close',
+                  })
+                }
+                data-testid="pipeline-results-error-details-button"
+                className={errorDetailsBtnStyles}
+              >
+                VIEW ERROR DETAILS
+              </Button>
+            )}
+          </div>
+        </Banner>
       </ResultsContainer>
     );
   } else if (isLoading) {

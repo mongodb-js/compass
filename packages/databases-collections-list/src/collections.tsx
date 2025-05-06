@@ -5,12 +5,16 @@ import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 import type { CollectionProps } from 'mongodb-collection-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const COLLECTION_CARD_WIDTH = spacing[1600] * 4;
 
 const COLLECTION_CARD_HEIGHT = 238;
+const COLLECTION_CARD_WITHOUT_STATS_HEIGHT = COLLECTION_CARD_HEIGHT - 150;
 
 const COLLECTION_CARD_LIST_HEIGHT = 118;
+const COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT =
+  COLLECTION_CARD_LIST_HEIGHT - 50;
 
 function collectionPropertyToBadge({
   id,
@@ -80,6 +84,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   return (
     <div className={pageContainerStyles}>
       <ItemsGrid
@@ -87,8 +92,16 @@ const CollectionsList: React.FunctionComponent<{
         items={collections}
         itemType="collection"
         itemGridWidth={COLLECTION_CARD_WIDTH}
-        itemGridHeight={COLLECTION_CARD_HEIGHT}
-        itemListHeight={COLLECTION_CARD_LIST_HEIGHT}
+        itemGridHeight={
+          enableDbAndCollStats
+            ? COLLECTION_CARD_HEIGHT
+            : COLLECTION_CARD_WITHOUT_STATS_HEIGHT
+        }
+        itemListHeight={
+          enableDbAndCollStats
+            ? COLLECTION_CARD_LIST_HEIGHT
+            : COLLECTION_CARD_LIST_WITHOUT_STATS_HEIGHT
+        }
         sortBy={[
           { name: 'name', label: 'Collection Name' },
           { name: 'document_count', label: 'Documents' },
@@ -114,39 +127,63 @@ const CollectionsList: React.FunctionComponent<{
               ? [
                   {
                     label: 'Storage size',
-                    value: compactBytes(
-                      coll.storage_size - coll.free_storage_size
-                    ),
-                    hint: `Uncompressed data size: ${compactBytes(
-                      coll.document_size
-                    )}`,
+                    value:
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined
+                        ? compactBytes(
+                            coll.storage_size - coll.free_storage_size
+                          )
+                        : 'N/A',
+                    hint:
+                      coll.document_size !== undefined &&
+                      `Uncompressed data size: ${compactBytes(
+                        coll.document_size
+                      )}`,
                   },
                 ]
               : [
                   {
                     label: 'Storage size',
-                    value: compactBytes(
-                      coll.storage_size - coll.free_storage_size
-                    ),
-                    hint: `Uncompressed data size: ${compactBytes(
-                      coll.document_size
-                    )}`,
+                    value:
+                      coll.storage_size !== undefined &&
+                      coll.free_storage_size !== undefined
+                        ? compactBytes(
+                            coll.storage_size - coll.free_storage_size
+                          )
+                        : 'N/A',
+                    hint:
+                      coll.document_size !== undefined &&
+                      `Uncompressed data size: ${compactBytes(
+                        coll.document_size
+                      )}`,
                   },
                   {
                     label: 'Documents',
-                    value: compactNumber(coll.document_count),
+                    value:
+                      coll.document_count !== undefined
+                        ? compactNumber(coll.document_count)
+                        : 'N/A',
                   },
                   {
                     label: 'Avg. document size',
-                    value: compactBytes(coll.avg_document_size),
+                    value:
+                      coll.avg_document_size !== undefined
+                        ? compactBytes(coll.avg_document_size)
+                        : 'N/A',
                   },
                   {
                     label: 'Indexes',
-                    value: compactNumber(coll.index_count),
+                    value:
+                      coll.index_count !== undefined
+                        ? compactNumber(coll.index_count)
+                        : 'N/A',
                   },
                   {
                     label: 'Total index size',
-                    value: compactBytes(coll.index_size),
+                    value:
+                      coll.index_size !== undefined
+                        ? compactBytes(coll.index_size)
+                        : 'N/A',
                   },
                 ];
 

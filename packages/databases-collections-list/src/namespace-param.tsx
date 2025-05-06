@@ -120,6 +120,7 @@ export const NamespaceParam: React.FunctionComponent<{
                 status === 'refreshing' && namespaceParamValueRefreshing,
                 shouldAnimate && fadeIn
               )}
+              data-testid="namespace-param-value"
             >
               {missingValue ? '—' : value}
             </span>

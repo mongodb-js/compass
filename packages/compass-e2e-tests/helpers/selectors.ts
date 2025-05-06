@@ -852,6 +852,8 @@ export const SavePipelineSaveAsAction =
 export const AggregationAutoPreviewToggle =
   '[data-testid="pipeline-toolbar-preview-toggle"]';
 export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
+export const AggregationErrorDetailsBtn =
+  '[data-testid="pipeline-results-error"] [data-testid="pipeline-results-error-details-button"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
@@ -1424,3 +1426,27 @@ export const AutoUpdateDownloadLink =
   '[data-testid="auto-update-download-link"]';
 export const AutoUpdateReleaseNotesLink =
   '[data-testid="auto-update-release-notes-link"]';
+
+// Data Modeling
+export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
+export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
+export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
+export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
+export const CreateDataModelNameInput = `${CreateDataModelModal} [data-testid="new-diagram-name-input"]`;
+export const CreateDataModelConnectionSelector = `${CreateDataModelModal} [data-testid="new-diagram-connection-selector"]`;
+export const CreateDataModelDatabaseSelector = `${CreateDataModelModal} [data-testid="new-diagram-database-selector"]`;
+export const CreateDataModelCollectionCheckbox = (
+  collectionName: string
+): string =>
+  `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
+export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
+export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
+export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
+export const DataModelUndoButton = 'button[aria-label="Undo"]';
+export const DataModelRedoButton = 'button[aria-label="Redo"]';
+export const DataModelsListItem = (diagramName: string) =>
+  `[data-testid="saved-diagram-card"][data-diagram-name="${diagramName}"]`;
+export const DataModelsListItemActions = (diagramName: string) =>
+  `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
+export const DataModelsListItemDeleteButton = `[data-action="delete"]`;

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import type { RootState } from './modules';
 import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
 import numeral from 'numeral';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -90,6 +91,8 @@ const TabTitle = ({
     };
   }, [collectionStats]);
 
+  const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+
   const details = [
     `Indexes: ${indexCount}`,
     `Total Size: ${totalIndexSize}`,
@@ -99,7 +102,9 @@ const TabTitle = ({
   return (
     <div data-testid="indexes-tab-title" className={containerStyles}>
       Indexes
-      <CollectionStats text={indexCount} details={details} />
+      {enableDbAndCollStats && (
+        <CollectionStats text={indexCount} details={details} />
+      )}
     </div>
   );
 };

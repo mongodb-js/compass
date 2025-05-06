@@ -20,6 +20,10 @@ import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
+import type {
+  AllPreferences,
+  PreferencesAccess,
+} from 'compass-preferences-model';
 
 export {
   MongoDBInstancesManagerEvents,
@@ -36,6 +40,15 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
   private _instance: MongoDBInstance;
   constructor(instanceProps = {} as Partial<MongoDBInstanceProps>) {
     super();
+    if (!instanceProps.preferences) {
+      instanceProps.preferences = {
+        getPreferences: () => ({} as AllPreferences),
+        setPreferences: () => Promise.resolve(),
+        onPreferenceValueChanged: () => () => {
+          /* no-op */
+        },
+      } as unknown as PreferencesAccess;
+    }
     this._instance = new MongoDBInstance(instanceProps as MongoDBInstanceProps);
   }
   getMongoDBInstanceForConnection() {
@@ -46,6 +59,8 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
   }
 }
 
+// We need to create the context with a proper mock for testing
+// that includes default preferences
 export const MongoDBInstancesManagerContext =
   createContext<MongoDBInstancesManager | null>(
     process.env.NODE_ENV === 'test'
