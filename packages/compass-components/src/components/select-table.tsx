@@ -103,7 +103,7 @@ export function SelectList<T extends SelectItem>(
               name={`select-${item.id}`}
               data-testid={`select-${item.id}`}
               label={item[label[0]]}
-              aria-label={item[label[0]]}
+              aria-labelledby="select-table-item-label" // I don't know why LG requires this, it seems ignored
               onChange={handleSelectItemChange}
               checked={item.selected}
               disabled={disabled}
