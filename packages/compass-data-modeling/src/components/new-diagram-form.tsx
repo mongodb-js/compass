@@ -21,6 +21,7 @@ import {
   Banner,
   Button,
   css,
+  ErrorSummary,
   FormFieldContainer,
   Modal,
   ModalBody,
@@ -29,8 +30,13 @@ import {
   Option,
   Select,
   SelectTable,
+  spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
+
+const footerStyles = css({
+  gap: spacing[200],
+});
 
 const FormStepContainer: React.FunctionComponent<{
   title: string;
@@ -56,7 +62,7 @@ const FormStepContainer: React.FunctionComponent<{
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
       <ModalBody>{children}</ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
         <Button
           onClick={onNextClick}
           disabled={isNextDisabled}
@@ -90,6 +96,7 @@ type NewDiagramFormProps = {
   selectedDatabase: string | null;
   collections: string[];
   selectedCollections: string[];
+  error: Error | null;
 
   onCancel: () => void;
   onNameChange: (name: string) => void;
@@ -115,6 +122,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   selectedDatabase,
   collections,
   selectedCollections,
+  error,
   onCancel,
   onNameChange,
   onNameConfirm,
@@ -174,7 +182,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
-            !selectedCollections || selectCollections.length === 0,
+            !selectedCollections || selectedCollections.length === 0,
           onCancelAction: onDatabaseSelectCancel,
           cancelLabel: 'Back',
         };
@@ -203,7 +211,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
             <TextInput
               label="New data model name"
               value={diagramName}
-              data-testId="new-diagram-name-input"
+              data-testid="new-diagram-name-input"
               onChange={(e) => {
                 onNameChange(e.currentTarget.value);
               }}
@@ -215,6 +223,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           <FormFieldContainer>
             <Select
               label=""
+              aria-label="Select connection"
               value={selectedConnectionId ?? ''}
               data-testid="new-diagram-connection-selector"
               onChange={onConnectionSelect}
@@ -240,6 +249,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
           <FormFieldContainer>
             <Select
               label=""
+              aria-label="Select database"
               value={selectedDatabase ?? ''}
               data-testid="new-diagram-database-selector"
               onChange={onDatabaseSelect}
@@ -317,6 +327,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         isLoading={isLoading}
       >
         {formContent}
+        {error && <ErrorSummary errors={[error.message]} />}
       </FormStepContainer>
     </Modal>
   );
@@ -351,6 +362,7 @@ export default connect(
       selectedDatabase,
       databaseCollections,
       selectedCollections,
+      error,
     } = state.generateDiagramWizard;
     return {
       isModalOpen: inProgress,
@@ -366,6 +378,7 @@ export default connect(
       selectedDatabase,
       collections: databaseCollections ?? [],
       selectedCollections: selectedCollections ?? [],
+      error,
     };
   },
   {

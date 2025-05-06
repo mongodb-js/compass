@@ -13,13 +13,8 @@ import { analysisProcessReducer } from './analysis-process';
 import type { DiagramActions, DiagramActionTypes } from './diagram';
 import { diagramReducer } from './diagram';
 import type { ThunkAction } from 'redux-thunk';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import { stepReducer } from './step';
-import type { DataModelStorageService } from '../provider';
+import type { DataModelingStoreServices } from '.';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -40,18 +35,14 @@ export type DataModelingActionTypes =
 
 export type DataModelingState = ReturnType<typeof reducer>;
 
+export type DataModelingExtraArgs = DataModelingStoreServices & {
+  cancelControllerRef: { current: AbortController | null };
+};
+
 export type DataModelingThunkAction<R, A extends AnyAction> = ThunkAction<
   R,
   DataModelingState,
-  {
-    preferences: PreferencesAccess;
-    connections: ConnectionsService;
-    instanceManager: MongoDBInstancesManager;
-    dataModelStorage: DataModelStorageService;
-    track: TrackFunction;
-    logger: Logger;
-    cancelControllerRef: { current: AbortController | null };
-  },
+  DataModelingExtraArgs,
   A
 >;
 
