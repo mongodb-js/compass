@@ -2,15 +2,15 @@ import { createLogger } from '@mongodb-js/compass-logging';
 const { mongoLogId, log } = createLogger('END-OF-LIFE-SERVER');
 
 const FALLBACK_END_OF_LIFE_SERVER_VERSION = '4.4';
-const { HADRON_AUTO_UPDATE_ENDPOINT, HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE } =
-  process.env;
-const updateEndpoint =
-  HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE ?? HADRON_AUTO_UPDATE_ENDPOINT;
+const {
+  HADRON_AUTO_UPDATE_ENDPOINT = process.env
+    .HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE,
+} = process.env;
 
 let latestEndOfLifeServerVersion: Promise<string> | null = null;
 
 export async function getLatestEndOfLifeServerVersion(): Promise<string> {
-  if (!updateEndpoint) {
+  if (!HADRON_AUTO_UPDATE_ENDPOINT) {
     log.debug(
       mongoLogId(1_001_000_350),
       'getLatestEndOfLifeServerVersion',
@@ -26,7 +26,9 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
       'getLatestEndOfLifeServerVersion',
       'Fetching EOL server version'
     );
-    latestEndOfLifeServerVersion = fetch(`${updateEndpoint}/eol-server`)
+    latestEndOfLifeServerVersion = fetch(
+      `${HADRON_AUTO_UPDATE_ENDPOINT}/api/v2/eol-server`
+    )
       .then(async (response) => {
         if (response.ok) {
           const result = await response.text();
