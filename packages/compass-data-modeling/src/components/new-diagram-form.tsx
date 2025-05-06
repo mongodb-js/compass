@@ -98,7 +98,8 @@ const FormStepContainer: React.FunctionComponent<{
 };
 
 const selectTableStyles = css({
-  maxHeight: 300,
+  height: 300,
+  overflow: 'scroll',
 });
 
 function SelectCollectionsStep({
@@ -112,7 +113,12 @@ function SelectCollectionsStep({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const filteredCollections = useMemo(() => {
-    return collections.filter((x) => x.match(searchTerm));
+    try {
+      const regex = new RegExp(searchTerm, 'i');
+      return collections.filter((x) => regex.test(x));
+    } catch {
+      return collections;
+    }
   }, [collections, searchTerm]);
   return (
     <FormFieldContainer className={formContainerStyles}>
@@ -121,7 +127,7 @@ function SelectCollectionsStep({
         value={searchTerm}
         data-testId="new-diagram-search-collections"
         onChange={(e) => {
-          setSearchTerm(e.currentTarget.value);
+          setSearchTerm(e.target.value);
         }}
       />
       <SelectTable
