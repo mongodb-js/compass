@@ -157,6 +157,7 @@ describe('NewDiagramForm', function () {
         );
       });
 
+      expect(screen.getByText(/select connection/i)).to.exist;
       expect(store.getState().generateDiagramWizard.error?.message).to.equal(
         'Can not connect'
       );
@@ -273,6 +274,7 @@ describe('NewDiagramForm', function () {
         );
       });
 
+      expect(screen.getByText(/select connection/i)).to.exist;
       expect(store.getState().generateDiagramWizard.error?.message).to.equal(
         'Can not list databases'
       );
@@ -425,6 +427,7 @@ describe('NewDiagramForm', function () {
         });
       }
 
+      expect(screen.getByText(/select database/i)).to.exist;
       expect(store.getState().generateDiagramWizard.error?.message).to.equal(
         'Can not list collections'
       );
