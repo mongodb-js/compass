@@ -56,6 +56,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
+  const showDisabledConnections = !!usePreference('showDisabledConnections');
 
   const id = useId();
   const getConnectable = useConnectable();
@@ -71,9 +72,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
-      const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
-        return;
+      if (showDisabledConnections) {
+        const connectionId = getConnectionId(item);
+        if (!getConnectable(connectionId)) {
+          return;
+        }
       }
 
       if (item.type === 'connection') {
@@ -90,7 +93,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectable]
+    [onItemAction, getConnectable, showDisabledConnections]
   );
 
   const activeItemId = useMemo(() => {
@@ -151,11 +154,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
-      const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
-        return {
-          actions: [],
-        };
+      if (showDisabledConnections) {
+        const connectionId = getConnectionId(item);
+        if (!getConnectable(connectionId)) {
+          return {
+            actions: [],
+          };
+        }
       }
       switch (item.type) {
         case 'placeholder':
@@ -209,6 +214,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
+      showDisabledConnections,
     ]
   );
 
