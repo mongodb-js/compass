@@ -8,8 +8,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import NewDiagramForm from './new-diagram-form';
 import { changeName, createNewDiagram } from '../store/generate-diagram-wizard';
-import { renderWithStore } from '../../tests/setup-store';
-import type { DataModelingStore } from '../../tests/setup-store';
+import { renderWithStore } from '../../test/setup-store';
+import type { DataModelingStore } from '../../test/setup-store';
 
 describe('NewDiagramForm', function () {
   context('enter-name step', function () {
