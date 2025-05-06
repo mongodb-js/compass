@@ -78,7 +78,7 @@ const FormStepContainer: React.FunctionComponent<{
       <ModalHeader title={title} subtitle={description}></ModalHeader>
       <ModalBody>{children}</ModalBody>
       <ModalFooter className={footerStyles}>
-        {footerText && <Body className={footerTextStyles}>{footerText}</Body>}
+        <Body className={footerTextStyles}>{footerText}</Body>
         <div className={footerActionsStyles}>
           <Button onClick={onPreviousClick}>{previousLabel}</Button>
           <Button
