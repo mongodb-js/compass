@@ -152,17 +152,10 @@ describe('NewDiagramForm', function () {
       );
 
       await waitFor(() => {
-        expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_CONNECTION'
-        );
+        // As it fails to connect, we are closing the modal and the toast is shown
+        // to the user with an error (which is outside of this component).
+        expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
       });
-
-      expect(screen.getByText(/select connection/i)).to.exist;
-      expect(store.getState().generateDiagramWizard.error?.message).to.equal(
-        'Can not connect'
-      );
-      const alert = screen.getByRole('alert');
-      expect(alert.textContent).to.contain('Can not connect');
     });
   });
 
@@ -270,11 +263,11 @@ describe('NewDiagramForm', function () {
 
       await waitFor(() => {
         expect(store.getState().generateDiagramWizard.step).to.equal(
-          'SELECT_CONNECTION'
+          'SELECT_DATABASE'
         );
       });
 
-      expect(screen.getByText(/select connection/i)).to.exist;
+      expect(screen.getByText(/select database/i)).to.exist;
       expect(store.getState().generateDiagramWizard.error?.message).to.equal(
         'Can not list databases'
       );

@@ -43,6 +43,7 @@ export enum GenerateDiagramWizardActionTypes {
 
   SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/SELECT_DATABASE',
   CONFIRM_SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_DATABASE',
+  DATABASES_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/DATABASES_FETCH_FAILED',
   COLLECTIONS_FETCHED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCHED',
   CANCEL_SELECTED_DATABASE = 'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_DATABASE',
   COLLECTIONS_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCH_FAILED',
@@ -98,12 +99,16 @@ export type DatabasesFetchedAction = {
 
 export type ConnectionFailedAction = {
   type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED;
-  error: Error;
 };
 
 export type SelectDatabaseAction = {
   type: GenerateDiagramWizardActionTypes.SELECT_DATABASE;
   database: string;
+};
+
+export type DatabasesFetchFailedAction = {
+  type: GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED;
+  error: Error;
 };
 
 export type ConfirmSelectDatabaseAction = {
@@ -150,6 +155,7 @@ export type GenerateDiagramWizardActions =
   | DatabasesFetchedAction
   | SelectDatabaseAction
   | ConfirmSelectDatabaseAction
+  | DatabasesFetchFailedAction
   | CancelSelectedDatabaseAction
   | CollectionsFetchedAction
   | SelectCollectionsAction
@@ -228,6 +234,15 @@ export const generateDiagramWizardReducer: Reducer<
       selectedDatabase: null,
     };
   }
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED)
+  ) {
+    return {
+      ...state,
+      step: 'SELECT_DATABASE',
+      error: action.error,
+    };
+  }
   if (isAction(action, GenerateDiagramWizardActionTypes.SELECT_DATABASE)) {
     return {
       ...state,
@@ -295,8 +310,7 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CONNECTION_FAILED)) {
     return {
       ...state,
-      error: action.error,
-      step: 'SELECT_CONNECTION',
+      inProgress: false,
     };
   }
   if (
@@ -344,16 +358,18 @@ export function confirmSelectConnection(): DataModelingThunkAction<
   | ConnectionConnectedAction
   | DatabasesFetchedAction
   | ConnectionFailedAction
+  | DatabasesFetchFailedAction
 > {
   return async (dispatch, getState, services) => {
     dispatch({
       type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION,
     });
+
+    const { selectedConnectionId } = getState().generateDiagramWizard;
+    if (!selectedConnectionId) {
+      return;
+    }
     try {
-      const { selectedConnectionId } = getState().generateDiagramWizard;
-      if (!selectedConnectionId) {
-        return;
-      }
       const connectionInfo =
         services.connections.getConnectionById(selectedConnectionId)?.info;
       if (!connectionInfo) {
@@ -367,6 +383,20 @@ export function confirmSelectConnection(): DataModelingThunkAction<
       if (connectionError) {
         throw connectionError;
       }
+    } catch (err) {
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_348),
+        'DataModeling',
+        'Failed to select connection',
+        { err }
+      );
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
+      });
+      return;
+    }
+
+    try {
       dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED });
       const mongoDBInstance =
         services.instanceManager.getMongoDBInstanceForConnection(
@@ -388,13 +418,13 @@ export function confirmSelectConnection(): DataModelingThunkAction<
       });
     } catch (err) {
       services.logger.log.error(
-        services.logger.mongoLogId(1_001_000_348),
+        services.logger.mongoLogId(1_001_000_351),
         'DataModeling',
-        'Failed to select connection',
+        'Failed to list databases',
         { err }
       );
       dispatch({
-        type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
+        type: GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED,
         error: err as Error,
       });
     }
