@@ -141,14 +141,27 @@ function SelectCollectionsStep({
         })}
         columns={[['id', 'Collection Name']]}
         onChange={(items) => {
-          const selectedItems = items
+          // When a user is searching, less collections are shown to the user
+          // and we need to keep existing selected collections selected.
+          const currentSelectedItems = selectedCollections.filter(
+            (collName) => {
+              const item = items.find((x) => x.id === collName);
+              // The already selected item was not shown to the user (using search),
+              // and we have to keep it selected.
+              return item ? item.selected : true;
+            }
+          );
+
+          const newSelectedItems = items
             .filter((item) => {
               return item.selected;
             })
             .map((item) => {
               return item.id;
             });
-          onCollectionsSelect(selectedItems);
+          onCollectionsSelect(
+            Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
+          );
         }}
       ></SelectTable>
     </FormFieldContainer>
