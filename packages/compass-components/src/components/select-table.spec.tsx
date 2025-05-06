@@ -7,7 +7,7 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 import sinon from 'sinon';
-import { SelectTable } from './select-table';
+import { SelectList } from './select-table';
 import { cloneDeep } from 'lodash';
 
 type TestItem = {
@@ -17,9 +17,9 @@ type TestItem = {
   col2: string;
 };
 
-describe('SelectTable', function () {
+describe('SelectList', function () {
   let items: TestItem[];
-  let columns: [key: keyof TestItem, label: string | JSX.Element][];
+  let label: [key: keyof TestItem, label: string | JSX.Element];
   let onChange: sinon.SinonStub;
 
   beforeEach(function () {
@@ -27,15 +27,7 @@ describe('SelectTable', function () {
       { id: 'id1', selected: true, col1: '1x1', col2: '1x2' },
       { id: 'id2', selected: true, col1: '2x1', col2: '2x2' },
     ];
-    columns = [
-      ['col1', 'Column1'],
-      [
-        'col2',
-        <span key="" data-testid="column2-span">
-          Column2
-        </span>,
-      ],
-    ];
+    label = ['col1', 'Column1'];
     onChange = sinon.stub();
   });
 
@@ -45,19 +37,13 @@ describe('SelectTable', function () {
 
   describe('render', function () {
     it('allows listing multiple selectable items in a table', function () {
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      expect(screen.getByTestId('column2-span')).to.be.visible;
-      expect(screen.getByTestId('item-id1-col1')).to.have.text('1x1');
-      expect(screen.getByTestId('item-id1-col2')).to.have.text('1x2');
+      expect(screen.getByLabelText('1x1')).to.be.visible;
     });
 
     it('renders checkboxes as expected when all items are selected', function () {
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
         screen.getByTestId('select-table-all-checkbox').closest('input')
@@ -80,9 +66,7 @@ describe('SelectTable', function () {
     it('renders checkboxes as expected when no items are selected', function () {
       items[0].selected = false;
       items[1].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
         screen.getByTestId('select-table-all-checkbox').closest('input')
@@ -104,9 +88,7 @@ describe('SelectTable', function () {
 
     it('renders checkboxes as expected when some items are selected', function () {
       items[0].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
         screen.getByTestId('select-table-all-checkbox').closest('input')
@@ -131,9 +113,7 @@ describe('SelectTable', function () {
     it('calls onChange when a single item is selected', function () {
       const originalItems = cloneDeep(items);
       items[0].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       fireEvent.click(screen.getByTestId('select-id1'));
       expect(onChange).to.have.been.calledWith(originalItems);
@@ -142,9 +122,7 @@ describe('SelectTable', function () {
     it('calls onChange when a single item is deselected', function () {
       const expectedItems = cloneDeep(items);
       items[0].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       fireEvent.click(screen.getByTestId('select-id1'));
       expect(onChange).to.have.been.calledWith(expectedItems);
@@ -154,9 +132,7 @@ describe('SelectTable', function () {
       const originalItems = cloneDeep(items);
       items[0].selected = false;
       items[1].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       fireEvent.click(screen.getByTestId('select-table-all-checkbox'));
       expect(onChange).to.have.been.calledWith(originalItems);
@@ -166,9 +142,7 @@ describe('SelectTable', function () {
       const expectedItems = cloneDeep(items);
       items[0].selected = false;
       items[1].selected = false;
-      render(
-        <SelectTable items={items} columns={columns} onChange={onChange} />
-      );
+      render(<SelectList items={items} label={label} onChange={onChange} />);
 
       fireEvent.click(screen.getByTestId('select-table-all-checkbox'));
       expect(onChange).to.have.been.calledWith(expectedItems);

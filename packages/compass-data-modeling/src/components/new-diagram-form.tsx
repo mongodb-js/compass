@@ -28,7 +28,7 @@ import {
   ModalHeader,
   Option,
   Select,
-  SelectTable,
+  SelectList,
   TextInput,
 } from '@mongodb-js/compass-components';
 
@@ -85,7 +85,7 @@ const FormStepContainer: React.FunctionComponent<{
   );
 };
 
-const selectTableStyles = css({
+const SelectListStyles = css({
   maxHeight: 300,
 });
 
@@ -267,15 +267,15 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-collections':
         return (
           <FormFieldContainer>
-            <SelectTable
-              className={selectTableStyles}
+            <SelectList
+              className={SelectListStyles}
               items={collections.map((collName) => {
                 return {
                   id: collName,
                   selected: selectedCollections.includes(collName),
                 };
               })}
-              columns={[['id', 'Collection Name']]}
+              label={['id', 'Collection Name']}
               onChange={(items) => {
                 const selectedItems = items
                   .filter((item) => {
@@ -286,7 +286,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
                   });
                 onCollectionsSelect(selectedItems);
               }}
-            ></SelectTable>
+            ></SelectList>
           </FormFieldContainer>
         );
     }

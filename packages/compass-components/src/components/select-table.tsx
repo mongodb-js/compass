@@ -1,19 +1,32 @@
 import React, { useCallback } from 'react';
-import {
-  Cell,
-  Checkbox,
-  HeaderCell,
-  HeaderRow,
-  Row,
-  Table,
-  TableBody,
-  TableHead,
-} from './leafygreen';
+import { Checkbox } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { useDarkMode } from '../hooks/use-theme';
 
 const checkboxStyles = css({
   padding: spacing[100],
+});
+
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const listHeaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  fontWeight: 600,
+  borderBottom: `${spacing[100]}px solid ${palette.gray.light2}`,
+  flexShrink: 0,
+  padding: `${spacing[100]}px 0px`,
+});
+const listBodyStyles = css({
+  overflow: 'auto',
+});
+const listItemStyles = css({
+  padding: `${spacing[100]}px 0px`,
 });
 
 type SelectItem = {
@@ -21,20 +34,23 @@ type SelectItem = {
   selected: boolean;
 };
 
-type SelectTableProps<T extends SelectItem> = {
+type SelectListProps<T extends SelectItem> = {
   items: T[];
-  columns: ReadonlyArray<
-    readonly [key: string & keyof T, label: string | JSX.Element]
-  >;
+  label: readonly [key: string & keyof T, label: string | JSX.Element];
   onChange: (newList: T[]) => void;
   disabled?: boolean;
   className?: string;
 };
 
-export function SelectTable<T extends SelectItem>(
-  props: SelectTableProps<T>
+export function SelectList<T extends SelectItem>(
+  props: SelectListProps<T>
 ): React.ReactElement {
-  const { items, columns, disabled, onChange } = props;
+  const { items, label, disabled, onChange } = props;
+
+  const isDarkMode = useDarkMode();
+  const evenRowStyles = isDarkMode
+    ? css({ backgroundColor: palette.gray.dark3 })
+    : css({ backgroundColor: palette.gray.light3 });
 
   const selectAll = items.every((item) => item.selected);
   const selectNone = items.every((item) => !item.selected);
@@ -61,53 +77,40 @@ export function SelectTable<T extends SelectItem>(
   );
 
   return (
-    <div className={props.className}>
-      <Table shouldAlternateRowColor>
-        <TableHead>
-          <HeaderRow>
-            <HeaderCell key="select-table-all-checkbox">
-              <Checkbox
-                className={checkboxStyles}
-                data-testid="select-table-all-checkbox"
-                aria-label="Select all"
-                onChange={handleSelectAllChange}
-                checked={selectAll}
-                indeterminate={!selectAll && !selectNone}
-                disabled={disabled}
-              />
-            </HeaderCell>
-            {columns.map((col) => (
-              <HeaderCell key={`col-${col[0]}`}>{col[1]}</HeaderCell>
-            ))}
-          </HeaderRow>
-        </TableHead>
-        <TableBody>
-          {items.map((item) => (
-            <Row key={item.id}>
-              <Cell>
-                <Checkbox
-                  className={checkboxStyles}
-                  key={`select-${item.id}`}
-                  name={`select-${item.id}`}
-                  data-testid={`select-${item.id}`}
-                  aria-label="Select item in row"
-                  onChange={handleSelectItemChange}
-                  checked={item.selected}
-                  disabled={disabled}
-                />
-              </Cell>
-              {columns.map(([name]) => (
-                <Cell
-                  key={`item-${name}`}
-                  data-testid={`item-${item.id}-${name}`}
-                >
-                  {item[name]}
-                </Cell>
-              ))}
-            </Row>
-          ))}
-        </TableBody>
-      </Table>
+    <div className={cx(props.className, containerStyles)}>
+      <div className={listHeaderStyles}>
+        <Checkbox
+          className={cx(checkboxStyles, css({ paddingRight: 0 }))}
+          data-testid="select-table-all-checkbox"
+          aria-label="Select all"
+          onChange={handleSelectAllChange}
+          checked={selectAll}
+          indeterminate={!selectAll && !selectNone}
+          disabled={disabled}
+        />
+        <div className={css({ lineHeight: '16px' })}>{label[1]}</div>
+      </div>
+      <div className={listBodyStyles}>
+        {items.map((item, index) => (
+          <div
+            className={cx(listItemStyles, index % 2 === 0 && evenRowStyles)}
+            key={`select-table-item-${item.id}`}
+            data-testid={`select-table-item-${item.id}`}
+          >
+            <Checkbox
+              className={checkboxStyles}
+              key={`select-${item.id}`}
+              name={`select-${item.id}`}
+              data-testid={`select-${item.id}`}
+              label={item[label[0]]}
+              aria-label={`Select ${item[label[0]]}`}
+              onChange={handleSelectItemChange}
+              checked={item.selected}
+              disabled={disabled}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   FormModal,
   spacing,
   openToast,
-  SelectTable,
+  SelectList,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
@@ -26,7 +26,7 @@ const existingFavoriteBadgeStyles = css({
   marginLeft: spacing[200],
 });
 
-const selectTableColumns = [['displayName', 'Connection Name']] as const;
+const SelectListLabel = ['displayName', 'Connection Name'] as const;
 
 export function ImportConnectionsModal({
   open,
@@ -136,10 +136,10 @@ export function ImportConnectionsModal({
         />
       </FormFieldContainer>
       {connectionList.length > 0 && (
-        <SelectTable
+        <SelectList
           className={tableStyles}
           items={displayConnectionList}
-          columns={selectTableColumns}
+          label={SelectListLabel}
           disabled={inProgress}
           onChange={onChangeConnectionList}
         />
