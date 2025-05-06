@@ -1819,26 +1819,26 @@ const connectWithOptions = (
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        }
-
-        void dataService.instance().then(
-          (instance) => {
-            if (instance.build.isEndOfLife) {
-              dispatch(
-                showEndOfLifeMongoDBWarningModal(
-                  connectionInfo.id,
-                  instance.build.version
-                )
+        } else {
+          void dataService.instance().then(
+            (instance) => {
+              if (instance.build.isEndOfLife) {
+                dispatch(
+                  showEndOfLifeMongoDBWarningModal(
+                    connectionInfo.id,
+                    instance.build.version
+                  )
+                );
+              }
+            },
+            (err) => {
+              debug(
+                'failed to get instance details to determine if the server version is end-of-life',
+                err
               );
             }
-          },
-          (err) => {
-            debug(
-              'failed to get instance details to determine if the server version is end-of-life',
-              err
-            );
-          }
-        );
+          );
+        }
       } catch (err) {
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
