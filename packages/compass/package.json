@@ -131,6 +131,7 @@
           "keytar",
           "kerberos",
           "os-dns-native",
+          "native-machine-id",
           "win-export-certificate-and-key",
           "macos-export-certificate-and-key"
         ]
