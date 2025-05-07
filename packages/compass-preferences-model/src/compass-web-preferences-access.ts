@@ -13,6 +13,10 @@ const editablePreferences: (keyof UserPreferences)[] = [
   'enableGenAISampleDocumentPassingOnAtlasProject',
   'enableGenAIFeaturesAtlasOrg',
   'enableGenAIFeaturesAtlasProject',
+
+  // Value can change from false to true during allocation / checking
+  'enableIndexesGuidanceExp',
+  'showIndexesGuidanceVariant',
 ];
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {
@@ -27,9 +31,9 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   savePreferences(_attributes: Partial<UserPreferences>) {
     // Only allow runtime updating certain preferences.
     if (
-      Object.keys(_attributes).length === 1 &&
-      editablePreferences.includes(
-        Object.keys(_attributes)[0] as keyof UserPreferences
+      Object.keys(_attributes).length >= 1 &&
+      Object.keys(_attributes).every((attribute) =>
+        editablePreferences.includes(attribute as keyof UserPreferences)
       )
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
