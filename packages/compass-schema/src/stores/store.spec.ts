@@ -32,7 +32,8 @@ const mockQueryBar = {
 
 function createMockCursor(data: any[]) {
   return {
-    *[Symbol.asyncIterator]() {
+    async *[Symbol.asyncIterator]() {
+      await new Promise((resolve) => setTimeout(resolve, 0));
       yield* data;
     },
   };
@@ -136,10 +137,11 @@ describe('Schema Store', function () {
       );
       sampleCursorStub.returns({
         async *[Symbol.asyncIterator]() {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 10));
           yield {
             a: 123,
           };
+          await new Promise((resolve) => setTimeout(resolve, 100));
           yield {
             b: 123,
           };

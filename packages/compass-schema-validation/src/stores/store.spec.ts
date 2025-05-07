@@ -44,7 +44,8 @@ const fakeDataService = {
   isCancelError: () => false,
   sampleCursor: () =>
     ({
-      *[Symbol.asyncIterator]() {
+      async *[Symbol.asyncIterator]() {
+        await new Promise((resolve) => setTimeout(resolve, 0));
         yield* [{ prop1: 'abc' }];
       },
     } as any),

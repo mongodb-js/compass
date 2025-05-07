@@ -88,7 +88,8 @@ describe('schema-analysis', function () {
       const dataService = {
         sampleCursor: () =>
           ({
-            *[Symbol.asyncIterator]() {
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
               yield* docs;
             },
           } as any),
@@ -185,7 +186,8 @@ describe('schema-analysis', function () {
       const dataService = {
         sampleCursor: () =>
           ({
-            *[Symbol.asyncIterator]() {
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
               yield {
                 a: 123,
               };
@@ -221,7 +223,8 @@ describe('schema-analysis', function () {
       const dataService = {
         sampleCursor: () =>
           ({
-            *[Symbol.asyncIterator]() {
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
               yield {
                 a: 123,
               };
@@ -256,7 +259,8 @@ describe('schema-analysis', function () {
       const dataService = {
         sampleCursor: () =>
           ({
-            *[Symbol.asyncIterator]() {
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
               yield {};
               throw error;
             },
