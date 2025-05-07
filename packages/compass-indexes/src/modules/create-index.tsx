@@ -490,6 +490,8 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   return (dispatch, getState, { track, preferences }) => {
     // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
     const currentTab = getState().createIndex.currentTab;
+    const isQueryFlow = currentTab === 'QueryFlow';
+    const indexSuggestions = getState().createIndex.indexSuggestions;
     const { enableIndexesGuidanceExp, showIndexesGuidanceVariant } =
       preferences.getPreferences();
 
@@ -504,7 +506,17 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     });
 
     // Check for field errors.
-    if (
+    if (isQueryFlow) {
+      if (!indexSuggestions) {
+        // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
+        dispatch(
+          errorEncountered(
+            'No suggested index found. Please choose "Start with an Index" at the top to continue.'
+          )
+        );
+        return;
+      }
+    } else if (
       getState().createIndex.fields.some(
         (field: Field) => field.name === '' || field.type === ''
       )
@@ -518,11 +530,19 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     let spec: Record<string, IndexDirection>;
 
     try {
-      spec = Object.fromEntries(
-        getState().createIndex.fields.map((field) => {
-          return [field.name, fieldTypeToIndexDirection(field.type)];
-        })
-      );
+      if (isQueryFlow) {
+        // Gather from suggested index
+        if (indexSuggestions) {
+          spec = indexSuggestions;
+        }
+      } else {
+        // Gather from the index input fields
+        spec = Object.fromEntries(
+          getState().createIndex.fields.map((field) => {
+            return [field.name, fieldTypeToIndexDirection(field.type)];
+          })
+        );
+      }
     } catch (e) {
       dispatch(errorEncountered((e as any).message));
       return;
