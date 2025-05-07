@@ -7,7 +7,7 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 import sinon from 'sinon';
-import { SelectList } from './select-table';
+import { SelectList } from './select-list';
 import { cloneDeep } from 'lodash';
 
 type TestItem = {
@@ -19,7 +19,7 @@ type TestItem = {
 
 describe('SelectList', function () {
   let items: TestItem[];
-  let label: [key: keyof TestItem, label: string | JSX.Element];
+  let label: { displayLabelKey: keyof TestItem; name: string | JSX.Element };
   let onChange: sinon.SinonStub;
 
   beforeEach(function () {
@@ -27,7 +27,7 @@ describe('SelectList', function () {
       { id: 'id1', selected: true, col1: '1x1', col2: '1x2' },
       { id: 'id2', selected: true, col1: '2x1', col2: '2x2' },
     ];
-    label = ['col1', 'Column1'];
+    label = { displayLabelKey: 'col1', name: 'Column1' };
     onChange = sinon.stub();
   });
 
@@ -36,7 +36,7 @@ describe('SelectList', function () {
   });
 
   describe('render', function () {
-    it('allows listing multiple selectable items in a table', function () {
+    it('allows listing multiple selectable items in the list', function () {
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(screen.getByLabelText('1x1')).to.be.visible;
@@ -46,12 +46,11 @@ describe('SelectList', function () {
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
-        screen.getByTestId('select-table-all-checkbox').closest('input')
-          ?.checked
+        screen.getByTestId('select-list-all-checkbox').closest('input')?.checked
       ).to.equal(true);
       expect(
         screen
-          .getByTestId('select-table-all-checkbox')
+          .getByTestId('select-list-all-checkbox')
           .closest('input')
           ?.getAttribute('aria-checked')
       ).to.equal('true');
@@ -69,12 +68,11 @@ describe('SelectList', function () {
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
-        screen.getByTestId('select-table-all-checkbox').closest('input')
-          ?.checked
+        screen.getByTestId('select-list-all-checkbox').closest('input')?.checked
       ).to.equal(false);
       expect(
         screen
-          .getByTestId('select-table-all-checkbox')
+          .getByTestId('select-list-all-checkbox')
           .closest('input')
           ?.getAttribute('aria-checked')
       ).to.equal('false');
@@ -91,12 +89,11 @@ describe('SelectList', function () {
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
       expect(
-        screen.getByTestId('select-table-all-checkbox').closest('input')
-          ?.checked
+        screen.getByTestId('select-list-all-checkbox').closest('input')?.checked
       ).to.equal(false);
       expect(
         screen
-          .getByTestId('select-table-all-checkbox')
+          .getByTestId('select-list-all-checkbox')
           .closest('input')
           ?.getAttribute('aria-checked')
       ).to.equal('mixed');
@@ -134,7 +131,7 @@ describe('SelectList', function () {
       items[1].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-table-all-checkbox'));
+      fireEvent.click(screen.getByTestId('select-list-all-checkbox'));
       expect(onChange).to.have.been.calledWith(originalItems);
     });
 
@@ -144,7 +141,7 @@ describe('SelectList', function () {
       items[1].selected = false;
       render(<SelectList items={items} label={label} onChange={onChange} />);
 
-      fireEvent.click(screen.getByTestId('select-table-all-checkbox'));
+      fireEvent.click(screen.getByTestId('select-list-all-checkbox'));
       expect(onChange).to.have.been.calledWith(expectedItems);
     });
   });

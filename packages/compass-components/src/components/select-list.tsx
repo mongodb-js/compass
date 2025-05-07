@@ -36,7 +36,11 @@ type SelectItem = {
 
 type SelectListProps<T extends SelectItem> = {
   items: T[];
-  label: readonly [key: string & keyof T, label: string | JSX.Element];
+  label: { 
+		displayLabelKey: string & keyof T;
+		ariaLabelKey: string & keyof T;
+		name: string | JSX.Element
+	};
   onChange: (newList: T[]) => void;
   disabled?: boolean;
   className?: string;
@@ -88,7 +92,7 @@ export function SelectList<T extends SelectItem>(
           indeterminate={!selectAll && !selectNone}
           disabled={disabled}
         />
-        <div className={css({ lineHeight: '16px' })}>{label[1]}</div>
+        <div className={css({ lineHeight: '16px' })}>{label.name}</div>
       </div>
       <div className={listBodyStyles}>
         {items.map((item, index) => (
@@ -102,9 +106,9 @@ export function SelectList<T extends SelectItem>(
               key={`select-${item.id}`}
               name={`select-${item.id}`}
               data-testid={`select-${item.id}`}
-              label={item[label[0]]}
-              aria-labelledby="select-table-item-label" // I don't know why LG requires this, it seems ignored
-              onChange={handleSelectItemChange}
+              label={item[label.displayLabelKey]}
+              aria-label={item[label.ariaLabelKey ?? label.displayLabelKey] as string}
+							onChange={handleSelectItemChange}
               checked={item.selected}
               disabled={disabled}
             />

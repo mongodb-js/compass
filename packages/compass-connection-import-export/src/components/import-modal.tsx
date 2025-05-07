@@ -26,7 +26,11 @@ const existingFavoriteBadgeStyles = css({
   marginLeft: spacing[200],
 });
 
-const SelectListLabel = ['displayName', 'Connection Name'] as const;
+const SelectListLabel = {
+  displayLabelKey: 'displayName',
+  ariaLabelKey: 'name',
+  name: 'Connection Name',
+} as const;
 
 export function ImportConnectionsModal({
   open,

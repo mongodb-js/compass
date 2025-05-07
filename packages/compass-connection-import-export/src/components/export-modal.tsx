@@ -21,7 +21,10 @@ const tableStyles = css({
   overflow: 'auto',
 });
 
-const SelectListLabel = ['name', 'Connection Name'] as const;
+const SelectListLabel = {
+  displayLabelKey: 'name',
+  name: 'Connection Name',
+} as const;
 
 export function ExportConnectionsModal({
   open,

@@ -210,4 +210,4 @@ export {
   type VirtualListProps,
   type ItemRenderer as VirtualListItemRenderer,
 } from './components/virtual-list';
-export { SelectList } from './components/select-table';
+export { SelectList } from './components/select-list';

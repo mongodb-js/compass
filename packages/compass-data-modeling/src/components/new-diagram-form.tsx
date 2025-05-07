@@ -275,8 +275,8 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
                   selected: selectedCollections.includes(collName),
                 };
               })}
-              label={['id', 'Collection Name']}
-              onChange={(items) => {
+              label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+              onChange={(items: { id: string; selected: boolean }[]) => {
                 const selectedItems = items
                   .filter((item) => {
                     return item.selected;
