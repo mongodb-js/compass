@@ -212,3 +212,4 @@ export {
 } from './components/virtual-list';
 export { SelectTable } from './components/select-table';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
+export { InsightsChip } from './components/insights-chip';
