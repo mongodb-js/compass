@@ -85,6 +85,7 @@ export const analyzeSchema = async (
       ns,
       error: err.message,
       aborted: abortSignal.aborted,
+      ...(abortSignal.aborted ? { abortReason: abortSignal.reason } : {}),
     });
 
     if (abortSignal.aborted) {
