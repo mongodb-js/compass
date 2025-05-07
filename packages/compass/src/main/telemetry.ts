@@ -147,7 +147,7 @@ class CompassTelemetry {
       isNodeMachineId: false,
       onError: (err) =>
         log.error(
-          mongoLogId(1_001_000_348),
+          mongoLogId(1_001_000_352),
           'Telemetry',
           'Failed to get device ID',
           { err: err.message }
