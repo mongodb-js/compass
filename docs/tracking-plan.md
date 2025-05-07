@@ -230,8 +230,6 @@ Traits sent along with the Segment identify call
 - **arch** (required): `string`
   - The architecture of the system's processor, derived from Node.js `os.arch()`.
     'x64' for 64-bit processors and 'arm' for ARM processors.
-- **device_id** (required): `string`
-  - A unique identifier for the device running Compass. Set to `"unknown"` if not available.
 - **os_type** (optional): `string | undefined`
   - The type of operating system, including specific operating system
     names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
