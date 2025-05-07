@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
@@ -31,11 +31,25 @@ import {
   Select,
   SelectTable,
   spacing,
+  SpinLoader,
+  Body,
   TextInput,
+  SearchInput,
 } from '@mongodb-js/compass-components';
 
 const footerStyles = css({
-  gap: spacing[200],
+  flexDirection: 'row',
+  alignItems: 'center',
+});
+
+const footerTextStyles = css({ marginRight: 'auto' });
+
+const footerActionsStyles = css({ display: 'flex', gap: spacing[200] });
+
+const formContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
 });
 
 const FormStepContainer: React.FunctionComponent<{
@@ -47,6 +61,7 @@ const FormStepContainer: React.FunctionComponent<{
   isNextDisabled: boolean;
   nextLabel: string;
   previousLabel: string;
+  footerText?: React.ReactNode;
 }> = ({
   title,
   description,
@@ -57,30 +72,102 @@ const FormStepContainer: React.FunctionComponent<{
   nextLabel,
   previousLabel,
   children,
+  footerText,
 }) => {
   return (
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
       <ModalBody>{children}</ModalBody>
       <ModalFooter className={footerStyles}>
-        <Button
-          onClick={onNextClick}
-          disabled={isNextDisabled}
-          isLoading={isLoading}
-          data-testid="new-diagram-confirm-button"
-          variant="primary"
-        >
-          {nextLabel}
-        </Button>
-        <Button onClick={onPreviousClick}>{previousLabel}</Button>
+        <Body className={footerTextStyles}>{footerText}</Body>
+        <div className={footerActionsStyles}>
+          <Button onClick={onPreviousClick}>{previousLabel}</Button>
+          <Button
+            onClick={onNextClick}
+            disabled={isNextDisabled}
+            isLoading={isLoading}
+            data-testid="new-diagram-confirm-button"
+            variant="primary"
+            loadingIndicator={<SpinLoader />}
+          >
+            {nextLabel}
+          </Button>
+        </div>
       </ModalFooter>
     </>
   );
 };
 
 const selectTableStyles = css({
-  maxHeight: 300,
+  height: 300,
+  overflow: 'scroll',
 });
+
+function SelectCollectionsStep({
+  collections,
+  selectedCollections,
+  onCollectionsSelect,
+}: {
+  collections: string[];
+  selectedCollections: string[];
+  onCollectionsSelect: (colls: string[]) => void;
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const filteredCollections = useMemo(() => {
+    try {
+      const regex = new RegExp(searchTerm, 'i');
+      return collections.filter((x) => regex.test(x));
+    } catch {
+      return collections;
+    }
+  }, [collections, searchTerm]);
+  return (
+    <FormFieldContainer className={formContainerStyles}>
+      <SearchInput
+        aria-label="Search collections"
+        value={searchTerm}
+        data-testid="new-diagram-search-collections"
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+        }}
+      />
+      <SelectTable
+        className={selectTableStyles}
+        items={filteredCollections.map((collName) => {
+          return {
+            id: collName,
+            selected: selectedCollections.includes(collName),
+            'data-testid': `new-diagram-collection-checkbox-${collName}`,
+          };
+        })}
+        columns={[['id', 'Collection Name']]}
+        onChange={(items) => {
+          // When a user is searching, less collections are shown to the user
+          // and we need to keep existing selected collections selected.
+          const currentSelectedItems = selectedCollections.filter(
+            (collName) => {
+              const item = items.find((x) => x.id === collName);
+              // The already selected item was not shown to the user (using search),
+              // and we have to keep it selected.
+              return item ? item.selected : true;
+            }
+          );
+
+          const newSelectedItems = items
+            .filter((item) => {
+              return item.selected;
+            })
+            .map((item) => {
+              return item.id;
+            });
+          onCollectionsSelect(
+            Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
+          );
+        }}
+      ></SelectTable>
+    </FormFieldContainer>
+  );
+}
 
 type NewDiagramFormProps = {
   isModalOpen: boolean;
@@ -145,6 +232,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     isConfirmDisabled,
     onCancelAction,
     cancelLabel,
+    footerText,
   } = useMemo(() => {
     switch (currentStep) {
       case 'enter-name':
@@ -177,14 +265,23 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-collections':
         return {
           title: `Select collections for ${selectedDatabase ?? ''}`,
-          description:
-            'These collections will be included to the generated diagram',
+          description: `${
+            collections.length === 1 ? 'This collection' : 'These collections'
+          } will be included in your generated diagram.`,
           onConfirmAction: onCollectionsSelectionConfirm,
           confirmActionLabel: 'Generate',
           isConfirmDisabled:
             !selectedCollections || selectedCollections.length === 0,
           onCancelAction: onDatabaseSelectCancel,
           cancelLabel: 'Back',
+          footerText: (
+            <>
+              <strong>{selectedCollections.length}</strong>/
+              <strong>{collections.length}</strong> total{' '}
+              {collections.length === 1 ? 'collection' : 'collections'}{' '}
+              selected.
+            </>
+          ),
         };
     }
   }, [
@@ -201,6 +298,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     selectedCollections,
     selectedConnectionId,
     selectedDatabase,
+    collections,
   ]);
 
   const formContent = useMemo(() => {
@@ -220,7 +318,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
       case 'select-connection':
         return (
-          <FormFieldContainer>
+          <FormFieldContainer className={formContainerStyles}>
             <Select
               label=""
               aria-label="Select connection"
@@ -266,29 +364,11 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
       case 'select-collections':
         return (
-          <FormFieldContainer>
-            <SelectTable
-              className={selectTableStyles}
-              items={collections.map((collName) => {
-                return {
-                  id: collName,
-                  selected: selectedCollections.includes(collName),
-                  'data-testid': `new-diagram-collection-checkbox-${collName}`,
-                };
-              })}
-              columns={[['id', 'Collection Name']]}
-              onChange={(items) => {
-                const selectedItems = items
-                  .filter((item) => {
-                    return item.selected;
-                  })
-                  .map((item) => {
-                    return item.id;
-                  });
-                onCollectionsSelect(selectedItems);
-              }}
-            ></SelectTable>
-          </FormFieldContainer>
+          <SelectCollectionsStep
+            collections={collections}
+            onCollectionsSelect={onCollectionsSelect}
+            selectedCollections={selectedCollections}
+          />
         );
     }
   }, [
@@ -325,6 +405,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         previousLabel={cancelLabel}
         isNextDisabled={isConfirmDisabled}
         isLoading={isLoading}
+        footerText={footerText}
       >
         {formContent}
         {error && <ErrorSummary errors={[error.message]} />}
