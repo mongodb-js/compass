@@ -303,7 +303,7 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCreateRegularIndexClick: createIndexOpened,
+  onCreateRegularIndexClick: () => createIndexOpened(),
   onCreateSearchIndexClick: createSearchIndexOpened,
   onIndexViewChanged: indexViewChanged,
 };

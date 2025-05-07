@@ -20,6 +20,7 @@ import type {
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
+import type { Document } from 'bson';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -83,6 +84,7 @@ const QueryFlowSection = ({
   onSuggestedIndexButtonClick,
   indexSuggestions,
   fetchingSuggestionsState,
+  initialQuery,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -95,8 +97,11 @@ const QueryFlowSection = ({
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
+  initialQuery?: Document;
 }) => {
-  const [inputQuery, setInputQuery] = React.useState('');
+  const [inputQuery, setInputQuery] = React.useState(
+    JSON.stringify(initialQuery?.filter ?? {}, null, 2)
+  );
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
