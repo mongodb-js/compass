@@ -211,3 +211,4 @@ export {
   type ItemRenderer as VirtualListItemRenderer,
 } from './components/virtual-list';
 export { SelectTable } from './components/select-table';
+export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';

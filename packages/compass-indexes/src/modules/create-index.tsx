@@ -1,3 +1,4 @@
+import type { Document } from 'mongodb';
 import { EJSON, ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
@@ -8,6 +9,8 @@ import { isAction } from '../utils/is-action';
 import type { IndexesThunkAction } from '.';
 import type { RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
+import * as mql from 'mongodb-mql-engines';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -27,6 +30,9 @@ export enum ActionTypes {
   CreateIndexFormSubmitted = 'compass-indexes/create-index/create-index-form-submitted',
 
   TabUpdated = 'compass-indexes/create-index/tab-updated',
+
+  SuggestedIndexesRequested = 'compass-indexes/create-index/suggested-indexes-requested',
+  SuggestedIndexesFetched = 'compass-indexes/create-index/suggested-indexes-fetched',
 }
 
 // fields
@@ -274,7 +280,7 @@ const INITIAL_OPTIONS_STATE = Object.fromEntries(
   })
 ) as Options;
 
-// other
+export type IndexSuggestionState = 'initial' | 'fetching' | 'success' | 'error';
 
 export type State = {
   // A unique id assigned to the create index modal on open, will be used when
@@ -296,6 +302,18 @@ export type State = {
 
   // current tab that user is on (Query Flow or Index Flow)
   currentTab: Tab;
+
+  // state of the index suggestions
+  fetchingSuggestionsState: IndexSuggestionState;
+
+  // error specific to fetching index suggestions
+  fetchingSuggestionsError: string | null;
+
+  // index suggestions in a format such as {fieldName: 1}
+  indexSuggestions: Record<string, number> | null;
+
+  // sample documents used for getting index suggestions
+  sampleDocs: Array<Document> | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -305,6 +323,10 @@ export const INITIAL_STATE: State = {
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
+  fetchingSuggestionsState: 'initial',
+  fetchingSuggestionsError: null,
+  indexSuggestions: null,
+  sampleDocs: null,
 };
 
 function getInitialState(): State {
@@ -335,6 +357,106 @@ export const errorCleared = (): ErrorClearedAction => ({
 
 export type CreateIndexSpec = {
   [key: string]: string | number;
+};
+
+type SuggestedIndexesRequestedAction = {
+  type: ActionTypes.SuggestedIndexesRequested;
+};
+
+export type SuggestedIndexFetchedAction = {
+  type: ActionTypes.SuggestedIndexesFetched;
+  sampleDocs: Array<Document>;
+  indexSuggestions: { [key: string]: number } | null;
+  fetchingSuggestionsError: string | null;
+  indexSuggestionsState: IndexSuggestionState;
+};
+
+export type SuggestedIndexFetchedProps = {
+  dbName: string;
+  collectionName: string;
+  inputQuery: string;
+};
+
+export const fetchIndexSuggestions = ({
+  dbName,
+  collectionName,
+  inputQuery,
+}: {
+  dbName: string;
+  collectionName: string;
+  inputQuery: string;
+}): IndexesThunkAction<
+  Promise<void>,
+  SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
+> => {
+  return async (dispatch, getState, { dataService }) => {
+    dispatch({
+      type: ActionTypes.SuggestedIndexesRequested,
+    });
+    const namespace = `${dbName}.${collectionName}`;
+
+    // Get sample documents from state if it's already there, otherwise fetch it
+    let sampleDocuments: Array<Document> | null =
+      getState().createIndex.sampleDocs || null;
+
+    // If it's null, that means it has not been fetched before
+    if (sampleDocuments === null) {
+      try {
+        sampleDocuments =
+          (await dataService.sample(namespace, { size: 50 })) || [];
+      } catch (e) {
+        // Swallow the error because mql package still will work fine with empty sampleDocuments
+        sampleDocuments = [];
+      }
+    }
+
+    // Analyze namespace and fetch suggestions
+    try {
+      const analyzedNamespace = mql.analyzeNamespace(
+        { database: dbName, collection: collectionName },
+        sampleDocuments
+      );
+
+      const query = mql.parseQuery(
+        _parseShellBSON(inputQuery, { mode: ParseMode.Loose }),
+        analyzedNamespace
+      );
+      const results = await mql.suggestIndex([query]);
+      const indexSuggestions = results?.index || null;
+
+      // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
+      if (!indexSuggestions) {
+        dispatch({
+          type: ActionTypes.SuggestedIndexesFetched,
+          sampleDocs: sampleDocuments,
+          indexSuggestions,
+          fetchingSuggestionsError:
+            'No suggested index found. Please choose "Start with an Index" at the top to continue.',
+          indexSuggestionsState: 'error',
+        });
+        return;
+      }
+
+      dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: sampleDocuments,
+        indexSuggestions,
+        fetchingSuggestionsError: null,
+        indexSuggestionsState: 'success',
+      });
+    } catch (e: unknown) {
+      dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: sampleDocuments,
+        indexSuggestions: null,
+        fetchingSuggestionsError:
+          e instanceof Error
+            ? 'Error parsing query. Please follow query structure. ' + e.message
+            : 'Error parsing query. Please follow query structure.',
+        indexSuggestionsState: 'error',
+      });
+    }
+  };
 };
 
 function isEmptyValue(value: unknown) {
@@ -626,6 +748,35 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       currentTab: action.currentTab,
+    };
+  }
+
+  if (
+    isAction<SuggestedIndexesRequestedAction>(
+      action,
+      ActionTypes.SuggestedIndexesRequested
+    )
+  ) {
+    return {
+      ...state,
+      fetchingSuggestionsState: 'fetching',
+      fetchingSuggestionsError: null,
+      indexSuggestions: null,
+    };
+  }
+
+  if (
+    isAction<SuggestedIndexFetchedAction>(
+      action,
+      ActionTypes.SuggestedIndexesFetched
+    )
+  ) {
+    return {
+      ...state,
+      fetchingSuggestionsState: action.indexSuggestionsState,
+      fetchingSuggestionsError: action.fetchingSuggestionsError,
+      indexSuggestions: action.indexSuggestions,
+      sampleDocs: action.sampleDocs,
     };
   }
 
