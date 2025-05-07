@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   init,
@@ -59,8 +62,7 @@ describe('Bulk Update', () => {
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Update Opened');
 
-    expect(openedEvent.connection_id).to.exist;
-    delete openedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(openedEvent);
 
     expect(openedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
@@ -125,8 +127,7 @@ describe('Bulk Update', () => {
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Update Executed');
 
-    expect(executedEvent.connection_id).to.exist;
-    delete executedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(executedEvent);
 
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
@@ -173,8 +174,7 @@ describe('Bulk Update', () => {
     // Check the telemetry
     const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
 
-    expect(favoritedEvent.connection_id).to.exist;
-    delete favoritedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(favoritedEvent);
 
     expect(favoritedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,

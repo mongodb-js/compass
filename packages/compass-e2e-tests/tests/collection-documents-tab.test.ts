@@ -1,7 +1,10 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   init,
@@ -168,8 +171,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -208,8 +210,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
