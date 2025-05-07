@@ -212,7 +212,7 @@ export const OPTIONS = {
         Building indexes in a rolling fashion can minimize the performance
         impact of index builds. We only recommend using rolling index builds
         when regular index builds do not meet your needs.{' '}
-        <Link href="https://www.mongodb.com/docs/manual/core/index-creation/">
+        <Link href="https://www.mongodb.com/docs/manual/core/rolling-index-builds/">
           Learn More
         </Link>
       </>
