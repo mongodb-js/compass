@@ -36,11 +36,11 @@ type SelectItem = {
 
 type SelectListProps<T extends SelectItem> = {
   items: T[];
-  label: { 
-		displayLabelKey: string & keyof T;
-		ariaLabelKey: string & keyof T;
-		name: string | JSX.Element
-	};
+  label: {
+    displayLabelKey: string & keyof T;
+    ariaLabelKey?: string & keyof T;
+    name: string | JSX.Element;
+  };
   onChange: (newList: T[]) => void;
   disabled?: boolean;
   className?: string;
@@ -107,8 +107,10 @@ export function SelectList<T extends SelectItem>(
               name={`select-${item.id}`}
               data-testid={`select-${item.id}`}
               label={item[label.displayLabelKey]}
-              aria-label={item[label.ariaLabelKey ?? label.displayLabelKey] as string}
-							onChange={handleSelectItemChange}
+              aria-label={
+                item[label.ariaLabelKey ?? label.displayLabelKey] as string
+              }
+              onChange={handleSelectItemChange}
               checked={item.selected}
               disabled={disabled}
             />
