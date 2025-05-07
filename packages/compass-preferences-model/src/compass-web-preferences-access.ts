@@ -6,8 +6,12 @@ import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 
 const editablePreferences: (keyof UserPreferences)[] = [
+  // Value can change from false to true during allocation / checking
   'optInDataExplorerGenAIFeatures',
   'cloudFeatureRolloutAccess',
+  // TODO(COMPASS-9353): Provide a standard for updating Compass preferences in web
+  'enableIndexesGuidanceExp',
+  'showIndexesGuidanceVariant',
 
   // Exposed for testing purposes.
   'enableGenAISampleDocumentPassingOnAtlasProject',
@@ -27,9 +31,9 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   savePreferences(_attributes: Partial<UserPreferences>) {
     // Only allow runtime updating certain preferences.
     if (
-      Object.keys(_attributes).length === 1 &&
-      editablePreferences.includes(
-        Object.keys(_attributes)[0] as keyof UserPreferences
+      Object.keys(_attributes).length >= 1 &&
+      Object.keys(_attributes).every((attribute) =>
+        editablePreferences.includes(attribute as keyof UserPreferences)
       )
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
