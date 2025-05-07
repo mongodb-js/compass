@@ -50,7 +50,7 @@ export type CreateIndexFormProps = {
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
   onTabClick: (tab: Tab) => void;
   showIndexesGuidanceVariant?: boolean;
-  query?: Document;
+  query: Document | null;
 };
 
 function CreateIndexForm({

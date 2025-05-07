@@ -36,7 +36,7 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   namespace: string;
   error: string | null;
   currentTab: Tab;
-  query?: Document;
+  query: Document | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
