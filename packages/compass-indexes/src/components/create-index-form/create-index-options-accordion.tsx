@@ -1,19 +1,11 @@
 import {
   Body,
   css,
-  cx,
   Icon,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
-
-const buttonLightThemeStyles = css({
-  color: palette.gray.dark2,
-});
-const buttonDarkThemeStyles = css({
-  color: palette.white,
-});
 
 const buttonStyles = css({
   fontWeight: 'bold',
@@ -29,16 +21,8 @@ const buttonStyles = css({
   },
 });
 
-const buttonIconContainerStyles = css({
+const iconStyles = css({
   marginLeft: '4px',
-});
-
-const iconDarkThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const iconLightThemeStyles = css({
-  color: palette.gray.dark1,
 });
 
 const CreateIndexOptionsAccordion = ({
@@ -56,10 +40,7 @@ const CreateIndexOptionsAccordion = ({
   return (
     <>
       <button
-        className={cx(
-          darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
-          buttonStyles
-        )}
+        className={buttonStyles}
         type="button"
         aria-expanded={open ? 'true' : 'false'}
         onClick={onOpenChange}
@@ -68,11 +49,10 @@ const CreateIndexOptionsAccordion = ({
           Options
         </Body>
         <Icon
-          className={
-            (cx(darkMode ? iconDarkThemeStyles : iconLightThemeStyles),
-            buttonIconContainerStyles)
-          }
+          color={darkMode ? palette.gray.base : palette.gray.dark1}
+          className={iconStyles}
           glyph={open ? 'ChevronDown' : 'ChevronRight'}
+          data-testid="create-index-options-accordion-icon"
         />
       </button>
 
