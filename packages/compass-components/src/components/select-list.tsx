@@ -85,7 +85,7 @@ export function SelectList<T extends SelectItem>(
       <div className={listHeaderStyles}>
         <Checkbox
           className={cx(checkboxStyles, css({ paddingRight: 0 }))}
-          data-testid="select-table-all-checkbox"
+          data-testid="select-list-all-checkbox"
           aria-label="Select all"
           onChange={handleSelectAllChange}
           checked={selectAll}
@@ -98,8 +98,8 @@ export function SelectList<T extends SelectItem>(
         {items.map((item, index) => (
           <div
             className={cx(listItemStyles, index % 2 === 0 && evenRowStyles)}
-            key={`select-table-item-${item.id}`}
-            data-testid={`select-table-item-${item.id}`}
+            key={`select-list-item-${item.id}`}
+            data-testid={`select-list-item-${item.id}`}
           >
             <Checkbox
               className={checkboxStyles}
