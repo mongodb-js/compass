@@ -6,17 +6,17 @@ import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 
 const editablePreferences: (keyof UserPreferences)[] = [
+  // Value can change from false to true during allocation / checking
   'optInDataExplorerGenAIFeatures',
   'cloudFeatureRolloutAccess',
+  // TODO(COMPASS-9353): Provide a standard for updating Compass preferences in web
+  'enableIndexesGuidanceExp',
+  'showIndexesGuidanceVariant',
 
   // Exposed for testing purposes.
   'enableGenAISampleDocumentPassingOnAtlasProject',
   'enableGenAIFeaturesAtlasOrg',
   'enableGenAIFeaturesAtlasProject',
-
-  // Value can change from false to true during allocation / checking
-  'enableIndexesGuidanceExp',
-  'showIndexesGuidanceVariant',
 ];
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {

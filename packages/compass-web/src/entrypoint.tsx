@@ -295,6 +295,8 @@ const CompassWeb = ({
   });
 
   useEffect(() => {
+    // TODO(COMPASS-9353): Provide a standard way of updating Compass' preferences from web.
+    // Avoid duplicating this pattern until we address this ticket.
     const updateEarlyIndexesPreferences = async () => {
       await preferencesAccess.current.savePreferences({
         enableIndexesGuidanceExp: initialPreferences?.enableIndexesGuidanceExp,
