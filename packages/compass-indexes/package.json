@@ -81,7 +81,7 @@
     "compass-preferences-model": "^2.36.0",
     "hadron-app-registry": "^9.4.8",
     "lodash": "^4.17.21",
-    "mongodb": "^6.14.1",
+    "mongodb": "^6.16.0",
     "mongodb-collection-model": "^5.26.0",
     "mongodb-data-service": "^22.25.8",
     "mongodb-query-parser": "^4.3.0",
