@@ -14,6 +14,9 @@ const containerStyles = css({
   flexDirection: 'column',
 });
 
+const evenRowStylesDark = css({ backgroundColor: palette.gray.dark3 });
+const evenRowStylesLight = css({ backgroundColor: palette.gray.light3 });
+
 const listHeaderStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -28,6 +31,8 @@ const listBodyStyles = css({
 const listItemStyles = css({
   padding: `${spacing[100]}px 0px`,
 });
+
+const selectAllLabelStyles = css({ lineHeight: '16px' });
 
 type SelectItem = {
   id: string;
@@ -52,9 +57,7 @@ export function SelectList<T extends SelectItem>(
   const { items, label, disabled, onChange } = props;
 
   const isDarkMode = useDarkMode();
-  const evenRowStyles = isDarkMode
-    ? css({ backgroundColor: palette.gray.dark3 })
-    : css({ backgroundColor: palette.gray.light3 });
+  const evenRowStyles = isDarkMode ? evenRowStylesDark : evenRowStylesLight;
 
   const selectAll = items.every((item) => item.selected);
   const selectNone = items.every((item) => !item.selected);
@@ -92,7 +95,7 @@ export function SelectList<T extends SelectItem>(
           indeterminate={!selectAll && !selectNone}
           disabled={disabled}
         />
-        <div className={css({ lineHeight: '16px' })}>{label.name}</div>
+        <div className={selectAllLabelStyles}>{label.name}</div>
       </div>
       <div className={listBodyStyles}>
         {items.map((item, index) => (
