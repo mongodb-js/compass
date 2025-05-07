@@ -16,7 +16,7 @@ let latestEndOfLifeServerVersion: Promise<string> | null = null;
 export async function getLatestEndOfLifeServerVersion(): Promise<string> {
   if (!HADRON_AUTO_UPDATE_ENDPOINT) {
     log.debug(
-      mongoLogId(1_001_000_350),
+      mongoLogId(1_001_000_352),
       'getLatestEndOfLifeServerVersion',
       'HADRON_AUTO_UPDATE_ENDPOINT is not set'
     );
@@ -26,7 +26,7 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
   if (!latestEndOfLifeServerVersion) {
     // Setting module scoped variable to avoid repeated fetches.
     log.debug(
-      mongoLogId(1_001_000_348),
+      mongoLogId(1_001_000_353),
       'getLatestEndOfLifeServerVersion',
       'Fetching EOL server version'
     );
@@ -37,7 +37,7 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
         if (response.ok) {
           const result = await response.text();
           log.debug(
-            mongoLogId(1_001_000_349),
+            mongoLogId(1_001_000_354),
             'getLatestEndOfLifeServerVersion',
             'Got EOL server version response',
             { result }
@@ -53,7 +53,7 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
       })
       .catch((error) => {
         log.error(
-          mongoLogId(1_001_000_351),
+          mongoLogId(1_001_000_355),
           'getLatestEndOfLifeServerVersion',
           'Failed to fetch EOL server version',
           { error }
