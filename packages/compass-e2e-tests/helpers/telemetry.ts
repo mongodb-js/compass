@@ -113,7 +113,8 @@ export async function startTelemetryServer(): Promise<Telemetry> {
 
 export function deleteCommonVariedProperties(entry: unknown): void {
   expect(entry).to.have.property('connection_id');
-  expect(entry).to.have.property('device_id');
   delete (entry as { connection_id: unknown }).connection_id;
+
+  // Device ID is not set in all track events so we delete without asserting.
   delete (entry as { device_id: unknown }).device_id;
 }
