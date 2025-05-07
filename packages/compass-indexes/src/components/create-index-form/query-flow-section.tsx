@@ -1,6 +1,7 @@
 import {
   Button,
   palette,
+  InsightsChip,
   Body,
   cx,
   useFocusRing,
@@ -76,6 +77,12 @@ const indexSuggestionsLoaderStyles = css({
   borderRadius: editorContainerRadius,
 });
 
+const insightStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+});
+
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
@@ -132,6 +139,14 @@ const QueryFlowSection = ({
 
   return (
     <>
+      {initialQuery && (
+        <div className={insightStyles}>
+          <InsightsChip />
+          <p>
+            We prefilled the query input below based on your recently run query
+          </p>
+        </div>
+      )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
         Input Query
       </Body>
