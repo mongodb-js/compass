@@ -5,12 +5,12 @@ import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
 import type { Schema } from 'mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { isInternalFieldPath } from 'hadron-document';
-
-import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
+
+import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
 
 const testDocs = [
   {
@@ -81,13 +81,18 @@ describe('schema-analysis', function () {
 
   describe('#getResult', function () {
     it('returns the schema', async function () {
+      const docs = [
+        { x: 1 },
+        { y: 2, __safeContent__: [bson.Binary.createFromBase64('aaaa')] },
+      ];
       const dataService = {
-        sample: () =>
-          Promise.resolve([
-            { x: 1 },
-            { y: 2, __safeContent__: [bson.Binary.createFromBase64('aaaa')] },
-          ]),
-        isCancelError: () => false,
+        sampleCursor: () =>
+          ({
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+              yield* docs;
+            },
+          } as any),
       };
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -179,10 +184,17 @@ describe('schema-analysis', function () {
 
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {
       const dataService = {
-        sample: () => Promise.resolve([]),
-        isCancelError: () => false,
+        sampleCursor: () =>
+          ({
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+              yield {
+                a: 123,
+              };
+            },
+          } as any),
       };
-      const sampleSpy = sinon.spy(dataService, 'sample');
+      const sampleSpy = sinon.spy(dataService, 'sampleCursor');
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
@@ -199,18 +211,30 @@ describe('schema-analysis', function () {
       expect(sampleSpy).to.have.been.calledWith(
         'db.coll',
         {},
-        { promoteValues: false }
+        { signal: abortSignal, promoteValues: false },
+        { fallbackReadPreference: 'secondaryPreferred' }
       );
     });
 
     it('returns undefined if is cancelled', async function () {
-      const dataService = {
-        sample: () => Promise.reject(new Error('test error')),
-        isCancelError: () => true,
-      };
-
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
+
+      const dataService = {
+        sampleCursor: () =>
+          ({
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+              yield {
+                a: 123,
+              };
+              abortController.abort();
+              yield {
+                a: 345,
+              };
+            },
+          } as any),
+      };
 
       const result = await analyzeSchema(
         dataService,
@@ -228,13 +252,19 @@ describe('schema-analysis', function () {
     it('throws if sample throws', async function () {
       const error: Error & {
         code?: any;
-      } = new Error('should have been thrown');
+      } = new Error('pineapple');
       error.name = 'MongoError';
       error.code = new bson.Int32(1000);
 
       const dataService = {
-        sample: () => Promise.reject(error),
-        isCancelError: () => false,
+        sampleCursor: () =>
+          ({
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+              yield {};
+              throw error;
+            },
+          } as any),
       };
 
       const abortController = new AbortController();
@@ -251,7 +281,7 @@ describe('schema-analysis', function () {
           preferences
         );
       } catch (err: any) {
-        expect(err.message).to.equal('should have been thrown');
+        expect(err.message).to.equal('pineapple');
         expect(err.code).to.equal(1000);
         return;
       }

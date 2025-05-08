@@ -212,6 +212,7 @@ export function NavigationItem({
         <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
+          item={item}
           isActive={isActive}
           isFocused={isFocused}
           isExpanded={!!item.isExpanded}

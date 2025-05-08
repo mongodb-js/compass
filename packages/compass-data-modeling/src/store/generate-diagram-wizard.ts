@@ -23,6 +23,7 @@ export type GenerateDiagramWizardState = {
   databaseCollections: string[] | null;
   selectedCollections: string[] | null;
   automaticallyInferRelations: boolean;
+  error: Error | null;
 };
 
 export enum GenerateDiagramWizardActionTypes {
@@ -42,6 +43,7 @@ export enum GenerateDiagramWizardActionTypes {
 
   SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/SELECT_DATABASE',
   CONFIRM_SELECT_DATABASE = 'data-modeling/generate-diagram-wizard/CONFIRM_SELECT_DATABASE',
+  DATABASES_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/DATABASES_FETCH_FAILED',
   COLLECTIONS_FETCHED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCHED',
   CANCEL_SELECTED_DATABASE = 'data-modeling/generate-diagram-wizard/CANCEL_SELECTED_DATABASE',
   COLLECTIONS_FETCH_FAILED = 'data-modeling/generate-diagram-wizard/COLLECTIONS_FETCH_FAILED',
@@ -104,6 +106,11 @@ export type SelectDatabaseAction = {
   database: string;
 };
 
+export type DatabasesFetchFailedAction = {
+  type: GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED;
+  error: Error;
+};
+
 export type ConfirmSelectDatabaseAction = {
   type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE;
 };
@@ -121,6 +128,7 @@ export type CollectionsFetchedAction = {
 
 export type CollectionsFetchFailedAction = {
   type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED;
+  error: Error;
 };
 
 export type SelectCollectionsAction = {
@@ -147,17 +155,21 @@ export type GenerateDiagramWizardActions =
   | DatabasesFetchedAction
   | SelectDatabaseAction
   | ConfirmSelectDatabaseAction
+  | DatabasesFetchFailedAction
   | CancelSelectedDatabaseAction
   | CollectionsFetchedAction
   | SelectCollectionsAction
   | ToggleInferRelationsAction
-  | ConfirmSelectedCollectionsAction;
+  | ConfirmSelectedCollectionsAction
+  | CollectionsFetchFailedAction
+  | ConnectionFailedAction;
 
 const INITIAL_STATE: GenerateDiagramWizardState = {
   inProgress: false,
   step: 'ENTER_NAME',
   diagramName: '',
   selectedConnectionId: null,
+  error: null,
   connectionDatabases: null,
   selectedDatabase: null,
   databaseCollections: null,
@@ -186,6 +198,7 @@ export const generateDiagramWizardReducer: Reducer<
   if (isAction(action, GenerateDiagramWizardActionTypes.CANCEL_CONFIRM_NAME)) {
     return {
       ...state,
+      error: null,
       step: 'ENTER_NAME',
     };
   }
@@ -193,6 +206,7 @@ export const generateDiagramWizardReducer: Reducer<
     return {
       ...state,
       selectedConnectionId: action.id,
+      error: null,
     };
   }
   if (
@@ -218,6 +232,15 @@ export const generateDiagramWizardReducer: Reducer<
       step: 'SELECT_DATABASE',
       connectionDatabases: action.databases,
       selectedDatabase: null,
+    };
+  }
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED)
+  ) {
+    return {
+      ...state,
+      step: 'SELECT_DATABASE',
+      error: action.error,
     };
   }
   if (isAction(action, GenerateDiagramWizardActionTypes.SELECT_DATABASE)) {
@@ -295,7 +318,16 @@ export const generateDiagramWizardReducer: Reducer<
   ) {
     return {
       ...state,
-      inProgress: false,
+      error: action.error,
+      step: 'SELECT_DATABASE',
+    };
+  }
+  if (
+    isAction(action, GenerateDiagramWizardActionTypes.CONFIRM_SELECT_DATABASE)
+  ) {
+    return {
+      ...state,
+      step: 'LOADING_COLLECTIONS',
     };
   }
   return state;
@@ -326,22 +358,45 @@ export function confirmSelectConnection(): DataModelingThunkAction<
   | ConnectionConnectedAction
   | DatabasesFetchedAction
   | ConnectionFailedAction
+  | DatabasesFetchFailedAction
 > {
   return async (dispatch, getState, services) => {
     dispatch({
       type: GenerateDiagramWizardActionTypes.CONFIRM_SELECT_CONNECTION,
     });
+
+    const { selectedConnectionId } = getState().generateDiagramWizard;
+    if (!selectedConnectionId) {
+      return;
+    }
     try {
-      const { selectedConnectionId } = getState().generateDiagramWizard;
-      if (!selectedConnectionId) {
-        return;
-      }
       const connectionInfo =
         services.connections.getConnectionById(selectedConnectionId)?.info;
       if (!connectionInfo) {
         return;
       }
       await services.connections.connect(connectionInfo);
+      // ConnectionsService.connect does not throw an error if it fails to establish a connection,
+      // so explicitly checking if error is in the connection item and throwing it.
+      const connectionError =
+        services.connections.getConnectionById(selectedConnectionId)?.error;
+      if (connectionError) {
+        throw connectionError;
+      }
+    } catch (err) {
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_348),
+        'DataModeling',
+        'Failed to select connection',
+        { err }
+      );
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
+      });
+      return;
+    }
+
+    try {
       dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_CONNECTED });
       const mongoDBInstance =
         services.instanceManager.getMongoDBInstanceForConnection(
@@ -362,7 +417,16 @@ export function confirmSelectConnection(): DataModelingThunkAction<
           }),
       });
     } catch (err) {
-      dispatch({ type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED });
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_351),
+        'DataModeling',
+        'Failed to list databases',
+        { err }
+      );
+      dispatch({
+        type: GenerateDiagramWizardActionTypes.DATABASES_FETCH_FAILED,
+        error: err as Error,
+      });
     }
   };
 }
@@ -414,8 +478,15 @@ export function confirmSelectDatabase(): DataModelingThunkAction<
           }),
       });
     } catch (err) {
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_349),
+        'DataModeling',
+        'Failed to select database',
+        { err }
+      );
       dispatch({
         type: GenerateDiagramWizardActionTypes.COLLECTIONS_FETCH_FAILED,
+        error: err as Error,
       });
     }
   };

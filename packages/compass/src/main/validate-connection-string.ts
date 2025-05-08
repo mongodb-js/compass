@@ -113,6 +113,7 @@ const allowedAuthMechanismProperties = [
   'AWS_SESSION_TOKEN',
   'ENVIRONMENT',
   'TOKEN_RESOURCE',
+  'AWS_CREDENTIAL_PROVIDER',
 ] as const;
 
 const disallowedAuthMechanismProperties = [

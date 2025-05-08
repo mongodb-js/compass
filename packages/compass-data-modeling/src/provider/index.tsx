@@ -11,7 +11,7 @@ type DataModelStorageServiceState = {
   items: MongoDBDataModelDescription[];
 };
 
-const noopDataModelStorageService: DataModelStorageServiceState &
+export const noopDataModelStorageService: DataModelStorageServiceState &
   DataModelStorage = {
   status: 'INITIAL',
   error: null,

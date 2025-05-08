@@ -1,7 +1,10 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   init,
@@ -168,8 +171,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -179,6 +181,7 @@ describe('Collection documents tab', function () {
       has_projection: false,
       has_skip: false,
       has_sort: false,
+      mode: 'list',
       used_regex: false,
     });
 
@@ -207,8 +210,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -218,6 +220,7 @@ describe('Collection documents tab', function () {
       has_projection: true,
       has_sort: true,
       has_skip: true,
+      mode: 'list',
       used_regex: false,
     });
 
@@ -695,6 +698,7 @@ FindIterable<Document> result = collection.find(filter);`);
       if (serverSatisfies('< 5.0.0')) {
         return this.skip();
       }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',

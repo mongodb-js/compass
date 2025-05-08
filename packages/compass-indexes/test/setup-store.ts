@@ -86,6 +86,10 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   listCollections(databaseName, filter, options) {
     return Promise.resolve([]);
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  sample(namespace: string) {
+    return Promise.resolve([]);
+  },
 };
 
 class FakeInstance extends EventEmitter {

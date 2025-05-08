@@ -1,5 +1,3 @@
-import { applyMiddleware, createStore } from 'redux';
-import thunk from 'redux-thunk';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
@@ -7,24 +5,15 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import DataModelingComponent from './components/data-modeling';
-import reducer from './store/reducer';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { dataModelStorageServiceLocator } from './provider';
+import { activateDataModelingStore } from './store';
 
 const DataModelingPlugin = registerHadronPlugin(
   {
     name: 'DataModeling',
     component: DataModelingComponent,
-    activate(initialProps, services, { cleanup }) {
-      const cancelControllerRef = { current: null };
-      const store = createStore(
-        reducer,
-        applyMiddleware(
-          thunk.withExtraArgument({ ...services, cancelControllerRef })
-        )
-      );
-      return { store, deactivate: cleanup };
-    },
+    activate: activateDataModelingStore,
   },
   {
     preferences: preferencesLocator,
