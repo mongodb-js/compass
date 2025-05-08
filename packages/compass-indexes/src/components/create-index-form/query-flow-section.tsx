@@ -20,6 +20,7 @@ import type {
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
+import { parseFilter } from 'mongodb-query-parser';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -97,6 +98,8 @@ const QueryFlowSection = ({
   fetchingSuggestionsState: IndexSuggestionState;
 }) => {
   const [inputQuery, setInputQuery] = React.useState('');
+  const [hasNewChanges, setHasNewChanges] = React.useState(false);
+
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
@@ -121,9 +124,24 @@ const QueryFlowSection = ({
       collectionName,
       inputQuery: sanitizedInputQuery,
     });
+
+    setHasNewChanges(false);
   }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
 
+  const handleQueryInputChange = useCallback((text: string) => {
+    setInputQuery(text);
+    setHasNewChanges(true);
+  }, []);
+
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
+  let isShowSuggestionsButtonDisabled = !hasNewChanges;
+
+  // Validate query upon typing
+  try {
+    parseFilter(inputQuery);
+  } catch (e) {
+    isShowSuggestionsButtonDisabled = true;
+  }
 
   return (
     <>
@@ -144,7 +162,7 @@ const QueryFlowSection = ({
             copyable={false}
             formattable={false}
             text={inputQuery}
-            onChangeText={(text) => setInputQuery(text)}
+            onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
             className={codeEditorStyles}
@@ -156,6 +174,7 @@ const QueryFlowSection = ({
             onClick={handleSuggestedIndexButtonClick}
             className={suggestedIndexButtonStyles}
             size="small"
+            disabled={isShowSuggestionsButtonDisabled}
           >
             Show suggested index
           </Button>
