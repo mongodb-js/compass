@@ -15,6 +15,7 @@ import {
 import React, { useState, useCallback } from 'react';
 import type { Field } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
+import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -152,16 +153,12 @@ const IndexFlowSection = ({
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
 
-  const areAllFieldsFilledIn = fields.every((field) => {
-    return field.name && field.type;
-  });
-
   const hasUnsupportedQueryTypes = fields.some((field) => {
     return field.type === '2dsphere' || field.type === 'text';
   });
 
   const isCoveredQueriesButtonDisabled =
-    !areAllFieldsFilledIn || hasUnsupportedQueryTypes;
+    !areAllFieldsFilledIn(fields) || hasUnsupportedQueryTypes;
 
   const indexNameTypeMap = fields.reduce<Record<string, string>>(
     (accumulator, currentValue) => {
