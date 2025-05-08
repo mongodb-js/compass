@@ -1,6 +1,5 @@
-import Icon from '@leafygreen-ui/icon';
 import React from 'react';
-import { Chip } from '@leafygreen-ui/chip';
+import { Chip, Icon } from './leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { fontWeights } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
