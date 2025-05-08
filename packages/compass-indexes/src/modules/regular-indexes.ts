@@ -187,7 +187,7 @@ function processError(error: string): string {
   const httpCodePattern = /\b(4\d{2}|5\d{2})\b/; // Matches HTTP codes 400-599 anywhere in the string
 
   if (internalCodePattern.test(error) || httpCodePattern.test(error)) {
-    return 'Sorry, an unexpected error has occurred. Try refreshing the page or reporting the issue if it persists.';
+    return "We're sorry, an unexpected error has occurred. Please try again.";
   }
 
   return error; // Return original error if it doesn't match the patterns
