@@ -1,17 +1,48 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
   Button,
-  Card,
+  css,
   EmptyContent,
   Icon,
-  ItemActionMenu,
+  spacing,
+  useSortControls,
+  useSortedItems,
+  VirtualGrid,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
+import { DiagramListToolbar } from './diagram-list-toolbar';
+
+const sortBy = [
+  {
+    name: 'name',
+    label: 'Name',
+  },
+  // TODO: Currently we do not have lastModified.
+  // {
+  //   name: 'lastModified',
+  //   label: 'Last Modified',
+  // },
+] as const;
+
+const contentStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  width: '100%',
+  height: '100%',
+});
+
+const rowStyles = css({
+  gap: spacing[200],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[200],
+});
 
 const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
@@ -26,6 +57,23 @@ const SavedDiagramsList: React.FunctionComponent<{
 }) => {
   const { items, status } = useDataModelSavedItems();
 
+  const [filteredItems, setFilteredItems] = useState(items);
+  const [sortControls, sortState] = useSortControls(sortBy);
+  const sortedItems = useSortedItems(filteredItems, sortState);
+
+  const onFilterItems = useCallback(
+    (search: string) => {
+      try {
+        const regex = new RegExp(search, 'i');
+        // TODO: Currently only searching for name. Add more fields
+        setFilteredItems(items.filter((x) => regex.test(x.name)));
+      } catch {
+        setFilteredItems(items);
+      }
+    },
+    [items]
+  );
+
   if (status === 'INITIAL' || status === 'LOADING') {
     return null;
   }
@@ -36,38 +84,32 @@ const SavedDiagramsList: React.FunctionComponent<{
 
   if (showList) {
     content = (
-      <div>
-        {items.map((diagram) => {
-          return (
-            <Card
-              style={{ marginTop: 8, display: 'flex' }}
-              key={diagram.id}
-              onClick={() => {
-                onOpenDiagramClick(diagram);
-              }}
-              data-testid="saved-diagram-card"
-              data-diagram-name={diagram.name}
-            >
-              {diagram.name}
-              <ItemActionMenu
-                isVisible
-                actions={[
-                  { action: 'rename', label: 'Rename' },
-                  { action: 'delete', label: 'Delete' },
-                ]}
-                onAction={(action) => {
-                  if (action === 'rename') {
-                    onDiagramRenameClick(diagram.id);
-                  }
-                  if (action === 'delete') {
-                    onDiagramDeleteClick(diagram.id);
-                  }
-                }}
-              ></ItemActionMenu>
-            </Card>
-          );
-        })}
-      </div>
+      <VirtualGrid
+        data-testid="data-modeling-diagrams-list"
+        itemMinWidth={CARD_WIDTH}
+        itemHeight={CARD_HEIGHT + spacing[200]}
+        itemsCount={sortedItems.length}
+        renderItem={({ index }) => (
+          <DiagramCard
+            diagram={sortedItems[index]}
+            onOpen={onOpenDiagramClick}
+            onRename={onDiagramRenameClick}
+            onDelete={onDiagramDeleteClick}
+          />
+        )}
+        itemKey={(index: number) => sortedItems[index].id}
+        renderHeader={() => (
+          <DiagramListToolbar
+            onCreateDiagramClick={onCreateDiagramClick}
+            onFilter={onFilterItems}
+            sortControls={sortControls}
+          />
+        )}
+        headerHeight={spacing[800] + 36}
+        // renderEmptyList={NoSearchResults}
+        classNames={{ row: rowStyles }}
+        resetActiveItemOnBlur={false}
+      ></VirtualGrid>
     );
   } else {
     content = (
@@ -95,26 +137,7 @@ const SavedDiagramsList: React.FunctionComponent<{
     );
   }
 
-  return (
-    <WorkspaceContainer
-      toolbar={() => {
-        return showList ? (
-          <>
-            <Button
-              onClick={onCreateDiagramClick}
-              variant="primary"
-              size="xsmall"
-              data-testid="create-diagram-button"
-            >
-              Create diagram
-            </Button>
-          </>
-        ) : null;
-      }}
-    >
-      {content}
-    </WorkspaceContainer>
-  );
+  return <WorkspaceContainer>{content}</WorkspaceContainer>;
 };
 
 export default connect(null, {
