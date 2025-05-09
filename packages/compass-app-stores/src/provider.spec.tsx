@@ -76,7 +76,10 @@ describe('NamespaceProvider', function () {
     const instance = instanceManager.getMongoDBInstanceForConnection();
     sandbox.stub(instance, 'fetchDatabases').callsFake(() => {
       instance.databases.add({ _id: 'foo' });
-      return Promise.resolve();
+      // Wait a tick before resolving the promise to simulate async behavior
+      return new Promise((resolve) => {
+        setTimeout(resolve);
+      });
     });
 
     await renderWithActiveConnection(

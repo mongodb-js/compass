@@ -2653,7 +2653,8 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'restore_pipeline_modal'
       | 'save_pipeline_modal'
       | 'shell_info_modal'
-      | 'update_search_index_modal';
+      | 'update_search_index_modal'
+      | 'end_of_life_mongodb_modal';
   };
 }>;
 
