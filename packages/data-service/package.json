@@ -75,7 +75,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
-    "kerberos": "^2.2.1",
+    "kerberos": "^2.2.2",
     "mocha": "^10.2.0",
     "mongodb-log-writer": "^2.3.4",
     "nyc": "^15.1.0",
