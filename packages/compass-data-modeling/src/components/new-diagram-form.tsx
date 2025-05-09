@@ -92,7 +92,9 @@ const FormStepContainer: React.FunctionComponent<{
       <ModalFooter className={footerStyles}>
         <Body className={footerTextStyles}>{footerText}</Body>
         <div className={footerActionsStyles}>
-          <Button onClick={onPreviousClick}>{previousLabel}</Button>
+          <Button onClick={onPreviousClick} key={`${step}-previous`}>
+            {previousLabel}
+          </Button>
           <Button
             onClick={onNextClick}
             disabled={isNextDisabled}
@@ -100,6 +102,7 @@ const FormStepContainer: React.FunctionComponent<{
             data-testid="new-diagram-confirm-button"
             variant="primary"
             loadingIndicator={<SpinLoader />}
+            key={`${step}-next`}
           >
             {nextLabel}
           </Button>
@@ -143,7 +146,7 @@ function SelectCollectionsStep({
         }}
       />
       <SelectList
-        className={selectListStyles}
+        className={SelectListStyles}
         items={filteredCollections.map((collName) => {
           return {
             id: collName,
