@@ -106,7 +106,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
 
   if (showList) {
     content = (
-      <div>
+      <div data-testid="saved-diagram-list">
         {items.map((diagram) => {
           return (
             <Card

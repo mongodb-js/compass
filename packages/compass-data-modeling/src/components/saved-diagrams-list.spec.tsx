@@ -1,6 +1,10 @@
 import React from 'react';
 import { expect } from 'chai';
-import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import SavedDiagramsList from './saved-diagrams-list';
 import { renderWithStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
@@ -43,22 +47,25 @@ describe('SavedDiagramsList', function () {
   context('when there are no saved diagrams', function () {
     let store: DataModelingStore;
 
-    beforeEach(function () {
+    beforeEach(async function () {
       const result = renderSavedDiagramsList();
       store = result.store;
+
+      // wait till the empty list is loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('empty-content')).to.be.visible;
+      });
     });
 
     it('shows the empty state', function () {
       expect(
-        screen.getByText(
-          'No saved Design, Visualize, and Evolve your Data Model'
-        )
-      ).to.exist;
+        screen.getByText('Design, Visualize, and Evolve your Data Model')
+      ).to.be.visible;
     });
 
     it('allows to start adding diagrams', function () {
       const createDiagramButton = screen.getByRole('button', {
-        name: 'Generate new diagram',
+        name: 'Generate diagram',
       });
       expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
       expect(createDiagramButton).to.be.visible;
@@ -70,17 +77,22 @@ describe('SavedDiagramsList', function () {
   context('when there are diagrams', function () {
     let store: DataModelingStore;
 
-    beforeEach(function () {
+    beforeEach(async function () {
       const result = renderSavedDiagramsList({
         loadAll: () =>
           Promise.resolve([
             {
               id: 'diagram-1',
               name: 'Diagram 1',
-            },
+            } as MongoDBDataModelDescription,
           ]),
       });
       store = result.store;
+
+      // wait till the list is loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('saved-diagram-list')).to.be.visible;
+      });
     });
 
     it('shows the list of diagrams', function () {
@@ -89,7 +101,7 @@ describe('SavedDiagramsList', function () {
 
     it('allows to add another diagram', function () {
       const createDiagramButton = screen.getByRole('button', {
-        name: 'Generate diagram',
+        name: 'Generate new diagram',
       });
       expect(store.getState().generateDiagramWizard.inProgress).to.be.false;
       expect(createDiagramButton).to.be.visible;
