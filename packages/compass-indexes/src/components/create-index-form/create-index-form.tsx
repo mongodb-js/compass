@@ -170,8 +170,10 @@ function CreateIndexForm({
         />
       )}
 
-      {/* TODO in CLOUDP-314036: update the accordion design */}
-      <Accordion data-testid="create-index-modal-toggle-options" text="Options">
+      <Accordion
+        data-testid="create-index-modal-toggle-options"
+        text={showIndexesGuidanceVariant ? 'Index Options' : 'Options'}
+      >
         <div
           data-testid="create-index-modal-options"
           className={createIndexModalOptionStyles}
