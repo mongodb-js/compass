@@ -273,9 +273,7 @@ const CompassWeb = ({
     onLog,
     onDebug,
   });
-
   const preferencesAccess = useCompassWebPreferences(initialPreferences);
-
   const initialWorkspaceRef = useRef(initialWorkspace);
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
@@ -295,6 +293,23 @@ const CompassWeb = ({
     logger,
     preferences: preferencesAccess.current,
   });
+
+  useEffect(() => {
+    // TODO(COMPASS-9353): Provide a standard way of updating Compass' preferences from web.
+    // Avoid duplicating this pattern until we address this ticket.
+    const updateEarlyIndexesPreferences = async () => {
+      await preferencesAccess.current.savePreferences({
+        enableIndexesGuidanceExp: initialPreferences?.enableIndexesGuidanceExp,
+        showIndexesGuidanceVariant:
+          initialPreferences?.showIndexesGuidanceVariant,
+      });
+    };
+    void updateEarlyIndexesPreferences();
+  }, [
+    initialPreferences?.enableIndexesGuidanceExp,
+    initialPreferences?.showIndexesGuidanceVariant,
+    preferencesAccess,
+  ]);
 
   return (
     <GlobalAppRegistryProvider value={appRegistry.current}>

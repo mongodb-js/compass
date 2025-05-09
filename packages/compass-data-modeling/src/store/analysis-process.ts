@@ -3,6 +3,8 @@ import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { analyzeDocuments } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
+import type { Document } from 'bson';
+import type { AggregationCursor } from 'mongodb';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -155,32 +157,32 @@ export function startAnalysis(
     try {
       const dataService =
         services.connections.getDataServiceForConnection(connectionId);
-      const samples = await Promise.all(
+      const schema = await Promise.all(
         namespaces.map(async (ns) => {
-          // TODO
-          const sample = await dataService.sample(
+          const sample: AggregationCursor<Document> = dataService.sampleCursor(
             ns,
             { size: 100 },
-            undefined,
             {
-              abortSignal: cancelController.signal,
+              signal: cancelController.signal,
+              promoteValues: false,
+            },
+            {
+              fallbackReadPreference: 'secondaryPreferred',
             }
           );
+
+          const accessor = await analyzeDocuments(sample, {
+            signal: cancelController.signal,
+          });
+
+          // TODO(COMPASS-9314): Update how we show analysis progress.
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
             namespace: ns,
           });
-          return { ns, sample };
-        })
-      );
-      const schema = await Promise.all(
-        samples.map(async ({ ns, sample }) => {
-          const schema = await analyzeDocuments(sample, {
+
+          const schema = await accessor.getMongoDBJsonSchema({
             signal: cancelController.signal,
-          }).then((accessor) => {
-            return accessor.getMongoDBJsonSchema({
-              signal: cancelController.signal,
-            });
           });
           dispatch({
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
@@ -209,6 +211,12 @@ export function startAnalysis(
       if (cancelController.signal.aborted) {
         dispatch({ type: AnalysisProcessActionTypes.ANALYSIS_CANCELED });
       } else {
+        services.logger.log.error(
+          services.logger.mongoLogId(1_001_000_350),
+          'DataModeling',
+          'Failed to analyze schema',
+          { err }
+        );
         dispatch({
           type: AnalysisProcessActionTypes.ANALYSIS_FAILED,
           error: err as Error,

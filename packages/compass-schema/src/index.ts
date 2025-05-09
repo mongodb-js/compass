@@ -8,6 +8,7 @@ import {
 import CompassSchema from './components/compass-schema';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activateSchemaPlugin } from './stores/store';
+import type { RequiredDataServiceProps } from './stores/store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
@@ -31,9 +32,8 @@ const CompassSchemaHadronPlugin = registerHadronPlugin(
     activate: activateSchemaPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      'sample' | 'isCancelError'
-    >,
+    dataService:
+      dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
     logger: createLoggerLocator('COMPASS-SCHEMA-UI'),
     track: telemetryLocator,
     preferences: preferencesLocator,

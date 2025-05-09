@@ -124,6 +124,16 @@ export type SidebarActionableItem =
 
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
+export function getConnectionId(item: SidebarTreeItem): string {
+  if (item.type === 'placeholder') {
+    return '';
+  } else if (item.type === 'connection') {
+    return item.connectionInfo.id;
+  } else {
+    return item.connectionId;
+  }
+}
+
 const notConnectedConnectionToItems = ({
   connection: { name, connectionInfo, connectionStatus },
   connectionIndex,

@@ -15,6 +15,7 @@ updates:
       - dependency-name: "@mongosh/*"
       - dependency-name: "@mongodb-js/*"
       - dependency-name: os-dns-native
+      - dependency-name: native-machine-id
       - dependency-name: system-ca
 
       # All the electron and its related deps
@@ -36,6 +37,7 @@ updates:
           - "mongodb-client-encryption"
           - "kerberos"
           - "os-dns-native"
+          - "native-machine-id"
           - "system-ca"
           - "saslprep"
 

@@ -1,7 +1,10 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   init,
@@ -168,8 +171,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -208,8 +210,7 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(queryExecutedEvent);
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -697,6 +698,7 @@ FindIterable<Document> result = collection.find(filter);`);
       if (serverSatisfies('< 5.0.0')) {
         return this.skip();
       }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -716,9 +718,13 @@ FindIterable<Document> result = collection.find(filter);`);
 
       const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
       await errorElement.waitForDisplayed();
-      expect(await errorElement.getText()).to.include(
-        'Document failed validation'
-      );
+
+      await browser.waitUntil(async () => {
+        return (await errorElement.getText()).includes(
+          'Document failed validation'
+        );
+      });
+
       // enter details
       const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
       await errorElement.waitForDisplayed();
@@ -762,9 +768,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(
@@ -808,9 +817,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(
@@ -851,9 +863,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(

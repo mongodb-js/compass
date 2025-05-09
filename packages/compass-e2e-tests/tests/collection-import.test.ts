@@ -14,7 +14,10 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   createDummyCollections,
@@ -570,8 +573,12 @@ describe('Collection import', function () {
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
-      const errorText = await toastElement.getText();
-      expect(errorText).to.include('Document failed validation');
+
+      await browser.waitUntil(async () => {
+        return (await toastElement.getText()).includes(
+          'Document failed validation'
+        );
+      });
 
       // Visit error details
       await browser.clickVisible(Selectors.ImportToastErrorDetailsBtn);
@@ -615,9 +622,14 @@ describe('Collection import', function () {
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
-      const errorText = await toastElement.getText();
-      expect(errorText).to.include('Document failed validation');
-      expect(errorText).to.include('VIEW LOG');
+
+      await browser.waitUntil(async () => {
+        const text = await toastElement.getText();
+        return (
+          text.includes('Document failed validation') &&
+          text.includes('VIEW LOG')
+        );
+      });
 
       // Find the log file
       const logFilePath = path.resolve(
@@ -752,8 +764,7 @@ describe('Collection import', function () {
 
     const importCompletedEvent = await telemetryEntry('Import Completed');
     delete importCompletedEvent.duration; // Duration varies.
-    expect(importCompletedEvent.connection_id).to.exist;
-    delete importCompletedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(importCompletedEvent);
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
       newline: '\n',
