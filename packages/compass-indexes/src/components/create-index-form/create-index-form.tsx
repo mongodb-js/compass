@@ -21,7 +21,6 @@ import { usePreference } from 'compass-preferences-model/provider';
 import IndexFlowSection from './index-flow-section';
 import QueryFlowSection from './query-flow-section';
 import toNS from 'mongodb-ns';
-import CreateIndexOptionsAccordion from './create-index-options-accordion';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -166,52 +165,30 @@ function CreateIndexForm({
           collectionName={collectionName}
         />
       )}
-      {showIndexesGuidanceVariant ? (
-        <CreateIndexOptionsAccordion>
-          <div
-            data-testid="create-index-modal-options"
-            className={createIndexModalOptionStyles}
-          >
-            <CheckboxInput name="unique"></CheckboxInput>
-            <CollapsibleInput name="name"></CollapsibleInput>
-            <CollapsibleInput name="expireAfterSeconds"></CollapsibleInput>
-            <CollapsibleInput name="partialFilterExpression"></CollapsibleInput>
-            <CollapsibleInput name="wildcardProjection"></CollapsibleInput>
-            <CollapsibleInput name="collation"></CollapsibleInput>
-            {hasColumnstoreIndexesSupport(serverVersion) && (
-              <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
-            )}
-            <CheckboxInput name="sparse"></CheckboxInput>
-            {showRollingIndexOption && (
-              <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
-            )}
-          </div>
-        </CreateIndexOptionsAccordion>
-      ) : (
-        <Accordion
-          data-testid="create-index-modal-toggle-options"
-          text="Options"
+
+      <Accordion
+        data-testid="create-index-modal-toggle-options"
+        text={showIndexesGuidanceVariant ? 'Index Options' : 'Options'}
+      >
+        <div
+          data-testid="create-index-modal-options"
+          className={createIndexModalOptionStyles}
         >
-          <div
-            data-testid="create-index-modal-options"
-            className={createIndexModalOptionStyles}
-          >
-            <CheckboxInput name="unique"></CheckboxInput>
-            <CollapsibleInput name="name"></CollapsibleInput>
-            <CollapsibleInput name="expireAfterSeconds"></CollapsibleInput>
-            <CollapsibleInput name="partialFilterExpression"></CollapsibleInput>
-            <CollapsibleInput name="wildcardProjection"></CollapsibleInput>
-            <CollapsibleInput name="collation"></CollapsibleInput>
-            {hasColumnstoreIndexesSupport(serverVersion) && (
-              <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
-            )}
-            <CheckboxInput name="sparse"></CheckboxInput>
-            {showRollingIndexOption && (
-              <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
-            )}
-          </div>
-        </Accordion>
-      )}
+          <CheckboxInput name="unique"></CheckboxInput>
+          <CollapsibleInput name="name"></CollapsibleInput>
+          <CollapsibleInput name="expireAfterSeconds"></CollapsibleInput>
+          <CollapsibleInput name="partialFilterExpression"></CollapsibleInput>
+          <CollapsibleInput name="wildcardProjection"></CollapsibleInput>
+          <CollapsibleInput name="collation"></CollapsibleInput>
+          {hasColumnstoreIndexesSupport(serverVersion) && (
+            <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
+          )}
+          <CheckboxInput name="sparse"></CheckboxInput>
+          {showRollingIndexOption && (
+            <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
+          )}
+        </div>
+      </Accordion>
     </>
   );
 }
