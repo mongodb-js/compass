@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   Button,
   css,
@@ -10,6 +10,7 @@ import {
   Subtitle,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { DiagramListContext } from './saved-diagrams-list';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -41,24 +42,18 @@ const sortControlsStyles = css({
 const toolbarTitleLightStyles = css({ color: palette.gray.dark1 });
 const toolbarTitleDarkStyles = css({ color: palette.gray.light1 });
 
-export function DiagramListToolbar({
-  sortControls,
-  onFilter,
-  onCreateDiagramClick,
-}: {
-  sortControls: React.ReactElement;
-  onFilter: (search: string) => void;
-  onCreateDiagramClick: () => void;
-}) {
+export const DiagramListToolbar = () => {
+  const { onSearchDiagrams, onCreateDiagram, sortControls } =
+    useContext(DiagramListContext);
   const [search, setSearch] = useState('');
   const darkMode = useDarkMode();
 
   const onSearch = useCallback(
     (text: string) => {
       setSearch(text);
-      onFilter(text);
+      onSearchDiagrams(text);
     },
-    [onFilter]
+    [onSearchDiagrams]
   );
 
   return (
@@ -73,7 +68,7 @@ export function DiagramListToolbar({
       </Subtitle>
       <div className={createDiagramContainerStyles}>
         <Button
-          onClick={onCreateDiagramClick}
+          onClick={onCreateDiagram}
           variant="primary"
           size="small"
           data-testid="create-diagram-button"
@@ -91,4 +86,4 @@ export function DiagramListToolbar({
       <div className={sortControlsStyles}>{sortControls}</div>
     </div>
   );
-}
+};

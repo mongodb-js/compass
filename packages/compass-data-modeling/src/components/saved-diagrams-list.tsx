@@ -30,18 +30,26 @@ const sortBy = [
   // },
 ] as const;
 
-const contentStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  width: '100%',
-  height: '100%',
-});
-
+const listContainerStyles = css({ height: '100%' });
 const rowStyles = css({
   gap: spacing[200],
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
   paddingBottom: spacing[200],
+});
+
+export const DiagramListContext = React.createContext<{
+  onSearchDiagrams: (search: string) => void;
+  onCreateDiagram: () => void;
+  sortControls: React.ReactElement | null;
+}>({
+  onSearchDiagrams: () => {
+    /** */
+  },
+  onCreateDiagram: () => {
+    /** */
+  },
+  sortControls: null,
 });
 
 const SavedDiagramsList: React.FunctionComponent<{
@@ -61,7 +69,7 @@ const SavedDiagramsList: React.FunctionComponent<{
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState);
 
-  const onFilterItems = useCallback(
+  const onSearchItems = useCallback(
     (search: string) => {
       try {
         const regex = new RegExp(search, 'i');
@@ -78,66 +86,66 @@ const SavedDiagramsList: React.FunctionComponent<{
     return null;
   }
 
-  const showList = items.length > 0;
-
-  let content;
-
-  if (showList) {
-    content = (
-      <VirtualGrid
-        data-testid="data-modeling-diagrams-list"
-        itemMinWidth={CARD_WIDTH}
-        itemHeight={CARD_HEIGHT + spacing[200]}
-        itemsCount={sortedItems.length}
-        renderItem={({ index }) => (
-          <DiagramCard
-            diagram={sortedItems[index]}
-            onOpen={onOpenDiagramClick}
-            onRename={onDiagramRenameClick}
-            onDelete={onDiagramDeleteClick}
-          />
-        )}
-        itemKey={(index: number) => sortedItems[index].id}
-        renderHeader={() => (
-          <DiagramListToolbar
-            onCreateDiagramClick={onCreateDiagramClick}
-            onFilter={onFilterItems}
-            sortControls={sortControls}
-          />
-        )}
-        headerHeight={spacing[800] + 36}
-        // renderEmptyList={NoSearchResults}
-        classNames={{ row: rowStyles }}
-        resetActiveItemOnBlur={false}
-      ></VirtualGrid>
-    );
-  } else {
-    content = (
-      <EmptyContent
-        icon={() => <Icon size={80} glyph="Diagram"></Icon>}
-        title="Design, Visualize, and Evolve your Data Model"
-        subTitle={
-          <>
-            Your data model is the foundation of application performance. As
-            applications evolve, so must your schema—intelligently and
-            strategically. Minimize complexity, prevent performance bottlenecks,
-            and keep your development agile.
-          </>
-        }
-        callToAction={
-          <Button
-            onClick={onCreateDiagramClick}
-            variant="primary"
-            data-testid="create-diagram-button"
-          >
-            Create diagram
-          </Button>
-        }
-      ></EmptyContent>
+  if (items.length === 0) {
+    return (
+      <WorkspaceContainer>
+        <EmptyContent
+          icon={() => <Icon size={80} glyph="Diagram"></Icon>}
+          title="Design, Visualize, and Evolve your Data Model"
+          subTitle={
+            <>
+              Your data model is the foundation of application performance. As
+              applications evolve, so must your schema—intelligently and
+              strategically. Minimize complexity, prevent performance
+              bottlenecks, and keep your development agile.
+            </>
+          }
+          callToAction={
+            <Button
+              onClick={onCreateDiagramClick}
+              variant="primary"
+              data-testid="create-diagram-button"
+            >
+              Create diagram
+            </Button>
+          }
+        ></EmptyContent>
+      </WorkspaceContainer>
     );
   }
 
-  return <WorkspaceContainer>{content}</WorkspaceContainer>;
+  return (
+    <DiagramListContext.Provider
+      value={{
+        sortControls,
+        onCreateDiagram: onCreateDiagramClick,
+        onSearchDiagrams: onSearchItems,
+      }}
+    >
+      <WorkspaceContainer>
+        <VirtualGrid
+          data-testid="data-modeling-diagrams-list"
+          itemMinWidth={CARD_WIDTH}
+          itemHeight={CARD_HEIGHT + spacing[200]}
+          itemsCount={sortedItems.length}
+          className={listContainerStyles}
+          renderItem={({ index }) => (
+            <DiagramCard
+              diagram={sortedItems[index]}
+              onOpen={onOpenDiagramClick}
+              onRename={onDiagramRenameClick}
+              onDelete={onDiagramDeleteClick}
+            />
+          )}
+          itemKey={(index) => sortedItems[index].id}
+          renderHeader={DiagramListToolbar}
+          headerHeight={spacing[800] * 3 + spacing[200]}
+          classNames={{ row: rowStyles }}
+          resetActiveItemOnBlur={false}
+        ></VirtualGrid>
+      </WorkspaceContainer>
+    </DiagramListContext.Provider>
+  );
 };
 
 export default connect(null, {

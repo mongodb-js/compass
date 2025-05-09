@@ -16,8 +16,6 @@ export const CARD_WIDTH = spacing[1600] * 4;
 export const CARD_HEIGHT = 218;
 
 const diagramCardStyles = css({
-  width: CARD_WIDTH,
-  height: CARD_HEIGHT,
   display: 'flex',
   flexDirection: 'column',
 });
