@@ -42,6 +42,8 @@ describe('IndexesToolbar Component', function () {
           onIndexViewChanged={() => {}}
           onCreateRegularIndexClick={() => {}}
           onCreateSearchIndexClick={() => {}}
+          namespace=""
+          showAtlasSearchLink={false}
           {...props}
         />
       </PreferencesProvider>

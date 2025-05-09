@@ -43,7 +43,11 @@ export function activatePlugin(
       },
     },
     applyMiddleware(
-      thunk.withExtraArgument({ globalAppRegistry, database, dataService })
+      thunk.withExtraArgument({
+        globalAppRegistry,
+        database,
+        dataService,
+      })
     )
   );
 

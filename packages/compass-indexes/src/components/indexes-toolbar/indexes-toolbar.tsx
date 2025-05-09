@@ -9,6 +9,7 @@ import {
   ErrorSummary,
   Tooltip,
   WarningSummary,
+  Link,
   css,
   spacing,
   Icon,
@@ -19,9 +20,11 @@ import {
   SegmentedControl,
   SegmentedControlOption,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
+import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
@@ -46,9 +49,11 @@ const createIndexButtonContainerStyles = css({
 });
 
 type IndexesToolbarProps = {
+  namespace: string;
   indexView: IndexView;
   errorMessage: string | null;
   hasTooManyIndexes: boolean;
+  showAtlasSearchLink: boolean;
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
   onIndexViewChanged: (newView: IndexView) => void;
@@ -64,6 +69,7 @@ type IndexesToolbarProps = {
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
+  namespace,
   indexView,
   errorMessage,
   isReadonlyView,
@@ -73,12 +79,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
+  showAtlasSearchLink,
   isSearchIndexesSupported,
   onRefreshIndexes,
   onIndexViewChanged,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
+  const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
@@ -124,6 +132,18 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             >
               Refresh
             </Button>
+            {showAtlasSearchLink && atlasMetadata && (
+              <Link
+                href={getAtlasSearchIndexesLink({
+                  clusterName: atlasMetadata.clusterName,
+                  namespace,
+                })}
+                hideExternalIcon
+                arrowAppearance="persist"
+              >
+                Manage your search indexes
+              </Link>
+            )}
             {showInsights && hasTooManyIndexes && (
               <SignalPopover
                 signals={PerformanceSignals.get('too-many-indexes')}
@@ -263,6 +283,7 @@ export const CreateIndexButton: React.FunctionComponent<
 };
 
 const mapState = ({
+  namespace,
   isWritable,
   isReadonlyView,
   isSearchIndexesSupported,
@@ -271,6 +292,7 @@ const mapState = ({
   searchIndexes,
   indexView,
 }: RootState) => ({
+  namespace,
   isWritable,
   isReadonlyView,
   isSearchIndexesSupported,

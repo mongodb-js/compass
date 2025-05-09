@@ -180,6 +180,7 @@ export {
   ConfirmationModalVariant,
   ConfirmationModalArea,
   showConfirmation,
+  showPrompt,
 } from './hooks/use-confirmation';
 export { showErrorDetails } from './hooks/use-error-details';
 export {
@@ -209,3 +210,5 @@ export {
   type VirtualListProps,
   type ItemRenderer as VirtualListItemRenderer,
 } from './components/virtual-list';
+export { SelectTable } from './components/select-table';
+export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';

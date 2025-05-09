@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Apr 20, 2025
+Generated on Thu, May 8, 2025
 
 ## Table of Contents
 
@@ -153,6 +153,7 @@ Generated on Sun, Apr 20, 2025
 - [Screen](#event--ScreenEvent)
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
+- [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
 
 ### Performance Tab
 
@@ -1003,7 +1004,7 @@ This event is fired when a database is created.
 
 ### Switch View Type
 
-This event is fired when the user changes the items view type between list and grid.
+This event is fired when the user changes the items view type in the database and collection list between "list" and "grid".
 
 **Properties**:
 
@@ -1147,6 +1148,8 @@ This event is fired when user executes a query
   - The type of the collection on which the query was executed.
 - **used_regex** (required): `boolean`
   - Indicates whether the query used a regular expression.
+- **mode** (required): `"list" | "json" | "table"`
+  - The view used to run the query.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1787,6 +1790,16 @@ a system that doesn't offer a suitable secret storage backend.
 **Properties**:
 
 - **test_name** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexButtonClickedEvent"></a>
+
+### Create Index Button Clicked
+
+**Properties**:
+
+- **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
+- **context** (required): `"Create Index Modal"`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Performance Tab

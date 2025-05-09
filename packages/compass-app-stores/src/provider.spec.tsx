@@ -12,9 +12,19 @@ import {
   cleanup,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 describe('NamespaceProvider', function () {
   const sandbox = Sinon.createSandbox();
+  let preferences: PreferencesAccess;
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+  });
 
   afterEach(function () {
     cleanup();
@@ -26,9 +36,11 @@ describe('NamespaceProvider', function () {
       databases: [{ _id: 'foo' }] as any,
     });
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider namespace="foo">hello</NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider namespace="foo">hello</NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
     expect(screen.getByText('hello')).to.exist;
   });
@@ -38,9 +50,11 @@ describe('NamespaceProvider', function () {
       databases: [{ _id: 'foo', collections: [{ _id: 'foo.bar' }] }] as any,
     });
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
     expect(screen.getByText('hello')).to.exist;
   });
@@ -48,9 +62,11 @@ describe('NamespaceProvider', function () {
   it("should not render content when namespace doesn't exist", async function () {
     const instanceManager = new TestMongoDBInstanceManager();
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
     expect(screen.queryByText('hello')).to.not.exist;
   });
@@ -64,9 +80,11 @@ describe('NamespaceProvider', function () {
     });
 
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider namespace="foo">hello</NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider namespace="foo">hello</NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
 
     expect(screen.queryByText('hello')).to.not.exist;
@@ -82,14 +100,16 @@ describe('NamespaceProvider', function () {
       databases: [{ _id: 'foo' }] as any,
     });
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider
-          namespace="foo.bar"
-          onNamespaceFallbackSelect={onNamespaceFallbackSelect}
-        >
-          hello
-        </NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider
+            namespace="foo.bar"
+            onNamespaceFallbackSelect={onNamespaceFallbackSelect}
+          >
+            hello
+          </NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
     await waitFor(() => {
       expect(onNamespaceFallbackSelect).to.be.calledOnceWithExactly('foo');
@@ -100,14 +120,16 @@ describe('NamespaceProvider', function () {
     const onNamespaceFallbackSelect = sandbox.spy();
     const instanceManager = new TestMongoDBInstanceManager();
     await renderWithActiveConnection(
-      <MongoDBInstancesManagerProvider value={instanceManager}>
-        <NamespaceProvider
-          namespace="foo.bar"
-          onNamespaceFallbackSelect={onNamespaceFallbackSelect}
-        >
-          hello
-        </NamespaceProvider>
-      </MongoDBInstancesManagerProvider>
+      <PreferencesProvider value={preferences}>
+        <MongoDBInstancesManagerProvider value={instanceManager}>
+          <NamespaceProvider
+            namespace="foo.bar"
+            onNamespaceFallbackSelect={onNamespaceFallbackSelect}
+          >
+            hello
+          </NamespaceProvider>
+        </MongoDBInstancesManagerProvider>
+      </PreferencesProvider>
     );
     await waitFor(() => {
       expect(onNamespaceFallbackSelect).to.be.calledOnceWithExactly(null);

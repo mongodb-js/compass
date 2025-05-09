@@ -14,7 +14,10 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { startTelemetryServer } from '../helpers/telemetry';
+import {
+  deleteCommonVariedProperties,
+  startTelemetryServer,
+} from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import {
   createDummyCollections,
@@ -752,8 +755,7 @@ describe('Collection import', function () {
 
     const importCompletedEvent = await telemetryEntry('Import Completed');
     delete importCompletedEvent.duration; // Duration varies.
-    expect(importCompletedEvent.connection_id).to.exist;
-    delete importCompletedEvent.connection_id; // connection_id varies
+    deleteCommonVariedProperties(importCompletedEvent);
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
       newline: '\n',

@@ -9,6 +9,7 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 function serversArray(
   serversMap: NonNullable<
@@ -44,10 +45,12 @@ export function createInstancesStore(
     globalAppRegistry,
     connections,
     logger: { log, mongoLogId },
+    preferences,
   }: {
     connections: ConnectionsService;
     logger: Logger;
     globalAppRegistry: AppRegistry;
+    preferences: PreferencesAccess;
   },
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -88,7 +91,7 @@ export function createInstancesStore(
   const refreshInstance = async (
     refreshOptions: Omit<
       Parameters<MongoDBInstance['refresh']>[0],
-      'dataService'
+      'dataService' | 'preferences'
     > = {},
     { connectionId }: { connectionId?: string } = {}
   ) => {
@@ -102,7 +105,10 @@ export function createInstancesStore(
         instancesManager.getMongoDBInstanceForConnection(connectionId);
       const dataService = connections.getDataServiceForConnection(connectionId);
       isFirstRun = instance.status === 'initial';
-      await instance.refresh({ dataService, ...refreshOptions });
+      await instance.refresh({
+        dataService,
+        ...refreshOptions,
+      });
     } catch (err: any) {
       log.warn(
         mongoLogId(1_001_000_295),
@@ -255,6 +261,28 @@ export function createInstancesStore(
     }
   };
 
+  preferences.onPreferenceValueChanged(
+    'enableDbAndCollStats',
+    (enableDbAndCollStats) => {
+      if (enableDbAndCollStats) {
+        const connectedConnectionIds = Array.from(
+          instancesManager.listMongoDBInstances().keys()
+        );
+        connectedConnectionIds.forEach(
+          (connectionId) =>
+            void refreshInstance(
+              {
+                fetchDbStats: true,
+              },
+              {
+                connectionId,
+              }
+            )
+        );
+      }
+    }
+  );
+
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {
       const instance =
@@ -288,6 +316,7 @@ export function createInstancesStore(
       topologyDescription: getTopologyDescription(
         dataService.getLastSeenTopology()
       ),
+      preferences,
     };
     const instance = instancesManager.createMongoDBInstanceForConnection(
       instanceConnectionId,

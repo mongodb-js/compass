@@ -1,11 +1,10 @@
 import assert from 'assert';
-import { ObjectId } from 'bson';
+import { Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { Collection, MongoServerError } from 'mongodb';
-import { MongoClient } from 'mongodb';
-import { Int32, UUID } from 'bson';
+import { Collection, MongoClient, MongoServerError } from 'mongodb';
+import type { Document } from 'bson';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { DataService } from './data-service';
@@ -954,6 +953,159 @@ describe('DataService', function () {
         await dataService.insertMany(testNamespace, [{ a: 500 }, { a: 500 }]);
         const docs = await dataService.find(testNamespace, { a: 500 });
         expect(docs.length).to.equal(2);
+      });
+    });
+
+    describe('#sampleCursor', function () {
+      it('returns a list of sampled documents', async function () {
+        const docs = await dataService.sampleCursor(testNamespace).toArray();
+        expect(docs.length).to.equal(2);
+      });
+
+      it('allows to pass a query', async function () {
+        const docs = await dataService
+          .sampleCursor(testNamespace, {
+            query: { a: 1 },
+          })
+          .toArray();
+        expect(docs.length).to.equal(1);
+        expect(docs[0]).to.haveOwnProperty('_id');
+        expect(docs[0].a).to.equal(1);
+      });
+
+      it('allows to pass a projection', async function () {
+        const docs = await dataService
+          .sampleCursor(testNamespace, {
+            fields: {
+              a: 1,
+              _id: 0,
+            },
+          })
+          .toArray();
+
+        expect(docs).to.deep.include.members([{ a: 1 }, { a: 2 }]);
+      });
+
+      it('allows to set a sample size', async function () {
+        const docsCursor = dataService.sampleCursor(testNamespace, {
+          size: 2,
+        });
+        const docs: Document[] = [];
+        expect(await docsCursor.hasNext()).to.equal(true);
+        docs.push((await docsCursor.next()) as Document);
+        expect(await docsCursor.hasNext()).to.equal(true);
+        docs.push((await docsCursor.next()) as Document);
+        expect(await docsCursor.hasNext()).to.equal(false);
+
+        expect(docs.length).to.equal(2);
+      });
+
+      it('always sets default sample size and allowDiskUse: true', async function () {
+        sandbox.spy(dataService, 'aggregateCursor');
+        const cursor = dataService.sampleCursor('db.coll');
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true }
+        );
+        await cursor.close();
+      });
+
+      it('allows to pass down aggregation options to the driver', async function () {
+        sandbox.spy(dataService, 'aggregateCursor');
+        const cursor = dataService.sampleCursor(
+          'db.coll',
+          {},
+          {
+            maxTimeMS: 123,
+            session: undefined,
+            bsonRegExp: true,
+          }
+        );
+        await cursor.close();
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          {
+            allowDiskUse: true,
+            maxTimeMS: 123,
+            session: undefined,
+            bsonRegExp: true,
+          }
+        );
+      });
+
+      it('allows to override allowDiskUse', async function () {
+        sandbox.spy(dataService, 'aggregateCursor');
+        const cursor = dataService.sampleCursor(
+          'db.coll',
+          {},
+          {
+            allowDiskUse: false,
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: false }
+        );
+        await cursor.close();
+      });
+
+      it('allows to pass fallbackReadPreference and sets the read preference when unset', async function () {
+        sandbox.spy(dataService, 'aggregateCursor');
+        const cursor = dataService.sampleCursor(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true, readPreference: 'secondaryPreferred' }
+        );
+        await cursor.close();
+      });
+
+      it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', async function () {
+        sandbox.spy(dataService, 'aggregateCursor');
+        const connectionStringReplacement = new ConnectionStringUrl(
+          cluster().connectionString
+        );
+        connectionStringReplacement.searchParams.set(
+          'readPreference',
+          'primary'
+        );
+        sandbox.replace(dataService as any, '_connectionOptions', {
+          connectionString: connectionStringReplacement.toString(),
+        });
+        const cursor = dataService.sampleCursor(
+          'db.coll',
+          {},
+          {},
+          {
+            fallbackReadPreference: 'secondaryPreferred',
+          }
+        );
+        await cursor.close();
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(dataService.aggregateCursor).to.have.been.calledWith(
+          'db.coll',
+          [{ $sample: { size: 1000 } }],
+          { allowDiskUse: true }
+        );
       });
     });
 

@@ -116,15 +116,16 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           {isProjectAIEnabled
             ? 'AI features are enabled for project users with data access.'
             : 'AI features are disabled for project users.'}{' '}
-          Project Owners can change this setting in the{' '}
+          Project Owners can {isProjectAIEnabled ? 'disable' : 'enable'} Data
+          Explorer AI features in the{' '}
           {PROJECT_SETTINGS_LINK !== null ? (
             <Link href={PROJECT_SETTINGS_LINK} target="_blank">
-              AI features
+              Project Settings
             </Link>
           ) : (
-            'AI features '
+            'Project Settings'
           )}
-          section.
+          .
         </Banner>
         <div className={disclaimerStyles}>
           This is a feature powered by generative AI, and may give inaccurate

@@ -32,6 +32,7 @@ import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import { connectable } from '../utils/connection-supports';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -530,9 +531,12 @@ function mergeConnections(
     ? newConnections
     : [newConnections];
 
+  const removedConnectionIds = new Set(connectionsState.ids);
+
   let newConnectionsById = connectionsState.byId;
 
   for (const connectionInfo of newConnections) {
+    removedConnectionIds.delete(connectionInfo.id);
     const existingConnection = newConnectionsById[connectionInfo.id];
 
     // If we got a new connection, just create a default state for this
@@ -555,6 +559,30 @@ function mergeConnections(
         [connectionInfo.id]: {
           ...existingConnection,
           info: connectionInfo,
+        },
+      };
+
+      // TODO(COMPASS-9319): if an Atlas connection is going from PAUSED state to unpaused, we should
+      // reconnect the data service, since it would previously have been disconnected
+      // due to non-retryable error code.
+    }
+  }
+
+  // If an Atlas connection was removed, it means that the cluster was deleted
+  for (const connectionId of removedConnectionIds) {
+    const removedConnection = newConnectionsById[connectionId];
+    if (removedConnection.info.atlasMetadata) {
+      newConnectionsById = {
+        ...newConnectionsById,
+        [connectionId]: {
+          ...removedConnection,
+          info: {
+            ...removedConnection.info,
+            atlasMetadata: {
+              ...removedConnection.info.atlasMetadata,
+              clusterState: 'DELETED',
+            },
+          },
         },
       };
     }
@@ -1399,7 +1427,9 @@ function getDescriptionForNonRetryableError(error: Error): string {
   // to the generic error description.
   const reason = error.message.match(/code: \d+, reason: (.*)$/)?.[1];
   return reason && reason.length > 0
-    ? reason
+    ? reason.endsWith('.')
+      ? reason.slice(0, -1)
+      : reason // Remove trailing period
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
@@ -1479,60 +1509,71 @@ const connectWithOptions = (
       return inflightConnection;
     }
     inflightConnection = (async () => {
-      const isAutoconnectAttempt = isAutoconnectInfo(
-        getState(),
-        connectionInfo.id
-      );
-
       const deviceAuthAbortController = new AbortController();
 
-      connectionInfo = cloneDeep(connectionInfo);
-
-      const {
-        forceConnectionOptions,
-        browserCommandForOIDCAuth,
-        maximumNumberOfActiveConnections,
-        telemetryAnonymousId,
-      } = preferences.getPreferences();
-
-      const connectionProgress = getNotificationTriggers();
-
-      if (
-        typeof maximumNumberOfActiveConnections !== 'undefined' &&
-        getActiveConnectionsCount(getState().connections) >=
-          maximumNumberOfActiveConnections
-      ) {
-        connectionProgress.openMaximumConnectionsReachedToast(
-          maximumNumberOfActiveConnections
-        );
-        return;
-      }
-
-      dispatch({
-        type: ActionTypes.ConnectionAttemptStart,
-        connectionInfo,
-        options: { forceSave: options.forceSave },
-      });
-
-      track(
-        'Connection Attempt',
-        {
-          is_favorite: connectionInfo.savedConnectionType === 'favorite',
-          is_new: isNewConnection(getState(), connectionInfo.id),
-        },
-        connectionInfo
-      );
-
-      debug('connecting with connectionInfo', connectionInfo);
-
-      log.info(
-        mongoLogId(1_001_000_004),
-        'Connection UI',
-        'Initiating connection attempt',
-        { isAutoconnectAttempt }
-      );
-
       try {
+        if (
+          getCurrentConnectionStatus(getState(), connectionInfo.id) ===
+          'connected'
+        ) {
+          return;
+        }
+
+        if (!connectable(connectionInfo)) {
+          return;
+        }
+
+        const isAutoconnectAttempt = isAutoconnectInfo(
+          getState(),
+          connectionInfo.id
+        );
+
+        connectionInfo = cloneDeep(connectionInfo);
+
+        const {
+          forceConnectionOptions,
+          browserCommandForOIDCAuth,
+          maximumNumberOfActiveConnections,
+          telemetryAnonymousId,
+        } = preferences.getPreferences();
+
+        const connectionProgress = getNotificationTriggers();
+
+        if (
+          typeof maximumNumberOfActiveConnections !== 'undefined' &&
+          getActiveConnectionsCount(getState().connections) >=
+            maximumNumberOfActiveConnections
+        ) {
+          connectionProgress.openMaximumConnectionsReachedToast(
+            maximumNumberOfActiveConnections
+          );
+          return;
+        }
+
+        dispatch({
+          type: ActionTypes.ConnectionAttemptStart,
+          connectionInfo,
+          options: { forceSave: options.forceSave },
+        });
+
+        track(
+          'Connection Attempt',
+          {
+            is_favorite: connectionInfo.savedConnectionType === 'favorite',
+            is_new: isNewConnection(getState(), connectionInfo.id),
+          },
+          connectionInfo
+        );
+
+        debug('connecting with connectionInfo', connectionInfo);
+
+        log.info(
+          mongoLogId(1_001_000_004),
+          'Connection UI',
+          'Initiating connection attempt',
+          { isAutoconnectAttempt }
+        );
+
         // Connection form allows to start connecting with invalid connection
         // strings, so throw fast if it's not valid before doing anything else
         ensureWellFormedConnectionString(

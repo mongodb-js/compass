@@ -6,9 +6,11 @@ import { createInstance } from '../../test/helpers';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
+  type MongoDBInstance,
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const CONNECTION_ID = 'webscale';
 const ALL_EVENTS = [
@@ -31,7 +33,7 @@ const ALL_EVENTS = [
 ];
 
 describe('SidebarStore [Store]', function () {
-  const instance = createInstance();
+  let instance: MongoDBInstance;
   const globalAppRegistry = {} as any;
   let instanceOnSpy: SinonSpy;
   let instanceOffSpy: SinonSpy;
@@ -40,7 +42,9 @@ describe('SidebarStore [Store]', function () {
   let listMongoDBInstancesStub: SinonStub;
   let instancesManager: MongoDBInstancesManager;
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    instance = createInstance(undefined, undefined, preferences);
     instanceOnSpy = spy();
     instanceOffSpy = spy();
     instance.on = instanceOnSpy;
@@ -89,11 +93,12 @@ describe('SidebarStore [Store]', function () {
   }
 
   describe('when a new instance is created', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
       instancesManager.emit(
         MongoDBInstancesManagerEvents.InstanceCreated,
         'newConnection',
-        createInstance()
+        createInstance(undefined, undefined, preferences)
       );
     });
 

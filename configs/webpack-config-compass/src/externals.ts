@@ -12,6 +12,7 @@ export const sharedExternals: string[] = [
   'keytar',
   'kerberos',
   'interruptor',
+  'native-machine-id',
   'os-dns-native',
   'system-ca',
   'win-export-certificate-and-key',
