@@ -5,16 +5,20 @@ import {
   Button,
   css,
   EmptyContent,
-  Icon,
   spacing,
   useSortControls,
   useSortedItems,
   VirtualGrid,
+  Link,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import CollaborateIcon from './icons/collaborate';
+import SchemaVisualizationIcon from './icons/schema-visualization';
+import FlexibilityIcon from './icons/flexibility';
+import InsightIcon from './icons/insight';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 
@@ -52,7 +56,71 @@ export const DiagramListContext = React.createContext<{
   sortControls: null,
 });
 
-const SavedDiagramsList: React.FunctionComponent<{
+const subTitleStyles = css({
+  maxWidth: '750px',
+});
+
+const featuresListStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  gap: spacing[600],
+  marginTop: spacing[400],
+});
+
+const featureItemStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing[400],
+});
+
+type Feature = 'visualization' | 'collaboration' | 'interactive' | 'insights';
+const featureDescription: Record<
+  Feature,
+  { icon: React.FunctionComponent; title: string; subtitle: string }
+> = {
+  visualization: {
+    icon: SchemaVisualizationIcon,
+    title: 'Quick Visualization & Refactoring',
+    subtitle: 'Instantly visualize and refactor data models',
+  },
+  collaboration: {
+    icon: CollaborateIcon,
+    title: 'Collaboration & Sharing with your team',
+    subtitle: 'Collaborate and share schemas across teams',
+  },
+  interactive: {
+    icon: FlexibilityIcon,
+    title: 'Interactive Diagram Analysis',
+    subtitle: 'Explore and annotate interactive diagrams',
+  },
+  insights: {
+    icon: InsightIcon,
+    title: 'Performance Insights & Optimization',
+    subtitle: 'Uncover performance insights & best practices',
+  },
+};
+
+const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
+  features,
+}) => {
+  return (
+    <div className={featuresListStyles}>
+      {features.map((feature, key) => {
+        const { icon: Icon, title, subtitle } = featureDescription[feature];
+        return (
+          <div key={key} className={featureItemStyles}>
+            <Icon />
+            <h3>{title}</h3>
+            <p>{subtitle}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
@@ -90,7 +158,6 @@ const SavedDiagramsList: React.FunctionComponent<{
     return (
       <WorkspaceContainer>
         <EmptyContent
-          icon={() => <Icon size={80} glyph="Diagram"></Icon>}
           title="Design, Visualize, and Evolve your Data Model"
           subTitle={
             <>
@@ -98,15 +165,27 @@ const SavedDiagramsList: React.FunctionComponent<{
               applications evolve, so must your schema—intelligently and
               strategically. Minimize complexity, prevent performance
               bottlenecks, and keep your development agile.
+              <FeaturesList
+                features={[
+                  'visualization',
+                  'collaboration',
+                  'interactive',
+                  'insights',
+                ]}
+              />
+              <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
+                Data Modeling Documentation
+              </Link>
             </>
           }
+          subTitleClassName={subTitleStyles}
           callToAction={
             <Button
               onClick={onCreateDiagramClick}
               variant="primary"
               data-testid="create-diagram-button"
             >
-              Create diagram
+              Generate diagram
             </Button>
           }
         ></EmptyContent>
@@ -124,7 +203,7 @@ const SavedDiagramsList: React.FunctionComponent<{
     >
       <WorkspaceContainer>
         <VirtualGrid
-          data-testid="data-modeling-diagrams-list"
+          data-testid="saved-diagram-list"
           itemMinWidth={CARD_WIDTH}
           itemHeight={CARD_HEIGHT + spacing[200]}
           itemsCount={sortedItems.length}
