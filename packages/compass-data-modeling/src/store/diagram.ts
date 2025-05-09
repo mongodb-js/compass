@@ -1,7 +1,10 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import type {
+  Edit,
+  MongoDBDataModelDescription,
+} from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
@@ -10,9 +13,9 @@ import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
-        prev: MongoDBDataModelDescription['edits'][];
-        current: MongoDBDataModelDescription['edits'];
-        next: MongoDBDataModelDescription['edits'][];
+        prev: Edit[];
+        current: Edit[];
+        next: Edit[];
       };
     })
   | null; // null when no diagram is currently open
@@ -44,7 +47,6 @@ export type RenameDiagramAction = {
 
 export type ApplyEditAction = {
   type: DiagramActionTypes.APPLY_EDIT;
-  // TODO
   edit: unknown;
 };
 
