@@ -620,6 +620,10 @@ describe('Collection aggregations tab', function () {
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
+      if (serverSatisfies('< 5.0.0')) {
+        return this.skip();
+      }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -636,6 +640,10 @@ describe('Collection aggregations tab', function () {
     });
 
     afterEach(async function () {
+      if (serverSatisfies('< 5.0.0')) {
+        return this.skip();
+      }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',

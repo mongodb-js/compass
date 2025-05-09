@@ -67,14 +67,13 @@ export type RootAction =
   | EditModeAction
   | ResetAction;
 
-export type DataService = Pick<
-  OriginalDataService,
+export type RequiredDataServiceProps =
   | 'aggregate'
   | 'collectionInfo'
   | 'updateCollection'
-  | 'sample'
-  | 'isCancelError'
->;
+  | 'sampleCursor'
+  | 'isCancelError';
+export type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;
 
 export type SchemaValidationExtraArgs = {
   dataService: DataService;

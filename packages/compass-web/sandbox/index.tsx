@@ -135,6 +135,7 @@ const App = () => {
               enableCreatingNewConnections: !isAtlas,
               enableGlobalWrites: isAtlas,
               enableRollingIndexes: isAtlas,
+              showDisabledConnections: true,
               enableGenAIFeaturesAtlasProject:
                 isAtlas && !!enableGenAIFeaturesAtlasProject,
               enableGenAISampleDocumentPassingOnAtlasProject:

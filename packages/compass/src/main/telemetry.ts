@@ -6,6 +6,8 @@ import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyTraits } from '@mongodb-js/compass-telemetry';
+import { getDeviceId } from '@mongodb-js/device-id';
+import { getMachineId } from 'native-machine-id';
 
 const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
@@ -38,6 +40,7 @@ class CompassTelemetry {
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
   private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
   private static telemetryAtlasUserId?: string;
+  private static telemetryDeviceId = 'unknown';
   private static lastReportedScreen = '';
   private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T>
     ? Partial<T>
@@ -53,6 +56,7 @@ class CompassTelemetry {
     // Used in both track and identify to add common traits
     // to any event that we send to segment
     return {
+      device_id: this.telemetryDeviceId,
       compass_version: app.getVersion().split('.').slice(0, 2).join('.'),
       compass_full_version: app.getVersion(),
       compass_distribution: process.env.HADRON_DISTRIBUTION,
@@ -138,6 +142,17 @@ class CompassTelemetry {
       preferences.getPreferences();
     this.telemetryAnonymousId = telemetryAnonymousId ?? '';
     this.telemetryAtlasUserId = telemetryAtlasUserId;
+    this.telemetryDeviceId = await getDeviceId({
+      getMachineId: () => getMachineId({ raw: true }),
+      isNodeMachineId: false,
+      onError: (err) =>
+        log.error(
+          mongoLogId(1_001_000_352),
+          'Telemetry',
+          'Failed to get device ID',
+          { err: err.message }
+        ),
+    }).value;
 
     try {
       this.osInfo = await getOsInfo();

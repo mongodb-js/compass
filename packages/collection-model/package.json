@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "5.25.8",
+  "version": "5.26.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"

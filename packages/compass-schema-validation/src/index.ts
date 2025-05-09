@@ -13,6 +13,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { SchemaValidationTabTitle } from './plugin-title';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { RequiredDataServiceProps } from './modules';
 
 const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
@@ -23,13 +24,8 @@ const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
     activate: onActivated,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      | 'aggregate'
-      | 'collectionInfo'
-      | 'updateCollection'
-      | 'sample'
-      | 'isCancelError'
-    >,
+    dataService:
+      dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,

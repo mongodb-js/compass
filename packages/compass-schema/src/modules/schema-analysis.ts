@@ -50,15 +50,15 @@ export const analyzeSchema = async (
       ns,
     });
 
-    const docs = await dataService.sample(
+    const sampleCursor = dataService.sampleCursor(
       ns,
       query,
       {
         ...aggregateOptions,
         promoteValues: false,
+        signal: abortSignal,
       },
       {
-        abortSignal,
         fallbackReadPreference: 'secondaryPreferred',
       }
     );
@@ -72,7 +72,10 @@ export const analyzeSchema = async (
       : {
           signal: abortSignal,
         };
-    const schemaAccessor = await analyzeDocuments(docs, schemaParseOptions);
+    const schemaAccessor = await analyzeDocuments(
+      sampleCursor,
+      schemaParseOptions
+    );
     log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
       ns,
     });
@@ -81,8 +84,14 @@ export const analyzeSchema = async (
     log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', {
       ns,
       error: err.message,
+      aborted: abortSignal.aborted,
+      ...(abortSignal.aborted
+        ? { abortReason: abortSignal.reason?.message ?? abortSignal.reason }
+        : {}),
     });
-    if (dataService.isCancelError(err)) {
+
+    if (abortSignal.aborted) {
+      // The operation was aborted, so we don't throw an error.
       debug('caught background operation terminated error', err);
       return;
     }

@@ -30,6 +30,15 @@ const mockQueryBar = {
   },
 };
 
+function createMockCursor(data: any[]) {
+  return {
+    async *[Symbol.asyncIterator]() {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      yield* data;
+    },
+  };
+}
+
 describe('Schema Store', function () {
   let store: SchemaStore;
   let deactivate: () => void;
@@ -37,19 +46,16 @@ describe('Schema Store', function () {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
   const namespace = 'db.coll';
-  let sampleStub: Sinon.SinonStub;
-  let isCancelErrorStub: Sinon.SinonStub;
+  let sampleCursorStub: Sinon.SinonStub;
 
   beforeEach(function () {
     sandbox = Sinon.createSandbox();
-    sampleStub = sandbox.stub();
-    isCancelErrorStub = sandbox.stub();
+    sampleCursorStub = sandbox.stub();
   });
 
   async function createStore(services: Partial<SchemaPluginServices> = {}) {
     const dataService = {
-      sample: sampleStub,
-      isCancelError: isCancelErrorStub,
+      sampleCursor: sampleCursorStub,
     };
     const connectionInfoRef = {
       current: {
@@ -109,9 +115,11 @@ describe('Schema Store', function () {
 
     it('runs analysis', async function () {
       const oldResultId = store.getState().schemaAnalysis.resultId;
-      sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+      sampleCursorStub.returns(
+        createMockCursor([{ name: 'Hans' }, { name: 'Greta' }])
+      );
       await store.dispatch(startAnalysis());
-      expect(sampleStub).to.have.been.called;
+      expect(sampleCursorStub).to.have.been.called;
       const { analysisState, error, schema, resultId, analysisStartTime } =
         store.getState().schemaAnalysis;
       expect(analysisState).to.equal('complete');
@@ -127,9 +135,19 @@ describe('Schema Store', function () {
       expect(store.getState().schemaAnalysis.analysisState).to.equal(
         'analyzing'
       );
-      sampleStub.rejects(new Error('abort'));
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          yield {
+            a: 123,
+          };
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          yield {
+            b: 123,
+          };
+        },
+      });
       store.dispatch(stopAnalysis());
-      isCancelErrorStub.returns(true);
       await analysisPromise;
       expect(store.getState().schemaAnalysis.analysisState).to.equal('initial');
     });
@@ -137,13 +155,17 @@ describe('Schema Store', function () {
     describe('schema export', function () {
       describe('with an analyzed schema', function () {
         beforeEach(async function () {
-          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          sampleCursorStub.returns(
+            createMockCursor([{ name: 'Hans' }, { name: 'Greta' }])
+          );
           await store.dispatch(startAnalysis());
         });
 
         it('runs schema export formatting with the analyzed schema when opened', async function () {
-          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
-          expect(sampleStub).to.have.been.called;
+          sampleCursorStub.returns(
+            createMockCursor([{ name: 'Hans' }, { name: 'Greta' }])
+          );
+          expect(sampleCursorStub).to.have.been.called;
           expect(store.getState().schemaExport.exportStatus).to.equal(
             'inprogress'
           );
@@ -170,9 +192,11 @@ describe('Schema Store', function () {
         });
 
         it('runs schema export formatting with a new format', async function () {
-          sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+          sampleCursorStub.returns(
+            createMockCursor([{ name: 'Hans' }, { name: 'Greta' }])
+          );
           await store.dispatch(changeExportSchemaFormat('mongoDBJSON'));
-          expect(sampleStub).to.have.been.called;
+          expect(sampleCursorStub).to.have.been.called;
           const { exportStatus, errorMessage, exportedSchema, filename } =
             store.getState().schemaExport;
           expect(exportStatus).to.equal('complete');
@@ -192,9 +216,11 @@ describe('Schema Store', function () {
     });
 
     it('runs the analysis with fallback read pref secondaryPreferred', async function () {
-      sampleStub.resolves([{ name: 'Hans' }, { name: 'Greta' }]);
+      sampleCursorStub.returns(
+        createMockCursor([{ name: 'Hans' }, { name: 'Greta' }])
+      );
       await store.dispatch(startAnalysis());
-      expect(sampleStub.getCall(0).args[3])
+      expect(sampleCursorStub.getCall(0).args[3])
         .property('fallbackReadPreference')
         .to.equal('secondaryPreferred');
     });
@@ -218,7 +244,7 @@ describe('Schema Store', function () {
 
     it('does not set read preference to secondaryPreferred', async function () {
       await store.dispatch(startAnalysis());
-      expect(sampleStub.getCall(0).args[2]).not.to.have.property(
+      expect(sampleCursorStub.getCall(0).args[2]).not.to.have.property(
         'readPreference'
       );
     });

@@ -4,6 +4,7 @@ const attempts = [
   [() => require('keytar'), 'keytar'],
   [() => require('kerberos'), 'kerberos'],
   [() => require('os-dns-native'), 'os-dns-native'],
+  [() => require('native-machine-id'), 'native-machine-id'],
   [
     () =>
       process.platform === 'win32' && require('win-export-certificate-and-key'),

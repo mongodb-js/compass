@@ -22,6 +22,7 @@ export type FeatureFlags = {
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
   enableRollingIndexes: boolean;
+  showDisabledConnections: boolean;
   enableGlobalWrites: boolean;
   enableDataModeling: boolean;
   enableIndexesGuidanceExp: boolean;
@@ -88,6 +89,14 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables support for explicit proxy configuration.',
       long: 'Allows users to specify proxy configuration for the entire Compass application.',
+    },
+  },
+
+  showDisabledConnections: {
+    stage: 'development',
+    description: {
+      short:
+        'Show clusters that are not in a "connectable" state in Atlas Cloud',
     },
   },
 

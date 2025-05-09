@@ -5,6 +5,7 @@ import { EJSON } from 'bson';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 import { TEST_COMPASS_WEB } from './compass';
 import type { CompassBrowser } from './compass-browser';
+import { expect } from 'chai';
 
 export type Telemetry = {
   requests: any[];
@@ -108,4 +109,12 @@ export async function startTelemetryServer(): Promise<Telemetry> {
     events,
     screens,
   };
+}
+
+export function deleteCommonVariedProperties(entry: unknown): void {
+  expect(entry).to.have.property('connection_id');
+  delete (entry as { connection_id: unknown }).connection_id;
+
+  // Device ID is not set in all track events so we delete without asserting.
+  delete (entry as { device_id: unknown }).device_id;
 }

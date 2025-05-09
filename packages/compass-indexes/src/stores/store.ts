@@ -44,6 +44,7 @@ export type IndexesDataServiceProps =
   | 'createSearchIndex'
   | 'updateSearchIndex'
   | 'dropSearchIndex'
+  | 'sample'
   // Required for collection model (fetching stats)
   | 'collectionStats'
   | 'collectionInfo'

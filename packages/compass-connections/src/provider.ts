@@ -69,6 +69,8 @@ export type { ConnectionsService } from './stores/store-context';
 
 export { useConnectionSupports } from './hooks/use-connection-supports';
 
+export { useConnectable } from './hooks/use-connectable';
+
 const ConnectionStatus = {
   /**
    * @deprecated use a string literal directly

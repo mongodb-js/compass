@@ -4,17 +4,24 @@ import {
   Body,
   cx,
   useFocusRing,
+  ParagraphSkeleton,
 } from '@mongodb-js/compass-components';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import MDBCodeViewer from './mdb-code-viewer';
+import type { RootState } from '../../modules';
+import { fetchIndexSuggestions } from '../../modules/create-index';
+import type {
+  IndexSuggestionState,
+  SuggestedIndexFetchedProps,
+} from '../../modules/create-index';
+import { connect } from 'react-redux';
 
 const inputQueryContainerStyles = css({
-  marginBottom: spacing[600],
   display: 'flex',
   flexDirection: 'column',
 });
@@ -60,16 +67,34 @@ const codeEditorStyles = css({
   },
 });
 
+const indexSuggestionsLoaderStyles = css({
+  marginBottom: spacing[600],
+  padding: spacing[600],
+  background: palette.gray.light3,
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: editorContainerRadius,
+});
+
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
   dbName,
   collectionName,
+  onSuggestedIndexButtonClick,
+  indexSuggestions,
+  fetchingSuggestionsState,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
   dbName: string;
   collectionName: string;
+  onSuggestedIndexButtonClick: ({
+    dbName,
+    collectionName,
+    inputQuery,
+  }: SuggestedIndexFetchedProps) => Promise<void>;
+  indexSuggestions: Record<string, number> | null;
+  fetchingSuggestionsState: IndexSuggestionState;
 }) => {
   const [inputQuery, setInputQuery] = React.useState('');
   const completer = useMemo(
@@ -87,6 +112,18 @@ const QueryFlowSection = ({
     hover: true,
     radius: editorContainerRadius,
   });
+
+  const handleSuggestedIndexButtonClick = useCallback(() => {
+    const sanitizedInputQuery = inputQuery.trim();
+
+    void onSuggestedIndexButtonClick({
+      dbName,
+      collectionName,
+      inputQuery: sanitizedInputQuery,
+    });
+  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+
+  const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
   return (
     <>
@@ -116,9 +153,7 @@ const QueryFlowSection = ({
 
         <div className={editorActionContainerStyles}>
           <Button
-            onClick={() => {
-              // TODO in CLOUDP-311786
-            }}
+            onClick={handleSuggestedIndexButtonClick}
             className={suggestedIndexButtonStyles}
             size="small"
           >
@@ -126,20 +161,48 @@ const QueryFlowSection = ({
           </Button>
         </div>
       </div>
-      <Body baseFontSize={16} weight="medium" className={headerStyles}>
-        Suggested Index
-      </Body>{' '}
-      <div className={suggestedIndexContainerStyles}>
-        {/* TODO in CLOUDP-311786, replace hardcoded values with actual data */}
-        <MDBCodeViewer
-          dataTestId="query-flow-section-suggested-index"
-          dbName={dbName}
-          collectionName={collectionName}
-          indexNameTypeMap={{ 'awards.win': '1', 'imdb.rating': '1' }}
+
+      {(isFetchingIndexSuggestions || indexSuggestions) && (
+        <Body baseFontSize={16} weight="medium" className={headerStyles}>
+          Suggested Index
+        </Body>
+      )}
+
+      {isFetchingIndexSuggestions ? (
+        <ParagraphSkeleton
+          data-testid="query-flow-section-code-loader"
+          className={indexSuggestionsLoaderStyles}
         />
-      </div>
+      ) : (
+        indexSuggestions && (
+          <>
+            <div className={suggestedIndexContainerStyles}>
+              <MDBCodeViewer
+                dataTestId="query-flow-section-suggested-index"
+                dbName={dbName}
+                collectionName={collectionName}
+                indexNameTypeMap={indexSuggestions}
+              />
+            </div>
+          </>
+        )
+      )}
     </>
   );
 };
 
-export default QueryFlowSection;
+const mapState = ({ createIndex }: RootState) => {
+  const { indexSuggestions, sampleDocs, fetchingSuggestionsState } =
+    createIndex;
+  return {
+    indexSuggestions,
+    sampleDocs,
+    fetchingSuggestionsState,
+  };
+};
+
+const mapDispatch = {
+  onSuggestedIndexButtonClick: fetchIndexSuggestions,
+};
+
+export default connect(mapState, mapDispatch)(QueryFlowSection);
