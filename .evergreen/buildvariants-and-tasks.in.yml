@@ -108,10 +108,6 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
 ];
 
 const EOL_SERVER_VERSIONS = [
-  { name: '40x-community', version: '4.0.x' },
-  { name: '40x-enterprise', version: '4.0.x-enterprise' },
-  { name: '42x-community', version: '4.2.x' },
-  { name: '42x-enterprise', version: '4.2.x-enterprise' },
   { name: '44x-community', version: '4.4.x' },
   { name: '44x-enterprise', version: '4.4.x-enterprise' },
   { name: '5x-community', version: '5.x.x' },
