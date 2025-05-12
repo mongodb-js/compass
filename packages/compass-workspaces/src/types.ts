@@ -18,6 +18,10 @@ export type DataModelingWorkspace = {
   type: 'Data Modeling';
 };
 
+export type MCPWorkspace = {
+  type: 'Data Chat';
+};
+
 export type ShellWorkspace = {
   type: 'Shell';
   connectionId: string;
@@ -62,6 +66,7 @@ export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
   | DataModelingWorkspace
+  | MCPWorkspace
   | ShellWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace

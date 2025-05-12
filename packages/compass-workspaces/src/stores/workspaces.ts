@@ -25,6 +25,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
+import type { MCPWorkspace } from '../types';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -87,6 +88,7 @@ type WorkspaceTabProps =
   | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
   | Omit<DataModelingWorkspace, 'tabId'>
+  | Omit<MCPWorkspace, 'tabId'>
   | Omit<ShellWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
@@ -640,6 +642,7 @@ export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
   | Pick<Workspace<'Data Modeling'>, 'type'>
+  | Pick<Workspace<'Data Chat'>, 'type'>
   | Pick<
       Workspace<'Shell'>,
       'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'

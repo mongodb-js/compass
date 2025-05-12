@@ -48,6 +48,11 @@ export type WorkspacesService = {
   openDataModelingWorkspace(this: void): void;
 
   /**
+   * Open "MCP" workspace
+   */
+  openMCPWorkspace(this: void): void;
+
+  /**
    * Open "Shell" workspace
    */
   openShellWorkspace(
@@ -210,6 +215,7 @@ const noopWorkspacesService = {
   },
   openMyQueriesWorkspace: throwIfNotTestEnv,
   openDataModelingWorkspace: throwIfNotTestEnv,
+  openMCPWorkspace: throwIfNotTestEnv,
   openShellWorkspace: throwIfNotTestEnv,
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
@@ -251,6 +257,9 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
         return void store.dispatch(
           openWorkspaceAction({ type: 'Data Modeling' })
         );
+      },
+      openMCPWorkspace: () => {
+        return void store.dispatch(openWorkspaceAction({ type: 'Data Chat' }));
       },
       openShellWorkspace(connectionId, options = {}) {
         const { newTab, ...workspaceOptions } = options;
@@ -343,6 +352,7 @@ export function useOpenWorkspace() {
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openDataModelingWorkspace,
+    openMCPWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   } = useWorkspacesService();
@@ -354,6 +364,7 @@ export function useOpenWorkspace() {
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openDataModelingWorkspace,
+    openMCPWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   });
