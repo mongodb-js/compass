@@ -1,0 +1,17 @@
+{
+  "name": "@mongodb-js/compass-vector-embedding-visualizer",
+  "version": "0.0.1",
+  "description": "Compass plugin for visualizing vector embeddings",
+  "main": "plugin.tsx",
+  "license": "SSPL",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  }
+}
