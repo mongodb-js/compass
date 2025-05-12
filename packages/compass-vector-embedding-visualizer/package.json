@@ -8,10 +8,11 @@
     "lint": "eslint .",
     "test": "mocha"
   },
-  "dependencies": {
-    "react": "^18.2.0"
-  },
   "peerDependencies": {
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "plotly.js-dist-min": "^2.27.0"
   }
 }
