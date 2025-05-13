@@ -16,7 +16,7 @@ let latestEndOfLifeServerVersion: Promise<string> | null = null;
 export async function getLatestEndOfLifeServerVersion(): Promise<string> {
   if (!HADRON_AUTO_UPDATE_ENDPOINT) {
     log.debug(
-      mongoLogId(1_001_000_352),
+      mongoLogId(1_001_000_356),
       'getLatestEndOfLifeServerVersion',
       'HADRON_AUTO_UPDATE_ENDPOINT is not set'
     );
