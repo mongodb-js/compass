@@ -18,17 +18,20 @@ export const createQueryWithHistoryAutocompleter = ({
   options = {},
   queryProperty,
   onApply,
+  onDelete,
   theme,
 }: {
   savedQueries: SavedQuery[];
   options?: Pick<CompletionOptions, 'fields' | 'serverVersion'>;
   queryProperty: string;
   onApply: (query: SavedQuery['queryProperties']) => void;
+  onDelete: (queryId: string, type: 'recent' | 'favorite') => void;
   theme: CodemirrorThemeType;
 }): CompletionSource => {
   const queryHistoryAutocompleter = createQueryHistoryAutocompleter({
     savedQueries,
     onApply,
+    onDelete,
     queryProperty,
     theme,
   });

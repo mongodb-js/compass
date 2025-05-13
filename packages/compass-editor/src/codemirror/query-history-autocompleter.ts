@@ -14,7 +14,8 @@ import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export type SavedQuery = {
-  type: string;
+  id: string;
+  type: 'recent' | 'favorite';
   lastExecuted: Date;
   queryProperties: {
     [propertyName: string]: any;
@@ -103,10 +104,12 @@ function getMatchingQueryHistoryItemsForInput({
 export const createQueryHistoryAutocompleter = ({
   savedQueries,
   onApply,
+  onDelete,
   queryProperty,
   theme,
 }: {
   savedQueries: SavedQuery[];
+  onDelete: (queryId: string, type: 'recent' | 'favorite') => void;
   onApply: (query: SavedQuery['queryProperties']) => void;
   queryProperty: string;
   theme: CodemirrorThemeType;
@@ -134,7 +137,12 @@ export const createQueryHistoryAutocompleter = ({
       label: createQueryLabel(query, queryProperty),
       type: query.type === 'recent' ? 'query-history' : 'favorite',
       detail: formatDate(query.lastExecuted.getTime()),
-      info: () => createInfo(query, theme).dom,
+      info: () =>
+        createInfo({
+          query,
+          theme,
+          onDelete: () => onDelete(query.id, query.type),
+        }),
       apply: () => {
         onApply(query.queryProperties);
       },
@@ -155,18 +163,42 @@ export const createQueryHistoryAutocompleter = ({
   };
 };
 
+const queryInfoContainerStyles = css({
+  minWidth: spacing[800] * 3,
+});
+
 const queryLabelStyles = css({
   textTransform: 'capitalize',
   fontWeight: 'bold',
   fontFamily: fontFamilies.default,
+  marginTop: `${spacing[100]}px`,
 });
 
 const queryCodeStyles = css({
   fontFamily: fontFamilies.code,
   margin: `${spacing[50]}px`,
+  marginTop: `${spacing[100]}px`,
   marginLeft: `${spacing[100]}px`,
   padding: 0,
   whiteSpace: 'pre-wrap',
+});
+
+const removeButtonStyles = css({
+  background: 'none',
+  border: 'none',
+  color: 'inherit',
+  font: 'inherit',
+  cursor: 'pointer',
+  padding: 0,
+  textDecoration: 'underline',
+  fontSize: 'inherit',
+  fontFamily: fontFamilies.default,
+  position: 'absolute',
+  top: `${spacing[50]}px`,
+  right: `${spacing[100]}px`,
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 export function createQueryLabel(
@@ -195,21 +227,52 @@ export function createQueryDisplayLabel(query: SavedQuery): string {
     .reduce((acc, curr) => (acc ? `${acc}, ${curr}` : curr), '');
 }
 
+function createRemoveButton({
+  onDelete,
+}: {
+  onDelete: () => void;
+}): HTMLButtonElement {
+  const button = document.createElement('button');
+
+  button.textContent = 'Remove';
+  button.className = removeButtonStyles;
+  button.onclick = () => {
+    onDelete();
+  };
+  button.type = 'button';
+  button.setAttribute('aria-label', 'Remove query from history');
+  button.setAttribute('data-testid', 'remove-query-history-item');
+
+  return button;
+}
+
 const javascriptExpressionLanguageParser =
   languages['javascript-expression']().language.parser;
 
-function createInfo(
-  query: SavedQuery,
-  theme: CodemirrorThemeType
-): {
+function createInfo({
+  query,
+  onDelete,
+  theme,
+}: {
+  query: SavedQuery;
+  onDelete: () => void;
+  theme: CodemirrorThemeType;
+}): {
   dom: Node;
   destroy?: () => void;
 } {
   const customHighlighter = highlightStyles[theme];
   const container = document.createElement('div');
+  container.className = queryInfoContainerStyles;
 
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
+
+    const removeButton = createRemoveButton({
+      onDelete,
+    });
+    container.appendChild(removeButton);
+
     const codeDiv = document.createElement('div');
 
     const label = document.createElement('label');
@@ -256,6 +319,7 @@ function createInfo(
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
+      container.remove();
     },
   };
 }

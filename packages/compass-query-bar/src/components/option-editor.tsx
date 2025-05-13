@@ -23,7 +23,11 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { applyFromHistory } from '../stores/query-bar-reducer';
+import {
+  applyFromHistory,
+  deleteFavoriteQuery,
+  deleteRecentQuery,
+} from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
 import type {
   BaseQuery,
@@ -38,6 +42,7 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
+import { closeCompletion } from '@codemirror/autocomplete';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> &
   Pick<T, '_lastExecuted'>;
@@ -76,6 +81,48 @@ const editorWithErrorStyles = css({
   },
 });
 
+export function getOptionBasedQueries(
+  optionName: QueryOptionOfTypeDocument,
+  type: 'recent' | 'favorite',
+  queries: (AutoCompleteRecentQuery | AutoCompleteFavoriteQuery)[]
+) {
+  return (
+    queries
+      .map((query) => ({
+        id: query._id as string,
+        type,
+        lastExecuted: query._lastExecuted,
+        // For query that's being autocompleted from the main `filter`, we want to
+        // show whole query to the user, so that when its applied, it will replace
+        // the whole query (filter, project, sort etc).
+        // For other options, we only want to show the query for that specific option.
+        queryProperties: getQueryAttributes(
+          optionName !== 'filter' ? { [optionName]: query[optionName] } : query
+        ),
+      }))
+      // Filter the query if:
+      // - its empty
+      // - its an `update` query
+      // - its a duplicate
+      .filter((query, i, arr) => {
+        const queryIsUpdate = 'update' in query.queryProperties;
+        const queryIsEmpty = Object.keys(query.queryProperties).length === 0;
+        if (queryIsEmpty || queryIsUpdate) {
+          return false;
+        }
+        return (
+          i ===
+          arr.findIndex(
+            (t) =>
+              JSON.stringify(t.queryProperties) ===
+              JSON.stringify(query.queryProperties)
+          )
+        );
+      })
+      .sort((a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime())
+  );
+}
+
 type OptionEditorProps = {
   optionName: QueryOptionOfTypeDocument;
   namespace: string;
@@ -97,6 +144,8 @@ type OptionEditorProps = {
   recentQueries: AutoCompleteRecentQuery[];
   favoriteQueries: AutoCompleteFavoriteQuery[];
   onApplyQuery: (query: BaseQuery, fieldsToPreserve: QueryProperty[]) => void;
+  onDeleteRecentQuery: (id: string) => void;
+  onDeleteFavoriteQuery: (id: string) => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -116,6 +165,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
+  onDeleteRecentQuery,
+  onDeleteFavoriteQuery,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -166,6 +217,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             fields: schemaFields,
             serverVersion,
           },
+          onDelete: (id: string, type: 'recent' | 'favorite') => {
+            if (type === 'recent') {
+              onDeleteRecentQuery(id);
+            } else {
+              onDeleteFavoriteQuery(id);
+            }
+          },
           onApply: (query: SavedQuery['queryProperties']) => {
             // When we are applying a query from `filter` field, we want to apply the whole query,
             // otherwise we want to preserve the other fields that are already in the current query.
@@ -203,6 +261,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     schemaFields,
     serverVersion,
     onApplyQuery,
+    onDeleteRecentQuery,
+    onDeleteFavoriteQuery,
     isQueryHistoryAutocompleteEnabled,
     darkMode,
     optionName,
@@ -274,47 +334,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-export function getOptionBasedQueries(
-  optionName: QueryOptionOfTypeDocument,
-  type: 'recent' | 'favorite',
-  queries: (AutoCompleteRecentQuery | AutoCompleteFavoriteQuery)[]
-) {
-  return (
-    queries
-      .map((query) => ({
-        type,
-        lastExecuted: query._lastExecuted,
-        // For query that's being autocompeted from the main `filter`, we want to
-        // show whole query to the user, so that when its applied, it will replace
-        // the whole query (filter, project, sort etc).
-        // For other options, we only want to show the query for that specific option.
-        queryProperties: getQueryAttributes(
-          optionName !== 'filter' ? { [optionName]: query[optionName] } : query
-        ),
-      }))
-      // Filter the query if:
-      // - its empty
-      // - its an `update` query
-      // - its a duplicate
-      .filter((query, i, arr) => {
-        const queryIsUpdate = 'update' in query.queryProperties;
-        const queryIsEmpty = Object.keys(query.queryProperties).length === 0;
-        if (queryIsEmpty || queryIsUpdate) {
-          return false;
-        }
-        return (
-          i ===
-          arr.findIndex(
-            (t) =>
-              JSON.stringify(t.queryProperties) ===
-              JSON.stringify(query.queryProperties)
-          )
-        );
-      })
-      .sort((a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime())
-  );
-}
-
 const mapStateToProps = ({
   queryBar: { namespace, serverVersion, recentQueries, favoriteQueries },
 }: RootState) => ({
@@ -326,6 +345,8 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = {
   onApplyQuery: applyFromHistory,
+  onDeleteRecentQuery: deleteRecentQuery,
+  onDeleteFavoriteQuery: deleteFavoriteQuery,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(OptionEditor);
