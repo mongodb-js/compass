@@ -118,7 +118,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onResetIsAggregationGeneratedFromQuery={
         onResetIsAggregationGeneratedFromQuery
       }
-      placeholder="Tell us what to find (e.g. movies from 2000) or paste a query in another language (SQL, Java, etc.)"
+      placeholder="Tell us what aggregation to build (e.g. count movies made each year) or paste one in another language (SQL, Java, etc.)"
       onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
     />
   );
