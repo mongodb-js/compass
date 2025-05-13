@@ -52,11 +52,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "compass-preferences-model": "^2.37.0",
+    "@mongodb-js/compass-components": "^1.36.0",
     "@mongodb-js/compass-connections": "^1.55.0",
-    "@mongodb-js/compass-workspaces": "^0.36.0",
     "@mongodb-js/compass-logging": "^1.6.8",
     "@mongodb-js/compass-telemetry": "^1.6.1",
+    "@mongodb-js/compass-workspaces": "^0.36.0",
+    "compass-preferences-model": "^2.37.0",
     "hadron-app-registry": "^9.4.8",
     "hadron-ipc": "^3.4.8",
     "mongodb-mcp-server": "^0.1.0",

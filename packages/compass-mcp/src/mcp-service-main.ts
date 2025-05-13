@@ -2,16 +2,13 @@ import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { Ollama } from 'ollama';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
 
 export class MCPServiceMain {
   private static serverList = new Map<string, unknown>();
-  private static sessionList = new Map<string, Ollama>();
   private static initDone = false;
   private static preferences: PreferencesAccess;
-  private static aiModel: Ollama;
 
   private constructor() {
     // singleton
@@ -25,50 +22,7 @@ export class MCPServiceMain {
     this.preferences = preferences;
     if (!this.initDone) {
       if (this.ipcMain) {
-        this.ipcMain.createHandle('MCPService', this, [
-          'setupNewConnection',
-          'startChatSession',
-          'sendChatMessage',
-        ]);
-      }
-      const { aiModelPath } = this.preferences.getPreferences();
-      if (!aiModelPath) {
-        log.info(
-          mongoLogId(1_001_000_357),
-          'MCPService',
-          'Model not set, skipping loading model'
-        );
-        return;
-      }
-      const ollama = new Ollama();
-      try {
-        const data = await ollama.chat({
-          model: 'deepseek-r1:7b',
-          format: 'json',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful assistant.',
-            },
-            {
-              role: 'user',
-              content: 'You are a MongoDB Compass assistant.',
-            },
-          ],
-        });
-        // eslint-disable-next-line
-        console.log('Model loaded successfully', data);
-      } catch (error) {
-        // eslint-disable-next-line
-        console.error(
-          mongoLogId(1_001_000_359),
-          'MCPService',
-          'Error loading model',
-          {
-            error: (error as Error).message,
-            aiModelPath,
-          }
-        );
+        this.ipcMain.createHandle('MCPService', this, ['setupNewConnection']);
       }
       log.info(
         mongoLogId(1_001_000_353),
@@ -133,102 +87,6 @@ export class MCPServiceMain {
     } finally {
       delete process.env.MDB_MCP_TELEMETRY;
       delete process.env.MDB_MCP_CONNECTION_STRING;
-    }
-  }
-
-  static async startChatSession({
-    connId,
-  }: {
-    connId: string;
-  }): Promise<boolean> {
-    const server = this.serverList.get(connId);
-    if (!server) {
-      throw new Error(`No server found for connection id ${connId}`);
-    }
-    if (!this.sessionList.has(connId)) {
-      const ollama = new Ollama();
-      try {
-        await ollama.chat({
-          model: 'deepseek-r1:7b',
-          format: 'json',
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are a MongoDB Compass assistant, helping users with their data.',
-            },
-          ],
-        });
-        this.sessionList.set(connId, ollama);
-        log.info(
-          mongoLogId(1_001_000_358),
-          'MCPService',
-          'MCP chat session created',
-          {
-            connId,
-          }
-        );
-      } catch (error) {
-        log.error(
-          mongoLogId(1_001_000_360),
-          'MCPService',
-          'Error creating chat session',
-          {
-            connId,
-            error: (error as Error).message,
-          }
-        );
-        return Promise.reject(error);
-      }
-    }
-    return Promise.resolve(true);
-  }
-
-  static async sendChatMessage({
-    connId,
-    message,
-  }: {
-    connId: string;
-    message: string;
-  }): Promise<any> {
-    const ollama = this.sessionList.get(connId);
-    if (!ollama) {
-      throw new Error(`No chat session found for connection id ${connId}`);
-    }
-
-    try {
-      const response = await ollama.chat({
-        model: 'deepseek-r1:7b',
-        format: 'json',
-        messages: [
-          {
-            role: 'user',
-            content: message,
-          },
-        ],
-      });
-
-      log.info(
-        mongoLogId(1_001_000_361),
-        'MCPService',
-        'Received chat response',
-        {
-          connId,
-        }
-      );
-
-      return Promise.resolve(response);
-    } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_362),
-        'MCPService',
-        'Error sending chat message',
-        {
-          connId,
-          error: (error as Error).message,
-        }
-      );
-      return Promise.reject(error);
     }
   }
 }

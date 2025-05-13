@@ -4,12 +4,8 @@ import type { MCPServiceMain } from './mcp-service-main';
 export class MCPService {
   private _ipc = ipcRenderer?.createInvoke<
     typeof MCPServiceMain,
-    'setupNewConnection' | 'startChatSession' | 'sendChatMessage'
-  >('MCPService', [
-    'setupNewConnection',
-    'startChatSession',
-    'sendChatMessage',
-  ]);
+    'setupNewConnection'
+  >('MCPService', ['setupNewConnection']);
 
   private get ipc() {
     if (!this._ipc) {
@@ -28,19 +24,5 @@ export class MCPService {
     telemetry: boolean;
   }): Promise<boolean> {
     return this.ipc.setupNewConnection({ cs, connId, telemetry });
-  }
-
-  startChatSession({ connId }: { connId: string }): Promise<boolean> {
-    return this.ipc.startChatSession({ connId });
-  }
-
-  sendChatMessage({
-    connId,
-    message,
-  }: {
-    connId: string;
-    message: string;
-  }): Promise<any> {
-    return this.ipc.sendChatMessage({ connId, message });
   }
 }

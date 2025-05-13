@@ -1,30 +1,25 @@
 import React from 'react';
 import {
-  Button,
   css,
   spacing,
-  Subtitle,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import MCPToolbar from './toolbar';
+import MCPChat from './chat';
 
 const contentStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
+  display: 'flex',
+  flexDirection: 'column',
+  height: 'calc(100vh - 50px)', // Height minus toolbar
 });
 
 export function MCPContent() {
   return (
     <WorkspaceContainer toolbar={<MCPToolbar />}>
       <div className={contentStyles}>
-        <Subtitle>Welcome!</Subtitle>
-        <Button
-          onClick={() => {
-            //
-          }}
-        >
-          Setup client
-        </Button>
+        <MCPChat />
       </div>
     </WorkspaceContainer>
   );
