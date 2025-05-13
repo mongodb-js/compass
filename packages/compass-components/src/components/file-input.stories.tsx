@@ -20,7 +20,7 @@ const mockBackend = {
 };
 
 const meta = {
-  title: 'Components/FileInput',
+  title: 'Components/Forms/FileInput',
   component: FileInput,
   parameters: {
     layout: 'centered',

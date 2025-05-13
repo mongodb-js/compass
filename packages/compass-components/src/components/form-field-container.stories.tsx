@@ -4,7 +4,7 @@ import FormFieldContainer from './form-field-container';
 import { TextInput } from './leafygreen';
 
 const meta = {
-  title: 'Components/FormFieldContainer',
+  title: 'Components/Forms/FormFieldContainer',
   component: FormFieldContainer,
   parameters: {
     layout: 'centered',

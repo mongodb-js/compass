@@ -9,7 +9,7 @@ interface ListItem {
 }
 
 const meta: Meta<typeof VirtualList<ListItem>> = {
-  title: 'Components/VirtualList',
+  title: 'Components/Virtualization/VirtualList',
   component: VirtualList,
   parameters: {
     layout: 'centered',
