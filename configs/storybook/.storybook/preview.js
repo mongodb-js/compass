@@ -4,29 +4,70 @@ import {
   css,
   cx,
   spacing,
+  fontFamilies,
 } from '@mongodb-js/compass-components';
-import { pad } from 'lodash';
 
-const homeContainerStyles = css({
-  height: '100vh',
-  width: '100vw',
-  overflow: 'hidden',
-  // ensure modals and any other overlays will
-  // paint properly above the content
-  position: 'relative',
-  padding: spacing[3],
-  zIndex: 0,
-});
+const fontStyles = css`
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 700;
+    font-style: normal;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-Semibold-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-Semibold-WebXL.woff')
+        format('woff');
+  }
 
-const globalLightThemeStyles = css({
-  backgroundColor: palette.white,
-  color: palette.gray.dark2,
-});
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 700;
+    font-style: italic;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-SemiboldItalic-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-SemiboldItalic-WebXL.woff')
+        format('woff');
+  }
 
-const globalDarkThemeStyles = css({
-  backgroundColor: palette.black,
-  color: palette.white,
-});
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 500;
+    font-style: normal;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-Medium-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-Medium-WebXL.woff')
+        format('woff');
+  }
+
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 500;
+    font-style: italic;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-MediumItalic-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-MediumItalic-WebXL.woff')
+        format('woff');
+  }
+
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 400;
+    font-style: normal;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-Regular-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-Regular-WebXL.woff')
+        format('woff');
+  }
+
+  @font-face {
+    font-family: 'Euclid Circular A';
+    font-weight: 400;
+    font-style: italic;
+    src: url('../../../packages/compass/src/app/fonts/EuclidCircularA-RegularItalic-WebXL.woff2')
+        format('woff2'),
+      url('../../../packages/compass/src/app/fonts/EuclidCircularA-RegularItalic-WebXL.woff')
+        format('woff');
+  }
+`;
 
 const reset = css`
   /* Remove list styles (bullets/numbers) */
@@ -43,6 +84,10 @@ const reset = css`
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     font-smoothing: antialiased;
+  }
+
+  html {
+    font-size: 13px;
   }
 
   input,
@@ -94,6 +139,25 @@ const reset = css`
   }
 `;
 
+const homeContainerStyles = css({
+  padding: spacing[3],
+  zIndex: 0,
+  fontFamily:
+    "'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  fontSize: 13,
+  fontFamilies: fontFamilies.default,
+});
+
+const globalLightThemeStyles = css({
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
+});
+
+const globalDarkThemeStyles = css({
+  backgroundColor: palette.black,
+  color: palette.white,
+});
+
 export const globalTypes = {
   theme: {
     description: 'Global theme for components',
@@ -129,7 +193,7 @@ export const decorators = [
     const isDarkMode = context.globals.theme === 'dark';
     return (
       <LeafyGreenProvider darkMode={isDarkMode}>
-        <div className={reset}>
+        <div className={cx(reset, fontStyles)}>
           <div
             className={cx(
               homeContainerStyles,
