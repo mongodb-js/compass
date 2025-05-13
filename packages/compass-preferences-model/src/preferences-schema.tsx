@@ -101,6 +101,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
+    aiModelPath?: string;
   };
 
 /**
@@ -994,6 +995,16 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(true),
     type: 'boolean',
+  },
+  aiModelPath: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Absolute path to the AI model',
+    },
+    validator: z.string().optional(),
+    type: 'string',
   },
 
   ...allFeatureFlagsProps,

@@ -40,7 +40,7 @@ import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
-import { WorkspaceTab as MCPWorkspace } from '@mongodb-js/compass-mcp';
+import { WorkspaceTab as MCPWorkspace } from '@mongodb-js/compass-mcp/renderer';
 
 export default function Workspace({
   appName,
@@ -102,7 +102,7 @@ export default function Workspace({
         ]}
       >
         <WorkspacesPlugin
-          initialWorkspaceTabs={[{ type: 'Welcome' }]}
+          initialWorkspaceTabs={[{ type: 'Data Chat' }]}
           onActiveWorkspaceTabChange={onWorkspaceTabChange}
           renderSidebar={() => <CompassSidebarPlugin />}
           renderModals={() => (

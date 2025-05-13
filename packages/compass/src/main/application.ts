@@ -20,6 +20,7 @@ import {
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
+import { CompassMCPService } from '@mongodb-js/compass-mcp/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -175,6 +176,7 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
+    void CompassMCPService.init(this.preferences);
     if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
       this.setupAutoUpdate();
     }

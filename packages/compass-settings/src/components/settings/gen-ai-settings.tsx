@@ -30,6 +30,7 @@ export const GenAISettings: React.FunctionComponent<{
           <SettingsList fields={['enableGenAISampleDocumentPassing']} />
         </>
       )}
+      <SettingsList fields={['aiModelPath']} />
     </div>
   );
 };

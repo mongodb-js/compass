@@ -17,17 +17,21 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "main.js",
+    "main.d.ts",
+    "renderer.js",
+    "renderer.d.ts"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/.esm-wrapper.mjs",
-    "require": "./dist/index.js"
+    "./main": "./main.js",
+    "./renderer": "./renderer.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    "./main": "./src/main.ts",
+    "./renderer": "./src/renderer.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -48,6 +52,9 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "mongodb-mcp-server": "^0.1.0",
+    "node-llama-cpp": "^3.7.0",
+    "ollama": "^0.5.15",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
