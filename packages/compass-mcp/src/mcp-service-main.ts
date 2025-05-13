@@ -25,7 +25,11 @@ export class MCPServiceMain {
     this.preferences = preferences;
     if (!this.initDone) {
       if (this.ipcMain) {
-        this.ipcMain.createHandle('MCPService', this, ['setupNewConnection']);
+        this.ipcMain.createHandle('MCPService', this, [
+          'setupNewConnection',
+          'startChatSession',
+          'sendChatMessage',
+        ]);
       }
       const { aiModelPath } = this.preferences.getPreferences();
       if (!aiModelPath) {
@@ -142,15 +146,89 @@ export class MCPServiceMain {
       throw new Error(`No server found for connection id ${connId}`);
     }
     if (!this.sessionList.has(connId)) {
+      const ollama = new Ollama();
+      try {
+        await ollama.chat({
+          model: 'deepseek-r1:7b',
+          format: 'json',
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are a MongoDB Compass assistant, helping users with their data.',
+            },
+          ],
+        });
+        this.sessionList.set(connId, ollama);
+        log.info(
+          mongoLogId(1_001_000_358),
+          'MCPService',
+          'MCP chat session created',
+          {
+            connId,
+          }
+        );
+      } catch (error) {
+        log.error(
+          mongoLogId(1_001_000_360),
+          'MCPService',
+          'Error creating chat session',
+          {
+            connId,
+            error: (error as Error).message,
+          }
+        );
+        return Promise.reject(error);
+      }
+    }
+    return Promise.resolve(true);
+  }
+
+  static async sendChatMessage({
+    connId,
+    message,
+  }: {
+    connId: string;
+    message: string;
+  }): Promise<any> {
+    const ollama = this.sessionList.get(connId);
+    if (!ollama) {
+      throw new Error(`No chat session found for connection id ${connId}`);
+    }
+
+    try {
+      const response = await ollama.chat({
+        model: 'deepseek-r1:7b',
+        format: 'json',
+        messages: [
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+      });
+
       log.info(
-        mongoLogId(1_001_000_358),
+        mongoLogId(1_001_000_361),
         'MCPService',
-        'MCP chat session created',
+        'Received chat response',
         {
           connId,
         }
       );
+
+      return Promise.resolve(response);
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_362),
+        'MCPService',
+        'Error sending chat message',
+        {
+          connId,
+          error: (error as Error).message,
+        }
+      );
+      return Promise.reject(error);
     }
-    return Promise.resolve(true);
   }
 }
