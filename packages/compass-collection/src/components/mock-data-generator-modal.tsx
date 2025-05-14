@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Chip, Variant } from '@leafygreen-ui/chip';
 import {
@@ -6,6 +6,9 @@ import {
   css,
   Combobox,
   ComboboxOption,
+  Code,
+  Checkbox,
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 import { Size } from '@leafygreen-ui/select';
@@ -18,14 +21,14 @@ import {
   ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { CollectionState } from '../modules/collection-tab';
+import type { CollectionState } from '../modules/collection-tab';
 
 const columnStyles = css`
   display: flex;
   gap: 8px;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 20px;
+  margin: 20px 0;
 `;
 
 const rowStyles = css`
@@ -35,18 +38,10 @@ const rowStyles = css`
   width: 256px;
 `;
 
-const NavigationButtonsContainerStyle = css`
-  display: flex;
-  gap: 8px;
+const footerStyles = css`
   flex-direction: row;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: space-between;
 `;
-
-const footerStyles = css({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
 
 const rightButtonsStyles = css`
   display: flex;
@@ -54,58 +49,83 @@ const rightButtonsStyles = css`
   flex-direction: row;
 `;
 
-const RightButtonsContainerStyle = css``;
+const comboboxStyles = css`
+  width: 500px;
+  margin-top: 20px;
+`;
+
+const MAX_NUMBER_OF_STEPS = 4;
+const LAST_STEP = MAX_NUMBER_OF_STEPS - 1;
+const DEFAULT_NUMBER_OF_DOCUMENTS = 100;
+
+const MOCK_PREVIEW_DOCS = `
+          personDocument = {
+            "name": { "first": "Alan", "last": "Turing" },
+            "birth": datetime.datetime(1912, 6, 23),
+          }
+
+          personDocument = {
+            "name": { "first": "Alan", "last": "Turing" },
+            "birth": datetime.datetime(1912, 6, 23),
+          }
+
+          personDocument = {
+            "name": { "first": "Alan", "last": "Turing" },
+            "birth": datetime.datetime(1912, 6, 23),
+          }
+
+          personDocument = {
+            "name": { "first": "Alan", "last": "Turing" },
+            "birth": datetime.datetime(1912, 6, 23),
+          }
+
+          personDocument = {
+            "name": { "first": "Alan", "last": "Turing" },
+            "birth": datetime.datetime(1912, 6, 23),
+          }`;
 
 type MockDataGeneratorModalState = {
   collections: Array<string>;
 };
 
-const MockDataGeneratorModal: React.FunctionComponent<
-  MockDataGeneratorModalState & {
-    modalOpen: boolean;
-    onModalClose: () => void;
-    dbName: string;
-    collName: string;
-    collections: Array<string>;
-  }
-> = ({ modalOpen, onModalClose, dbName, collName, collections }) => {
-  const [selectedRelatedCollections, setSelectedRelatedCollections] = useState<
-    Array<string>
-  >([]);
+const SchemaViewStep = () => {
+  // TODO - set up schema view
+  return <div></div>;
+};
 
-  if (!modalOpen) {
-    return null;
-  }
-
-  const onCollectionSelect = (selectedCollection: Array<string>) => {
-    setSelectedRelatedCollections(selectedCollection);
-  };
-
+const ConfirmNumberOfDocumentsStep = ({
+  numberOfDocuments,
+  setNumberOfDocuments,
+}: {
+  numberOfDocuments: number;
+  setNumberOfDocuments: (numberOfDocuments: number) => void;
+}) => {
   return (
-    <Modal
-      open={modalOpen}
-      setOpen={onModalClose}
-      data-testid="generate-mock-data-modal"
-    >
-      <ModalHeader title="Generate Mock Data" />
-      <ModalBody>
-        <div className={columnStyles}>
-          <div className={rowStyles}>
-            <Body weight="medium">Database</Body>
-            <Chip variant={Variant.Gray} label={dbName}>
-              {dbName}
-            </Chip>
-          </div>
+    <div className={rowStyles}>
+      <TextInput
+        label=" Documents to generate in current collection"
+        id="number-of-documents"
+        aria-label="number-of-documents"
+        type="number"
+        min="1"
+        value={`${numberOfDocuments}`}
+        onChange={(e) => setNumberOfDocuments(Number.parseInt(e.target.value))}
+      />
+    </div>
+  );
+};
 
-          <div className={rowStyles}>
-            <Body weight="medium">Collection</Body>
-            <Chip variant={Variant.Gray} label={collName}>
-              {collName}
-            </Chip>
-          </div>
-        </div>
-      </ModalBody>
-
+const SelectCollectionsStep = ({
+  collections,
+  selectedRelatedCollections,
+  onCollectionSelect,
+}: {
+  collections: Array<string>;
+  selectedRelatedCollections: Array<string>;
+  onCollectionSelect: (selectedCollection: Array<string>) => void;
+}) => {
+  return (
+    <div className={comboboxStyles}>
       <Combobox
         data-testid="generate-mock-data-combobox"
         clearable={true}
@@ -124,12 +144,163 @@ const MockDataGeneratorModal: React.FunctionComponent<
           );
         })}
       </Combobox>
+    </div>
+  );
+};
+
+const DataPreviewStep = ({
+  isAiWarningChecked,
+  setIsAiWarningChecked,
+}: {
+  isAiWarningChecked: boolean;
+  setIsAiWarningChecked: (isAiWarningChecked: boolean) => void;
+}) => {
+  return (
+    <div>
+      <Code
+        id="mock-data-preview"
+        data-testid="mock-data-preview"
+        language="json"
+        copyable={false}
+      >
+        {/* TODO: prettify */}
+        {MOCK_PREVIEW_DOCS}
+      </Code>
+
+      <div
+        className={css`
+          margin-top: 10px;
+        `}
+      >
+        <Checkbox
+          data-testid="ai-warning-checkbox"
+          id="ai-warning-checkbox"
+          label="AI Warning"
+          onChange={() => setIsAiWarningChecked(!isAiWarningChecked)}
+          checked={isAiWarningChecked}
+          description="Check this because you understand that this is using AI and so data
+          blah blah blah blah robots are coming just be aware!!!!"
+        />
+      </div>
+    </div>
+  );
+};
+
+const getPrimaryButtonText = (currentStep: number) => {
+  switch (currentStep) {
+    case 0:
+    case 1:
+      return 'Next';
+    case 2:
+      return 'Preview';
+    case 3:
+      return 'Insert Mock Data';
+    default:
+      return '';
+  }
+};
+
+const MockDataGeneratorModal: React.FunctionComponent<
+  MockDataGeneratorModalState & {
+    modalOpen: boolean;
+    onModalClose: () => void;
+    dbName: string;
+    collName: string;
+  }
+> = ({ modalOpen, onModalClose, dbName, collName, collections }) => {
+  const [selectedRelatedCollections, setSelectedRelatedCollections] = useState<
+    Array<string>
+  >([]);
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedNumberOfDocuments, setSelectedNumberOfDocuments] =
+    useState<number>(DEFAULT_NUMBER_OF_DOCUMENTS);
+  const [isAiWarningChecked, setIsAiWarningChecked] = useState<boolean>(false);
+
+  if (!modalOpen) {
+    return null;
+  }
+
+  const onCollectionSelect = (selectedCollection: Array<string>) => {
+    setSelectedRelatedCollections(selectedCollection);
+  };
+
+  const onPrimaryButtonClick = () => {
+    if (currentStep === LAST_STEP) {
+      // TODO - insert mock data
+      console.log('Inserting mock data');
+      onModalClose();
+      return;
+    }
+    if (currentStep < LAST_STEP) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const onBackButtonClick = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  return (
+    <Modal
+      open={modalOpen}
+      setOpen={onModalClose}
+      data-testid="generate-mock-data-modal"
+    >
+      <ModalHeader title="Generate Mock Data" />
+      <ModalBody>
+        {currentStep !== LAST_STEP && (
+          <div className={columnStyles}>
+            <div className={rowStyles}>
+              <Body weight="medium">Database</Body>
+              <Chip variant={Variant.Gray} label={dbName}>
+                {dbName}
+              </Chip>
+            </div>
+
+            <div className={rowStyles}>
+              <Body weight="medium">Collection</Body>
+              <Chip variant={Variant.Gray} label={collName}>
+                {collName}
+              </Chip>
+            </div>
+          </div>
+        )}
+        {currentStep === 0 && (
+          <SelectCollectionsStep
+            collections={collections}
+            selectedRelatedCollections={selectedRelatedCollections}
+            onCollectionSelect={onCollectionSelect}
+          />
+        )}
+        {currentStep === 1 && <SchemaViewStep />}
+        {currentStep === 2 && (
+          <ConfirmNumberOfDocumentsStep
+            numberOfDocuments={selectedNumberOfDocuments}
+            setNumberOfDocuments={setSelectedNumberOfDocuments}
+          />
+        )}
+        {currentStep === 3 && (
+          <DataPreviewStep
+            isAiWarningChecked={isAiWarningChecked}
+            setIsAiWarningChecked={setIsAiWarningChecked}
+          />
+        )}
+      </ModalBody>
 
       <ModalFooter className={footerStyles}>
-        <Button>Back</Button>
+        <Button onClick={onBackButtonClick}>Back</Button>
         <div className={rightButtonsStyles}>
-          <Button>Cancel</Button>
-          <Button variant={ButtonVariant.Primary}>Next</Button>
+          <Button onClick={onModalClose}>Cancel</Button>
+          <Button
+            disabled={currentStep === 3 && !isAiWarningChecked}
+            variant={ButtonVariant.Primary}
+            onClick={onPrimaryButtonClick}
+          >
+            {getPrimaryButtonText(currentStep)}
+          </Button>
         </div>
       </ModalFooter>
     </Modal>
@@ -145,4 +316,4 @@ const MappedExportToLanguageModal = connect(
   {}
 )(MockDataGeneratorModal);
 
-export default MockDataGeneratorModal;
+export default MappedExportToLanguageModal;

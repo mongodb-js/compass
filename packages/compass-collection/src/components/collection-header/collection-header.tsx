@@ -166,7 +166,6 @@ export const CollectionHeader: React.FunctionComponent<
         onModalClose={() => setIsMockGeneratorModalOpen(false)}
         dbName={database}
         collName={collection}
-        collections={['testCollection1', 'testCollection2']} // Use dataService.getCollections() to get the list of collections
       />
       <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
       {isReadonly && <CollectionBadge type="readonly" />}
