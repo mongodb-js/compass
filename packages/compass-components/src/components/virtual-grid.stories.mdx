@@ -2,6 +2,7 @@ import { Meta, Story, Controls } from '@storybook/blocks';
 import { VirtualGrid } from './virtual-grid';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import Card from '@leafygreen-ui/card';
 
 <Meta
   title="Components/Virtualization/VirtualGrid"
@@ -70,40 +71,23 @@ import { VirtualGrid } from '@mongodb-js/compass-components';
       width: 100%;
       height: 100%;
       overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      grid-template-columns: 100%;
-      outline: none;
       min-height: 600px;
     `;
 
     const rowStyles = css`
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: ${spacing[200]}px;
-      padding: ${spacing[200]}px;
-      width: 100%;
-    `;
-
-    const gridItemStyles = css`
-      padding: ${spacing[3]}px;
-      background-color: white;
-      border: 1px solid var(--leafygreen-ui-gray-light-2);
-      border-radius: 4px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: ${spacing[2]}px;
-      min-height: 150px;
+      padding-left: ${spacing[400]}px;
+      padding-right: ${spacing[400]}px;
+      padding-bottom: ${spacing[200]}px;
+      column-gap: ${spacing[200]}px;
     `;
 
     const renderItem = ({ index }) => {
       const item = items[index];
       return (
-        <div className={gridItemStyles}>
+        <Card>
           <h3 style={{ margin: 0 }}>{item.title}</h3>
           <p style={{ margin: 0 }}>{item.content}</p>
-        </div>
+        </Card>
       );
     };
 
@@ -112,7 +96,7 @@ import { VirtualGrid } from '@mongodb-js/compass-components';
         <div className={containerStyles}>
           <VirtualGrid
             itemMinWidth={200}
-            itemHeight={150}
+            itemHeight={150 + spacing[200]}
             itemsCount={items.length}
             renderItem={renderItem}
             overscanCount={3}
@@ -143,60 +127,33 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
       width: 100%;
       height: 100%;
       overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      grid-template-columns: 100%;
-      outline: none;
       min-height: 600px;
     `;
 
     const rowStyles = css`
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: ${spacing[200]}px;
-      padding: ${spacing[200]}px;
-      width: 100%;
-    `;
-
-    const gridItemStyles = css`
-      padding: ${spacing[3]}px;
-      background-color: white;
-      border: 1px solid var(--leafygreen-ui-gray-light-2);
-      border-radius: 4px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: ${spacing[2]}px;
-      min-height: 150px;
+      padding-left: ${spacing[400]}px;
+      padding-right: ${spacing[400]}px;
+      padding-bottom: ${spacing[200]}px;
+      column-gap: ${spacing[200]}px;
     `;
 
     const renderItem = ({ index }) => {
       const item = items[index];
       return (
-        <div className={gridItemStyles}>
+        <Card>
           <h3 style={{ margin: 0 }}>{item.title}</h3>
           <p style={{ margin: 0 }}>{item.content}</p>
-        </div>
+        </Card>
       );
     };
 
     const renderHeader = () => (
-      <div
-        style={{
-          padding: spacing[3],
-          backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
-          borderBottom: '1px solid var(--leafygreen-ui-gray-light-2)',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
-        }}
-      >
+      <Card>
         <h2 style={{ margin: 0 }}>Grid Header</h2>
         <p style={{ margin: '8px 0 0 0' }}>
           This is a header that stays fixed while the grid content scrolls
         </p>
-      </div>
+      </Card>
     );
 
     return (
@@ -204,7 +161,7 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
         <div className={containerStyles}>
           <VirtualGrid
             itemMinWidth={200}
-            itemHeight={150}
+            itemHeight={150 + spacing[200]}
             itemsCount={items.length}
             renderItem={renderItem}
             headerHeight={100}
@@ -231,51 +188,41 @@ Virtual grid with a fixed header that stays in place while content scrolls.
       width: 100%;
       height: 100%;
       overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      grid-template-columns: 100%;
-      outline: none;
       min-height: 600px;
     `;
 
     const rowStyles = css`
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: ${spacing[200]}px;
-      padding: ${spacing[200]}px;
-      width: 100%;
+      padding-left: ${spacing[400]}px;
+      padding-right: ${spacing[400]}px;
+      padding-bottom: ${spacing[200]}px;
+      column-gap: ${spacing[200]}px;
     `;
 
     const renderItem = ({ index }) => {
       return (
-        <div style={{
-          padding: '16px',
-          border: '1px solid #eee',
-          minHeight: '150px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: spacing[2]
-        }}>
+        <Card>
           <h3>Item {index + 1}</h3>
           <p>Content for item {index + 1}</p>
-        </div>
+        </Card>
       );
     };
 
     const renderEmptyList = () => (
-      <div style={{
-        padding: '32px',
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        minHeight: '400px'
-      }}>
-        <h3>No Items Found</h3>
-        <p>There are no items to display in the grid at this time.</p>
-      </div>
+      <Card>
+        <div style={{
+          padding: '32px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          minHeight: '400px'
+        }}>
+          <h3>No Items Found</h3>
+          <p>There are no items to display in the grid at this time.</p>
+        </div>
+      </Card>
     );
 
     return (
@@ -283,7 +230,7 @@ Virtual grid with a fixed header that stays in place while content scrolls.
         <div className={containerStyles}>
           <VirtualGrid
             itemMinWidth={200}
-            itemHeight={150}
+            itemHeight={150 + spacing[200]}
             itemsCount={0}
             renderItem={renderItem}
             renderEmptyList={renderEmptyList}
