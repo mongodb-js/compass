@@ -1,5 +1,6 @@
 import { Meta, Story, Controls } from '@storybook/blocks';
 import { VirtualList } from './virtual-list';
+import { spacing } from '@leafygreen-ui/tokens';
 
 <Meta
   title="Components/Virtualization/VirtualList"
@@ -31,10 +32,10 @@ import { VirtualList } from './virtual-list';
 <VirtualList
   items={items}
   renderItem={(item, ref) => (
-    <div ref={ref}>
+    <Card ref={ref}>
       <h3>{item.title}</h3>
       <p>{item.content}</p>
-    </div>
+    </Card>
   )}
   estimateItemInitialHeight={() => 80}
   overScanCount={5}
@@ -45,10 +46,10 @@ import { VirtualList } from './virtual-list';
 <VirtualList
   items={items}
   renderItem={(item, ref) => (
-    <div ref={ref} style={{ height: item.id % 2 === 0 ? '120px' : '80px' }}>
+    <Card ref={ref} style={{ height: item.id % 2 === 0 ? '120px' : '80px' }}>
       <h3>{item.title}</h3>
       <p>{item.content}</p>
-    </div>
+    </Card>
   )}
   estimateItemInitialHeight={(item) => item.id % 2 === 0 ? 120 : 80}
   overScanCount={5}
@@ -73,14 +74,7 @@ import { VirtualList } from './virtual-list';
     const items = generateItems(1000);
 
     const ListItemComponent = ({ item, ref }) => (
-      <div
-        ref={ref}
-        style={{
-          padding: '16px',
-          borderBottom: '1px solid #eee',
-          backgroundColor: 'white',
-        }}
-      >
+      <div ref={ref} style={{ padding: `${spacing[200]}px 0` }}>
         <h3 style={{ margin: '0 0 8px 0' }}>{item.title}</h3>
         <p style={{ margin: 0 }}>{item.content}</p>
       </div>
@@ -95,7 +89,7 @@ import { VirtualList } from './virtual-list';
           renderItem={renderItem}
           estimateItemInitialHeight={() => 80}
           overScanCount={5}
-          rowGap={0}
+          rowGap={spacing[200]}
         />
       </div>
     );
@@ -120,14 +114,7 @@ Default virtual list with fixed height items.
     const items = generateItems(1000);
 
     const ListItemComponent = ({ item, ref }) => (
-      <div
-        ref={ref}
-        style={{
-          padding: '16px',
-          borderBottom: '1px solid #eee',
-          backgroundColor: 'white',
-        }}
-      >
+      <div ref={ref} style={{ padding: `${spacing[200]}px 0` }}>
         <h3 style={{ margin: '0 0 8px 0' }}>{item.title}</h3>
         <p style={{ margin: 0 }}>{item.content}</p>
       </div>
@@ -142,7 +129,7 @@ Default virtual list with fixed height items.
           renderItem={renderItem}
           estimateItemInitialHeight={() => 80}
           overScanCount={5}
-          rowGap={8}
+          rowGap={spacing[200]}
         />
       </div>
     );
@@ -167,15 +154,7 @@ Virtual list with gap between items.
     const items = generateItems(1000);
 
     const CustomHeightItem = ({ item, ref }) => (
-      <div
-        ref={ref}
-        style={{
-          padding: '24px',
-          borderBottom: '1px solid #eee',
-          backgroundColor: 'white',
-          height: item.id % 2 === 0 ? '120px' : '80px',
-        }}
-      >
+      <div ref={ref} style={{ padding: `${spacing[200]}px 0`, height: item.id % 2 === 0 ? '120px' : '80px' }}>
         <h3 style={{ margin: '0 0 8px 0' }}>{item.title}</h3>
         <p style={{ margin: 0 }}>{item.content}</p>
       </div>
@@ -192,7 +171,7 @@ Virtual list with gap between items.
           renderItem={renderCustomHeightItem}
           estimateItemInitialHeight={(item) => (item.id % 2 === 0 ? 120 : 80)}
           overScanCount={5}
-          rowGap={0}
+          rowGap={spacing[200]}
         />
       </div>
     );
