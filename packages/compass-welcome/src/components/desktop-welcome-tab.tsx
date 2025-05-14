@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { connect } from 'react-redux';
 import {
   Button,
   ButtonSize,
@@ -16,9 +16,16 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionActions,
+  useConnectionInfoForId,
+} from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { WelcomeTabImage } from './welcome-image';
+import { useRecentCollections } from '@mongodb-js/compass-workspaces/provider';
+import { useConnectionColor } from '@mongodb-js/connection-form';
+import { connectToConnectionAndOpenWorkspace } from '../stores/recent-connections';
+import CompassLogSummary from './compass-log-summary';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -110,6 +117,15 @@ function AtlasHelpSection(): React.ReactElement {
 
 const welcomeTabStyles = css({
   display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '0 auto',
+  gap: spacing[200],
+});
+
+const mainSectionStyles = css({
+  display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   margin: '0 auto',
@@ -120,33 +136,142 @@ const firstConnectionBtnStyles = css({
   margin: `${spacing[400]}px 0`,
 });
 
+const collectionLinkStyles = css({
+  alignItems: 'center',
+  gap: spacing[100],
+  display: 'inline-flex',
+  span: {
+    alignItems: 'center',
+    gap: spacing[100],
+    display: 'inline-flex',
+  },
+  '&:hover': {
+    cursor: 'pointer',
+  },
+});
+
+const recentCollectionsContainerStyles = css({
+  marginTop: spacing[800],
+  width: 500,
+  marginRight: 150,
+});
+
+const recentCollectionsTitleStyles = css({
+  marginBottom: spacing[200],
+});
+
+const collectionItemStyles = css({
+  display: 'flex',
+  gap: spacing[300],
+  marginBottom: spacing[200],
+});
+
+const connectionInfoStyles = css({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: spacing[100],
+});
+
+const connecitonInfoIconStyles = css({});
+
+function _RecentConnectionItem({
+  connectionId,
+  namespace,
+  onClickOpenCollectionWorkspace,
+}: {
+  connectionId: string;
+  namespace: string;
+  onClickOpenCollectionWorkspace: (opts: {
+    namespace: string;
+    connectionId: string;
+  }) => void;
+}) {
+  const connectionInfo = useConnectionInfoForId(connectionId);
+  const { connectionColorToHexActive } = useConnectionColor();
+
+  if (!connectionInfo) {
+    // The connection no longer exists.
+    return null;
+  }
+
+  return (
+    <div className={collectionItemStyles}>
+      <Link
+        className={collectionLinkStyles}
+        as="button"
+        onClick={() =>
+          onClickOpenCollectionWorkspace({
+            namespace,
+            connectionId,
+          })
+        }
+      >
+        <Icon glyph="Folder" />
+        <span>{namespace}</span>
+      </Link>
+      <Body className={connectionInfoStyles}>
+        {connectionInfo.favorite ? (
+          <Icon
+            className={connecitonInfoIconStyles}
+            glyph="Favorite"
+            color={connectionColorToHexActive(connectionInfo.favorite.color)}
+          />
+        ) : null}
+        {connectionInfo.title}
+      </Body>
+    </div>
+  );
+}
+
+const RecentConnectionItem = connect(null, {
+  onClickOpenCollectionWorkspace: connectToConnectionAndOpenWorkspace,
+})(_RecentConnectionItem);
+
 export default function DesktopWelcomeTab() {
   const { createNewConnection } = useConnectionActions();
   const enableCreatingNewConnections = usePreference(
     'enableCreatingNewConnections'
   );
+  const recentCollections = useRecentCollections();
 
   return (
     <div className={welcomeTabStyles}>
-      <WelcomeTabImage />
       <div>
-        <H3>Welcome to MongoDB Compass</H3>
-        {enableCreatingNewConnections && (
-          <>
-            <Body>To get started, connect to an existing server or</Body>
-            <Button
-              className={firstConnectionBtnStyles}
-              data-testid="add-new-connection-button"
-              variant={ButtonVariant.Primary}
-              leftGlyph={<Icon glyph="Plus" />}
-              onClick={createNewConnection}
-            >
-              Add new connection
-            </Button>
-            <AtlasHelpSection />
-          </>
-        )}
+        <CompassLogSummary />
       </div>
+      <div className={mainSectionStyles}>
+        <WelcomeTabImage />
+        <div>
+          <H3>Welcome to MongoDB Compass</H3>
+          {enableCreatingNewConnections && (
+            <>
+              <Body>To get started, connect to an existing server or</Body>
+              <Button
+                className={firstConnectionBtnStyles}
+                data-testid="add-new-connection-button"
+                variant={ButtonVariant.Primary}
+                leftGlyph={<Icon glyph="Plus" />}
+                onClick={createNewConnection}
+              >
+                Add new connection
+              </Button>
+              <AtlasHelpSection />
+            </>
+          )}
+        </div>
+      </div>
+      {recentCollections && (
+        <div className={recentCollectionsContainerStyles}>
+          <H3 className={recentCollectionsTitleStyles}>Recent</H3>
+          {recentCollections.map((recentCollection, index) => (
+            <RecentConnectionItem
+              key={index}
+              connectionId={recentCollection.connectionId}
+              namespace={recentCollection.namespace}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

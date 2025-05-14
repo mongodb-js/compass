@@ -14,6 +14,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isEqualDefaultQuery } from '../utils/query';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { QuerySuggestions } from './query-suggestions';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLogger('AI-QUERY-UI');
@@ -60,9 +61,23 @@ function QueryAI(props: QueryAIProps) {
   const enableTelemetry = usePreference('trackUsageStatistics');
   const onSubmitFeedback = useOnSubmitFeedback(props.lastAIQueryRequestId);
 
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+
   return (
     <GenerativeAIInput
       onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
+      onFocus={() => {
+        setShowSuggestions(true);
+      }}
+      // onBlur={() => {setShowSuggestions(false)}}
+      suggestions={() => (
+        <div>
+          <QuerySuggestions
+            setShowSuggestions={setShowSuggestions}
+            show={showSuggestions}
+          />
+        </div>
+      )}
       {...props}
     />
   );

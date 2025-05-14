@@ -5,6 +5,7 @@ export type AnyWorkspaceComponent =
   | WorkspaceComponent<'Welcome'>
   | WorkspaceComponent<'My Queries'>
   | WorkspaceComponent<'Data Modeling'>
+  | WorkspaceComponent<'Docs Chatbot'>
   | WorkspaceComponent<'Shell'>
   | WorkspaceComponent<'Performance'>
   | WorkspaceComponent<'Databases'>

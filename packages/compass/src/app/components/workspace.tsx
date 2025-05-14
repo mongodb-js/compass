@@ -40,6 +40,10 @@ import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
+import {
+  WorkspaceTab as DocsChatbotWorkspace,
+  DocsChatbotSidebarPlugin,
+} from '@mongodb-js/docs-chatbot';
 
 export default function Workspace({
   appName,
@@ -82,6 +86,7 @@ export default function Workspace({
         CollectionsWorkspaceTab,
         CollectionWorkspace,
         DataModelingWorkspace,
+        DocsChatbotWorkspace,
       ]}
     >
       <CollectionTabsProvider
@@ -103,6 +108,7 @@ export default function Workspace({
           initialWorkspaceTabs={[{ type: 'Welcome' }]}
           onActiveWorkspaceTabChange={onWorkspaceTabChange}
           renderSidebar={() => <CompassSidebarPlugin />}
+          renderChatSidebar={() => <DocsChatbotSidebarPlugin />}
           renderModals={() => (
             <>
               <ImportPlugin></ImportPlugin>

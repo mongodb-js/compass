@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Banner,
   Icon,
@@ -12,11 +12,12 @@ import {
   CodemirrorMultilineEditor,
   prettify,
 } from '@mongodb-js/compass-editor';
-import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
+import { type ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import ExplainTree from './explain-tree';
 import ExplainPlanSummary from './explain-plan-side-summary';
 import ExplainCannotVisualizeBanner from './explain-cannot-visualize-banner';
 import { ZoomControl } from './zoom-control';
+import ExplainPlanAIView from './explain-plan-ai-view';
 
 const zoomableTreeContainerStyles = css({
   position: 'relative',
@@ -101,16 +102,23 @@ const summaryStyles = css({
   flex: 'none',
 });
 
-type ExplainPlanViewProps = Partial<
-  Pick<ExplainPlanModalState, 'explainPlan' | 'rawExplainPlan' | 'error'>
+type ExplainPlanViewProps = {
+  onGenerateAIAnalysis: () => void;
+} & Partial<
+  Pick<
+    ExplainPlanModalState,
+    'aiFetchStatus' | 'explainPlan' | 'rawExplainPlan' | 'error'
+  >
 >;
 
 export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   explainPlan,
   rawExplainPlan,
+  onGenerateAIAnalysis,
+  aiFetchStatus,
   error,
 }) => {
-  const [viewType, setViewType] = useState<'tree' | 'json'>(
+  const [viewType, setViewType] = useState<'tree' | 'json' | 'ai-analysis'>(
     error ? 'json' : 'tree'
   );
 
@@ -128,6 +136,17 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
     );
   }, [explainPlan]);
 
+  const onSetViewType = useCallback(
+    (viewType: string) => {
+      setViewType(viewType as 'tree' | 'json' | 'ai-analysis');
+
+      if (viewType === 'ai-analysis' && aiFetchStatus === 'initial') {
+        onGenerateAIAnalysis();
+      }
+    },
+    [setViewType, aiFetchStatus, onGenerateAIAnalysis]
+  );
+
   const isParsingError = Boolean(error && rawExplainPlan && !explainPlan);
 
   if (error && !isParsingError) {
@@ -138,7 +157,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
     <div className={viewStyles}>
       <div className={viewHeaderStyles}>
         <SegmentedControl
-          onChange={setViewType as (value: string) => void}
+          onChange={onSetViewType}
           value={viewType}
           data-testid="explain-view-type-control"
         >
@@ -148,6 +167,13 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
             disabled={!!error}
           >
             Visual Tree
+          </SegmentedControlOption>
+          <SegmentedControlOption
+            value="ai-analysis"
+            glyph={<Icon glyph="CurlyBraces"></Icon>}
+            disabled={!!error}
+          >
+            AI Analysis
           </SegmentedControlOption>
           <SegmentedControlOption
             value="json"
@@ -183,6 +209,11 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
               <ZoomableExplainTree
                 executionStats={explainPlan?.executionStats}
               ></ZoomableExplainTree>
+            </div>
+          )}
+          {viewType === 'ai-analysis' && (
+            <div className={explainTreeContainerStyles}>
+              <ExplainPlanAIView />
             </div>
           )}
         </div>

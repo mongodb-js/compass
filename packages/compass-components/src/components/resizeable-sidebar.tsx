@@ -59,6 +59,7 @@ export const defaultSidebarWidth = 300;
 const ResizableSidebar = ({
   initialWidth = defaultSidebarWidth,
   minWidth = 210,
+  maxWidth = 600,
   children,
   className,
   style,
@@ -67,6 +68,7 @@ const ResizableSidebar = ({
 }: {
   initialWidth?: number;
   minWidth?: number;
+  maxWidth?: number;
   children: JSX.Element;
   useNewTheme?: boolean;
 } & React.HTMLProps<HTMLDivElement>): JSX.Element => {
@@ -82,8 +84,8 @@ const ResizableSidebar = ({
     : {};
 
   const getMaxSidebarWidth = useCallback(() => {
-    return Math.max(minWidth, 600);
-  }, [minWidth]);
+    return Math.max(minWidth, maxWidth);
+  }, [minWidth, maxWidth]);
 
   // Apply bounds to the sidebar width when resizing to ensure it's always
   // visible and usable to the user.
@@ -93,7 +95,7 @@ const ResizableSidebar = ({
 
       return Math.min(maxWidth, Math.max(minWidth, attemptedWidth));
     },
-    [getMaxSidebarWidth, minWidth]
+    [getMaxSidebarWidth, minWidth, maxWidth]
   );
 
   const renderedWidth = boundSidebarWidth(width);
@@ -108,7 +110,7 @@ const ResizableSidebar = ({
       style={{
         ...style,
         minWidth,
-        width: renderedWidth,
+        width: `min(100vw - 210px, ${renderedWidth}px)`,
         flex: 'none',
         ...newThemeStyles,
       }}

@@ -3,17 +3,20 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 
 type WelcomeServices = {
   globalAppRegistry: AppRegistry;
   logger: Logger;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  connections: ConnectionsService;
 };
 
 export function configureStore({
   globalAppRegistry,
   logger,
   workspaces,
+  connections,
 }: WelcomeServices) {
   return createStore(
     combineReducers({}),
@@ -22,6 +25,7 @@ export function configureStore({
         globalAppRegistry,
         logger,
         workspaces,
+        connections,
       })
     )
   );

@@ -23,3 +23,72 @@ export {
   GenerativeAIInput,
   createAIPlaceholderHTMLPlaceholder,
 } from './components';
+
+import {
+  // getResponseFromLocalAI,
+  getChatResponseFromLocalAI,
+} from './local-ai-service';
+import {
+  getResponseFromOpenAI,
+  getStreamResponseFromOpenAI,
+} from './not-local-ai-service';
+
+export { getStreamResponseFromDocsAI } from './docs-ai-service';
+
+const useLocalAI = true;
+
+export function getChatStreamResponseFromAI({
+  messages,
+  signal,
+}: {
+  messages: { role: 'user' | 'system'; content: string }[];
+  signal: AbortSignal;
+}): AsyncGenerator<string, void, unknown> {
+  if (useLocalAI) {
+    return getChatResponseFromLocalAI({
+      messages,
+      signal,
+    });
+  } else {
+    return getStreamResponseFromOpenAI({
+      messages,
+      signal,
+    });
+  }
+}
+
+export function getChatResponseFromAI({
+  messages,
+  signal,
+}: {
+  messages: { role: 'user' | 'system'; content: string }[];
+  signal: AbortSignal;
+}) {
+  // Only open ai supported for this for now.
+  return getResponseFromOpenAI({
+    messages,
+    signal,
+  });
+}
+
+// export function getStreamResponseFromAI({
+//   prompt,
+//   signal,
+// }: {
+//   prompt: string;
+//   signal?: AbortSignal;
+// }): AsyncGenerator<string, void, unknown> {
+//   if (useLocalAI) {
+//     return getResponseFromLocalAI({
+//       prompt,
+//       signal,
+//     });
+//   } else {
+//     return getStreamResponseFromOpenAI({
+//       messages: [
+//         { role: 'user', content: prompt }
+//       ],
+//       signal
+//     });
+//   }
+// }

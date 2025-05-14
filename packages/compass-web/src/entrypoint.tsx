@@ -61,6 +61,7 @@ import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
+import { WorkspaceTab as DocsChatbotWorkspace } from '@mongodb-js/docs-chatbot';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
@@ -176,6 +177,7 @@ function CompassWorkspace({
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,
         CollectionWorkspace,
+        DocsChatbotWorkspace,
         DataModelingWorkspace,
       ]}
     >

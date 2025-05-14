@@ -18,6 +18,10 @@ export type DataModelingWorkspace = {
   type: 'Data Modeling';
 };
 
+export type DocsChatbotWorkspace = {
+  type: 'Docs Chatbot';
+};
+
 export type ShellWorkspace = {
   type: 'Shell';
   connectionId: string;
@@ -61,6 +65,7 @@ export type CollectionWorkspace = {
 export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
+  | DocsChatbotWorkspace
   | DataModelingWorkspace
   | ShellWorkspace
   | ServerStatsWorkspace

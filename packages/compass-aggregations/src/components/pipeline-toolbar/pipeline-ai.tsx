@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
@@ -16,6 +16,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { PipelineSuggestions } from './pipeline-suggestions';
 
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLogger('AI-PIPELINE-UI');
@@ -93,6 +94,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   const onResetIsAggregationGeneratedFromQueryRef = useRef(
     onResetIsAggregationGeneratedFromQuery
   );
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(function () {
     return () => {
@@ -106,6 +108,15 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       show={isAIInputVisible}
       onClose={onHideAIInputClick}
       aiPromptText={aiPromptText}
+      suggestions={() => (
+        <PipelineSuggestions
+          setShowSuggestions={setShowSuggestions}
+          show={showSuggestions}
+        />
+      )}
+      onFocus={() => {
+        setShowSuggestions(true);
+      }}
       onChangeAIPromptText={onChangeAIPromptText}
       onSubmitText={onSubmitText}
       isFetching={isFetching}

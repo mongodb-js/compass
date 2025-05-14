@@ -14,6 +14,7 @@ import { createServiceLocator } from 'hadron-app-registry';
 import type { CollectionSubtab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
+import { usePersistedState } from '@mongodb-js/compass-components';
 
 function useWorkspacesStore() {
   try {
@@ -46,6 +47,11 @@ export type WorkspacesService = {
    * Open "Data Modeling" workspace
    */
   openDataModelingWorkspace(this: void): void;
+
+  /**
+   * Open the "Docs Chatbot" workspace.
+   */
+  openDocsChatbotWorkspace(this: void): void;
 
   /**
    * Open "Shell" workspace
@@ -210,6 +216,7 @@ const noopWorkspacesService = {
   },
   openMyQueriesWorkspace: throwIfNotTestEnv,
   openDataModelingWorkspace: throwIfNotTestEnv,
+  openDocsChatbotWorkspace: throwIfNotTestEnv,
   openShellWorkspace: throwIfNotTestEnv,
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
@@ -227,9 +234,30 @@ const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
   noopWorkspacesService
 );
 
+const RECENT_COLLECTIONS_LOCAL_STORAGE_KEY =
+  'mongodb_compass_recentCollections' as const;
+
+type RecentCollection = {
+  connectionId: string;
+  namespace: string;
+};
+
+export function useRecentCollections(): RecentCollection[] {
+  const [recentCollections] = usePersistedState<RecentCollection[]>(
+    RECENT_COLLECTIONS_LOCAL_STORAGE_KEY,
+    []
+  );
+  return recentCollections;
+}
+
 export const WorkspacesServiceProvider: React.FunctionComponent<{
   value?: WorkspacesService;
 }> = ({ value, children }) => {
+  const [, setRecentCollections] = usePersistedState<RecentCollection[]>(
+    RECENT_COLLECTIONS_LOCAL_STORAGE_KEY,
+    []
+  );
+
   // We're breaking React rules of hooks here, but this is unavoidable to allow
   // for testing components using this service. In reality this will never be a
   // conditional call to hooks: either the tests will be providing a mock
@@ -250,6 +278,11 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       openDataModelingWorkspace: () => {
         return void store.dispatch(
           openWorkspaceAction({ type: 'Data Modeling' })
+        );
+      },
+      openDocsChatbotWorkspace: () => {
+        return void store.dispatch(
+          openWorkspaceAction({ type: 'Docs Chatbot' })
         );
       },
       openShellWorkspace(connectionId, options = {}) {
@@ -280,6 +313,21 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
         );
       },
       openCollectionWorkspace: (connectionId, namespace, options) => {
+        // Add it to the recent collections list. Cap recent collections to 3.
+        setRecentCollections((prev: RecentCollection[]) => {
+          const newRecentCollections = [
+            { connectionId, namespace },
+            // ...prev
+            // TODO: maybe filter out non-existent connections here.
+            ...prev.filter(
+              (collection) =>
+                collection.connectionId !== connectionId ||
+                collection.namespace !== namespace
+            ),
+          ].slice(0, 3);
+          return newRecentCollections;
+        });
+
         const { newTab, ...collectionOptions } = options ?? {};
         return void store.dispatch(
           openWorkspaceAction(
@@ -343,6 +391,7 @@ export function useOpenWorkspace() {
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openDataModelingWorkspace,
+    openDocsChatbotWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   } = useWorkspacesService();
@@ -354,6 +403,7 @@ export function useOpenWorkspace() {
     openDatabasesWorkspace,
     openMyQueriesWorkspace,
     openDataModelingWorkspace,
+    openDocsChatbotWorkspace,
     openPerformanceWorkspace,
     openEditViewWorkspace,
   });

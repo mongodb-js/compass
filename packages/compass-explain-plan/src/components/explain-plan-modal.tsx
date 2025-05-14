@@ -11,18 +11,27 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
-import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
+import {
+  closeExplainPlanModal,
+  generateAIAnalysis,
+} from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 export type ExplainPlanModalProps = Partial<
   Pick<
     ExplainPlanModalState,
-    'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
+    | 'aiFetchStatus'
+    | 'isModalOpen'
+    | 'status'
+    | 'explainPlan'
+    | 'rawExplainPlan'
+    | 'error'
   >
 > &
   Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
     onModalClose(): void;
+    onGenerateAIAnalysis: () => void;
   };
 
 const explainPlanModalContentStyles = css({
@@ -69,6 +78,8 @@ export const ExplainPlanModal: React.FunctionComponent<
 > = ({
   isModalOpen = false,
   status = 'initial',
+  onGenerateAIAnalysis,
+  aiFetchStatus,
   explainPlan,
   rawExplainPlan,
   error,
@@ -109,6 +120,8 @@ export const ExplainPlanModal: React.FunctionComponent<
           <ExplainPlanView
             explainPlan={explainPlan}
             rawExplainPlan={rawExplainPlan}
+            onGenerateAIAnalysis={onGenerateAIAnalysis}
+            aiFetchStatus={aiFetchStatus}
             error={error}
           ></ExplainPlanView>
         )}
@@ -126,6 +139,7 @@ export const ExplainPlanModal: React.FunctionComponent<
 const ConnectedExplainPlanModal = connect(
   (state: ExplainPlanModalState) => {
     return {
+      aiFetchStatus: state.aiFetchStatus,
       isModalOpen: state.isModalOpen,
       status: state.status,
       explainPlan: state.explainPlan,
@@ -135,6 +149,7 @@ const ConnectedExplainPlanModal = connect(
   },
   {
     onModalClose: closeExplainPlanModal,
+    onGenerateAIAnalysis: generateAIAnalysis,
   }
 )(ExplainPlanModal);
 

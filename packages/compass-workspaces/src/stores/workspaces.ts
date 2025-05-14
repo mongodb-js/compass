@@ -9,6 +9,7 @@ import type {
   DatabasesWorkspace,
   MyQueriesWorkspace,
   DataModelingWorkspace,
+  DocsChatbotWorkspace,
   ShellWorkspace,
   ServerStatsWorkspace,
   WelcomeWorkspace,
@@ -87,6 +88,7 @@ type WorkspaceTabProps =
   | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
   | Omit<DataModelingWorkspace, 'tabId'>
+  | Omit<DocsChatbotWorkspace, 'tabId'>
   | Omit<ShellWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
@@ -640,6 +642,7 @@ export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
   | Pick<Workspace<'Data Modeling'>, 'type'>
+  | Pick<Workspace<'Docs Chatbot'>, 'type'>
   | Pick<
       Workspace<'Shell'>,
       'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'

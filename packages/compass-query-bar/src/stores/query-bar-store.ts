@@ -35,6 +35,7 @@ import type {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { suggestionsReducer } from './suggestions-reducer';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -66,6 +67,7 @@ export type QueryBarStoreOptions = CollectionTabPluginMetadata;
 export const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
+  suggestions: suggestionsReducer,
 });
 
 export type RootState = ReturnType<typeof rootQueryBarReducer>;

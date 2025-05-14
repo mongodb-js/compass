@@ -306,6 +306,9 @@ type GenerativeAIInputProps = {
   errorCode?: string;
   isFetching?: boolean;
   placeholder?: string;
+  suggestions?: () => React.ReactNode;
+  onFocus?: () => void;
+  onBlur?: () => void;
   show: boolean;
   isAggregationGeneratedFromQuery?: boolean;
   onResetIsAggregationGeneratedFromQuery?: () => void;
@@ -328,6 +331,9 @@ function GenerativeAIInput({
   isFetching,
   placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
+  suggestions,
+  onFocus,
+  onBlur,
   onCancelRequest,
   onClose,
   onChangeAIPromptText,
@@ -440,6 +446,9 @@ function GenerativeAIInput({
                   textInputStyles,
                   isFetching && isFetchingOverrideTextInputStyles
                 )}
+                onFocus={onFocus}
+                onBlur={onBlur}
+                data-id="ai-user-text-input"
                 ref={promptTextInputRef}
                 data-testid="ai-user-text-input"
                 aria-labelledby=""
@@ -526,6 +535,7 @@ function GenerativeAIInput({
           </Banner>
         </div>
       )}
+      {suggestions?.()}
     </div>
   );
 }

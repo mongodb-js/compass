@@ -37,6 +37,7 @@ import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
+import { suggestionsReducer } from './gen-ai/suggestions-reducer';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -90,6 +91,7 @@ const rootReducer = combineReducers({
   insights,
   searchIndexes,
   collectionStats,
+  suggestions: suggestionsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

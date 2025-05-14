@@ -29,6 +29,8 @@ import type {
   RecentQuery,
   FavoriteQuery,
 } from '@mongodb-js/my-queries-storage';
+import { SuggestionsActionTypes } from './suggestions-reducer';
+import type { ApplySuggestionAction } from './suggestions-reducer';
 
 type QueryBarState = {
   isReadonlyConnection: boolean;
@@ -581,6 +583,10 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     isAction<AIQuerySucceededAction>(
       action,
       AIQueryActionTypes.AIQuerySucceeded
+    ) ||
+    isAction<ApplySuggestionAction>(
+      action,
+      SuggestionsActionTypes.ApplySuggestion
     )
   ) {
     return {

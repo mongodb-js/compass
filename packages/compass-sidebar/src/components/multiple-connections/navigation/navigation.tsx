@@ -99,8 +99,11 @@ export function Navigation({
   currentLocation: string | null;
 }): React.ReactElement {
   const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace, openDataModelingWorkspace } =
-    useOpenWorkspace();
+  const {
+    openMyQueriesWorkspace,
+    openDataModelingWorkspace,
+    openDocsChatbotWorkspace,
+  } = useOpenWorkspace();
   const isDataModelingEnabled = usePreference('enableDataModeling');
   return (
     <div>
@@ -120,6 +123,12 @@ export function Navigation({
           isActive={currentLocation === 'Data Modeling'}
         />
       )}
+      <NavigationItem
+        onClick={openDocsChatbotWorkspace}
+        glyph="Sparkle"
+        label="Chat"
+        isActive={currentLocation === 'Docs Chatbot'}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   reducer,
   INITIAL_STATE,
   openExplainPlanModal,
+  abortAnyOngoingOp,
 } from './explain-plan-modal-store';
 import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type AppRegistry from 'hadron-app-registry';
@@ -55,7 +56,7 @@ export type ExplainPlanModalServices = {
 export function activatePlugin(
   { namespace, isDataLake }: ExplainPlanModalConfigureStoreOptions,
   services: ExplainPlanModalServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = createStore(
     reducer,
@@ -68,6 +69,8 @@ export function activatePlugin(
       openExplainPlanModal(event as OpenExplainPlanModalEvent)
     );
   });
+
+  addCleanup(() => store.dispatch(abortAnyOngoingOp()));
 
   return { store, deactivate: cleanup };
 }

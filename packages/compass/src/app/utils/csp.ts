@@ -38,6 +38,7 @@ const defaultCSP = {
   'style-src': ['*', "'unsafe-inline'"],
   'connect-src': [
     'https://compass-maps.mongodb.com',
+    'https://knowledge.mongodb.com',
     'https://api.intercom.io',
     'https://api-iam.intercom.io',
     'https://api-ping.intercom.io',
@@ -56,6 +57,7 @@ const defaultCSP = {
     'https://cloud-qa.mongodb.com',
     'https://compass.mongodb.com',
     'https://ip-ranges.amazonaws.com',
+    'https://api.openai.com',
   ],
   'child-src': [
     'blob:',

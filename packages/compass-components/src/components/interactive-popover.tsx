@@ -51,6 +51,7 @@ type InteractivePopoverProps<TriggerElement extends HTMLElement> = {
   }) => React.ReactElement;
   hideCloseButton?: boolean;
   customFocusTrapFallback?: string;
+  dontFocusTrap?: boolean; // TODO: better naming and cleanup
   open: boolean;
   setOpen: (open: boolean) => void;
   /**
@@ -71,6 +72,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
   hideCloseButton = false,
   customFocusTrapFallback = undefined,
   open,
+  dontFocusTrap,
   setOpen,
   containedElements = [],
   align,
@@ -179,7 +181,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
         popoverZIndex={popoverZIndex}
       >
         <FocusTrap
-          active={open}
+          active={open && !dontFocusTrap}
           focusTrapOptions={{
             clickOutsideDeactivates: true,
             // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)

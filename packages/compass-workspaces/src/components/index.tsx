@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  palette,
+  ResizableSidebar,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
@@ -49,6 +55,12 @@ type WorkspacesWithSidebarProps = {
    */
   renderSidebar?: () => React.ReactElement | null;
   /**
+   * Chat sidebar component slot. Required so that the plugins can be rendered
+   * inside workspace React tree and access workspace state and actions from
+   * service locator context.
+   */
+  renderChatSidebar?: () => React.ReactElement | null;
+  /**
    * Workspaces plugin modals components slot. Required so that plugin modals
    * can be rendered inside workspace React tree and access workspace state and
    * actions from service locator context
@@ -66,11 +78,20 @@ const containerDarkThemeStyles = css({
   color: palette.white,
 });
 
+// const horizontalSplitStyles = css({
+//   width: '100%',
+//   height: '100%',
+//   display: 'grid',
+//   gridTemplateColumns: 'min-content auto',
+//   minHeight: 0,
+// });
 const horizontalSplitStyles = css({
   width: '100%',
   height: '100%',
   display: 'grid',
-  gridTemplateColumns: 'min-content auto',
+  gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 
@@ -80,9 +101,19 @@ const workspacesStyles = css({
   minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
 });
 
+const workspacesContainerStyles = css({
+  maxWidth: 'calc(100vw - 200px)', // Arbitrary number
+});
+
 const sidebarStyles = css({
   minHeight: 0,
 });
+
+// const chatSidebarStyles = css({
+//   minHeight: 0,
+//   minWidth: '200px', // Random number.
+//   minWidth: 0
+// })
 
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
@@ -92,6 +123,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   openOnEmptyWorkspace,
   onActiveWorkspaceTabChange,
   renderSidebar,
+  renderChatSidebar,
   renderModals,
 }) => {
   const darkMode = useDarkMode();
@@ -109,9 +141,23 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         )}
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
-        <div className={workspacesStyles}>
-          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
+        <div className={workspacesContainerStyles}>
+          <ResizableSidebar
+            data-testid="workspaces-sidebar"
+            useNewTheme={true}
+            minWidth={700}
+            // TODO: This should be screen width - both sidebar sizes.
+            // Probably to be done in the ResizableSidebar component somehow.
+            maxWidth={Infinity}
+          >
+            <Workspaces
+              openOnEmptyWorkspace={openOnEmptyWorkspace}
+            ></Workspaces>
+          </ResizableSidebar>
         </div>
+        {/* <div className={chatSidebarStyles}> */}
+        {renderChatSidebar?.()}
+        {/* </div> */}
       </div>
       {renderModals?.()}
     </WorkspacesServiceProvider>
