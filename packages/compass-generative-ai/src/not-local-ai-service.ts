@@ -5,7 +5,7 @@ async function getClient() {
   if (!_client) {
     let apiKey: string;
     try {
-      apiKey = (await import('./api-key')).apiKey;
+      apiKey = process.env.OPEN_AI_KEY ?? (await import('./api-key')).apiKey;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error importing api key for open ai:', error);

@@ -3,7 +3,8 @@ import React, { useEffect } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getChatStreamResponseFromAI } from '@mongodb-js/compass-generative-ai';
-import { testLog } from './test-log';
+// import { testLog } from './test-log';
+const testLog = 'ommitted log loading to avoid context sizes and costs for now';
 
 const summaryContainerStyles = css({
   maxWidth: 'max(60vw, 400px)',
