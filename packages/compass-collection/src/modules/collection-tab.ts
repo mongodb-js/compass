@@ -29,15 +29,21 @@ export type CollectionState = {
   namespace: string;
   metadata: CollectionMetadata | null;
   editViewName?: string;
+  collections: Array<string>;
 };
 
 enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
+  CollectionsFetched = 'compass-collection/CollectionsFetched',
 }
 
 interface CollectionMetadataFetchedAction {
   type: CollectionActions.CollectionMetadataFetched;
   metadata: CollectionMetadata;
+}
+interface CollectionsFetchedAction {
+  type: CollectionActions.CollectionsFetched;
+  collections: Array<string>;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -46,6 +52,7 @@ const reducer: Reducer<CollectionState, Action> = (
     workspaceTabId: '',
     namespace: '',
     metadata: null,
+    collections: [],
   },
   action
 ) => {
@@ -60,6 +67,18 @@ const reducer: Reducer<CollectionState, Action> = (
       metadata: action.metadata,
     };
   }
+
+  if (
+    isAction<CollectionsFetchedAction>(
+      action,
+      CollectionActions.CollectionsFetched
+    )
+  ) {
+    return {
+      ...state,
+      collections: action.collections,
+    };
+  }
   return state;
 };
 
@@ -67,6 +86,12 @@ export const collectionMetadataFetched = (
   metadata: CollectionMetadata
 ): CollectionMetadataFetchedAction => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
+};
+
+export const collectionsFetched = (
+  collections: Array<string>
+): CollectionsFetchedAction => {
+  return { type: CollectionActions.CollectionsFetched, collections };
 };
 
 export const selectTab = (

@@ -5,10 +5,12 @@ import thunk from 'redux-thunk';
 import reducer, {
   selectTab,
   collectionMetadataFetched,
+  collectionsFetched,
 } from '../modules/collection-tab';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import toNS from 'mongodb-ns';
 
 export type CollectionTabOptions = {
   /**
@@ -58,6 +60,7 @@ export function activatePlugin(
       namespace,
       metadata: null,
       editViewName,
+      collections: [],
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -83,9 +86,16 @@ export function activatePlugin(
   on(localAppRegistry, 'menu-share-schema-json', () => {
     store.dispatch(selectTab('Schema'));
   });
+  console.log('Collection Tab activated');
 
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
+    const { database } = toNS(namespace);
+    // for mock data generator
+    dataService.listCollections(database).then((collectionDetails) => {
+      const collections = collectionDetails.map(({ name }) => name);
+      store.dispatch(collectionsFetched(collections));
+    });
   });
 
   return {

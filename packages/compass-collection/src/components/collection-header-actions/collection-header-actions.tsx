@@ -40,6 +40,7 @@ type CollectionHeaderActionsProps = {
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
+  onGenerateMockDataClick?: () => void;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -50,6 +51,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   editViewName,
   sourceName,
   sourcePipeline,
+  onGenerateMockDataClick,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -82,20 +84,32 @@ const CollectionHeaderActions: React.FunctionComponent<
         </Button>
       )}
       {atlasMetadata && (
-        <Button
-          data-testid="collection-header-visualize-your-data"
-          size={ButtonSize.Small}
-          href={buildChartsUrl(
-            atlasMetadata.projectId,
-            atlasMetadata.clusterName,
-            namespace
-          )}
-          target="_self"
-          rel="noopener noreferrer"
-          leftGlyph={<Icon glyph="Charts" />}
-        >
-          Visualize Your Data
-        </Button>
+        <>
+          <Button
+            data-testid="collection-header-generate-mock-data"
+            size={ButtonSize.Small}
+            target="_self"
+            rel="noopener noreferrer"
+            leftGlyph={<Icon glyph="Sparkle" />}
+            onClick={() => onGenerateMockDataClick?.()}
+          >
+            Generate mock data
+          </Button>
+          <Button
+            data-testid="collection-header-visualize-your-data"
+            size={ButtonSize.Small}
+            href={buildChartsUrl(
+              atlasMetadata.projectId,
+              atlasMetadata.clusterName,
+              namespace
+            )}
+            target="_self"
+            rel="noopener noreferrer"
+            leftGlyph={<Icon glyph="Charts" />}
+          >
+            Visualize Your Data
+          </Button>
+        </>
       )}
       {isReadonly && sourceName && !editViewName && !preferencesReadOnly && (
         <Button
