@@ -13,6 +13,15 @@ import {
 
 import { Size } from '@leafygreen-ui/select';
 import {
+  Table,
+  TableHead,
+  HeaderRow,
+  HeaderCell,
+  TableBody,
+  Row,
+  Cell,
+} from '@leafygreen-ui/table';
+import {
   Button,
   Modal,
   ModalHeader,
@@ -22,6 +31,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../modules/collection-tab';
+import { FAKE_SCHEMA_GENERATE_RESPONSE } from '../constants';
 
 const columnStyles = css`
   display: flex;
@@ -52,6 +62,13 @@ const rightButtonsStyles = css`
 const comboboxStyles = css`
   width: 500px;
   margin-top: 20px;
+`;
+
+const tableStyles = css`
+  th:first-of-type,
+  td:first-child {
+    padding-left: 0;
+  }
 `;
 
 const MAX_NUMBER_OF_STEPS = 4;
@@ -89,8 +106,48 @@ type MockDataGeneratorModalState = {
 };
 
 const SchemaViewStep = () => {
-  // TODO - set up schema view
-  return <div></div>;
+  return (
+    <div>
+      {FAKE_SCHEMA_GENERATE_RESPONSE.collections.map((collection) => {
+        return (
+          <div key={collection.name}>
+            <Chip variant={Variant.Gray} label={collection.name}>
+              {collection.name}
+            </Chip>
+
+            <Table className={tableStyles}>
+              <TableHead>
+                <HeaderRow>
+                  <HeaderCell>Field Name</HeaderCell>
+                  <HeaderCell>MongoDB Data Type</HeaderCell>
+                  <HeaderCell>faker-js module</HeaderCell>
+                  <HeaderCell>faker-js module args</HeaderCell>
+                </HeaderRow>
+              </TableHead>
+              <TableBody>
+                {Object.keys(collection.schema).map((fieldName) => {
+                  const metadata = collection.schema[fieldName];
+                  return (
+                    <Row>
+                      <Cell>{fieldName}</Cell>
+                      <Cell>{metadata.type}</Cell>
+                      <Cell>{metadata.faker}</Cell>
+                      <Cell>
+                        {metadata.fakerArgs
+                          ?.map((arg) => JSON.stringify(arg))
+                          .join(', ')}
+                      </Cell>
+                    </Row>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        );
+      })}
+      )
+    </div>
+  );
 };
 
 const ConfirmNumberOfDocumentsStep = ({
