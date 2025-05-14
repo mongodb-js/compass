@@ -3,9 +3,6 @@ import { Breadcrumbs } from './breadcrumb';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 <Meta
   title="Components/Navigation/Breadcrumb"
   component={Breadcrumbs}
@@ -85,10 +82,10 @@ const customStyles = css({
     });
 
     const items = [
-      { name: 'Home', onClick: () => noop() },
-      { name: 'Databases', onClick: () => noop() },
-      { name: 'myapp', onClick: () => noop() },
-      { name: 'users', onClick: () => noop() },
+      { name: 'Home', onClick: () => {} },
+      { name: 'Databases', onClick: () => {} },
+      { name: 'myapp', onClick: () => {} },
+      { name: 'users', onClick: () => {} },
     ];
 
     return (
@@ -116,13 +113,13 @@ This demonstrates the standard usage of the Breadcrumbs component.
     });
 
     const items = [
-      { name: 'Home', onClick: () => noop() },
-      { name: 'Databases', onClick: () => noop() },
-      { name: 'myapp', onClick: () => noop() },
-      { name: 'users', onClick: () => noop() },
+      { name: 'Home', onClick: () => {} },
+      { name: 'Databases', onClick: () => {} },
+      { name: 'myapp', onClick: () => {} },
+      { name: 'users', onClick: () => {} },
       {
         name: 'very-long-collection-name-that-should-be-truncated',
-        onClick: () => noop(),
+        onClick: () => {},
       },
     ];
 
@@ -151,8 +148,8 @@ This demonstrates how the component handles long text in items.
     });
 
     const items = [
-      { name: 'Home', onClick: () => noop() },
-      { name: 'Databases', onClick: () => noop() },
+      { name: 'Home', onClick: () => {} },
+      { name: 'Databases', onClick: () => {} },
     ];
 
     return (
@@ -180,10 +177,10 @@ This demonstrates how the component looks with fewer items.
     });
 
     const items = [
-      { name: 'Home', onClick: () => noop() },
-      { name: 'Databases', onClick: () => noop() },
-      { name: 'myapp', onClick: () => noop() },
-      { name: 'users', onClick: () => noop() },
+      { name: 'Home', onClick: () => {} },
+      { name: 'Databases', onClick: () => {} },
+      { name: 'myapp', onClick: () => {} },
+      { name: 'users', onClick: () => {} },
     ];
 
     const customStyles = css({
