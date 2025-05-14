@@ -1,0 +1,11 @@
+{
+  "name": "neal_niva_prompt",
+  "private": true,
+  "scripts": {
+    "start": "node --no-warnings --env-file=.env --experimental-strip-types prompt.mts"
+  },
+  "dependencies": {
+    "mongodb": "^6.16.0",
+    "voyageai": "^0.0.4"
+  }
+}
