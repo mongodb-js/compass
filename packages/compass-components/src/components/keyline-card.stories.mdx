@@ -1,0 +1,87 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { KeylineCard } from './keyline-card';
+
+<Meta
+  title="Components/KeylineCard"
+  component={KeylineCard}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    contentStyle: {
+      control: 'select',
+      options: ['clickable', 'none'],
+      description: 'Set the content style of the card',
+    },
+  }}
+/>
+
+# KeylineCard
+
+The KeylineCard component is a simple card component with a keyline border.
+It supports different content styles and can be used to display various types of content.
+
+## Key features
+
+- Simple card layout with keyline border
+- Support for clickable content style
+- Flexible content area
+- Consistent styling with LeafyGreen design system
+
+## Usage
+
+```tsx
+import { KeylineCard } from '@mongodb-js/compass-components';
+
+function KeylineCardExample() {
+  return (
+    <KeylineCard contentStyle="clickable">
+      <h3>Card Title</h3>
+      <p>This is a paragraph of text in the card.</p>
+    </KeylineCard>
+  );
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => <KeylineCard>Default card content</KeylineCard>}
+</Story>
+
+Basic keyline card with default content style.
+
+### Clickable
+
+<Story name="Clickable">
+  {() => (
+    <KeylineCard contentStyle="clickable">Clickable card content</KeylineCard>
+  )}
+</Story>
+
+Keyline card with clickable content style.
+
+### With Long Content
+
+<Story name="WithLongContent">
+  {() => (
+    <KeylineCard>
+      <div>
+        <h3>Card Title</h3>
+        <p>This is a paragraph of text in the card.</p>
+        <p>Here's another paragraph with more content.</p>
+        <ul>
+          <li>List item 1</li>
+          <li>List item 2</li>
+          <li>List item 3</li>
+        </ul>
+      </div>
+    </KeylineCard>
+  )}
+</Story>
+
+Keyline card with complex content including headings, paragraphs, and a list.
+
+## Props
+
+<Controls />

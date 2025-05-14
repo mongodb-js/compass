@@ -1,0 +1,213 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { SelectList } from './select-list';
+
+<Meta
+  title="Components/Forms/SelectList"
+  component={SelectList}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    items: {
+      control: 'object',
+      description: 'The list of items to display in the select list',
+    },
+    label: {
+      control: 'object',
+      description: 'Label configuration for the select list',
+    },
+    onChange: {
+      action: 'changed',
+      description: 'Function called when selection changes',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the select list is disabled',
+    },
+    className: {
+      control: 'text',
+      description: 'Optional CSS class name',
+    },
+  }}
+/>
+
+# SelectList
+
+The SelectList component allows users to select multiple items from a list.
+It includes a "Select All" checkbox at the top that can select or deselect all items.
+
+## Key features
+
+- Multiple selection with checkboxes
+- "Select All" functionality
+- Support for custom display labels and aria labels
+- Indeterminate checkbox state when some items are selected
+- Dark mode support
+- Disabled state
+
+## Usage
+
+```tsx
+import { SelectList } from '@mongodb-js/compass-components';
+
+function SelectListExample() {
+  const [items, setItems] = React.useState([
+    { id: '1', selected: false, name: 'Item 1' },
+    { id: '2', selected: false, name: 'Item 2' },
+    { id: '3', selected: false, name: 'Item 3' },
+  ]);
+
+  const handleChange = (newItems) => {
+    setItems(newItems);
+  };
+
+  return (
+    <SelectList
+      items={items}
+      label={{
+        displayLabelKey: 'name',
+        name: 'Select Items',
+      }}
+      onChange={handleChange}
+    />
+  );
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => {
+    const [items, setItems] = React.useState([
+      { id: '1', selected: false, name: 'Item 1' },
+      { id: '2', selected: false, name: 'Item 2' },
+      { id: '3', selected: false, name: 'Item 3' },
+    ]);
+
+    const handleChange = (newItems) => {
+      setItems(newItems);
+    };
+
+    return (
+      <div style={{ width: '300px' }}>
+        <SelectList
+          items={items}
+          label={{
+            displayLabelKey: 'name',
+            name: 'Select Items',
+          }}
+          onChange={handleChange}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic select list with unselected items.
+
+### With Selected Items
+
+<Story name="WithSelectedItems">
+  {() => {
+    const [items, setItems] = React.useState([
+      { id: '1', selected: true, name: 'Item 1' },
+      { id: '2', selected: false, name: 'Item 2' },
+      { id: '3', selected: true, name: 'Item 3' },
+    ]);
+
+    const handleChange = (newItems) => {
+      setItems(newItems);
+    };
+
+    return (
+      <div style={{ width: '300px' }}>
+        <SelectList
+          items={items}
+          label={{
+            displayLabelKey: 'name',
+            name: 'Select Items',
+          }}
+          onChange={handleChange}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Select list with some pre-selected items.
+
+### Disabled
+
+<Story name="Disabled">
+  {() => {
+    const [items, setItems] = React.useState([
+      { id: '1', selected: true, name: 'Item 1' },
+      { id: '2', selected: false, name: 'Item 2' },
+      { id: '3', selected: true, name: 'Item 3' },
+    ]);
+
+    const handleChange = (newItems) => {
+      setItems(newItems);
+    };
+
+    return (
+      <div style={{ width: '300px' }}>
+        <SelectList
+          items={items}
+          label={{
+            displayLabelKey: 'name',
+            name: 'Select Items',
+          }}
+          onChange={handleChange}
+          disabled={true}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Disabled select list where selections cannot be changed.
+
+### With Custom Aria Labels
+
+<Story name="WithCustomAriaLabels">
+  {() => {
+    const [items, setItems] = React.useState([
+      { id: '1', selected: false, name: 'Item 1', ariaLabel: 'First Item' },
+      { id: '2', selected: false, name: 'Item 2', ariaLabel: 'Second Item' },
+      { id: '3', selected: false, name: 'Item 3', ariaLabel: 'Third Item' },
+    ]);
+
+    const handleChange = (newItems) => {
+      setItems(newItems);
+    };
+
+    return (
+      <div style={{ width: '300px' }}>
+        <SelectList
+          items={items}
+          label={{
+            displayLabelKey: 'name',
+            ariaLabelKey: 'ariaLabel',
+            name: 'Select Items',
+          }}
+          onChange={handleChange}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Select list with custom ARIA labels for improved accessibility.
+
+## Props
+
+<Controls />

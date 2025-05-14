@@ -1,0 +1,283 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { WorkspaceTabs } from './workspace-tabs';
+
+<Meta
+  title="Components/WorkspaceTabs"
+  component={WorkspaceTabs}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    'aria-label': {
+      control: 'text',
+      description: 'ARIA label for the tabs container',
+    },
+    onCreateNewTab: {
+      action: 'created',
+      description: 'Function called when creating a new tab',
+    },
+    onSelectTab: {
+      action: 'selected',
+      description: 'Function called when selecting a tab',
+    },
+    onSelectNextTab: {
+      action: 'next',
+      description: 'Function called when selecting the next tab',
+    },
+    onSelectPrevTab: {
+      action: 'prev',
+      description: 'Function called when selecting the previous tab',
+    },
+    onCloseTab: {
+      action: 'closed',
+      description: 'Function called when closing a tab',
+    },
+    onMoveTab: {
+      action: 'moved',
+      description: 'Function called when moving a tab',
+    },
+  }}
+/>
+
+# WorkspaceTabs
+
+The WorkspaceTabs component is a tabbed interface for managing multiple workspaces. It supports drag-and-drop reordering, keyboard navigation, and tab management.
+
+## Key features
+
+- Multiple tabs with icons and titles
+- Drag-and-drop reordering
+- Keyboard navigation
+- Tab creation and closing
+- Dark mode support
+- Tooltips for tab information
+
+## Usage
+
+```tsx
+import { WorkspaceTabs } from '@mongodb-js/compass-components';
+
+function WorkspaceTabsExample() {
+  const [selectedTabIndex, setSelectedTabIndex] = React.useState(0);
+  const [tabs, setTabs] = React.useState([
+    {
+      id: 'tab1',
+      type: 'connection',
+      title: 'Local Connection',
+      iconGlyph: 'Server',
+      tooltip: [['Connection', 'mongodb://localhost:27017']],
+    },
+    {
+      id: 'tab2',
+      type: 'collection',
+      title: 'Users Collection',
+      iconGlyph: 'Database',
+      tooltip: [
+        ['Database', 'myapp'],
+        ['Collection', 'users'],
+      ],
+    },
+  ]);
+
+  return (
+    <WorkspaceTabs
+      aria-label="Workspace Tabs"
+      tabs={tabs}
+      selectedTabIndex={selectedTabIndex}
+      onSelectTab={(index) => setSelectedTabIndex(index)}
+      onCloseTab={(id) => {
+        setTabs(tabs.filter((tab) => tab.id !== id));
+      }}
+    />
+  );
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => {
+    const defaultTabs = [
+      {
+        id: 'tab1',
+        type: 'connection',
+        title: 'Local Connection',
+        iconGlyph: 'Server',
+        tooltip: [['Connection', 'mongodb://localhost:27017']],
+      },
+      {
+        id: 'tab2',
+        type: 'collection',
+        title: 'Users Collection',
+        iconGlyph: 'Database',
+        tooltip: [
+          ['Database', 'myapp'],
+          ['Collection', 'users'],
+        ],
+      },
+      {
+        id: 'tab3',
+        type: 'query',
+        title: 'Find Users',
+        iconGlyph: 'Code',
+        tooltip: [['Query', 'db.users.find()']],
+      },
+    ];
+    return (
+      <WorkspaceTabs
+        aria-label="Workspace Tabs"
+        tabs={defaultTabs}
+        selectedTabIndex={0}
+      />
+    );
+  }}
+</Story>
+
+Basic workspace tabs with three tabs of different types.
+
+### With Many Tabs
+
+<Story name="WithManyTabs">
+  {() => {
+    const manyTabs = [
+      {
+        id: 'tab1',
+        type: 'connection',
+        title: 'Local Connection',
+        iconGlyph: 'Server',
+        tooltip: [['Connection', 'mongodb://localhost:27017']],
+      },
+      {
+        id: 'tab2',
+        type: 'collection',
+        title: 'Users Collection',
+        iconGlyph: 'Database',
+        tooltip: [
+          ['Database', 'myapp'],
+          ['Collection', 'users'],
+        ],
+      },
+      {
+        id: 'tab3',
+        type: 'query',
+        title: 'Find Users',
+        iconGlyph: 'Code',
+        tooltip: [['Query', 'db.users.find()']],
+      },
+      {
+        id: 'tab4',
+        type: 'connection',
+        title: 'Atlas Cluster',
+        iconGlyph: 'Server',
+        tooltip: [['Connection', 'mongodb+srv://...']],
+      },
+      {
+        id: 'tab5',
+        type: 'collection',
+        title: 'Products Collection',
+        iconGlyph: 'Database',
+        tooltip: [
+          ['Database', 'shop'],
+          ['Collection', 'products'],
+        ],
+      },
+      {
+        id: 'tab6',
+        type: 'query',
+        title: 'Aggregate Products',
+        iconGlyph: 'Code',
+        tooltip: [['Query', 'db.products.aggregate([...])']],
+      },
+    ];
+    return (
+      <WorkspaceTabs
+        aria-label="Workspace Tabs"
+        tabs={manyTabs}
+        selectedTabIndex={0}
+      />
+    );
+  }}
+</Story>
+
+Workspace tabs with many tabs, demonstrating scrolling behavior.
+
+### With Selected Tab
+
+<Story name="WithSelectedTab">
+  {() => {
+    const defaultTabs = [
+      {
+        id: 'tab1',
+        type: 'connection',
+        title: 'Local Connection',
+        iconGlyph: 'Server',
+        tooltip: [['Connection', 'mongodb://localhost:27017']],
+      },
+      {
+        id: 'tab2',
+        type: 'collection',
+        title: 'Users Collection',
+        iconGlyph: 'Database',
+        tooltip: [
+          ['Database', 'myapp'],
+          ['Collection', 'users'],
+        ],
+      },
+      {
+        id: 'tab3',
+        type: 'query',
+        title: 'Find Users',
+        iconGlyph: 'Code',
+        tooltip: [['Query', 'db.users.find()']],
+      },
+    ];
+    return (
+      <WorkspaceTabs
+        aria-label="Workspace Tabs"
+        tabs={defaultTabs}
+        selectedTabIndex={1}
+      />
+    );
+  }}
+</Story>
+
+Workspace tabs with a pre-selected tab.
+
+### With Long Titles
+
+<Story name="WithLongTitles">
+  {() => {
+    const longTitleTabs = [
+      {
+        id: 'tab1',
+        type: 'connection',
+        title: 'Very Long Connection Name That Might Not Fit',
+        iconGlyph: 'Server',
+        tooltip: [['Connection', 'mongodb://localhost:27017']],
+      },
+      {
+        id: 'tab2',
+        type: 'collection',
+        title: 'Another Very Long Collection Name That Might Not Fit',
+        iconGlyph: 'Database',
+        tooltip: [
+          ['Database', 'myapp'],
+          ['Collection', 'users'],
+        ],
+      },
+    ];
+    return (
+      <WorkspaceTabs
+        aria-label="Workspace Tabs"
+        tabs={longTitleTabs}
+        selectedTabIndex={0}
+      />
+    );
+  }}
+</Story>
+
+Workspace tabs with long titles, demonstrating text truncation and tooltips.
+
+## Props
+
+<Controls />

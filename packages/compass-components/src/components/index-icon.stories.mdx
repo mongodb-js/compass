@@ -1,0 +1,83 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import IndexIcon from './index-icon';
+
+<Meta
+  title="Components/IndexIcon"
+  component={IndexIcon}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    direction: {
+      control: 'select',
+      options: [1, -1, 'text'],
+      description:
+        'The direction of the index (1 for ascending, -1 for descending, or text for other values)',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class name',
+    },
+  }}
+/>
+
+# IndexIcon
+
+The IndexIcon component displays an icon or text representation of an index direction.
+It's commonly used to show the sort direction of database indexes.
+
+## Key features
+
+- Visual representation of index direction
+- Support for ascending (1) and descending (-1) directions
+- Fallback text display for other values
+- Accessible with ARIA labels
+- Custom styling support
+
+## Usage
+
+```tsx
+import IndexIcon from './index-icon';
+
+// Ascending index
+<IndexIcon direction={1} />
+
+// Descending index
+<IndexIcon direction={-1} />
+
+// Text direction
+<IndexIcon direction="text" />
+
+// With custom class
+<IndexIcon direction={1} className="custom-index-icon" />
+```
+
+## Examples
+
+### Ascending
+
+<Story name="Ascending">{() => <IndexIcon direction={1} />}</Story>
+
+Shows an ascending index icon.
+
+### Descending
+
+<Story name="Descending">{() => <IndexIcon direction={-1} />}</Story>
+
+Shows a descending index icon.
+
+### Text Direction
+
+<Story name="TextDirection">{() => <IndexIcon direction="text" />}</Story>
+
+Shows a text representation of the index direction.
+
+### With Custom Class Name
+
+<Story name="WithCustomClassName">
+  {() => <IndexIcon direction={1} className="custom-index-icon" />}
+</Story>
+
+Index icon with a custom CSS class name.
+
+## Props
+
+<Controls />

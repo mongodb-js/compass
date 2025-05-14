@@ -1,0 +1,54 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { InsightsChip } from './insights-chip';
+
+<Meta
+  title="Components/InsightsChip"
+  component={InsightsChip}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    label: {
+      control: 'text',
+      description: 'The text to display in the chip',
+    },
+  }}
+/>
+
+# InsightsChip
+
+The InsightsChip component is used to display insights or tags in a compact format.
+
+## Key features
+
+- Compact design
+- Consistent styling with LeafyGreen design system
+- Automatic dark mode support
+
+## Usage
+
+```tsx
+import { InsightsChip } from '@mongodb-js/compass-components';
+
+<InsightsChip label="Insight" />;
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <InsightsChip label="Insight" />}</Story>
+
+Default insights chip with a short label.
+
+### Long Label
+
+<Story name="LongLabel">
+  {() => (
+    <InsightsChip label="This is a very long insight label that might wrap" />
+  )}
+</Story>
+
+Insights chip with a long label that may wrap to multiple lines.
+
+## Props
+
+<Controls />

@@ -1,0 +1,201 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import { SmallIconButton } from './small-icon-button';
+import { Icon } from '../leafygreen';
+
+<Meta
+  title="Components/Actions/SmallIconButton"
+  component={SmallIconButton}
+  parameters={{
+    layout: 'centered',
+  }}
+  argTypes={{
+    glyph: {
+      control: 'select',
+      options: ['Play', 'Stop', 'Pause'],
+      mapping: {
+        Play: <Icon glyph="Play" />,
+        Stop: <Icon glyph="Stop" />,
+        Pause: <Icon glyph="Pause" />,
+      },
+      description: 'The icon to display in the button',
+    },
+    size: {
+      control: 'select',
+      options: ['default', 'small', 'xsmall'],
+      description: 'The size of the button',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the button is disabled',
+    },
+    onClick: {
+      action: 'clicked',
+      description: 'Function called when the button is clicked',
+    },
+  }}
+/>
+
+# Small Icon Button
+
+The SmallIconButton component is a compact button that displays an icon.
+It's designed for use in tight spaces where a full button would be too large.
+
+## Key features
+
+- Icon-only display
+- Multiple size options
+- Disabled state support
+- Click handler
+- Dark mode support
+
+## Usage
+
+The SmallIconButton component is perfect for:
+
+- Toolbars and action bars
+- Compact interfaces
+- Icon-only actions
+- Space-constrained layouts
+
+```tsx
+import { SmallIconButton } from './small-icon-button';
+import { Icon } from '../leafygreen';
+
+// Basic usage
+<SmallIconButton
+  glyph={<Icon glyph="Play" />}
+  label="Play"
+  onClick={() => console.log('Play clicked')}
+/>
+
+// Different sizes
+<SmallIconButton
+  glyph={<Icon glyph="Play" />}
+  label="Play"
+  size="small"
+/>
+
+<SmallIconButton
+  glyph={<Icon glyph="Play" />}
+  label="Play"
+  size="xsmall"
+/>
+
+// Disabled state
+<SmallIconButton
+  glyph={<Icon glyph="Play" />}
+  label="Play"
+  disabled
+/>
+```
+
+## Examples
+
+### Play Button
+
+<Story name="Play">
+  {() => (
+    <SmallIconButton
+      glyph={<Icon glyph="Play" />}
+      label="Play"
+      size="default"
+    />
+  )}
+</Story>
+
+Basic play button with default size.
+This demonstrates the standard usage of the SmallIconButton component.
+
+### Stop Button
+
+<Story name="Stop">
+  {() => (
+    <SmallIconButton
+      glyph={<Icon glyph="Stop" />}
+      label="Stop"
+      size="default"
+    />
+  )}
+</Story>
+
+Stop button with default size.
+This demonstrates using a different icon in the button.
+
+### Pause Button
+
+<Story name="Pause">
+  {() => (
+    <SmallIconButton
+      glyph={<Icon glyph="Pause" />}
+      label="Pause"
+      size="default"
+    />
+  )}
+</Story>
+
+Pause button with default size.
+This demonstrates another icon variant.
+
+### Small Size
+
+<Story name="Small">
+  {() => (
+    <SmallIconButton glyph={<Icon glyph="Play" />} label="Play" size="small" />
+  )}
+</Story>
+
+Play button with small size.
+This demonstrates the small size variant of the button.
+
+### Extra Small Size
+
+<Story name="XSmall">
+  {() => (
+    <SmallIconButton glyph={<Icon glyph="Play" />} label="Play" size="xsmall" />
+  )}
+</Story>
+
+Play button with extra small size.
+This demonstrates the xsmall size variant of the button.
+
+### Disabled State
+
+<Story name="Disabled">
+  {() => (
+    <SmallIconButton
+      glyph={<Icon glyph="Play" />}
+      label="Play"
+      size="default"
+      disabled
+    />
+  )}
+</Story>
+
+Disabled play button.
+This demonstrates the disabled state of the button.
+
+## Best Practices
+
+1. **Icon Selection**:
+
+   - Use clear, recognizable icons
+   - Ensure icons are meaningful in context
+   - Consider using standard icon sets
+   - Maintain consistency across similar actions
+
+2. **Size Usage**:
+
+   - Use default size for most cases
+   - Use small size for secondary actions
+   - Use xsmall size for very tight spaces
+   - Maintain consistent sizing within groups
+
+3. **Accessibility**:
+   - Always provide a label
+   - Ensure sufficient contrast
+   - Support keyboard navigation
+   - Include hover and focus states
+
+## Props
+
+<Controls />

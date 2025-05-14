@@ -1,0 +1,131 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { OptionsToggle } from './options-toggle';
+
+<Meta
+  title="Components/Forms/OptionsToggle"
+  component={OptionsToggle}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    isExpanded: {
+      control: 'boolean',
+      description: 'Whether the options are expanded',
+    },
+    onToggleOptions: {
+      action: 'toggled',
+      description: 'Callback when toggle is clicked',
+    },
+    label: {
+      control: 'function',
+      description:
+        'Function that returns the label text based on expanded state',
+    },
+    'aria-label': {
+      control: 'function',
+      description:
+        'Function that returns the aria-label based on expanded state',
+    },
+    'aria-controls': {
+      control: 'text',
+      description: 'ID of the element controlled by this toggle',
+    },
+  }}
+/>
+
+# OptionsToggle
+
+The OptionsToggle component is a button that toggles the visibility of additional options or content. It's commonly used to show/hide advanced settings or supplementary information.
+
+## Key features
+
+- Toggle button with expandable/collapsible state
+- Customizable labels for expanded and collapsed states
+- Accessible with ARIA attributes
+- Consistent styling with LeafyGreen design system
+- Support for custom aria labels
+
+## Usage
+
+```tsx
+import { OptionsToggle } from '@mongodb-js/compass-components';
+
+function OptionsToggleExample() {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  return (
+    <div>
+      <OptionsToggle
+        isExpanded={isExpanded}
+        onToggleOptions={() => setIsExpanded(!isExpanded)}
+        aria-controls="options-content"
+      />
+      {isExpanded && (
+        <div id="options-content">Additional options content goes here</div>
+      )}
+    </div>
+  );
+}
+```
+
+## Examples
+
+### Basic
+
+<Story name="Basic">
+  {() => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+
+    return (
+      <div style={{ width: '200px' }}>
+        <OptionsToggle
+          isExpanded={isExpanded}
+          onToggleOptions={() => setIsExpanded(!isExpanded)}
+          aria-controls="options-content"
+        />
+        {isExpanded && (
+          <div id="options-content" style={{ marginTop: '8px' }}>
+            Additional options content goes here
+          </div>
+        )}
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic options toggle with default labels.
+
+### Custom Labels
+
+<Story name="CustomLabels">
+  {() => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+
+    return (
+      <div style={{ width: '200px' }}>
+        <OptionsToggle
+          isExpanded={isExpanded}
+          onToggleOptions={() => setIsExpanded(!isExpanded)}
+          aria-controls="custom-options-content"
+          label={(expanded) => (expanded ? 'Show Less' : 'Show More')}
+          aria-label={(expanded) =>
+            expanded ? 'Collapse additional options' : 'Expand additional options'
+          }
+        />
+        {isExpanded && (
+          <div id="custom-options-content" style={{ marginTop: '8px' }}>
+            Additional options content goes here
+          </div>
+        )}
+      </div>
+    );
+
+}}
+
+</Story>
+
+Options toggle with custom labels for expanded and collapsed states.
+
+## Props
+
+<Controls />

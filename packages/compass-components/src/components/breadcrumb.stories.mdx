@@ -1,0 +1,232 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import { Breadcrumbs } from './breadcrumb';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
+<Meta
+  title="Components/Breadcrumbs"
+  component={Breadcrumbs}
+  parameters={{
+    layout: 'centered',
+  }}
+  argTypes={{
+    items: {
+      control: 'object',
+      description: 'Array of breadcrumb items with name and onClick handler',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class name for the breadcrumbs container',
+    },
+  }}
+/>
+
+# Breadcrumbs
+
+The Breadcrumbs component provides navigation context by showing the current location
+in a hierarchical structure. It's commonly used in navigation bars and headers.
+
+## Key features
+
+- Hierarchical navigation display
+- Clickable breadcrumb items
+- Last item is non-clickable
+- Dark mode support
+- Truncation for long text
+- Chevron separators
+
+## Usage
+
+The Breadcrumbs component is perfect for:
+
+- Navigation bars
+- Headers
+- Hierarchical navigation
+- Location context
+- Path-based navigation
+
+```tsx
+import { Breadcrumbs } from './breadcrumb';
+
+// Basic usage
+const items = [
+  { name: 'Home', onClick: () => {} },
+  { name: 'Databases', onClick: () => {} },
+  { name: 'myapp', onClick: () => {} },
+  { name: 'users', onClick: () => {} },
+];
+
+<Breadcrumbs items={items} />;
+
+// With custom styling
+const customStyles = css({
+  backgroundColor: 'var(--leafygreen-ui-green-light-3)',
+  padding: spacing[2],
+  borderRadius: '4px',
+});
+
+<Breadcrumbs items={items} className={customStyles} />;
+```
+
+## Examples
+
+### Basic Breadcrumbs
+
+<Story name="Basic">
+  {() => {
+    const containerStyles = css({
+      width: '600px',
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+    });
+
+    const items = [
+      { name: 'Home', onClick: () => noop() },
+      { name: 'Databases', onClick: () => noop() },
+      { name: 'myapp', onClick: () => noop() },
+      { name: 'users', onClick: () => noop() },
+    ];
+
+    return (
+      <div className={containerStyles}>
+        <Breadcrumbs items={items} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic breadcrumb navigation with multiple levels.
+This demonstrates the standard usage of the Breadcrumbs component.
+
+### Long Text
+
+<Story name="LongText">
+  {() => {
+    const containerStyles = css({
+      width: '600px',
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+    });
+
+    const items = [
+      { name: 'Home', onClick: () => noop() },
+      { name: 'Databases', onClick: () => noop() },
+      { name: 'myapp', onClick: () => noop() },
+      { name: 'users', onClick: () => noop() },
+      {
+        name: 'very-long-collection-name-that-should-be-truncated',
+        onClick: () => noop(),
+      },
+    ];
+
+    return (
+      <div className={containerStyles}>
+        <Breadcrumbs items={items} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Breadcrumb with long text that gets truncated.
+This demonstrates how the component handles long text in items.
+
+### Short Path
+
+<Story name="ShortPath">
+  {() => {
+    const containerStyles = css({
+      width: '600px',
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+    });
+
+    const items = [
+      { name: 'Home', onClick: () => noop() },
+      { name: 'Databases', onClick: () => noop() },
+    ];
+
+    return (
+      <div className={containerStyles}>
+        <Breadcrumbs items={items} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Breadcrumb with a short navigation path.
+This demonstrates how the component looks with fewer items.
+
+### Custom Styled
+
+<Story name="CustomStyled">
+  {() => {
+    const containerStyles = css({
+      width: '600px',
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+    });
+
+    const items = [
+      { name: 'Home', onClick: () => noop() },
+      { name: 'Databases', onClick: () => noop() },
+      { name: 'myapp', onClick: () => noop() },
+      { name: 'users', onClick: () => noop() },
+    ];
+
+    const customStyles = css({
+      backgroundColor: 'var(--leafygreen-ui-green-light-3)',
+      padding: spacing[2],
+      borderRadius: '4px',
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Breadcrumbs items={items} className={customStyles} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Breadcrumb with custom styling applied.
+This demonstrates how to customize the appearance of the breadcrumbs.
+
+## Best Practices
+
+1. **Navigation Structure**:
+
+   - Keep the hierarchy clear and logical
+   - Use consistent naming conventions
+   - Limit the number of levels when possible
+   - Make the current location obvious
+
+2. **User Experience**:
+
+   - Ensure all items are clickable except the last one
+   - Provide clear visual feedback on hover
+   - Use appropriate spacing between items
+   - Consider mobile responsiveness
+
+3. **Accessibility**:
+   - Use semantic HTML structure
+   - Provide clear navigation context
+   - Support keyboard navigation
+   - Include proper ARIA attributes
+
+## Props
+
+<Controls />

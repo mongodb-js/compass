@@ -1,0 +1,99 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import FormFieldContainer from './form-field-container';
+import { TextInput } from './leafygreen';
+
+<Meta
+  title="Components/Forms/FormFieldContainer"
+  component={FormFieldContainer}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    className: {
+      control: 'text',
+      description: 'Additional CSS class name',
+    },
+    'data-testid': {
+      control: 'text',
+      description: 'Test ID for testing purposes',
+    },
+  }}
+/>
+
+# FormFieldContainer
+
+The FormFieldContainer component is a wrapper component that provides consistent spacing
+for form fields. It's designed to be used with LeafyGreen form components.
+
+## Key features
+
+- Consistent vertical spacing between form fields
+- Support for custom class names
+- Test ID support
+- Integration with LeafyGreen form components
+
+## Usage
+
+```tsx
+import { FormFieldContainer } from '@mongodb-js/compass-components';
+import { TextInput } from '@mongodb-js/compass-components';
+
+function FormFieldContainerExample() {
+  return (
+    <FormFieldContainer data-testid="form-field">
+      <TextInput label="Username" />
+    </FormFieldContainer>
+  );
+}
+```
+
+## Examples
+
+### With Text Input
+
+<Story name="WithTextInput">
+  {() => (
+    <FormFieldContainer data-testid="form-field-container">
+      <TextInput label="Username" />
+    </FormFieldContainer>
+  )}
+</Story>
+
+Form field container with a single text input field.
+
+### With Multiple Fields
+
+<Story name="WithMultipleFields">
+  {() => (
+    <>
+      <FormFieldContainer data-testid="form-field-container-multiple">
+        <TextInput label="Username" />
+      </FormFieldContainer>
+      <FormFieldContainer data-testid="form-field-container-multiple">
+        <TextInput label="Email" type="email" />
+      </FormFieldContainer>
+      <FormFieldContainer data-testid="form-field-container-multiple">
+        <TextInput label="Password" type="password" />
+      </FormFieldContainer>
+    </>
+  )}
+</Story>
+
+Multiple form field containers with different types of input fields.
+
+### With Custom Class Name
+
+<Story name="WithCustomClassName">
+  {() => (
+    <FormFieldContainer
+      data-testid="form-field-container-custom"
+      className="custom-form-field"
+    >
+      <TextInput label="Custom Field" />
+    </FormFieldContainer>
+  )}
+</Story>
+
+Form field container with a custom CSS class name.
+
+## Props
+
+<Controls />

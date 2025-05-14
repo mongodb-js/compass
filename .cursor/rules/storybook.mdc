@@ -1,0 +1,15 @@
+---
+description: Generate storybook stories
+globs:
+alwaysApply: false
+---
+- Rules to generate storybook stories for components:
+  - Group components by category: forms, navigation, modals, etc.
+  - Do not create special stories for Dark Mode, the theme is already set in the preview and applied to all components.
+  - Do not create stories for every possible state, focus on the most common states.
+  - Check the usage of the component in the rest of the app to see how it is used in different contexts.
+  - Generate stories in MDX format, in a file next to the component file: example: button.tsx -> button.stories.mdx
+  - Add documentation and examples that clarify how to use the component and its purpose. Avoid generic documentation, focus on the component's purpose and how to use it. Assume an expert user who already knows general concepts of React and UI design.
+  - Remember mdx already includes "React" as a package, so you don't need to import it.
+  - Examples should be interactive, and show the component in action
+  - Examples should let people view the code

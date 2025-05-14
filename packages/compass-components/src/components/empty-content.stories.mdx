@@ -1,0 +1,111 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { EmptyContent } from './empty-content';
+import { DocumentIcon } from './icons/document-icon';
+import { FavoriteIcon } from './icons/favorite-icon';
+import { NoSavedItemsIcon } from './icons/no-saved-items-icon';
+import { ServerIcon } from './icons/server-icon';
+
+<Meta
+  title="Components/EmptyContent"
+  component={EmptyContent}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    icon: {
+      control: 'select',
+      options: [
+        'DocumentIcon',
+        'ServerIcon',
+        'FavoriteIcon',
+        'NoSavedItemsIcon',
+      ],
+      mapping: {
+        DocumentIcon: () => <DocumentIcon />,
+        ServerIcon: () => <ServerIcon />,
+        FavoriteIcon: () => <FavoriteIcon isFavorite={false} />,
+        NoSavedItemsIcon: () => <NoSavedItemsIcon />,
+      },
+      description: 'Icon to display in the empty state',
+    },
+  }}
+/>
+
+# EmptyContent
+
+The EmptyContent component is used to display an empty state with an optional icon, title, subtitle, and call to action.
+
+## Key features
+
+- Customizable icon
+- Title and subtitle
+- Optional call to action
+- Consistent empty state styling
+
+## Usage
+
+```tsx
+<EmptyContent
+  title="No Content"
+  subTitle="There is no content to display at this time."
+/>
+
+<EmptyContent
+  title="No Documents"
+  subTitle="There are no documents in this collection."
+  icon={<DocumentIcon />}
+/>
+
+<EmptyContent
+  title="No Saved Queries"
+  subTitle="You haven't saved any queries yet."
+  icon={<FavoriteIcon isFavorite={false} />}
+  callToAction="Click here to create your first query"
+/>
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => (
+    <EmptyContent
+      title="No Content"
+      subTitle="There is no content to display at this time."
+    />
+  )}
+</Story>
+
+Default empty state with title and subtitle.
+
+### With Icon
+
+<Story name="WithIcon">
+  {() => (
+    <EmptyContent
+      title="No Documents"
+      subTitle="There are no documents in this collection."
+      icon={<DocumentIcon />}
+    />
+  )}
+</Story>
+
+Empty state with a document icon.
+
+### With Action
+
+<Story name="WithAction">
+  {() => (
+    <EmptyContent
+      title="No Saved Queries"
+      subTitle="You haven't saved any queries yet."
+      icon={<FavoriteIcon isFavorite={false} />}
+      callToAction="Click here to create your first query"
+    />
+  )}
+</Story>
+
+Empty state with a call to action.
+
+## Props
+
+<Controls />

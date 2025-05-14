@@ -1,0 +1,217 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ToastBody } from './toast-body';
+import { ToastArea, openToast } from '../hooks/use-toast';
+import { Button } from './leafygreen';
+
+<Meta
+  title="Components/Toast"
+  component={ToastBody}
+  parameters={{ layout: 'centered' }}
+/>
+
+# Toast
+
+The ToastBody component is used to display the content of a toast notification.
+It supports both a status message and an optional action button.
+
+## Key features
+
+- Flexible layout with message and action button
+- Optional action button with custom text
+- Consistent styling with LeafyGreen design system
+- Test ID support for action buttons
+
+## Usage
+
+```tsx
+import { ToastArea, openToast } from '@mongodb-js/compass-components';
+import { ToastBody } from '@mongodb-js/compass-components';
+
+// Wrap your app with ToastArea
+<ToastArea>
+  <Button
+    onClick={() => {
+      openToast('success-toast', {
+        title: 'Success',
+        description: (
+          <ToastBody
+            statusMessage="Operation completed successfully"
+            actionText="View Details"
+            actionHandler={() => {}}
+          />
+        ),
+        variant: 'success',
+        timeout: 5000,
+      });
+    }}
+  >
+    Show Success Toast
+  </Button>
+</ToastArea>;
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => {
+    const noop = () => {};
+    return (
+      <ToastArea>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            onClick={() => {
+              openToast('success-toast', {
+                title: 'Success',
+                description: (
+                  <ToastBody
+                    statusMessage="Operation completed successfully"
+                    actionText="View Details"
+                    actionHandler={noop}
+                  />
+                ),
+                variant: 'success',
+                timeout: 5000,
+              });
+            }}
+          >
+            Show Success Toast
+          </Button>
+          <Button
+            onClick={() => {
+              openToast('error-toast', {
+                title: 'Error',
+                description: (
+                  <ToastBody
+                    statusMessage="Failed to complete operation"
+                    actionText="Try Again"
+                    actionHandler={noop}
+                  />
+                ),
+                variant: 'warning',
+                timeout: 5000,
+              });
+            }}
+          >
+            Show Error Toast
+          </Button>
+          <Button
+            onClick={() => {
+              openToast('progress-toast', {
+                title: 'Progress',
+                description: (
+                  <ToastBody
+                    statusMessage="Operation in progress..."
+                    actionText="Cancel"
+                    actionHandler={noop}
+                  />
+                ),
+                variant: 'progress',
+                progress: 0.5,
+                timeout: null,
+              });
+            }}
+          >
+            Show Progress Toast
+          </Button>
+        </div>
+      </ToastArea>
+    );
+  }}
+</Story>
+
+Example of how to use toasts in your application. The ToastBody component is used within the toast description to provide a consistent layout for the message and action button.
+
+### With Action
+
+<Story name="WithAction">
+  {() => {
+    const noop = () => {};
+    return (
+      <ToastArea>
+        <Button
+          onClick={() => {
+            openToast('with-action-toast', {
+              title: 'With Action',
+              description: (
+                <ToastBody
+                  statusMessage="Operation completed successfully"
+                  actionText="View Details"
+                  actionHandler={noop}
+                />
+              ),
+              variant: 'success',
+              timeout: 5000,
+            });
+          }}
+        >
+          Show Toast with Action
+        </Button>
+      </ToastArea>
+    );
+  }}
+</Story>
+
+Example of a toast with an action button. The action button can be used to perform additional actions related to the toast message.
+
+### Long Message
+
+<Story name="LongMessage">
+  {() => {
+    const noop = () => {};
+    return (
+      <ToastArea>
+        <Button
+          onClick={() => {
+            openToast('long-message-toast', {
+              title: 'Long Message',
+              description: (
+                <ToastBody
+                  statusMessage="This is a very long message that might wrap to multiple lines in the toast notification. It demonstrates how the component handles longer content."
+                  actionText="View Details"
+                  actionHandler={noop}
+                />
+              ),
+              variant: 'success',
+              timeout: 5000,
+            });
+          }}
+        >
+          Show Toast with Long Message
+        </Button>
+      </ToastArea>
+    );
+  }}
+</Story>
+
+Example of a toast with a long message. The ToastBody component handles long content gracefully with proper wrapping.
+
+### Without Action
+
+<Story name="WithoutAction">
+  {() => (
+    <ToastArea>
+      <Button
+        onClick={() => {
+          openToast('without-action-toast', {
+            title: 'Without Action',
+            description: (
+              <ToastBody statusMessage="Operation completed successfully" />
+            ),
+            variant: 'success',
+            timeout: 5000,
+          });
+        }}
+      >
+        Show Toast without Action
+      </Button>
+    </ToastArea>
+  )}
+</Story>
+
+Example of a toast without an action button. The ToastBody component works well with just a message.
+
+## Props
+
+<Controls />

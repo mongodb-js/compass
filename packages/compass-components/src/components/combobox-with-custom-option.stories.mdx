@@ -1,0 +1,291 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ComboboxWithCustomOption } from './combobox-with-custom-option';
+import { ComboboxOption } from './leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Forms/ComboboxWithCustomOption"
+  component={ComboboxWithCustomOption}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    options: {
+      control: 'object',
+      description: 'Array of options to display in the combobox',
+    },
+    value: {
+      control: 'text',
+      description: 'Currently selected value',
+    },
+    onChange: {
+      action: 'changed',
+      description: 'Callback when value changes',
+    },
+    renderOption: {
+      control: 'function',
+      description: 'Function to render each option',
+    },
+    multiselect: {
+      control: 'boolean',
+      description: 'Whether multiple values can be selected',
+    },
+    label: {
+      control: 'text',
+      description: 'Label for the combobox',
+    },
+    description: {
+      control: 'text',
+      description: 'Description text for the combobox',
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text when no value is selected',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the combobox is disabled',
+    },
+    size: {
+      control: 'select',
+      options: ['default', 'small', 'xsmall'],
+      description: 'Size of the combobox',
+    },
+    clearable: {
+      control: 'boolean',
+      description: 'Whether the selection can be cleared',
+    },
+    overflow: {
+      control: 'select',
+      options: ['scroll-x'],
+      description: 'Overflow behavior',
+    },
+    searchState: {
+      control: 'select',
+      options: ['loading', 'error', 'unset'],
+      description: 'State of the search',
+    },
+    searchLoadingMessage: {
+      control: 'text',
+      description: 'Message to show while loading',
+    },
+    searchErrorMessage: {
+      control: 'text',
+      description: 'Message to show on error',
+    },
+    searchEmptyMessage: {
+      control: 'text',
+      description: 'Message to show when no results',
+    },
+  }}
+/>
+
+# ComboboxWithCustomOption
+
+The ComboboxWithCustomOption component is a combobox input that allows users to select from a list of options or create a custom option by typing.
+
+## Key features
+
+- Select from a list or create a custom option
+- Multiselect support
+- Custom rendering for options
+- Loading, error, and empty states
+- Consistent styling with LeafyGreen design system
+
+## Usage
+
+```tsx
+import {
+  ComboboxWithCustomOption,
+  ComboboxOption,
+} from '@mongodb-js/compass-components';
+
+<ComboboxWithCustomOption
+  options={[{ value: 'Option 1' }, { value: 'Option 2' }]}
+  value={null}
+  onChange={() => {}}
+  renderOption={(option, index, isCustom) => (
+    <ComboboxOption
+      key={index}
+      value={option.value}
+      displayName={isCustom ? `Custom: "${option.value}"` : option.value}
+    />
+  )}
+  label="Select an option"
+  placeholder="Choose an option"
+/>;
+```
+
+## Examples
+
+### Basic
+
+<Story name="Basic">
+  {() => {
+    const [value, setValue] = React.useState(null);
+    const options = [
+      { value: 'Option 1' },
+      { value: 'Option 2' },
+      { value: 'Option 3' },
+    ];
+    const containerStyles = css`
+      width: 300px;
+      margin: ${spacing[4]}px;
+    `;
+    return (
+      <div className={containerStyles}>
+        <ComboboxWithCustomOption
+          options={options}
+          value={value}
+          onChange={setValue}
+          renderOption={(option, index, isCustom) => (
+            <ComboboxOption
+              key={index}
+              value={option.value}
+              displayName={
+                isCustom ? `Custom: "${option.value}"` : option.value
+              }
+            />
+          )}
+          label="Select an option"
+          placeholder="Choose an option"
+          clearable={false}
+          overflow="scroll-x"
+        />
+      </div>
+    );
+  }}
+</Story>
+
+Basic combobox with custom option support.
+
+### With Description
+
+<Story name="WithDescription">
+  {() => {
+    const [value, setValue] = React.useState(null);
+    const options = [
+      { value: 'Option 1' },
+      { value: 'Option 2' },
+      { value: 'Option 3' },
+    ];
+    const containerStyles = css`
+      width: 300px;
+      margin: ${spacing[4]}px;
+    `;
+    return (
+      <div className={containerStyles}>
+        <ComboboxWithCustomOption
+          options={options}
+          value={value}
+          onChange={setValue}
+          renderOption={(option, index, isCustom) => (
+            <ComboboxOption
+              key={index}
+              value={option.value}
+              displayName={
+                isCustom ? `Custom: "${option.value}"` : option.value
+              }
+            />
+          )}
+          label="Select an option"
+          description="You can also type to create a custom option"
+          placeholder="Choose an option"
+          clearable={false}
+          overflow="scroll-x"
+        />
+      </div>
+    );
+  }}
+</Story>
+
+Combobox with description text.
+
+### Multiselect
+
+<Story name="Multiselect">
+  {() => {
+    const [value, setValue] = React.useState([]);
+    const options = [
+      { value: 'Option 1' },
+      { value: 'Option 2' },
+      { value: 'Option 3' },
+    ];
+    const containerStyles = css`
+      width: 300px;
+      margin: ${spacing[4]}px;
+    `;
+    return (
+      <div className={containerStyles}>
+        <ComboboxWithCustomOption
+          options={options}
+          value={value}
+          onChange={setValue}
+          renderOption={(option, index, isCustom) => (
+            <ComboboxOption
+              key={index}
+              value={option.value}
+              displayName={
+                isCustom ? `Custom: "${option.value}"` : option.value
+              }
+            />
+          )}
+          label="Select options"
+          description="You can select multiple options or create custom ones"
+          placeholder="Choose options"
+          multiselect
+          clearable={false}
+          overflow="scroll-x"
+        />
+      </div>
+    );
+  }}
+</Story>
+
+Combobox with multiple selection support.
+
+### Loading
+
+<Story name="Loading">
+  {() => {
+    const [value, setValue] = React.useState(null);
+    const options = [
+      { value: 'Option 1' },
+      { value: 'Option 2' },
+      { value: 'Option 3' },
+    ];
+    const containerStyles = css`
+      width: 300px;
+      margin: ${spacing[4]}px;
+    `;
+    return (
+      <div className={containerStyles}>
+        <ComboboxWithCustomOption
+          options={options}
+          value={value}
+          onChange={setValue}
+          renderOption={(option, index, isCustom) => (
+            <ComboboxOption
+              key={index}
+              value={option.value}
+              displayName={
+                isCustom ? `Custom: "${option.value}"` : option.value
+              }
+            />
+          )}
+          label="Select an option"
+          placeholder="Choose an option"
+          clearable={false}
+          overflow="scroll-x"
+          searchState="loading"
+          searchLoadingMessage="Loading options..."
+        />
+      </div>
+    );
+  }}
+</Story>
+
+Combobox in loading state.
+
+## Props
+
+<Controls />

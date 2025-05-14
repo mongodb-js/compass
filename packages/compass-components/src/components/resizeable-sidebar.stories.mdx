@@ -1,0 +1,187 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import ResizableSidebar, { defaultSidebarWidth } from './resizeable-sidebar';
+
+<Meta
+  title="Components/ResizableSidebar"
+  component={ResizableSidebar}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    initialWidth: {
+      control: { type: 'number' },
+      description: 'Initial width of the sidebar',
+      defaultValue: defaultSidebarWidth,
+    },
+    minWidth: {
+      control: { type: 'number' },
+      description: 'Minimum width of the sidebar',
+      defaultValue: 210,
+    },
+    useNewTheme: {
+      control: { type: 'boolean' },
+      description: 'Whether to use the new theme styles',
+      defaultValue: false,
+    },
+  }}
+/>
+
+# ResizableSidebar
+
+The ResizableSidebar component provides a resizable sidebar panel that can be dragged to adjust its width. It's commonly used for navigation menus, settings panels, or any content that needs to be collapsible and resizable.
+
+## Key features
+
+- Draggable resize handle
+- Configurable initial and minimum widths
+- Smooth resize animations
+- Optional new theme styling
+- Maintains layout structure during resize
+
+## Usage
+
+```tsx
+import ResizableSidebar from '@mongodb-js/compass-components';
+
+// Basic usage
+<ResizableSidebar>
+  <YourSidebarContent />
+</ResizableSidebar>
+
+// With custom width
+<ResizableSidebar initialWidth={400} minWidth={250}>
+  <YourSidebarContent />
+</ResizableSidebar>
+
+// With new theme
+<ResizableSidebar useNewTheme={true}>
+  <YourSidebarContent />
+</ResizableSidebar>
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => {
+    const SidebarContent = ({ title }) => (
+      <div style={{ padding: '20px' }}>
+        <h3>{title}</h3>
+        <p>
+          This is a resizable sidebar component. Try dragging the right edge to
+          resize.
+        </p>
+        <ul>
+          <li>Menu Item 1</li>
+          <li>Menu Item 2</li>
+          <li>Menu Item 3</li>
+          <li>Menu Item 4</li>
+        </ul>
+      </div>
+    );
+
+    return (
+      <div style={{ height: '400px', display: 'flex', border: '1px solid #ccc' }}>
+        <ResizableSidebar>
+          <SidebarContent title="Default Sidebar" />
+        </ResizableSidebar>
+        <div style={{ flex: 1, padding: '20px' }}>
+          <h2>Main Content Area</h2>
+          <p>
+            This is the main content area that will resize as the sidebar is
+            resized.
+          </p>
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Default sidebar example with standard configuration.
+
+### With New Theme
+
+<Story name="WithNewTheme">
+  {() => {
+    const SidebarContent = ({ title }) => (
+      <div style={{ padding: '20px' }}>
+        <h3>{title}</h3>
+        <p>
+          This is a resizable sidebar component with the new theme. Try dragging the right edge to
+          resize.
+        </p>
+        <ul>
+          <li>Menu Item 1</li>
+          <li>Menu Item 2</li>
+          <li>Menu Item 3</li>
+          <li>Menu Item 4</li>
+        </ul>
+      </div>
+    );
+
+    return (
+      <div style={{ height: '400px', display: 'flex', border: '1px solid #ccc' }}>
+        <ResizableSidebar useNewTheme={true}>
+          <SidebarContent title="New Theme Sidebar" />
+        </ResizableSidebar>
+        <div style={{ flex: 1, padding: '20px' }}>
+          <h2>Main Content Area</h2>
+          <p>
+            This is the main content area that will resize as the sidebar is
+            resized.
+          </p>
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Sidebar example using the new theme styles.
+
+### Custom Width
+
+<Story name="CustomWidth">
+  {() => {
+    const SidebarContent = ({ title }) => (
+      <div style={{ padding: '20px' }}>
+        <h3>{title}</h3>
+        <p>
+          This is a resizable sidebar component with custom width settings. Try dragging the right edge to
+          resize.
+        </p>
+        <ul>
+          <li>Menu Item 1</li>
+          <li>Menu Item 2</li>
+          <li>Menu Item 3</li>
+          <li>Menu Item 4</li>
+        </ul>
+      </div>
+    );
+
+    return (
+      <div style={{ height: '400px', display: 'flex', border: '1px solid #ccc' }}>
+        <ResizableSidebar initialWidth={400} minWidth={250}>
+          <SidebarContent title="Custom Width Sidebar" />
+        </ResizableSidebar>
+        <div style={{ flex: 1, padding: '20px' }}>
+          <h2>Main Content Area</h2>
+          <p>
+            This is the main content area that will resize as the sidebar is
+            resized.
+          </p>
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Sidebar example with custom width settings.
+
+## Props
+
+<Controls />

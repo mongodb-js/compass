@@ -1,0 +1,286 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { VirtualGrid } from './virtual-grid';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Virtualization/VirtualGrid"
+  component={VirtualGrid}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    itemMinWidth: {
+      control: 'number',
+      description: 'Minimum width of each grid item',
+    },
+    itemHeight: {
+      control: 'number',
+      description: 'Height of each grid item',
+    },
+    itemsCount: {
+      control: 'number',
+      description: 'Total number of items in the grid',
+    },
+    colCount: {
+      control: 'number',
+      description: 'Number of columns in the grid (optional)',
+    },
+    overscanCount: {
+      control: 'number',
+      description: 'Number of items to render outside the visible area',
+    },
+  }}
+/>
+
+# VirtualGrid
+
+The VirtualGrid component provides a virtualized grid layout for efficiently rendering large lists of items. It only renders the items that are currently visible in the viewport, improving performance for large datasets.
+
+## Key features
+
+- Virtualized rendering for performance
+- Configurable item sizes
+- Customizable grid layout
+- Support for headers and empty states
+- Consistent styling with LeafyGreen design system
+
+## Usage
+
+```tsx
+import { VirtualGrid } from '@mongodb-js/compass-components';
+
+<VirtualGrid
+  itemMinWidth={200}
+  itemHeight={150}
+  itemsCount={1000}
+  renderItem={({ index }) => (
+    <div>
+      <h3>Item {index + 1}</h3>
+      <p>Content for item {index + 1}</p>
+    </div>
+  )}
+  overscanCount={3}
+/>;
+```
+
+## Examples
+
+### Basic Grid
+
+<Story name="Basic">
+  {() => {
+    const items = Array.from({ length: 1000 }, (_, i) => ({
+      id: i,
+      title: `Item ${i + 1}`,
+      content: `This is the content for item ${i + 1}`,
+    }));
+
+    const containerStyles = css`
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 100%;
+      outline: none;
+    `;
+
+    const rowStyles = css`
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: ${spacing[200]}px;
+      padding: ${spacing[200]}px;
+    `;
+
+    const gridItemStyles = css`
+      padding: ${spacing[3]}px;
+      background-color: white;
+      border: 1px solid var(--leafygreen-ui-gray-light-2);
+      border-radius: 4px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: ${spacing[2]}px;
+    `;
+
+    const renderItem = ({ index }) => {
+      const item = items[index];
+      return (
+        <div className={gridItemStyles}>
+          <h3 style={{ margin: 0 }}>{item.title}</h3>
+          <p style={{ margin: 0 }}>{item.content}</p>
+        </div>
+      );
+    };
+
+    return (
+      <div style={{ width: '800px', height: '600px', border: '1px solid #ccc' }}>
+        <div className={containerStyles}>
+          <VirtualGrid
+            itemMinWidth={200}
+            itemHeight={150}
+            itemsCount={items.length}
+            renderItem={renderItem}
+            overscanCount={3}
+            classNames={{ container: containerStyles, row: rowStyles }}
+            resetActiveItemOnBlur={false}
+          />
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic virtual grid with 1000 items, demonstrating efficient rendering of large datasets.
+
+### With Header
+
+<Story name="WithHeader">
+  {() => {
+    const items = Array.from({ length: 1000 }, (_, i) => ({
+      id: i,
+      title: `Item ${i + 1}`,
+      content: `This is the content for item ${i + 1}`,
+    }));
+
+    const containerStyles = css`
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 100%;
+      outline: none;
+    `;
+
+    const rowStyles = css`
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: ${spacing[200]}px;
+      padding: ${spacing[200]}px;
+    `;
+
+    const gridItemStyles = css`
+      padding: ${spacing[3]}px;
+      background-color: white;
+      border: 1px solid var(--leafygreen-ui-gray-light-2);
+      border-radius: 4px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: ${spacing[2]}px;
+    `;
+
+    const renderItem = ({ index }) => {
+      const item = items[index];
+      return (
+        <div className={gridItemStyles}>
+          <h3 style={{ margin: 0 }}>{item.title}</h3>
+          <p style={{ margin: 0 }}>{item.content}</p>
+        </div>
+      );
+    };
+
+    const renderHeader = () => (
+      <div
+        style={{
+          padding: spacing[3],
+          backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+          borderBottom: '1px solid var(--leafygreen-ui-gray-light-2)',
+        }}
+      >
+        <h2 style={{ margin: 0 }}>Grid Header</h2>
+        <p style={{ margin: '8px 0 0 0' }}>
+          This is a header that stays fixed while the grid content scrolls
+        </p>
+      </div>
+    );
+
+    return (
+      <div style={{ width: '800px', height: '600px', border: '1px solid #ccc' }}>
+        <div className={containerStyles}>
+          <VirtualGrid
+            itemMinWidth={200}
+            itemHeight={150}
+            itemsCount={items.length}
+            renderItem={renderItem}
+            headerHeight={100}
+            renderHeader={renderHeader}
+            overscanCount={3}
+            classNames={{ container: containerStyles, row: rowStyles }}
+            resetActiveItemOnBlur={false}
+          />
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Virtual grid with a fixed header that stays in place while content scrolls.
+
+### Empty State
+
+<Story name="EmptyState">
+  {() => {
+    const containerStyles = css`
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 100%;
+      outline: none;
+    `;
+
+    const rowStyles = css`
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: ${spacing[200]}px;
+      padding: ${spacing[200]}px;
+    `;
+
+    const renderItem = ({ index }) => {
+      return (
+        <div style={{ padding: '16px', border: '1px solid #eee' }}>
+          <h3>Item {index + 1}</h3>
+          <p>Content for item {index + 1}</p>
+        </div>
+      );
+    };
+
+    const renderEmptyList = () => (
+      <div style={{ padding: '32px', textAlign: 'center' }}>
+        <h3>No Items Found</h3>
+        <p>There are no items to display in the grid at this time.</p>
+      </div>
+    );
+
+    return (
+      <div style={{ width: '800px', height: '600px', border: '1px solid #ccc' }}>
+        <div className={containerStyles}>
+          <VirtualGrid
+            itemMinWidth={200}
+            itemHeight={150}
+            itemsCount={0}
+            renderItem={renderItem}
+            renderEmptyList={renderEmptyList}
+            overscanCount={3}
+            classNames={{ container: containerStyles, row: rowStyles }}
+            resetActiveItemOnBlur={false}
+          />
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Virtual grid showing an empty state when there are no items.
+
+## Props
+
+<Controls />

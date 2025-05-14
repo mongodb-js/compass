@@ -1,0 +1,132 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ResizeHandle, ResizeDirection } from './resize-handle';
+import { css } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { Resizable } from 're-resizable';
+
+<Meta
+  title="Components/ResizeHandle"
+  component={ResizeHandle}
+  parameters={{
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'A resizable handle component that can be used with re-resizable to create resizable panels and sidebars.',
+      },
+    },
+  }}
+/>
+
+# ResizeHandle
+
+The ResizeHandle component is used to create resizable panels and sidebars, typically in conjunction with the `re-resizable` library.
+
+## Key features
+
+- Works with `re-resizable` for drag-to-resize panels
+- Supports multiple directions (left, right, top, bottom)
+- Consistent styling with LeafyGreen design system
+- Keyboard accessible
+
+## Usage
+
+```tsx
+import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
+import { Resizable } from 're-resizable';
+
+<Resizable
+  defaultSize={{ width: '300px', height: '100%' }}
+  minWidth="200px"
+  maxWidth="500px"
+  enable={{ right: true }}
+  handleComponent={{
+    right: (
+      <ResizeHandle
+        direction={ResizeDirection.RIGHT}
+        value={300}
+        minValue={200}
+        maxValue={500}
+        onChange={() => {}}
+        title="sidebar"
+      />
+    ),
+  }}
+  handleStyles={{ right: { right: '-9px' } }}
+>
+  <div>Sidebar content</div>
+</Resizable>;
+```
+
+## Examples
+
+### Resizable Sidebar
+
+<Story name="Sidebar">
+  {() => {
+    const containerStyles = css({
+      display: 'flex',
+      width: '800px',
+      height: '400px',
+      border: `1px solid ${palette.gray.light2}`,
+      borderRadius: '4px',
+      overflow: 'hidden',
+      position: 'relative',
+    });
+    const sidebarStyles = css({
+      backgroundColor: palette.gray.light3,
+      padding: '16px',
+      overflow: 'auto',
+      height: '100%',
+    });
+    const contentStyles = css({
+      flex: 1,
+      backgroundColor: palette.white,
+      padding: '16px',
+      overflow: 'auto',
+      height: '100%',
+    });
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noop = () => {};
+    return (
+      <div className={containerStyles}>
+        <Resizable
+          defaultSize={{ width: '300px', height: '100%' }}
+          minWidth="200px"
+          maxWidth="500px"
+          enable={{ right: true }}
+          handleComponent={{
+            right: (
+              <ResizeHandle
+                direction={ResizeDirection.RIGHT}
+                value={300}
+                minValue={200}
+                maxValue={500}
+                onChange={noop}
+                title="sidebar"
+              />
+            ),
+          }}
+          handleStyles={{ right: { right: '-9px' } }}
+        >
+          <div className={sidebarStyles}>
+            <h3>Sidebar</h3>
+            <p>This is a resizable sidebar panel.</p>
+            <p>Try dragging the handle or using arrow keys to resize.</p>
+          </div>
+        </Resizable>
+        <div className={contentStyles}>
+          <h3>Main Content</h3>
+          <p>This is the main content area.</p>
+          <p>The sidebar can be resized to adjust the layout.</p>
+        </div>
+      </div>
+    );
+  }}
+</Story>
+
+Resizable sidebar panel with a drag handle.
+
+## Props
+
+<Controls />

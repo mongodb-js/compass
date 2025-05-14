@@ -1,0 +1,103 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { SpinLoader, SpinLoaderWithLabel, CancelLoader } from './loader';
+
+<Meta
+  title="Components/Loader"
+  component={SpinLoader}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    size: {
+      control: 'number',
+      description: 'Size of the loader in pixels',
+    },
+    title: {
+      control: 'text',
+      description: 'Title attribute for accessibility',
+    },
+  }}
+/>
+
+# Loader
+
+The Loader components provide visual feedback for loading states.
+
+## Key features
+
+- Multiple loader types (Spin, Spin with Label, Cancel)
+- Configurable sizes
+- Optional labels
+- Consistent styling with LeafyGreen design system
+
+## Usage
+
+```tsx
+import { SpinLoader, SpinLoaderWithLabel, CancelLoader } from '@mongodb-js/compass-components';
+
+<SpinLoader size={12} />
+<SpinLoaderWithLabel progressText="Loading..." />
+<CancelLoader progressText="Loading..." cancelText="Cancel" onCancel={() => {}} />
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <SpinLoader size={12} />}</Story>
+
+Default loader with size 12.
+
+### Small
+
+<Story name="Small">{() => <SpinLoader size={8} />}</Story>
+
+Small loader with size 8.
+
+### Large
+
+<Story name="Large">{() => <SpinLoader size={24} />}</Story>
+
+Large loader with size 24.
+
+### With Title
+
+<Story name="WithTitle">
+  {() => <SpinLoader size={12} title="Loading..." />}
+</Story>
+
+Loader with a title for accessibility.
+
+### With Label
+
+<Story name="WithLabel">
+  {() => <SpinLoaderWithLabel progressText="Loading..." />}
+</Story>
+
+Loader with a label below the spinner.
+
+### With Long Label
+
+<Story name="WithLongLabel">
+  {() => (
+    <SpinLoaderWithLabel progressText="Loading a very long operation that might take some time to complete..." />
+  )}
+</Story>
+
+Loader with a long label.
+
+### Cancel Loader
+
+<Story name="Cancel">
+  {() => (
+    <CancelLoader
+      progressText="Loading..."
+      cancelText="Cancel"
+      onCancel={() => {}}
+    />
+  )}
+</Story>
+
+Loader with a cancel button.
+
+## Props
+
+<Controls />

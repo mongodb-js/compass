@@ -1,0 +1,60 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { HorizontalRule } from './horizontal-rule';
+
+<Meta
+  title="Components/HorizontalRule"
+  component={HorizontalRule}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    className: {
+      control: 'text',
+      description: 'Additional CSS class name',
+    },
+  }}
+/>
+
+# HorizontalRule
+
+The HorizontalRule component provides a visual separator between content sections.
+
+## Key features
+
+- Consistent styling with LeafyGreen design system
+- Automatic dark mode support
+- Customizable through className prop
+
+## Usage
+
+```tsx
+import { HorizontalRule } from '@mongodb-js/compass-components';
+
+<HorizontalRule />;
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <HorizontalRule />}</Story>
+
+Default horizontal rule.
+
+### With Custom Class
+
+<Story name="WithCustomClass">
+  {() => <HorizontalRule className="custom-hr" />}
+</Story>
+
+Horizontal rule with a custom CSS class.
+
+### With Margin
+
+<Story name="WithMargin">
+  {() => <HorizontalRule className="custom-hr" style={{ margin: '20px 0' }} />}
+</Story>
+
+Horizontal rule with custom margin.
+
+## Props
+
+<Controls />

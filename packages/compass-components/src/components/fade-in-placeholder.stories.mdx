@@ -1,0 +1,140 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { useState } from 'react';
+import { FadeInPlaceholder } from './content-with-fallback';
+import { Button } from './leafygreen';
+
+<Meta
+  title="Components/FadeInPlaceholder"
+  component={FadeInPlaceholder}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    isContentReady: {
+      control: 'boolean',
+      description: 'Whether the content is ready to be displayed',
+    },
+    className: {
+      control: 'text',
+      description: 'Custom class name for the placeholder',
+    },
+  }}
+/>
+
+# FadeInPlaceholder
+
+The FadeInPlaceholder component is an enhanced version of ContentWithFallback that provides fade-in animations and absolute positioning for the fallback content.
+
+## Key features
+
+- Fade-in animations for content transitions
+- Absolute positioning for fallback content
+- Configurable timeouts
+- Smooth transitions between states
+
+## Usage
+
+```tsx
+<FadeInPlaceholder
+  isContentReady={isReady}
+  content={() => (
+    <div>
+      <h3>Content is Ready!</h3>
+      <p>This content faded in after the fallback.</p>
+    </div>
+  )}
+  fallback={() => (
+    <div>
+      <h3>Loading...</h3>
+      <p>Please wait while content loads.</p>
+    </div>
+  )}
+/>
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => {
+    const [isReady, setIsReady] = useState(false);
+    return (
+      <div
+        style={{
+          width: '300px',
+          height: '200px',
+          border: '1px solid #ccc',
+          padding: '20px',
+        }}
+      >
+        <FadeInPlaceholder
+          isContentReady={isReady}
+          content={() => (
+            <div>
+              <h3>Content is Ready!</h3>
+              <p>This content faded in after the fallback.</p>
+            </div>
+          )}
+          fallback={() => (
+            <div>
+              <h3>Loading...</h3>
+              <p>Please wait while content loads.</p>
+            </div>
+          )}
+        />
+        <div style={{ marginTop: '20px' }}>
+          <Button onClick={() => setIsReady(!isReady)}>
+            {isReady ? 'Reset' : 'Load Content'}
+          </Button>
+        </div>
+      </div>
+    );
+  }}
+</Story>
+
+Default usage with interactive content loading.
+
+### With Custom Class Name
+
+<Story name="WithCustomClassName">
+  {() => {
+    const [isReady, setIsReady] = useState(false);
+    return (
+      <div
+        style={{
+          width: '300px',
+          height: '200px',
+          border: '1px solid #ccc',
+          padding: '20px',
+        }}
+      >
+        <FadeInPlaceholder
+          isContentReady={isReady}
+          className="custom-fade-in-placeholder"
+          content={() => (
+            <div>
+              <h3>Content is Ready!</h3>
+              <p>This content faded in after the fallback.</p>
+            </div>
+          )}
+          fallback={() => (
+            <div>
+              <h3>Loading...</h3>
+              <p>Please wait while content loads.</p>
+            </div>
+          )}
+        />
+        <div style={{ marginTop: '20px' }}>
+          <Button onClick={() => setIsReady(!isReady)}>
+            {isReady ? 'Reset' : 'Load Content'}
+          </Button>
+        </div>
+      </div>
+    );
+  }}
+</Story>
+
+Custom class name applied to the placeholder.
+
+## Props
+
+<Controls />
