@@ -5,6 +5,7 @@ import {
   showPrompt,
   ConfirmationModalVariant,
 } from './use-confirmation';
+import Button from '@leafygreen-ui/button';
 
 <Meta title="Hooks/useConfirmationModal" component={ConfirmationModalArea} />
 
@@ -72,7 +73,7 @@ function MyComponent() {
 
     return (
       <ConfirmationModalArea>
-        <button onClick={handleClick}>Show Confirmation</button>
+        <Button onClick={handleClick}>Show Confirmation</Button>
       </ConfirmationModalArea>
     );
 
@@ -96,7 +97,7 @@ function MyComponent() {
 
     return (
       <ConfirmationModalArea>
-        <button onClick={handleClick}>Delete Database</button>
+        <Button onClick={handleClick}>Delete Database</Button>
       </ConfirmationModalArea>
     );
 
@@ -121,7 +122,7 @@ function MyComponent() {
 
     return (
       <ConfirmationModalArea>
-        <button onClick={handleClick}>Dangerous Action</button>
+        <Button onClick={handleClick}>Dangerous Action</Button>
       </ConfirmationModalArea>
     );
 
@@ -145,7 +146,7 @@ function MyComponent() {
 
     return (
       <ConfirmationModalArea>
-        <button onClick={handleClick}>Show Prompt</button>
+        <Button onClick={handleClick}>Show Prompt</Button>
       </ConfirmationModalArea>
     );
 

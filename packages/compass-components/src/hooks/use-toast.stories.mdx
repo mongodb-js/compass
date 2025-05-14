@@ -1,5 +1,6 @@
 import { Meta, Story, Controls } from '@storybook/blocks';
 import { ToastArea, openToast } from './use-toast';
+import Button from '@leafygreen-ui/button';
 
 <Meta title="Hooks/useToast" component={ToastArea} />
 
@@ -23,7 +24,7 @@ function MyComponent() {
 
   return (
     <ToastArea>
-      <button onClick={handleSuccess}>Show Success Toast</button>
+      <Button onClick={handleSuccess}>Show Success Toast</Button>
     </ToastArea>
   );
 }
@@ -58,7 +59,7 @@ function MyComponent() {
 
     return (
       <ToastArea>
-        <button onClick={handleClick}>Show Success Toast</button>
+        <Button onClick={handleClick}>Show Success Toast</Button>
       </ToastArea>
     );
 
@@ -80,7 +81,7 @@ function MyComponent() {
 
     return (
       <ToastArea>
-        <button onClick={handleClick}>Show Error Toast</button>
+        <Button onClick={handleClick}>Show Error Toast</Button>
       </ToastArea>
     );
 
@@ -111,7 +112,7 @@ function MyComponent() {
 
     return (
       <ToastArea>
-        <button onClick={handleClick}>Show Progress Toast</button>
+        <Button onClick={handleClick}>Show Progress Toast</Button>
       </ToastArea>
     );
 
@@ -128,13 +129,13 @@ function MyComponent() {
         variant: 'note',
         title: 'New version available',
         description: 'A new version of the application is ready to install',
-        actionElement: <button onClick={() => console.log('Update clicked')}>Update Now</button>
+        actionElement: <Button onClick={() => console.log('Update clicked')}>Update Now</Button>
       });
     };
 
     return (
       <ToastArea>
-        <button onClick={handleClick}>Show Toast with Action</button>
+        <Button onClick={handleClick}>Show Toast with Action</Button>
       </ToastArea>
     );
 
