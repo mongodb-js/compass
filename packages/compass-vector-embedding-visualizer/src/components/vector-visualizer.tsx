@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import Plotly from 'plotly.js';
+const PCA = require('ml-pca');
+import { Binary } from 'mongodb';
 
-type HoverInfo = {
-  x: number;
-  y: number;
-  text: string;
-} | null;
+type HoverInfo = { x: number; y: number; text: string } | null;
 
-export const VectorVisualizer: React.FC = () => {
+export interface VectorVisualizerProps {
+  dataService: {
+    find: (
+      ns: string,
+      filter: Record<string, unknown>,
+      options?: { limit?: number }
+    ) => Promise<any[]>;
+  };
+  collection: { namespace: string };
+}
+
+function normalizeTo2D(vectors: Binary[]): { x: number; y: number }[] {
+  const raw = vectors.map((v) => Array.from(v.toFloat32Array()));
+  const pca = new PCA(raw);
+  const reduced = pca.predict(raw, { nComponents: 2 }).to2DArray();
+  return reduced.map(([x, y]: [number, number]) => ({ x, y }));
+}
+
+export const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
+  dataService,
+  collection,
+}) => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
 
   useEffect(() => {
@@ -17,77 +36,93 @@ export const VectorVisualizer: React.FC = () => {
     let isMounted = true;
 
     const plot = async () => {
-      await Plotly.newPlot(
-        container,
-        [
-          {
-            x: [1, 2, 3, 4, 5],
-            y: [10, 15, 13, 17, 12],
-            mode: 'markers',
-            type: 'scatter',
-            name: 'baskd',
-            text: ['doc1', 'doc2', 'doc3', 'doc4', 'doc5'],
-            hoverinfo: 'none',
-            marker: {
-              size: 15,
-              color: 'teal',
-              line: { width: 1, color: '#fff' },
+      try {
+        const ns = collection?.namespace;
+        if (!ns || !dataService) return;
+
+        const docs = await dataService.find(ns, {}, { limit: 1000 });
+        const vectors = docs.map((doc) => doc.review_vec).filter(Boolean);
+
+        if (!vectors.length) return;
+
+        const points = normalizeTo2D(vectors);
+
+        await Plotly.newPlot(
+          container,
+          [
+            {
+              x: points.map((p) => p.x),
+              y: points.map((p) => p.y),
+              mode: 'markers',
+              type: 'scatter',
+              text: docs.map((doc) => doc.review || '[no text]'),
+              hoverinfo: 'none',
+              marker: {
+                size: 12,
+                color: 'teal',
+                line: { width: 1, color: '#fff' },
+              },
             },
+          ],
+          {
+            hovermode: 'closest',
+            margin: { l: 40, r: 10, t: 30, b: 30 },
+            plot_bgcolor: '#f9f9f9',
+            paper_bgcolor: '#f9f9f9',
           },
-        ],
-        {
-          margin: { l: 40, r: 10, t: 40, b: 40 },
-          hovermode: 'closest',
-          hoverdistance: 30,
-          dragmode: 'zoom',
-          plot_bgcolor: '#f7f7f7',
-          paper_bgcolor: '#f7f7f7',
-          xaxis: { gridcolor: '#e0e0e0' },
-          yaxis: { gridcolor: '#e0e0e0' },
-        },
-        { responsive: true }
-      );
+          { responsive: true }
+        );
 
-      const handleHover = (data: any) => {
-        const point = data.points?.[0];
-        if (!point) return;
+        const handleHover = (event: Event) => {
+          const e = event as CustomEvent<{
+            points: { text: string }[];
+            event: MouseEvent;
+          }>;
 
-        const containerRect = container.getBoundingClientRect();
-        const relX = data.event.clientX - containerRect.left;
-        const relY = data.event.clientY - containerRect.top;
+          const point = e.detail?.points?.[0];
+          const mouse = e.detail?.event;
+          if (!point || !mouse) return;
 
-        if (isMounted) {
-          setHoverInfo({ x: relX, y: relY, text: point.text });
-        }
-      };
+          const rect = container.getBoundingClientRect();
+          setHoverInfo({
+            x: mouse.clientX - rect.left,
+            y: mouse.clientY - rect.top,
+            text: point.text,
+          });
+        };
 
-      const handleUnhover = () => {
-        if (isMounted) {
-          setHoverInfo(null);
-        }
-      };
+        const handleUnhover = () => setHoverInfo(null);
 
-      container.addEventListener('plotly_hover', handleHover);
-      container.addEventListener('plotly_unhover', handleUnhover);
+        container.addEventListener(
+          'plotly_hover',
+          handleHover as EventListener
+        );
+        container.addEventListener(
+          'plotly_unhover',
+          handleUnhover as EventListener
+        );
 
-      // Cleanup
-      return () => {
-        isMounted = false;
-        container.removeEventListener('plotly_hover', handleHover);
-        container.removeEventListener('plotly_unhover', handleUnhover);
-      };
+        return () => {
+          container.removeEventListener(
+            'plotly_hover',
+            handleHover as EventListener
+          );
+          container.removeEventListener(
+            'plotly_unhover',
+            handleUnhover as EventListener
+          );
+        };
+      } catch (err) {
+        console.error('VectorVisualizer error:', err);
+      }
     };
 
-    let cleanup: (() => void) | undefined;
-    void plot().then((c) => {
-      if (typeof c === 'function') cleanup = c;
-    });
+    void plot();
 
     return () => {
       isMounted = false;
-      if (cleanup) cleanup();
     };
-  }, []);
+  }, [collection?.namespace, dataService]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -103,8 +138,8 @@ export const VectorVisualizer: React.FC = () => {
             padding: '4px 8px',
             borderRadius: 4,
             pointerEvents: 'none',
-            whiteSpace: 'nowrap',
             zIndex: 1000,
+            whiteSpace: 'nowrap',
           }}
         >
           {hoverInfo.text}

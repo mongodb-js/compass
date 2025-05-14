@@ -1,46 +1,55 @@
-// plugin.tsx
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-
-import { VectorVisualizer } from './components/vector-visualizer';
+import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
+import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 import { createStore } from 'redux';
 
-// Minimal reducer for the plugin store
-function reducer(state = {}, action: any) {
+import { VectorVisualizer } from './components/vector-visualizer';
+
+function reducer(state = {}, _action: any) {
   return state;
 }
 
-export const CompassVectorPluginProvider = registerHadronPlugin(
+export const CompassVectorPluginProvider = registerHadronPlugin<
+  { dataService: any; collection: any },
+  any,
+  any
+>(
   {
     name: 'CompassVectorEmbeddingVisualizer',
-    component: function VectorVisualizerProvider({ children }) {
-      return React.createElement(React.Fragment, null, children);
+    component: function VectorVisualizerProvider({
+      dataService,
+      collection,
+      children,
+    }) {
+      return React.createElement(
+        VectorVisualizer,
+        { dataService, collection },
+        children
+      );
     },
     activate: () => {
       const store = createStore(reducer);
       return {
         store: () => store,
-        deactivate: () => {
-          // ignore
-        },
+        deactivate: () => {},
       };
     },
   },
   {
-    // collection: collectionModelLocator,
-    // dataService: dataServiceLocator,
+    dataService: dataServiceLocator,
+    collection: collectionModelLocator,
     logger: createLoggerLocator('COMPASS-VECTOR-VISUALIZER'),
-    // track: telemetryLocator,
   }
 );
 
-export default CompassVectorPluginProvider;
-
 export const CompassVectorPlugin = {
   name: 'VectorVisualizer',
-  type: 'Collection' as const,
+  type: 'CollectionTab' as const,
   provider: CompassVectorPluginProvider,
   content: VectorVisualizer,
   header: () => React.createElement('div', null, 'Vector Embeddings'),
 };
+
+export default CompassVectorPluginProvider;
