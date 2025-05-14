@@ -18,8 +18,9 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-// import MockDataGeneratorModal from '../mock-data-generator-modal';
+import MockDataGeneratorModal from '../mock-data-generator-modal';
 import Modal from '@leafygreen-ui/modal';
+import { Chip, Variant } from '@leafygreen-ui/chip';
 import {
   Table,
   TableHead,
@@ -46,6 +47,15 @@ const breadcrumbStyles = css({
   paddingTop: spacing[200],
   paddingBottom: spacing[200],
 });
+
+const tableStyles = css`
+  color: red;
+
+  th:first-of-type,
+  td:first-child {
+    padding-left: 0;
+  }
+`;
 
 const collectionHeaderLightStyles = css({
   background: palette.white,
@@ -198,26 +208,36 @@ export const CollectionHeader: React.FunctionComponent<
         />
       </div>
 
-      <Modal open={true}>
-        Test test
-        {FAKE_SCHEMA_GENERATE_RESPONSE.collections.forEach((collection) => {
+      <Modal open={true} size="large">
+        {FAKE_SCHEMA_GENERATE_RESPONSE.collections.map((collection) => {
           return (
-            <div>
-              <h3>{collection.name}</h3>
+            <div key={collection.name}>
+              <Chip variant={Variant.Gray} label={collection.name}>
+                {collection.name}
+              </Chip>
 
-              <Table>
+              <Table className={tableStyles}>
                 <TableHead>
                   <HeaderRow>
                     <HeaderCell>Field Name</HeaderCell>
                     <HeaderCell>MongoDB Data Type</HeaderCell>
                     <HeaderCell>faker-js module</HeaderCell>
+                    <HeaderCell>faker-js module args</HeaderCell>
                   </HeaderRow>
                 </TableHead>
                 <TableBody>
-                  {Object.keys(collection.schema).forEach((fieldName) => {
+                  {Object.keys(collection.schema).map((fieldName) => {
+                    const metadata = collection.schema[fieldName];
                     return (
                       <Row>
-                        <h4>{fieldName}</h4>
+                        <Cell>{fieldName}</Cell>
+                        <Cell>{metadata.type}</Cell>
+                        <Cell>{metadata.faker}</Cell>
+                        <Cell>
+                          {metadata.fakerArgs
+                            ?.map((arg) => JSON.stringify(arg))
+                            .join(', ')}
+                        </Cell>
                       </Row>
                     );
                   })}

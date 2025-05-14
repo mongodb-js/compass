@@ -1,10 +1,41 @@
-export const FAKE_SCHEMA_GENERATE_RESPONSE = {
+interface Field {
+  type: string;
+  faker?: string;
+  fakerArgs?: any[];
+  items?: {
+    type: string;
+    schema: {
+      [key: string]: Field;
+    };
+  };
+}
+
+interface Collection {
+  name: string;
+  schema: {
+    [key: string]: Field;
+  };
+}
+
+interface Relationship {
+  fromCollection: string;
+  fromField: string;
+  toCollection: string;
+}
+
+interface FakeSchemaGenerateResponse {
+  collections: Collection[];
+  relationships: Relationship[];
+}
+
+export const FAKE_SCHEMA_GENERATE_RESPONSE: FakeSchemaGenerateResponse = {
   collections: [
     {
       name: 'products',
       schema: {
         _id: {
           type: 'ObjectId',
+          faker: 'database.mongodbObjectId',
         },
         name: {
           type: 'String',
@@ -57,6 +88,7 @@ export const FAKE_SCHEMA_GENERATE_RESPONSE = {
       schema: {
         _id: {
           type: 'ObjectId',
+          faker: 'database.mongodbObjectId',
         },
         customerName: {
           type: 'String',
