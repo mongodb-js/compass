@@ -18,7 +18,18 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import MockDataGeneratorModal from '../mock-data-generator-modal';
+// import MockDataGeneratorModal from '../mock-data-generator-modal';
+import Modal from '@leafygreen-ui/modal';
+import {
+  Table,
+  TableHead,
+  HeaderRow,
+  HeaderCell,
+  TableBody,
+  Row,
+  Cell,
+} from '@leafygreen-ui/table';
+import { FAKE_SCHEMA_GENERATE_RESPONSE } from '../../constants';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -186,6 +197,36 @@ export const CollectionHeader: React.FunctionComponent<
           }}
         />
       </div>
+
+      <Modal open={true}>
+        Test test
+        {FAKE_SCHEMA_GENERATE_RESPONSE.collections.forEach((collection) => {
+          return (
+            <div>
+              <h3>{collection.name}</h3>
+
+              <Table>
+                <TableHead>
+                  <HeaderRow>
+                    <HeaderCell>Field Name</HeaderCell>
+                    <HeaderCell>MongoDB Data Type</HeaderCell>
+                    <HeaderCell>faker-js module</HeaderCell>
+                  </HeaderRow>
+                </TableHead>
+                <TableBody>
+                  {Object.keys(collection.schema).forEach((fieldName) => {
+                    return (
+                      <Row>
+                        <h4>{fieldName}</h4>
+                      </Row>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          );
+        })}
+      </Modal>
     </div>
   );
 };

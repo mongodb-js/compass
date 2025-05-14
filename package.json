@@ -103,5 +103,8 @@
     "chai-enzyme": {
       "cheerio": "1.0.0-rc.10"
     }
+  },
+  "dependencies": {
+    "@leafygreen-ui/table": "^13.1.9"
   }
 }
