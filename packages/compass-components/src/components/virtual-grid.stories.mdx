@@ -74,6 +74,7 @@ import { VirtualGrid } from '@mongodb-js/compass-components';
       grid-template-rows: auto 1fr;
       grid-template-columns: 100%;
       outline: none;
+      min-height: 600px;
     `;
 
     const rowStyles = css`
@@ -81,6 +82,7 @@ import { VirtualGrid } from '@mongodb-js/compass-components';
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: ${spacing[200]}px;
       padding: ${spacing[200]}px;
+      width: 100%;
     `;
 
     const gridItemStyles = css`
@@ -92,6 +94,7 @@ import { VirtualGrid } from '@mongodb-js/compass-components';
       display: flex;
       flex-direction: column;
       gap: ${spacing[2]}px;
+      min-height: 150px;
     `;
 
     const renderItem = ({ index }) => {
@@ -144,6 +147,7 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
       grid-template-rows: auto 1fr;
       grid-template-columns: 100%;
       outline: none;
+      min-height: 600px;
     `;
 
     const rowStyles = css`
@@ -151,6 +155,7 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: ${spacing[200]}px;
       padding: ${spacing[200]}px;
+      width: 100%;
     `;
 
     const gridItemStyles = css`
@@ -162,6 +167,7 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
       display: flex;
       flex-direction: column;
       gap: ${spacing[2]}px;
+      min-height: 150px;
     `;
 
     const renderItem = ({ index }) => {
@@ -180,6 +186,10 @@ Basic virtual grid with 1000 items, demonstrating efficient rendering of large d
           padding: spacing[3],
           backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
           borderBottom: '1px solid var(--leafygreen-ui-gray-light-2)',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center'
         }}
       >
         <h2 style={{ margin: 0 }}>Grid Header</h2>
@@ -225,6 +235,7 @@ Virtual grid with a fixed header that stays in place while content scrolls.
       grid-template-rows: auto 1fr;
       grid-template-columns: 100%;
       outline: none;
+      min-height: 600px;
     `;
 
     const rowStyles = css`
@@ -232,11 +243,19 @@ Virtual grid with a fixed header that stays in place while content scrolls.
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: ${spacing[200]}px;
       padding: ${spacing[200]}px;
+      width: 100%;
     `;
 
     const renderItem = ({ index }) => {
       return (
-        <div style={{ padding: '16px', border: '1px solid #eee' }}>
+        <div style={{
+          padding: '16px',
+          border: '1px solid #eee',
+          minHeight: '150px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: spacing[2]
+        }}>
           <h3>Item {index + 1}</h3>
           <p>Content for item {index + 1}</p>
         </div>
@@ -244,7 +263,16 @@ Virtual grid with a fixed header that stays in place while content scrolls.
     };
 
     const renderEmptyList = () => (
-      <div style={{ padding: '32px', textAlign: 'center' }}>
+      <div style={{
+        padding: '32px',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        minHeight: '400px'
+      }}>
         <h3>No Items Found</h3>
         <p>There are no items to display in the grid at this time.</p>
       </div>
