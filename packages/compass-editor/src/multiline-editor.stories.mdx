@@ -5,6 +5,35 @@ import { CodemirrorMultilineEditor } from './editor';
 <Meta
   title="Components/Editor/MultilineEditor"
   component={CodemirrorMultilineEditor}
+  argTypes={{
+    text: { control: 'text' },
+    language: {
+      control: 'select',
+      options: ['json', 'javascript', 'javascript-expression'],
+      defaultValue: 'javascript',
+    },
+    disabled: { control: 'boolean' },
+    readOnly: { control: 'boolean' },
+    showLineNumbers: { control: 'boolean', defaultValue: true },
+    showFoldGutter: { control: 'boolean', defaultValue: true },
+    showAnnotationsGutter: { control: 'boolean', defaultValue: true },
+    showScroll: { control: 'boolean', defaultValue: true },
+    highlightActiveLine: { control: 'boolean', defaultValue: true },
+    darkMode: { control: 'boolean' },
+    copyable: { control: 'boolean', defaultValue: true },
+    formattable: { control: 'boolean', defaultValue: true },
+    expanded: { control: 'boolean' },
+    minLines: { control: 'number' },
+    maxLines: { control: 'number' },
+    lineHeight: { control: 'number', defaultValue: 16 },
+    placeholder: { control: 'text' },
+    onChangeText: { action: 'changed' },
+    onFocus: { action: 'focused' },
+    onBlur: { action: 'blurred' },
+    onPaste: { action: 'pasted' },
+    onExpand: { action: 'expanded' },
+    onCopy: { action: 'copied' },
+  }}
 />
 
 # Multiline Editor

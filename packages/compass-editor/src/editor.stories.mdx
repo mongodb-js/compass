@@ -5,6 +5,22 @@ import { CodemirrorInlineEditor } from './editor';
 <Meta
   title="Components/Editor/InlineEditor"
   component={CodemirrorInlineEditor}
+  argTypes={{
+    text: { control: 'text' },
+    language: {
+      control: 'select',
+      options: ['json', 'javascript', 'javascript-expression'],
+      defaultValue: 'javascript',
+    },
+    disabled: { control: 'boolean' },
+    readOnly: { control: 'boolean' },
+    placeholder: { control: 'text' },
+    darkMode: { control: 'boolean' },
+    onChangeText: { action: 'changed' },
+    onFocus: { action: 'focused' },
+    onBlur: { action: 'blurred' },
+    onPaste: { action: 'pasted' },
+  }}
 />
 
 # Inline Editor
