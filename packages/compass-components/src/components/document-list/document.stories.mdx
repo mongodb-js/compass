@@ -6,6 +6,30 @@ import { Document as HadronDocument } from 'hadron-document';
   title="Components/Data/Document"
   component={Document}
   parameters={{ layout: 'centered' }}
+  argTypes={{
+    value: {
+      description: 'The HadronDocument instance to display',
+      control: false,
+    },
+    editable: {
+      description: 'Whether the document fields can be edited',
+      control: 'boolean',
+      defaultValue: false,
+    },
+    editing: {
+      description: 'Whether the document is currently in editing mode',
+      control: 'boolean',
+      defaultValue: false,
+    },
+    onEditStart: {
+      description: 'Callback function called when editing starts',
+      control: false,
+    },
+    extraGutterWidth: {
+      description: 'Additional width for the gutter area',
+      control: 'number',
+    },
+  }}
 />
 
 # Document
