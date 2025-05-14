@@ -18,7 +18,7 @@ import {
   ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { CollectionState } from '../../modules/collection-tab';
+import { CollectionState } from '../modules/collection-tab';
 
 const columnStyles = css`
   display: flex;

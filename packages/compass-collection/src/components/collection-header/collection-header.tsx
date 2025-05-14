@@ -18,7 +18,7 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import MockDataGeneratorModal from './mock-generator-modal';
+import MockDataGeneratorModal from '../mock-data-generator-modal';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
