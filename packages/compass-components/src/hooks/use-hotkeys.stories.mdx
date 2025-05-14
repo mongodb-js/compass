@@ -1,0 +1,137 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { useHotkeys, KeyboardShortcut } from './use-hotkeys';
+
+<Meta title="Hooks/useHotkeys" component={KeyboardShortcut} />
+
+# Hotkeys Hook
+
+A hook that provides keyboard shortcut functionality with platform-specific key mapping. It wraps react-hotkeys-hook and adds support for displaying formatted keyboard shortcuts.
+
+## Usage
+
+```jsx
+import { useHotkeys, KeyboardShortcut } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  useHotkeys('mod+s', (e) => {
+    e.preventDefault();
+    console.log('Save triggered');
+  });
+
+  return (
+    <div>
+      <p>
+        Press <KeyboardShortcut hotkey="mod+s" /> to save
+      </p>
+    </div>
+  );
+}
+```
+
+## When to use
+
+- When you need to add keyboard shortcuts to your components
+- When you need to display keyboard shortcuts in the UI
+- When you need platform-specific key mapping (macOS vs Windows/Linux)
+
+## When not to use
+
+- For simple click handlers (use onClick instead)
+- For complex keyboard interactions (use a dedicated keyboard library)
+- For accessibility-only keyboard navigation (use native HTML elements)
+
+## Examples
+
+### Basic Hotkey
+
+<Story name="BasicHotkey">
+  {() => {
+    useHotkeys('mod+s', (e) => {
+      e.preventDefault();
+      console.log('Save triggered');
+    });
+
+    return (
+      <div>
+        <p>Press <KeyboardShortcut hotkey="mod+s" /> to save</p>
+      </div>
+    );
+
+}}
+
+</Story>
+
+### Multiple Hotkeys
+
+<Story name="MultipleHotkeys">
+  {() => {
+    useHotkeys('mod+c', (e) => {
+      e.preventDefault();
+      console.log('Copy triggered');
+    });
+
+    useHotkeys('mod+v', (e) => {
+      e.preventDefault();
+      console.log('Paste triggered');
+    });
+
+    return (
+      <div>
+        <p>Press <KeyboardShortcut hotkey="mod+c" /> to copy</p>
+        <p>Press <KeyboardShortcut hotkey="mod+v" /> to paste</p>
+      </div>
+    );
+
+}}
+
+</Story>
+
+### Arrow Keys
+
+<Story name="ArrowKeys">
+  {() => {
+    useHotkeys('arrowup', (e) => {
+      e.preventDefault();
+      console.log('Up arrow triggered');
+    });
+
+    useHotkeys('arrowdown', (e) => {
+      e.preventDefault();
+      console.log('Down arrow triggered');
+    });
+
+    return (
+      <div>
+        <p>Press <KeyboardShortcut hotkey="arrowup" /> to move up</p>
+        <p>Press <KeyboardShortcut hotkey="arrowdown" /> to move down</p>
+      </div>
+    );
+
+}}
+
+</Story>
+
+### Platform Specific
+
+<Story name="PlatformSpecific">
+  {() => {
+    useHotkeys('mod+shift+s', (e) => {
+      e.preventDefault();
+      console.log('Save as triggered');
+    });
+
+    return (
+      <div>
+        <p>Press <KeyboardShortcut hotkey="mod+shift+s" /> to save as</p>
+        <p><small>On macOS: ⌘ + Shift + S</small></p>
+        <p><small>On Windows/Linux: Ctrl + Shift + S</small></p>
+      </div>
+    );
+
+}}
+
+</Story>
+
+## Props
+
+<Controls />

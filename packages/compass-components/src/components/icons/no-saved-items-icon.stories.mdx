@@ -1,0 +1,41 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { NoSavedItemsIcon } from './no-saved-items-icon';
+
+<Meta
+  title="Components/Icons/NoSavedItems"
+  component={NoSavedItemsIcon}
+  parameters={{ layout: 'centered' }}
+/>
+
+# No Saved Items Icon
+
+The No Saved Items Icon represents an empty state for saved items. It's commonly used in empty state messages or when there are no saved items to display.
+
+## Usage
+
+```tsx
+import { NoSavedItemsIcon } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  return <NoSavedItemsIcon />;
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <NoSavedItemsIcon />}</Story>
+
+## Guidelines
+
+- The icon is designed to be used at its original size (72x72 pixels)
+- It automatically adapts to light/dark mode
+- It's SVG-based for crisp rendering at any size
+- It should be used to indicate empty states for saved items
+- It should always be accompanied by explanatory text
+- It should always be accompanied by text or a tooltip for screen readers
+
+## Props
+
+<Controls />

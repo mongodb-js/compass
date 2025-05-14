@@ -1,10 +1,10 @@
 import { Meta, Story, Controls } from '@storybook/blocks';
 import { useState } from 'react';
-import { FadeInPlaceholder } from './content-with-fallback';
+import { FadeInPlaceholder } from '@mongodb-js/compass-components';
 import { Button } from './leafygreen';
 
 <Meta
-  title="Components/FadeInPlaceholder"
+  title="Components/Feedback/FadeInPlaceholder"
   component={FadeInPlaceholder}
   parameters={{ layout: 'centered' }}
   argTypes={{
@@ -58,35 +58,37 @@ The FadeInPlaceholder component is an enhanced version of ContentWithFallback th
   {() => {
     const [isReady, setIsReady] = useState(false);
     return (
-      <div
-        style={{
-          width: '300px',
-          height: '200px',
-          border: '1px solid #ccc',
-          padding: '20px',
-        }}
-      >
-        <FadeInPlaceholder
-          isContentReady={isReady}
-          content={() => (
-            <div>
-              <h3>Content is Ready!</h3>
-              <p>This content faded in after the fallback.</p>
-            </div>
-          )}
-          fallback={() => (
-            <div>
-              <h3>Loading...</h3>
-              <p>Please wait while content loads.</p>
-            </div>
-          )}
-        />
-        <div style={{ marginTop: '20px' }}>
-          <Button onClick={() => setIsReady(!isReady)}>
-            {isReady ? 'Reset' : 'Load Content'}
-          </Button>
+      <>
+        <div
+          style={{
+            width: '300px',
+            height: '200px',
+            border: '1px solid #ccc',
+            padding: '20px',
+            position: 'relative',
+            marginBottom: '20px',
+          }}
+        >
+          <FadeInPlaceholder
+            isContentReady={isReady}
+            content={() => (
+              <div>
+                <h3>Content is Ready!</h3>
+                <p>This content faded in after the fallback.</p>
+              </div>
+            )}
+            fallback={() => (
+              <div>
+                <h3>Loading...</h3>
+                <p>Please wait while content loads.</p>
+              </div>
+            )}
+          />
         </div>
-      </div>
+        <Button onClick={() => setIsReady(!isReady)}>
+          {isReady ? 'Reset' : 'Load Content'}
+        </Button>
+      </>
     );
   }}
 </Story>
@@ -99,36 +101,38 @@ Default usage with interactive content loading.
   {() => {
     const [isReady, setIsReady] = useState(false);
     return (
-      <div
-        style={{
-          width: '300px',
-          height: '200px',
-          border: '1px solid #ccc',
-          padding: '20px',
-        }}
-      >
-        <FadeInPlaceholder
-          isContentReady={isReady}
-          className="custom-fade-in-placeholder"
-          content={() => (
-            <div>
-              <h3>Content is Ready!</h3>
-              <p>This content faded in after the fallback.</p>
-            </div>
-          )}
-          fallback={() => (
-            <div>
-              <h3>Loading...</h3>
-              <p>Please wait while content loads.</p>
-            </div>
-          )}
-        />
-        <div style={{ marginTop: '20px' }}>
-          <Button onClick={() => setIsReady(!isReady)}>
-            {isReady ? 'Reset' : 'Load Content'}
-          </Button>
+      <>
+        <div
+          style={{
+            width: '300px',
+            height: '200px',
+            border: '1px solid #ccc',
+            padding: '20px',
+            position: 'relative',
+            marginBottom: '20px',
+          }}
+        >
+          <FadeInPlaceholder
+            isContentReady={isReady}
+            className="custom-fade-in-placeholder"
+            content={() => (
+              <div>
+                <h3>Content is Ready!</h3>
+                <p>This content faded in after the fallback.</p>
+              </div>
+            )}
+            fallback={() => (
+              <div>
+                <h3>Loading...</h3>
+                <p>Please wait while content loads.</p>
+              </div>
+            )}
+          />
         </div>
-      </div>
+        <Button onClick={() => setIsReady(!isReady)}>
+          {isReady ? 'Reset' : 'Load Content'}
+        </Button>
+      </>
     );
   }}
 </Story>

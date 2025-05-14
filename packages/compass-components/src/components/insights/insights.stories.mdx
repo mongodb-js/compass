@@ -1,0 +1,196 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { SignalPopover, SignalHooksProvider } from '../signal-popover';
+import { InsightsChip } from '../insights-chip';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta title="Components/Insights" parameters={{ layout: 'centered' }} />
+
+# Insights Components
+
+The Insights components provide a set of UI elements for displaying contextual information, suggestions, and insights to users. These components help guide users through their workflow and highlight important information.
+
+## Components
+
+### SignalPopover
+
+The SignalPopover component displays contextual insights and suggestions in a popover format. It's designed to provide users with helpful information, warnings, or recommendations about their current context or actions.
+
+#### Key features
+
+- Displays single or multiple signals/insights
+- Interactive badge that expands on hover/focus
+- Support for primary actions and learn more links
+- Dark mode support
+- Tracking capabilities via SignalHooksProvider
+- Customizable badge expansion behavior
+
+#### Usage
+
+```tsx
+import { SignalPopover, SignalHooksProvider } from '@mongodb-js/compass-components';
+
+// Basic usage with tracking
+<SignalHooksProvider
+  onSignalMount={handleSignalMount}
+  onSignalOpen={handleSignalOpen}
+  onSignalLinkClick={handleSignalLinkClick}
+  onSignalPrimaryActionClick={handleSignalPrimaryActionClick}
+  onSignalClose={handleSignalClose}
+>
+  <SignalPopover signals={signals} />
+</SignalHooksProvider>
+
+// Single signal with action
+<SignalPopover
+  signals={{
+    id: 'signal-1',
+    title: 'Performance suggestion',
+    description: 'This query could be optimized...',
+    learnMoreLink: 'https://docs.example.com',
+    primaryActionButtonLabel: 'Optimize',
+    primaryActionButtonIcon: 'Plus'
+  }}
+/>
+
+// Multiple signals
+<SignalPopover signals={[
+  {
+    id: 'signal-1',
+    title: 'First suggestion',
+    description: 'First description...'
+  },
+  {
+    id: 'signal-2',
+    title: 'Second suggestion',
+    description: 'Second description...'
+  }
+]} />
+```
+
+#### Examples
+
+<Story name="SignalPopoverSingle">
+  {() => {
+    const singleSignal = {
+      id: 'single-signal-example',
+      title: 'Performance optimization suggestion',
+      description: 'This query could be optimized by adding an index on the fields being queried.',
+      learnMoreLink: 'https://www.mongodb.com/docs/manual/indexes/',
+      primaryActionButtonLabel: 'Create index',
+      primaryActionButtonIcon: 'Plus',
+    };
+
+    return (
+      <SignalHooksProvider
+        onSignalMount={() => {}}
+        onSignalOpen={() => {}}
+        onSignalLinkClick={() => {}}
+        onSignalPrimaryActionClick={() => {}}
+        onSignalClose={() => {}}
+      >
+        <SignalPopover signals={singleSignal} />
+      </SignalHooksProvider>
+    );
+
+}}
+
+</Story>
+
+<Story name="SignalPopoverMultiple">
+  {() => {
+    const multipleSignals = [
+      {
+        id: 'signal-1',
+        title: 'Performance suggestion',
+        description: 'This query could be optimized by adding an index.',
+        learnMoreLink: 'https://docs.example.com',
+        primaryActionButtonLabel: 'Create index',
+        primaryActionButtonIcon: 'Plus',
+      },
+      {
+        id: 'signal-2',
+        title: 'Best practice',
+        description: 'Consider using a compound index for this query pattern.',
+        learnMoreLink: 'https://docs.example.com',
+      },
+    ];
+
+    return (
+      <SignalHooksProvider
+        onSignalMount={() => {}}
+        onSignalOpen={() => {}}
+        onSignalLinkClick={() => {}}
+        onSignalPrimaryActionClick={() => {}}
+        onSignalClose={() => {}}
+      >
+        <SignalPopover signals={multipleSignals} />
+      </SignalHooksProvider>
+    );
+
+}}
+
+</Story>
+
+### InsightsChip
+
+The InsightsChip component is used to display insights or tags in a compact format. It provides a consistent way to show insights across the application.
+
+#### Key features
+
+- Compact design
+- Consistent styling with LeafyGreen design system
+- Automatic dark mode support
+
+#### Usage
+
+```tsx
+import { InsightsChip } from '@mongodb-js/compass-components';
+
+<InsightsChip label="Insight" />;
+```
+
+#### Examples
+
+<Story name="InsightsChipDefault">
+  {() => <InsightsChip label="Insight" />}
+</Story>
+
+<Story name="InsightsChipLongLabel">
+  {() => (
+    <InsightsChip label="This is a very long insight label that might wrap" />
+  )}
+</Story>
+
+## Best Practices
+
+1. **Signal Content**:
+
+   - Keep titles clear and concise
+   - Provide actionable descriptions
+   - Include relevant learn more links
+   - Use primary actions when appropriate
+
+2. **User Experience**:
+
+   - Don't overwhelm users with too many signals
+   - Make signals dismissible when appropriate
+   - Ensure signals are contextually relevant
+   - Use tracking to understand signal effectiveness
+
+3. **Accessibility**:
+
+   - Ensure proper contrast ratios
+   - Support keyboard navigation
+   - Provide clear focus states
+   - Include appropriate ARIA attributes
+
+4. **InsightsChip Usage**:
+   - Use for compact insight indicators
+   - Keep labels short and clear
+   - Use consistently across the application
+   - Consider dark mode visibility
+
+## Props
+
+<Controls />

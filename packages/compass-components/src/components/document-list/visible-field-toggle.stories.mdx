@@ -1,0 +1,101 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import VisibleFieldsToggle from './visible-field-toggle';
+
+<Meta
+  title="Components/DocumentList/VisibleFieldsToggle"
+  component={VisibleFieldsToggle}
+  parameters={{ layout: 'centered' }}
+/>
+
+# Visible Fields Toggle
+
+The Visible Fields Toggle component provides controls for showing and hiding document fields. It's commonly used in document views to manage the visibility of fields, especially when dealing with large documents.
+
+## Usage
+
+```tsx
+import { VisibleFieldsToggle } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  return (
+    <VisibleFieldsToggle
+      currentSize={25}
+      totalSize={100}
+      onSizeChange={(newSize) => console.log('New size:', newSize)}
+    />
+  );
+}
+```
+
+## Examples
+
+### Show More Fields
+
+<Story name="ShowMore">
+  {() => (
+    <div style={{ width: '400px', padding: '20px' }}>
+      <VisibleFieldsToggle
+        currentSize={25}
+        totalSize={100}
+        onSizeChange={(newSize) => console.log('New size:', newSize)}
+      />
+    </div>
+  )}
+</Story>
+
+### Hide Fields
+
+<Story name="HideFields">
+  {() => (
+    <div style={{ width: '400px', padding: '20px' }}>
+      <VisibleFieldsToggle
+        currentSize={50}
+        totalSize={50}
+        onSizeChange={(newSize) => console.log('New size:', newSize)}
+      />
+    </div>
+  )}
+</Story>
+
+### With Parent Field Name
+
+<Story name="WithParentField">
+  {() => (
+    <div style={{ width: '400px', padding: '20px' }}>
+      <VisibleFieldsToggle
+        currentSize={25}
+        totalSize={100}
+        parentFieldName="user"
+        onSizeChange={(newSize) => console.log('New size:', newSize)}
+      />
+    </div>
+  )}
+</Story>
+
+### Custom Step Size
+
+<Story name="CustomStep">
+  {() => (
+    <div style={{ width: '400px', padding: '20px' }}>
+      <VisibleFieldsToggle
+        currentSize={25}
+        totalSize={100}
+        step={50}
+        onSizeChange={(newSize) => console.log('New size:', newSize)}
+      />
+    </div>
+  )}
+</Story>
+
+## Guidelines
+
+- The component is designed to be used within document views
+- It provides controls for showing more fields or hiding fields
+- The step size determines how many fields are shown/hidden at once
+- The component automatically adjusts its visibility based on the current and total number of fields
+- When used within a parent field, it includes the field name in the button text
+- The component is accessible and includes appropriate ARIA labels
+
+## Props
+
+<Controls />

@@ -1,0 +1,158 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import {
+  ConfirmationModalArea,
+  showConfirmation,
+  showPrompt,
+  ConfirmationModalVariant,
+} from './use-confirmation';
+
+<Meta title="Hooks/useConfirmationModal" component={ConfirmationModalArea} />
+
+# Confirmation Modal Hook
+
+A hook that provides programmatic control over confirmation modals and prompts. It allows showing modals from anywhere in the application, both inside and outside React components, with Promise-based resolution.
+
+## Usage
+
+```jsx
+import {
+  ConfirmationModalArea,
+  showConfirmation,
+} from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  const handleDelete = async () => {
+    const confirmed = await showConfirmation({
+      title: 'Delete Item',
+      description: 'Are you sure you want to delete this item?',
+      buttonText: 'Delete',
+      variant: ConfirmationModalVariant.Danger,
+    });
+
+    if (confirmed) {
+      // Proceed with deletion
+    }
+  };
+
+  return (
+    <ConfirmationModalArea>
+      <button onClick={handleDelete}>Delete Item</button>
+    </ConfirmationModalArea>
+  );
+}
+```
+
+## When to use
+
+- When you need to confirm destructive or irreversible actions
+- When you need to collect user input in a modal context
+- When you need to show important information that requires acknowledgment
+- When you need to show modals from outside React components
+
+## When not to use
+
+- For simple yes/no questions that don't require a modal
+- For collecting complex form data (use a dedicated form component instead)
+- For displaying large amounts of content (use a dedicated modal component instead)
+
+## Examples
+
+### Basic Confirmation
+
+<Story name="BasicConfirmation">
+  {() => {
+    const handleClick = async () => {
+      const confirmed = await showConfirmation({
+        title: 'Confirm Action',
+        description: 'Are you sure you want to proceed?',
+        buttonText: 'Proceed'
+      });
+      console.log('Confirmed:', confirmed);
+    };
+
+    return (
+      <ConfirmationModalArea>
+        <button onClick={handleClick}>Show Confirmation</button>
+      </ConfirmationModalArea>
+    );
+
+}}
+
+</Story>
+
+### Danger Confirmation
+
+<Story name="DangerConfirmation">
+  {() => {
+    const handleClick = async () => {
+      const confirmed = await showConfirmation({
+        title: 'Delete Database',
+        description: 'This action cannot be undone. Are you sure?',
+        buttonText: 'Delete',
+        variant: ConfirmationModalVariant.Danger
+      });
+      console.log('Confirmed:', confirmed);
+    };
+
+    return (
+      <ConfirmationModalArea>
+        <button onClick={handleClick}>Delete Database</button>
+      </ConfirmationModalArea>
+    );
+
+}}
+
+</Story>
+
+### Required Input Confirmation
+
+<Story name="RequiredInputConfirmation">
+  {() => {
+    const handleClick = async () => {
+      const confirmed = await showConfirmation({
+        title: 'Dangerous Action',
+        description: 'This action is irreversible. Type "DELETE" to confirm.',
+        buttonText: 'Proceed',
+        variant: ConfirmationModalVariant.Danger,
+        requiredInputText: 'DELETE'
+      });
+      console.log('Confirmed:', confirmed);
+    };
+
+    return (
+      <ConfirmationModalArea>
+        <button onClick={handleClick}>Dangerous Action</button>
+      </ConfirmationModalArea>
+    );
+
+}}
+
+</Story>
+
+### Prompt Dialog
+
+<Story name="PromptDialog">
+  {() => {
+    const handleClick = async () => {
+      const result = await showPrompt({
+        title: 'Enter Name',
+        description: 'Please enter your name:',
+        label: 'Name',
+        defaultValue: 'John Doe'
+      });
+      console.log('Result:', result);
+    };
+
+    return (
+      <ConfirmationModalArea>
+        <button onClick={handleClick}>Show Prompt</button>
+      </ConfirmationModalArea>
+    );
+
+}}
+
+</Story>
+
+## Props
+
+<Controls />

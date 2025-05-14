@@ -10,6 +10,30 @@ alwaysApply: false
   - Check the usage of the component in the rest of the app to see how it is used in different contexts.
   - Generate stories in MDX format, in a file next to the component file: example: button.tsx -> button.stories.mdx
   - Add documentation and examples that clarify how to use the component and its purpose. Avoid generic documentation, focus on the component's purpose and how to use it. Assume an expert user who already knows general concepts of React and UI design.
-  - Remember mdx already includes "React" as a package, so you don't need to import it.
+  - DO NOT ADD "import React from 'react'; on MDX files, is already available and causes an error.
   - Examples should be interactive, and show the component in action
   - Examples should let people view the code
+
+Typical structure of a story
+
+# Component name
+
+Component description, general explanation of its purpose
+
+## Usage
+
+Example of code
+
+## When to use
+
+- list of appropriate use cases
+
+## When not to use
+
+- (if applicable) list of cases where is better to avoid this component, and alternatives
+
+## Examples
+
+...
+
+## Props

@@ -1,0 +1,143 @@
+import { Meta, Story, Controls } from '@storybook/addon-docs';
+import { InteractivePopover } from './interactive-popover';
+import { Button } from './leafygreen';
+
+<Meta title="Components/InteractivePopover" component={InteractivePopover} />
+
+# InteractivePopover
+
+A flexible popover component that can be triggered by any element. It provides a consistent way to show floating content with built-in focus management, keyboard navigation, and click-outside behavior.
+
+## Usage
+
+```tsx
+<InteractivePopover
+  open={isOpen}
+  setOpen={setIsOpen}
+  trigger={({ onClick, ref, children }) => (
+    <Button onClick={onClick} ref={ref}>
+      Click me
+      {children}
+    </Button>
+  )}
+>
+  <div>Popover content</div>
+</InteractivePopover>
+```
+
+## When to use
+
+- When you need to show additional information or actions in a floating panel
+- For dropdown menus, tooltips, or contextual information
+- When you need keyboard navigation and focus management
+- When you want to ensure the popover is accessible and follows best practices
+
+## When not to use
+
+- For simple tooltips (use the Tooltip component instead)
+- For modal dialogs (use the Modal component instead)
+- When the content needs to be permanently visible
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
+      <InteractivePopover
+        open={isOpen}
+        setOpen={setIsOpen}
+        trigger={({ onClick, ref, children }) => (
+          <Button onClick={onClick} ref={ref}>
+            Open Popover
+            {children}
+          </Button>
+        )}
+      >
+        <div style={{ padding: '16px', minWidth: '200px' }}>
+          <h3>Popover Content</h3>
+          <p>This is some content inside the popover.</p>
+        </div>
+      </InteractivePopover>
+    );
+  }}
+</Story>
+
+### With Custom Alignment
+
+<Story name="CustomAlignment">
+  {() => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
+      <InteractivePopover
+        open={isOpen}
+        setOpen={setIsOpen}
+        align="right"
+        justify="middle"
+        trigger={({ onClick, ref, children }) => (
+          <Button onClick={onClick} ref={ref}>
+            Right Aligned
+            {children}
+          </Button>
+        )}
+      >
+        <div style={{ padding: '16px', minWidth: '200px' }}>
+          <h3>Right Aligned</h3>
+          <p>This popover is aligned to the right of the trigger.</p>
+        </div>
+      </InteractivePopover>
+    );
+  }}
+</Story>
+
+### Without Close Button
+
+<Story name="NoCloseButton">
+  {() => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
+      <InteractivePopover
+        open={isOpen}
+        setOpen={setIsOpen}
+        hideCloseButton
+        customFocusTrapFallback="#no-close-button-content"
+        trigger={({ onClick, ref, children }) => (
+          <Button onClick={onClick} ref={ref}>
+            No Close Button
+            {children}
+          </Button>
+        )}
+      >
+        <div
+          id="no-close-button-content"
+          style={{ padding: '16px', minWidth: '200px' }}
+        >
+          <h3>No Close Button</h3>
+          <p>
+            This popover doesn't have a close button. Click outside to close.
+          </p>
+        </div>
+      </InteractivePopover>
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />
+
+The InteractivePopover component accepts the following props:
+
+- `open` (boolean, required): Controls whether the popover is visible
+- `setOpen` (function, required): Callback to update the open state
+- `trigger` (function, required): Render prop that receives trigger props and returns the trigger element
+- `hideCloseButton` (boolean, optional): Whether to hide the close button
+- `align` (string, optional): Alignment of the popover relative to the trigger ('top', 'bottom', 'left', 'right')
+- `justify` (string, optional): Justification of the popover ('start', 'middle', 'end')
+- `spacing` (number, optional): Space between the trigger and popover
+- `containedElements` (string[], optional): List of selectors for elements that should not close the popover when clicked
+- `className` (string, optional): Additional CSS class for the popover
+- `containerClassName` (string, optional): Additional CSS class for the popover container
+- `closeButtonClassName` (string, optional): Additional CSS class for the close button

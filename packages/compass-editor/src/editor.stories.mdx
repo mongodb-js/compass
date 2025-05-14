@@ -1,0 +1,114 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { useState } from 'react';
+import { CodemirrorInlineEditor } from './editor';
+
+<Meta
+  title="Components/Editor/InlineEditor"
+  component={CodemirrorInlineEditor}
+/>
+
+# Inline Editor
+
+A single-line code editor component based on CodeMirror, designed for inline editing of code snippets, expressions, or small pieces of text.
+
+## Usage
+
+```jsx
+import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+
+function MyComponent() {
+  const [text, setText] = useState('');
+
+  return (
+    <CodemirrorInlineEditor
+      text={text}
+      onChangeText={setText}
+      language="javascript"
+    />
+  );
+}
+```
+
+## When to use
+
+- For single-line code input
+- For inline editing of expressions
+- For small code snippets
+- When space is limited
+
+## When not to use
+
+- For multi-line code editing
+- For complex code editing with multiple features
+- When you need advanced editor features like folding or line numbers
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const [text, setText] = useState('');
+
+    return (
+      <CodemirrorInlineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+      />
+    );
+
+}}
+
+</Story>
+
+### With Placeholder
+
+<Story name="WithPlaceholder">
+  {() => {
+    const [text, setText] = useState('');
+
+    return (
+      <CodemirrorInlineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+        placeholder="Enter a JavaScript expression..."
+      />
+    );
+
+}}
+
+</Story>
+
+### Read Only
+
+<Story name="ReadOnly">
+  {() => {
+    return (
+      <CodemirrorInlineEditor
+        text="const x = 42;"
+        language="javascript"
+        readOnly
+      />
+    );
+  }}
+</Story>
+
+### Disabled
+
+<Story name="Disabled">
+  {() => {
+    return (
+      <CodemirrorInlineEditor
+        text="const x = 42;"
+        language="javascript"
+        disabled
+      />
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />
