@@ -31,7 +31,11 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../modules/collection-tab';
-import { FAKE_SCHEMA_GENERATE_RESPONSE } from '../constants';
+import { ObjectId } from 'bson';
+import {
+  FAKE_SCHEMA_GENERATE_PAYLOAD,
+  FAKE_SCHEMA_GENERATE_RESPONSE,
+} from '../constants';
 
 const columnStyles = css`
   display: flex;
@@ -65,9 +69,22 @@ const comboboxStyles = css`
 `;
 
 const tableStyles = css`
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+  th,
+  td {
+    width: 25%;
+  }
   th:first-of-type,
   td:first-child {
     padding-left: 0;
+  }
+  td:last-child {
+    white-space: normal;
+    word-break: break-word;
+    padding: 8px;
   }
 `;
 
@@ -243,6 +260,19 @@ const DataPreviewStep = ({
   );
 };
 
+function createCsrfHeaders() {
+  return Array.from(document.getElementsByTagName('meta')).reduce((acc, el) => {
+    if (el.getAttribute('name') === 'csrf-token') {
+      acc['X-CSRF-Token'] = el.getAttribute('content');
+    }
+    if (el.getAttribute('name') === 'csrf-time') {
+      acc['X-CSRF-Time'] = el.getAttribute('content');
+    }
+
+    return acc;
+  }, {});
+}
+
 const getPrimaryButtonText = (currentStep: number) => {
   switch (currentStep) {
     case 0:
@@ -283,9 +313,42 @@ const MockDataGeneratorModal: React.FunctionComponent<
   };
 
   const onPrimaryButtonClick = () => {
+    if (currentStep === 0) {
+      fetch('/schemaGenerator/generate', {
+        method: 'POST',
+        body: JSON.stringify(FAKE_SCHEMA_GENERATE_PAYLOAD),
+        headers: {
+          'Content-Type': 'application/json',
+          ...createCsrfHeaders(),
+        },
+        credentials: 'include',
+      }).then((res) => console.log(res));
+    }
+
+    if (currentStep === 2) {
+      fetch('http://localhost:3000/api/data-generation/sample', {
+        method: 'POST',
+        body: JSON.stringify({ schema: FAKE_SCHEMA_GENERATE_RESPONSE }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => console.log(res));
+    }
+
     if (currentStep === LAST_STEP) {
       // TODO - insert mock data
       console.log('Inserting mock data');
+
+      fetch('http://localhost:3000/api/data-generation/jobs', {
+        method: 'POST',
+        body: JSON.stringify({
+          schema: FAKE_SCHEMA_GENERATE_RESPONSE,
+          idempotencyKey: new ObjectId().toHexString(),
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => console.log(res));
       onModalClose();
       return;
     }
@@ -304,6 +367,7 @@ const MockDataGeneratorModal: React.FunctionComponent<
     <Modal
       open={modalOpen}
       setOpen={onModalClose}
+      size={currentStep === 1 ? 'large' : 'default'}
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
