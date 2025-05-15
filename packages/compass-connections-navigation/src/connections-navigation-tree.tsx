@@ -147,6 +147,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return 2;
       }
 
+      // always display the refresh action (firstAction)
       return 1;
     },
     []
