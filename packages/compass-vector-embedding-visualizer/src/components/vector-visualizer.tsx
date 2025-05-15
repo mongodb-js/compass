@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import Plotly from 'plotly.js';
 const PCA = require('ml-pca');
-import { Binary } from 'mongodb';
+import type { Binary } from 'mongodb';
+import type { Document } from 'bson';
+
+import type { VectorEmbeddingVisualizerState } from '../stores/reducer';
+import { loadDocuments } from '../stores/visualization';
+import { ErrorSummary } from '@mongodb-js/compass-components';
 
 type HoverInfo = { x: number; y: number; text: string } | null;
 
 export interface VectorVisualizerProps {
-  dataService: {
-    find: (
-      ns: string,
-      filter: Record<string, unknown>,
-      options?: { limit?: number }
-    ) => Promise<any[]>;
-  };
+  onFetchDocs: (namespace: string) => void;
+  docs: Document[];
+  loadingDocumentsState: 'initial' | 'loading' | 'loaded' | 'error';
+  loadingDocumentsError: Error | null;
   collection: { namespace: string };
 }
 
@@ -23,24 +26,33 @@ function normalizeTo2D(vectors: Binary[]): { x: number; y: number }[] {
   return reduced.map(([x, y]: [number, number]) => ({ x, y }));
 }
 
-export const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
-  dataService,
+const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
+  onFetchDocs,
+  docs,
+  loadingDocumentsState,
+  loadingDocumentsError,
   collection,
 }) => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
 
   useEffect(() => {
+    if (loadingDocumentsState === 'initial') {
+      // Fetch the documents when the component mounts when they aren't already loaded.
+      onFetchDocs(collection.namespace);
+    }
+  }, [loadingDocumentsState, onFetchDocs, collection.namespace]);
+
+  useEffect(() => {
     const container = document.getElementById('vector-plot');
     if (!container) return;
 
-    let isMounted = true;
+    const abortController = new AbortController();
 
     const plot = async () => {
       try {
         const ns = collection?.namespace;
-        if (!ns || !dataService) return;
+        if (!ns) return;
 
-        const docs = await dataService.find(ns, {}, { limit: 1000 });
         const vectors = docs.map((doc) => doc.review_vec).filter(Boolean);
 
         if (!vectors.length) return;
@@ -120,13 +132,16 @@ export const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
     void plot();
 
     return () => {
-      isMounted = false;
+      abortController.abort();
     };
-  }, [collection?.namespace, dataService]);
+  }, [docs, collection.namespace]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <div id="vector-plot" style={{ width: '100%', height: '100%' }} />
+      {loadingDocumentsError && (
+        <ErrorSummary errors={loadingDocumentsError.message} />
+      )}
       {hoverInfo && (
         <div
           style={{
@@ -148,3 +163,14 @@ export const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
     </div>
   );
 };
+
+export default connect(
+  (state: VectorEmbeddingVisualizerState) => ({
+    docs: state.visualization.docs,
+    loadingDocumentsState: state.visualization.loadingDocumentsState,
+    loadingDocumentsError: state.visualization.loadingDocumentsError,
+  }),
+  {
+    onFetchDocs: loadDocuments,
+  }
+)(VectorVisualizer);

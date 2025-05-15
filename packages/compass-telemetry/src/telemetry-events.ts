@@ -2632,6 +2632,7 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'my_queries'
       | 'performance'
       | 'schema'
+      | 'vector_visualizer'
       | 'validation'
       | 'confirm_new_pipeline_modal'
       | 'create_collection_modal'

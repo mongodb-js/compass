@@ -2,15 +2,17 @@ import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
-import { createStore } from 'redux';
+import {
+  dataServiceLocator,
+  type DataServiceLocator,
+} from '@mongodb-js/compass-connections/provider';
 
-import { VectorVisualizer } from './components/vector-visualizer';
-import { activateVectorPlugin } from './stores/store';
-
-function reducer(state = {}, _action: any) {
-  return state;
-}
+import VectorVisualizer from './components/vector-visualizer';
+import { VectorsTabTitle } from './plugin-tab-title';
+import {
+  activateVectorPlugin,
+  type VectorDataServiceProps,
+} from './stores/store';
 
 export const CompassVectorPluginProvider = registerHadronPlugin(
   {
@@ -21,25 +23,25 @@ export const CompassVectorPluginProvider = registerHadronPlugin(
     activate: activateVectorPlugin,
   },
   {
-    dataService: dataServiceLocator,
+    dataService:
+      dataServiceLocator as DataServiceLocator<VectorDataServiceProps>,
     collection: collectionModelLocator,
     logger: createLoggerLocator('COMPASS-VECTOR-VISUALIZER'),
   }
 );
 
-const VectorVisualizerWrapper = (props: {
-  dataService: any;
-  collection: any;
-}) => {
-  return React.createElement(VectorVisualizer, props);
-};
+// const VectorVisualizerWrapper = (props: {
+//   dataService: any;
+//   collection: any;
+// }) => {
+//   return React.createElement(VectorVisualizer, props);
+// };
 
 export const CompassVectorPlugin = {
   name: 'Vector Visualizer' as const,
-  type: 'CollectionTab' as const,
   provider: CompassVectorPluginProvider,
-  content: VectorVisualizerWrapper,
-  header: () => React.createElement('div', null, 'Vector Embeddings'),
+  content: VectorVisualizer, // VectorVisualizerWrapper,
+  header: VectorsTabTitle,
 };
 
 export default CompassVectorPluginProvider;
