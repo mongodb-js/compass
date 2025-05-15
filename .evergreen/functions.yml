@@ -40,7 +40,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    NODE_JS_VERSION: '20.16.0'
+    NODE_JS_VERSION: '22.11.0'
     NPM_VERSION: '10.2.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}

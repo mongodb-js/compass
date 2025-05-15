@@ -5,14 +5,14 @@ on:
     inputs:
       mergeBranch:
         description: 'mergeBranch (optional, default="main"): the branch to merge from, useful to perform quick fixes outside of main.'
-        default: "main"
+        default: 'main'
         required: false
       overrideNextGa:
-        description: "overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one."
+        description: 'overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one.'
         required: false
   schedule:
     # Each Monday at 5 AM UTC
-    - cron: "0 5 * * 1"
+    - cron: '0 5 * * 1'
 
 permissions:
   contents: write # To create the new branch and push it
@@ -33,8 +33,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.16.0
-          cache: "npm"
+          node-version: 22.11.0
+          cache: 'npm'
 
       - name: Install npm@10.2.4
         run: |
