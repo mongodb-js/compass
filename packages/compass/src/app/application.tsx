@@ -6,9 +6,7 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
-
-import './index.less';
-import 'source-code-pro/source-code-pro.css';
+import ensureError from 'ensure-error';
 
 import * as marky from 'marky';
 import * as webvitals from 'web-vitals';
@@ -35,10 +33,9 @@ import { injectCSP } from './utils/csp';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
-/**
- * Default version used when no version information is available
- * or when initializing version-related functionality
- */
+import './index.less';
+import 'source-code-pro/source-code-pro.css';
+
 const DEFAULT_APP_VERSION = '0.0.0';
 
 class Application {
@@ -75,6 +72,32 @@ class Application {
     (Number.prototype as any).unref = () => {
       // noop
     };
+  }
+
+  private setupGlobalErrorHandling() {
+    // Global Error Handling
+    // Sets up error reporting to main process before any other initialization
+    // Ensures all unhandled errors are properly logged and reported
+    window.addEventListener('error', (event: ErrorEvent) => {
+      event.preventDefault();
+      const error = ensureError(event.error);
+      void ipcRenderer?.call('compass:error:fatal', {
+        message: error.message,
+        stack: error.stack,
+      });
+    });
+
+    window.addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        event.preventDefault();
+        const error = ensureError(event.reason);
+        void ipcRenderer?.call('compass:rejection:fatal', {
+          message: error.message,
+          stack: error.stack,
+        });
+      }
+    );
   }
 
   private setupWebVitals() {
@@ -451,6 +474,10 @@ class Application {
   async init() {
     marky.mark('Time to Connect rendered');
     marky.mark('Time to user can Click Connect');
+
+    // Setup global error handling first to ensure all
+    // unhandled errors are properly logged and reported
+    this.setupGlobalErrorHandling();
 
     // Inject CSP first to prevent any CSP violations.
     injectCSP();

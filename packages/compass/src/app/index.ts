@@ -1,9 +1,29 @@
+/**
+ * IMPORTANT:
+ *
+ * This file (index.ts) is not meant for regular application lifecycle logic.
+ * It should ONLY contain code that:
+ * 1. Must run before any other application code
+ * 2. Sets up critical infrastructure that other modules depend on
+ * 3. Handles global error boundaries and process-level configuration
+ *
+ * Examples of what belongs here:
+ * - Stateful setup for core node modules (dns, EventEmitter)
+ * - Process-level environment variables
+ * - Any setup required by other modules (including 3rd party modules) before
+ *   they can be imported
+ *
+ * All other application lifecycle code, initialization, and business logic
+ * should be placed in application.tsx instead.
+ *
+ * Rule of thumb: If the code isn't required for other modules to function
+ * correctly during import, it probably belongs in application.tsx.
+ */
 import { setupHadronDistribution } from '../setup-hadron-distribution';
 import dns from 'dns';
-import ensureError from 'ensure-error';
-import { ipcRenderer } from 'hadron-ipc';
 import EventEmitter from 'events';
 
+// Setup paths and environment variables for electron globals
 setupHadronDistribution();
 
 // DNS Configuration
@@ -16,30 +36,6 @@ process.env.NODE_OPTIONS ??= '';
 if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
   process.env.NODE_OPTIONS += ` --dns-result-order=ipv4first`;
 }
-
-// Global Error Handling
-// Sets up error reporting to main process before any other initialization
-// Ensures all unhandled errors are properly logged and reported
-window.addEventListener('error', (event: ErrorEvent) => {
-  event.preventDefault();
-  const error = ensureError(event.error);
-  void ipcRenderer?.call('compass:error:fatal', {
-    message: error.message,
-    stack: error.stack,
-  });
-});
-
-window.addEventListener(
-  'unhandledrejection',
-  (event: PromiseRejectionEvent) => {
-    event.preventDefault();
-    const error = ensureError(event.reason);
-    void ipcRenderer?.call('compass:rejection:fatal', {
-      message: error.message,
-      stack: error.stack,
-    });
-  }
-);
 
 // Event Emitter Configuration
 // Increases the default maximum number of listeners to prevent
