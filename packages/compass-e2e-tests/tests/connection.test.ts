@@ -329,7 +329,8 @@ describe('Connection string', function () {
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -340,19 +341,18 @@ describe('Connection string', function () {
 
     const connectionString = await resolveMongodbSrv(withSRV);
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionNameFromString(connectionString),
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionNameFromString(connectionString),
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas cluster with a direct connection', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -371,19 +371,18 @@ describe('Connection string', function () {
     const connectionString = parsedString.toString();
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionNameFromString(connectionString),
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionNameFromString(connectionString),
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Serverless', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -395,19 +394,18 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Datalake', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -419,19 +417,18 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Analytics Node', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -443,19 +440,18 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Free Tier', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -466,19 +462,18 @@ describe('Connection string', function () {
     const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect with readWriteAnyDatabase builtin role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -488,15 +483,13 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(
       browser,
@@ -507,7 +500,8 @@ describe('Connection string', function () {
   });
 
   it('can connect with readAnyDatabase builtin role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -518,15 +512,13 @@ describe('Connection string', function () {
 
     const connectionName = connectionNameFromString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(
       browser,
@@ -555,7 +547,8 @@ describe('Connection string', function () {
   });
 
   it('can connect with custom role', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -566,15 +559,13 @@ describe('Connection string', function () {
 
     const connectionName = connectionNameFromString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, connectionName, 'test', 'users');
     await assertCannotCreateDb(
@@ -592,7 +583,7 @@ describe('Connection string', function () {
   });
 
   it('can connect with read one collection specific permission', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
       return this.skip();
     }
 
@@ -603,15 +594,13 @@ describe('Connection string', function () {
 
     const connectionName = connectionNameFromString(connectionString);
 
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, connectionName, 'test', 'users');
     await assertCannotInsertData(browser, connectionName, 'test', 'users');
