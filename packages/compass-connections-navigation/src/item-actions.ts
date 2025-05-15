@@ -93,6 +93,11 @@ export const connectedConnectionItemActions = ({
     connectionInfo,
   });
   return stripNullActions([
+    {
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
+    },
     hasWriteActionsDisabled
       ? null
       : {
@@ -123,11 +128,6 @@ export const connectedConnectionItemActions = ({
           icon: 'InfoWithCircle',
           label: 'Show connection info',
         },
-    {
-      action: 'refresh-databases',
-      label: 'Refresh databases',
-      icon: 'Refresh',
-    },
     {
       action: 'connection-disconnect',
       icon: 'Disconnect',
