@@ -1,7 +1,3 @@
 export function saslprep(): void {
-  // no-op
+  throw new Error('saslprep is not supported in this environment');
 }
-
-export default {
-  saslprep,
-};

@@ -329,7 +329,8 @@ describe('Connection string', function () {
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
+    if (!hasAtlasEnvironmentVariables() || TEST_COMPASS_WEB) {
+      // Skip this on web because it doesn't support saslprep.
       return this.skip();
     }
 
@@ -340,15 +341,13 @@ describe('Connection string', function () {
 
     const connectionString = await resolveMongodbSrv(withSRV);
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionNameFromString(connectionString),
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionNameFromString(connectionString),
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas cluster with a direct connection', async function () {
