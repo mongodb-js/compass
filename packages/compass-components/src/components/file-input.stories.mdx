@@ -1,0 +1,229 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import FileInput, { FileInputBackendContext } from './file-input';
+
+<Meta
+  title="Components/Forms/FileInput"
+  component={FileInput}
+  parameters={{ layout: 'centered' }}
+  decorators={[(Story) => <Story />]}
+  argTypes={{
+    variant: {
+      control: 'select',
+      options: ['default', 'small', 'vertical'],
+      description: 'The visual variant of the file input',
+    },
+    mode: {
+      control: 'select',
+      options: ['open', 'save'],
+      description: 'Whether to open or save files',
+    },
+    multi: {
+      control: 'boolean',
+      description: 'Whether to allow multiple file selection',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Whether the file input is disabled',
+    },
+    optional: {
+      control: 'boolean',
+      description: 'Whether the file input is optional',
+    },
+    error: {
+      control: 'boolean',
+      description: 'Whether to show error state',
+    },
+    showFileOnNewLine: {
+      control: 'boolean',
+      description: 'Whether to show selected files on a new line',
+    },
+    onChange: {
+      action: 'changed',
+      description: 'Function called when files are selected',
+    },
+  }}
+/>
+
+# FileInput
+
+The FileInput component is a file selection input that supports both web and Electron environments.
+It provides a consistent interface for file selection across different platforms.
+
+## Usage
+
+```tsx
+import FileInput from './file-input';
+
+// Basic usage
+<FileInput
+  id="file-input"
+  label="Select File"
+  onChange={(files) => console.log(files)}
+/>
+
+// With description
+<FileInput
+  id="file-input"
+  label="Select File"
+  description="Choose a file to upload"
+  onChange={(files) => console.log(files)}
+/>
+
+// Multiple files
+<FileInput
+  id="file-input"
+  label="Select Files"
+  multi
+  onChange={(files) => console.log(files)}
+/>
+
+// Save mode
+<FileInput
+  id="file-input"
+  label="Save File"
+  mode="save"
+  onChange={(files) => console.log(files)}
+/>
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => (
+    <FileInput
+      id="file-input"
+      label="Select File"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+Default file input with basic configuration.
+
+### Small
+
+<Story name="Small">
+  {() => (
+    <FileInput
+      id="file-input-small"
+      label="Select File"
+      variant="small"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+Small variant of the file input.
+
+### Vertical
+
+<Story name="Vertical">
+  {() => (
+    <FileInput
+      id="file-input-vertical"
+      label="Select File"
+      variant="vertical"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+Vertical variant of the file input.
+
+### Multiple
+
+<Story name="Multiple">
+  {() => (
+    <FileInput
+      id="file-input-multiple"
+      label="Select Files"
+      multi
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+File input that allows multiple file selection.
+
+### Save Mode
+
+<Story name="SaveMode">
+  {() => (
+    <FileInput
+      id="file-input-save"
+      label="Save File"
+      mode="save"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+File input in save mode.
+
+### With Description
+
+<Story name="WithDescription">
+  {() => (
+    <FileInput
+      id="file-input-description"
+      label="Select File"
+      description="Choose a file to upload"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+File input with a description.
+
+### With Error
+
+<Story name="WithError">
+  {() => (
+    <FileInput
+      id="file-input-error"
+      label="Select File"
+      error
+      errorMessage="Please select a file"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+File input in error state.
+
+### Optional
+
+<Story name="Optional">
+  {() => (
+    <FileInput
+      id="file-input-optional"
+      label="Select File"
+      optional
+      optionalMessage="Optional"
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+Optional file input.
+
+### Disabled
+
+<Story name="Disabled">
+  {() => (
+    <FileInput
+      id="file-input-disabled"
+      label="Select File"
+      disabled
+      onChange={(files) => console.log(files)}
+    />
+  )}
+</Story>
+
+Disabled file input.
+
+## Props
+
+<Controls />

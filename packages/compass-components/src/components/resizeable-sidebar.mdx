@@ -1,0 +1,85 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import * as ResizableSidebarStories from './resizeable-sidebar.stories';
+
+<Meta of={ResizableSidebarStories} />
+
+# ResizableSidebar
+
+The ResizableSidebar component provides a resizable sidebar panel that can be
+dragged to adjust its width. It's commonly used for navigation menus, settings panels,
+or any content that needs to be collapsible and resizable.
+
+## Key features
+
+- Draggable resize handle
+- Configurable initial and minimum widths
+- Smooth resize animations
+- Optional new theme styling
+- Maintains layout structure during resize
+
+## Usage
+
+The ResizableSidebar component is perfect for:
+
+- Navigation menus
+- Settings panels
+- Sidebar content that needs to be resizable
+- Collapsible panels
+
+```tsx
+import ResizableSidebar from './resizeable-sidebar';
+
+// Basic usage
+<ResizableSidebar>
+  <YourSidebarContent />
+</ResizableSidebar>
+
+// With custom width
+<ResizableSidebar initialWidth={400} minWidth={250}>
+  <YourSidebarContent />
+</ResizableSidebar>
+
+// With new theme
+<ResizableSidebar useNewTheme={true}>
+  <YourSidebarContent />
+</ResizableSidebar>
+```
+
+## Examples
+
+### Default Sidebar
+
+<Story of={ResizableSidebarStories.Default} />
+
+Default sidebar example with standard configuration.
+This shows the basic usage of the ResizableSidebar with default settings.
+The sidebar can be resized by dragging its right edge, and it maintains
+a minimum width to ensure content remains readable.
+
+### New Theme
+
+<Story of={ResizableSidebarStories.WithNewTheme} />
+
+Sidebar example using the new theme styles.
+This demonstrates how the sidebar looks with the updated visual design,
+which includes new colors, shadows, and transitions.
+
+### Custom Width
+
+<Story of={ResizableSidebarStories.CustomWidth} />
+
+Sidebar example with custom width settings.
+This shows how to configure the sidebar with specific initial and minimum widths,
+which is useful when you need to accommodate larger content or maintain
+specific size constraints.
+
+## Best Practices
+
+1. **Minimum Width**: Always set a minimum width that ensures your content remains readable
+2. **Initial Width**: Set an initial width that works well for most users
+3. **Content Overflow**: Ensure your content handles overflow gracefully
+4. **Responsive Design**: Consider how the sidebar behaves on different screen sizes
+
+## Props
+
+<Controls />

@@ -1,0 +1,117 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import DocumentActionsGroup from './document-actions-group';
+
+<Meta
+  title="Components/Data/DocumentActionsGroup"
+  component={DocumentActionsGroup}
+  parameters={{ layout: 'centered' }}
+/>
+
+# Document Actions Group
+
+The Document Actions Group component provides a set of action buttons for document operations. It's commonly used in document lists and views to provide quick access to common document operations like edit, copy, clone, and remove.
+
+## Usage
+
+```tsx
+import { DocumentActionsGroup } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  return (
+    <DocumentActionsGroup
+      onEdit={() => console.log('Edit clicked')}
+      onCopy={() => console.log('Copy clicked')}
+      onClone={() => console.log('Clone clicked')}
+      onRemove={() => console.log('Remove clicked')}
+    />
+  );
+}
+```
+
+## Examples
+
+### Default Actions
+
+<Story name="Default">
+  {() => (
+    <div
+      style={{
+        position: 'relative',
+        width: '400px',
+        height: '100px',
+        border: '1px solid #ccc',
+      }}
+    >
+      <DocumentActionsGroup
+        onEdit={() => console.log('Edit clicked')}
+        onCopy={() => console.log('Copy clicked')}
+        onClone={() => console.log('Clone clicked')}
+        onRemove={() => console.log('Remove clicked')}
+      />
+    </div>
+  )}
+</Story>
+
+### With Expand/Collapse
+
+<Story name="WithExpand">
+  {() => (
+    <div
+      style={{
+        position: 'relative',
+        width: '400px',
+        height: '100px',
+        border: '1px solid #ccc',
+      }}
+    >
+      <DocumentActionsGroup
+        onEdit={() => console.log('Edit clicked')}
+        onCopy={() => console.log('Copy clicked')}
+        onClone={() => console.log('Clone clicked')}
+        onRemove={() => console.log('Remove clicked')}
+        onExpand={() => console.log('Expand clicked')}
+        expanded={false}
+      />
+    </div>
+  )}
+</Story>
+
+### With Insights
+
+<Story name="WithInsights">
+  {() => (
+    <div
+      style={{
+        position: 'relative',
+        width: '400px',
+        height: '100px',
+        border: '1px solid #ccc',
+      }}
+    >
+      <DocumentActionsGroup
+        onEdit={() => console.log('Edit clicked')}
+        onCopy={() => console.log('Copy clicked')}
+        onClone={() => console.log('Clone clicked')}
+        onRemove={() => console.log('Remove clicked')}
+        insights={{
+          type: 'info',
+          title: 'Document Insights',
+          description: 'This document has some interesting properties',
+        }}
+      />
+    </div>
+  )}
+</Story>
+
+## Guidelines
+
+- The component is designed to be used within a document list or view
+- Action buttons are hidden by default and appear on hover
+- Each action button has a tooltip explaining its function
+- The component supports expand/collapse functionality for nested documents
+- Insights can be displayed to provide additional context about the document
+- All buttons are accessible and have appropriate ARIA labels
+
+## Props
+
+<Controls />

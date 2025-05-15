@@ -1,0 +1,126 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ItemActionMenu } from './item-action-menu';
+import { Icon } from '../leafygreen';
+
+<Meta
+  title="Components/Actions/ItemActionMenu"
+  component={ItemActionMenu}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    actions: {
+      control: 'object',
+      description: 'Array of menu actions',
+    },
+    onAction: {
+      action: 'action selected',
+      description: 'Callback when an action is selected',
+    },
+    isVisible: {
+      control: 'boolean',
+      description: 'Whether the menu is visible',
+    },
+    iconSize: {
+      control: 'select',
+      options: ['small', 'default', 'large'],
+      description: 'Size of the action icons',
+    },
+  }}
+/>
+
+# ItemActionMenu
+
+The `ItemActionMenu` component displays a dropdown menu of actions for a given item. It is commonly used in lists or cards to provide contextual actions such as edit, duplicate, or delete.
+
+## When to use
+
+- When you need to show multiple actions for an item in a space-constrained area
+- When you want to group related actions together
+- When you need to show destructive actions (like delete) in a less prominent way
+- When you want to provide additional context or descriptions for actions
+
+## When not to use
+
+- When you have only 1-2 actions (use `ItemActionGroup` instead)
+- When the actions are primary and need to be immediately visible
+- When you need to show the actions in a toolbar or header
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      { action: 'duplicate', label: 'Duplicate', icon: <Icon glyph="Copy" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <ItemActionMenu
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+### With Disabled Actions
+
+<Story name="WithDisabledActions">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+        isDisabled: true,
+        disabledDescription: 'Cannot delete while item is in use',
+      },
+    ];
+    return (
+      <ItemActionMenu
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+### With Tooltips
+
+<Story name="WithTooltips">
+  {() => {
+    const actions = [
+      {
+        action: 'edit',
+        label: 'Edit',
+        icon: <Icon glyph="Edit" />,
+        tooltip: 'Edit this item',
+      },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+        tooltip: 'Permanently delete this item',
+      },
+    ];
+    return (
+      <ItemActionMenu
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />
