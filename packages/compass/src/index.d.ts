@@ -48,10 +48,3 @@ declare module 'marky' {
   declare function stop(label: string): void;
   export { mark, stop };
 }
-
-declare module 'ampersand-view' {
-  class View {
-    static extend(...args: any): any;
-  }
-  export default View;
-}

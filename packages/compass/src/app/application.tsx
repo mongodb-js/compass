@@ -1,79 +1,24 @@
-// THESE IMPORTS SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
-import '../setup-hadron-distribution';
-import './utils/csp';
-import dns from 'dns';
-import ensureError from 'ensure-error';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
-import { webUtils } from 'electron';
+import { webUtils, webFrame } from 'electron';
 import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
 
-// https://github.com/nodejs/node/issues/40537
-dns.setDefaultResultOrder('ipv4first');
-
-// this is so sub-processes (ie. the shell) will do the same
-process.env.NODE_OPTIONS ??= '';
-if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
-  process.env.NODE_OPTIONS += ` --dns-result-order=ipv4first`;
-}
-
-// Setup error reporting to main process before anything else.
-window.addEventListener('error', (event: ErrorEvent) => {
-  event.preventDefault();
-  const error = ensureError(event.error);
-  void ipcRenderer?.call('compass:error:fatal', {
-    message: error.message,
-    stack: error.stack,
-  });
-});
-
-window.addEventListener(
-  'unhandledrejection',
-  (event: PromiseRejectionEvent) => {
-    event.preventDefault();
-    const error = ensureError(event.reason);
-    void ipcRenderer?.call('compass:rejection:fatal', {
-      message: error.message,
-      stack: error.stack,
-    });
-  }
-);
-
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
 
 import * as marky from 'marky';
-import EventEmitter from 'events';
-marky.mark('Time to Connect rendered');
-marky.mark('Time to user can Click Connect');
-
-EventEmitter.defaultMaxListeners = 100;
-
-document.addEventListener('dragover', (evt) => evt.preventDefault());
-document.addEventListener('drop', (evt) => evt.preventDefault());
-
-/**
- * The main entrypoint for the application!
- */
-const APP_VERSION = remote.app.getVersion() || '';
-const DEFAULT_APP_VERSION = '0.0.0';
-
-import View from 'ampersand-view';
 import * as webvitals from 'web-vitals';
-
-import './menu-renderer';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
-
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+
 import {
   onAutoupdateExternally,
   onAutoupdateFailed,
@@ -81,83 +26,58 @@ import {
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './components/update-toasts';
+
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
+import { injectCSP } from './utils/csp';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
-// Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
-(window as any).setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
-  await defaultPreferencesInstance.savePreferences({ showDevFeatureFlags });
-};
-
-function showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
-  void ipcRenderer?.call('window:show-collection-submenu', {
-    isReadOnly,
-  });
-}
-
-function hideCollectionSubMenu() {
-  void ipcRenderer?.call('window:hide-collection-submenu');
-}
-
-function showSettingsModal(tab?: SettingsTabId) {
-  globalAppRegistry?.emit('open-compass-settings', tab);
-}
-
-async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
-  return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
-}
-
-async function checkSecretStorageIsAvailable(): Promise<boolean> {
-  return await ipcRenderer?.call('compass:check-secret-storage-is-available');
-}
-
 /**
- * The top-level application singleton that brings everything together!
+ * Default version used when no version information is available
+ * or when initializing version-related functionality
  */
-const Application = View.extend({
-  template: function () {
-    return [
-      '<div id="application">',
-      '  <div data-hook="layout-container"></div>',
-      '</div>',
-    ].join('\n');
-  },
-  props: {
-    version: {
-      type: 'string',
-      default: APP_VERSION,
-    },
-  },
-  session: {
-    /**
-     * Details of the MongoDB Instance we're currently connected to.
-     */
-    instance: 'state',
-    /**
-     * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
-     */
-    router: 'object',
-    /**
-     * The previously shown app version.
-     */
-    previousVersion: {
-      type: 'string',
-      default: DEFAULT_APP_VERSION,
-    },
-  },
-  initialize: function () {
-    /**
-     * @see NODE-4281
-     * @todo: remove when NODE-4281 is merged.
-     */
+const DEFAULT_APP_VERSION = '0.0.0';
+
+class Application {
+  private static instance: Application | null = null;
+
+  version: string;
+  router: any;
+  previousVersion: string;
+  highestInstalledVersion: string;
+  el: HTMLElement | null;
+  autoUpdate: any;
+
+  private constructor() {
+    this.version = remote.app.getVersion() || '';
+    this.router = null;
+    this.previousVersion = DEFAULT_APP_VERSION;
+    this.highestInstalledVersion = this.version;
+    this.el = null;
+    this.autoUpdate = (window as any).autoUpdate;
+  }
+
+  public static getInstance(): Application {
+    if (!Application.instance) {
+      Application.instance = new Application();
+    }
+    return Application.instance;
+  }
+
+  /**
+   * @see NODE-4281
+   * @todo: remove when NODE-4281 is merged.
+   */
+  private patchNODE4281() {
     (Number.prototype as any).unref = () => {
       // noop
     };
+  }
 
+  private setupWebVitals() {
     function trackPerfEvent({
       name,
       value,
@@ -177,22 +97,24 @@ const Application = View.extend({
     webvitals.getLCP(trackPerfEvent);
     webvitals.getFID(trackPerfEvent);
     webvitals.getCLS(trackPerfEvent);
-  },
+  }
+
   /**
    * Enable all debug output for the development mode.
    */
-  preRender: function () {
+  enableDevelopmentDebug() {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('debug').enable('mon*,had*');
     }
-  },
+  }
+
   /**
    * Pre-load into the require cache a bunch of expensive modules while the
    * user is choosing which connection, so when the user clicks on Connect,
    * Compass can connect to the MongoDB instance faster.
    */
-  postRender: function () {
+  preloadSlowModules() {
     marky.mark('Pre-loading additional modules required to connect');
     // Seems like this doesn't have as much of an effect as we'd hoped as
     // most of the expense has already occurred. You can see it take 1700ms
@@ -200,17 +122,18 @@ const Application = View.extend({
     require('local-links');
     require('mongodb-instance-model');
     marky.stop('Pre-loading additional modules required to connect');
-  },
+  }
+
   /**
    * Called a soon as the DOM is ready so we can
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function () {
+  async render() {
     await defaultPreferencesInstance.refreshPreferences();
     const initialAutoConnectPreferences =
-      await getWindowAutoConnectPreferences();
-    const isSecretStorageAvailable = await checkSecretStorageIsAvailable();
+      await this.getWindowAutoConnectPreferences();
+    const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
 
     log.info(
@@ -223,7 +146,16 @@ const Application = View.extend({
     );
 
     this.el = document.querySelector('#application');
-    this.renderWithTemplate(this);
+    if (!this.el) {
+      throw new Error('Application container not found');
+    }
+
+    // Create the application container structure
+    this.el.innerHTML = `
+      <div id="application">
+        <div data-hook="layout-container"></div>
+      </div>
+    `;
 
     const wasNetworkOptInShown =
       defaultPreferencesInstance.getPreferences().showedNetworkOptIn === true;
@@ -243,9 +175,9 @@ const Application = View.extend({
             remote,
             webUtils
           )}
-          showCollectionSubMenu={showCollectionSubMenu}
-          hideCollectionSubMenu={hideCollectionSubMenu}
-          showSettings={showSettingsModal}
+          showCollectionSubMenu={this.showCollectionSubMenu.bind(this)}
+          hideCollectionSubMenu={this.hideCollectionSubMenu.bind(this)}
+          showSettings={this.showSettingsModal.bind(this)}
           connectionStorage={connectionStorage}
           onAutoconnectInfoRequest={
             initialAutoConnectPreferences.shouldAutoConnect
@@ -258,7 +190,7 @@ const Application = View.extend({
           }
         />
       </React.StrictMode>,
-      this.queryByHook('layout-container')
+      this.el.querySelector('[data-hook="layout-container"]')
     );
 
     if (!isSecretStorageAvailable) {
@@ -267,63 +199,49 @@ const Application = View.extend({
         title:
           'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
       });
-      track('Secret Storage Not Available', {
-        //
-      });
+      track('Secret Storage Not Available', {});
     }
 
     document.querySelector('#loading-placeholder')?.remove();
-  },
-  updateAppVersion: async function () {
+  }
+
+  private async updateAppVersion() {
     const { lastKnownVersion, highestInstalledVersion } =
       defaultPreferencesInstance.getPreferences();
     this.previousVersion = lastKnownVersion || DEFAULT_APP_VERSION;
     this.highestInstalledVersion =
       semver.sort([
         highestInstalledVersion || DEFAULT_APP_VERSION,
-        APP_VERSION,
-      ])?.[1] ?? APP_VERSION;
+        this.version,
+      ])?.[1] ?? this.version;
     await defaultPreferencesInstance.savePreferences({
-      lastKnownVersion: APP_VERSION,
+      lastKnownVersion: this.version,
       highestInstalledVersion: this.highestInstalledVersion,
     });
-  },
-});
+  }
 
-const state = new Application();
-
-const app = {
-  init: async function () {
-    await defaultPreferencesInstance.refreshPreferences();
-    await state.updateAppVersion();
-    state.preRender();
-
-    try {
-      void setupIntercom(defaultPreferencesInstance);
-    } catch (e) {
-      log.warn(
-        mongoLogId(1_001_000_289),
-        'Main Window',
-        'Failed to set up Intercom',
-        {
-          error: (e as Error).message,
-        }
-      );
-      // noop
-    }
-    // Catch a data refresh coming from window-manager.
+  private setupDataRefreshListener() {
     ipcRenderer?.on('app:refresh-data', () =>
       globalAppRegistry.emit('refresh-data')
     );
+  }
+
+  private setupSchemaSharingListener() {
     ipcRenderer?.on('window:menu-share-schema-json', () => {
       globalAppRegistry.emit('menu-share-schema-json');
     });
+  }
+
+  private setupImportExportListeners() {
     ipcRenderer?.on('compass:open-export', () => {
       globalAppRegistry.emit('open-active-namespace-export');
     });
     ipcRenderer?.on('compass:open-import', () => {
       globalAppRegistry.emit('open-active-namespace-import');
     });
+  }
+
+  private setupDownloadStatusListeners() {
     ipcRenderer?.on('download-finished', (event, { path }) => {
       openToast('file-download-complete', {
         title: 'Success',
@@ -337,6 +255,7 @@ const app = {
         variant: 'success',
       });
     });
+
     ipcRenderer?.on('download-failed', (event, { filename }) => {
       openToast('file-download-failed', {
         title: 'Failure',
@@ -346,7 +265,16 @@ const app = {
         variant: 'warning',
       });
     });
-    // Autoupdate handlers
+  }
+
+  private setupIpcListeners() {
+    this.setupDataRefreshListener();
+    this.setupSchemaSharingListener();
+    this.setupImportExportListeners();
+    this.setupDownloadStatusListeners();
+  }
+
+  private setupAutoUpdateListeners() {
     ipcRenderer?.on(
       'autoupdate:download-update-externally',
       (
@@ -395,67 +323,174 @@ const app = {
         });
       }
     );
-    // Propagate events from global app registry to the main process
+  }
+
+  private setupConnectInNewWindowListeners() {
     globalAppRegistry.on('connect-in-new-window', (connectionId: string) => {
       void ipcRenderer?.call('app:connect-in-new-window', connectionId);
     });
+  }
 
-    // As soon as dom is ready, render and set up the rest.
-    state.render();
-    marky.stop('Time to Connect rendered');
-    state.postRender();
-    marky.stop('Time to user can Click Connect');
+  private showUpdateToastIfNeeded() {
+    if (
+      this.previousVersion !== DEFAULT_APP_VERSION &&
+      this.version !== this.previousVersion
+    ) {
+      // Wait a bit before showing the update toast.
+      setTimeout(() => {
+        onAutoupdateInstalled({
+          newVersion: this.version,
+        });
+      }, 2000);
+    }
+  }
+
+  private async setupIntercomAndLogError() {
+    try {
+      await setupIntercom(defaultPreferencesInstance);
+    } catch (e) {
+      log.warn(
+        mongoLogId(1001000289),
+        'Main Window',
+        'Failed to set up Intercom',
+        {
+          error: (e as Error).message,
+        }
+      );
+    }
+  }
+
+  private logVersionInfo() {
+    log.info(mongoLogId(1_001_000_338), 'Main Window', 'Recent version info', {
+      previousVersion: this.previousVersion,
+      highestInstalledVersion: this.highestInstalledVersion,
+      version: this.version,
+    });
+  }
+
+  private setupZoomControls() {
+    const ZOOM_DEFAULT = 0;
+    const ZOOM_INCREMENT = 0.5;
+    const ZOOM_MAX = 5;
+    const ZOOM_MIN = -3;
+
+    const zoomReset = () => {
+      return webFrame.setZoomLevel(ZOOM_DEFAULT);
+    };
+    const zoomIn = () => {
+      const currentZoomLevel = webFrame.getZoomLevel();
+      const newZoomLevel = Math.min(
+        currentZoomLevel + ZOOM_INCREMENT,
+        ZOOM_MAX
+      );
+      return webFrame.setZoomLevel(newZoomLevel);
+    };
+    const zoomOut = () => {
+      const currentZoomLevel = webFrame.getZoomLevel();
+      const newZoomLevel = Math.max(
+        currentZoomLevel - ZOOM_INCREMENT,
+        ZOOM_MIN
+      );
+      return webFrame.setZoomLevel(newZoomLevel);
+    };
+
+    ipcRenderer?.on('window:zoom-reset', zoomReset);
+    ipcRenderer?.on('window:zoom-in', zoomIn);
+    ipcRenderer?.on('window:zoom-out', zoomOut);
+  }
+
+  private testUncaughtException() {
     if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
       queueMicrotask(() => {
         throw new Error('fake exception');
       });
     }
+  }
 
-    log.info(mongoLogId(1_001_000_338), 'Main Window', 'Recent version info', {
-      previousVersion: state.previousVersion,
-      highestInstalledVersion: state.highestInstalledVersion,
-      APP_VERSION,
+  private allowDevFeatureFlagsFromDevTools() {
+    // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
+    (window as any).setShowDevFeatureFlags = async (
+      showDevFeatureFlags = true
+    ) => {
+      await defaultPreferencesInstance.savePreferences({ showDevFeatureFlags });
+    };
+  }
+
+  private preventDefaultBrowserBehaviorForDragAndDrop() {
+    // Drag and Drop Prevention
+    // Prevents default browser behavior for drag and drop events
+    // to avoid potential security issues
+    document.addEventListener('dragover', (evt) => evt.preventDefault());
+    document.addEventListener('drop', (evt) => evt.preventDefault());
+  }
+
+  private showCollectionSubMenu({ isReadOnly }: { isReadOnly: boolean }) {
+    void ipcRenderer?.call('window:show-collection-submenu', {
+      isReadOnly,
     });
+  }
 
-    if (
-      state.previousVersion !== DEFAULT_APP_VERSION &&
-      APP_VERSION !== state.previousVersion
-    ) {
-      // Wait a bit before showing the update toast.
-      setTimeout(() => {
-        onAutoupdateInstalled({
-          newVersion: APP_VERSION,
-        });
-      }, 2000);
-    }
-  },
-};
+  private hideCollectionSubMenu() {
+    void ipcRenderer?.call('window:hide-collection-submenu');
+  }
 
-Object.defineProperty(app, 'autoUpdate', {
-  get: function () {
-    return state.autoUpdate;
-  },
-});
+  private showSettingsModal(tab?: SettingsTabId) {
+    globalAppRegistry?.emit('open-compass-settings', tab);
+  }
 
-Object.defineProperty(app, 'instance', {
-  get: function () {
-    return state.instance;
-  },
-  set: function (instance) {
-    state.instance = instance;
-  },
-});
+  private async getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
+    return await ipcRenderer?.call(
+      'compass:get-window-auto-connect-preferences'
+    );
+  }
 
-Object.defineProperty(app, 'router', {
-  get: function () {
-    return state.router;
-  },
-});
+  private async checkSecretStorageIsAvailable(): Promise<boolean> {
+    return await ipcRenderer?.call('compass:check-secret-storage-is-available');
+  }
 
-Object.defineProperty(app, 'state', {
-  get: function () {
-    return state;
-  },
-});
+  async init() {
+    marky.mark('Time to Connect rendered');
+    marky.mark('Time to user can Click Connect');
 
-void app.init();
+    // Inject CSP first to prevent any CSP violations.
+    injectCSP();
+
+    this.allowDevFeatureFlagsFromDevTools();
+    this.preventDefaultBrowserBehaviorForDragAndDrop();
+
+    // Setup development environment
+    this.enableDevelopmentDebug();
+    this.patchNODE4281();
+    this.setupWebVitals();
+
+    // Initialize preferences and version
+    await defaultPreferencesInstance.refreshPreferences();
+    await this.updateAppVersion();
+
+    void this.setupIntercomAndLogError();
+
+    // Setup all event listeners
+    this.setupIpcListeners();
+    this.setupAutoUpdateListeners();
+    this.setupConnectInNewWindowListeners();
+    this.setupZoomControls();
+
+    // Render the application
+    await this.render();
+    marky.stop('Time to Connect rendered');
+
+    // Preload modules and complete initialization
+    this.preloadSlowModules();
+    marky.stop('Time to user can Click Connect');
+
+    // Throws a synthetic exception for e2e tests so we can test the handling
+    // of uncaught exceptions.
+    this.testUncaughtException();
+
+    // Log version info and show update toast if needed
+    this.logVersionInfo();
+    this.showUpdateToastIfNeeded();
+  }
+}
+
+export const app = Application.getInstance();
