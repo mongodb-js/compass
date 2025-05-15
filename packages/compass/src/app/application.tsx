@@ -42,19 +42,13 @@ class Application {
   private static instance: Application | null = null;
 
   version: string;
-  router: any;
   previousVersion: string;
   highestInstalledVersion: string;
-  el: HTMLElement | null;
-  autoUpdate: any;
 
   private constructor() {
     this.version = remote.app.getVersion() || '';
-    this.router = null;
     this.previousVersion = DEFAULT_APP_VERSION;
     this.highestInstalledVersion = this.version;
-    this.el = null;
-    this.autoUpdate = (window as any).autoUpdate;
   }
 
   public static getInstance(): Application {
@@ -125,7 +119,7 @@ class Application {
   /**
    * Enable all debug output for the development mode.
    */
-  enableDevelopmentDebug() {
+  private enableDevelopmentDebug() {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('debug').enable('mon*,had*');
@@ -137,7 +131,7 @@ class Application {
    * user is choosing which connection, so when the user clicks on Connect,
    * Compass can connect to the MongoDB instance faster.
    */
-  preloadSlowModules() {
+  private preloadSlowModules() {
     marky.mark('Pre-loading additional modules required to connect');
     // Seems like this doesn't have as much of an effect as we'd hoped as
     // most of the expense has already occurred. You can see it take 1700ms
@@ -152,7 +146,7 @@ class Application {
    * start showing status indicators as
    * quickly as possible.
    */
-  async render() {
+  private async render() {
     await defaultPreferencesInstance.refreshPreferences();
     const initialAutoConnectPreferences =
       await this.getWindowAutoConnectPreferences();
@@ -168,13 +162,13 @@ class Application {
       }
     );
 
-    this.el = document.querySelector('#application');
-    if (!this.el) {
+    const elem = document.querySelector('#application');
+    if (!elem) {
       throw new Error('Application container not found');
     }
 
     // Create the application container structure
-    this.el.innerHTML = `
+    elem.innerHTML = `
       <div id="application">
         <div data-hook="layout-container"></div>
       </div>
@@ -213,7 +207,7 @@ class Application {
           }
         />
       </React.StrictMode>,
-      this.el.querySelector('[data-hook="layout-container"]')
+      elem.querySelector('[data-hook="layout-container"]')
     );
 
     if (!isSecretStorageAvailable) {
