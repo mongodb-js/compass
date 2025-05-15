@@ -110,7 +110,7 @@ const ResizableSidebar = ({
       style={{
         ...style,
         minWidth,
-        width: `min(100vw - 210px, ${renderedWidth}px)`,
+        width: `min(100vw - 340px, ${renderedWidth}px)`,
         flex: 'none',
         ...newThemeStyles,
       }}

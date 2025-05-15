@@ -12,7 +12,17 @@ import {
 import type { Document } from 'bson';
 import type { AggregateOptions } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
-import { toJSString } from 'mongodb-query-parser';
+import {
+  toJSString,
+  DEFAULT_FILTER,
+  DEFAULT_SORT,
+  DEFAULT_LIMIT,
+  DEFAULT_SKIP,
+  DEFAULT_PROJECT,
+  DEFAULT_COLLATION,
+  DEFAULT_MAX_TIME_MS,
+} from 'mongodb-query-parser';
+import { isEqual } from 'lodash';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -315,6 +325,33 @@ The explain plan is as follows:
 ${prettify(JSON.stringify(explainPlan), 'json')}`;
 }
 
+function operationPromptSection({
+  operation,
+  aggregation,
+  query,
+}: {
+  operation: 'query' | 'aggregation';
+  query?: Record<string, unknown>;
+  aggregation?: AggregationType;
+}): string {
+  if (
+    operation === 'aggregation' &&
+    (!aggregation || !aggregation.pipeline || aggregation.pipeline.length === 0)
+  ) {
+    return '';
+  }
+
+  if (operation === 'query' && (!query || Object.keys(query).length === 0)) {
+    return '';
+  }
+
+  return `
+
+The ${operation} is as follows:
+${toJSString(operation === 'query' ? query : aggregation)}
+`;
+}
+
 function explainWithDocsChatbotPrompt({
   operation,
   rawExplainPlan,
@@ -331,10 +368,11 @@ After running an operation with an explain, I want to understand the MongoDB exp
 Please describe it.
 No need for conversation jargon, a fancy response, or meta information, just an analysis to help someone understand.
 I'll copy paste what you say to the user.
-
-The ${operation} is as follows:
-${toJSString(operation === 'query' ? query : aggregation)}
-
+${operationPromptSection({
+  operation,
+  aggregation,
+  query,
+})}
 The explain plan result:
 ${explainPlanPromptSection(rawExplainPlan)}}
 `;
@@ -354,14 +392,107 @@ function buildUserPrompt({
   sampleDocument?: string;
 }): string {
   return `
-The ${operation} is as follows:
-${toJSString(operation === 'query' ? query : aggregation)}
-
+${operationPromptSection({
+  operation,
+  aggregation,
+  query,
+})}
 The explain plan result:
 ${explainPlanPromptSection(rawExplainPlan)}}
 
 ${promptSampleDocsSection(sampleDocument)}
 `;
+}
+
+// TODO: This is a bad copy paste and should be shared with query bar (probably from somewhere else)
+/*
+ * Default values for the query bar form inputs
+ */
+const DEFAULT_FIELD_VALUES = {
+  filter: undefined,
+  project: undefined,
+  collation: undefined,
+  sort: undefined,
+  hint: undefined,
+  skip: undefined,
+  limit: undefined,
+  maxTimeMS: undefined,
+} as const;
+
+/**
+ * Default values as will be returned from query parser during validation
+ */
+const DEFAULT_QUERY_VALUES = {
+  filter: DEFAULT_FILTER,
+  project: DEFAULT_PROJECT,
+  collation: DEFAULT_COLLATION,
+  sort: DEFAULT_SORT,
+  hint: null,
+  skip: DEFAULT_SKIP,
+  limit: DEFAULT_LIMIT,
+  maxTimeMS: DEFAULT_MAX_TIME_MS,
+} as const;
+
+function isQueryProperty(
+  property: string
+): property is keyof typeof DEFAULT_QUERY_VALUES {
+  return Object.prototype.hasOwnProperty.call(DEFAULT_QUERY_VALUES, property);
+}
+function isFieldProperty(
+  property: string
+): property is keyof typeof DEFAULT_FIELD_VALUES {
+  return Object.prototype.hasOwnProperty.call(DEFAULT_FIELD_VALUES, property);
+}
+function isFieldOrQueryProperty(
+  property: string
+): property is
+  | keyof typeof DEFAULT_QUERY_VALUES
+  | keyof typeof DEFAULT_FIELD_VALUES {
+  return isQueryProperty(property) || isFieldProperty(property);
+}
+
+export function getNonDefaultValuesOfQuery(
+  query: Record<string, unknown> | undefined
+): Record<string, unknown> | undefined {
+  if (!query) {
+    return undefined;
+  }
+
+  const cleanedUpQuery: Record<string, unknown> = {};
+  Object.keys(query).forEach((key) => {
+    if (
+      !isFieldOrQueryProperty(key) ||
+      (!isEqual(query[key], DEFAULT_QUERY_VALUES[key]) &&
+        !isEqual(query[key], DEFAULT_FIELD_VALUES[key]))
+    ) {
+      cleanedUpQuery[key] = query[key];
+    }
+  });
+  return Object.keys(cleanedUpQuery).length > 0 ? cleanedUpQuery : undefined;
+}
+
+export function getNonDefaultValuesOfAggregation(
+  aggregation: AggregationType | undefined
+): AggregationType | undefined {
+  if (!aggregation) {
+    return undefined;
+  }
+
+  const cleanedUpAggregation: AggregationType = {
+    pipeline: aggregation.pipeline,
+    ...(!aggregation.collation || aggregation.collation === DEFAULT_COLLATION
+      ? {}
+      : { collation: aggregation.collation }),
+    ...(aggregation.maxTimeMS === undefined ||
+    aggregation.maxTimeMS === null ||
+    aggregation.maxTimeMS === DEFAULT_MAX_TIME_MS
+      ? {}
+      : { maxTimeMS: aggregation.maxTimeMS }),
+  };
+
+  return Object.keys(cleanedUpAggregation).length > 0
+    ? cleanedUpAggregation
+    : undefined;
 }
 
 export function generateAIAnalysis(): ExplainPlanModalThunkAction<
@@ -391,11 +522,14 @@ export function generateAIAnalysis(): ExplainPlanModalThunkAction<
     }
 
     const operation = isQuery ? 'query' : 'aggregation';
+    const cleanedUpQuery = getNonDefaultValuesOfQuery(query);
+    const cleanedUpAggregation = getNonDefaultValuesOfAggregation(aggregation);
+
     const userPrompt = buildUserPrompt({
       operation,
       rawExplainPlan,
-      query,
-      aggregation,
+      query: cleanedUpQuery,
+      aggregation: cleanedUpAggregation,
     });
     const systemPrompt = buildSystemPrompt(operation);
     console.log('aaa AI analysis prompt system:', systemPrompt);
@@ -453,8 +587,6 @@ export function generateAIAnalysis(): ExplainPlanModalThunkAction<
     });
   };
 }
-
-const DEFAULT_MAX_TIME_MS = 60_000;
 
 export const openExplainPlanModal = (
   event: OpenExplainPlanModalEvent

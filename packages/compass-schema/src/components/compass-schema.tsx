@@ -39,6 +39,7 @@ import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
 import ExportSchemaModal from './export-schema-modal';
 import ExportSchemaLegacyModal from './export-schema-legacy-modal';
+import SchemaSummary from './schema-summary';
 
 const rootStyles = css({
   width: '100%',
@@ -331,6 +332,7 @@ const FieldList: React.FunctionComponent<{
         darkMode ? minichartStylesDark : minichartStylesLight
       )}
     >
+      <SchemaSummary />
       <div data-testid="schema-field-list">
         {fields.map((field: any) => (
           <Field key={field.name} {...field} />

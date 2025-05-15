@@ -223,7 +223,6 @@ export function MultipleConnectionSidebar({
           isVisible={!!connectionInfoModalConnectionId}
           close={onCloseConnectionInfo}
         />
-        {/* TODO: Chatbot modal here */}
       </aside>
     </ResizableSidebar>
   );

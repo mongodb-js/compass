@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model/provider';
 import { getChatStreamResponseFromAI } from '@mongodb-js/compass-generative-ai';
 // import { testLog } from './test-log';
 const testLog = 'ommitted log loading to avoid context sizes and costs for now';
@@ -177,4 +176,4 @@ export const CompassLogSummary: React.FunctionComponent<
   return <div className={summaryContainerStyles}>{summary}</div>;
 };
 
-export default withPreferences(CompassLogSummary, ['networkTraffic']);
+export default CompassLogSummary;

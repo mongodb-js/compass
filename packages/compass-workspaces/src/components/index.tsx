@@ -89,20 +89,33 @@ const horizontalSplitStyles = css({
   width: '100%',
   height: '100%',
   display: 'grid',
-  gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
-  // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
+  gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 
 const workspacesStyles = css({
-  minHeight: 0,
-  overflow: 'hidden',
-  minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
+  // minHeight: 0,
+  // overflow: 'hidden',
+  // minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
+  // width: '100%',
+  // height: '100%',
+  // display: 'flex',
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 });
 
 const workspacesContainerStyles = css({
-  maxWidth: 'calc(100vw - 200px)', // Arbitrary number
+  // initial sidebar width + something for the right part, should be the min though
+  // and set this max width based on the available space
+  // TODO: This doesn't actually do anything at the moment.
+  // maxWidth: 'calc(100vw - 340px)',
+  // maxWidth: 'calc(100vw - 340px)',
+  // See 340px in the ResizableSidebar component.
 });
 
 const sidebarStyles = css({
@@ -141,20 +154,22 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         )}
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
-        <div className={workspacesContainerStyles}>
-          <ResizableSidebar
-            data-testid="workspaces-sidebar"
-            useNewTheme={true}
-            minWidth={700}
-            // TODO: This should be screen width - both sidebar sizes.
-            // Probably to be done in the ResizableSidebar component somehow.
-            maxWidth={Infinity}
-          >
+        {/* <div className={workspacesContainerStyles}> */}
+        <ResizableSidebar
+          data-testid="workspaces-sidebar"
+          useNewTheme={true}
+          minWidth={700}
+          // TODO: This should be screen width - both sidebar sizes.
+          // Probably to be done in the ResizableSidebar component somehow.
+          maxWidth={Infinity}
+        >
+          <div className={workspacesStyles}>
             <Workspaces
               openOnEmptyWorkspace={openOnEmptyWorkspace}
             ></Workspaces>
-          </ResizableSidebar>
-        </div>
+          </div>
+        </ResizableSidebar>
+        {/* </div> */}
         {/* <div className={chatSidebarStyles}> */}
         {renderChatSidebar?.()}
         {/* </div> */}

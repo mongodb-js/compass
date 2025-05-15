@@ -33,6 +33,7 @@ export type SchemaAnalysisError = {
 export type SchemaAnalysisState = {
   analysisState: AnalysisState;
   analysisStartTime?: number;
+  namespace: string; // Note: This is a derived thing and hacked on here for quick access (only populates after analyzing).
   error?: SchemaAnalysisError;
   schema: Schema | null;
   resultId: string;
@@ -52,6 +53,7 @@ export type AnalysisStartedAction = {
 
 export type AnalysisFinishedAction = {
   type: SchemaAnalysisActions.analysisFinished;
+  namespace: string;
   schema: Schema | null;
 };
 
@@ -96,6 +98,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
         : ANALYSIS_STATE_INITIAL,
       schema: action.schema,
       resultId: resultId(),
+      namespace: action.namespace,
     };
   }
 
@@ -149,6 +152,7 @@ const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   schema: null,
   resultId: resultId(),
+  namespace: '',
 });
 
 export const geoLayerAdded = (
@@ -350,6 +354,7 @@ export const startAnalysis = (): SchemaThunkAction<
 
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
+        namespace,
         schema,
       });
 
