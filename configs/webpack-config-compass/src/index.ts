@@ -264,6 +264,16 @@ export function createElectronRendererConfig(
             client: {
               overlay: {
                 errors: true,
+                runtimeErrors: (error: Error) => {
+                  if (
+                    error.message.includes(
+                      'ResizeObserver loop completed with undelivered notifications'
+                    )
+                  ) {
+                    return false;
+                  }
+                  return true;
+                },
                 warnings: false,
               },
             },
