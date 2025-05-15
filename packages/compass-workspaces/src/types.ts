@@ -4,7 +4,8 @@ export type CollectionSubtab =
   | 'Schema'
   | 'Indexes'
   | 'Validation'
-  | 'GlobalWrites';
+  | 'GlobalWrites'
+  | 'Vector Visualizer';
 
 export type WelcomeWorkspace = {
   type: 'Welcome';
