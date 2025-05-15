@@ -53,6 +53,14 @@ const sidebarConnections: SidebarConnection[] = [
             pipeline: [],
             isNonExistent: false,
           },
+          {
+            _id: 'coll_ready_1_1_2',
+            name: 'coll_ready_shared_name',
+            type: 'collection',
+            sourceName: '',
+            pipeline: [],
+            isNonExistent: false,
+          },
         ],
         collectionsLength: 1,
         collectionsStatus: 'ready',
@@ -65,6 +73,14 @@ const sidebarConnections: SidebarConnection[] = [
           {
             _id: 'coll_ready_1_2',
             name: 'coll_ready_1_2',
+            type: 'collection',
+            sourceName: '',
+            pipeline: [],
+            isNonExistent: false,
+          },
+          {
+            _id: 'coll_ready_1_2_2',
+            name: 'coll_ready_shared_name',
             type: 'collection',
             sourceName: '',
             pipeline: [],
@@ -623,6 +639,27 @@ describe('useFilteredConnections', function () {
           (result.current.filtered?.[0] as SidebarConnectedConnection)
             .databases[0].collections
         ).to.have.length(2); // the result has 2 collections
+      });
+    });
+
+    it('should filter collection items and database items using dot notation', async function () {
+      const { result } = renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockSidebarConnections,
+          filter: {
+            regex: new RegExp('ready_1_1.coll_ready_shared_name', 'i'), // this matches only coll_ready_shared_name collection in ready_1_1 database
+            excludeInactive: false,
+          },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+
+      await waitFor(() => {
+        expect(
+          (result.current.filtered?.[0] as SidebarConnectedConnection)
+            .databases[0].collections
+        ).to.have.length(1); // the result has 1 collection
       });
     });
 
