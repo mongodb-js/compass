@@ -75,6 +75,9 @@ export enum WorkspacesActions {
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
   FetchDatabaseTabInfo = 'compass-workspaces/FetchDatabaseTabInfo',
   CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
+
+  OPEN_CHAT = 'docs-chatbot/sidebar-chat/OPEN_CHAT',
+  CLOSE_CHAT = 'docs-chatbot/sidebar-chat/CLOSE_CHAT',
 }
 
 function isAction<A extends AnyAction>(
@@ -131,6 +134,8 @@ export type WorkspacesState = {
    * of a database)
    */
   databaseInfo: Record<string, DatabaseTabInfo>;
+
+  isSidebarChatOpen: boolean;
 };
 
 const getTabId = () => {
@@ -252,6 +257,7 @@ const getInitialState = () => {
     activeTabId: null,
     collectionInfo: {},
     databaseInfo: {},
+    isSidebarChatOpen: false,
   };
 };
 
@@ -395,6 +401,13 @@ const reducer: Reducer<WorkspacesState, Action> = (
       tabs: [...state.tabs, newTab],
       activeTabId: newTab.id,
     };
+  }
+
+  if (isAction<OpenSidebarChatAction>(action, WorkspacesActions.OPEN_CHAT)) {
+    return { ...state, isSidebarChatOpen: true };
+  }
+  if (isAction<CloseSidebarChatAction>(action, WorkspacesActions.CLOSE_CHAT)) {
+    return { ...state, isSidebarChatOpen: false };
   }
 
   if (
@@ -674,6 +687,21 @@ type FetchCollectionInfoAction = {
   namespaceId: string;
   info: CollectionTabInfo;
 };
+
+export type OpenSidebarChatAction = {
+  type: WorkspacesActions.OPEN_CHAT;
+};
+
+export type CloseSidebarChatAction = {
+  type: WorkspacesActions.CLOSE_CHAT;
+};
+
+export const openSidebarChat = (): OpenSidebarChatAction => ({
+  type: WorkspacesActions.OPEN_CHAT,
+});
+export const closeSidebarChat = (): CloseSidebarChatAction => ({
+  type: WorkspacesActions.CLOSE_CHAT,
+});
 
 type FetchDatabaseInfoAction = {
   type: WorkspacesActions.FetchDatabaseTabInfo;

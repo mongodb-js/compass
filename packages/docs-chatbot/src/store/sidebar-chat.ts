@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import { isAction } from './util';
 
 export type SidebarChatState = {
-  isOpen: boolean;
+  // isOpen: boolean; // Note: not used at the moment.
 };
 
 export enum SidebarChatActionTypes {
@@ -33,10 +33,12 @@ export const sidebarChatReducer: Reducer<SidebarChatState> = (
   action
 ) => {
   if (isAction(action, SidebarChatActionTypes.OPEN_CHAT)) {
-    return { isOpen: true };
+    return state;
+    // return { isOpen: true };
   }
   if (isAction(action, SidebarChatActionTypes.CLOSE_CHAT)) {
-    return { isOpen: false };
+    return state;
+    // return { isOpen: false };
   }
   return state;
 };

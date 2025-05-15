@@ -1,11 +1,14 @@
 import OpenAI from 'openai';
 
 let _client: OpenAI;
-async function getClient() {
+function getClient() {
   if (!_client) {
-    let apiKey: string;
+    let apiKey: string | undefined;
     try {
-      apiKey = process.env.OPEN_AI_KEY ?? (await import('./api-key')).apiKey;
+      apiKey = process.env.OPEN_AI_KEY;
+      if (!apiKey) {
+        throw new Error('API key not found');
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error importing api key for open ai:', error);
@@ -33,7 +36,7 @@ export async function* getStreamResponseFromOpenAI({
   signal: AbortSignal;
 }) {
   try {
-    const client = await getClient();
+    const client = getClient();
     const stream = await client.chat.completions.create(
       {
         model,
@@ -67,7 +70,7 @@ export async function getResponseFromOpenAI({
   model?: string;
   signal: AbortSignal;
 }) {
-  const client = await getClient();
+  const client = getClient();
   return client.chat.completions.create(
     {
       model,

@@ -108,7 +108,19 @@ export default function Workspace({
           initialWorkspaceTabs={[{ type: 'Welcome' }]}
           onActiveWorkspaceTabChange={onWorkspaceTabChange}
           renderSidebar={() => <CompassSidebarPlugin />}
-          renderChatSidebar={() => <DocsChatbotSidebarPlugin />}
+          renderChatSidebar={({
+            isOpen,
+            setOpen,
+          }: {
+            isOpen: boolean;
+            setOpen: (isOpen: boolean) => void;
+          }) => (
+            <DocsChatbotSidebarPlugin
+              // Note: This is hacky and should instead be in a provider.
+              isOpen={isOpen}
+              setOpen={setOpen}
+            />
+          )}
           renderModals={() => (
             <>
               <ImportPlugin></ImportPlugin>

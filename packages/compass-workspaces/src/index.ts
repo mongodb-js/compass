@@ -17,6 +17,7 @@ import workspacesReducer, {
   connectionDisconnected,
   updateDatabaseInfo,
   updateCollectionInfo,
+  openSidebarChat,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -66,6 +67,7 @@ export function configureStore(
       activeTabId: initialTabs[initialTabs.length - 1]?.id ?? null,
       collectionInfo: {},
       databaseInfo: {},
+      isSidebarChatOpen: false,
     },
     applyMiddleware(thunk.withExtraArgument(services))
   );
@@ -182,6 +184,10 @@ export function activateWorkspacePlugin(
         }
       );
     }
+  });
+
+  on(globalAppRegistry, 'open-sidebar-chat', function () {
+    store.dispatch(openSidebarChat());
   });
 
   on(globalAppRegistry, 'open-active-namespace-import', function () {

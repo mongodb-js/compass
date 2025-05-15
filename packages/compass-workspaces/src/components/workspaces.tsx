@@ -18,11 +18,13 @@ import type {
   WorkspacesState,
 } from '../stores/workspaces';
 import {
+  closeSidebarChat,
   closeTab,
   getActiveTab,
   getLocalAppRegistryForTab,
   moveTab,
   openFallbackWorkspace,
+  openSidebarChat,
   openTabFromCurrent,
   selectNextTab,
   selectPrevTab,
@@ -129,6 +131,7 @@ type CompassWorkspacesProps = {
   collectionInfo: Record<string, CollectionTabInfo>;
   databaseInfo: Record<string, DatabaseTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
+  isSidebarChatOpen: boolean;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -140,6 +143,8 @@ type CompassWorkspacesProps = {
     tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
   ): void;
+  onCloseSidebarChat(): void;
+  onOpenSidebarChat(): void;
 };
 
 const nonExistantStyles = css({
@@ -152,6 +157,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   collectionInfo,
   databaseInfo,
   openOnEmptyWorkspace,
+  isSidebarChatOpen,
   onSelectTab,
   onSelectNextTab,
   onSelectPrevTab,
@@ -159,6 +165,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCreateTab,
   onCloseTab,
   onNamespaceNotFound,
+  onCloseSidebarChat,
+  onOpenSidebarChat,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -402,6 +410,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onCloseTab={onCloseTab}
         tabs={tabDescriptions}
         selectedTabIndex={activeTabIndex}
+        setIsSidebarChatOpen={(open: boolean) =>
+          open ? onOpenSidebarChat() : onCloseSidebarChat()
+        }
+        isSidebarChatOpen={isSidebarChatOpen}
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
@@ -446,6 +458,7 @@ export default connect(
       activeTab: activeTab,
       collectionInfo: state.collectionInfo,
       databaseInfo: state.databaseInfo,
+      isSidebarChatOpen: state.isSidebarChatOpen,
     };
   },
   {
@@ -456,5 +469,7 @@ export default connect(
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
     onNamespaceNotFound: openFallbackWorkspace,
+    onCloseSidebarChat: closeSidebarChat,
+    onOpenSidebarChat: openSidebarChat,
   }
 )(CompassWorkspaces);

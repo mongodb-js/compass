@@ -6,6 +6,7 @@ import {
   mergeProps,
   useDefaultAction,
   Icon,
+  palette,
 } from '@mongodb-js/compass-components';
 import {
   useOpenWorkspace,
@@ -60,11 +61,13 @@ const navigationItemLabel = css({
 export function NavigationItem({
   onClick: onButtonClick,
   glyph,
+  color,
   label,
   isActive,
 }: {
   onClick(): void;
   glyph: string;
+  color?: string;
   label: string;
   isActive: boolean;
 }) {
@@ -86,7 +89,7 @@ export function NavigationItem({
   return (
     <div {...navigationItemProps}>
       <div className={itemButtonWrapper}>
-        <Icon glyph={glyph} size="small"></Icon>
+        <Icon color={color} glyph={glyph} size="small"></Icon>
         <span className={navigationItemLabel}>{label}</span>
       </div>
     </div>
@@ -126,6 +129,7 @@ export function Navigation({
       <NavigationItem
         onClick={openDocsChatbotWorkspace}
         glyph="Sparkle"
+        color={palette.green.dark2}
         label="Chat"
         isActive={currentLocation === 'Docs Chatbot'}
       />

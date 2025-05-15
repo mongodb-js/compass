@@ -8,7 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import type { CollectionTabInfo } from '../stores/workspaces';
 import {
+  closeSidebarChat,
   getActiveTab,
+  openSidebarChat,
   type OpenWorkspaceOptions,
   type WorkspaceTab,
   type WorkspacesState,
@@ -59,13 +61,22 @@ type WorkspacesWithSidebarProps = {
    * inside workspace React tree and access workspace state and actions from
    * service locator context.
    */
-  renderChatSidebar?: () => React.ReactElement | null;
+  renderChatSidebar?: ({
+    isOpen,
+    setOpen,
+  }: {
+    isOpen: boolean;
+    setOpen: (isOpen: boolean) => void;
+  }) => React.ReactElement | null;
   /**
    * Workspaces plugin modals components slot. Required so that plugin modals
    * can be rendered inside workspace React tree and access workspace state and
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
+
+  setOpenSidebarChat: (isOpen: boolean) => void;
+  isSidebarChatOpen: boolean;
 };
 
 const containerLightThemeStyles = css({
@@ -78,20 +89,21 @@ const containerDarkThemeStyles = css({
   color: palette.white,
 });
 
-// const horizontalSplitStyles = css({
-//   width: '100%',
-//   height: '100%',
-//   display: 'grid',
-//   gridTemplateColumns: 'min-content auto',
-//   minHeight: 0,
-// });
-const horizontalSplitStyles = css({
+const horizontalDoubleSplitStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'grid',
+  gridTemplateColumns: 'min-content auto',
+  minHeight: 0,
+});
+
+const horizontalTripleSplitStyles = css({
   width: '100%',
   height: '100%',
   display: 'grid',
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
-  gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
-  // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
+  gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 
@@ -128,6 +140,11 @@ const sidebarStyles = css({
 //   minWidth: 0
 // })
 
+// Note: This is assuming the left sidebar isn't changing size, which isn't right.
+const initialLeftSidebarWidth = 300;
+// const initialRightSidebarWidth = 100;
+const initialRightSidebarWidth = 0;
+
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
 > = ({
@@ -138,7 +155,12 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderSidebar,
   renderChatSidebar,
   renderModals,
+
+  setOpenSidebarChat,
+  isSidebarChatOpen,
 }) => {
+  // const [isChatSidebarOpen, setIsChatSidebarOpen] = useState(false);
+
   const darkMode = useDarkMode();
   const onChange = useRef(onActiveWorkspaceTabChange);
   onChange.current = onActiveWorkspaceTabChange;
@@ -149,7 +171,8 @@ const WorkspacesWithSidebar: React.FunctionComponent<
     <WorkspacesServiceProvider>
       <div
         className={cx(
-          horizontalSplitStyles,
+          isSidebarChatOpen && horizontalTripleSplitStyles,
+          !isSidebarChatOpen && horizontalDoubleSplitStyles,
           darkMode ? containerDarkThemeStyles : containerLightThemeStyles
         )}
       >
@@ -158,7 +181,11 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         <ResizableSidebar
           data-testid="workspaces-sidebar"
           useNewTheme={true}
+          // initialWidth={window.screen.width - initialLeftSidebarWidth - initialRightSidebarWidth}
+          initialWidth={window.screen.width - initialLeftSidebarWidth}
           minWidth={700}
+          hackyOverrideWidth={isSidebarChatOpen}
+          disabled={!isSidebarChatOpen}
           // TODO: This should be screen width - both sidebar sizes.
           // Probably to be done in the ResizableSidebar component somehow.
           maxWidth={Infinity}
@@ -171,7 +198,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
         </ResizableSidebar>
         {/* </div> */}
         {/* <div className={chatSidebarStyles}> */}
-        {renderChatSidebar?.()}
+        {renderChatSidebar?.({
+          isOpen: isSidebarChatOpen,
+          setOpen: setOpenSidebarChat,
+        })}
         {/* </div> */}
       </div>
       {renderModals?.()}
@@ -179,13 +209,20 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   );
 };
 
-export default connect((state: WorkspacesState) => {
-  const activeTab = getActiveTab(state);
-  return {
-    activeTab,
-    activeTabCollectionInfo:
-      activeTab?.type === 'Collection'
-        ? state.collectionInfo[activeTab.namespace]
-        : null,
-  };
-})(WorkspacesWithSidebar);
+export default connect(
+  (state: WorkspacesState) => {
+    const activeTab = getActiveTab(state);
+    return {
+      activeTab,
+      isSidebarChatOpen: state.isSidebarChatOpen,
+      activeTabCollectionInfo:
+        activeTab?.type === 'Collection'
+          ? state.collectionInfo[activeTab.namespace]
+          : null,
+    };
+  },
+  {
+    setOpenSidebarChat: (isOpen: boolean) =>
+      isOpen ? openSidebarChat() : closeSidebarChat(),
+  }
+)(WorkspacesWithSidebar);

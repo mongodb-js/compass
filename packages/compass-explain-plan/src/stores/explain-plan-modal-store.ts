@@ -306,7 +306,7 @@ The user is running an explain plan to understand the performance of their query
 See if there are any suggestions to give them, however, don't over-advise.
 
 Rules:
-1. This will be shown directly to the user, keep your response concise.
+1. This will be shown directly to the user, keep your response concise and well formatted for readability.
 2. Do not include any meta information or conversational items, only the analysis.
 3. Respond in markdown format. GitHub Flavored Markdown is preferred.
 4. Do NOT include a header in your response, we already provide one.
@@ -366,7 +366,7 @@ function explainWithDocsChatbotPrompt({
   return `
 After running an operation with an explain, I want to understand the MongoDB explain result.
 Please describe it.
-No need for conversation jargon, a fancy response, or meta information, just an analysis to help someone understand.
+No need for conversation jargon and don't make it conversational, just an analysis to help someone understand.
 I'll copy paste what you say to the user.
 ${operationPromptSection({
   operation,
@@ -377,6 +377,7 @@ The explain plan result:
 ${explainPlanPromptSection(rawExplainPlan)}}
 `;
 }
+// No need for conversation jargon, a fancy response, or meta information, just an analysis to help someone understand.
 
 function buildUserPrompt({
   operation,

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { palette } from '@leafygreen-ui/palette';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -62,12 +62,16 @@ const ResizableSidebar = ({
   maxWidth = 600,
   children,
   className,
+  disabled = false,
+  hackyOverrideWidth = false,
   style,
   useNewTheme,
   ...props
 }: {
   initialWidth?: number;
   minWidth?: number;
+  disabled?: boolean;
+  hackyOverrideWidth?: boolean;
   maxWidth?: number;
   children: JSX.Element;
   useNewTheme?: boolean;
@@ -95,8 +99,19 @@ const ResizableSidebar = ({
 
       return Math.min(maxWidth, Math.max(minWidth, attemptedWidth));
     },
-    [getMaxSidebarWidth, minWidth, maxWidth]
+    [getMaxSidebarWidth, minWidth]
   );
+
+  const wasHacky = useRef(false);
+  useLayoutEffect(() => {
+    if (hackyOverrideWidth) {
+      wasHacky.current = true;
+      setWidth(window.innerWidth - defaultSidebarWidth * 2);
+    } else if (wasHacky.current) {
+      wasHacky.current = false;
+      setWidth(window.innerWidth - defaultSidebarWidth);
+    }
+  }, [hackyOverrideWidth]);
 
   const renderedWidth = boundSidebarWidth(width);
 
@@ -110,21 +125,24 @@ const ResizableSidebar = ({
       style={{
         ...style,
         minWidth,
-        width: `min(100vw - 340px, ${renderedWidth}px)`,
+        width: `min(100vw - 300px, ${renderedWidth}px)`,
+        // width: hackyOverrideWidth ? `min(100vw - 300px, ${renderedWidth}px)` : `min(100vw - ${defaultSidebarWidth * 2}px, ${renderedWidth}px)`,
         flex: 'none',
         ...newThemeStyles,
       }}
       {...props}
     >
       {children}
-      <ResizeHandle
-        onChange={setWidth}
-        direction={ResizeDirection.RIGHT}
-        value={width}
-        minValue={minWidth}
-        maxValue={getMaxSidebarWidth()}
-        title="sidebar"
-      />
+      {!disabled && (
+        <ResizeHandle
+          onChange={setWidth}
+          direction={ResizeDirection.RIGHT}
+          value={width}
+          minValue={minWidth}
+          maxValue={getMaxSidebarWidth()}
+          title="sidebar"
+        />
+      )}
     </div>
   );
 };

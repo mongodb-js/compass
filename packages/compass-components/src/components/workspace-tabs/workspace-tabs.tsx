@@ -83,6 +83,13 @@ const createNewTabButtonStyles = css({
   margin: spacing[100],
 });
 
+const chatActionContainerStyles = css({
+  flex: 'none',
+  alignSelf: 'center',
+  marginLeft: 'auto',
+  marginRight: spacing[100],
+});
+
 const sortableItemContainerStyles = css({
   display: 'inline-flex',
 });
@@ -166,6 +173,8 @@ type WorkspaceTabsProps = {
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabProps[];
   selectedTabIndex: number;
+  setIsSidebarChatOpen: (open: boolean) => void;
+  isSidebarChatOpen: boolean;
 };
 
 export type TabProps = {
@@ -327,6 +336,8 @@ function WorkspaceTabs({
   onSelectPrevTab,
   tabs,
   selectedTabIndex,
+  setIsSidebarChatOpen,
+  isSidebarChatOpen,
 }: WorkspaceTabsProps) {
   const darkMode = useDarkMode();
   const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
@@ -428,6 +439,20 @@ function WorkspaceTabs({
             onClick={onCreateNewTab}
           >
             <Icon role="presentation" glyph="Plus" />
+          </IconButton>
+        </div>
+        <div className={chatActionContainerStyles}>
+          <IconButton
+            className={createNewTabButtonStyles}
+            aria-label="Open Chat"
+            // color={palette.blue.base}
+            onClick={() => setIsSidebarChatOpen(!isSidebarChatOpen)}
+          >
+            <Icon
+              role="presentation"
+              glyph="Sparkle"
+              color={palette.green.dark2}
+            />
           </IconButton>
         </div>
       </div>

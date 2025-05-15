@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { DocsChatbotState } from '../store/reducer';
+// import type { DocsChatbotState } from '../store/reducer';
 import { Chat } from './chat';
 import { Button, css } from '@mongodb-js/compass-components';
-import { closeSidebarChat, openSidebarChat } from '../store/sidebar-chat';
+// import { closeSidebarChat, openSidebarChat } from '../store/sidebar-chat';
 
 const openContainerStyles = css({
   minWidth: '300px',
@@ -17,8 +17,9 @@ const closedContainerStyles = css({
 
 type DocsChatbotSidebarPluginInitialProps = {
   isOpen: boolean;
-  onOpenSidebarChat: () => void;
-  onCloseSidebarChat: () => void;
+  // onOpenSidebarChat: () => void;
+  // onCloseSidebarChat: () => void;
+  setOpen: (isOpen: boolean) => void;
 };
 
 // https://mongodb.github.io/chatbot/ui
@@ -26,20 +27,29 @@ type DocsChatbotSidebarPluginInitialProps = {
 
 const DocsChatbotSidebar: React.FunctionComponent<
   DocsChatbotSidebarPluginInitialProps
-> = ({ isOpen, onOpenSidebarChat, onCloseSidebarChat }) => {
+> = ({
+  isOpen,
+  // onOpenSidebarChat,
+  // onCloseSidebarChat,
+  setOpen,
+}) => {
   if (!isOpen) {
-    return (
-      <div className={closedContainerStyles}>
-        <Button variant="primary" onClick={onOpenSidebarChat}>
-          Open
-        </Button>
-      </div>
-    );
+    return null;
   }
+
+  // if (!isOpen) {
+  //   return (
+  //     <div className={closedContainerStyles}>
+  //       <Button variant="primary" onClick={() => setOpen(true)}>
+  //         Open
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className={openContainerStyles}>
-      <Button onClick={onCloseSidebarChat}>Close</Button>
+      <Button onClick={() => setOpen(false)}>Close</Button>
       <br />
       <div>~docs chatbot sidebar~</div>
       <Chat />
@@ -48,13 +58,15 @@ const DocsChatbotSidebar: React.FunctionComponent<
 };
 
 export default connect(
-  (state: DocsChatbotState) => {
-    return {
-      isOpen: state.sidebarChat.isOpen,
-    };
-  },
+  () =>
+    // state: DocsChatbotState
+    {
+      return {
+        // isOpen: state.sidebarChat.isOpen,
+      };
+    },
   {
-    onCloseSidebarChat: closeSidebarChat,
-    onOpenSidebarChat: openSidebarChat,
+    // onCloseSidebarChat: closeSidebarChat,
+    // onOpenSidebarChat: openSidebarChat,
   }
 )(DocsChatbotSidebar);
