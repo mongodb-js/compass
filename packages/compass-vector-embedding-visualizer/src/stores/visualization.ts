@@ -69,21 +69,23 @@ export const visualizationReducer: Reducer<VisualizationState> = (
   return state;
 };
 
-export function loadDocuments(
-  namespace: string
-): VectorEmbeddingVisualizerThunkAction<
+export function loadDocuments(): VectorEmbeddingVisualizerThunkAction<
   Promise<void>,
   | FetchDocumentsStartedAction
   | FetchDocumentsSuccessAction
   | FetchDocumentsFailedAction
 > {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, collection }) => {
     dispatch({
       type: VisualizationActionTypes.FETCH_DOCUMENTS_STARTED,
     });
 
     try {
-      const docs = await dataService.find(namespace, {}, { limit: 1000 });
+      const docs = await dataService.find(
+        `${collection.database}.${collection.name}`,
+        {},
+        { limit: 1000 }
+      );
 
       dispatch({
         type: VisualizationActionTypes.FETCH_DOCUMENTS_SUCCESS,

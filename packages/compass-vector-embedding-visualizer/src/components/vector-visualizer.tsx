@@ -1,29 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Plotly from 'plotly.js';
-const PCA = require('ml-pca');
+import * as PCA from 'ml-pca';
 import type { Binary } from 'mongodb';
 import type { Document } from 'bson';
 
 import type { VectorEmbeddingVisualizerState } from '../stores/reducer';
 import { loadDocuments } from '../stores/visualization';
 import { ErrorSummary } from '@mongodb-js/compass-components';
+import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
 
 type HoverInfo = { x: number; y: number; text: string } | null;
 
 export interface VectorVisualizerProps {
-  onFetchDocs: (namespace: string) => void;
+  onFetchDocs: () => void;
   docs: Document[];
   loadingDocumentsState: 'initial' | 'loading' | 'loaded' | 'error';
   loadingDocumentsError: Error | null;
-  collection: { namespace: string };
 }
 
 function normalizeTo2D(vectors: Binary[]): { x: number; y: number }[] {
   const raw = vectors.map((v) => Array.from(v.toFloat32Array()));
-  const pca = new PCA(raw);
+  const pca = new PCA.PCA(raw);
   const reduced = pca.predict(raw, { nComponents: 2 }).to2DArray();
-  return reduced.map(([x, y]: [number, number]) => ({ x, y }));
+  return reduced.map(([x, y]) => ({ x, y }));
 }
 
 const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
@@ -31,16 +31,15 @@ const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
   docs,
   loadingDocumentsState,
   loadingDocumentsError,
-  collection,
 }) => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo>(null);
 
   useEffect(() => {
     if (loadingDocumentsState === 'initial') {
       // Fetch the documents when the component mounts when they aren't already loaded.
-      onFetchDocs(collection.namespace);
+      onFetchDocs();
     }
-  }, [loadingDocumentsState, onFetchDocs, collection.namespace]);
+  }, [loadingDocumentsState, onFetchDocs]);
 
   useEffect(() => {
     const container = document.getElementById('vector-plot');
@@ -50,14 +49,11 @@ const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
 
     const plot = async () => {
       try {
-        const ns = collection?.namespace;
-        if (!ns) return;
-
         const vectors = docs.map((doc) => doc.review_vec).filter(Boolean);
 
         if (!vectors.length) return;
 
-        const points = normalizeTo2D(vectors);
+        const points = normalizeTo2D(vectors.slice(0, 50));
 
         await Plotly.newPlot(
           container,
@@ -134,7 +130,7 @@ const VectorVisualizer: React.FC<VectorVisualizerProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [docs, collection.namespace]);
+  }, [docs]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
