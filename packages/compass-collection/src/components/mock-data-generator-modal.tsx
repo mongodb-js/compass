@@ -22,6 +22,10 @@ import {
   Cell,
 } from '@leafygreen-ui/table';
 import {
+  SegmentedControl,
+  SegmentedControlOption,
+} from '@leafygreen-ui/segmented-control';
+import {
   Button,
   Modal,
   ModalHeader,
@@ -123,46 +127,66 @@ type MockDataGeneratorModalState = {
 };
 
 const SchemaViewStep = () => {
+  const [activeTab, setActiveTab] = useState(
+    FAKE_SCHEMA_GENERATE_RESPONSE.collections[0].name
+  );
+
   return (
     <div>
+      <p>
+        We sampled docs from your collections to infer the following schema:
+      </p>
+
+      <SegmentedControl
+        value={activeTab}
+        onChange={(value) => setActiveTab(value)}
+      >
+        {FAKE_SCHEMA_GENERATE_RESPONSE.collections.map((collection) => {
+          return (
+            <SegmentedControlOption value={collection.name}>
+              {collection.name}
+            </SegmentedControlOption>
+          );
+        })}
+        <SegmentedControlOption value={'relationship'}>
+          relationship
+        </SegmentedControlOption>
+      </SegmentedControl>
       {FAKE_SCHEMA_GENERATE_RESPONSE.collections.map((collection) => {
         return (
           <div key={collection.name}>
-            <Chip variant={Variant.Gray} label={collection.name}>
-              {collection.name}
-            </Chip>
-
-            <Table className={tableStyles}>
-              <TableHead>
-                <HeaderRow>
-                  <HeaderCell>Field Name</HeaderCell>
-                  <HeaderCell>MongoDB Data Type</HeaderCell>
-                  <HeaderCell>faker-js module</HeaderCell>
-                  <HeaderCell>faker-js module args</HeaderCell>
-                </HeaderRow>
-              </TableHead>
-              <TableBody>
-                {Object.keys(collection.schema).map((fieldName) => {
-                  const metadata = collection.schema[fieldName];
-                  return (
-                    <Row>
-                      <Cell>{fieldName}</Cell>
-                      <Cell>{metadata.type}</Cell>
-                      <Cell>{metadata.faker}</Cell>
-                      <Cell>
-                        {metadata.fakerArgs
-                          ?.map((arg) => JSON.stringify(arg))
-                          .join(', ')}
-                      </Cell>
-                    </Row>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            {activeTab === collection.name && (
+              <Table className={tableStyles}>
+                <TableHead>
+                  <HeaderRow>
+                    <HeaderCell>Field Name</HeaderCell>
+                    <HeaderCell>MongoDB Data Type</HeaderCell>
+                    <HeaderCell>faker-js module</HeaderCell>
+                    <HeaderCell>faker-js module args</HeaderCell>
+                  </HeaderRow>
+                </TableHead>
+                <TableBody>
+                  {Object.keys(collection.schema).map((fieldName) => {
+                    const metadata = collection.schema[fieldName];
+                    return (
+                      <Row>
+                        <Cell>{fieldName}</Cell>
+                        <Cell>{metadata.type}</Cell>
+                        <Cell>{metadata.faker}</Cell>
+                        <Cell>
+                          {metadata.fakerArgs
+                            ?.map((arg) => JSON.stringify(arg))
+                            .join(', ')}
+                        </Cell>
+                      </Row>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
           </div>
         );
       })}
-      )
     </div>
   );
 };
@@ -270,7 +294,7 @@ function createCsrfHeaders() {
     }
 
     return acc;
-  }, {});
+  }, {} as any);
 }
 
 const getPrimaryButtonText = (currentStep: number) => {
@@ -387,6 +411,19 @@ const MockDataGeneratorModal: React.FunctionComponent<
                 {collName}
               </Chip>
             </div>
+
+            {(currentStep === 1 || currentStep === 2) &&
+              selectedRelatedCollections.length > 0 && (
+                <div className={rowStyles}>
+                  <Body weight="medium">Related Collection</Body>
+                  <Chip
+                    variant={Variant.Gray}
+                    label={selectedRelatedCollections[0]}
+                  >
+                    {selectedRelatedCollections[0]}
+                  </Chip>
+                </div>
+              )}
           </div>
         )}
         {currentStep === 0 && (
