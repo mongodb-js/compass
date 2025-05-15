@@ -58,6 +58,7 @@
     "@mongodb-js/compass-telemetry": "^1.6.1",
     "@mongodb-js/compass-user-data": "^0.5.8",
     "@mongodb-js/compass-workspaces": "^0.36.0",
+    "@lg-chat/chat-window": "^3.0.14",
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.37.0",
     "hadron-app-registry": "^9.4.8",

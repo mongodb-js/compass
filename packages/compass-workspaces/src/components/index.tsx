@@ -103,7 +103,8 @@ const horizontalTripleSplitStyles = css({
   display: 'grid',
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
-  gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
+  gridTemplateColumns: 'min-content auto 298px', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 
@@ -111,14 +112,14 @@ const workspacesStyles = css({
   // minHeight: 0,
   // overflow: 'hidden',
   // minWidth: '750px', // roughly the minimum needed for the CRUD toolbars
-  // width: '100%',
-  // height: '100%',
-  // display: 'flex',
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  // position: 'absolute',
+  // top: 0,
+  // left: 0,
+  // right: 0,
+  // bottom: 0,
 });
 
 const workspacesContainerStyles = css({
@@ -178,7 +179,10 @@ const WorkspacesWithSidebar: React.FunctionComponent<
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
         {/* <div className={workspacesContainerStyles}> */}
-        <ResizableSidebar
+
+        {/* LG chat is always 298 px, so we're avoiding resize for now, also not needed for POC */}
+
+        {/* <ResizableSidebar
           data-testid="workspaces-sidebar"
           useNewTheme={true}
           // initialWidth={window.screen.width - initialLeftSidebarWidth - initialRightSidebarWidth}
@@ -189,13 +193,11 @@ const WorkspacesWithSidebar: React.FunctionComponent<
           // TODO: This should be screen width - both sidebar sizes.
           // Probably to be done in the ResizableSidebar component somehow.
           maxWidth={Infinity}
-        >
-          <div className={workspacesStyles}>
-            <Workspaces
-              openOnEmptyWorkspace={openOnEmptyWorkspace}
-            ></Workspaces>
-          </div>
-        </ResizableSidebar>
+        > */}
+        <div className={workspacesStyles}>
+          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
+        </div>
+        {/* </ResizableSidebar> */}
         {/* </div> */}
         {/* <div className={chatSidebarStyles}> */}
         {renderChatSidebar?.({

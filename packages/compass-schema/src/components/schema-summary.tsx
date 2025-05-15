@@ -1,21 +1,45 @@
 /* eslint-disable no-console */
 import React, { useCallback, useEffect } from 'react';
-import { css, Icon, IconButton, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  css,
+  Icon,
+  IconButton,
+  spacing,
+  SpinLoader,
+} from '@mongodb-js/compass-components';
 import { getChatStreamResponseFromAI } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Schema } from 'mongodb-schema';
+import { toJSString } from 'mongodb-query-parser';
 
 import type { RootState } from '../stores/store';
 
 const summaryContainerStyles = css({
   padding: spacing[200],
   display: 'flex',
+  minHeight: spacing[900] * 2,
 });
 
 const summaryStyles = css({
   // padding: spacing[200],
+  display: 'flex',
+  // alignItems: 'center',
+  flexDirection: 'column',
+  gap: 0,
+  // gap: spacing[200],
+});
+
+const titleStyles = css({
+  fontWeight: 'bold',
+  margin: 0,
+});
+const summaryTextStyles = css({
+  margin: 0,
+  // fontWeight: 'bold',
+  // marginBottom: spacing[200],
 });
 
 const summaryActionsStyles = css({
@@ -29,11 +53,6 @@ function debugLog(...args: any[]) {
   }
   console.log(...args);
 }
-
-type SchemaSummaryProps = {
-  schema: Schema | null;
-  namespace: string;
-};
 
 const buildPromptForSummarySystem = (): string => {
   return `
@@ -50,7 +69,7 @@ Rules:
 
 function buildUserPrompt({ schema }: { schema: Schema }): string {
   return `
-${schema}
+${toJSString(schema)}
 `;
 }
 
@@ -74,126 +93,146 @@ async function* asyncGeneratorWithTimeout(whatToYield: string) {
 }
 
 let lastRun = 0;
-const THROTTLE_MS = 2000;
+const THROTTLE_MS = 5000;
+// let completedSummaries: {
+//   [namespace: string]: string | null;
+// } = {};
+let completedSummary =
+  'Not running for performance and cost reasons, analysis would be here.';
 // let completedSummary: string | null = null;
-let completedSummary = 'Schema looks great! Wow nice job';
 
-export const SchemaSummary: React.FunctionComponent<SchemaSummaryProps> = ({
+export const SchemaSummary = ({
   schema,
+  namespace,
+}: {
+  schema: Schema | null;
+  namespace: string;
 }) => {
+  // TODO: Make a button to open this in the chat window.
+
   // TODO: Keep a map of collection ns -> schema (total hack, this should be in the store).
   const [summary, setSummary] = React.useState<string>('');
+  const [summaryIsComplete, setSummaryIsComplete] =
+    React.useState<boolean>(false);
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
-  const fetchSchemaSummaryAndAnalyze = useCallback((schema: Schema) => {
-    // Throttle the AI analysis to avoid overloading the system.
-    const now = Date.now();
-    if (now - lastRun < THROTTLE_MS) {
-      debugLog('aaa Throttling AI analysis of log');
-      return;
-    }
-    lastRun = now;
-    debugLog('aaa about to perform AI analysis of log');
-
-    // For hot reloading:
-    setSummary('');
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Start loading.
-    abortControllerRef.current = new AbortController();
-    const abortController = abortControllerRef.current;
-    const { signal } = abortController;
-    const _fetchSchemaSummaryAndAnalyze = async (schema: Schema) => {
-      try {
-        // TODO: Get Compass log.
-
-        if (signal.aborted) {
-          return;
-        }
-
-        const systemPrompt = buildPromptForSummarySystem();
-        const userPrompt = buildUserPrompt({
-          schema,
-        });
-        debugLog(
-          'aaa built prompt for schema analysis:',
-          systemPrompt,
-          '\n',
-          userPrompt
-        );
-
-        if (completedSummary) {
-          debugLog('aaa already completed schema summary:', completedSummary);
-          // setSummary(completedSummary);
-          // If we want to simulate streaming:
-          for await (const value of asyncGeneratorWithTimeout(
-            completedSummary
-          )) {
-            if (signal.aborted) {
-              return;
-            }
-            setSummary((summary) => summary + value);
-          }
-          return;
-        }
-
-        // TODO
+  const fetchSchemaSummaryAndAnalyze = useCallback(
+    (schema: Schema, namespace: string) => {
+      // Throttle the AI analysis to avoid overloading the system.
+      const now = Date.now();
+      if (now - lastRun < THROTTLE_MS) {
+        debugLog('aaa Throttling AI analysis of log');
         return;
+      }
+      lastRun = now;
+      debugLog('aaa about to perform AI analysis of log');
 
-        const aiAnalysisStream = getChatStreamResponseFromAI({
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          signal,
-        });
-        debugLog('aaa aiAnalysisStream:', aiAnalysisStream);
+      // For hot reloading:
+      setSummary('');
+      setSummaryIsComplete(false);
 
-        let fullResponse = '';
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Start loading.
+      abortControllerRef.current = new AbortController();
+      const abortController = abortControllerRef.current;
+      const { signal } = abortController;
+      const _fetchSchemaSummaryAndAnalyze = async (
+        schema: Schema,
+        namespace: string
+      ) => {
         try {
-          for await (const chunk of aiAnalysisStream) {
-            if (signal.aborted) {
-              return;
-            }
-            debugLog('aaa chunk a a schema  received:', chunk);
-            // debugLog(chunk); // Log each streamed chunk
-            fullResponse += chunk; // Accumulate the response
-            setSummary((summary) => summary + chunk);
+          // TODO: Get Compass log.
+
+          if (signal.aborted) {
+            return;
           }
-          completedSummary = fullResponse;
-          debugLog('aaa Full response:', fullResponse);
-        } catch (error) {
-          console.error(
-            'aaa Failed to stream ai schema summary response:',
-            error
+
+          const systemPrompt = buildPromptForSummarySystem();
+          const userPrompt = buildUserPrompt({
+            schema,
+          });
+          debugLog(
+            'aaa built prompt for schema analysis:',
+            systemPrompt,
+            '\n',
+            userPrompt
           );
 
-          return;
+          if (completedSummary) {
+            debugLog('aaa already completed schema summary:', completedSummary);
+            // setSummary(completedSummary);
+            // If we want to simulate streaming:
+            for await (const value of asyncGeneratorWithTimeout(
+              completedSummary
+            )) {
+              if (signal.aborted) {
+                return;
+              }
+              setSummary((summary) => summary + value);
+            }
+            setSummaryIsComplete(true);
+            return;
+          }
+
+          const aiAnalysisStream = getChatStreamResponseFromAI({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            signal,
+          });
+          debugLog('aaa aiAnalysisStream:', aiAnalysisStream);
+
+          let fullResponse = '';
+          try {
+            for await (const chunk of aiAnalysisStream) {
+              if (signal.aborted) {
+                return;
+              }
+              debugLog('aaa chunk a a schema  received:', chunk);
+              // debugLog(chunk); // Log each streamed chunk
+              fullResponse += chunk; // Accumulate the response
+              setSummary((summary) => summary + chunk);
+            }
+            completedSummary = fullResponse;
+            setSummaryIsComplete(true);
+            debugLog('aaa Full response:', fullResponse);
+          } catch (error) {
+            console.error(
+              'aaa Failed to stream ai schema summary response:',
+              error
+            );
+
+            return;
+          }
+        } catch (error) {
+          console.error(
+            'aaa Failed to fetch AI response for schema summary:',
+            error
+          );
         }
-      } catch (error) {
-        console.error(
-          'aaa Failed to fetch AI response for schema summary:',
-          error
-        );
-      }
-    };
-    void _fetchSchemaSummaryAndAnalyze(schema);
-    return abortController;
-  }, []);
+      };
+      void _fetchSchemaSummaryAndAnalyze(schema, namespace);
+      return abortController;
+    },
+    []
+  );
+  const fetchSchemaSummaryAndAnalyzeRef = React.useRef(
+    fetchSchemaSummaryAndAnalyze
+  );
+  fetchSchemaSummaryAndAnalyzeRef.current = fetchSchemaSummaryAndAnalyze;
 
   useEffect(() => {
     if (!schema) {
       return;
     }
 
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, [schema]);
+    fetchSchemaSummaryAndAnalyzeRef.current(schema, namespace);
+  }, [schema, namespace]);
 
   useEffect(() => {
     return () => {
@@ -208,17 +247,29 @@ export const SchemaSummary: React.FunctionComponent<SchemaSummaryProps> = ({
   return (
     <div className={summaryContainerStyles}>
       <div className={summaryStyles}>
+        <div>
+          <Body className={titleStyles}>Schema Analysis</Body>
+        </div>
+        <div>
+          <Markdown remarkPlugins={[remarkGfm]} className={summaryTextStyles}>
+            {summary}
+          </Markdown>
+        </div>
         {/* {summary} */}
-        <Markdown remarkPlugins={[remarkGfm]}>{summary}</Markdown>
+        {/* {!summaryIsComplete && <SpinLoader />} */}
       </div>
       <div className={summaryActionsStyles}>
-        <IconButton
-          aria-label="Refresh"
-          title="Refresh"
-          onClick={() => fetchSchemaSummaryAndAnalyze(schema)}
-        >
-          <Icon glyph="Refresh"></Icon>
-        </IconButton>
+        {summaryIsComplete ? (
+          <IconButton
+            aria-label="Refresh"
+            title="Refresh"
+            onClick={() => fetchSchemaSummaryAndAnalyze(schema, namespace)}
+          >
+            <Icon glyph="Refresh"></Icon>
+          </IconButton>
+        ) : (
+          <SpinLoader />
+        )}
       </div>
     </div>
   );

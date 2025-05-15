@@ -1,10 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DocsChatbotState } from '../store/reducer';
 import {
   Button,
   ErrorSummary,
   SpinLoader,
+  TitleBar,
+  MessageFeed,
+  ChatWindow,
+  InputBar,
+  Message,
 } from '@mongodb-js/compass-components';
 import { loadChat, submitMessage } from '../store/chat';
 // import Chatbot, {
@@ -14,6 +19,33 @@ import { loadChat, submitMessage } from '../store/chat';
 //   MongoDbLegalDisclosure,
 //   mongoDbVerifyInformationMessage,
 // } from 'mongodb-chatbot-ui';
+const baseMessages: any[] = [];
+
+const Example = ({}: {}) => {
+  const userName = 'Sean Park';
+  const [messages, setMessages] = useState<Array<any>>(baseMessages);
+
+  const handleMessageSend = (messageBody: string) => {
+    const newMessage = {
+      messageBody,
+      userName,
+    };
+    setMessages((messages) => [...messages, newMessage]);
+  };
+
+  return (
+    <ChatWindow title="MongoDB Chat">
+      <TitleBar title="LG Chat Demo" badgeText="Beta" />
+      <MessageFeed>
+        {messages.map((messageFields) => (
+          // <MyMessage key={messageFields.id} {...messageFields} />
+          <Message key={messageFields.id} {...messageFields} />
+        ))}
+      </MessageFeed>
+      <InputBar onMessageSend={handleMessageSend} />
+    </ChatWindow>
+  );
+};
 
 // Chat component that both the sidebar and the tab use.
 function _Chat({
@@ -69,6 +101,11 @@ function _Chat({
       })}
       {messagingError && <ErrorSummary errors={messagingError.message} />}
       {isMessaging && <SpinLoader title="Messaging…" />}
+
+      <div>lg chat:</div>
+      <div>
+        <Example />
+      </div>
       {/* <Chatbot
         name="MongoDB AI"
         maxInputCharacters={300}

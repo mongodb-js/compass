@@ -66,6 +66,21 @@ export type {
   LGRowData,
   SortingState,
 } from '@leafygreen-ui/table';
+export * from '@lg-chat/chat-window';
+export * from '@lg-chat/leafygreen-chat-provider';
+export * from '@lg-chat/avatar';
+export * from '@lg-chat/chat-disclaimer';
+export * from '@lg-chat/fixed-chat-window';
+export * from '@lg-chat/input-bar';
+export * from '@lg-chat/lg-markdown';
+export * from '@lg-chat/message-feed';
+export * from '@lg-chat/message-feedback';
+export * from '@lg-chat/message-prompts';
+export * from '@lg-chat/message-rating';
+export * from '@lg-chat/message';
+export * from '@lg-chat/rich-links';
+export * from '@lg-chat/title-bar';
+
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import LeafyGreenTextInput from '@leafygreen-ui/text-input';

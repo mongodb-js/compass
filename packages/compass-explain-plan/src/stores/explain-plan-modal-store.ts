@@ -291,7 +291,7 @@ let aggregation: AggregationType | undefined;
 function promptSampleDocsSection(sampleDocument?: string): string {
   return sampleDocument
     ? `
-A sample document from the collection is as follows:
+A sample document from the collection:
 ${sampleDocument} 
 `
     : '';
@@ -299,19 +299,24 @@ ${sampleDocument}
 
 function promptHeaderSection(operation: 'query' | 'aggregation'): string {
   return `
-You are a MongoDB expert.
-You are given an explain plan resulting from a ${operation}.
-Please provide a detailed analysis of the explain plan.
-The user is running an explain plan to understand the performance of their query or aggregation.
-See if there are any suggestions to give them, however, don't over-advise.
+You are a MongoDB expert that analyzes the results of explain plans.
+You are given an explain plan resulting from a ${operation} a user has run.
+Provide a detailed and concise analysis drawn from the result of the explain plan to show directly to the user.
+Do not mention obvious things. Keep it concise and to the point.
+See if there are any ${operation} improvement suggestions to give to the user, however, don't over-advise.
+They are already provided the explain plan result, so you don't need to repeat it.
 
 Rules:
-1. This will be shown directly to the user, keep your response concise and well formatted for readability.
-2. Do not include any meta information or conversational items, only the analysis.
-3. Respond in markdown format. GitHub Flavored Markdown is preferred.
-4. Do NOT include a header in your response, we already provide one.
-5. You must NOT wrap the markdown with \`\`\`text or \`\`\`markdown. It is already wrapped.`;
+1. This will be shown directly to the user, keep your response concise.
+2. Format for quick and crisp readability.
+3. Do NOT include any meta information or conversational jargon. Include ONLY the analysis.
+4. You are NOT a chatbot, don't use conversational language, there will be no follow ups.
+5. Respond in markdown format. GitHub Flavored Markdown is preferred.
+6. Do NOT include a header in your response, we already provide one.
+7. You must NOT wrap the markdown with \`\`\`text or \`\`\`markdown. It is already wrapped.`;
 }
+
+// 4. Do NOT answer in a conversational tone, provide only the analysis to be shown to the user, meaning DO NOT say something like "Okay, let's look at this", only provide the analysis.
 
 function buildSystemPrompt(operation: 'query' | 'aggregation'): string {
   return promptHeaderSection(operation);
@@ -321,7 +326,7 @@ function buildSystemPrompt(operation: 'query' | 'aggregation'): string {
 
 function explainPlanPromptSection(explainPlan: Document): string {
   return `
-The explain plan is as follows:
+The explain plan result:
 ${prettify(JSON.stringify(explainPlan), 'json')}`;
 }
 
@@ -348,35 +353,40 @@ function operationPromptSection({
   return `
 
 The ${operation} is as follows:
-${toJSString(operation === 'query' ? query : aggregation)}
+${toJSString(
+  operation === 'query'
+    ? query
+    : Object.keys(aggregation ?? {}).length === 1
+    ? aggregation?.pipeline
+    : aggregation
+)}
 `;
 }
 
-function explainWithDocsChatbotPrompt({
-  operation,
-  rawExplainPlan,
-  aggregation,
-  query,
-}: {
-  operation: 'query' | 'aggregation';
-  query?: Record<string, unknown>;
-  aggregation?: AggregationType;
-  rawExplainPlan: Document;
-}) {
-  return `
-After running an operation with an explain, I want to understand the MongoDB explain result.
-Please describe it.
-No need for conversation jargon and don't make it conversational, just an analysis to help someone understand.
-I'll copy paste what you say to the user.
-${operationPromptSection({
-  operation,
-  aggregation,
-  query,
-})}
-The explain plan result:
-${explainPlanPromptSection(rawExplainPlan)}}
-`;
-}
+// function explainWithDocsChatbotPrompt({
+//   operation,
+//   rawExplainPlan,
+//   aggregation,
+//   query,
+// }: {
+//   operation: 'query' | 'aggregation';
+//   query?: Record<string, unknown>;
+//   aggregation?: AggregationType;
+//   rawExplainPlan: Document;
+// }) {
+//   return `
+// After running an operation with an explain, I want to understand the MongoDB explain result.
+// Please describe it.
+// No need for conversation jargon and don't make it conversational, just an analysis to help someone understand.
+// I'll copy paste what you say to the user.
+// ${operationPromptSection({
+//   operation,
+//   aggregation,
+//   query,
+// })}
+// ${explainPlanPromptSection(rawExplainPlan)}}
+// `;
+// }
 // No need for conversation jargon, a fancy response, or meta information, just an analysis to help someone understand.
 
 function buildUserPrompt({
@@ -398,7 +408,6 @@ ${operationPromptSection({
   aggregation,
   query,
 })}
-The explain plan result:
 ${explainPlanPromptSection(rawExplainPlan)}}
 
 ${promptSampleDocsSection(sampleDocument)}
@@ -563,6 +572,10 @@ export function generateAIAnalysis(): ExplainPlanModalThunkAction<
         if (signal.aborted) {
           return;
         }
+        if (fullResponse.length > 100000) {
+          // When it's too long abort.
+          abortController.abort();
+        }
         // console.log('aaa chunk a a received:', chunk);
         // console.log(chunk); // Log each streamed chunk
         fullResponse += chunk; // Accumulate the response
@@ -571,7 +584,7 @@ export function generateAIAnalysis(): ExplainPlanModalThunkAction<
           chunk,
         });
       }
-      console.log('aaa Full response:', fullResponse);
+      // console.log('aaa Full response:', fullResponse);
     } catch (error) {
       console.error('aaa Failed to stream ai response:', error);
       dispatch({

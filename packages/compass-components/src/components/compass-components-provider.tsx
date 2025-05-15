@@ -6,6 +6,7 @@ import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
 import { StackedComponentProvider } from '../hooks/use-stacked-component';
+import { LeafyGreenChatProvider } from '@lg-chat/leafygreen-chat-provider';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -124,31 +125,33 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <StackedComponentProvider zIndex={stackedElementsZIndex}>
-        <RequiredURLSearchParamsProvider
-          utmSource={utmSource}
-          utmMedium={utmMedium}
-        >
-          <GuideCueProvider
-            onNext={onNextGuideGue}
-            onNextGroup={onNextGuideCueGroup}
+      <LeafyGreenChatProvider>
+        <StackedComponentProvider zIndex={stackedElementsZIndex}>
+          <RequiredURLSearchParamsProvider
+            utmSource={utmSource}
+            utmMedium={utmMedium}
           >
-            <SignalHooksProvider {...signalHooksProviderProps}>
-              <ConfirmationModalArea>
-                <ToastArea>
-                  {typeof children === 'function'
-                    ? children({
-                        darkMode,
-                        portalContainerRef: setPortalContainer,
-                        scrollContainerRef: setScrollContainer,
-                      })
-                    : children}
-                </ToastArea>
-              </ConfirmationModalArea>
-            </SignalHooksProvider>
-          </GuideCueProvider>
-        </RequiredURLSearchParamsProvider>
-      </StackedComponentProvider>
+            <GuideCueProvider
+              onNext={onNextGuideGue}
+              onNextGroup={onNextGuideCueGroup}
+            >
+              <SignalHooksProvider {...signalHooksProviderProps}>
+                <ConfirmationModalArea>
+                  <ToastArea>
+                    {typeof children === 'function'
+                      ? children({
+                          darkMode,
+                          portalContainerRef: setPortalContainer,
+                          scrollContainerRef: setScrollContainer,
+                        })
+                      : children}
+                  </ToastArea>
+                </ConfirmationModalArea>
+              </SignalHooksProvider>
+            </GuideCueProvider>
+          </RequiredURLSearchParamsProvider>
+        </StackedComponentProvider>
+      </LeafyGreenChatProvider>
     </LeafyGreenProvider>
   );
 };
