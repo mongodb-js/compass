@@ -1,6 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Icon,
+  aiIconColor,
+  aiIconGlyph,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
@@ -11,6 +18,7 @@ import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
 import { usePipelineStorage } from '@mongodb-js/my-queries-storage/provider';
+import { openAggregationInChat } from '../../../modules/gen-ai/chat';
 
 const containerStyles = css({
   display: 'flex',
@@ -37,6 +45,7 @@ type PipelineSettingsProps = {
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
   onCreateNewPipeline: () => void;
+  onOpenAggregationInChat: () => void;
 };
 
 export const PipelineSettings: React.FunctionComponent<
@@ -46,6 +55,7 @@ export const PipelineSettings: React.FunctionComponent<
   isExportToLanguageEnabled,
   onExportToLanguage,
   onCreateNewPipeline,
+  onOpenAggregationInChat,
 }) => {
   // TODO: remove direct check for storage existing, breaks single source of
   // truth rule and exposes services to UI, this breaks the rules for locators
@@ -84,6 +94,15 @@ export const PipelineSettings: React.FunctionComponent<
             Export to language
           </span>
         </Button>
+        <Button
+          // className={openInChatStyles}
+          variant="default"
+          onClick={onOpenAggregationInChat}
+          size="xsmall"
+          leftGlyph={<Icon color={aiIconColor} glyph={aiIconGlyph} />}
+        >
+          Open in Chat
+        </Button>
       </div>
       {editViewName && (
         <ModifySourceBanner editViewName={editViewName}></ModifySourceBanner>
@@ -106,5 +125,6 @@ export default connect(
   {
     onExportToLanguage: exportToLanguage,
     onCreateNewPipeline: confirmNewPipeline,
+    onOpenAggregationInChat: () => openAggregationInChat({}),
   }
 )(PipelineSettings);

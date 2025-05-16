@@ -21,7 +21,7 @@ import type { RootState } from '../stores/store';
 const summaryContainerStyles = css({
   padding: spacing[200],
   display: 'flex',
-  minHeight: spacing[900] * 2,
+  minHeight: spacing[900] * 3,
 });
 
 const summaryStyles = css({
@@ -98,9 +98,8 @@ const THROTTLE_MS = 5000;
 // let completedSummaries: {
 //   [namespace: string]: string | null;
 // } = {};
-// let completedSummary =
-('Not running for performance and cost reasons, analysis would be here.');
-// let completedSummary: string | null = null;
+// let completedSummary = 'Not running for performance and cost reasons, analysis would be here.';
+let completedSummary: string | null = null;
 
 export const SchemaSummary = ({
   schema,
@@ -112,9 +111,10 @@ export const SchemaSummary = ({
   // TODO: Make a button to open this in the chat window.
 
   // TODO: Keep a map of collection ns -> schema (total hack, this should be in the store).
-  const [summary, setSummary] = React.useState<string>('');
-  const [summaryIsComplete, setSummaryIsComplete] =
-    React.useState<boolean>(false);
+  const [summary, setSummary] = React.useState<string>(completedSummary ?? '');
+  const [summaryIsComplete, setSummaryIsComplete] = React.useState<boolean>(
+    !!completedSummary
+  );
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
@@ -235,8 +235,12 @@ export const SchemaSummary = ({
       return;
     }
 
+    if (summaryIsComplete) {
+      return;
+    }
+
     fetchSchemaSummaryAndAnalyzeRef.current(schema, namespace);
-  }, [schema, namespace]);
+  }, [summaryIsComplete, schema, namespace]);
 
   useEffect(() => {
     return () => {

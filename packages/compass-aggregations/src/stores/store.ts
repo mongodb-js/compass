@@ -52,7 +52,7 @@ export type ConfigureStoreOptions = CollectionTabPluginMetadata &
      * Current connection env type. Affects available stages. Accepted values:
      * "atlas" | "on-prem" | "adl"
      */
-    env: typeof ENVS[number] | null;
+    env: (typeof ENVS)[number] | null;
     /**
      * Namespace field values that will be used in autocomplete
      */
@@ -150,7 +150,7 @@ export function activateAggregationsPlugin(
         // mms specifies options.env whereas we don't currently get this variable when
         // we use the aggregations plugin inside compass. In that use case we get it
         // from the instance model above.
-        options.env ?? (instance.env as typeof ENVS[number]),
+        options.env ?? (instance.env as (typeof ENVS)[number]),
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
