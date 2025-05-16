@@ -34,6 +34,12 @@ const chatContainerStyles = css({
   flexDirection: 'column',
 });
 
+const userMessageSmallStyles = css({
+  '> div': {
+    maxWidth: '420px',
+  },
+});
+
 const chatWindowStyles = css({
   width: '100%',
   height: '100%',
@@ -57,6 +63,12 @@ const messageFeedStyles = css({
   // Default minHeight is 500px, we add some so that other places in Compass are consistent.
   // minHeight: '560px',
   height: '100%',
+});
+
+const messageFeedLargeStyles = css({
+  '> div': {
+    maxWidth: '1300px',
+  },
 });
 
 const messageFeedSmallStyles = css({
@@ -114,7 +126,7 @@ function _Chat({
   isMessaging: boolean;
   messages: ChatMessage[];
   onSendMessage: (message: string) => Promise<void>;
-  onLoadChat: () => Promise<void>;
+  onLoadChat: () => Promise<string | undefined>;
   // onCloseChat?: () => void;
 }) {
   // const suggestedPrompts = [
@@ -123,14 +135,14 @@ function _Chat({
   //   'How does vector search work?',
   // ];
 
-  useEffect(() => {
-    // TODO: This really should be in the reducer.
-    // Along with opening/closing
-    if (!isLoading && !hasLoaded) {
-      void onLoadChat();
-    }
-    // void onLoadChat();
-  }, [isLoading, hasLoaded, onLoadChat]);
+  // useEffect(() => {
+  //   // TODO: This really should be in the reducer.
+  //   // Along with opening/closing
+  //   if (!isLoading && !hasLoaded) {
+  //     void onLoadChat();
+  //   }
+  //   // void onLoadChat();
+  // }, [isLoading, hasLoaded, onLoadChat]);
 
   if (loadingError) {
     return <ErrorSummary errors={loadingError.message} />;
@@ -148,7 +160,8 @@ function _Chat({
             <MessageFeed
               className={cx(
                 messageFeedStyles,
-                size === 'small' && messageFeedSmallStyles
+                size === 'small' && messageFeedSmallStyles,
+                size === 'large' && messageFeedLargeStyles
               )}
             >
               {(!messages || messages.length === 0) && (
@@ -185,6 +198,11 @@ function _Chat({
                 }) => (
                   // <MyMessage key={messageFields.id} {...messageFields} />
                   <Message
+                    className={cx(
+                      role === 'user' &&
+                        size === 'small' &&
+                        userMessageSmallStyles
+                    )}
                     key={id}
                     isSender={role === 'user'}
                     // markdownProps={LGMarkdownProps}

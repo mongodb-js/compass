@@ -79,7 +79,9 @@ async function* asyncGeneratorWithTimeout(whatToYield: string) {
 }
 
 let lastRun = 0;
-const THROTTLE_MS = 15000;
+const THROTTLE_MS = 5;
+// const THROTTLE_MS = 15000;
+
 // let completedSummary: string | null = null;
 // const completedSummary = 'Last time you were in Compass you test test test test test test test test test test test test test test test test test test test test '
 let completedSummary =

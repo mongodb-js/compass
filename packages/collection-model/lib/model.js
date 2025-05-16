@@ -400,15 +400,6 @@ const CollectionCollection = AmpersandCollection.extend(
       this.set(
         collections
           .filter((coll) => {
-            console.log(
-              'aaa coll',
-              coll,
-              'is system:',
-              getNamespaceInfo(coll._id).system
-            );
-            if (getNamespaceInfo(coll._id).system) {
-              console.log('aaabbb coll is system:', coll);
-            }
             // TODO: This is not the best place to do this kind of
             // filtering, but for now this preserves the current behavior
             // and changing it right away will expand the scope of the

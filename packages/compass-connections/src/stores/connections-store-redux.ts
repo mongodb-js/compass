@@ -1309,6 +1309,8 @@ ${err}`,
         // TODO: Maybe some tab ids for other things.
         connectionId: connectionInfo?.id,
         // availableFollowUpActions: ['update-connection-info', 'action2'],
+
+        openInNewTab: true,
       };
 
       globalAppRegistry.emit('open-message-in-chat', openChatMessage);

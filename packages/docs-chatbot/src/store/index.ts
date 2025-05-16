@@ -12,7 +12,7 @@ import thunk from 'redux-thunk';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { openSidebarChat } from './sidebar-chat';
 // import { ChatbotStoreContext } from './context';
-import { openContextualMessageInChat } from './chat';
+import { loadNewChat, openContextualMessageInChat } from './chat';
 // import { ChatbotStoreContext } from './context';
 // import { openContextualMessageInChat } from './chat';
 
@@ -55,16 +55,19 @@ export function activateDocsChatbotPlugin(
   { on, cleanup }: ActivateHelpers
 ) {
   // This is hacky, pls don't look.
-  const singletonAlreadyExists = !!storeSingleton;
+  const createdTheSingleton = !storeSingleton;
 
   const store = configureStore(services);
 
-  if (singletonAlreadyExists) {
-    on(services.globalAppRegistry, 'open-sidebar-chat', () => {
-      store.dispatch(openSidebarChat());
-    });
+  if (createdTheSingleton) {
+    // Right now opening is on the workspace. Although it should be here.
+    // on(services.globalAppRegistry, 'open-sidebar-chat', () => {
+    //   store.dispatch(openSidebarChat());
+    // });
 
     on(services.globalAppRegistry, 'open-message-in-chat', (options) => {
+      // TODO: If a chat isn't open, we should open it.
+
       // TODO: Here or in the action let's publish back to
       // the app registry with an id from the message when
       // actions happen that would action on the original caller.
@@ -72,6 +75,8 @@ export function activateDocsChatbotPlugin(
 
       void store.dispatch(openContextualMessageInChat(options));
     });
+
+    void store.dispatch(loadNewChat());
   }
 
   return {

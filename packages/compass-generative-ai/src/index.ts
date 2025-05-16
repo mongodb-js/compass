@@ -35,7 +35,7 @@ import {
 
 export { getStreamResponseFromDocsAI } from './docs-ai-service';
 
-const useLocalAI = true;
+const useLocalAI = false;
 
 export function getChatStreamResponseFromAI({
   messages,
@@ -57,18 +57,22 @@ export function getChatStreamResponseFromAI({
   }
 }
 
-export function getChatResponseFromAI({
+export async function getChatResponseFromAI({
   messages,
   signal,
 }: {
   messages: { role: 'user' | 'system'; content: string }[];
   signal: AbortSignal;
 }) {
-  // Only open ai supported for this for now.
-  return getResponseFromOpenAI({
-    messages,
-    signal,
-  });
+  if (useLocalAI) {
+    throw new Error('Local AI not supported for this endpoint.');
+  } else {
+    // Only open ai supported for this for now.
+    return getResponseFromOpenAI({
+      messages,
+      signal,
+    });
+  }
 }
 
 // export function getStreamResponseFromAI({

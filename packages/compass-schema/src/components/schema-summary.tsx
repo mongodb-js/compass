@@ -98,8 +98,8 @@ const THROTTLE_MS = 5000;
 // let completedSummaries: {
 //   [namespace: string]: string | null;
 // } = {};
-let completedSummary =
-  'Not running for performance and cost reasons, analysis would be here.';
+// let completedSummary =
+('Not running for performance and cost reasons, analysis would be here.');
 // let completedSummary: string | null = null;
 
 export const SchemaSummary = ({

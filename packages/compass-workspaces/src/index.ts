@@ -18,6 +18,7 @@ import workspacesReducer, {
   updateDatabaseInfo,
   updateCollectionInfo,
   openSidebarChat,
+  openWorkspace,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -40,6 +41,7 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import type { OpenChatOptions } from '@mongodb-js/compass-components';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
@@ -187,7 +189,37 @@ export function activateWorkspacePlugin(
   });
 
   on(globalAppRegistry, 'open-sidebar-chat', function () {
+    console.log('aaaa open-sidebar-chat');
     store.dispatch(openSidebarChat());
+  });
+
+  on(globalAppRegistry, 'open-message-in-chat', (options: OpenChatOptions) => {
+    // If a chat isn't open, we should open it.
+    // This should really be elsewhere.
+
+    console.log(
+      'aaa workspace plugin open-message-in-chat',
+      options,
+      'is sidebar open?:',
+      store.getState().isSidebarChatOpen
+    );
+    // console.log('aaa workspace store.getState().isSidebarChatOpen', store.getState().isSidebarChatOpen);
+
+    // void store.dispatch(openContextualMessageInChat(options));
+    if (!store.getState().isSidebarChatOpen && options.openInNewTab) {
+      // console.log('aaaa 11111')
+      // Create a new chat workspace tab, or open the existing chat.
+      store.dispatch(
+        openWorkspace({
+          type: 'Docs Chatbot',
+        })
+      );
+    } else if (!store.getState().isSidebarChatOpen) {
+      // console.log('aaaa 22222')
+
+      store.dispatch(openSidebarChat());
+    }
+    // console.log('aaaa 3333')
   });
 
   on(globalAppRegistry, 'open-active-namespace-import', function () {

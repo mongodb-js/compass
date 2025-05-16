@@ -10,6 +10,8 @@ import {
   Link,
   Tooltip,
   WarningSummary,
+  aiIconColor,
+  aiIconGlyph,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -21,7 +23,10 @@ import {
   type SchemaAnalysisError,
   analysisErrorDismissed,
 } from '../stores/schema-analysis-reducer';
-import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
+import {
+  DISTINCT_FIELDS_ABORT_THRESHOLD,
+  openSchemaInChat,
+} from '../modules/schema-analysis';
 import type { RootState } from '../stores/store';
 import { openExportSchema } from '../stores/schema-export-reducer';
 
@@ -31,6 +36,10 @@ const schemaToolbarStyles = css({
   alignItems: 'center',
   gap: spacing[400],
   padding: spacing[400],
+});
+
+const openInChatStyles = css({
+  marginLeft: spacing[200],
 });
 
 const schemaQueryBarStyles = css({
@@ -77,6 +86,7 @@ type SchemaToolbarProps = {
   schemaResultId: string;
   setShowLegacyExportTooltip: (show: boolean) => void;
   showLegacyExportTooltip: boolean;
+  onOpenSchemaInChat: () => void;
 };
 
 export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
@@ -91,6 +101,7 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   schemaResultId,
   setShowLegacyExportTooltip,
   showLegacyExportTooltip,
+  onOpenSchemaInChat,
 }) => {
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
@@ -134,6 +145,16 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
                 Next time, export the schema directly from Compass&apos; Schema
                 tab.
               </Tooltip>
+              <Button
+                className={openInChatStyles}
+                variant="default"
+                onClick={onOpenSchemaInChat}
+                // data-testid="open-schema-export-button"
+                size="xsmall"
+                leftGlyph={<Icon color={aiIconColor} glyph={aiIconGlyph} />}
+              >
+                Open in Chat
+              </Button>
             </div>
           )}
           <div
@@ -203,5 +224,6 @@ export default connect(
   {
     onExportSchemaClicked: openExportSchema,
     onDismissError: analysisErrorDismissed,
+    onOpenSchemaInChat: openSchemaInChat,
   }
 )(SchemaToolbar);

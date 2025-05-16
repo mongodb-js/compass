@@ -105,7 +105,8 @@ const horizontalTripleSplitStyles = css({
   // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto 298px', // left sidebar, main, right sidebar
-  gridTemplateColumns: 'min-content auto 438px', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto 438px', // left sidebar, main, right sidebar
+  gridTemplateColumns: 'min-content auto 498px', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 
@@ -116,6 +117,8 @@ const workspacesStyles = css({
   width: '100%',
   height: '100%',
   display: 'flex',
+
+  overflow: 'auto',
   // position: 'absolute',
   // top: 0,
   // left: 0,

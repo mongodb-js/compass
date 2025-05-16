@@ -104,7 +104,7 @@ export const openContextualMessageInChat = (
     //   }
 
     // We should have the app registry things actually in providers.
-    services.globalAppRegistry.emit('open-sidebar-chat');
+    // services.globalAppRegistry.emit('open-sidebar-chat');
 
     await dispatch(loadNewChat());
 

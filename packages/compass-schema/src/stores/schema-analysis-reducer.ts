@@ -20,6 +20,8 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';
 import { UUID } from 'bson';
 import { isAction } from '../utils';
+import type { OpenChatOptions } from '@mongodb-js/compass-components';
+import { toJSString } from 'mongodb-query-parser';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -265,6 +267,30 @@ const getSchemaAnalyzedEventPayload = ({
       geo_data,
       analysis_time_ms: analysisTime,
     };
+  };
+};
+
+export const openSchemaInChat = (): SchemaThunkAction<void> => {
+  return (dispatch, getState, { connectionInfoRef, globalAppRegistry }) => {
+    const {
+      schemaAnalysis: { schema },
+    } = getState();
+
+    const openChatMessage: OpenChatOptions = {
+      id: new UUID().toString(),
+      content: `Can you help me understand this schema?
+
+${toJSString(schema)}`,
+      role: 'user',
+      // namespace,
+      // TODO: Maybe some tab ids for other things.
+      connectionId: connectionInfoRef?.current.id,
+      // availableFollowUpActions: ['update-connection-info', 'action2'],
+
+      // openInNewTab: true,
+    };
+
+    globalAppRegistry.emit('open-message-in-chat', openChatMessage);
   };
 };
 
