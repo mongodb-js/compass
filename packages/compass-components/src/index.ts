@@ -95,6 +95,30 @@ export { InfoModal } from './components/modals/info-modal';
 
 export * from './components/icons/ai-icon-things';
 
+// Exported here and not chat just so I don't have to add a lot of deps places.
+// it should be in the chat package.
+export type ChatMessage = {
+  id: string;
+  role: 'user' | 'system' | 'assistant';
+  content: string;
+  hiddenContent?: string;
+  links?: {
+    children: string; // The text to display for the link.
+    href: string;
+    imageUrl?: string;
+    variant: string;
+  }[];
+  availableFollowUpActions?: {
+    action: string;
+    description: string;
+  }[];
+};
+export type OpenChatOptions = ChatMessage & {
+  namespace?: string;
+  openInNewTab?: boolean;
+  connectionId?: string;
+};
+
 export type {
   FileInputBackend,
   ItemAction,

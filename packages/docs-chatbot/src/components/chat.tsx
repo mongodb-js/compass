@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
   Button,
+  css,
+  cx,
   ErrorSummary,
+  Icon,
+  MongoDBLogo,
+  MongoDBLogoMark,
+  spacing,
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { ObjectId } from 'bson';
 
 import {
   TitleBar,
@@ -13,121 +20,203 @@ import {
   InputBar,
   Message,
 } from './lg-chat-wrapper';
-import { loadChat, submitMessage } from '../store/chat';
+import type { ChatMessage } from '@mongodb-js/compass-components';
+
+import { loadNewChat, submitMessage } from '../store/chat';
 // import { connect } from '../store/context';
 import type { DocsChatbotState } from '../store/reducer';
+import { closeSidebarChat } from '../store/sidebar-chat';
 
-// import Chatbot, {
-//   FloatingActionButtonTrigger,
-//   InputBarTrigger,
-//   ModalView,
-//   MongoDbLegalDisclosure,
-//   mongoDbVerifyInformationMessage,
-// } from 'mongodb-chatbot-ui';
-const baseMessages: any[] = [];
+const chatContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+});
 
-const Example = ({}: {}) => {
-  const userName = 'Sean Park';
-  const [messages, setMessages] = useState<Array<any>>(baseMessages);
+const chatWindowStyles = css({
+  width: '100%',
+  height: '100%',
+  overflow: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
 
-  const handleMessageSend = (messageBody: string) => {
-    const newMessage = {
-      messageBody,
-      userName,
-    };
-    setMessages((messages) => [...messages, newMessage]);
-  };
+  background:
+    'linear-gradient(#F9FBFA 30%, #F9FBFA 0%) center top, linear-gradient(#F9FBFA 0%, #F9FBFA 30%) center bottom, radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)) center top, radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)) center bottom',
+  backgroundRepeat: 'no-repeat',
+});
 
-  return (
-    <ChatWindow title="MongoDB Chat">
-      <TitleBar title="LG Chat Demo" badgeText="Beta" />
-      <MessageFeed>
-        {messages.map((messageFields) => (
-          // <MyMessage key={messageFields.id} {...messageFields} />
-          <Message key={messageFields.id} {...messageFields} />
-        ))}
-      </MessageFeed>
-      <InputBar onMessageSend={handleMessageSend} />
-    </ChatWindow>
-  );
-};
+const messageAreaContainerStyles = css({
+  // So that the input area doesn't jump after loading
+  // minHeight: '500px',
+  flexGrow: 1,
+  overflow: 'auto',
+});
+
+const messageFeedStyles = css({
+  // Default minHeight is 500px, we add some so that other places in Compass are consistent.
+  // minHeight: '560px',
+  height: '100%',
+});
+
+const messageFeedSmallStyles = css({
+  '> div': {
+    padding: spacing[200],
+    // padding: spacing[100],
+    // paddingLeft: spacing[200],
+    paddingRight: spacing[200],
+  },
+});
+
+const inputBarContainerStyles = css({
+  padding: spacing[300],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
+  // paddingBottom
+});
+
+const inputBarContainerLargeStyles = css({
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
+  // padding: spacing[600],
+  // paddingTop: spacing[300],
+  // paddingBottom: spacing[300],
+  // paddingLeft: spacing[100],
+  // paddingRight: spacing[100],
+  // paddingBottom
+});
+
+const inputBarStyles = css({
+  // marginLeft: spacing[100],
+  // marginRight: spacing[100],
+});
 
 // Chat component that both the sidebar and the tab use.
 function _Chat({
+  // allowClose = false,
+  hasLoaded,
   isLoading,
   loadingError,
   messagingError,
+  size,
   isMessaging,
   messages,
   onSendMessage,
   onLoadChat,
-}: {
+}: // onCloseChat
+{
+  // allowClose?: boolean;
+  hasLoaded: boolean;
+  size: 'small' | 'large';
   isLoading: boolean;
   loadingError: Error | null;
   messagingError: Error | null;
   isMessaging: boolean;
-  messages: {
-    role: 'user' | 'system' | 'assistant';
-    content: string;
-  }[];
+  messages: ChatMessage[];
   onSendMessage: (message: string) => Promise<void>;
   onLoadChat: () => Promise<void>;
+  // onCloseChat?: () => void;
 }) {
-  const suggestedPrompts = [
-    'How do I create a new MongoDB Atlas cluster?',
-    'Can MongoDB store lists of data?',
-    'How does vector search work?',
-  ];
+  // const suggestedPrompts = [
+  //   'How do I create a new MongoDB Atlas cluster?',
+  //   'Can MongoDB store lists of data?',
+  //   'How does vector search work?',
+  // ];
 
   useEffect(() => {
     // TODO: This really should be in the reducer.
-    void onLoadChat();
-  }, [onLoadChat]);
+    // Along with opening/closing
+    if (!isLoading && !hasLoaded) {
+      void onLoadChat();
+    }
+    // void onLoadChat();
+  }, [isLoading, hasLoaded, onLoadChat]);
 
   if (loadingError) {
     return <ErrorSummary errors={loadingError.message} />;
   }
 
-  if (isLoading) {
-    return <SpinLoader title="Loading…" />;
-  }
-
   return (
-    <div>
-      <Button variant="primary" onClick={() => void onSendMessage('hello')}>
-        Send hello
-      </Button>
-      {messages.map((message, index) => {
-        return (
-          <div key={index}>
-            <strong>{message.role}</strong>: {message.content}
-          </div>
-        );
-      })}
-      {messagingError && <ErrorSummary errors={messagingError.message} />}
-      {isMessaging && <SpinLoader title="Messaging…" />}
+    <div className={chatContainerStyles}>
+      <div className={chatWindowStyles}>
+        {/* <TitleBar title="LG Chat Demo" badgeText="Beta" /> */}
+        <TitleBar title="MongoDB Chat" iconSlot={<Icon glyph="Sparkle" />} />
+        <div className={messageAreaContainerStyles}>
+          {isLoading ? (
+            <SpinLoader title="Loading…" />
+          ) : (
+            <MessageFeed
+              className={cx(
+                messageFeedStyles,
+                size === 'small' && messageFeedSmallStyles
+              )}
+            >
+              {(!messages || messages.length === 0) && (
+                <div>
+                  {/* Ask me anything! */}
 
-      <div>lg chat:</div>
-      <div>
-        <Example />
+                  {/* Welcome to MongoDB AI */}
+                  <Message
+                    isSender={false}
+                    messageBody="Welcome to MongoDB AI                                                                                                              "
+                    links={[
+                      {
+                        children: 'MongoDB Documentation',
+                        href: 'https://www.mongodb.com/docs/',
+                        variant: 'Docs',
+                      },
+                      {
+                        children: 'MongoDB Atlas',
+                        href: 'https://cloud.mongodb.com/',
+                        variant: 'Website',
+                      },
+                    ]}
+                    avatar={<MongoDBLogoMark />}
+                    linksHeading=""
+                  />
+                </div>
+              )}
+              {messages.map(
+                ({
+                  content,
+                  role,
+                  id,
+                  // links
+                }) => (
+                  // <MyMessage key={messageFields.id} {...messageFields} />
+                  <Message
+                    key={id}
+                    isSender={role === 'user'}
+                    // markdownProps={LGMarkdownProps}
+                    // {...messageFields}
+
+                    // sourceType={role === 'user' ? 'text' : 'markdown'}
+                    sourceType={role === 'user' ? 'text' : 'markdown'}
+                    // note: markdown
+                    messageBody={content}
+                    // links={links}
+                  />
+                )
+              )}
+            </MessageFeed>
+          )}
+        </div>
+        {messagingError && <ErrorSummary errors={messagingError.message} />}
+        {/* {isMessaging && <SpinLoader
+          title="Messaging…"
+        />} */}
+        <div
+          className={cx(
+            inputBarContainerStyles,
+            size === 'large' && inputBarContainerLargeStyles
+          )}
+        >
+          <InputBar
+            className={inputBarStyles}
+            onMessageSend={(message: string) => void onSendMessage(message)}
+          />
+        </div>
       </div>
-      {/* <Chatbot
-        name="MongoDB AI"
-        maxInputCharacters={300}
-        serverBaseUrl="https://knowledge.mongodb.com/"
-      >
-        <InputBarTrigger
-          bottomContent={<MongoDbLegalDisclosure />}
-          suggestedPrompts={suggestedPrompts}
-        />
-        <FloatingActionButtonTrigger text="Ask My MongoDB AI" />
-        <ModalView
-          disclaimer={<MongoDbLegalDisclosure />}
-          initialMessageText="Welcome to my MongoDB AI Assistant. What can I help you with?"
-          initialMessageSuggestedPrompts={suggestedPrompts}
-          inputBottomText={mongoDbVerifyInformationMessage}
-        />
-      </Chatbot> */}
     </div>
   );
 }
@@ -135,6 +224,7 @@ function _Chat({
 export const Chat = connect(
   (state: DocsChatbotState) => {
     return {
+      hasLoaded: !!state.chat.conversationId,
       messages: state.chat.messages,
       loadingError: state.chat.loadingError,
       messagingError: state.chat.messagingError,
@@ -143,7 +233,13 @@ export const Chat = connect(
     };
   },
   {
-    onSendMessage: submitMessage,
-    onLoadChat: loadChat,
+    onSendMessage: (message: string) =>
+      submitMessage({
+        content: message,
+        id: new ObjectId().toHexString(),
+        role: 'user',
+      }),
+    onLoadChat: loadNewChat,
+    // onCloseChat: closeSidebarChat
   }
 )(_Chat);

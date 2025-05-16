@@ -1,4 +1,4 @@
-import type { AnyAction } from 'redux';
+import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
 import type {
   SidebarChatActions,
@@ -7,7 +7,7 @@ import type {
 import type { ChatActions, ChatActionTypes } from './chat';
 import { chatReducer } from './chat';
 import { sidebarChatReducer } from './sidebar-chat';
-import type { ThunkAction } from 'redux-thunk';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DocsChatbotStoreServices } from '.';
 
 const reducer = combineReducers({
@@ -31,5 +31,8 @@ export type DocsChatbotThunkAction<R, A extends AnyAction> = ThunkAction<
   DocsChatbotExtraArgs,
   A
 >;
+
+export type DocsChatbotThunkDispatch<A extends Action = AnyAction> =
+  ThunkDispatch<DocsChatbotState, DocsChatbotExtraArgs, A>;
 
 export default reducer;

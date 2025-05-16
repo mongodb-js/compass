@@ -104,7 +104,8 @@ const horizontalTripleSplitStyles = css({
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto auto', // left sidebar, main, right sidebar
   // gridTemplateColumns: 'min-content auto min-content', // left sidebar, main, right sidebar
-  gridTemplateColumns: 'min-content auto 298px', // left sidebar, main, right sidebar
+  // gridTemplateColumns: 'min-content auto 298px', // left sidebar, main, right sidebar
+  gridTemplateColumns: 'min-content auto 438px', // left sidebar, main, right sidebar
   minHeight: 0,
 });
 

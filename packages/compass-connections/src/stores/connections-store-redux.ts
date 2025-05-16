@@ -29,6 +29,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import type { OpenChatOptions } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
 import EventEmitter from 'events';
@@ -1294,21 +1295,23 @@ const connectionAttemptError = (
         ? JSON.stringify(redactedConnectionOptions, null, 2)
         : connectionInfo?.connectionOptions.connectionString;
 
-      globalAppRegistry.emit('open-message-in-chat', {
-        message: `Can you help me understand this connectivity issue?
+      const openChatMessage: OpenChatOptions = {
+        id: new UUID().toString(),
+        content: `Can you help me understand this connectivity issue?
 
-My connection configuration is:
+Connection ${hasMoreThanJustConnectionString ? 'configuration' : 'string'}:
 ${connectionConfigString}
 
-The error received is:
+The error received:
 ${err}`,
-        // test
+        role: 'user',
         // namespace,
         // TODO: Maybe some tab ids for other things.
         connectionId: connectionInfo?.id,
-        // TODO: How to remove follow up listeners
-        availableFollowUpActions: ['update-connection-info', 'action2'],
-      });
+        // availableFollowUpActions: ['update-connection-info', 'action2'],
+      };
+
+      globalAppRegistry.emit('open-message-in-chat', openChatMessage);
     }
 
     const showChatButton = err?.message;

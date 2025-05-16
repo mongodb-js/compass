@@ -124,7 +124,7 @@ export function getChatResponseFromLocalAI({
   messages,
   signal,
 }: {
-  messages: { role: 'user' | 'system'; content: string }[];
+  messages: { role: 'user' | 'system' | 'assistant'; content: string }[];
   signal?: AbortSignal;
 }): AsyncGenerator<string, void, unknown> {
   return streamOllamaResponse({

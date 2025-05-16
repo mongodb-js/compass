@@ -89,7 +89,7 @@ async function* asyncGeneratorWithTimeout(whatToYield: string) {
       setTimeout(resolve, Math.floor(Math.random() * 70))
     );
     yield randomCharacters.join(''); // Yield the random characters
-    debugLog('aaa Yielding:', randomCharacters.join(''));
+    // debugLog('aaa Yielding:', randomCharacters.join(''));
   }
 }
 
@@ -142,8 +142,8 @@ export const SchemaSummary = ({
       const abortController = abortControllerRef.current;
       const { signal } = abortController;
       const _fetchSchemaSummaryAndAnalyze = async (
-        schema: Schema,
-        namespace: string
+        schema: Schema
+        // namespace: string
       ) => {
         try {
           // TODO: Get Compass log.
@@ -217,7 +217,10 @@ export const SchemaSummary = ({
           );
         }
       };
-      void _fetchSchemaSummaryAndAnalyze(schema, namespace);
+      void _fetchSchemaSummaryAndAnalyze(
+        schema
+        // namespace
+      );
       return abortController;
     },
     []

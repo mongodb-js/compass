@@ -4,12 +4,14 @@ import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
+import type { OpenChatOptions } from '@mongodb-js/compass-components';
 import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
 import {
   getChatStreamResponseFromAI,
   // getStreamResponseFromDocsAI,
 } from '@mongodb-js/compass-generative-ai';
 import type { Document } from 'bson';
+import { ObjectId } from 'bson';
 import type { AggregateOptions } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import {
@@ -532,17 +534,19 @@ export function openExplainInChat(): ExplainPlanModalThunkAction<void> {
     //   conversationId
     // );
 
-    services.globalAppRegistry.emit('open-message-in-chat', {
-      message: `Can you help me analyze this explain plan?\n${toJSString(
+    const openChatMessage: OpenChatOptions = {
+      id: new ObjectId().toHexString(),
+      content: `Can you help me analyze this explain plan?\n${toJSString(
         rawExplainPlan
       )}`,
+      role: 'user',
       namespace,
       // TODO: Maybe some tab ids for other things.
       connectionId: services.connectionInfoRef.current.id,
-      availableFollowUpActions: ['action1', 'action2'],
-    });
+      // availableFollowUpActions: ['action1', 'action2'],
+    };
 
-    // await new P
+    services.globalAppRegistry.emit('open-message-in-chat', openChatMessage);
   };
 }
 

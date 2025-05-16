@@ -1,3 +1,4 @@
+import type { Store } from 'redux';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
@@ -6,6 +7,7 @@ import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/pro
 import { applyMiddleware, createStore } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
 import reducer from './reducer';
+import type { DocsChatbotState, DocsChatbotThunkDispatch } from './reducer';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { openSidebarChat } from './sidebar-chat';
@@ -25,17 +27,26 @@ export type DocsChatbotStoreServices = {
   logger: Logger;
 };
 
+// Right now we're rocking a global singleton store for the chat.
+// This is easier than doing some nicer things with context which we would
+// want to do to productionize.
+let storeSingleton: Store<DocsChatbotState> & {
+  dispatch: DocsChatbotThunkDispatch;
+};
+
 export function configureStore(services: DocsChatbotStoreServices) {
   const cancelControllerRef = { current: null };
 
-  const store = createStore(
-    reducer,
-    applyMiddleware(
-      thunk.withExtraArgument({ ...services, cancelControllerRef })
-    )
-  );
+  if (!storeSingleton) {
+    storeSingleton = createStore(
+      reducer,
+      applyMiddleware(
+        thunk.withExtraArgument({ ...services, cancelControllerRef })
+      )
+    );
+  }
 
-  return store;
+  return storeSingleton;
 }
 
 export function activateDocsChatbotPlugin(
@@ -43,20 +54,25 @@ export function activateDocsChatbotPlugin(
   services: DocsChatbotStoreServices,
   { on, cleanup }: ActivateHelpers
 ) {
+  // This is hacky, pls don't look.
+  const singletonAlreadyExists = !!storeSingleton;
+
   const store = configureStore(services);
 
-  on(services.globalAppRegistry, 'open-sidebar-chat', () => {
-    store.dispatch(openSidebarChat());
-  });
+  if (singletonAlreadyExists) {
+    on(services.globalAppRegistry, 'open-sidebar-chat', () => {
+      store.dispatch(openSidebarChat());
+    });
 
-  on(services.globalAppRegistry, 'open-message-in-chat', (options) => {
-    // TODO: Here or in the action let's publish back to
-    // the app registry with an id from the message when
-    // actions happen that would action on the original caller.
-    // Like when editing a pipeline.
+    on(services.globalAppRegistry, 'open-message-in-chat', (options) => {
+      // TODO: Here or in the action let's publish back to
+      // the app registry with an id from the message when
+      // actions happen that would action on the original caller.
+      // Like when editing a pipeline.
 
-    void store.dispatch(openContextualMessageInChat(options));
-  });
+      void store.dispatch(openContextualMessageInChat(options));
+    });
+  }
 
   return {
     store,
