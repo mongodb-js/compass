@@ -56,6 +56,7 @@ const defaultCSP = {
     'https://cloud-qa.mongodb.com',
     'https://compass.mongodb.com',
     'https://ip-ranges.amazonaws.com',
+    'https://api.voyageai.com',
   ],
   'child-src': [
     'blob:',
