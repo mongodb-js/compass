@@ -1,9 +1,8 @@
 # Contributing
 
-
 ## Getting Started
 
-You'll need node `^20` and npm `^10` installed on your machine to work with the repository locally.
+You'll need node `^22` and npm `^10` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally. Alternatively you can start a web version of the app by running `npm run start-web`.
@@ -118,6 +117,7 @@ This will do all the initial workspace bootstrapping for you, ensuring that your
 ## Using Github Actions
 
 Github actions offers an easy way to create workflows that run various automated checks. While our main CI system is Evergreen, we have a number of auxiliary workflows configured to run using github actions. While adding new workflows or updating existing ones, it's important that we follow [the security hardening guidelines](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) by Github. Those can change over time, so be sure to periodically review them to make sure we're not using insecure workflows. Some notable highlights to pay special attention to are:
+
 1. Avoid using tag or branch refs for untrusted 3rd party actions. Those can easily be recreated by malicious actors and introduce supply chain attacks. As a rule of thumb, first party actions are considered actions by MongoDB, Github, Microsoft, or the primary maintainer of a particular ecosystem - e.g. Amazon for AWS. When using a 3rd party action, always use the full git commit sha as the ref to checkout.
 2. Be extra vigilant when using user-supplied data, such as branch name or PR title in scripts as that opens up the possibility of script injection attacks. Instead, prefer to use js actions to achieve the same result or sanitize the input before using it in a script.
 3. Never commit secrets in the workflow file directly - instead use github secrets to store them securely at the repo/org level.

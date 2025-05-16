@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.16.0
+          node-version: 22.15.1
           cache: 'npm'
 
       - name: Install npm@10.2.4

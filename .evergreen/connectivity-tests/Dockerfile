@@ -1,5 +1,5 @@
 # "bullseye" is the debian distribution that ubuntu:20.04 is based on
-ARG NODE_JS_VERSION=20
+ARG NODE_JS_VERSION=22
 FROM node:${NODE_JS_VERSION}-bullseye
 
 COPY .evergreen/connectivity-tests/krb5.conf /etc/krb5.conf
