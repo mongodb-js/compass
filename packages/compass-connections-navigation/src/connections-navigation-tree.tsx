@@ -114,7 +114,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getCollapseAfterForConnectedItem = useCallback(
     (actions: NavigationItemActions) => {
-      const [firstAction, secondAction, thirdAction] = actions;
+      const [, secondAction, thirdAction] = actions;
 
       const actionCanBeShownInline = (
         action: NavigationItemActions[number]
