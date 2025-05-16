@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import type { DocsChatbotState } from '../store/reducer';
 import {
   Button,
   ErrorSummary,
   SpinLoader,
+} from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+
+import {
   TitleBar,
   MessageFeed,
   ChatWindow,
   InputBar,
   Message,
-} from '@mongodb-js/compass-components';
+} from './lg-chat-wrapper';
 import { loadChat, submitMessage } from '../store/chat';
+// import { connect } from '../store/context';
+import type { DocsChatbotState } from '../store/reducer';
+
 // import Chatbot, {
 //   FloatingActionButtonTrigger,
 //   InputBarTrigger,

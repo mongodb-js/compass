@@ -10,6 +10,7 @@ import {
   IconButton,
   ParagraphSkeleton,
   SpinLoader,
+  // LGMarkdown
 } from '@mongodb-js/compass-components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

@@ -17,7 +17,10 @@ import type {
   ConnectionOptions,
   DataService,
 } from 'mongodb-data-service';
-import { createConnectionAttempt } from 'mongodb-data-service';
+import {
+  createConnectionAttempt,
+  redactConnectionOptions,
+} from 'mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
 import {
@@ -1259,16 +1262,73 @@ const connectionAttemptError = (
   connectionInfo: ConnectionInfo | null,
   err: any
 ): ConnectionsThunkAction<void, ConnectionAttemptErrorAction> => {
-  return (dispatch, _getState, { track, getExtraConnectionData }) => {
+  return (
+    dispatch,
+    _getState,
+    { track, getExtraConnectionData, globalAppRegistry }
+  ) => {
     const { openConnectionFailedToast } = getNotificationTriggers();
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
 
-    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
-      if (connectionInfo) {
-        dispatch(editConnection(connectionInfo.id));
+    // console.log('aaa Connection attempt error', err?.message);
+
+    function openAnalysisInChat() {
+      if (!connectionInfo) {
+        return;
       }
-    });
+
+      const redactedConnectionOptions: ConnectionOptions =
+        redactConnectionOptions(connectionInfo?.connectionOptions);
+      const hasMoreThanJustConnectionString =
+        Object.keys(redactedConnectionOptions).length > 1 &&
+        Object.values(redactedConnectionOptions).reduce(
+          (acc: number, value) => {
+            return typeof value === 'object' && Object.keys(value).length > 0
+              ? acc + 1
+              : acc;
+          },
+          0
+        ) > 1;
+      const connectionConfigString = hasMoreThanJustConnectionString
+        ? JSON.stringify(redactedConnectionOptions, null, 2)
+        : connectionInfo?.connectionOptions.connectionString;
+
+      globalAppRegistry.emit('open-message-in-chat', {
+        message: `Can you help me understand this connectivity issue?
+
+My connection configuration is:
+${connectionConfigString}
+
+The error received is:
+${err}`,
+        // test
+        // namespace,
+        // TODO: Maybe some tab ids for other things.
+        connectionId: connectionInfo?.id,
+        // TODO: How to remove follow up listeners
+        availableFollowUpActions: ['update-connection-info', 'action2'],
+      });
+    }
+
+    const showChatButton = err?.message;
+    // console.log('aaa showChatButton', showChatButton);
+    // console.log('aaa plain err', err);
+    // console.log('aaa  err msg', err?.message);
+
+    openConnectionFailedToast(
+      connectionInfo,
+      err,
+      showReviewButton,
+      showChatButton,
+      () => {
+        if (connectionInfo) {
+          dispatch(editConnection(connectionInfo.id));
+        }
+        // TODO: Maybe make openAnalysisInChat a dispatched action
+      },
+      openAnalysisInChat
+    );
 
     track(
       'Connection Failed',
@@ -1413,7 +1473,7 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in typeof NonRetryableErrorCodes[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: string;
 } = {
   3000: 'Unauthorized',
   3003: 'Forbidden',
@@ -1438,7 +1498,7 @@ function getDescriptionForNonRetryableError(error: Error): string {
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
-        ) as typeof NonRetryableErrorCodes[number]
+        ) as (typeof NonRetryableErrorCodes)[number]
       ] ?? 'Unknown';
 }
 

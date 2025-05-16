@@ -20,6 +20,7 @@ export type {
   UpdatePreview,
   UpdatePreviewChange,
 };
+export { redactConnectionOptions } from './redact';
 export { connect, configuredKMSProviders, createConnectionAttempt };
 
 export type { ReauthenticationHandler } from './connect-mongo-client';

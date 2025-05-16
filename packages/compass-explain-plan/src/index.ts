@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+// import { chatbotServiceLocator } from '@mongodb-js/docs-chatbot/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const ExplainPlanModalPlugin = registerHadronPlugin(
@@ -24,6 +25,8 @@ const ExplainPlanModalPlugin = registerHadronPlugin(
       'explainAggregate' | 'explainFind' | 'isCancelError'
     >,
     preferences: preferencesLocator,
+    // chatbot: chatbotServiceLocator
+    // globalAppRegistry
   }
 );
 

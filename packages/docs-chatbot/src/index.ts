@@ -6,15 +6,17 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import DocsChatbotComponent from './components/docs-chatbot-workspace';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
-import { activateDocsChatbotStore } from './store';
+import { activateDocsChatbotPlugin } from './store';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import DocsChatbotSidebar from './components/docs-chatbot-sidebar';
+
+// TODO: Where is the context where both of these are rendered?
 
 const DocsChatbotPlugin = registerHadronPlugin(
   {
     name: 'DocsChatbot',
     component: DocsChatbotComponent,
-    activate: activateDocsChatbotStore,
+    activate: activateDocsChatbotPlugin,
   },
   {
     preferences: preferencesLocator,
@@ -30,7 +32,7 @@ const DocsChatbotSidebarPlugin = registerHadronPlugin(
   {
     name: 'DocsChatbot',
     component: DocsChatbotSidebar,
-    activate: activateDocsChatbotStore,
+    activate: activateDocsChatbotPlugin,
   },
   {
     preferences: preferencesLocator,

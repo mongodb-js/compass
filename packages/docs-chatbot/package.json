@@ -27,7 +27,8 @@
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -58,7 +59,19 @@
     "@mongodb-js/compass-telemetry": "^1.6.1",
     "@mongodb-js/compass-user-data": "^0.5.8",
     "@mongodb-js/compass-workspaces": "^0.36.0",
+    "@lg-chat/avatar": "^4.0.10",
+    "@lg-chat/chat-disclaimer": "^3.0.17",
     "@lg-chat/chat-window": "^3.0.14",
+    "@lg-chat/fixed-chat-window": "^3.0.16",
+    "@lg-chat/input-bar": "^7.0.15",
+    "@lg-chat/leafygreen-chat-provider": "^3.0.2",
+    "@lg-chat/message-feed": "^4.1.13",
+    "@lg-chat/message-feedback": "^4.0.9",
+    "@lg-chat/message-prompts": "^3.0.11",
+    "@lg-chat/message-rating": "^3.0.11",
+    "@lg-chat/message": "^5.0.15",
+    "@lg-chat/rich-links": "^2.0.11",
+    "@lg-chat/title-bar": "^3.0.14",
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.37.0",
     "hadron-app-registry": "^9.4.8",

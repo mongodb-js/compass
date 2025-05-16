@@ -7,6 +7,7 @@ import {
   IconButton,
   spacing,
   SpinLoader,
+  // LGMarkdown,
 } from '@mongodb-js/compass-components';
 import { getChatStreamResponseFromAI } from '@mongodb-js/compass-generative-ai';
 import { connect } from 'react-redux';
@@ -251,6 +252,7 @@ export const SchemaSummary = ({
           <Body className={titleStyles}>Schema Analysis</Body>
         </div>
         <div>
+          {/* <LGMarkdown remarkPlugins={[remarkGfm]} className={summaryTextStyles}> */}
           <Markdown remarkPlugins={[remarkGfm]} className={summaryTextStyles}>
             {summary}
           </Markdown>

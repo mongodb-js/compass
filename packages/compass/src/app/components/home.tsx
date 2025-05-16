@@ -33,6 +33,10 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ChatbotServiceProvider,
+  // useChatbotService
+} from '@mongodb-js/docs-chatbot/provider';
 
 resetGlobalCSS();
 
@@ -102,6 +106,7 @@ function Home({
     },
     [setIsWelcomeOpen, showSettings]
   );
+  // const chatbotService = useChatbotService();
 
   return (
     <ConnectionImportExportProvider>
@@ -109,10 +114,12 @@ function Home({
         <FieldStorePlugin>
           <div data-testid="home" className={verticalSplitStyles}>
             <AppRegistryProvider scopeName="Connections">
+              {/* value={chatbotService.current}> */}
               <Workspace
                 appName={appName}
                 onActiveWorkspaceTabChange={onWorkspaceChange}
               />
+              {/* </ChatbotServiceProvider> */}
             </AppRegistryProvider>
           </div>
           <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />

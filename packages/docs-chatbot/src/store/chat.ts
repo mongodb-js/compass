@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 import type { Reducer } from 'redux';
 import { isAction } from './util';
-import { SidebarChatActionTypes } from './sidebar-chat';
-import { DocsChatbotThunkAction } from './reducer';
+import type { OpenSidebarChatAction } from './sidebar-chat';
+import type { DocsChatbotThunkAction } from './reducer';
 import { getStreamResponseFromDocsAI } from '@mongodb-js/compass-generative-ai';
 
 export type ModalChatState = {
@@ -65,10 +66,71 @@ export type SendMessageCancelAction = {
   type: ChatActionTypes.SEND_MESSAGE_CANCEL;
 };
 
+export type OpenChatOptions = {
+  message: string;
+  availableFollowUpActions?: {
+    action: string;
+    description: string;
+  }[];
+  namespace?: string;
+  connectionId?: string;
+};
+
+// todo
+export type ChatMessageAction = any;
+
+export const openContextualMessageInChat = ({
+  message,
+  availableFollowUpActions,
+}: OpenChatOptions): DocsChatbotThunkAction<
+  Promise<string | null>, // the conversation id
+  OpenSidebarChatAction
+> => {
+  return async (dispatch, getState, services) => {
+    // TODO.
+
+    // TODO: Maybe this initial handler in the sidebar chat?
+
+    // TODO: Maybe this should be in a reducer.
+    //   if (!getState().sidebarChat.isOpen) {
+
+    //     // Right now the open state isn't handled here, so we'll have to app registry
+    //     // this is temp.
+    //     dispatch(openSidebarChat())
+
+    //     // on(globalAppRegistry, 'open-sidebar-chat', function () {
+    // //   store.dispatch(openSidebarChat());
+    // // });
+    //   }
+    // We should have the app registry things actually in providers.
+    services.globalAppRegistry.emit('open-sidebar-chat');
+
+    // TODO: Maybe a way to hide some of the info, like with an explain
+    // plan or the raw schema want to only show the user's prompt
+    // and something about it, maybe show the extra info in a hidden dropdown thing.
+
+    console.log(
+      'aaa openContextualMessageInChat',
+      message,
+      availableFollowUpActions
+    );
+
+    // simulated delay for now, will add the chat setup eventually
+    // await new Promise((resolve) => setTimeout(resolve, 5));
+
+    await dispatch(submitMessage(message));
+
+    return Promise.resolve('not real conversation id yet');
+  };
+};
+
 const ChatAbortControllerMap = new Map<number, AbortController>();
 
 let chatFetchId = 0;
 
+// TODO: we should be storing the signal id in the state
+// so we can abort it properly when cancelling or the
+// plugin is deactivated.
 function getAbortSignal() {
   const id = ++chatFetchId;
   const controller = new AbortController();
@@ -136,7 +198,7 @@ export const submitMessage = (
       id: ++chatFetchId,
     });
 
-    const aiMessageStream = await getStreamResponseFromDocsAI({
+    const aiMessageStream = getStreamResponseFromDocsAI({
       message: message,
       signal,
     });

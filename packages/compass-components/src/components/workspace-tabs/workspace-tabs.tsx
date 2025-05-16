@@ -30,6 +30,7 @@ import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { Tab } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
+import { aiIconColor, aiIconGlyph } from '../icons/ai-icon-things';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
 export const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);
@@ -448,11 +449,7 @@ function WorkspaceTabs({
             // color={palette.blue.base}
             onClick={() => setIsSidebarChatOpen(!isSidebarChatOpen)}
           >
-            <Icon
-              role="presentation"
-              glyph="Sparkle"
-              color={palette.green.dark2}
-            />
+            <Icon role="presentation" glyph={aiIconGlyph} color={aiIconColor} />
           </IconButton>
         </div>
       </div>

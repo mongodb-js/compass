@@ -15,6 +15,7 @@ import type {
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+// import type { ChatbotService } from '@mongodb-js/docs-chatbot/provider';
 
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -51,6 +52,8 @@ export type ExplainPlanModalServices = {
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   localAppRegistry: AppRegistry;
+  globalAppRegistry: AppRegistry;
+  // chatbot: ChatbotService;
 };
 
 export function activatePlugin(

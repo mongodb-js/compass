@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+
+// import { connect } from '../store/context';
 import type { DocsChatbotState } from '../store/reducer';
 import { Chat } from './chat';
 

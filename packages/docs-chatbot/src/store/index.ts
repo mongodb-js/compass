@@ -9,6 +9,10 @@ import reducer from './reducer';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { openSidebarChat } from './sidebar-chat';
+// import { ChatbotStoreContext } from './context';
+import { openContextualMessageInChat } from './chat';
+// import { ChatbotStoreContext } from './context';
+// import { openContextualMessageInChat } from './chat';
 
 export type DocsChatbotStoreOptions = Record<string, unknown>;
 
@@ -21,12 +25,9 @@ export type DocsChatbotStoreServices = {
   logger: Logger;
 };
 
-export function activateDocsChatbotStore(
-  _: DocsChatbotStoreOptions,
-  services: DocsChatbotStoreServices,
-  { on, cleanup }: ActivateHelpers
-) {
+export function configureStore(services: DocsChatbotStoreServices) {
   const cancelControllerRef = { current: null };
+
   const store = createStore(
     reducer,
     applyMiddleware(
@@ -34,9 +35,32 @@ export function activateDocsChatbotStore(
     )
   );
 
+  return store;
+}
+
+export function activateDocsChatbotPlugin(
+  _: DocsChatbotStoreOptions,
+  services: DocsChatbotStoreServices,
+  { on, cleanup }: ActivateHelpers
+) {
+  const store = configureStore(services);
+
   on(services.globalAppRegistry, 'open-sidebar-chat', () => {
     store.dispatch(openSidebarChat());
   });
 
-  return { store, deactivate: cleanup };
+  on(services.globalAppRegistry, 'open-message-in-chat', (options) => {
+    // TODO: Here or in the action let's publish back to
+    // the app registry with an id from the message when
+    // actions happen that would action on the original caller.
+    // Like when editing a pipeline.
+
+    void store.dispatch(openContextualMessageInChat(options));
+  });
+
+  return {
+    store,
+    deactivate: cleanup,
+    // context: ChatbotStoreContext,
+  };
 }

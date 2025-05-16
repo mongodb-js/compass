@@ -6,7 +6,8 @@ import {
   mergeProps,
   useDefaultAction,
   Icon,
-  palette,
+  aiIconGlyph,
+  aiIconColor,
 } from '@mongodb-js/compass-components';
 import {
   useOpenWorkspace,
@@ -128,8 +129,8 @@ export function Navigation({
       )}
       <NavigationItem
         onClick={openDocsChatbotWorkspace}
-        glyph="Sparkle"
-        color={palette.green.dark2}
+        glyph={aiIconGlyph}
+        color={aiIconColor}
         label="Chat"
         isActive={currentLocation === 'Docs Chatbot'}
       />

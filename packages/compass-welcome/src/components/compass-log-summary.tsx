@@ -83,7 +83,7 @@ const THROTTLE_MS = 15000;
 // let completedSummary: string | null = null;
 // const completedSummary = 'Last time you were in Compass you test test test test test test test test test test test test test test test test test test test test '
 let completedSummary =
-  'Last time you were in Compass you connected to multiple MongoDB clusters including a replica set and a load-balanced cluster, and performed database and collection statistics analysis as well as schema analysis on various databases. You also ran multiple aggregation and find queries, refreshed documents in collections like NYC.buildings and NYC.subway_entrances_2018, and encountered some connection and authorization errors.';
+  "Last time you were in Compass you connected to multiple MongoDB clusters including a replica set and a load-balanced cluster, and performed database and collection statistics analysis as well as schema analysis on various databases. You also ran multiple aggregation and find queries, refreshed documents in collections like NYC.buildings and NYC.subway_entrances_2018, and encountered some connection and authorization errors. Don't worry, I'm not going to replace your job just yet.";
 
 export const CompassLogSummary: React.FunctionComponent<
   CompassLogSummaryProps

@@ -21,6 +21,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  aiIconGlyph,
 } from '@mongodb-js/compass-components';
 import {
   IntercomTrackingEvent,
@@ -438,7 +439,7 @@ function GenerativeAIInput({
                   description="The query generated returns all of the documents in your collection. Consider adjusting and resubmitting your prompt to narrow down the results."
                 />
                 <span className={aiEntryContainerStyles} ref={guideCueRef}>
-                  <Icon glyph="Sparkle" />
+                  <Icon glyph={aiIconGlyph} />
                 </span>
               </button>
               <VerticallyResizingTextArea

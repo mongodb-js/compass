@@ -14,6 +14,7 @@ import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import {
   closeExplainPlanModal,
   generateAIAnalysis,
+  openExplainInChat,
 } from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -32,6 +33,7 @@ export type ExplainPlanModalProps = Partial<
   Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
     onModalClose(): void;
     onGenerateAIAnalysis: () => void;
+    onClickOpenInChat: () => void;
   };
 
 const explainPlanModalContentStyles = css({
@@ -83,6 +85,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   explainPlan,
   rawExplainPlan,
   error,
+  onClickOpenInChat,
   onModalClose,
 }) => {
   return (
@@ -122,6 +125,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             rawExplainPlan={rawExplainPlan}
             onGenerateAIAnalysis={onGenerateAIAnalysis}
             aiFetchStatus={aiFetchStatus}
+            onClickOpenInChat={onClickOpenInChat}
             error={error}
           ></ExplainPlanView>
         )}
@@ -150,6 +154,7 @@ const ConnectedExplainPlanModal = connect(
   {
     onModalClose: closeExplainPlanModal,
     onGenerateAIAnalysis: generateAIAnalysis,
+    onClickOpenInChat: openExplainInChat,
   }
 )(ExplainPlanModal);
 

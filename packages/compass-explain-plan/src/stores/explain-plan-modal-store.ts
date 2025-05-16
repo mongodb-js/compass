@@ -7,7 +7,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
 import {
   getChatStreamResponseFromAI,
-  getStreamResponseFromDocsAI,
+  // getStreamResponseFromDocsAI,
 } from '@mongodb-js/compass-generative-ai';
 import type { Document } from 'bson';
 import type { AggregateOptions } from 'mongodb';
@@ -301,20 +301,21 @@ function promptHeaderSection(operation: 'query' | 'aggregation'): string {
   return `
 You are a MongoDB expert that analyzes the results of explain plans.
 You are given an explain plan resulting from a ${operation} a user has run.
-Provide a detailed and concise analysis drawn from the result of the explain plan to show directly to the user.
+Provide a concise analysis from the provided explain plan to give to the user.
 Do not mention obvious things. Keep it concise and to the point.
-See if there are any ${operation} improvement suggestions to give to the user, however, don't over-advise.
-They are already provided the explain plan result, so you don't need to repeat it.
+Suggest possible ${operation} improvements to the user, however, don't over-advise.
+They already have the explain plan result, so there's no need to repeat it.
 
 Rules:
 1. This will be shown directly to the user, keep your response concise.
 2. Format for quick and crisp readability.
 3. Do NOT include any meta information or conversational jargon. Include ONLY the analysis.
-4. You are NOT a chatbot, don't use conversational language, there will be no follow ups.
-5. Respond in markdown format. GitHub Flavored Markdown is preferred.
-6. Do NOT include a header in your response, we already provide one.
-7. You must NOT wrap the markdown with \`\`\`text or \`\`\`markdown. It is already wrapped.`;
+4. Respond in markdown format. GitHub Flavored Markdown is preferred.
+5. Do NOT include a header in your response, we already provide one.
+6. You must NOT wrap the markdown with \`\`\`text or \`\`\`markdown. It is already wrapped.`;
 }
+
+// 4. You are NOT a chatbot, don't use conversational language, there will be no follow ups.
 
 // 4. Do NOT answer in a conversational tone, provide only the analysis to be shown to the user, meaning DO NOT say something like "Okay, let's look at this", only provide the analysis.
 
@@ -503,6 +504,46 @@ export function getNonDefaultValuesOfAggregation(
   return Object.keys(cleanedUpAggregation).length > 0
     ? cleanedUpAggregation
     : undefined;
+}
+
+export function openExplainInChat(): ExplainPlanModalThunkAction<void> {
+  return (dispatch, getState, services) => {
+    const { rawExplainPlan, namespace } = getState();
+
+    // TODO: Close explain modal.
+
+    dispatch({
+      type: ExplainPlanModalActionTypes.CloseExplainPlanModal,
+    });
+
+    // const conversationId = await services.chatbot.openChatWithMessage({
+    //   message: `Can you help me analyze this explain plan?\n${toJSString(
+    //     rawExplainPlan
+    //   )}`,
+    //   namespace,
+    //   // TODO: Maybe some tab ids for other things.
+    //   connectionId: services.connectionInfoRef.current.id,
+    //   availableFollowUpActions: [],
+    //   // availableFollowUpActions: ['action1', 'action2'],
+    // });
+
+    // console.log(
+    //   'aaa explain open chat with message, got conversation id :',
+    //   conversationId
+    // );
+
+    services.globalAppRegistry.emit('open-message-in-chat', {
+      message: `Can you help me analyze this explain plan?\n${toJSString(
+        rawExplainPlan
+      )}`,
+      namespace,
+      // TODO: Maybe some tab ids for other things.
+      connectionId: services.connectionInfoRef.current.id,
+      availableFollowUpActions: ['action1', 'action2'],
+    });
+
+    // await new P
+  };
 }
 
 export function generateAIAnalysis(): ExplainPlanModalThunkAction<

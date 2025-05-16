@@ -1,8 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button, css } from '@mongodb-js/compass-components';
+
+// import { connect } from '../store/context';
 // import type { DocsChatbotState } from '../store/reducer';
 import { Chat } from './chat';
-import { Button, css } from '@mongodb-js/compass-components';
 // import { closeSidebarChat, openSidebarChat } from '../store/sidebar-chat';
 
 const openContainerStyles = css({

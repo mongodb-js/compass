@@ -1,11 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Banner,
+  Button,
   Icon,
   KeylineCard,
   SegmentedControl,
   SegmentedControlOption,
   css,
+  aiIconGlyph,
+  aiIconColor,
   spacing,
 } from '@mongodb-js/compass-components';
 import {
@@ -71,6 +74,12 @@ const viewHeaderStyles = css({
   rowGap: spacing[600],
 });
 
+const viewActionStyles = css({
+  display: 'flex',
+  gap: spacing[300],
+  alignItems: 'center',
+});
+
 const viewBodyContainerStyles = css({
   display: 'flex',
   overflow: 'hidden',
@@ -102,8 +111,14 @@ const summaryStyles = css({
   flex: 'none',
 });
 
+const openInChatStyles = css({
+  // padding: spacing[200],
+  // marginLeft: spacing[200]
+});
+
 type ExplainPlanViewProps = {
   onGenerateAIAnalysis: () => void;
+  onClickOpenInChat: () => void;
 } & Partial<
   Pick<
     ExplainPlanModalState,
@@ -115,6 +130,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   explainPlan,
   rawExplainPlan,
   onGenerateAIAnalysis,
+  onClickOpenInChat,
   aiFetchStatus,
   error,
 }) => {
@@ -156,33 +172,43 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   return (
     <div className={viewStyles}>
       <div className={viewHeaderStyles}>
-        <SegmentedControl
-          onChange={onSetViewType}
-          value={viewType}
-          data-testid="explain-view-type-control"
-        >
-          <SegmentedControlOption
-            value="tree"
-            glyph={<Icon glyph="Diagram"></Icon>}
-            disabled={!!error}
+        <div className={viewActionStyles}>
+          <SegmentedControl
+            onChange={onSetViewType}
+            value={viewType}
+            data-testid="explain-view-type-control"
           >
-            Visual Tree
-          </SegmentedControlOption>
-          <SegmentedControlOption
-            value="ai-analysis"
-            glyph={<Icon glyph="CurlyBraces"></Icon>}
-            disabled={!!error}
+            <SegmentedControlOption
+              value="tree"
+              glyph={<Icon glyph="Diagram"></Icon>}
+              disabled={!!error}
+            >
+              Visual Tree
+            </SegmentedControlOption>
+            <SegmentedControlOption
+              value="ai-analysis"
+              glyph={<Icon glyph="CurlyBraces"></Icon>}
+              disabled={!!error}
+            >
+              AI Analysis
+            </SegmentedControlOption>
+            <SegmentedControlOption
+              value="json"
+              glyph={<Icon glyph="CurlyBraces"></Icon>}
+              disabled={!!error}
+            >
+              Raw Output
+            </SegmentedControlOption>
+          </SegmentedControl>
+          <Button
+            className={openInChatStyles}
+            onClick={onClickOpenInChat}
+            leftGlyph={<Icon glyph={aiIconGlyph} color={aiIconColor}></Icon>}
+            size="small"
           >
-            AI Analysis
-          </SegmentedControlOption>
-          <SegmentedControlOption
-            value="json"
-            glyph={<Icon glyph="CurlyBraces"></Icon>}
-            disabled={!!error}
-          >
-            Raw Output
-          </SegmentedControlOption>
-        </SegmentedControl>
+            Open in Chat
+          </Button>
+        </div>
         {isParsingError && (
           <ExplainCannotVisualizeBanner></ExplainCannotVisualizeBanner>
         )}

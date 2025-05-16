@@ -93,6 +93,8 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
+export * from './components/icons/ai-icon-things';
+
 export type {
   FileInputBackend,
   ItemAction,

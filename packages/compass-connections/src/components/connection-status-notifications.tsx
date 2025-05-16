@@ -39,7 +39,9 @@ export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
 type ConnectionErrorToastBodyProps = {
   info?: ConnectionInfo | null;
   showReviewButton: boolean;
+  showChatButton: boolean;
   onReview: () => void;
+  onOpenAnalysisInChat: () => void;
 };
 
 const connectionErrorToastBodyStyles = css({
@@ -58,7 +60,9 @@ const connectionErrorTextStyles = css({
 function ConnectionErrorToastBody({
   info,
   showReviewButton,
+  showChatButton,
   onReview,
+  onOpenAnalysisInChat,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
@@ -77,6 +81,16 @@ function ConnectionErrorToastBody({
           data-testid="connection-error-review"
         >
           REVIEW
+        </Link>
+      )}
+      {info && showChatButton && (
+        <Link
+          className={connectionErrorToastActionMessageStyles}
+          hideExternalIcon={true}
+          onClick={onOpenAnalysisInChat}
+          data-testid="connection-error-chat-review"
+        >
+          CHAT
         </Link>
       )}
     </span>
@@ -130,7 +144,9 @@ const openConnectionFailedToast = (
   connectionInfo: ConnectionInfo | null | undefined,
   error: Error,
   showReviewButton: boolean,
-  onReviewClick: () => void
+  showChatButton: boolean,
+  onReviewClick: () => void,
+  openAnalysisInChat: () => void
 ) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
@@ -140,9 +156,14 @@ const openConnectionFailedToast = (
       <ConnectionErrorToastBody
         info={connectionInfo}
         showReviewButton={showReviewButton}
+        showChatButton={showChatButton}
         onReview={() => {
           closeToast(`connection-status--${failedToastId}`);
           onReviewClick();
+        }}
+        onOpenAnalysisInChat={() => {
+          closeToast(`connection-status--${failedToastId}`);
+          openAnalysisInChat();
         }}
       />
     ),

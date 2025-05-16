@@ -44,6 +44,7 @@ import {
   WorkspaceTab as DocsChatbotWorkspace,
   DocsChatbotSidebarPlugin,
 } from '@mongodb-js/docs-chatbot';
+// import { ChatbotServiceProvider } from '@mongodb-js/docs-chatbot/provider';
 
 export default function Workspace({
   appName,
@@ -89,6 +90,7 @@ export default function Workspace({
         DocsChatbotWorkspace,
       ]}
     >
+      {/* <ChatbotServiceProvider> */}
       <CollectionTabsProvider
         queryBar={CompassQueryBarPlugin}
         tabs={[
@@ -133,6 +135,7 @@ export default function Workspace({
           )}
         ></WorkspacesPlugin>
       </CollectionTabsProvider>
+      {/* </ChatbotServiceProvider> */}
     </WorkspacesProvider>
   );
 }
