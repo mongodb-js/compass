@@ -17,6 +17,7 @@ import reducer from './reducer';
 
 export type VectorDataServiceProps =
   | 'find'
+  | 'aggregate'
   // Required for collection model (fetching stats)
   | 'collectionStats'
   | 'collectionInfo'
