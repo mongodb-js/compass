@@ -1,8 +1,5 @@
 {
   "ignoredOrgs": ["@mongodb-js", "@leafygreen-ui", "@mongosh"],
   "ignoredPackages": [],
-  "licenseOverrides": {
-    "delegate-events@1.1.1": "MIT",
-    "events-mixin@1.3.0": "MIT"
-  }
+  "licenseOverrides": {}
 }
