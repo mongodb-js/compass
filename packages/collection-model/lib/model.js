@@ -404,7 +404,10 @@ const CollectionCollection = AmpersandCollection.extend(
             // filtering, but for now this preserves the current behavior
             // and changing it right away will expand the scope of the
             // refactor significantly. We can address this in COMPASS-5211
-            return getNamespaceInfo(coll._id).system === false;
+            return (
+              getNamespaceInfo(coll._id).system === false ||
+              getNamespaceInfo(coll._id).collection === 'system.profile'
+            );
           })
           .map(({ _id, ...rest }) => {
             return {
