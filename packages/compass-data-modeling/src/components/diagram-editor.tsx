@@ -88,7 +88,7 @@ const editorContainerApplyContainerStyles = css({
   gap: spacing[200],
   display: 'flex',
   width: '100%',
-  height: spacing[1200],
+  height: spacing[100],
 });
 
 const editorContainerPlaceholderButtonStyles = css({

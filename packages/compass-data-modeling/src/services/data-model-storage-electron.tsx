@@ -24,7 +24,7 @@ class DataModelStorageElectron implements DataModelStorage {
   async loadAll(): Promise<MongoDBDataModelDescription[]> {
     try {
       const res = await this.userData.readAll();
-      return res.data;
+      return res.data as MongoDBDataModelDescription[];
     } catch (err) {
       return [];
     }

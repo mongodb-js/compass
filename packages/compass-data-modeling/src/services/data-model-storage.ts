@@ -1,4 +1,5 @@
 import { z } from '@mongodb-js/compass-user-data';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { ZodError } from 'zod';
 
 export const RelationshipSideSchema = z.object({
@@ -21,7 +22,7 @@ export const StaticModelSchema = z.object({
   collections: z.array(
     z.object({
       ns: z.string(),
-      jsonSchema: z.unknown(), // MongoDBJSONSchema is not directly representable in zod
+      jsonSchema: z.unknown(), // skipped for simplicity
       indexes: z.array(z.record(z.unknown())),
       shardKey: z.record(z.unknown()).optional(),
       displayPosition: z.tuple([z.number(), z.number()]),
@@ -30,7 +31,19 @@ export const StaticModelSchema = z.object({
   relationships: z.array(RelationshipSchema),
 });
 
-export type StaticModel = z.output<typeof StaticModelSchema>;
+export type StaticModel = Omit<
+  z.output<typeof StaticModelSchema>,
+  'collections'
+> & {
+  collections: Array<
+    Omit<
+      z.output<typeof StaticModelSchema>['collections'][number],
+      'jsonSchema'
+    > & {
+      jsonSchema: MongoDBJSONSchema;
+    }
+  >;
+};
 
 export const EditSchema = z.discriminatedUnion('type', [
   z.object({
@@ -53,6 +66,15 @@ export const EditSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+type BaseEdit = z.output<typeof EditSchema>;
+type SetModelEdit = Omit<Extract<BaseEdit, { type: 'SetModel' }>, 'model'> & {
+  model: StaticModel;
+};
+
+export type Edit =
+  | SetModelEdit
+  | Extract<BaseEdit, { type: 'AddRelationship' | 'RemoveRelationship' }>;
+
 export const validateEdit = (
   edit: unknown
 ): { result: true; errors?: never } | { result: false; errors: string[] } => {
@@ -71,8 +93,6 @@ export const validateEdit = (
   }
 };
 
-export type Edit = z.output<typeof EditSchema>;
-
 export const MongoDBDataModelDescriptionSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -87,9 +107,12 @@ export const MongoDBDataModelDescriptionSchema = z.object({
   edits: z.array(EditSchema).default([]),
 });
 
-export type MongoDBDataModelDescription = z.output<
-  typeof MongoDBDataModelDescriptionSchema
->;
+export type MongoDBDataModelDescription = Omit<
+  z.output<typeof MongoDBDataModelDescriptionSchema>,
+  'edits'
+> & {
+  edits: Array<Edit>;
+};
 
 export interface DataModelStorage {
   save(description: MongoDBDataModelDescription): Promise<boolean>;
