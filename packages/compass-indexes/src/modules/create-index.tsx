@@ -306,9 +306,6 @@ export type State = {
   // state of the index suggestions
   fetchingSuggestionsState: IndexSuggestionState;
 
-  // error specific to fetching index suggestions
-  fetchingSuggestionsError: string | null;
-
   // index suggestions in a format such as {fieldName: 1}
   indexSuggestions: Record<string, number> | null;
 
@@ -324,7 +321,6 @@ export const INITIAL_STATE: State = {
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
   fetchingSuggestionsState: 'initial',
-  fetchingSuggestionsError: null,
   indexSuggestions: null,
   sampleDocs: null,
 };
@@ -367,7 +363,7 @@ export type SuggestedIndexFetchedAction = {
   type: ActionTypes.SuggestedIndexesFetched;
   sampleDocs: Array<Document>;
   indexSuggestions: { [key: string]: number } | null;
-  fetchingSuggestionsError: string | null;
+  error: string | null;
   indexSuggestionsState: IndexSuggestionState;
 };
 
@@ -389,7 +385,7 @@ export const fetchIndexSuggestions = ({
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
 > => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, track }) => {
     dispatch({
       type: ActionTypes.SuggestedIndexesRequested,
     });
@@ -422,26 +418,13 @@ export const fetchIndexSuggestions = ({
         analyzedNamespace
       );
       const results = await mql.suggestIndex([query]);
-      const indexSuggestions = results?.index || null;
-
-      // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
-      if (!indexSuggestions) {
-        dispatch({
-          type: ActionTypes.SuggestedIndexesFetched,
-          sampleDocs: sampleDocuments,
-          indexSuggestions,
-          fetchingSuggestionsError:
-            'No suggested index found. Please choose "Start with an Index" at the top to continue.',
-          indexSuggestionsState: 'error',
-        });
-        return;
-      }
+      const indexSuggestions = results?.index;
 
       dispatch({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
         indexSuggestions,
-        fetchingSuggestionsError: null,
+        error: null,
         indexSuggestionsState: 'success',
       });
     } catch (e: unknown) {
@@ -449,12 +432,14 @@ export const fetchIndexSuggestions = ({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
         indexSuggestions: null,
-        fetchingSuggestionsError:
+        error:
           e instanceof Error
             ? 'Error parsing query. Please follow query structure. ' + e.message
             : 'Error parsing query. Please follow query structure.',
         indexSuggestionsState: 'error',
       });
+
+      track('Error parsing query', { context: 'Create Index Modal' });
     }
   };
 };
@@ -508,7 +493,6 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     // Check for field errors.
     if (isQueryFlow) {
       if (!indexSuggestions) {
-        // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
         dispatch(
           errorEncountered(
             'No suggested index found. Please choose "Start with an Index" at the top to continue.'
@@ -780,7 +764,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: 'fetching',
-      fetchingSuggestionsError: null,
+      error: null,
       indexSuggestions: null,
     };
   }
@@ -794,7 +778,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: action.indexSuggestionsState,
-      fetchingSuggestionsError: action.fetchingSuggestionsError,
+      error: action.error,
       indexSuggestions: action.indexSuggestions,
       sampleDocs: action.sampleDocs,
     };
