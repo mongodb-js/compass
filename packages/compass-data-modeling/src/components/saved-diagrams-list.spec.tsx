@@ -122,5 +122,35 @@ describe('SavedDiagramsList', function () {
       userEvent.click(createDiagramButton);
       expect(store.getState().generateDiagramWizard.inProgress).to.be.true;
     });
+
+    it('filters the list of diagrams', async function () {
+      const searchInput = screen.getByPlaceholderText('Search');
+      userEvent.type(searchInput, 'One');
+      await waitFor(() => {
+        expect(screen.queryByText('One')).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Two')).to.not.exist;
+        expect(screen.queryByText('Three')).to.not.exist;
+      });
+    });
+
+    it('shows empty content when filter for a non-existent diagram', async function () {
+      const searchInput = screen.getByPlaceholderText('Search');
+      userEvent.type(searchInput, 'Hello');
+      await waitFor(() => {
+        expect(screen.queryByText('No results found.')).to.exist;
+        expect(
+          screen.queryByText("We can't find any diagram matching your search.")
+        ).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('One')).to.not.exist;
+        expect(screen.queryByText('Two')).to.not.exist;
+        expect(screen.queryByText('Three')).to.not.exist;
+      });
+    });
   });
 });

@@ -225,6 +225,12 @@ export const SavedDiagramsList: React.FunctionComponent<{
           headerHeight={spacing[800] * 3 + spacing[200]}
           classNames={{ row: rowStyles }}
           resetActiveItemOnBlur={false}
+          renderEmptyList={() => (
+            <EmptyContent
+              title="No results found."
+              subTitle="We can't find any diagram matching your search."
+            />
+          )}
         ></VirtualGrid>
       </WorkspaceContainer>
     </DiagramListContext.Provider>
