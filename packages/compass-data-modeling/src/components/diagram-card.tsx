@@ -18,6 +18,7 @@ export const CARD_HEIGHT = 218;
 const diagramCardStyles = css({
   display: 'flex',
   flexDirection: 'column',
+  overflow: 'hidden',
 });
 
 const cardHeaderStyles = css({
@@ -29,16 +30,7 @@ const cardTitle = css({
   fontWeight: 'bold',
   height: spacing[600] * 2,
   marginBottom: spacing[400],
-
-  // WebkitLineClamp css property is in a very weird state in the spec and
-  // requires using deprecated flexbox spec props, but this does work in
-  // (Chromium) Electron and is the only way to get multiline text overflow to
-  // work using CSS only
-  //
-  // See: https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-line-clamp
-  display: '-webkit-box',
-  WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 2,
+  whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
 });
@@ -99,6 +91,7 @@ export function DiagramCard({
           }}
         ></ItemActionMenu>
       </div>
+      {/* TODO: Currently we do not have lastModified */}
     </Card>
   );
 }

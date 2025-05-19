@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Button,
   css,
@@ -43,18 +43,13 @@ const toolbarTitleLightStyles = css({ color: palette.gray.dark1 });
 const toolbarTitleDarkStyles = css({ color: palette.gray.light1 });
 
 export const DiagramListToolbar = () => {
-  const { onSearchDiagrams, onCreateDiagram, sortControls } =
-    useContext(DiagramListContext);
-  const [search, setSearch] = useState('');
+  const {
+    onSearchDiagrams: onSearch,
+    onCreateDiagram,
+    sortControls,
+    searchTerm,
+  } = useContext(DiagramListContext);
   const darkMode = useDarkMode();
-
-  const onSearch = useCallback(
-    (text: string) => {
-      setSearch(text);
-      onSearchDiagrams(text);
-    },
-    [onSearchDiagrams]
-  );
 
   return (
     <div className={containerStyles}>
@@ -79,7 +74,7 @@ export const DiagramListToolbar = () => {
       </div>
       <SearchInput
         aria-label="Search diagrams"
-        value={search}
+        value={searchTerm}
         className={searchInputStyles}
         onChange={(e) => onSearch(e.target.value)}
       />

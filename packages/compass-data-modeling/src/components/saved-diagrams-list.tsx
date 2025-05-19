@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
@@ -46,6 +46,7 @@ export const DiagramListContext = React.createContext<{
   onSearchDiagrams: (search: string) => void;
   onCreateDiagram: () => void;
   sortControls: React.ReactElement | null;
+  searchTerm: string;
 }>({
   onSearchDiagrams: () => {
     /** */
@@ -54,6 +55,7 @@ export const DiagramListContext = React.createContext<{
     /** */
   },
   sortControls: null,
+  searchTerm: '',
 });
 
 const subTitleStyles = css({
@@ -132,27 +134,19 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onDiagramDeleteClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
-
-  const [filteredItems, setFilteredItems] = useState(items);
+  const [search, setSearch] = useState('');
+  const filteredItems = useMemo(() => {
+    try {
+      const regex = new RegExp(search, 'i');
+      // Currently only searching for name. We may want to add more fields
+      // to search for in the future.
+      return items.filter((x) => regex.test(x.name));
+    } catch {
+      return items;
+    }
+  }, [items, search]);
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState);
-
-  useEffect(() => {
-    setFilteredItems(items);
-  }, [items]);
-
-  const onSearchItems = useCallback(
-    (search: string) => {
-      try {
-        const regex = new RegExp(search, 'i');
-        // TODO: Currently only searching for name. Add more fields
-        setFilteredItems(items.filter((x) => regex.test(x.name)));
-      } catch {
-        setFilteredItems(items);
-      }
-    },
-    [items]
-  );
 
   if (status === 'INITIAL' || status === 'LOADING') {
     return null;
@@ -201,8 +195,9 @@ export const SavedDiagramsList: React.FunctionComponent<{
     <DiagramListContext.Provider
       value={{
         sortControls,
+        searchTerm: search,
         onCreateDiagram: onCreateDiagramClick,
-        onSearchDiagrams: onSearchItems,
+        onSearchDiagrams: setSearch,
       }}
     >
       <WorkspaceContainer>
