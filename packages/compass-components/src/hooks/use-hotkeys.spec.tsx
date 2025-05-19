@@ -97,7 +97,7 @@ describe('use-hotkeys', function () {
 
   context('on Windows/Linux', function () {
     before(function () {
-      Object.defineProperty(window.navigator, 'userAgent', {
+      Object.defineProperty(navigator, 'userAgent', {
         value:
           'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
         writable: true,
