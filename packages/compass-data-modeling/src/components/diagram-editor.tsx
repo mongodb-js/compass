@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -19,6 +19,9 @@ import {
   spacing,
   Button,
   palette,
+  SplitButton,
+  RadioBoxGroup,
+  RadioBox,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 
@@ -73,7 +76,7 @@ const modelPreviewStyles = css({
 });
 
 const editorContainerStyles = css({
-  height: 160 + 34 + 16,
+  height: 46 + 160 + 34 + 16,
   display: 'flex',
   flexDirection: 'column',
   gap: 8,
@@ -84,6 +87,15 @@ const editorContainerApplyButtonStyles = css({
   paddingLeft: 8,
   paddingRight: 8,
   alignSelf: 'flex-end',
+});
+
+const editorContainerPlaceholderButtonStyles = css({
+  paddingLeft: 8,
+  paddingRight: 8,
+  alignSelf: 'flex-start',
+  display: 'flex',
+  gap: spacing[200],
+  paddingTop: spacing[200],
 });
 
 const DiagramEditor: React.FunctionComponent<{
@@ -117,6 +129,44 @@ const DiagramEditor: React.FunctionComponent<{
       return false;
     }
   }, [applyInput]);
+
+  const applyPlaceholder = useCallback(
+    (type: 'AddRelationship' | 'RemoveRelationship') => () => {
+      let placeholder = {};
+      switch (type) {
+        case 'AddRelationship':
+          placeholder = {
+            type: 'AddRelationship',
+            id: 'relationship1',
+            relationship: [
+              {
+                ns: 'db.sourceCollection',
+                cardinality: 1,
+                fields: ['field1'],
+              },
+              {
+                ns: 'db.targetCollection',
+                cardinality: 1,
+                fields: ['field2'],
+              },
+            ],
+            isInferred: false,
+          };
+          break;
+        case 'RemoveRelationship':
+          placeholder = {
+            type: 'RemoveRelationship',
+            id: 'relationship1',
+            relationshipId: 'relationship1',
+          };
+          break;
+        default:
+          throw new Error(`Unknown placeholder ${placeholder}`);
+      }
+      setApplyInput(JSON.stringify(placeholder, null, 2));
+    },
+    [setApplyInput]
+  );
 
   const modelStr = useMemo(() => {
     return JSON.stringify(model, null, 2);
@@ -172,6 +222,20 @@ const DiagramEditor: React.FunctionComponent<{
           ></CodemirrorMultilineEditor>
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
+          <div className={editorContainerPlaceholderButtonStyles}>
+            <Button
+              onClick={applyPlaceholder('AddRelationship')}
+              data-testid="placeholder-addrelationship-button"
+            >
+              Add relationship
+            </Button>
+            <Button
+              onClick={applyPlaceholder('RemoveRelationship')}
+              data-testid="placeholder-removerelationship-button"
+            >
+              Remove relationship
+            </Button>
+          </div>
           <div>
             <CodemirrorMultilineEditor
               language="json"

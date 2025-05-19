@@ -128,7 +128,6 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
-    console.log('Applying edit', action.edit);
     return {
       ...state,
       edits: {
@@ -187,7 +186,14 @@ export function applyEdit(
   edit: Edit
 ): DataModelingThunkAction<void, ApplyEditAction> {
   return (dispatch, getState, { dataModelStorage }) => {
-    dispatch({ type: DiagramActionTypes.APPLY_EDIT, edit });
+    dispatch({
+      type: DiagramActionTypes.APPLY_EDIT,
+      edit: {
+        ...edit,
+        id: new UUID().toString(),
+        timestamp: new Date().toISOString(),
+      },
+    });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
 }
@@ -246,24 +252,57 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (!model) {
     throw new Error('Editing a model that has not been initialized');
   }
-  if (edit.type === 'AddRelationship') {
-    return {
-      ...model,
-      relationships: [...model.relationships, edit.relationship],
-    };
+  switch (edit.type) {
+    case 'AddRelationship': {
+      return {
+        ...model,
+        relationships: [...model.relationships, edit.relationship],
+      };
+    }
+    case 'RemoveRelationship': {
+      return {
+        ...model,
+        relationships: model.relationships.filter(
+          (relationship) => relationship.id !== edit.relationshipId
+        ),
+      };
+    }
+    default: {
+      return model;
+    }
   }
-  return model;
 }
 
 export function getCurrentModel(
-  diagram: MongoDBDataModelDescription
+  description: MongoDBDataModelDescription
 ): StaticModel {
-  let model: StaticModel;
-  for (const edit of diagram.edits) {
-    console.log('Applying edit', edit, diagram);
-    model = _applyEdit(edit, model);
+  // Get the last 'SetModel' edit.
+  const reversedSetModelEditIndex = description.edits
+    .slice()
+    .reverse()
+    .findIndex((edit) => edit.type === 'SetModel');
+  if (reversedSetModelEditIndex === -1) {
+    throw new Error('No diagram model found.');
   }
-  return model;
+
+  // Calculate the actual index in the original array.
+  const lastSetModelEditIndex =
+    description.edits.length - 1 - reversedSetModelEditIndex;
+
+  // Start with the StaticModel from the last `SetModel` edit.
+  if (description.edits[lastSetModelEditIndex].type !== 'SetModel') {
+    throw new Error('Something went wrong, last edit is not a SetModel');
+  }
+  let currentModel: StaticModel =
+    description.edits[lastSetModelEditIndex].model;
+
+  // Apply all subsequent edits after the last `SetModel` edit.
+  for (let i = lastSetModelEditIndex + 1; i < description.edits.length; i++) {
+    const edit = description.edits[i];
+    currentModel = _applyEdit(edit, currentModel);
+  }
+
+  return currentModel;
 }
 
 export function getCurrentDiagramFromState(

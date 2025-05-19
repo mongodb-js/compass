@@ -48,6 +48,7 @@ export const EditSchema = z.discriminatedUnion('type', [
     type: z.literal('RemoveRelationship'),
     id: z.string(),
     timestamp: z.string(),
+    relationshipId: z.string(),
   }),
 ]);
 
