@@ -12,7 +12,7 @@ import {
   InfoSprinkle,
   Tooltip,
 } from '@mongodb-js/compass-components';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { Field } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
@@ -152,13 +152,16 @@ const IndexFlowSection = ({
 }: IndexFlowSectionProps) => {
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
+  const [hasFieldChanges, setHasFieldChanges] = useState(false);
 
   const hasUnsupportedQueryTypes = fields.some((field) => {
     return field.type === '2dsphere' || field.type === 'text';
   });
 
   const isCoveredQueriesButtonDisabled =
-    !areAllFieldsFilledIn(fields) || hasUnsupportedQueryTypes;
+    !areAllFieldsFilledIn(fields) ||
+    hasUnsupportedQueryTypes ||
+    !hasFieldChanges;
 
   const indexNameTypeMap = fields.reduce<Record<string, string>>(
     (accumulator, currentValue) => {
@@ -190,6 +193,11 @@ const IndexFlowSection = ({
       optimalQueries: generateOptimalQueries(coveredQueriesArr),
       showCoveredQueries: true,
     });
+    setHasFieldChanges(false);
+  }, [fields]);
+
+  useEffect(() => {
+    setHasFieldChanges(true);
   }, [fields]);
 
   const { coveredQueries, optimalQueries, showCoveredQueries } =
