@@ -647,7 +647,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('ready_1_1.coll_ready_shared_name', 'i'), // this matches only coll_ready_shared_name collection in ready_1_1 database
+            regex: new RegExp('ready_1_1\\.coll_ready_shared_name', 'i'), // this matches only coll_ready_shared_name collection in ready_1_1 database
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
