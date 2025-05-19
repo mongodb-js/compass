@@ -36,7 +36,7 @@ export const EditSchema = z.discriminatedUnion('type', [
     type: z.literal('SetModel'),
     id: z.string(),
     timestamp: z.string(),
-    model: z.unknown(), // TODO: StaticModelSchema,
+    model: StaticModelSchema,
   }),
   z.object({
     type: z.literal('AddRelationship'),

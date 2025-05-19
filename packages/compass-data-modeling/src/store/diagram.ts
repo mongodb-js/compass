@@ -4,6 +4,7 @@ import { isAction } from './util';
 import type {
   Edit,
   MongoDBDataModelDescription,
+  StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
@@ -13,9 +14,9 @@ import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
-        prev: Edit[];
+        prev: Edit[][];
         current: Edit[];
-        next: Edit[];
+        next: Edit[][];
       };
     })
   | null; // null when no diagram is currently open
@@ -47,8 +48,7 @@ export type RenameDiagramAction = {
 
 export type ApplyEditAction = {
   type: DiagramActionTypes.APPLY_EDIT;
-  // TODO
-  edit: unknown;
+  edit: Edit;
 };
 
 export type UndoEditAction = {
@@ -86,27 +86,35 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
 
-  // if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
-  //   return {
-  //     id: new UUID().toString(),
-  //     name: action.name,
-  //     connectionId: action.connectionId,
-  //     edits: {
-  //       prev: [],
-  //       current: [
-  //         {
-  //           // TODO
-  //           type: 'SetModel',
-  //           model: {
-  //             schema: action.schema,
-  //             relations: action.relations,
-  //           },
-  //         },
-  //       ],
-  //       next: [],
-  //     },
-  //   };
-  // }
+  if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
+    return {
+      id: new UUID().toString(),
+      name: action.name,
+      connectionId: action.connectionId,
+      edits: {
+        prev: [],
+        current: [
+          {
+            type: 'SetModel',
+            id: new UUID().toString(),
+            timestamp: new Date().toISOString(),
+            model: {
+              collections: action.collections.map((collection) => ({
+                ns: collection.ns,
+                jsonSchema: collection.schema,
+                // TODO
+                indexes: [],
+                shardKey: undefined,
+                displayPosition: [0, 0],
+              })),
+              relationships: action.relations,
+            },
+          },
+        ],
+        next: [],
+      },
+    };
+  }
 
   // All actions below are only applicable when diagram is open
   if (!state) {
@@ -120,6 +128,7 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
+    console.log('Applying edit', action.edit);
     return {
       ...state,
       edits: {
@@ -129,34 +138,34 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
-  // if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
-  //   const newCurrent = state.edits.prev.pop();
-  //   if (!newCurrent) {
-  //     return state;
-  //   }
-  //   return {
-  //     ...state,
-  //     edits: {
-  //       prev: [...state.edits.prev],
-  //       current: newCurrent,
-  //       next: [...state.edits.next, state.edits.current],
-  //     },
-  //   };
-  // }
-  // if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
-  //   const newCurrent = state.edits.next.pop();
-  //   if (!newCurrent) {
-  //     return state;
-  //   }
-  //   return {
-  //     ...state,
-  //     edits: {
-  //       prev: [...state.edits.prev, state.edits.current],
-  //       current: newCurrent,
-  //       next: [...state.edits.next],
-  //     },
-  //   };
-  // }
+  if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
+    const newCurrent = state.edits.prev.pop();
+    if (!newCurrent) {
+      return state;
+    }
+    return {
+      ...state,
+      edits: {
+        prev: [...state.edits.prev],
+        current: newCurrent,
+        next: [...state.edits.next, state.edits.current],
+      },
+    };
+  }
+  if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
+    const newCurrent = state.edits.next.pop();
+    if (!newCurrent) {
+      return state;
+    }
+    return {
+      ...state,
+      edits: {
+        prev: [...state.edits.prev, state.edits.current],
+        current: newCurrent,
+        next: [...state.edits.next],
+      },
+    };
+  }
   return state;
 };
 
@@ -175,7 +184,7 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 }
 
 export function applyEdit(
-  edit: unknown
+  edit: Edit
 ): DataModelingThunkAction<void, ApplyEditAction> {
   return (dispatch, getState, { dataModelStorage }) => {
     dispatch({ type: DiagramActionTypes.APPLY_EDIT, edit });
@@ -230,20 +239,29 @@ export function renameDiagram(
   };
 }
 
-// TODO
-function _applyEdit(model: any, edit: any) {
-  if (edit && 'type' in edit) {
-    if (edit.type === 'SetModel') {
-      return edit.model;
-    }
+function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
+  if (edit.type === 'SetModel') {
+    return edit.model;
+  }
+  if (!model) {
+    throw new Error('Editing a model that has not been initialized');
+  }
+  if (edit.type === 'AddRelationship') {
+    return {
+      ...model,
+      relationships: [...model.relationships, edit.relationship],
+    };
   }
   return model;
 }
 
-export function getCurrentModel(diagram: MongoDBDataModelDescription): unknown {
-  let model;
+export function getCurrentModel(
+  diagram: MongoDBDataModelDescription
+): StaticModel {
+  let model: StaticModel;
   for (const edit of diagram.edits) {
-    model = _applyEdit(model, edit);
+    console.log('Applying edit', edit, diagram);
+    model = _applyEdit(edit, model);
   }
   return model;
 }
