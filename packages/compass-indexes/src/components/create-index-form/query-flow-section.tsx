@@ -81,6 +81,8 @@ const insightStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
+  marginBottom: spacing[200],
+  height: spacing[500],
 });
 
 const QueryFlowSection = ({
@@ -107,9 +109,11 @@ const QueryFlowSection = ({
   initialQuery: Document | null;
 }) => {
   const [inputQuery, setInputQuery] = React.useState(
-    JSON.stringify(initialQuery?.filter ?? {}, null, 2)
+    JSON.stringify(initialQuery?.filter, null, 2)
   );
-  const [hasNewChanges, setHasNewChanges] = React.useState(false);
+  const [hasNewChanges, setHasNewChanges] = React.useState(
+    initialQuery !== null
+  );
   const completer = useMemo(
     () =>
       createQueryAutocompleter({

@@ -348,7 +348,7 @@ export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
 });
 
-const errorEncountered = (error: string): ErrorEncounteredAction => ({
+export const errorEncountered = (error: string): ErrorEncounteredAction => ({
   type: ActionTypes.ErrorEncountered,
   error,
 });
@@ -497,16 +497,8 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     });
 
     // Check for field errors.
-    if (isQueryFlow) {
-      if (!indexSuggestions) {
-        dispatch(
-          errorEncountered(
-            'No suggested index found. Please choose "Start with an Index" at the top to continue.'
-          )
-        );
-        return;
-      }
-    } else if (
+    if (
+      !isQueryFlow &&
       getState().createIndex.fields.some(
         (field: Field) => field.name === '' || field.type === ''
       )
