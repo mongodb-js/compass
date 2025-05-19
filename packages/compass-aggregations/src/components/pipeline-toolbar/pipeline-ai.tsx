@@ -118,7 +118,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onResetIsAggregationGeneratedFromQuery={
         onResetIsAggregationGeneratedFromQuery
       }
-      placeholder="Tell Compass what aggregation to build (e.g. how many movies were made each year)"
+      placeholder="Tell us what aggregation to build (e.g. count movies made each year) or paste one in another language (SQL, Java, etc.)"
       onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
     />
   );

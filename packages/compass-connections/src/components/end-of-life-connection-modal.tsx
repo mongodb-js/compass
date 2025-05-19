@@ -18,11 +18,12 @@ const modalBodyStyles = css({
   marginBottom: spacing[200],
 });
 
-export function showNonGenuineMongoDBWarningModal(
-  connectionInfo?: ConnectionInfo
+export function showEndOfLifeMongoDBWarningModal(
+  connectionInfo?: ConnectionInfo,
+  version?: string
 ) {
   return showConfirmation({
-    title: 'Non-Genuine MongoDB Detected',
+    title: 'End-of-life MongoDB Detected',
     hideCancelButton: true,
     description: (
       <>
@@ -30,19 +31,20 @@ export function showNonGenuineMongoDBWarningModal(
           {connectionInfo
             ? `Server or service "${getConnectionTitle(connectionInfo)}"`
             : 'This server or service'}{' '}
-          appears to be an emulation of MongoDB rather than an official MongoDB
-          product.
+          appears to be running a version of MongoDB that is no longer
+          supported.
         </Banner>
         <Body className={modalBodyStyles}>
-          Some documented MongoDB features may work differently, be entirely
-          missing or incomplete, or have unexpected performance characteristics.{' '}
+          Server version{version ? ` (${version})` : ''} is considered
+          end-of-life, consider upgrading to get the latest features and
+          performance improvements.{' '}
         </Body>
         <Link
-          href="https://www.mongodb.com/docs/compass/master/faq/#why-am-i-seeing-a-warning-about-a-non-genuine-mongodb-server-"
+          href="https://www.mongodb.com/legal/support-policy/lifecycles"
           target="_blank"
-          data-testid="non-genuine-warning-modal-learn-more-link"
+          data-testid="end-of-life-warning-modal-learn-more-link"
         >
-          Learn more
+          Learn more from the MongoDB Lifecycle Schedules.
         </Link>
       </>
     ),
