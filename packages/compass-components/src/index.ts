@@ -210,5 +210,6 @@ export {
   type VirtualListProps,
   type ItemRenderer as VirtualListItemRenderer,
 } from './components/virtual-list';
-export { SelectTable } from './components/select-table';
+export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
+export { InsightsChip } from './components/insights-chip';

@@ -6,19 +6,19 @@ import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
-import { Document } from 'hadron-document';
-import { validate } from 'mongodb-query-parser';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { Document } from 'hadron-document';
+import { toJSString, validate } from 'mongodb-query-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { EJSON } from 'bson';
 import type {
-  FavoriteQueryStorageAccess,
   FavoriteQueryStorage,
-  RecentQueryStorageAccess,
+  FavoriteQueryStorageAccess,
   RecentQueryStorage,
+  RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
 import {
@@ -29,12 +29,12 @@ import {
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
-  DOCUMENTS_STATUS_INITIAL,
-  DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_ERROR,
-  DOCUMENTS_STATUS_FETCHED_INITIAL,
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_INITIAL,
 } from '../constants/documents-statuses';
 
 import type { UpdatePreview } from 'mongodb-data-service';
@@ -42,9 +42,9 @@ import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
+import type { ActivateHelpers } from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
-import { toJSString } from 'mongodb-query-parser';
 import {
   openBulkDeleteFailureToast,
   openBulkDeleteProgressToast,
@@ -59,7 +59,6 @@ import type {
   MongoDBInstance,
 } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
-import type { ActivateHelpers } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -1834,7 +1833,9 @@ class CrudStoreImpl
   }
 
   openCreateIndexModal() {
-    this.localAppRegistry.emit('open-create-index-modal');
+    this.localAppRegistry.emit('open-create-index-modal', {
+      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')),
+    });
   }
 
   openCreateSearchIndexModal() {
@@ -1999,6 +2000,7 @@ export type DocumentsPluginServices = {
   queryBar: QueryBarService;
   collection: Collection;
 };
+
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
   {
@@ -2125,6 +2127,7 @@ type ErrorOrResult =
       result: undefined
     ]
   | [error: undefined | null, result: BSONObject];
+
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,
