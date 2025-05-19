@@ -3,18 +3,19 @@ import { expect } from 'chai';
 import { setupStore } from '../../test/setup-store';
 
 import {
+  createIndexClosed,
   createIndexFormSubmitted,
-  updateFieldName,
+  createIndexOpened,
+  errorCleared,
   fieldAdded,
   fieldRemoved,
   fieldTypeUpdated,
   optionChanged,
   optionToggled,
-  createIndexOpened,
-  createIndexClosed,
-  errorCleared,
+  updateFieldName,
 } from './create-index';
 import type { IndexesStore } from '../stores/store';
+import { EJSON } from 'bson';
 
 describe('create-index module', function () {
   let store: IndexesStore;
@@ -225,10 +226,29 @@ describe('create-index module', function () {
   });
 
   describe('createIndexOpened', function () {
+    const query = EJSON.serialize({});
     it('sets isVisible=true', function () {
       store.dispatch(createIndexOpened());
 
       expect(store.getState().createIndex.isVisible).to.equal(true);
+    });
+
+    it('sets isVisible=true with a query', function () {
+      store.dispatch(createIndexOpened({ query }));
+
+      expect(store.getState().createIndex.isVisible).to.equal(true);
+    });
+
+    it('sets currentTab=IndexFlow if no query is provided', function () {
+      store.dispatch(createIndexOpened());
+
+      expect(store.getState().createIndex.currentTab).to.equal('IndexFlow');
+    });
+
+    it('sets currentTab=QueryFlow if a query is provided', function () {
+      store.dispatch(createIndexOpened({ query }));
+
+      expect(store.getState().createIndex.currentTab).to.equal('QueryFlow');
     });
   });
 

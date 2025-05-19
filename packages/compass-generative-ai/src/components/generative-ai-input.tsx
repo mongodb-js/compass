@@ -326,7 +326,7 @@ function GenerativeAIInput({
   errorMessage,
   errorCode,
   isFetching,
-  placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
+  placeholder = 'Tell us what to find (e.g. movies from 2000) or paste a query in another language (SQL, Java, etc.)',
   show,
   onCancelRequest,
   onClose,

@@ -1,6 +1,7 @@
 import {
   Button,
   palette,
+  InsightsChip,
   Body,
   cx,
   useFocusRing,
@@ -20,6 +21,7 @@ import type {
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
+import type { Document } from 'bson';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -75,6 +77,12 @@ const indexSuggestionsLoaderStyles = css({
   borderRadius: editorContainerRadius,
 });
 
+const insightStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+});
+
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
@@ -83,6 +91,7 @@ const QueryFlowSection = ({
   onSuggestedIndexButtonClick,
   indexSuggestions,
   fetchingSuggestionsState,
+  initialQuery,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -95,8 +104,11 @@ const QueryFlowSection = ({
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
+  initialQuery: Document | null;
 }) => {
-  const [inputQuery, setInputQuery] = React.useState('');
+  const [inputQuery, setInputQuery] = React.useState(
+    JSON.stringify(initialQuery?.filter ?? {}, null, 2)
+  );
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
@@ -127,6 +139,14 @@ const QueryFlowSection = ({
 
   return (
     <>
+      {initialQuery && (
+        <div className={insightStyles}>
+          <InsightsChip />
+          <p>
+            We prefilled the query input below based on your recently run query
+          </p>
+        </div>
+      )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
         Input Query
       </Body>
