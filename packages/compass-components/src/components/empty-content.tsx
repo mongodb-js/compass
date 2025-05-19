@@ -44,32 +44,45 @@ const callToActionLinkContainerStyles = css({
 });
 
 type EmptyContentProps = {
-  icon: React.FunctionComponent;
+  icon?: React.FunctionComponent;
   title: string;
+  titleClassName?: string;
   subTitle: React.ReactNode;
+  subTitleClassName?: string;
   callToAction?: React.ReactNode;
   callToActionLink?: React.ReactNode;
 };
 
 const EmptyContent: React.FunctionComponent<
   EmptyContentProps & React.HTMLProps<HTMLDivElement>
-> = ({ icon: Icon, title, subTitle, callToAction, callToActionLink }) => {
+> = ({
+  icon: Icon,
+  title,
+  subTitle,
+  callToAction,
+  callToActionLink,
+  titleClassName,
+  subTitleClassName,
+}) => {
   const darkMode = useDarkMode();
 
   return (
     <div data-testid="empty-content" className={containerStyles}>
-      <div className={iconStyles}>
-        <Icon />
-      </div>
+      {Icon && (
+        <div className={iconStyles}>
+          <Icon />
+        </div>
+      )}
       <Subtitle
         className={cx(
           titleStyles,
-          darkMode ? titleDarkStyles : titleLightStyles
+          darkMode ? titleDarkStyles : titleLightStyles,
+          titleClassName
         )}
       >
         {title}
       </Subtitle>
-      <Body className={subTitleStyles}>{subTitle}</Body>
+      <Body className={cx(subTitleStyles, subTitleClassName)}>{subTitle}</Body>
       {!!callToAction && (
         <div className={callToActionStyles}>
           {typeof callToAction === 'string' ? (

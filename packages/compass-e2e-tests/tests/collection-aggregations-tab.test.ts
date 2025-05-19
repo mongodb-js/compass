@@ -623,6 +623,7 @@ describe('Collection aggregations tab', function () {
       if (serverSatisfies('< 5.0.0')) {
         return this.skip();
       }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -639,6 +640,10 @@ describe('Collection aggregations tab', function () {
     });
 
     afterEach(async function () {
+      if (serverSatisfies('< 5.0.0')) {
+        return this.skip();
+      }
+
       await browser.setValidation({
         connectionName: DEFAULT_CONNECTION_NAME_1,
         database: 'test',
@@ -679,9 +684,13 @@ describe('Collection aggregations tab', function () {
 
       const errorElement = browser.$(Selectors.AggregationErrorBanner);
       await errorElement.waitForDisplayed();
-      expect(await errorElement.getText()).to.include(
-        'Document failed validation'
-      );
+
+      await browser.waitUntil(async () => {
+        return (await errorElement.getText()).includes(
+          'Document failed validation'
+        );
+      });
+
       // enter details
       const errorDetailsBtn = browser.$(Selectors.AggregationErrorDetailsBtn);
       await errorElement.waitForDisplayed();

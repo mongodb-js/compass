@@ -18,6 +18,7 @@ describe('QueryFlowSection', () => {
           serverVersion="5.0.0"
           dbName={dbName}
           collectionName={collectionName}
+          initialQuery={null}
         />
       </Provider>
     );

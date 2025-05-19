@@ -36,6 +36,7 @@ describe('CreateIndexForm', () => {
         onRemoveFieldClick={() => {}}
         onTabClick={onTabClickSpy}
         showIndexesGuidanceVariant={showIndexesGuidanceVariant || false}
+        query={null}
       />
     );
   };

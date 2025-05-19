@@ -30,7 +30,8 @@ import {
 } from './schema-export-reducer';
 import type { InternalLayer } from '../modules/geo';
 
-export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
+export type RequiredDataServiceProps = 'sampleCursor';
+export type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;
 export type SchemaPluginServices = {
   dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;

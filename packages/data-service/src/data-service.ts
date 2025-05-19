@@ -5,6 +5,7 @@ import type {
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
+  Abortable,
   AggregateOptions,
   AggregationCursor,
   AnyBulkWriteOperation,
@@ -167,6 +168,12 @@ export type ExecutionOptions = {
 
 export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof ExplainVerbosity;
+};
+
+export type SampleOptions = {
+  size?: number;
+  query?: Filter<Document>;
+  fields?: Document;
 };
 
 export interface DataServiceEventMap {
@@ -550,7 +557,7 @@ export interface DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options?: AggregateOptions
+    options?: AggregateOptions & Abortable
   ): AggregationCursor;
 
   explainAggregate(
@@ -682,6 +689,22 @@ export interface DataService {
   ): Promise<number>;
 
   /**
+   * Returns a cursor to a sample on the collection.
+   *
+   * @param ns  - The namespace to sample.
+   * @param args - The sampling options.
+   * @param options - Driver options (ie. maxTimeMs, session, batchSize ...)
+   */
+  sampleCursor(
+    ns: string,
+    args?: SampleOptions,
+    options?: AggregateOptions & Abortable,
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
+  ): AggregationCursor;
+
+  /**
    * Sample documents from the collection.
    *
    * @param ns  - The namespace to sample.
@@ -690,7 +713,7 @@ export interface DataService {
    */
   sample(
     ns: string,
-    args?: { query?: Filter<Document>; size?: number; fields?: Document },
+    args?: SampleOptions,
     options?: AggregateOptions,
     executionOptions?: ExecutionOptions & {
       fallbackReadPreference?: ReadPreferenceMode;
@@ -1837,7 +1860,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions = {}
+    options: AggregateOptions & Abortable = {}
   ): AggregationCursor {
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
@@ -2250,18 +2273,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await db.createCollection(name, createCollectionOptions);
   }
 
-  sample(
-    ns: string,
-    {
-      query,
-      size,
-      fields,
-    }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
-    options: AggregateOptions = {},
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
-  ): Promise<Document[]> {
+  private _buildSamplingPipeline({ query, size, fields }: SampleOptions) {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
       pipeline.push({
@@ -2281,6 +2293,44 @@ class DataServiceImpl extends WithLogContext implements DataService {
         $project: fields,
       });
     }
+
+    return pipeline;
+  }
+
+  sampleCursor(
+    ns: string,
+    samplingOptions: SampleOptions = {},
+    options: AggregateOptions & Abortable = {},
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
+  ): AggregationCursor {
+    const pipeline = this._buildSamplingPipeline(samplingOptions);
+
+    return this.aggregateCursor(ns, pipeline, {
+      allowDiskUse: true,
+      // When the read preference isn't set in the connection string explicitly,
+      // then we allow consumers to default to a read preference, for instance
+      // secondaryPreferred to avoid using the primary for analyzing documents.
+      ...(executionOptions?.fallbackReadPreference &&
+      !isReadPreferenceSet(this._connectionOptions.connectionString)
+        ? {
+            readPreference: executionOptions?.fallbackReadPreference,
+          }
+        : {}),
+      ...options,
+    });
+  }
+
+  sample(
+    ns: string,
+    samplingOptions: SampleOptions = {},
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
+  ): Promise<Document[]> {
+    const pipeline = this._buildSamplingPipeline(samplingOptions);
 
     return this.aggregate(
       ns,

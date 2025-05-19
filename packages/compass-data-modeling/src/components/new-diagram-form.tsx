@@ -29,7 +29,7 @@ import {
   ModalHeader,
   Option,
   Select,
-  SelectTable,
+  SelectList,
   spacing,
   SpinLoader,
   Body,
@@ -61,6 +61,7 @@ const FormStepContainer: React.FunctionComponent<{
   isNextDisabled: boolean;
   nextLabel: string;
   previousLabel: string;
+  step: string;
   footerText?: React.ReactNode;
 }> = ({
   title,
@@ -72,16 +73,28 @@ const FormStepContainer: React.FunctionComponent<{
   nextLabel,
   previousLabel,
   children,
+  step,
   footerText,
 }) => {
   return (
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
-      <ModalBody>{children}</ModalBody>
+      <ModalBody>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onNextClick();
+          }}
+        >
+          {children}
+        </form>
+      </ModalBody>
       <ModalFooter className={footerStyles}>
         <Body className={footerTextStyles}>{footerText}</Body>
         <div className={footerActionsStyles}>
-          <Button onClick={onPreviousClick}>{previousLabel}</Button>
+          <Button onClick={onPreviousClick} key={`${step}-previous`}>
+            {previousLabel}
+          </Button>
           <Button
             onClick={onNextClick}
             disabled={isNextDisabled}
@@ -89,6 +102,7 @@ const FormStepContainer: React.FunctionComponent<{
             data-testid="new-diagram-confirm-button"
             variant="primary"
             loadingIndicator={<SpinLoader />}
+            key={`${step}-next`}
           >
             {nextLabel}
           </Button>
@@ -98,7 +112,7 @@ const FormStepContainer: React.FunctionComponent<{
   );
 };
 
-const selectTableStyles = css({
+const SelectListStyles = css({
   height: 300,
   overflow: 'scroll',
 });
@@ -131,8 +145,8 @@ function SelectCollectionsStep({
           setSearchTerm(e.target.value);
         }}
       />
-      <SelectTable
-        className={selectTableStyles}
+      <SelectList
+        className={SelectListStyles}
         items={filteredCollections.map((collName) => {
           return {
             id: collName,
@@ -140,8 +154,8 @@ function SelectCollectionsStep({
             'data-testid': `new-diagram-collection-checkbox-${collName}`,
           };
         })}
-        columns={[['id', 'Collection Name']]}
-        onChange={(items) => {
+        label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+        onChange={(items: { id: string; selected: boolean }[]) => {
           // When a user is searching, less collections are shown to the user
           // and we need to keep existing selected collections selected.
           const currentSelectedItems = selectedCollections.filter(
@@ -164,7 +178,7 @@ function SelectCollectionsStep({
             Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
           );
         }}
-      ></SelectTable>
+      ></SelectList>
     </FormFieldContainer>
   );
 }
@@ -405,6 +419,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         previousLabel={cancelLabel}
         isNextDisabled={isConfirmDisabled}
         isLoading={isLoading}
+        step={currentStep}
         footerText={footerText}
       >
         {formContent}
