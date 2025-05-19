@@ -315,11 +315,11 @@ export function getCurrentModel(
     description.edits.length - 1 - reversedSetModelEditIndex;
 
   // Start with the StaticModel from the last `SetModel` edit.
-  if (description.edits[lastSetModelEditIndex].type !== 'SetModel') {
+  const lastSetModelEdit = description.edits[lastSetModelEditIndex];
+  if (lastSetModelEdit.type !== 'SetModel') {
     throw new Error('Something went wrong, last edit is not a SetModel');
   }
-  let currentModel: StaticModel =
-    description.edits[lastSetModelEditIndex].model;
+  let currentModel = lastSetModelEdit.model;
 
   // Apply all subsequent edits after the last `SetModel` edit.
   for (let i = lastSetModelEditIndex + 1; i < description.edits.length; i++) {
