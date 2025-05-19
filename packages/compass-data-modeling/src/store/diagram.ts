@@ -47,6 +47,7 @@ export type RenameDiagramAction = {
 
 export type ApplyEditAction = {
   type: DiagramActionTypes.APPLY_EDIT;
+  // TODO
   edit: unknown;
 };
 
@@ -85,27 +86,27 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
 
-  if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
-    return {
-      id: new UUID().toString(),
-      name: action.name,
-      connectionId: action.connectionId,
-      edits: {
-        prev: [],
-        current: [
-          {
-            // TODO
-            type: 'SetModel',
-            model: {
-              schema: action.schema,
-              relations: action.relations,
-            },
-          },
-        ],
-        next: [],
-      },
-    };
-  }
+  // if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
+  //   return {
+  //     id: new UUID().toString(),
+  //     name: action.name,
+  //     connectionId: action.connectionId,
+  //     edits: {
+  //       prev: [],
+  //       current: [
+  //         {
+  //           // TODO
+  //           type: 'SetModel',
+  //           model: {
+  //             schema: action.schema,
+  //             relations: action.relations,
+  //           },
+  //         },
+  //       ],
+  //       next: [],
+  //     },
+  //   };
+  // }
 
   // All actions below are only applicable when diagram is open
   if (!state) {
@@ -128,34 +129,34 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
-  if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
-    const newCurrent = state.edits.prev.pop();
-    if (!newCurrent) {
-      return state;
-    }
-    return {
-      ...state,
-      edits: {
-        prev: [...state.edits.prev],
-        current: newCurrent,
-        next: [...state.edits.next, state.edits.current],
-      },
-    };
-  }
-  if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
-    const newCurrent = state.edits.next.pop();
-    if (!newCurrent) {
-      return state;
-    }
-    return {
-      ...state,
-      edits: {
-        prev: [...state.edits.prev, state.edits.current],
-        current: newCurrent,
-        next: [...state.edits.next],
-      },
-    };
-  }
+  // if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
+  //   const newCurrent = state.edits.prev.pop();
+  //   if (!newCurrent) {
+  //     return state;
+  //   }
+  //   return {
+  //     ...state,
+  //     edits: {
+  //       prev: [...state.edits.prev],
+  //       current: newCurrent,
+  //       next: [...state.edits.next, state.edits.current],
+  //     },
+  //   };
+  // }
+  // if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
+  //   const newCurrent = state.edits.next.pop();
+  //   if (!newCurrent) {
+  //     return state;
+  //   }
+  //   return {
+  //     ...state,
+  //     edits: {
+  //       prev: [...state.edits.prev, state.edits.current],
+  //       current: newCurrent,
+  //       next: [...state.edits.next],
+  //     },
+  //   };
+  // }
   return state;
 };
 
