@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
@@ -136,6 +136,10 @@ export const SavedDiagramsList: React.FunctionComponent<{
   const [filteredItems, setFilteredItems] = useState(items);
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState);
+
+  useEffect(() => {
+    setFilteredItems(items);
+  }, [items]);
 
   const onSearchItems = useCallback(
     (search: string) => {
