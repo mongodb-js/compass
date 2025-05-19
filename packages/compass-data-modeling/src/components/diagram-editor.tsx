@@ -19,11 +19,10 @@ import {
   spacing,
   Button,
   palette,
-  SplitButton,
-  RadioBoxGroup,
-  RadioBox,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import type { Edit, StaticModel } from '../services/data-model-storage';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -76,17 +75,20 @@ const modelPreviewStyles = css({
 });
 
 const editorContainerStyles = css({
-  height: 46 + 160 + 34 + 16,
   display: 'flex',
   flexDirection: 'column',
   gap: 8,
   boxShadow: `0 0 0 2px ${palette.gray.light2}`,
 });
 
-const editorContainerApplyButtonStyles = css({
+const editorContainerApplyContainerStyles = css({
   paddingLeft: 8,
   paddingRight: 8,
-  alignSelf: 'flex-end',
+  justifyContent: 'flex-end',
+  gap: spacing[200],
+  display: 'flex',
+  width: '100%',
+  height: spacing[1200],
 });
 
 const editorContainerPlaceholderButtonStyles = css({
@@ -104,11 +106,11 @@ const DiagramEditor: React.FunctionComponent<{
   onUndoClick: () => void;
   hasRedo: boolean;
   onRedoClick: () => void;
-  model: unknown;
+  model: StaticModel | null;
+  editErrors?: string[];
   onRetryClick: () => void;
   onCancelClick: () => void;
-  // TODO
-  onApplyClick: (edit: unknown) => void;
+  onApplyClick: (edit: Edit) => void;
 }> = ({
   step,
   hasUndo,
@@ -116,6 +118,7 @@ const DiagramEditor: React.FunctionComponent<{
   hasRedo,
   onRedoClick,
   model,
+  editErrors,
   onRetryClick,
   onCancelClick,
   onApplyClick,
@@ -137,26 +140,27 @@ const DiagramEditor: React.FunctionComponent<{
         case 'AddRelationship':
           placeholder = {
             type: 'AddRelationship',
-            id: 'relationship1',
-            relationship: [
-              {
-                ns: 'db.sourceCollection',
-                cardinality: 1,
-                fields: ['field1'],
-              },
-              {
-                ns: 'db.targetCollection',
-                cardinality: 1,
-                fields: ['field2'],
-              },
-            ],
-            isInferred: false,
+            relationship: {
+              id: 'relationship1',
+              relationship: [
+                {
+                  ns: 'db.sourceCollection',
+                  cardinality: 1,
+                  fields: ['field1'],
+                },
+                {
+                  ns: 'db.targetCollection',
+                  cardinality: 1,
+                  fields: ['field2'],
+                },
+              ],
+              isInferred: false,
+            },
           };
           break;
         case 'RemoveRelationship':
           placeholder = {
             type: 'RemoveRelationship',
-            id: 'relationship1',
             relationshipId: 'relationship1',
           };
           break;
@@ -244,7 +248,8 @@ const DiagramEditor: React.FunctionComponent<{
               maxLines={10}
             ></CodemirrorMultilineEditor>
           </div>
-          <div className={editorContainerApplyButtonStyles}>
+          <div className={editorContainerApplyContainerStyles}>
+            {editErrors && <ErrorSummary errors={editErrors} />}
             <Button
               onClick={() => {
                 onApplyClick(JSON.parse(applyInput));
@@ -302,6 +307,7 @@ export default connect(
       model: diagram
         ? selectCurrentModel(getCurrentDiagramFromState(state))
         : null,
+      editErrors: diagram?.editErrors,
     };
   },
   {

@@ -1,10 +1,11 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type {
-  Edit,
-  MongoDBDataModelDescription,
-  StaticModel,
+import {
+  validateEdit,
+  type Edit,
+  type MongoDBDataModelDescription,
+  type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
@@ -18,6 +19,7 @@ export type DiagramState =
         current: Edit[];
         next: Edit[][];
       };
+      editErrors?: string[];
     })
   | null; // null when no diagram is currently open
 
@@ -26,6 +28,7 @@ export enum DiagramActionTypes {
   DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
   APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
+  APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
 }
@@ -51,6 +54,11 @@ export type ApplyEditAction = {
   edit: Edit;
 };
 
+export type ApplyEditFailedAction = {
+  type: DiagramActionTypes.APPLY_EDIT_FAILED;
+  errors: string[];
+};
+
 export type UndoEditAction = {
   type: DiagramActionTypes.UNDO_EDIT;
 };
@@ -64,6 +72,7 @@ export type DiagramActions =
   | DeleteDiagramAction
   | RenameDiagramAction
   | ApplyEditAction
+  | ApplyEditFailedAction
   | UndoEditAction
   | RedoEditAction;
 
@@ -135,6 +144,13 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: [...state.edits.current, action.edit],
         next: [],
       },
+      editErrors: undefined,
+    };
+  }
+  if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
+    return {
+      ...state,
+      editErrors: action.errors,
     };
   }
   if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
@@ -183,16 +199,25 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 }
 
 export function applyEdit(
-  edit: Edit
-): DataModelingThunkAction<void, ApplyEditAction> {
+  rawEdit: Edit
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
   return (dispatch, getState, { dataModelStorage }) => {
+    const edit = {
+      ...rawEdit,
+      id: new UUID().toString(),
+      timestamp: new Date().toISOString(),
+    };
+    const { result: isValid, errors } = validateEdit(edit);
+    if (!isValid) {
+      dispatch({
+        type: DiagramActionTypes.APPLY_EDIT_FAILED,
+        errors,
+      });
+      return;
+    }
     dispatch({
       type: DiagramActionTypes.APPLY_EDIT,
-      edit: {
-        ...edit,
-        id: new UUID().toString(),
-        timestamp: new Date().toISOString(),
-      },
+      edit,
     });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };

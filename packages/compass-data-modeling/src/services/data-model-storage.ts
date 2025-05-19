@@ -1,4 +1,5 @@
 import { z } from '@mongodb-js/compass-user-data';
+import type { ZodError } from 'zod';
 
 export const RelationshipSideSchema = z.object({
   ns: z.string(),
@@ -51,6 +52,24 @@ export const EditSchema = z.discriminatedUnion('type', [
     relationshipId: z.string(),
   }),
 ]);
+
+export const validateEdit = (
+  edit: unknown
+): { result: true; errors?: never } | { result: false; errors: string[] } => {
+  try {
+    EditSchema.parse(edit);
+    return { result: true };
+  } catch (e) {
+    return {
+      result: false,
+      errors: (e as ZodError).issues.map(({ path, message }) =>
+        message === 'Required'
+          ? `'${path}' is required`
+          : `Invalid field '${path}': ${message}`
+      ),
+    };
+  }
+};
 
 export type Edit = z.output<typeof EditSchema>;
 
