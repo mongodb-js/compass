@@ -45,10 +45,15 @@ module.exports = (env, args) => {
           '@mongodb-js/devtools-proxy-support'
         ),
 
-        // We don't need saslprep in the web, as we don't use scram auth.
-        // We use a local polyfill for the driver to avoid having it in the bundle
-        // as it is a decent size.
-        '@mongodb-js/saslprep': localPolyfill('@mongodb-js/saslprep'),
+        ...(config.mode === 'production'
+          ? {
+              // We don't need saslprep in the product web bundle, as we don't use scram auth there.
+              // We use a local polyfill for the driver to avoid having it in the bundle
+              // as it is a decent size. We do use scram auth in tests and local
+              // development, so we want it there.
+              '@mongodb-js/saslprep': localPolyfill('@mongodb-js/saslprep'),
+            }
+          : {}),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
