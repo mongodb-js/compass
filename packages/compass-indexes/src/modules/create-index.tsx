@@ -1,13 +1,13 @@
 import type { Document } from 'mongodb';
+import type { Document as BsonDocument } from 'bson';
 import { EJSON, ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
-import type { Action, Reducer, Dispatch } from 'redux';
+import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
-import type { IndexesThunkAction } from '.';
-import type { RootState } from '.';
+import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
@@ -77,6 +77,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
+  query?: BsonDocument;
 };
 
 type CreateIndexClosedAction = {
@@ -314,6 +315,9 @@ export type State = {
 
   // sample documents used for getting index suggestions
   sampleDocs: Array<Document> | null;
+
+  // base query to be used for query flow index creation
+  query: BsonDocument | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -327,6 +331,7 @@ export const INITIAL_STATE: State = {
   fetchingSuggestionsError: null,
   indexSuggestions: null,
   sampleDocs: null,
+  query: null,
 };
 
 function getInitialState(): State {
@@ -338,8 +343,9 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = () => ({
+export const createIndexOpened = (query?: BsonDocument) => ({
   type: ActionTypes.CreateIndexOpened,
+  query,
 });
 
 export const createIndexClosed = () => ({
@@ -706,6 +712,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...getInitialState(),
       isVisible: true,
+      query: action.query ?? null,
+      currentTab: action.query ? 'QueryFlow' : 'IndexFlow',
     };
   }
 
