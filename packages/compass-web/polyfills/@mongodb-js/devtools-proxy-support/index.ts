@@ -22,5 +22,4 @@ export function resetSystemCACache(): never {
 
 // Explicitly web-compatible
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error TS resolution doesn't match webpack resolution
 export * from '@mongodb-js/devtools-proxy-support/proxy-options';

@@ -9,15 +9,16 @@ export type TrackFunction = (
   properties: Record<string, any>
 ) => void;
 
-export type LogFunction = (message: {
+export type LogMessage = {
   id: number;
-  t?: { $date: string };
+  t: { $date: string };
   s: 'F' | 'E' | 'W' | 'I' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5';
   c: string;
   ctx: string;
   msg: string;
   attr?: any;
-}) => void;
+};
+export type LogFunction = (message: LogMessage) => void;
 
 export type DebugFunction = (...args: any[]) => void;
 
