@@ -91,7 +91,7 @@ export function DiagramCard({
           }}
         ></ItemActionMenu>
       </div>
-      {/* TODO: Currently we do not have lastModified */}
+      {/* TODO(COMPASS-9398): Add lastModified and namespace to the card. */}
     </Card>
   );
 }

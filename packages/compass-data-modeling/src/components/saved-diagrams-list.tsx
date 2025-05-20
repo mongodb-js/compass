@@ -27,7 +27,7 @@ const sortBy = [
     name: 'name',
     label: 'Name',
   },
-  // TODO: Currently we do not have lastModified.
+  // TODO(COMPASS-9398): Currently we do not have lastModified.
   // {
   //   name: 'lastModified',
   //   label: 'Last Modified',
@@ -138,8 +138,8 @@ export const SavedDiagramsList: React.FunctionComponent<{
   const filteredItems = useMemo(() => {
     try {
       const regex = new RegExp(search, 'i');
-      // Currently only searching for name. We may want to add more fields
-      // to search for in the future.
+      // TODO(COMPASS-9398): Currently only searching for name.
+      // We want to include more fields like namespace.
       return items.filter((x) => regex.test(x.name));
     } catch {
       return items;
