@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.6.8",
+  "version": "1.6.9",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "hadron-app-registry": "^9.4.8",
+    "hadron-app-registry": "^9.4.9",
     "hadron-ipc": "^3.4.8",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^2.3.4",
