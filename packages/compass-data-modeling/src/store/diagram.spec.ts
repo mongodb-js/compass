@@ -96,7 +96,7 @@ describe('Data Modeling store', function () {
       });
     });
 
-    it.only('should not apply invalid AddRelationship edit', function () {
+    it('should not apply invalid AddRelationship edit', function () {
       const loadedDiagram = {
         id: 'diagram-id',
         name: 'diagram-name',
