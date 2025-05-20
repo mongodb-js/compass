@@ -1,9 +1,7 @@
 'use strict';
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const {
-  Collection: MongoDbCollectionCollection,
-} = require('mongodb-collection-model');
+const { Collection: MongoDbCollectionCollection } = require('../collection');
 
 function mergeInit(...init) {
   return {

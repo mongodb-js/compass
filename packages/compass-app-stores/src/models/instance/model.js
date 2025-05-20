@@ -1,8 +1,6 @@
 'use strict';
 const AmpersandModel = require('ampersand-model');
-const {
-  Collection: MongoDbDatabaseCollection,
-} = require('mongodb-database-model');
+const { Collection: MongoDbDatabaseCollection } = require('../database');
 const TopologyType = require('./topology-type');
 const ServerType = require('./server-type');
 const Environment = require('./environment');
