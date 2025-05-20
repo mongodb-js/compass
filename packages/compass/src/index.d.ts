@@ -42,9 +42,3 @@ declare module 'process' {
     }
   }
 }
-
-declare module 'marky' {
-  declare function mark(label: string): void;
-  declare function stop(label: string): void;
-  export { mark, stop };
-}

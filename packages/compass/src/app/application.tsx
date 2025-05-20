@@ -8,7 +8,6 @@ import { CompassElectron } from './components/entrypoint';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
 import ensureError from 'ensure-error';
 
-import * as marky from 'marky';
 import * as webvitals from 'web-vitals';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -124,21 +123,6 @@ class Application {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('debug').enable('mon*,had*');
     }
-  }
-
-  /**
-   * Pre-load into the require cache a bunch of expensive modules while the
-   * user is choosing which connection, so when the user clicks on Connect,
-   * Compass can connect to the MongoDB instance faster.
-   */
-  private preloadSlowModules() {
-    marky.mark('Pre-loading additional modules required to connect');
-    // Seems like this doesn't have as much of an effect as we'd hoped as
-    // most of the expense has already occurred. You can see it take 1700ms
-    // or so if you move this to the top of the file.
-    require('local-links');
-    require('mongodb-instance-model');
-    marky.stop('Pre-loading additional modules required to connect');
   }
 
   /**
@@ -466,9 +450,6 @@ class Application {
   }
 
   async init() {
-    marky.mark('Time to Connect rendered');
-    marky.mark('Time to user can Click Connect');
-
     // Setup global error handling first to ensure all
     // unhandled errors are properly logged and reported
     this.setupGlobalErrorHandling();
@@ -498,11 +479,6 @@ class Application {
 
     // Render the application
     await this.render();
-    marky.stop('Time to Connect rendered');
-
-    // Preload modules and complete initialization
-    this.preloadSlowModules();
-    marky.stop('Time to user can Click Connect');
 
     // Throws a synthetic exception for e2e tests so we can test the handling
     // of uncaught exceptions.
