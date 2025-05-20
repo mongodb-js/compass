@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
@@ -133,7 +133,7 @@ const DiagramEditor: React.FunctionComponent<{
     }
   }, [applyInput]);
 
-  const applyPlaceholder = useCallback(
+  const applyPlaceholder =
     (type: 'AddRelationship' | 'RemoveRelationship') => () => {
       let placeholder = {};
       switch (type) {
@@ -168,9 +168,7 @@ const DiagramEditor: React.FunctionComponent<{
           throw new Error(`Unknown placeholder ${placeholder}`);
       }
       setApplyInput(JSON.stringify(placeholder, null, 2));
-    },
-    [setApplyInput]
-  );
+    };
 
   const modelStr = useMemo(() => {
     return JSON.stringify(model, null, 2);

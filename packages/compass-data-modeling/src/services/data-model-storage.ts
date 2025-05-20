@@ -1,6 +1,5 @@
 import { z } from '@mongodb-js/compass-user-data';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import type { ZodError } from 'zod';
 
 export const RelationshipSideSchema = z.object({
   ns: z.string(),
@@ -84,7 +83,7 @@ export const validateEdit = (
   } catch (e) {
     return {
       result: false,
-      errors: (e as ZodError).issues.map(({ path, message }) =>
+      errors: (e as z.ZodError).issues.map(({ path, message }) =>
         message === 'Required'
           ? `'${path}' is required`
           : `Invalid field '${path}': ${message}`
