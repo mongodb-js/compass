@@ -16,16 +16,19 @@ const storageItems: MongoDBDataModelDescription[] = [
     id: '1',
     name: 'One',
     edits: [],
+    connectionId: null,
   },
   {
     id: '2',
     name: 'Two',
     edits: [],
+    connectionId: null,
   },
   {
     id: '3',
     name: 'Three',
     edits: [],
+    connectionId: null,
   },
 ];
 
@@ -46,7 +49,7 @@ const renderSavedDiagramsList = ({
     },
     loadAll: () => Promise.resolve(items),
     load: (id: string) => {
-      return Promise.resolve(items.find((x) => x.id === id));
+      return Promise.resolve(items.find((x) => x.id === id) ?? null);
     },
   };
   return renderWithStore(
