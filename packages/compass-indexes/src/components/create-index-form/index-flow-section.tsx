@@ -17,10 +17,8 @@ import { errorEncountered, type Field } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import { connect } from 'react-redux';
-import {
-  TrackFunction,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -212,7 +210,7 @@ const IndexFlowSection = ({
         showCoveredQueries: true,
       });
     } catch (e) {
-      onErrorEncountered(e.message);
+      onErrorEncountered(e instanceof Error ? e.message : String(e));
     }
 
     setHasFieldChanges(false);

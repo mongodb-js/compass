@@ -106,10 +106,10 @@ const QueryFlowSection = ({
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
-  initialQuery: Document | null;
+  initialQuery: string | null;
 }) => {
   const [inputQuery, setInputQuery] = React.useState(
-    JSON.stringify(initialQuery?.filter, null, 2)
+    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
   );
   const [hasNewChanges, setHasNewChanges] = React.useState(
     initialQuery !== null

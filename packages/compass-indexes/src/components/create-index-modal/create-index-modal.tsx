@@ -29,14 +29,13 @@ import {
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import CreateIndexModalHeader from './create-index-modal-header';
-import type { Document } from 'bson';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
   currentTab: Tab;
-  query: Document | null;
+  query: string | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
