@@ -127,4 +127,4 @@ interface CollectionCollection extends Array<Collection> {
 }
 
 export default Collection;
-export { CollectionCollection, CollectionMetadata, CollectionProps };
+export type { CollectionCollection, CollectionMetadata, CollectionProps };

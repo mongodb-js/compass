@@ -6,8 +6,8 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from 'hadron-app-registry';
-import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from './models/instance';
+import { MongoDBInstance } from './models/instance';
 import React, {
   createContext,
   useContext,
@@ -18,8 +18,8 @@ import React, {
 } from 'react';
 import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
-import type Collection from 'mongodb-collection-model';
-import type Database from 'mongodb-database-model';
+import type Collection from './models/collection';
+import type Database from './models/database';
 import type {
   AllPreferences,
   PreferencesAccess,

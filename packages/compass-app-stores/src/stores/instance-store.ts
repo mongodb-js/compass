@@ -1,5 +1,5 @@
-import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from '../models/instance';
+import { MongoDBInstance } from '../models/instance';
 import toNS from 'mongodb-ns';
 import type {
   ConnectionsService,

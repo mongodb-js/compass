@@ -1,9 +1,10 @@
-import type Collection from 'mongodb-collection-model';
-import type { DataService } from 'mongodb-data-service';
-import type { Collection as DatabaseCollection } from 'mongodb-database-model';
-import Database from 'mongodb-database-model';
-import { CollectionCollection } from 'mongodb-collection-model';
+import type Collection from '../collection';
+import type { Collection as DatabaseCollection } from '../database';
+import type Database from '../database';
+import type { CollectionCollection } from '../collection';
+
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { DataService } from 'mongodb-data-service';
 
 declare const ServerType: {
   humanize(serverType: string): string;

@@ -1,4 +1,4 @@
-import type { CollectionCollection } from 'mongodb-collection-model';
+import type { CollectionCollection } from '../collection';
 import type { DataService } from 'mongodb-data-service';
 
 interface DatabaseProps {
@@ -53,4 +53,4 @@ interface DatabaseCollection extends Array<Database> {
 }
 
 export default Database;
-export { DatabaseCollection as Collection, DatabaseProps };
+export type { DatabaseCollection as Collection, DatabaseProps };
