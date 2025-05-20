@@ -66,7 +66,7 @@ jobs:
         include:
           # MacOS
           - package: osx_dmg
-            runs-on: macos-13
+            runs-on: macos-12
             arch: x64
             hadron-platform: darwin
           - package: osx_zip
@@ -132,7 +132,6 @@ jobs:
           - hadron-distribution: compass-readonly
             test: auto-update-to
 
-
           # TODO(COMPASS-9067): auto-update-from does not work for windows. Not
           # even manually. It downloads the releases file, the toast appears
           # that says it is downloading the update, the log appears that says
@@ -178,7 +177,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: 'npm'
 
       - name: Run post-checkout command
         if: matrix.post-checkout-command
@@ -231,8 +230,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # mongodb 8.0.6 requires macOS 14+. Just use an older version for now
           # so it will run on GitHub's mac runners
-          MONGODB_VERSION: "8.0.5"
-          MONGODB_RUNNER_VERSION: "8.0.5"
+          MONGODB_VERSION: '8.0.5'
+          MONGODB_RUNNER_VERSION: '8.0.5'
         working-directory: packages/compass-smoke-tests
         # Using --skipUninstalling --skipCleanup because the runners are ephemeral
         run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup
