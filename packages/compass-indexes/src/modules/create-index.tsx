@@ -412,6 +412,19 @@ export const fetchIndexSuggestions = ({
       }
     }
 
+    const throwError = (e?: unknown) => {
+      dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: sampleDocuments || [],
+        indexSuggestions: null,
+        error:
+          e instanceof Error
+            ? 'Error parsing query. Please follow query structure. ' + e.message
+            : 'Error parsing query. Please follow query structure.',
+        indexSuggestionsState: 'error',
+      });
+    };
+
     // Analyze namespace and fetch suggestions
     try {
       const analyzedNamespace = mql.analyzeNamespace(
@@ -426,6 +439,14 @@ export const fetchIndexSuggestions = ({
       const results = await mql.suggestIndex([query]);
       const indexSuggestions = results?.index;
 
+      if (
+        !indexSuggestions ||
+        Object.keys(indexSuggestions as Record<string, unknown>).length === 0
+      ) {
+        throwError();
+        return;
+      }
+
       dispatch({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
@@ -434,18 +455,8 @@ export const fetchIndexSuggestions = ({
         indexSuggestionsState: 'success',
       });
     } catch (e: unknown) {
-      dispatch({
-        type: ActionTypes.SuggestedIndexesFetched,
-        sampleDocs: sampleDocuments,
-        indexSuggestions: null,
-        error:
-          e instanceof Error
-            ? 'Error parsing query. Please follow query structure. ' + e.message
-            : 'Error parsing query. Please follow query structure.',
-        indexSuggestionsState: 'error',
-      });
-
       track('Error parsing query', { context: 'Create Index Modal' });
+      throwError(e);
     }
   };
 };
@@ -509,7 +520,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     const formIndexOptions = getState().createIndex.options;
 
-    let spec: Record<string, IndexDirection>;
+    let spec: Record<string, IndexDirection> = {};
 
     try {
       if (isQueryFlow) {

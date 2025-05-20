@@ -153,6 +153,10 @@ const QueryFlowSection = ({
   // Validate query upon typing
   try {
     parseFilter(inputQuery);
+
+    if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+      isShowSuggestionsButtonDisabled = true;
+    }
   } catch (e) {
     isShowSuggestionsButtonDisabled = true;
   }
