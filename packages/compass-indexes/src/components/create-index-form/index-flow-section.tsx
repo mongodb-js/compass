@@ -13,7 +13,11 @@ import {
   Tooltip,
 } from '@mongodb-js/compass-components';
 import React, { useState, useCallback, useEffect } from 'react';
-import { errorEncountered, type Field } from '../../modules/create-index';
+import {
+  errorCleared,
+  errorEncountered,
+  type Field,
+} from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import { connect } from 'react-redux';
@@ -82,6 +86,7 @@ export type IndexFlowSectionProps = {
   dbName: string;
   collectionName: string;
   onErrorEncountered: (error: string) => void;
+  onErrorCleared: () => void;
 };
 
 const generateCoveredQueries = (
@@ -163,6 +168,7 @@ const IndexFlowSection = ({
   dbName,
   collectionName,
   onErrorEncountered,
+  onErrorCleared,
 }: IndexFlowSectionProps) => {
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
@@ -218,7 +224,8 @@ const IndexFlowSection = ({
 
   useEffect(() => {
     setHasFieldChanges(true);
-  }, [fields]);
+    onErrorCleared();
+  }, [fields, onErrorCleared]);
 
   const { coveredQueries, optimalQueries, showCoveredQueries } =
     coveredQueriesObj;
@@ -346,6 +353,7 @@ const mapState = () => {
 
 const mapDispatch = {
   onErrorEncountered: errorEncountered,
+  onErrorCleared: errorCleared,
 };
 
 export default connect(mapState, mapDispatch)(IndexFlowSection);
