@@ -14,7 +14,9 @@ export const Context = createContext<ContextMenuContext | null>(null);
 
 export function ContextMenuProvider({
   children,
-}: React.PropsWithChildren<never>) {
+}: {
+  children: React.ReactNode;
+}) {
   const [menu, setMenu] = useState<MenuState>({ isOpen: false });
   const close = useCallback(() => setMenu({ isOpen: false }), [setMenu]);
 
