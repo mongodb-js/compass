@@ -22,7 +22,7 @@
     "test-ci": "mocha",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run lint && npm run depcheck",
-    "lint": "eslint .",
+    "lint": "eslint-compass .",
     "check-ci": "npm run check"
   },
   "homepage": "https://github.com/mongodb-js/compass",
