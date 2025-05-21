@@ -3,6 +3,11 @@ name: Test Installers
 permissions:
   contents: read
 
+# Using "bash" everywhere to make "--" separation of arguments work predictively when invoking NPM script on Windows
+defaults:
+  run:
+    shell: bash
+
 on:
   workflow_dispatch:
     inputs:
