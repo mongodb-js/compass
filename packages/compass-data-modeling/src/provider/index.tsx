@@ -48,6 +48,12 @@ export const DataModelStorageServiceProvider: React.FunctionComponent<{
     return {
       ...serviceState,
       async save(toSave: MongoDBDataModelDescription) {
+        const saved = await storageRef.current.save(toSave);
+        // If save fails in storage, we don't want to update the state
+        // to avoid showing the item in the list.
+        if (!saved) {
+          return false;
+        }
         setServiceState((prevState) => {
           const itemIdx = prevState.items.findIndex((item) => {
             return item.id === toSave.id;
@@ -62,9 +68,15 @@ export const DataModelStorageServiceProvider: React.FunctionComponent<{
             items: [...prevState.items],
           };
         });
-        return storageRef.current.save(toSave);
+        return true;
       },
       async delete(id: MongoDBDataModelDescription['id']) {
+        const deleted = await storageRef.current.delete(id);
+        // If delete fails in storage, we don't want to update the state
+        // to avoid showing the item in the list.
+        if (!deleted) {
+          return false;
+        }
         setServiceState((prevState) => {
           return {
             ...prevState,
@@ -73,7 +85,7 @@ export const DataModelStorageServiceProvider: React.FunctionComponent<{
             }),
           };
         });
-        return storageRef.current.delete(id);
+        return true;
       },
       async loadAll() {
         setServiceState((prevState) => {
