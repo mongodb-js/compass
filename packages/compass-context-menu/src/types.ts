@@ -17,5 +17,5 @@ export type ContextMenuContext = {
 
 export type MenuItem = {
   label: string;
-  onAction: (event: Event) => void;
+  onAction: (event: React.KeyboardEvent | React.MouseEvent) => void;
 };
