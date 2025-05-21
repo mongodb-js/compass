@@ -833,6 +833,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
+    console.log('getPage');
     const { ns, status, docsPerPage } = this.state;
 
     if (page < 0) {
@@ -1560,6 +1561,7 @@ class CrudStoreImpl
    * This function is called when the collection filter changes.
    */
   async refreshDocuments(onApply = false) {
+    console.log('refreshDocuments');
     if (this.dataService && !this.dataService.isConnected()) {
       this.logger.log.warn(
         mongoLogId(1_001_000_072),

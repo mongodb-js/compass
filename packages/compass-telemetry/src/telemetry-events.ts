@@ -2694,6 +2694,13 @@ type CreateIndexButtonClickedEvent = CommonEvent<{
   };
 }>;
 
+type UUIDEncounteredEvent = CommonEvent<{
+  name: 'UUID Encountered';
+  payload: {
+    subtype: 3 | 4;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2816,4 +2823,5 @@ export type TelemetryEvent =
   | CumulativeLayoutShiftEvent
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
-  | CreateIndexButtonClickedEvent;
+  | CreateIndexButtonClickedEvent
+  | UUIDEncounteredEvent;

@@ -15,6 +15,7 @@ import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -85,6 +86,7 @@ const HadronDocument: React.FunctionComponent<{
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
+  track?: TrackFunction;
   extraGutterWidth?: number;
 }> = ({
   value: document,
@@ -92,6 +94,7 @@ const HadronDocument: React.FunctionComponent<{
   editing = false,
   onEditStart,
   extraGutterWidth,
+  track,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -148,6 +151,7 @@ const HadronDocument: React.FunctionComponent<{
                       }
                     : undefined
                 }
+                track={track}
                 lineNumberSize={visibleElements.length}
                 onAddElement={(el) => {
                   setAutoFocus({

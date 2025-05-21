@@ -8,6 +8,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
 import type { CrudActions } from '../stores/crud-store';
+import { TelemetryContext } from '@mongodb-js/compass-telemetry/provider';
 
 const documentElementsContainerStyles = css({
   position: 'relative',
@@ -245,12 +246,17 @@ class EditableDocument extends React.Component<
    */
   renderElements() {
     return (
-      <DocumentList.Document
-        value={this.props.doc}
-        editable
-        editing={this.state.editing}
-        onEditStart={this.handleStartEditing.bind(this)}
-      />
+      <TelemetryContext.Consumer>
+        {(track) => (
+          <DocumentList.Document
+            value={this.props.doc}
+            editable
+            editing={this.state.editing}
+            onEditStart={this.handleStartEditing.bind(this)}
+            track={track}
+          />
+        )}
+      </TelemetryContext.Consumer>
     );
   }
 
