@@ -28,6 +28,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -414,6 +415,7 @@ export const HadronElement: React.FunctionComponent<{
   editable: boolean;
   editingEnabled: boolean;
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
+  track?: TrackFunction;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
@@ -422,6 +424,7 @@ export const HadronElement: React.FunctionComponent<{
   editable,
   editingEnabled,
   onEditStart,
+  track,
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
@@ -688,6 +691,7 @@ export const HadronElement: React.FunctionComponent<{
               <BSONValue
                 type={type.value as any}
                 value={value.originalValue}
+                track={track}
               ></BSONValue>
             </div>
           )}

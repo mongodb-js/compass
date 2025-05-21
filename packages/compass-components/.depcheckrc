@@ -1,6 +1,7 @@
 ignores: [
     '@mongodb-js/prettier-config-compass',
     '@mongodb-js/tsconfig-compass',
+    '@mongodb-js/compass-telemetry',
     '@types/chai-dom',
     '@emotion/css',
   ]
