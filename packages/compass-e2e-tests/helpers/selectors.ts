@@ -6,6 +6,8 @@ export type WorkspaceTabSelectorOptions = {
   active?: boolean;
 };
 
+export const EmptyState = '[data-testid="empty-content"]';
+
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;

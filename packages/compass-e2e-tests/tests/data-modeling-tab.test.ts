@@ -14,13 +14,52 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+async function createNewDataModel(
+  browser: CompassBrowser,
+  dataModelName: string,
+  connectionName: string,
+  databaseName: string
+) {
+  await browser.navigateToDataModeling();
+
+  // Click on create new data model button
+  await browser.clickVisible(Selectors.CreateNewDataModelButton);
+
+  // Fill in model details
+  await browser.setValueVisible(
+    Selectors.CreateDataModelNameInput,
+    dataModelName
+  );
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+  // Select existing connection
+  await browser.selectOption(
+    Selectors.CreateDataModelConnectionSelector,
+    connectionName
+  );
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+  // Select a database
+  await browser.selectOption(
+    Selectors.CreateDataModelDatabaseSelector,
+    databaseName
+  );
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+  // TODO: Confirm all collections are selected by default (COMPASS-9309)
+  // Note: We'll need to change the UI, right now the labels are disconnected from the checkboxes
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
+
+  // Wait for the diagram editor to load
+  const dataModelEditor = browser.$(Selectors.DataModelEditor);
+  await dataModelEditor.waitForDisplayed();
+}
+
 describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'data modeling not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('enableDataModeling', true);
@@ -45,40 +84,16 @@ describe('Data Modeling tab', function () {
   });
 
   it('creates a new data model using an existing connection', async function () {
-    await browser.navigateToDataModeling();
+    // Skipping this test on web because it does not support saving of diagrams yet
+    skipForWeb(this, 'data modeling not yet available in compass-web');
 
-    // Click on create new data model button
-    await browser.clickVisible(Selectors.CreateNewDataModelButton);
-
-    // Fill in model details
     const dataModelName = 'Test Data Model';
-    await browser.setValueVisible(
-      Selectors.CreateDataModelNameInput,
-      dataModelName
-    );
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // Select existing connection
-    await browser.selectOption(
-      Selectors.CreateDataModelConnectionSelector,
-      DEFAULT_CONNECTION_NAME_1
-    );
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // Select a database
-    await browser.selectOption(
-      Selectors.CreateDataModelDatabaseSelector,
+    await createNewDataModel(
+      browser,
+      dataModelName,
+      DEFAULT_CONNECTION_NAME_1,
       'test'
     );
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // TODO: Confirm all collections are selected by default (COMPASS-9309)
-    // Note: We'll need to change the UI, right now the labels are disconnected from the checkboxes
-    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
-
-    // Wait for the diagram editor to load
-    const dataModelEditor = browser.$(Selectors.DataModelEditor);
-    await dataModelEditor.waitForDisplayed();
 
     // Verify that the diagram is displayed and contains both collections
     const text = await browser.getCodemirrorEditorText(
@@ -152,5 +167,24 @@ describe('Data Modeling tab', function () {
     await browser
       .$(Selectors.DataModelsListItem(dataModelName))
       .waitForDisplayed({ reverse: true });
+  });
+
+  it('does not store diagrams on web', async function () {
+    await createNewDataModel(
+      browser,
+      'Test diagram',
+      DEFAULT_CONNECTION_NAME_1,
+      'test'
+    );
+
+    // Close the tab
+    await browser.closeWorkspaceTabs();
+
+    // Re-open the data modeling tab
+    await browser.navigateToDataModeling();
+
+    // The diagram should not be there
+    const emptyContent = browser.$(Selectors.EmptyState);
+    await emptyContent.waitForDisplayed();
   });
 });
