@@ -6,11 +6,11 @@ import type { MenuItem } from './types';
 /**
  * @returns an object with methods to {@link register} content for the menu and {@link close} the menu
  */
-export function useContextMenu({
+export function useContextMenu<T extends MenuItem>({
   Menu,
 }: {
   Menu: React.ComponentType<{
-    items: MenuItem[];
+    items: T[];
   }>;
 }) {
   // Get the close function from the ContextProvider
@@ -47,7 +47,7 @@ export function useContextMenu({
           }
         };
       },
-      registerItems(items: MenuItem[]) {
+      registerItems(items: T[]) {
         return this.register(() => <Menu items={items} />);
       },
     };
