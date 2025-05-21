@@ -26,13 +26,13 @@
     ".": "./dist/index.js",
     "./provider": "./dist/provider/index.js",
     "./renderer": "./dist/services/data-model-storage-electron.js",
-    "./web": "./dist/services/data-model-storage-in-memory.js"
+    "./web": "./dist/services/data-model-storage-web.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
     "./provider": "./src/provider/index.tsx",
     "./renderer": "./src/services/data-model-storage-electron.tsx",
-    "./web": "./src/services/data-model-storage-in-memory.tsx"
+    "./web": "./src/services/data-model-storage-web.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

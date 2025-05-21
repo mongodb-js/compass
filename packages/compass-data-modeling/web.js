@@ -1,2 +1,2 @@
 'use strict';
-module.exports = require('./dist/services/data-model-storage-in-memory');
+module.exports = require('./dist/services/data-model-storage-web');

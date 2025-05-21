@@ -61,7 +61,7 @@ import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
 import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
-import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -356,7 +356,7 @@ const CompassWeb = ({
             <LoggerProvider value={logger}>
               <TelemetryProvider options={telemetryOptions.current}>
                 <WithAtlasProviders>
-                  <DataModelStorageServiceProviderInMemory>
+                  <DataModelStorageServiceProviderWeb>
                     <AtlasCloudConnectionStorageProvider
                       orgId={orgId}
                       projectId={projectId}
@@ -412,7 +412,7 @@ const CompassWeb = ({
                         </CompassInstanceStorePlugin>
                       </CompassConnections>
                     </AtlasCloudConnectionStorageProvider>
-                  </DataModelStorageServiceProviderInMemory>
+                  </DataModelStorageServiceProviderWeb>
                 </WithAtlasProviders>
               </TelemetryProvider>
             </LoggerProvider>
