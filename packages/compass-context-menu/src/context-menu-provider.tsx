@@ -35,13 +35,14 @@ export function ContextMenuProvider({
         },
       });
     }
-    document.addEventListener('contextmenu', handleContextMenu);
 
     function handleClosingEvent(event: Event) {
       if (!event.defaultPrevented) {
         setMenu({ isOpen: false });
       }
     }
+
+    document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('click', handleClosingEvent);
     window.addEventListener('resize', handleClosingEvent);
 
