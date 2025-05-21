@@ -10,7 +10,7 @@ export const RelationshipSideSchema = z.object({
 export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
 export const RelationshipSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
 });
