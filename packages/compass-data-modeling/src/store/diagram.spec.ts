@@ -12,6 +12,7 @@ import type {
   MongoDBDataModelDescription,
   StaticModel,
 } from '../services/data-model-storage';
+import { UUID } from 'bson';
 
 const model: StaticModel = {
   collections: [
@@ -32,7 +33,7 @@ const model: StaticModel = {
   ],
   relationships: [
     {
-      id: 'relationship1',
+      id: new UUID().toString(),
       relationship: [
         {
           ns: 'db.sourceCollection',
@@ -106,8 +107,9 @@ describe('Data Modeling store', function () {
     it('should apply a valid AddRelationship edit', function () {
       store.dispatch(openDiagram(loadedDiagram));
 
+      const relationshipId = new UUID().toString();
       const newRelationship: StaticModel['relationships'][number] = {
-        id: 'relationship1',
+        id: relationshipId,
         relationship: [
           {
             ns: 'db.sourceCollection',
@@ -146,7 +148,7 @@ describe('Data Modeling store', function () {
       const edit = {
         type: 'AddRelationship',
         relationship: {
-          id: 'relationship1',
+          id: new UUID().toString(),
           isInferred: false,
         },
       } as unknown as Edit;

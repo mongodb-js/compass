@@ -23,6 +23,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { Edit, StaticModel } from '../services/data-model-storage';
+import { UUID } from 'bson';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -141,7 +142,7 @@ const DiagramEditor: React.FunctionComponent<{
           placeholder = {
             type: 'AddRelationship',
             relationship: {
-              id: 'relationship1',
+              id: new UUID().toString(),
               relationship: [
                 {
                   ns: 'db.sourceCollection',
@@ -161,7 +162,7 @@ const DiagramEditor: React.FunctionComponent<{
         case 'RemoveRelationship':
           placeholder = {
             type: 'RemoveRelationship',
-            relationshipId: 'relationship1',
+            relationshipId: new UUID().toString(),
           };
           break;
         default:
