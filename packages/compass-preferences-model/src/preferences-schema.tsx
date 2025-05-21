@@ -1,5 +1,5 @@
 import React from 'react';
-import { z } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import {
   type FeatureFlagDefinition,
   type FeatureFlags,

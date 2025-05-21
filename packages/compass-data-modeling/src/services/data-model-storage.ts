@@ -21,7 +21,10 @@ export const StaticModelSchema = z.object({
   collections: z.array(
     z.object({
       ns: z.string(),
-      jsonSchema: z.unknown(), // skipped for simplicity
+      jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
+        const isObject = typeof value === 'object' && value !== null;
+        return isObject && 'bsonType' in value;
+      }),
       indexes: z.array(z.record(z.unknown())),
       shardKey: z.record(z.unknown()).optional(),
       displayPosition: z.tuple([z.number(), z.number()]),
@@ -30,49 +33,31 @@ export const StaticModelSchema = z.object({
   relationships: z.array(RelationshipSchema),
 });
 
-export type StaticModel = Omit<
-  z.output<typeof StaticModelSchema>,
-  'collections'
-> & {
-  collections: Array<
-    Omit<
-      z.output<typeof StaticModelSchema>['collections'][number],
-      'jsonSchema'
-    > & {
-      jsonSchema: MongoDBJSONSchema;
-    }
-  >;
-};
+export type StaticModel = z.output<typeof StaticModelSchema>;
 
-export const EditSchema = z.discriminatedUnion('type', [
+const EditSchemaBase = z.object({
+  id: z.string().uuid(),
+  timestamp: z.string().datetime(),
+});
+
+const EditSchemaVariants = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('SetModel'),
-    id: z.string(),
-    timestamp: z.string(),
     model: StaticModelSchema,
   }),
   z.object({
     type: z.literal('AddRelationship'),
-    id: z.string(),
-    timestamp: z.string(),
     relationship: RelationshipSchema,
   }),
   z.object({
     type: z.literal('RemoveRelationship'),
-    id: z.string(),
-    timestamp: z.string(),
-    relationshipId: z.string(),
+    relationshipId: z.string().uuid(),
   }),
 ]);
 
-type BaseEdit = z.output<typeof EditSchema>;
-type SetModelEdit = Omit<Extract<BaseEdit, { type: 'SetModel' }>, 'model'> & {
-  model: StaticModel;
-};
+export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
 
-export type Edit =
-  | SetModelEdit
-  | Extract<BaseEdit, { type: 'AddRelationship' | 'RemoveRelationship' }>;
+export type Edit = z.output<typeof EditSchema>;
 
 export const validateEdit = (
   edit: unknown
@@ -106,12 +91,9 @@ export const MongoDBDataModelDescriptionSchema = z.object({
   edits: z.array(EditSchema).default([]),
 });
 
-export type MongoDBDataModelDescription = Omit<
-  z.output<typeof MongoDBDataModelDescriptionSchema>,
-  'edits'
-> & {
-  edits: Array<Edit>;
-};
+export type MongoDBDataModelDescription = z.output<
+  typeof MongoDBDataModelDescriptionSchema
+>;
 
 export interface DataModelStorage {
   save(description: MongoDBDataModelDescription): Promise<boolean>;
