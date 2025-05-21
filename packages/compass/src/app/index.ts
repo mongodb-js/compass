@@ -22,6 +22,7 @@
 import { setupHadronDistribution } from '../setup-hadron-distribution';
 import dns from 'dns';
 import EventEmitter from 'events';
+import { injectCSP } from './utils/csp';
 
 // Setup paths and environment variables for electron globals
 setupHadronDistribution();
@@ -41,6 +42,9 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Increases the default maximum number of listeners to prevent
 // potential memory leaks in development mode
 EventEmitter.defaultMaxListeners = 100;
+
+// Setup Content Security Policy (CSP) for the application
+injectCSP();
 
 // ----------------------------------------------------------------------------
 // NOTE: keep this import last to avoid any potential issues with stateful setup

@@ -28,7 +28,6 @@ import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
-import { injectCSP } from './utils/csp';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
@@ -453,10 +452,6 @@ class Application {
     // Setup global error handling first to ensure all
     // unhandled errors are properly logged and reported
     this.setupGlobalErrorHandling();
-
-    // Inject CSP first to prevent any CSP violations.
-    injectCSP();
-
     this.allowDevFeatureFlagsFromDevTools();
     this.preventDefaultBrowserBehaviorForDragAndDrop();
 
