@@ -1,36 +1,37 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { MenuItem } from './types';
 
+type TestMenuItem = MenuItem & { id: number };
+
 describe('useContextMenu', function () {
-  const TestMenu: React.FC<{ items: MenuItem[] }> = ({ items }) => (
+  const TestMenu: React.FC<{ items: TestMenuItem[] }> = ({ items }) => (
     <div data-testid="test-menu">
       {items.map((item, idx) => (
-        <div key={idx} data-testid={`menu-item-${item.label}`}>
+        <div key={idx} data-testid={`menu-item-${item.id}`}>
           {item.label}
         </div>
       ))}
     </div>
   );
 
-  const TestComponent = ({
-    onRegister,
-  }: {
-    onRegister?: (ref: any) => void;
-  }) => {
+  const TestComponent = () => {
     const contextMenu = useContextMenu({ Menu: TestMenu });
-    const items: MenuItem[] = [
+    const items: TestMenuItem[] = [
       {
-        label: 'Test Item',
+        id: 1,
+        label: 'Test A',
+        onAction: () => {
+          /* noop */
+        },
+      },
+      {
+        id: 2,
+        label: 'Test B',
         onAction: () => {
           /* noop */
         },
@@ -38,18 +39,12 @@ describe('useContextMenu', function () {
     ];
     const ref = contextMenu.registerItems(items);
 
-    React.useEffect(() => {
-      onRegister?.(ref);
-    }, [ref, onRegister]);
-
     return (
       <div data-testid="test-trigger" ref={ref}>
         Test Component
       </div>
     );
   };
-
-  afterEach(cleanup);
 
   describe('when used outside provider', function () {
     it('throws an error', function () {
@@ -59,7 +54,7 @@ describe('useContextMenu', function () {
     });
   });
 
-  describe('when used inside provider', function () {
+  describe('with valid provider', function () {
     beforeEach(() => {
       // Create the container for the context menu portal
       const container = document.createElement('div');
@@ -85,19 +80,6 @@ describe('useContextMenu', function () {
       expect(screen.getByTestId('test-trigger')).to.exist;
     });
 
-    it('registers context menu event listener', function () {
-      const onRegister = sinon.spy();
-
-      render(
-        <ContextMenuProvider>
-          <TestComponent onRegister={onRegister} />
-        </ContextMenuProvider>
-      );
-
-      expect(onRegister).to.have.been.calledOnce;
-      expect(onRegister.firstCall.args[0]).to.be.a('function');
-    });
-
     it('shows context menu on right click', function () {
       render(
         <ContextMenuProvider>
@@ -105,11 +87,15 @@ describe('useContextMenu', function () {
         </ContextMenuProvider>
       );
 
+      expect(screen.queryByTestId('menu-item-1')).not.to.exist;
+      expect(screen.queryByTestId('menu-item-2')).not.to.exist;
+
       const trigger = screen.getByTestId('test-trigger');
       userEvent.click(trigger, { button: 2 });
 
       // The menu should be rendered in the portal
-      expect(screen.getByTestId('menu-item-Test Item')).to.exist;
+      expect(screen.getByTestId('menu-item-1')).to.exist;
+      expect(screen.getByTestId('menu-item-2')).to.exist;
     });
 
     it('cleans up previous event listener when ref changes', function () {
