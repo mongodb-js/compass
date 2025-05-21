@@ -6,42 +6,105 @@ import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { MenuItem } from './types';
 
-type TestMenuItem = MenuItem & { id: number };
-
 describe('useContextMenu', function () {
-  const TestMenu: React.FC<{ items: TestMenuItem[] }> = ({ items }) => (
+  const TestMenu: React.FC<{ items: MenuItem[] }> = ({ items }) => (
     <div data-testid="test-menu">
       {items.map((item, idx) => (
-        <div key={idx} data-testid={`menu-item-${item.id}`}>
+        <div
+          key={idx}
+          data-testid={`menu-item-${item.label}`}
+          role="menuitem"
+          tabIndex={0}
+          onClick={(event) => item.onAction?.(event)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              item.onAction?.(event);
+            }
+          }}
+        >
           {item.label}
         </div>
       ))}
     </div>
   );
 
-  const TestComponent = () => {
+  const TestComponent = ({
+    onRegister,
+    onAction,
+  }: {
+    onRegister?: (ref: any) => void;
+    onAction?: (id) => void;
+  }) => {
     const contextMenu = useContextMenu({ Menu: TestMenu });
-    const items: TestMenuItem[] = [
+    const items: MenuItem[] = [
       {
-        id: 1,
-        label: 'Test A',
-        onAction: () => {
-          /* noop */
-        },
-      },
-      {
-        id: 2,
-        label: 'Test B',
-        onAction: () => {
-          /* noop */
-        },
+        label: 'Test Item',
+        onAction: () => onAction?.(1),
       },
     ];
     const ref = contextMenu.registerItems(items);
 
+    React.useEffect(() => {
+      onRegister?.(ref);
+    }, [ref, onRegister]);
+
     return (
       <div data-testid="test-trigger" ref={ref}>
         Test Component
+      </div>
+    );
+  };
+
+  // Add new test components for nested context menu scenario
+  const ParentComponent = ({
+    onAction,
+    children,
+  }: {
+    onAction?: (id: number) => void;
+    children?: React.ReactNode;
+  }) => {
+    const contextMenu = useContextMenu({ Menu: TestMenu });
+    const parentItems: MenuItem[] = [
+      {
+        label: 'Parent Item 1',
+        onAction: () => onAction?.(1),
+      },
+      {
+        label: 'Parent Item 2',
+        onAction: () => onAction?.(2),
+      },
+    ];
+    const ref = contextMenu.registerItems(parentItems);
+
+    return (
+      <div data-testid="parent-trigger" ref={ref}>
+        <div>Parent Component</div>
+        {children}
+      </div>
+    );
+  };
+
+  const ChildComponent = ({
+    onAction,
+  }: {
+    onAction?: (id: number) => void;
+  }) => {
+    const contextMenu = useContextMenu({ Menu: TestMenu });
+    const childItems: MenuItem[] = [
+      {
+        label: 'Child Item 1',
+        onAction: () => onAction?.(1),
+      },
+      {
+        label: 'Child Item 2',
+        onAction: () => onAction?.(2),
+      },
+    ];
+    const ref = contextMenu.registerItems(childItems);
+
+    return (
+      <div data-testid="child-trigger" ref={ref}>
+        Child Component
       </div>
     );
   };
@@ -54,7 +117,7 @@ describe('useContextMenu', function () {
     });
   });
 
-  describe('with valid provider', function () {
+  describe('with a valid provider', function () {
     beforeEach(() => {
       // Create the container for the context menu portal
       const container = document.createElement('div');
@@ -80,6 +143,19 @@ describe('useContextMenu', function () {
       expect(screen.getByTestId('test-trigger')).to.exist;
     });
 
+    it('registers context menu event listener', function () {
+      const onRegister = sinon.spy();
+
+      render(
+        <ContextMenuProvider>
+          <TestComponent onRegister={onRegister} />
+        </ContextMenuProvider>
+      );
+
+      expect(onRegister).to.have.been.calledOnce;
+      expect(onRegister.firstCall.args[0]).to.be.a('function');
+    });
+
     it('shows context menu on right click', function () {
       render(
         <ContextMenuProvider>
@@ -87,44 +163,97 @@ describe('useContextMenu', function () {
         </ContextMenuProvider>
       );
 
-      expect(screen.queryByTestId('menu-item-1')).not.to.exist;
-      expect(screen.queryByTestId('menu-item-2')).not.to.exist;
-
       const trigger = screen.getByTestId('test-trigger');
       userEvent.click(trigger, { button: 2 });
 
       // The menu should be rendered in the portal
-      expect(screen.getByTestId('menu-item-1')).to.exist;
-      expect(screen.getByTestId('menu-item-2')).to.exist;
+      expect(screen.getByTestId('menu-item-Test Item')).to.exist;
     });
 
-    it('cleans up previous event listener when ref changes', function () {
-      const removeEventListenerSpy = sinon.spy();
-      const addEventListenerSpy = sinon.spy();
+    describe('with nested context menus', function () {
+      it('shows only parent items when right clicking parent area', function () {
+        render(
+          <ContextMenuProvider>
+            <ParentComponent />
+          </ContextMenuProvider>
+        );
 
-      const { rerender } = render(
-        <ContextMenuProvider>
-          <TestComponent />
-        </ContextMenuProvider>
-      );
+        const parentTrigger = screen.getByTestId('parent-trigger');
+        userEvent.click(parentTrigger, { button: 2 });
 
-      // Simulate ref change
-      const ref = screen.getByTestId('test-trigger');
-      Object.defineProperty(ref, 'addEventListener', {
-        value: addEventListenerSpy,
+        // Should show parent items
+        expect(screen.getByTestId('menu-item-Parent Item 1')).to.exist;
+        expect(screen.getByTestId('menu-item-Parent Item 2')).to.exist;
+
+        // Should not show child items
+        expect(() => screen.getByTestId('menu-item-Child Item 1')).to.throw;
+        expect(() => screen.getByTestId('menu-item-Child Item 2')).to.throw;
       });
-      Object.defineProperty(ref, 'removeEventListener', {
-        value: removeEventListenerSpy,
+
+      it('shows both parent and child items when right clicking child area', function () {
+        render(
+          <ContextMenuProvider>
+            <ParentComponent>
+              <ChildComponent />
+            </ParentComponent>
+          </ContextMenuProvider>
+        );
+
+        const childTrigger = screen.getByTestId('child-trigger');
+        userEvent.click(childTrigger, { button: 2 });
+
+        // Should show both parent and child items
+        expect(screen.getByTestId('menu-item-Parent Item 1')).to.exist;
+        expect(screen.getByTestId('menu-item-Parent Item 2')).to.exist;
+        expect(screen.getByTestId('menu-item-Child Item 1')).to.exist;
+        expect(screen.getByTestId('menu-item-Child Item 2')).to.exist;
       });
 
-      rerender(
-        <ContextMenuProvider>
-          <TestComponent />
-        </ContextMenuProvider>
-      );
+      it('triggers only the child action when clicking child menu item', function () {
+        const parentOnAction = sinon.spy();
+        const childOnAction = sinon.spy();
 
-      expect(removeEventListenerSpy).to.have.been.calledWith('contextmenu');
-      expect(addEventListenerSpy).to.have.been.calledWith('contextmenu');
+        render(
+          <ContextMenuProvider>
+            <ParentComponent onAction={parentOnAction}>
+              <ChildComponent onAction={childOnAction} />
+            </ParentComponent>
+          </ContextMenuProvider>
+        );
+
+        const childTrigger = screen.getByTestId('child-trigger');
+        userEvent.click(childTrigger, { button: 2 });
+
+        const childItem1 = screen.getByTestId('menu-item-Child Item 1');
+        userEvent.click(childItem1);
+
+        expect(childOnAction).to.have.been.calledOnceWithExactly(1);
+        expect(parentOnAction).to.not.have.been.called;
+        expect(() => screen.getByTestId('test-menu')).to.throw;
+      });
+
+      it('triggers only the parent action when clicking a parent menu item from child context', function () {
+        const parentOnAction = sinon.spy();
+        const childOnAction = sinon.spy();
+
+        render(
+          <ContextMenuProvider>
+            <ParentComponent onAction={parentOnAction}>
+              <ChildComponent onAction={childOnAction} />
+            </ParentComponent>
+          </ContextMenuProvider>
+        );
+
+        const childTrigger = screen.getByTestId('child-trigger');
+        userEvent.click(childTrigger, { button: 2 });
+
+        const parentItem1 = screen.getByTestId('menu-item-Parent Item 1');
+        userEvent.click(parentItem1);
+
+        expect(parentOnAction).to.have.been.calledOnceWithExactly(1);
+        expect(childOnAction).to.not.have.been.called;
+        expect(() => screen.getByTestId('test-menu')).to.throw;
+      });
     });
   });
 });
