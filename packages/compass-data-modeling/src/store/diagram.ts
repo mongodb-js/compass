@@ -199,14 +199,15 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 }
 
 export function applyEdit(
-  rawEdit: Edit
+  rawEdit: Omit<Edit, 'id' | 'timestamp'>
 ): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
   return (dispatch, getState, { dataModelStorage }) => {
     const edit = {
       ...rawEdit,
       id: new UUID().toString(),
       timestamp: new Date().toISOString(),
-    };
+      // TS has a problem recognizing the discriminated union
+    } as Edit;
     const { result: isValid, errors } = validateEdit(edit);
     if (!isValid) {
       dispatch({

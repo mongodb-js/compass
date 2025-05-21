@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { setupStore } from '../../test/setup-store';
+import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
   applyEdit,
   getCurrentDiagramFromState,
@@ -7,22 +7,64 @@ import {
   redoEdit,
   undoEdit,
 } from './diagram';
+import type {
+  Edit,
+  MongoDBDataModelDescription,
+  StaticModel,
+} from '../services/data-model-storage';
+
+const model: StaticModel = {
+  collections: [
+    {
+      ns: 'collection1',
+      indexes: [],
+      displayPosition: [0, 0],
+      shardKey: {},
+      jsonSchema: {},
+    },
+    {
+      ns: 'collection2',
+      indexes: [],
+      displayPosition: [1, 1],
+      shardKey: {},
+      jsonSchema: {},
+    },
+  ],
+  relationships: [
+    {
+      id: 'relationship1',
+      relationship: [
+        {
+          ns: 'db.sourceCollection',
+          cardinality: 1,
+          fields: ['field1'],
+        },
+        {
+          ns: 'db.targetCollection',
+          cardinality: 1,
+          fields: ['field2'],
+        },
+      ],
+      isInferred: false,
+    },
+  ],
+};
+
+const loadedDiagram: MongoDBDataModelDescription = {
+  id: 'diagram-id',
+  name: 'diagram-name',
+  connectionId: 'connection-id',
+  edits: [{ type: 'SetModel', model } as Edit],
+};
 
 describe('Data Modeling store', function () {
-  let store;
+  let store: DataModelingStore;
 
   beforeEach(function () {
     store = setupStore();
   });
 
   it('openDiagram', function () {
-    const loadedDiagram = {
-      id: 'diagram-id',
-      name: 'diagram-name',
-      connectionId: 'connection-id',
-      edits: [{ type: 'SetModel', model: {} }],
-    };
-
     store.dispatch(openDiagram(loadedDiagram));
 
     const diagram = getCurrentDiagramFromState(store.getState());
@@ -34,39 +76,37 @@ describe('Data Modeling store', function () {
 
   describe('applyEdit', function () {
     it('should apply a valid SetModel edit', function () {
-      const loadedDiagram = {
-        id: 'diagram-id',
-        name: 'diagram-name',
-        connectionId: 'connection-id',
-        edits: [{ type: 'SetModel', model: {} }],
-      };
-
       store.dispatch(openDiagram(loadedDiagram));
 
-      const newModel = { collections: [], relationships: [] };
-      store.dispatch(applyEdit({ type: 'SetModel', model: newModel }));
+      const edit = {
+        type: 'SetModel' as const,
+        model: {
+          collections: [
+            {
+              ns: 'collection2',
+              indexes: [],
+              displayPosition: [0, 0],
+              shardKey: {},
+              jsonSchema: {},
+            },
+          ] as StaticModel['collections'],
+          relationships: [] as StaticModel['relationships'],
+        },
+      };
+      store.dispatch(applyEdit(edit));
 
-      const diagram = getCurrentDiagramFromState(store.getState());
-      expect(diagram.editErrors).to.be.undefined;
+      const state = store.getState();
+      const diagram = getCurrentDiagramFromState(state);
+      expect(state.diagram?.editErrors).to.be.undefined;
       expect(diagram.edits).to.have.length(2);
-      expect(diagram.edits[0]).to.deep.equal(diagram.edits[0]);
-      expect(diagram.edits[1]).to.deep.include({
-        type: 'SetModel',
-        model: newModel,
-      });
+      expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
+      expect(diagram.edits[1]).to.deep.include(edit);
     });
 
     it('should apply a valid AddRelationship edit', function () {
-      const loadedDiagram = {
-        id: 'diagram-id',
-        name: 'diagram-name',
-        connectionId: 'connection-id',
-        edits: [{ type: 'SetModel', model: {} }],
-      };
-
       store.dispatch(openDiagram(loadedDiagram));
 
-      const newRelationship = {
+      const newRelationship: StaticModel['relationships'][number] = {
         id: 'relationship1',
         relationship: [
           {
@@ -83,13 +123,17 @@ describe('Data Modeling store', function () {
         isInferred: false,
       };
       store.dispatch(
-        applyEdit({ type: 'AddRelationship', relationship: newRelationship })
+        applyEdit({
+          type: 'AddRelationship',
+          relationship: newRelationship,
+        } as Edit)
       );
 
-      const diagram = getCurrentDiagramFromState(store.getState());
-      expect(diagram.editErrors).to.be.undefined;
+      const state = store.getState();
+      const diagram = getCurrentDiagramFromState(state);
+      expect(state.diagram?.editErrors).to.be.undefined;
       expect(diagram.edits).to.have.length(2);
-      expect(diagram.edits[0]).to.deep.equal(diagram.edits[0]);
+      expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include({
         type: 'AddRelationship',
         relationship: newRelationship,
@@ -97,13 +141,6 @@ describe('Data Modeling store', function () {
     });
 
     it('should not apply invalid AddRelationship edit', function () {
-      const loadedDiagram = {
-        id: 'diagram-id',
-        name: 'diagram-name',
-        connectionId: 'connection-id',
-        edits: [{ type: 'SetModel', model: {} }],
-      };
-
       store.dispatch(openDiagram(loadedDiagram));
 
       const edit = {
@@ -112,31 +149,29 @@ describe('Data Modeling store', function () {
           id: 'relationship1',
           isInferred: false,
         },
-      };
+      } as unknown as Edit;
       store.dispatch(applyEdit(edit));
 
-      const editErrors = store.getState().diagram.editErrors;
+      const editErrors = store.getState().diagram?.editErrors;
       expect(editErrors).to.have.length(1);
-      expect(editErrors[0]).to.equal("'relationship,relationship' is required");
+      expect(editErrors && editErrors[0]).to.equal(
+        "'relationship,relationship' is required"
+      );
       const diagram = getCurrentDiagramFromState(store.getState());
-      expect(diagram.edits).to.deep.equal(diagram.edits);
+      expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
     });
   });
 
-  it('undo/redo', function () {
-    const loadedDiagram = {
-      id: 'diagram-id',
-      name: 'diagram-name',
-      connectionId: 'connection-id',
-      edits: [{ type: 'SetModel', model: {} }],
-    };
-
+  it('undo & redo', function () {
     store.dispatch(openDiagram(loadedDiagram));
 
     const edit = {
       type: 'SetModel',
-      model: { collections: [], relationships: [] },
-    };
+      model: {
+        ...model,
+        relationships: [] as StaticModel['relationships'],
+      },
+    } as Edit;
     store.dispatch(applyEdit(edit));
 
     const diagramAfterEdit = getCurrentDiagramFromState(store.getState());

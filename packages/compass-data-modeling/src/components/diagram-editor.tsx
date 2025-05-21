@@ -110,7 +110,7 @@ const DiagramEditor: React.FunctionComponent<{
   editErrors?: string[];
   onRetryClick: () => void;
   onCancelClick: () => void;
-  onApplyClick: (edit: Edit) => void;
+  onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
 }> = ({
   step,
   hasUndo,
