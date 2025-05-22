@@ -234,7 +234,7 @@ const WithConnectionsStore: React.FunctionComponent<{
   useEffect(() => {
     const intervalId = setInterval(() => {
       void actions.refreshConnections();
-    }, /* Matches default polling intervals in mms codebase */ 5_000);
+    }, /* Matches default polling intervals in mms codebase */ 60_000);
     return () => {
       clearInterval(intervalId);
     };
