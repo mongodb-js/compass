@@ -1818,12 +1818,15 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
+        const { networkTraffic, showEndOfLifeConnectionModal } =
+          preferences.getPreferences();
+
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (preferences.getPreferences().networkTraffic) {
+        } else if (networkTraffic && showEndOfLifeConnectionModal) {
           void dataService
             .instance()
             .then(async (instance) => {
