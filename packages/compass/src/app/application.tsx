@@ -28,7 +28,7 @@ import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import type { AutoConnectPreferences } from '../main/auto-connect';
-import { injectCSP } from './utils/csp';
+
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
@@ -204,21 +204,6 @@ class Application {
     }
 
     document.querySelector('#loading-placeholder')?.remove();
-  }
-
-  private async updateAppVersion() {
-    const { lastKnownVersion, highestInstalledVersion } =
-      defaultPreferencesInstance.getPreferences();
-    this.previousVersion = lastKnownVersion || DEFAULT_APP_VERSION;
-    this.highestInstalledVersion =
-      semver.sort([
-        highestInstalledVersion || DEFAULT_APP_VERSION,
-        this.version,
-      ])?.[1] ?? this.version;
-    await defaultPreferencesInstance.savePreferences({
-      lastKnownVersion: this.version,
-      highestInstalledVersion: this.highestInstalledVersion,
-    });
   }
 
   private setupDataRefreshListener() {
@@ -454,20 +439,15 @@ class Application {
     // unhandled errors are properly logged and reported
     this.setupGlobalErrorHandling();
 
-    // Inject CSP first to prevent any CSP violations.
-    injectCSP();
-
-    this.allowDevFeatureFlagsFromDevTools();
-    this.preventDefaultBrowserBehaviorForDragAndDrop();
-
     // Setup development environment
     this.enableDevelopmentDebug();
+    this.allowDevFeatureFlagsFromDevTools();
+
     this.patchNODE4281();
     this.setupWebVitals();
 
     // Initialize preferences and version
-    await defaultPreferencesInstance.refreshPreferences();
-    await this.updateAppVersion();
+    await this.initializePreferencesAndVersion();
 
     void this.setupIntercomAndLogError();
 
@@ -476,6 +456,7 @@ class Application {
     this.setupAutoUpdateListeners();
     this.setupConnectInNewWindowListeners();
     this.setupZoomControls();
+    this.preventDefaultBrowserBehaviorForDragAndDrop();
 
     // Render the application
     await this.render();
@@ -487,6 +468,27 @@ class Application {
     // Log version info and show update toast if needed
     this.logVersionInfo();
     this.showUpdateToastIfNeeded();
+  }
+
+  private async initializePreferencesAndVersion() {
+    await defaultPreferencesInstance.refreshPreferences();
+
+    // This code updates the last known version and highest installed version in preferences after
+    // the first installation, or a potential update or downgrade.
+    // This is useful so that we can track the version history of the application, and
+    // handle auto-updates differently in case of downgrades.
+    const { lastKnownVersion, highestInstalledVersion } =
+      defaultPreferencesInstance.getPreferences();
+    this.previousVersion = lastKnownVersion || DEFAULT_APP_VERSION;
+    this.highestInstalledVersion =
+      semver.sort([
+        highestInstalledVersion || DEFAULT_APP_VERSION,
+        this.version,
+      ])?.[1] ?? this.version;
+    await defaultPreferencesInstance.savePreferences({
+      lastKnownVersion: this.version,
+      highestInstalledVersion: this.highestInstalledVersion,
+    });
   }
 }
 

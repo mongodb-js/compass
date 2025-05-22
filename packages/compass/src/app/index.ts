@@ -19,16 +19,19 @@
  * Rule of thumb: If the code isn't required for other modules to function
  * correctly during import, it probably belongs in application.tsx.
  */
-import { setupHadronDistribution } from '../setup-hadron-distribution';
-import dns from 'dns';
-import EventEmitter from 'events';
+
+// Inject CSP to prevent any CSP violations.
+import { injectCSP } from './utils/csp';
+injectCSP();
 
 // Setup paths and environment variables for electron globals
+import { setupHadronDistribution } from '../setup-hadron-distribution';
 setupHadronDistribution();
 
 // DNS Configuration
 // Ensures IPv4 is preferred over IPv6 to avoid potential connection issues
 // See: https://github.com/nodejs/node/issues/40537
+import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
 
 // Configure NODE_OPTIONS to ensure sub-processes (like the shell) also prefer IPv4
@@ -40,6 +43,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Event Emitter Configuration
 // Increases the default maximum number of listeners to prevent
 // potential memory leaks in development mode
+import EventEmitter from 'events';
 EventEmitter.defaultMaxListeners = 100;
 
 // ----------------------------------------------------------------------------
