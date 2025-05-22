@@ -12,7 +12,7 @@ export type ContextMenuMethods<T extends ContextMenuItem> = {
    * Register the menu items for the context menu.
    * @returns a callback ref to be passed onto the element responsible for triggering the menu.
    */
-  registerItems: (items: T[]) => (trigger: HTMLElement | null) => void;
+  registerItems: (items: T[]) => React.RefCallback<HTMLElement>;
 };
 
 export function useContextMenu<T extends ContextMenuItem>({
@@ -33,7 +33,9 @@ export function useContextMenu<T extends ContextMenuItem>({
       throw new Error('useContextMenu called outside of the provider');
     }
 
-    const register = (content: React.ComponentType) => {
+    const register = (
+      content: React.ComponentType
+    ): React.RefCallback<HTMLElement> => {
       function listener(event: MouseEvent) {
         appendContextMenuContent(event, content);
       }
