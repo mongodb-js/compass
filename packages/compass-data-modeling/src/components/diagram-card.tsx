@@ -2,23 +2,53 @@ import {
   Card,
   css,
   cx,
+  Icon,
   ItemActionMenu,
   palette,
   spacing,
   Subtitle,
   useDarkMode,
+  useFormattedDate,
 } from '@mongodb-js/compass-components';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import React from 'react';
 
 // Same as saved-queries-aggregations
 export const CARD_WIDTH = spacing[1600] * 4;
-export const CARD_HEIGHT = 218;
+export const CARD_HEIGHT = 180;
 
 const diagramCardStyles = css({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+});
+
+const cardContentStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  justifyContent: 'flex-end',
+  gap: spacing[300],
+});
+
+const namespaceNameStyles = css({
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+});
+
+const namespaceIconStyles = css({
+  flexShrink: 0,
+});
+
+const lastModifiedLabel = css({
+  fontStyle: 'italic',
+});
+
+const namespaceStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
 });
 
 const cardHeaderStyles = css({
@@ -48,12 +78,16 @@ export function DiagramCard({
   onRename,
   onDelete,
 }: {
-  diagram: MongoDBDataModelDescription;
+  diagram: MongoDBDataModelDescription & {
+    lastModified?: number;
+    databases?: string;
+  };
   onOpen: (diagram: MongoDBDataModelDescription) => void;
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
   const darkmode = useDarkMode();
+  const formattedDate = useFormattedDate(diagram.lastModified);
   return (
     <Card
       className={diagramCardStyles}
@@ -91,7 +125,20 @@ export function DiagramCard({
           }}
         ></ItemActionMenu>
       </div>
-      {/* TODO(COMPASS-9398): Add lastModified and namespace to the card. */}
+      <div className={cardContentStyles}>
+        <div className={namespaceStyles}>
+          <Icon
+            title={null}
+            glyph="Database"
+            color={palette.gray.dark1}
+            className={namespaceIconStyles}
+          ></Icon>
+          <span className={namespaceNameStyles}>{diagram.databases}</span>
+        </div>
+        <div className={lastModifiedLabel}>
+          Last&nbsp;modified: {formattedDate}
+        </div>
+      </div>
     </Card>
   );
 }
