@@ -284,7 +284,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'COMPASS-DATA-SERVICE',
           id: 1_001_000_015,
           ctx: 'Connection 0',
-          msg: 'Connected',
+          msg: 'Connecting Succeeded',
           attr: {
             isMongos: false,
             isWritable: true,
