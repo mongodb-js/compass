@@ -336,9 +336,10 @@ export function isEndOfLifeConnection(connectionName: string) {
   const connectionIndex = DEFAULT_CONNECTION_NAMES.indexOf(connectionName);
   const serverInfo = DEFAULT_CONNECTIONS_SERVER_INFO[connectionIndex];
   if (!serverInfo) {
-    throw new Error(
+    debug(
       `Unable to find server info for connection named '${connectionName}'`
     );
+    return false;
   }
   return isEndOfLifeVersion(serverInfo.version);
 }
