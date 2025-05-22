@@ -42,11 +42,12 @@ export function showEndOfLifeMongoDBWarningModal(
         <Link
           href="https://www.mongodb.com/legal/support-policy/lifecycles"
           target="_blank"
-          data-testid="end-of-life-warning-modal-learn-more-link"
+          data-testid="end-of-life-connection-modal-learn-more-link"
         >
           Learn more from the MongoDB Lifecycle Schedules.
         </Link>
       </>
     ),
+    'data-testid': 'end-of-life-connection-modal',
   });
 }

@@ -231,6 +231,11 @@ export const ConnectionModalCloseButton = `${ConnectionModal} [aria-label="Close
 export const ConnectionModalConnectButton = '[data-testid="connect-button"]';
 export const ConnectionModalSaveButton = '[data-testid="save-button"]';
 
+// End of life connection modal
+export const EndOfLifeConnectionModal =
+  '[data-testid="end-of-life-connection-modal"]';
+export const EndOfLifeConnectionModalConfirmButton = `${EndOfLifeConnectionModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
+
 // Connection process toast
 export const connectionToastById = (connectionId: string) => {
   return `[data-testid="toast-connection-status--${connectionId}"]`;
