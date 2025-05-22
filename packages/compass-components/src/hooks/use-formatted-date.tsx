@@ -2,15 +2,20 @@ import { formatDate } from '../utils/format-date';
 
 import { useState, useEffect } from 'react';
 
-export function useFormattedDate(timestamp?: number) {
-  const [formattedDate, setFormattedDate] = useState(
-    () => timestamp && formatDate(timestamp)
+export function useFormattedDate(timestamp: number): string;
+export function useFormattedDate(timestamp?: number): string | undefined {
+  const [formattedDate, setFormattedDate] = useState(() =>
+    typeof timestamp === 'number' ? formatDate(timestamp) : undefined
   );
 
   useEffect(() => {
-    setFormattedDate(timestamp && formatDate(timestamp));
+    setFormattedDate(
+      typeof timestamp === 'number' ? formatDate(timestamp) : undefined
+    );
     const interval = setInterval(() => {
-      setFormattedDate(timestamp && formatDate(timestamp));
+      setFormattedDate(
+        typeof timestamp === 'number' ? formatDate(timestamp) : undefined
+      );
     }, 1000 * 60);
     return () => {
       clearInterval(interval);
