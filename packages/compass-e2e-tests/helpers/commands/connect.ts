@@ -2,6 +2,7 @@ import {
   DEFAULT_CONNECTION_STRING_1,
   DEFAULT_CONNECTION_NAME_1,
   connectionNameFromString,
+  serverSatisfies,
 } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
@@ -9,7 +10,6 @@ import * as Selectors from '../selectors';
 import Debug from 'debug';
 import {
   DEFAULT_CONNECTION_NAMES,
-  isEndOfLifeConnection,
   isTestingAtlasCloudExternal,
   isTestingAtlasCloudSandbox,
 } from '../test-runner-context';
@@ -135,7 +135,7 @@ export async function waitForConnectionResult(
   {
     connectionStatus = 'success',
     timeout,
-    dismissEndOfLifeModal = isEndOfLifeConnection(connectionName),
+    dismissEndOfLifeModal = serverSatisfies('<=4.4'),
   }: ConnectionResultOptions = {}
 ): Promise<string | undefined> {
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;

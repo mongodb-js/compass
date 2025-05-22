@@ -2,7 +2,6 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import { isEndOfLifeVersion } from '@mongodb-js/compass-connections';
 import type { MongoClusterOptions } from 'mongodb-runner';
 import yargs from 'yargs';
 import type { Argv, CamelCase } from 'yargs';
@@ -330,18 +329,6 @@ export function assertTestingAtlasCloudSandbox(
   if (!isTestingAtlasCloudSandbox(ctx)) {
     throw new Error(`Expected tested runtime to be web w/ Atlas Cloud account`);
   }
-}
-
-export function isEndOfLifeConnection(connectionName: string) {
-  const connectionIndex = DEFAULT_CONNECTION_NAMES.indexOf(connectionName);
-  const serverInfo = DEFAULT_CONNECTIONS_SERVER_INFO[connectionIndex];
-  if (!serverInfo) {
-    debug(
-      `Unable to find server info for connection named '${connectionName}'`
-    );
-    return false;
-  }
-  return isEndOfLifeVersion(serverInfo.version);
 }
 
 const contextForPrinting = Object.fromEntries(
