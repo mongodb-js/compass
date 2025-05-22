@@ -253,7 +253,11 @@ class EditableDocument extends React.Component<
             editable
             editing={this.state.editing}
             onEditStart={this.handleStartEditing.bind(this)}
-            track={track}
+            onUUIDEncountered={(subtype: 3 | 4) => {
+              track('UUID Encountered', {
+                subtype,
+              });
+            }}
           />
         )}
       </TelemetryContext.Consumer>
