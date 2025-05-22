@@ -21,7 +21,23 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '2',
     name: 'Two',
-    edits: [],
+    edits: [
+      {
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db2.collection2',
+              indexes: [],
+              displayPosition: [0, 0],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
   {
@@ -126,33 +142,50 @@ describe('SavedDiagramsList', function () {
       expect(store.getState().generateDiagramWizard.inProgress).to.be.true;
     });
 
-    it('filters the list of diagrams', async function () {
-      const searchInput = screen.getByPlaceholderText('Search');
-      userEvent.type(searchInput, 'One');
-      await waitFor(() => {
-        expect(screen.queryByText('One')).to.exist;
+    describe('search', function () {
+      it('filters the list of diagrams by name', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'One');
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.exist;
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText('Two')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
 
-      await waitFor(() => {
-        expect(screen.queryByText('Two')).to.not.exist;
-        expect(screen.queryByText('Three')).to.not.exist;
-      });
-    });
+      it('filters the list of diagrams by database', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'db2');
+        await waitFor(() => {
+          expect(screen.queryByText('Two')).to.exist;
+        });
 
-    it('shows empty content when filter for a non-existent diagram', async function () {
-      const searchInput = screen.getByPlaceholderText('Search');
-      userEvent.type(searchInput, 'Hello');
-      await waitFor(() => {
-        expect(screen.queryByText('No results found.')).to.exist;
-        expect(
-          screen.queryByText("We can't find any diagram matching your search.")
-        ).to.exist;
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
 
-      await waitFor(() => {
-        expect(screen.queryByText('One')).to.not.exist;
-        expect(screen.queryByText('Two')).to.not.exist;
-        expect(screen.queryByText('Three')).to.not.exist;
+      it('shows empty content when filter for a non-existent diagram', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'Hello');
+        await waitFor(() => {
+          expect(screen.queryByText('No results found.')).to.exist;
+          expect(
+            screen.queryByText(
+              "We can't find any diagram matching your search."
+            )
+          ).to.exist;
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.not.exist;
+          expect(screen.queryByText('Two')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
     });
   });
