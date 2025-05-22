@@ -68,7 +68,7 @@ export async function getLatestEndOfLifeServerVersion(): Promise<string> {
 
 export function isEndOfLifeVersion(
   version: string,
-  latestEndOfLifeServerVersion: string
+  latestEndOfLifeServerVersion = FALLBACK_END_OF_LIFE_SERVER_VERSION
 ) {
   try {
     const coercedVersion = semverCoerce(version);
