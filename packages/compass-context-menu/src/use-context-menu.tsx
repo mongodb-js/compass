@@ -1,9 +1,9 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Context } from './context-menu-provider';
 import { appendContextMenuContent } from './context-menu-content';
-import type { MenuItem } from './types';
+import type { ContextMenuItem } from './types';
 
-export type ContextMenuMethods<T extends MenuItem> = {
+export type ContextMenuMethods<T extends ContextMenuItem> = {
   /**
    * Close the context menu.
    */
@@ -12,10 +12,10 @@ export type ContextMenuMethods<T extends MenuItem> = {
    * Register the menu items for the context menu.
    * @returns a callback ref to be passed onto the element responsible for triggering the menu.
    */
-  registerItems: (items: T[]) => (trigger: HTMLElement | null) => void;
+  registerItems: (items: T[]) => React.RefCallback<HTMLElement>;
 };
 
-export function useContextMenu<T extends MenuItem>({
+export function useContextMenu<T extends ContextMenuItem>({
   Menu,
 }: {
   Menu: React.ComponentType<{
@@ -33,7 +33,9 @@ export function useContextMenu<T extends MenuItem>({
       throw new Error('useContextMenu called outside of the provider');
     }
 
-    const register = (content: React.ComponentType) => {
+    const register = (
+      content: React.ComponentType
+    ): React.RefCallback<HTMLElement> => {
       function listener(event: MouseEvent) {
         appendContextMenuContent(event, content);
       }
