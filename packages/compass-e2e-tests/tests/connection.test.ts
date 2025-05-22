@@ -306,6 +306,7 @@ describe('Connection string', function () {
     // connect
     await browser.connectWithConnectionString(`${protocol}://a:b@${url}`, {
       connectionStatus: 'failure',
+      dismissEndOfLifeModal: false,
     });
 
     // check the error
