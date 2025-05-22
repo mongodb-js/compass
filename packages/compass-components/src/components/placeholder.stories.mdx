@@ -1,0 +1,219 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+import { Placeholder } from './placeholder';
+
+<Meta
+  title="Components/Feedback/Placeholder"
+  component={Placeholder}
+  parameters={{
+    controls: { expanded: true },
+  }}
+  argTypes={{
+    width: {
+      control: 'text',
+      description: 'Width of the placeholder',
+    },
+    height: {
+      control: 'text',
+      description: 'Height of the placeholder',
+    },
+    minChar: {
+      control: 'number',
+      description: 'Minimum number of characters for random width generation',
+    },
+    maxChar: {
+      control: 'number',
+      description: 'Maximum number of characters for random width generation',
+    },
+    gradientStart: {
+      control: 'color',
+      description: 'Start color of the gradient',
+    },
+    gradientEnd: {
+      control: 'color',
+      description: 'End color of the gradient',
+    },
+  }}
+/>
+
+# Placeholder
+
+The Placeholder component is a loading state visualization that displays an animated gradient.
+It's commonly used to indicate loading states for text content, maintaining the layout structure
+while data is being fetched or processed.
+
+## Usage
+
+The Placeholder component is perfect for:
+
+- Loading states in forms
+- Content placeholders while data is being fetched
+- Maintaining layout stability during async operations
+
+```tsx
+import { Placeholder } from './placeholder';
+
+// Basic usage
+<Placeholder />
+
+// With custom dimensions
+<Placeholder width="200px" height="20px" />
+
+// With character range
+<Placeholder minChar={5} maxChar={15} />
+```
+
+## Examples
+
+### Basic Placeholders
+
+<Story name="Basic">
+  {() => {
+    const containerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[300],
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Placeholder />
+        <Placeholder />
+        <Placeholder />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic placeholder examples with default settings.
+These show the standard usage of the Placeholder component with its default styling.
+The default gradient animation provides a subtle loading indicator that works well
+in most contexts.
+
+### Different Sizes
+
+<Story name="DifferentSizes">
+  {() => {
+    const containerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[300],
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Placeholder width="100px" height="20px" />
+        <Placeholder width="200px" height="20px" />
+        <Placeholder width="300px" height="20px" />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Placeholders with different explicit sizes.
+This example demonstrates how to set specific dimensions for placeholders,
+which is useful when you need to match the size of the actual content
+that will replace the placeholder.
+
+### Character Ranges
+
+<Story name="CharacterRanges">
+  {() => {
+    const containerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[300],
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Placeholder minChar={5} maxChar={10} />
+        <Placeholder minChar={10} maxChar={20} />
+        <Placeholder minChar={20} maxChar={30} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Placeholders with different min/max character ranges to generate random widths.
+This example shows how to create placeholders with varying widths based on
+character ranges, which is useful for simulating text content of different lengths.
+The width will be randomly generated between minChar and maxChar.
+
+### Custom Gradients
+
+<Story name="CustomGradients">
+  {() => {
+    const containerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[300],
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Placeholder
+          gradientStart="#FF0000"
+          gradientEnd="#00FF00"
+          width="200px"
+          height="20px"
+        />
+        <Placeholder
+          gradientStart="#0000FF"
+          gradientEnd="#FF00FF"
+          width="200px"
+          height="20px"
+        />
+        <Placeholder
+          gradientStart="#FFFF00"
+          gradientEnd="#00FFFF"
+          width="200px"
+          height="20px"
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Placeholders with custom gradient colors.
+This example demonstrates how to customize the gradient colors of the placeholder
+to match your application's theme or to create different visual effects.
+The gradient animation will transition between the start and end colors.
+
+### Interactive Example
+
+<Story name="Interactive">
+  {(args) => {
+    const containerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[300],
+    });
+
+    return (
+      <div className={containerStyles}>
+        <Placeholder {...args} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Interactive placeholder example with configurable properties.
+This example allows you to experiment with different placeholder configurations
+using Storybook's controls. You can adjust the character range and height
+to see how the placeholder adapts to different settings.
+
+## Props
+
+<Controls />

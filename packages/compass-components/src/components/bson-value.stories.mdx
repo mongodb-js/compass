@@ -1,0 +1,248 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import BSONValue from './bson-value';
+import {
+  ObjectId as BSONObjectId,
+  Binary as BSONBinary,
+  DBRef as BSONDBRef,
+  Timestamp as BSONTimestamp,
+  Int32,
+} from 'bson';
+
+<Meta
+  title="Components/Data/BSONValue"
+  component={BSONValue}
+  parameters={{
+    layout: 'centered',
+  }}
+  argTypes={{
+    type: {
+      control: 'select',
+      options: [
+        'String',
+        'Int32',
+        'Double',
+        'ObjectId',
+        'Date',
+        'Boolean',
+        'Array',
+        'Object',
+        'Binary',
+        'DBRef',
+        'Timestamp',
+        'MinKey',
+        'MaxKey',
+      ],
+      description: 'The BSON type of the value',
+    },
+    value: {
+      control: 'object',
+      description: 'The value to display',
+    },
+  }}
+/>
+
+# BSON Value
+
+The BSONValue component is used to display MongoDB BSON values with proper formatting and type information.
+It supports all BSON types and provides appropriate styling and formatting for each type.
+
+## Usage
+
+The BSONValue component is perfect for:
+
+- Displaying MongoDB document values
+- Showing BSON type information
+- Formatting complex BSON types
+- Handling encrypted values
+- Displaying type-specific styling
+
+```tsx
+import BSONValue from './bson-value';
+import { ObjectId, Binary, DBRef, Timestamp, Int32 } from 'bson';
+
+// Basic usage with string
+<BSONValue type="String" value="Hello, MongoDB!" />
+
+// Number value
+<BSONValue type="Int32" value={new Int32(42)} />
+
+// ObjectId
+<BSONValue type="ObjectId" value={new ObjectId()} />
+
+// Date
+<BSONValue type="Date" value={new Date()} />
+
+// Complex types
+<BSONValue
+  type="Binary"
+  value={new Binary(Buffer.from('Hello, Binary!'))}
+/>
+
+<BSONValue
+  type="DBRef"
+  value={new DBRef('collection', new ObjectId())}
+/>
+```
+
+## Examples
+
+### String Value
+
+<Story name="String">
+  {() => <BSONValue type="String" value="Hello, MongoDB!" />}
+</Story>
+
+Basic string value display.
+This demonstrates how string values are formatted and displayed.
+
+### Number Value
+
+<Story name="Number">
+  {() => <BSONValue type="Int32" value={new Int32(42)} />}
+</Story>
+
+Number value display.
+This demonstrates how numeric values are formatted.
+
+### ObjectId
+
+<Story name="ObjectId">
+  {() => <BSONValue type="ObjectId" value={new BSONObjectId()} />}
+</Story>
+
+ObjectId display.
+This demonstrates how ObjectId values are formatted with their unique identifier.
+
+### Date Value
+
+<Story name="DateValue">
+  {() => <BSONValue type="Date" value={new Date()} />}
+</Story>
+
+Date value display.
+This demonstrates how date values are formatted with proper date formatting.
+
+### Boolean Value
+
+<Story name="Boolean">{() => <BSONValue type="Boolean" value={true} />}</Story>
+
+Boolean value display.
+This demonstrates how boolean values are formatted.
+
+### Array Value
+
+<Story name="Array">
+  {() => <BSONValue type="Array" value={[1, 2, 3, 'four', { five: 5 }]} />}
+</Story>
+
+Array value display.
+This demonstrates how array values are formatted with proper array syntax.
+
+### Object Value
+
+<Story name="Object">
+  {() => (
+    <BSONValue type="Object" value={{ name: 'MongoDB', version: '6.0' }} />
+  )}
+</Story>
+
+Object value display.
+This demonstrates how object values are formatted with proper object syntax.
+
+### Binary Value
+
+<Story name="Binary">
+  {() => (
+    <BSONValue
+      type="Binary"
+      value={new BSONBinary(Buffer.from('Hello, Binary!'))}
+    />
+  )}
+</Story>
+
+Binary value display.
+This demonstrates how binary values are formatted.
+
+### Encrypted Binary
+
+<Story name="EncryptedBinary">
+  {() => (
+    <BSONValue
+      type="Binary"
+      value={
+        new BSONBinary(
+          Buffer.from('encrypted data'),
+          BSONBinary.SUBTYPE_ENCRYPTED
+        )
+      }
+    />
+  )}
+</Story>
+
+Encrypted binary value display.
+This demonstrates how encrypted binary values are handled.
+
+### DBRef
+
+<Story name="DBRef">
+  {() => (
+    <BSONValue
+      type="DBRef"
+      value={new BSONDBRef('collection', new BSONObjectId())}
+    />
+  )}
+</Story>
+
+DBRef value display.
+This demonstrates how DBRef values are formatted.
+
+### Timestamp
+
+<Story name="Timestamp">
+  {() => (
+    <BSONValue type="Timestamp" value={new BSONTimestamp({ t: 0, i: 0 })} />
+  )}
+</Story>
+
+Timestamp value display.
+This demonstrates how timestamp values are formatted.
+
+### MinKey
+
+<Story name="MinKey">{() => <BSONValue type="MinKey" />}</Story>
+
+MinKey value display.
+This demonstrates how MinKey values are formatted.
+
+### MaxKey
+
+<Story name="MaxKey">{() => <BSONValue type="MaxKey" />}</Story>
+
+MaxKey value display.
+This demonstrates how MaxKey values are formatted.
+
+## Best Practices
+
+1. **Type Handling**:
+
+   - Always specify the correct BSON type
+   - Use appropriate type-specific formatting
+   - Handle special cases like encrypted values
+   - Consider type-specific styling
+
+2. **Value Display**:
+
+   - Format values appropriately for each type
+   - Handle long values with truncation
+   - Provide clear type indicators
+   - Use consistent styling
+
+3. **Accessibility**:
+   - Ensure proper contrast for type indicators
+   - Provide clear type information
+   - Support screen readers
+   - Use semantic HTML structure
+
+## Props
+
+<Controls />

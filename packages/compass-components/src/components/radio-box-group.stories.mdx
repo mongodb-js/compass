@@ -1,0 +1,135 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { RadioBoxGroup } from './radio-box-group';
+import { RadioBox } from './leafygreen';
+
+<Meta
+  title="Components/Forms/RadioBoxGroup"
+  component={RadioBoxGroup}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    onChange: {
+      action: 'changed',
+      description: 'Callback when selection changes',
+    },
+    value: {
+      control: 'text',
+      description: 'Currently selected value',
+    },
+    name: {
+      control: 'text',
+      description: 'Name attribute for the radio group',
+    },
+    size: {
+      control: 'select',
+      options: ['default', 'compact'],
+      description: 'Size variant of the radio boxes',
+    },
+  }}
+/>
+
+# RadioBoxGroup
+
+The RadioBoxGroup component is a form control that allows users to select a single option from a list of choices.
+
+## Usage
+
+```tsx
+import { RadioBoxGroup, RadioBox } from '@mongodb-js/compass-components';
+
+function BasicRadioGroup() {
+  const [value, setValue] = React.useState('option1');
+
+  return (
+    <RadioBoxGroup
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      name="basic-example"
+    >
+      <RadioBox value="option1">Option 1</RadioBox>
+      <RadioBox value="option2">Option 2</RadioBox>
+      <RadioBox value="option3">Option 3</RadioBox>
+    </RadioBoxGroup>
+  );
+}
+```
+
+## Examples
+
+### Basic
+
+<Story name="Basic">
+  {() => {
+    const [value, setValue] = React.useState('option1');
+
+    return (
+      <RadioBoxGroup
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        name="basic-example"
+      >
+        <RadioBox value="option1">Option 1</RadioBox>
+        <RadioBox value="option2">Option 2</RadioBox>
+        <RadioBox value="option3">Option 3</RadioBox>
+      </RadioBoxGroup>
+    );
+
+}}
+
+</Story>
+
+Basic radio box group with three options.
+
+### Compact
+
+<Story name="Compact">
+  {() => {
+    const [value, setValue] = React.useState('option1');
+
+    return (
+      <RadioBoxGroup
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        name="compact-example"
+        size="compact"
+      >
+        <RadioBox value="option1">Option 1</RadioBox>
+        <RadioBox value="option2">Option 2</RadioBox>
+        <RadioBox value="option3">Option 3</RadioBox>
+      </RadioBoxGroup>
+    );
+
+}}
+
+</Story>
+
+Radio box group with compact size variant.
+
+### Disabled
+
+<Story name="Disabled">
+  {() => {
+    const [value, setValue] = React.useState('option1');
+
+    return (
+      <RadioBoxGroup
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        name="disabled-example"
+      >
+        <RadioBox value="option1">Option 1</RadioBox>
+        <RadioBox value="option2" disabled>
+          Option 2 (Disabled)
+        </RadioBox>
+        <RadioBox value="option3">Option 3</RadioBox>
+      </RadioBoxGroup>
+    );
+
+}}
+
+</Story>
+
+Radio box group with a disabled option.
+
+## Props
+
+<Controls />

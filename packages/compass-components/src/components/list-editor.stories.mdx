@@ -1,0 +1,174 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ListEditor } from './list-editor';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Forms/ListEditor"
+  component={ListEditor}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    items: {
+      control: 'object',
+      description: 'Array of items to display in the list',
+    },
+    onAddItem: {
+      action: 'added',
+      description: 'Callback when add button is clicked',
+    },
+    onRemoveItem: {
+      action: 'removed',
+      description: 'Callback when remove button is clicked',
+    },
+    renderItem: {
+      control: 'function',
+      description: 'Function to render each item',
+    },
+    disableAddButton: {
+      control: 'function',
+      description: 'Function that defines when the add button is disabled',
+    },
+    disableRemoveButton: {
+      control: 'function',
+      description: 'Function that defines when the remove button is disabled',
+    },
+    addButtonTestId: {
+      control: 'text',
+      description: 'Test ID for the add button',
+    },
+    removeButtonTestId: {
+      control: 'text',
+      description: 'Test ID for the remove button',
+    },
+    itemTestId: {
+      control: 'function',
+      description: 'Function that returns test ID for each item',
+    },
+    itemKey: {
+      control: 'function',
+      description: 'Function that returns key for each item',
+    },
+  }}
+/>
+
+# ListEditor
+
+The ListEditor component provides a way to manage a list of items with add and remove functionality.
+It's designed to be flexible and customizable, allowing for different item renderers and button states.
+
+## Usage
+
+```tsx
+import { ListEditor } from '@mongodb-js/compass-components';
+
+function ListEditorExample() {
+  const [items, setItems] = React.useState(['Item 1', 'Item 2']);
+
+  return (
+    <ListEditor
+      items={items}
+      onAddItem={() => setItems([...items, `Item ${items.length + 1}`])}
+      onRemoveItem={(index) => setItems(items.filter((_, i) => i !== index))}
+      renderItem={(item) => <div>{item}</div>}
+    />
+  );
+}
+```
+
+## Examples
+
+### Basic
+
+<Story name="Basic">
+  {() => {
+    const [items, setItems] = React.useState(['Item 1', 'Item 2']);
+    const itemStyles = css`
+      padding: ${spacing[2]}px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: ${spacing[2]}px;
+    `;
+
+    return (
+      <div style={{ width: '400px' }}>
+        <ListEditor
+          items={items}
+          onAddItem={() => setItems([...items, `Item ${items.length + 1}`])}
+          onRemoveItem={(index) => setItems(items.filter((_, i) => i !== index))}
+          renderItem={(item) => <div className={itemStyles}>{item}</div>}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic list editor with default settings.
+
+### Custom Test IDs
+
+<Story name="CustomTestIds">
+  {() => {
+    const [items, setItems] = React.useState(['Item 1', 'Item 2']);
+    const itemStyles = css`
+      padding: ${spacing[2]}px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: ${spacing[2]}px;
+    `;
+
+    return (
+      <div style={{ width: '400px' }}>
+        <ListEditor
+          items={items}
+          onAddItem={() => setItems([...items, `Item ${items.length + 1}`])}
+          onRemoveItem={(index) => setItems(items.filter((_, i) => i !== index))}
+          renderItem={(item) => <div className={itemStyles}>{item}</div>}
+          addButtonTestId="custom-add-button"
+          removeButtonTestId="custom-remove-button"
+          itemTestId={(index) => `custom-item-${index}`}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+List editor with custom test IDs for buttons and items.
+
+### Disabled Buttons
+
+<Story name="DisabledButtons">
+  {() => {
+    const [items, setItems] = React.useState(['Item 1', 'Item 2']);
+    const itemStyles = css`
+      padding: ${spacing[2]}px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: ${spacing[2]}px;
+    `;
+
+    return (
+      <div style={{ width: '400px' }}>
+        <ListEditor
+          items={items}
+          onAddItem={() => setItems([...items, `Item ${items.length + 1}`])}
+          onRemoveItem={(index) => setItems(items.filter((_, i) => i !== index))}
+          renderItem={(item) => <div className={itemStyles}>{item}</div>}
+          disableAddButton={() => true}
+          disableRemoveButton={() => true}
+        />
+      </div>
+    );
+
+}}
+
+</Story>
+
+List editor with disabled add and remove buttons.
+
+## Props
+
+<Controls />

@@ -1,0 +1,41 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { LogoIcon } from './logo-icon';
+
+<Meta
+  title="Components/Icons/Logo"
+  component={LogoIcon}
+  parameters={{ layout: 'centered' }}
+/>
+
+# Logo Icon
+
+The Logo Icon represents the MongoDB Compass logo. It's commonly used in headers, navigation bars, or as a branding element throughout the application.
+
+## Usage
+
+```tsx
+import { LogoIcon } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  return <LogoIcon />;
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <LogoIcon />}</Story>
+
+## Guidelines
+
+- The icon is designed to be used at its original size (72x72 pixels)
+- It automatically adapts to light/dark mode
+- It's SVG-based for crisp rendering at any size
+- It should be used primarily for branding and identification purposes
+- It should maintain its aspect ratio when resized
+- It should always be accompanied by text or a tooltip for screen readers
+
+## Props
+
+<Controls />

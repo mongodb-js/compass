@@ -1,0 +1,32 @@
+{
+  "name": "@mongodb-js/storybook-config",
+  "version": "1.0.0",
+  "description": "Storybook configuration for MongoDB Compass",
+  "main": "index.js",
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-components": "^1.36.0",
+    "@storybook/addon-a11y": "^7.6.17",
+    "@storybook/addon-essentials": "^7.6.17",
+    "@storybook/addon-interactions": "^7.6.17",
+    "@storybook/addon-links": "^7.6.17",
+    "@storybook/addon-viewport": "^7.6.17",
+    "@storybook/blocks": "^7.6.17",
+    "@storybook/react-webpack5": "^7.6.17",
+    "@storybook/testing-library": "^0.2.2",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "storybook": "^7.6.17",
+    "stream-browserify": "^3.0.0",
+    "ts-loader": "^9.5.1"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

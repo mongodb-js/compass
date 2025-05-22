@@ -1,0 +1,142 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { DropdownMenuButton } from './dropdown-menu-button';
+import { Icon } from '../leafygreen';
+
+<Meta
+  title="Components/Actions/DropdownMenuButton"
+  component={DropdownMenuButton}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    actions: {
+      control: 'object',
+      description: 'Array of menu actions',
+    },
+    onAction: {
+      action: 'action selected',
+      description: 'Callback when an action is selected',
+    },
+    buttonText: {
+      control: 'text',
+      description: 'Text to display on the button',
+    },
+    buttonProps: {
+      control: 'object',
+      description: 'Props to pass to the underlying button component',
+    },
+    isVisible: {
+      control: 'boolean',
+      description: 'Whether the button is visible',
+    },
+    activeAction: {
+      control: 'text',
+      description: 'Currently active action',
+    },
+    iconSize: {
+      control: 'select',
+      options: ['small', 'default', 'large'],
+      description: 'Size of the action icons',
+    },
+    hideOnNarrow: {
+      control: 'boolean',
+      description: 'Whether to hide the button text on narrow screens',
+    },
+  }}
+/>
+
+# DropdownMenuButton
+
+The `DropdownMenuButton` component is a button that opens a dropdown menu of actions. It's useful for grouping related actions under a single button with a label.
+
+## When to use
+
+- When you need to show a labeled button that opens a menu of actions
+- When you want to emphasize a primary action while providing access to related actions
+- When you need to show actions in a toolbar or header with a clear label
+- When you want to maintain a consistent button style while providing multiple options
+
+## When not to use
+
+- When you only need a single action (use a regular button)
+- When you want to show actions directly in the interface (use `ItemActionGroup`)
+- When you need a more compact menu without a button label (use `ItemActionMenu`)
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      { action: 'duplicate', label: 'Duplicate', icon: <Icon glyph="Copy" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <DropdownMenuButton
+        buttonText="Actions"
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+        buttonProps={{ size: 'default' }}
+      />
+    );
+  }}
+</Story>
+
+### With Active Action
+
+<Story name="WithActiveAction">
+  {() => {
+    const actions = [
+      { action: 'view', label: 'View', icon: <Icon glyph="Visibility" /> },
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <DropdownMenuButton
+        buttonText="View Options"
+        actions={actions}
+        activeAction="view"
+        onAction={(action) => alert(`Action: ${action}`)}
+        buttonProps={{ size: 'default' }}
+      />
+    );
+  }}
+</Story>
+
+### With Custom Button Props
+
+<Story name="WithCustomButtonProps">
+  {() => {
+    const actions = [
+      { action: 'save', label: 'Save', icon: <Icon glyph="Save" /> },
+      { action: 'save-as', label: 'Save As...', icon: <Icon glyph="SaveAs" /> },
+      { action: 'export', label: 'Export', icon: <Icon glyph="Download" /> },
+    ];
+    return (
+      <DropdownMenuButton
+        buttonText="Save"
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+        buttonProps={{
+          size: 'default',
+          variant: 'primary',
+          leftGlyph: <Icon glyph="Save" />,
+        }}
+      />
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />

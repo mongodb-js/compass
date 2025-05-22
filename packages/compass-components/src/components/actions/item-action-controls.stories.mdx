@@ -1,0 +1,133 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ItemActionControls } from './item-action-controls';
+import { Icon } from '../leafygreen';
+
+<Meta
+  title="Components/Actions/ItemActionControls"
+  component={ItemActionControls}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    actions: {
+      control: 'object',
+      description: 'Array of actions to display',
+    },
+    onAction: {
+      action: 'action selected',
+      description: 'Callback when an action is selected',
+    },
+    isVisible: {
+      control: 'boolean',
+      description: 'Whether the controls are visible',
+    },
+    collapseAfter: {
+      control: 'number',
+      description:
+        'Number of actions to show before collapsing others into a menu',
+    },
+    collapseToMenuThreshold: {
+      control: 'number',
+      description:
+        'Number of actions that triggers collapsing all actions into a menu',
+    },
+    iconSize: {
+      control: 'select',
+      options: ['small', 'default', 'large'],
+      description: 'Size of the action icons',
+    },
+  }}
+/>
+
+# ItemActionControls
+
+The `ItemActionControls` component is a smart container that automatically manages how actions are displayed based on the number of actions and available space. It can show actions as buttons or collapse them into a menu when needed.
+
+## When to use
+
+- When you have a variable number of actions that might need to be collapsed
+- When you want to show some actions prominently while keeping others in a menu
+- When you need to adapt the UI based on the number of actions
+- When you want to maintain a consistent layout regardless of the number of actions
+
+## When not to use
+
+- When you always want to show all actions as buttons (use `ItemActionGroup`)
+- When you always want to show all actions in a menu (use `ItemActionMenu`)
+- When you have a fixed, small number of actions
+
+## Examples
+
+### Basic Usage (Shows as Buttons)
+
+<Story name="BasicButtons">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <ItemActionControls
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+        collapseToMenuThreshold={3}
+      />
+    );
+  }}
+</Story>
+
+### Collapsed to Menu
+
+<Story name="CollapsedToMenu">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      { action: 'duplicate', label: 'Duplicate', icon: <Icon glyph="Copy" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <ItemActionControls
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+        collapseToMenuThreshold={2}
+      />
+    );
+  }}
+</Story>
+
+### Mixed Display (Some Buttons, Some in Menu)
+
+<Story name="MixedDisplay">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      { action: 'duplicate', label: 'Duplicate', icon: <Icon glyph="Copy" /> },
+      { action: 'share', label: 'Share', icon: <Icon glyph="Share" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <ItemActionControls
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+        collapseAfter={2}
+      />
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />

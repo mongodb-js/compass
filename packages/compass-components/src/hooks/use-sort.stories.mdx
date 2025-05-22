@@ -1,0 +1,207 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { useSortControls, useSortedItems } from './use-sort';
+
+<Meta title="Hooks/useSort" component={useSortControls} />
+
+# Sort Hook
+
+A hook that provides sorting functionality for lists and tables. It includes both the UI controls for sorting and the logic for sorting items based on different criteria.
+
+## Usage
+
+```jsx
+import {
+  useSortControls,
+  useSortedItems,
+} from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  const sortOptions = [
+    { name: 'name', label: 'Name' },
+    { name: 'age', label: 'Age' },
+    { name: 'email', label: 'Email' },
+  ];
+
+  const [sortControls, sortState] = useSortControls(sortOptions);
+  const sortedItems = useSortedItems(items, sortState);
+
+  return (
+    <div>
+      {sortControls}
+      <table>
+        {sortedItems.map((item) => (
+          <tr key={item.id}>
+            <td>{item.name}</td>
+            <td>{item.age}</td>
+            <td>{item.email}</td>
+          </tr>
+        ))}
+      </table>
+    </div>
+  );
+}
+```
+
+## When to use
+
+- When you need to add sorting functionality to lists or tables
+- When you need to sort data by multiple fields
+- When you need both ascending and descending sort options
+- When you need custom sorting logic for specific fields
+
+## When not to use
+
+- For simple alphabetical sorting (use Array.sort instead)
+- For single-direction sorting (use simpler sorting logic)
+- For complex data manipulation (use a dedicated data grid component)
+
+## Examples
+
+### Basic Sorting
+
+<Story name="BasicSorting">
+  {() => {
+    const items = [
+      { id: 1, name: 'Alice', age: 30, email: 'alice@example.com' },
+      { id: 2, name: 'Bob', age: 25, email: 'bob@example.com' },
+      { id: 3, name: 'Charlie', age: 35, email: 'charlie@example.com' }
+    ];
+
+    const sortOptions = [
+      { name: 'name', label: 'Name' },
+      { name: 'age', label: 'Age' },
+      { name: 'email', label: 'Email' }
+    ];
+
+    const [sortControls, sortState] = useSortControls(sortOptions);
+    const sortedItems = useSortedItems(items, sortState);
+
+    return (
+      <div>
+        {sortControls}
+        <table style={{ marginTop: '20px', width: '100%' }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedItems.map(item => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{item.age}</td>
+                <td>{item.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+}}
+
+</Story>
+
+### Custom Sort Function
+
+<Story name="CustomSortFunction">
+  {() => {
+    const items = [
+      { id: 1, name: 'Alice', age: 30, email: 'alice@example.com' },
+      { id: 2, name: 'Bob', age: 25, email: 'bob@example.com' },
+      { id: 3, name: 'Charlie', age: 35, email: 'charlie@example.com' }
+    ];
+
+    const sortOptions = [
+      { name: 'name', label: 'Name' },
+      { name: 'age', label: 'Age' },
+      { name: 'email', label: 'Email' }
+    ];
+
+    const customSortFn = {
+      age: ((a, b, order) => (a - b) * order)
+    };
+
+    const [sortControls, sortState] = useSortControls(sortOptions);
+    const sortedItems = useSortedItems(items, sortState, customSortFn);
+
+    return (
+      <div>
+        {sortControls}
+        <table style={{ marginTop: '20px', width: '100%' }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedItems.map(item => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{item.age}</td>
+                <td>{item.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+}}
+
+</Story>
+
+### Disabled Sorting
+
+<Story name="DisabledSorting">
+  {() => {
+    const items = [
+      { id: 1, name: 'Alice', age: 30, email: 'alice@example.com' },
+      { id: 2, name: 'Bob', age: 25, email: 'bob@example.com' },
+      { id: 3, name: 'Charlie', age: 35, email: 'charlie@example.com' }
+    ];
+
+    const sortOptions = [
+      { name: 'name', label: 'Name' },
+      { name: 'age', label: 'Age' },
+      { name: 'email', label: 'Email' }
+    ];
+
+    const [sortControls, sortState] = useSortControls(sortOptions, { isDisabled: true });
+    const sortedItems = useSortedItems(items, sortState);
+
+    return (
+      <div>
+        {sortControls}
+        <table style={{ marginTop: '20px', width: '100%' }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedItems.map(item => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{item.age}</td>
+                <td>{item.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+}}
+
+</Story>
+
+## Props
+
+<Controls />
