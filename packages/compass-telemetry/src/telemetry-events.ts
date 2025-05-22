@@ -2698,6 +2698,7 @@ type UUIDEncounteredEvent = CommonEvent<{
   name: 'UUID Encountered';
   payload: {
     subtype: 3 | 4;
+    count: number;
   };
 }>;
 

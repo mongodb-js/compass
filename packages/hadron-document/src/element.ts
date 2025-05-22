@@ -10,7 +10,7 @@ import DateEditor from './editor/date';
 import Events from './element-events';
 import type Document from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
-import type { ObjectId } from 'bson';
+import type { Binary, ObjectId } from 'bson';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { getDefaultValueForType } from './utils';
 import { DocumentEvents, ElementEvents } from '.';
@@ -877,6 +877,35 @@ export class Element extends EventEmitter {
       },
       0
     );
+  }
+
+  findUUIDs(): { subtype4Count: number; subtype3Count: number } {
+    let subtype4Count = 0;
+    let subtype3Count = 0;
+
+    if (!this.elements) {
+      return { subtype4Count, subtype3Count };
+    }
+    for (const element of this.elements) {
+      if (element.currentType === 'Binary') {
+        if ((element.currentValue as Binary).sub_type === 4) {
+          subtype4Count++;
+        }
+        if ((element.currentValue as Binary).sub_type === 3) {
+          subtype3Count++;
+        }
+      } else if (
+        element.currentType === 'Object' ||
+        element.currentType === 'Array'
+      ) {
+        const { subtype3Count: sub3, subtype4Count: sub4 } =
+          element.findUUIDs();
+        subtype3Count += sub3;
+        subtype4Count += sub4;
+      }
+    }
+
+    return { subtype4Count, subtype3Count };
   }
 
   private emitVisibleElementsChanged(targetElement: Element | Document = this) {
