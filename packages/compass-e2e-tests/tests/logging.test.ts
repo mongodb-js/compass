@@ -206,7 +206,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'COMPASS-DATA-SERVICE',
           id: 1_001_000_014,
           ctx: 'Connection 0',
-          msg: 'Connecting',
+          msg: 'Connecting Started',
           attr: (actual: any) => {
             expect(actual.url).to.match(/^mongodb:\/\/127.0.0.1:27091/);
             expect(actual.csfle).to.equal(null);

@@ -1579,7 +1579,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     debug('connecting...');
     this._isConnecting = true;
 
-    this._logger.info(mongoLogId(1_001_000_014), 'Connecting', {
+    this._logger.info(mongoLogId(1_001_000_014), 'Connecting Started', {
       connectionId: this._id,
       url: redactConnectionString(this._connectionOptions.connectionString),
       csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
