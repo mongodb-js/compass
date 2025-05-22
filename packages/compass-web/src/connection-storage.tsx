@@ -207,10 +207,7 @@ export function buildConnectionInfoFromClusterDescription(
   const instanceSize = getInstanceSize(description);
 
   return {
-    // Cluster name is unique inside the project (hence using it in the backend
-    // urls as identifier) and using it as an id makes our job of mapping routes
-    // to compass state easier
-    id: description.name,
+    id: description.uniqueId,
     connectionOptions: {
       connectionString: connectionString.toString(),
       lookup: () => {
@@ -265,7 +262,7 @@ export class AtlasCloudConnectionStorage
   implements ConnectionStorage
 {
   private loadAllPromise: Promise<ConnectionInfo[]> | undefined;
-  private canUseNewConnectionInfoEndpoint = true;
+  private useNewConnectionInfoEndpoint = true;
   constructor(
     private atlasService: AtlasService,
     private orgId: string,
@@ -420,15 +417,10 @@ export class AtlasCloudConnectionStorage
 
   loadAll(): Promise<ConnectionInfo[]> {
     this.loadAllPromise ??= (async () => {
-      if (this.canUseNewConnectionInfoEndpoint === false) {
+      if (this.useNewConnectionInfoEndpoint === false) {
         return this._loadAndNormalizeClusterDescriptionInfoV1();
       }
-      try {
-        return await this._loadAndNormalizeClusterDescriptionInfoV2();
-      } catch (err) {
-        this.canUseNewConnectionInfoEndpoint = false;
-        return this._loadAndNormalizeClusterDescriptionInfoV1();
-      }
+      return await this._loadAndNormalizeClusterDescriptionInfoV2();
     })().finally(() => {
       delete this.loadAllPromise;
     });

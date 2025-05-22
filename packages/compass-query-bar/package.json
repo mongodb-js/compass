@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "8.57.0",
+  "version": "8.57.1",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "bugs": {
@@ -66,8 +66,8 @@
   },
   "dependencies": {
     "@mongodb-js/atlas-service": "^0.41.0",
-    "@mongodb-js/compass-app-stores": "^7.42.0",
-    "@mongodb-js/compass-collection": "^4.55.0",
+    "@mongodb-js/compass-app-stores": "^7.42.1",
+    "@mongodb-js/compass-collection": "^4.55.1",
     "@mongodb-js/compass-components": "^1.37.0",
     "@mongodb-js/compass-connections": "^1.56.0",
     "@mongodb-js/compass-editor": "^0.39.0",
@@ -82,7 +82,7 @@
     "hadron-app-registry": "^9.4.9",
     "lodash": "^4.17.21",
     "mongodb": "^6.16.0",
-    "mongodb-instance-model": "^12.30.0",
+    "mongodb-instance-model": "^12.30.1",
     "mongodb-ns": "^2.4.2",
     "mongodb-query-parser": "^4.3.0",
     "mongodb-query-util": "^2.4.8",
