@@ -13,7 +13,13 @@ const {
 
 let latestEndOfLifeServerVersion: Promise<string> | null = null;
 
-export async function getLatestEndOfLifeServerVersion(): Promise<string> {
+export async function getLatestEndOfLifeServerVersion(
+  allowNetworkRequests = true
+): Promise<string> {
+  if (!allowNetworkRequests) {
+    return FALLBACK_END_OF_LIFE_SERVER_VERSION;
+  }
+
   if (!HADRON_AUTO_UPDATE_ENDPOINT) {
     log.debug(
       mongoLogId(1_001_000_356),

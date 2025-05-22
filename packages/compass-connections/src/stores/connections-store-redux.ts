@@ -1823,13 +1823,14 @@ const connectWithOptions = (
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (preferences.getPreferences().networkTraffic) {
+        } else {
+          const { networkTraffic } = preferences.getPreferences();
           void dataService
             .instance()
             .then(async (instance) => {
               const { version } = instance.build;
               const latestEndOfLifeServerVersion =
-                await getLatestEndOfLifeServerVersion();
+                await getLatestEndOfLifeServerVersion(networkTraffic);
               if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
                 dispatch(
                   showEndOfLifeMongoDBWarningModal(
