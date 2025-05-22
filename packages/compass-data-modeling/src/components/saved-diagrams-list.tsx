@@ -10,7 +10,6 @@ import {
   useSortedItems,
   VirtualGrid,
   Link,
-  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
@@ -21,6 +20,7 @@ import FlexibilityIcon from './icons/flexibility';
 import InsightIcon from './icons/insight';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
+import type { DataModelingState } from '../store/reducer';
 
 const sortBy = [
   {
@@ -154,40 +154,38 @@ export const SavedDiagramsList: React.FunctionComponent<{
 
   if (items.length === 0) {
     return (
-      <WorkspaceContainer>
-        <EmptyContent
-          title="Design, Visualize, and Evolve your Data Model"
-          subTitle={
-            <>
-              Your data model is the foundation of application performance. As
-              applications evolve, so must your schema—intelligently and
-              strategically. Minimize complexity, prevent performance
-              bottlenecks, and keep your development agile.
-              <FeaturesList
-                features={[
-                  'visualization',
-                  'collaboration',
-                  'interactive',
-                  'insights',
-                ]}
-              />
-              <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
-                Data Modeling Documentation
-              </Link>
-            </>
-          }
-          subTitleClassName={subTitleStyles}
-          callToAction={
-            <Button
-              onClick={onCreateDiagramClick}
-              variant="primary"
-              data-testid="create-diagram-button"
-            >
-              Generate diagram
-            </Button>
-          }
-        ></EmptyContent>
-      </WorkspaceContainer>
+      <EmptyContent
+        title="Design, Visualize, and Evolve your Data Model"
+        subTitle={
+          <>
+            Your data model is the foundation of application performance. As
+            applications evolve, so must your schema—intelligently and
+            strategically. Minimize complexity, prevent performance bottlenecks,
+            and keep your development agile.
+            <FeaturesList
+              features={[
+                'visualization',
+                'collaboration',
+                'interactive',
+                'insights',
+              ]}
+            />
+            <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
+              Data Modeling Documentation
+            </Link>
+          </>
+        }
+        subTitleClassName={subTitleStyles}
+        callToAction={
+          <Button
+            onClick={onCreateDiagramClick}
+            variant="primary"
+            data-testid="create-diagram-button"
+          >
+            Generate diagram
+          </Button>
+        }
+      ></EmptyContent>
     );
   }
 
@@ -200,41 +198,47 @@ export const SavedDiagramsList: React.FunctionComponent<{
         onSearchDiagrams: setSearch,
       }}
     >
-      <WorkspaceContainer>
-        <VirtualGrid
-          data-testid="saved-diagram-list"
-          itemMinWidth={CARD_WIDTH}
-          itemHeight={CARD_HEIGHT + spacing[200]}
-          itemsCount={sortedItems.length}
-          className={listContainerStyles}
-          renderItem={({ index }) => (
-            <DiagramCard
-              diagram={sortedItems[index]}
-              onOpen={onOpenDiagramClick}
-              onRename={onDiagramRenameClick}
-              onDelete={onDiagramDeleteClick}
-            />
-          )}
-          itemKey={(index) => sortedItems[index].id}
-          renderHeader={DiagramListToolbar}
-          headerHeight={spacing[800] * 3 + spacing[200]}
-          classNames={{ row: rowStyles }}
-          resetActiveItemOnBlur={false}
-          renderEmptyList={() => (
-            <EmptyContent
-              title="No results found."
-              subTitle="We can't find any diagram matching your search."
-            />
-          )}
-        ></VirtualGrid>
-      </WorkspaceContainer>
+      <VirtualGrid
+        data-testid="saved-diagram-list"
+        itemMinWidth={CARD_WIDTH}
+        itemHeight={CARD_HEIGHT + spacing[200]}
+        itemsCount={sortedItems.length}
+        className={listContainerStyles}
+        renderItem={({ index }) => (
+          <DiagramCard
+            diagram={sortedItems[index]}
+            onOpen={onOpenDiagramClick}
+            onRename={onDiagramRenameClick}
+            onDelete={onDiagramDeleteClick}
+          />
+        )}
+        itemKey={(index) => sortedItems[index].id}
+        renderHeader={DiagramListToolbar}
+        headerHeight={spacing[800] * 3 + spacing[200]}
+        classNames={{ row: rowStyles }}
+        resetActiveItemOnBlur={false}
+        renderEmptyList={() => (
+          <EmptyContent
+            title="No results found."
+            subTitle="We can't find any diagram matching your search."
+          />
+        )}
+      ></VirtualGrid>
     </DiagramListContext.Provider>
   );
 };
 
-export default connect(null, {
-  onCreateDiagramClick: createNewDiagram,
-  onOpenDiagramClick: openDiagram,
-  onDiagramDeleteClick: deleteDiagram,
-  onDiagramRenameClick: renameDiagram,
-})(SavedDiagramsList);
+export default connect(
+  ({ step }: DataModelingState) => {
+    if (step !== 'NO_DIAGRAM_SELECTED') {
+      throw new Error('Unexpected state when rendering saved diagrams list');
+    }
+    return {};
+  },
+  {
+    onCreateDiagramClick: createNewDiagram,
+    onOpenDiagramClick: openDiagram,
+    onDiagramDeleteClick: deleteDiagram,
+    onDiagramRenameClick: renameDiagram,
+  }
+)(SavedDiagramsList);

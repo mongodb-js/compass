@@ -8,7 +8,6 @@ export type StepState =
   | 'NO_DIAGRAM_SELECTED'
   | 'ANALYZING'
   | 'ANALYSIS_FAILED'
-  | 'ANALYSIS_CANCELED'
   | 'EDITING';
 
 const INITIAL_STATE = 'NO_DIAGRAM_SELECTED';
@@ -26,7 +25,7 @@ export const stepReducer: Reducer<StepState> = (
     return 'ANALYSIS_FAILED';
   }
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_CANCELED)) {
-    return 'ANALYSIS_CANCELED';
+    return 'NO_DIAGRAM_SELECTED';
   }
   if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FINISHED)) {
     return 'EDITING';

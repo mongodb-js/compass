@@ -19,6 +19,7 @@ export type AnalysisProcessState = {
   samplesFetched: number;
   schemasAnalyzed: number;
   relationsInferred: boolean;
+  error: Error | null;
 };
 
 export enum AnalysisProcessActionTypes {
@@ -89,6 +90,7 @@ const INITIAL_STATE = {
   samplesFetched: 0,
   schemasAnalyzed: 0,
   relationsInferred: false,
+  error: null,
 };
 
 export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
@@ -119,6 +121,12 @@ export const analysisProcessReducer: Reducer<AnalysisProcessState> = (
     return {
       ...state,
       schemasAnalyzed: state.schemasAnalyzed + 1,
+    };
+  }
+  if (isAction(action, AnalysisProcessActionTypes.ANALYSIS_FAILED)) {
+    return {
+      ...state,
+      error: action.error,
     };
   }
   return state;
