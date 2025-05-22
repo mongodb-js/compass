@@ -15,7 +15,7 @@ export type ContextMenuContext = {
   close(): void;
 };
 
-export type MenuItem = {
+export type ContextMenuItem = {
   label: string;
   onAction: (event: React.KeyboardEvent | React.MouseEvent) => void;
 };

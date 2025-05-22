@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
-import type { MenuItem } from './types';
+import type { ContextMenuItem } from './types';
 
 describe('useContextMenu', function () {
-  const TestMenu: React.FC<{ items: MenuItem[] }> = ({ items }) => (
+  const TestMenu: React.FC<{ items: ContextMenuItem[] }> = ({ items }) => (
     <div data-testid="test-menu">
       {items.map((item, idx) => (
         <div
@@ -36,7 +36,7 @@ describe('useContextMenu', function () {
     onAction?: (id) => void;
   }) => {
     const contextMenu = useContextMenu({ Menu: TestMenu });
-    const items: MenuItem[] = [
+    const items: ContextMenuItem[] = [
       {
         label: 'Test Item',
         onAction: () => onAction?.(1),
@@ -64,7 +64,7 @@ describe('useContextMenu', function () {
     children?: React.ReactNode;
   }) => {
     const contextMenu = useContextMenu({ Menu: TestMenu });
-    const parentItems: MenuItem[] = [
+    const parentItems: ContextMenuItem[] = [
       {
         label: 'Parent Item 1',
         onAction: () => onAction?.(1),
@@ -90,7 +90,7 @@ describe('useContextMenu', function () {
     onAction?: (id: number) => void;
   }) => {
     const contextMenu = useContextMenu({ Menu: TestMenu });
-    const childItems: MenuItem[] = [
+    const childItems: ContextMenuItem[] = [
       {
         label: 'Child Item 1',
         onAction: () => onAction?.(1),
