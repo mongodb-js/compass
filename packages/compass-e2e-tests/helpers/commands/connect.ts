@@ -140,6 +140,14 @@ export async function waitForConnectionResult(
 ): Promise<string | undefined> {
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
+  if (dismissEndOfLifeModal) {
+    await browser.$(Selectors.EndOfLifeConnectionModal).waitForDisplayed();
+    await browser.clickVisible(Selectors.EndOfLifeConnectionModalConfirmButton);
+    await browser
+      .$(Selectors.EndOfLifeConnectionModal)
+      .waitForDisplayed({ reverse: true });
+  }
+
   if (
     (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
     (await browser
@@ -149,14 +157,6 @@ export async function waitForConnectionResult(
     // Clear the filter to make sure every connection shows
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-  }
-
-  if (dismissEndOfLifeModal) {
-    await browser.$(Selectors.EndOfLifeConnectionModal).waitForDisplayed();
-    await browser.clickVisible(Selectors.EndOfLifeConnectionModalConfirmButton);
-    await browser
-      .$(Selectors.EndOfLifeConnectionModal)
-      .waitForDisplayed({ reverse: true });
   }
 
   if (connectionStatus === 'either') {
