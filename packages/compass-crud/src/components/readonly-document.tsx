@@ -140,7 +140,11 @@ class ReadonlyDocument extends React.Component<
               value={this.props.doc}
               // Provide extra whitespace for the expand button
               extraGutterWidth={spacing[900]}
-              track={track}
+              onUUIDEncountered={(subtype: 3 | 4) => {
+                track('UUID Encountered', {
+                  subtype,
+                });
+              }}
             />
           </>
         )}
