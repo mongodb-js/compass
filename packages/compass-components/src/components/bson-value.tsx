@@ -9,12 +9,11 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { Theme, useDarkMode } from '../hooks/use-theme';
 
-type ValueProps = (
+type ValueProps =
   | {
       [type in keyof TypeCastMap]: { type: type; value: TypeCastMap[type] };
     }[keyof TypeCastMap]
-  | { type: 'DBRef'; value: DBRef }
-) & { onUUIDEncountered?: (subtype: 3 | 4) => void };
+  | { type: 'DBRef'; value: DBRef };
 
 function truncate(str: string, length = 70): string {
   const truncated = str.slice(0, length);
@@ -123,7 +122,6 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
 
 const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
   value,
-  onUUIDEncountered,
 }) => {
   const { stringifiedValue, title, additionalHints } = useMemo(() => {
     if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
@@ -146,7 +144,6 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
     }
     if (value.sub_type === Binary.SUBTYPE_UUID) {
       let uuid: string;
-      onUUIDEncountered?.(4);
       try {
         // Try to get the pretty hex version of the UUID
         uuid = value.toUUID().toString();
@@ -189,9 +186,6 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
           stringifiedValue: `Binary.fromPackedBits(new Uint8Array([${truncatedSerializedBuffer}]))`,
         };
       }
-    }
-    if (value.sub_type === Binary.SUBTYPE_UUID_OLD) {
-      onUUIDEncountered?.(3);
     }
     return {
       stringifiedValue: `Binary.createFromBase64('${truncate(
@@ -379,12 +373,7 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Date':
       return <DateValue value={props.value}></DateValue>;
     case 'Binary':
-      return (
-        <BinaryValue
-          value={props.value}
-          onUUIDEncountered={props.onUUIDEncountered}
-        ></BinaryValue>
-      );
+      return <BinaryValue value={props.value}></BinaryValue>;
     case 'Int32':
     case 'Double':
       return <NumberValue type={props.type} value={props.value}></NumberValue>;

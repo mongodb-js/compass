@@ -85,7 +85,6 @@ const HadronDocument: React.FunctionComponent<{
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
-  onUUIDEncountered?: (subtype: 3 | 4) => void;
   extraGutterWidth?: number;
 }> = ({
   value: document,
@@ -93,7 +92,6 @@ const HadronDocument: React.FunctionComponent<{
   editing = false,
   onEditStart,
   extraGutterWidth,
-  onUUIDEncountered,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -150,7 +148,6 @@ const HadronDocument: React.FunctionComponent<{
                       }
                     : undefined
                 }
-                onUUIDEncountered={onUUIDEncountered}
                 lineNumberSize={visibleElements.length}
                 onAddElement={(el) => {
                   setAutoFocus({

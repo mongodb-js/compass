@@ -414,7 +414,6 @@ export const HadronElement: React.FunctionComponent<{
   editable: boolean;
   editingEnabled: boolean;
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
-  onUUIDEncountered?: (subtype: 3 | 4) => void;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
@@ -423,7 +422,6 @@ export const HadronElement: React.FunctionComponent<{
   editable,
   editingEnabled,
   onEditStart,
-  onUUIDEncountered,
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
@@ -690,7 +688,6 @@ export const HadronElement: React.FunctionComponent<{
               <BSONValue
                 type={type.value as any}
                 value={value.originalValue}
-                onUUIDEncountered={onUUIDEncountered}
               ></BSONValue>
             </div>
           )}

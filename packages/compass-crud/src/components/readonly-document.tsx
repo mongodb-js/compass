@@ -6,7 +6,6 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
-import { TelemetryContext } from '@mongodb-js/compass-telemetry/provider';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -133,22 +132,13 @@ class ReadonlyDocument extends React.Component<
    */
   renderElements() {
     return (
-      <TelemetryContext.Consumer>
-        {(track) => (
-          <>
-            <DocumentList.Document
-              value={this.props.doc}
-              // Provide extra whitespace for the expand button
-              extraGutterWidth={spacing[900]}
-              onUUIDEncountered={(subtype: 3 | 4) => {
-                track('UUID Encountered', {
-                  subtype,
-                });
-              }}
-            />
-          </>
-        )}
-      </TelemetryContext.Consumer>
+      <>
+        <DocumentList.Document
+          value={this.props.doc}
+          // Provide extra whitespace for the expand button
+          extraGutterWidth={spacing[900]}
+        />
+      </>
     );
   }
 
