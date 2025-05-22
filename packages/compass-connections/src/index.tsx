@@ -24,6 +24,7 @@ import {
 } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
+export { isEndOfLifeVersion } from './utils/end-of-life-server';
 
 const ConnectionsComponent: React.FunctionComponent<{
   /**
