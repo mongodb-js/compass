@@ -9,6 +9,7 @@ import * as Selectors from '../selectors';
 import Debug from 'debug';
 import {
   DEFAULT_CONNECTION_NAMES,
+  isEndOfLifeConnection,
   isTestingAtlasCloudExternal,
   isTestingAtlasCloudSandbox,
 } from '../test-runner-context';
@@ -33,6 +34,7 @@ export async function getConnectFormConnectionString(
 type ConnectionResultOptions = {
   connectionStatus?: 'success' | 'failure' | 'either';
   timeout?: number;
+  dismissEndOfLifeModal?: boolean;
 };
 
 type ConnectOptions = ConnectionResultOptions & {
@@ -130,7 +132,11 @@ export async function doConnect(
 export async function waitForConnectionResult(
   browser: CompassBrowser,
   connectionName: string,
-  { connectionStatus = 'success', timeout }: ConnectionResultOptions = {}
+  {
+    connectionStatus = 'success',
+    timeout,
+    dismissEndOfLifeModal = isEndOfLifeConnection(connectionName),
+  }: ConnectionResultOptions = {}
 ): Promise<string | undefined> {
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
@@ -143,6 +149,14 @@ export async function waitForConnectionResult(
     // Clear the filter to make sure every connection shows
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+  }
+
+  if (dismissEndOfLifeModal) {
+    await browser.$(Selectors.EndOfLifeConnectionModal).waitForDisplayed();
+    await browser.clickVisible(Selectors.EndOfLifeConnectionModalConfirmButton);
+    await browser
+      .$(Selectors.EndOfLifeConnectionModal)
+      .waitForDisplayed({ reverse: true });
   }
 
   if (connectionStatus === 'either') {
