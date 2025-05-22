@@ -1,9 +1,9 @@
 import React, { useContext, useMemo, useRef } from 'react';
 import { Context } from './context-menu-provider';
 import { appendContextMenuContent } from './context-menu-content';
-import type { MenuItem } from './types';
+import type { ContextMenuItem } from './types';
 
-export type ContextMenuMethods<T extends MenuItem> = {
+export type ContextMenuMethods<T extends ContextMenuItem> = {
   /**
    * Close the context menu.
    */
@@ -15,7 +15,7 @@ export type ContextMenuMethods<T extends MenuItem> = {
   registerItems: (items: T[]) => (trigger: HTMLElement | null) => void;
 };
 
-export function useContextMenu<T extends MenuItem>({
+export function useContextMenu<T extends ContextMenuItem>({
   Menu,
 }: {
   Menu: React.ComponentType<{
