@@ -88,7 +88,7 @@ export function DiagramCard({
 }) {
   const darkmode = useDarkMode();
   // the hook does support undefined, but the function overload is somehow not transferred here
-  const formattedDate = useFormattedDate(diagram.lastModified as number);
+  const formattedDate = useFormattedDate(diagram.lastModified);
   return (
     <Card
       className={diagramCardStyles}
