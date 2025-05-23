@@ -5,8 +5,12 @@ import React, {
   useMemo,
   createContext,
 } from 'react';
-import type { ContextMenuContext, MenuState } from './types';
-import { ContextMenu } from './context-menu';
+import type {
+  ContextMenuContext,
+  ContextMenuItemGroup,
+  ContextMenuState,
+} from './types';
+import { ContextMenu } from './compass-context-menu';
 import type { EnhancedMouseEvent } from './context-menu-content';
 import { getContextMenuContent } from './context-menu-content';
 
@@ -14,20 +18,22 @@ export const Context = createContext<ContextMenuContext | null>(null);
 
 export function ContextMenuProvider({
   children,
+  wrapper,
 }: {
   children: React.ReactNode;
+  wrapper: React.ComponentType<{ itemGroups: ContextMenuItemGroup[] }>;
 }) {
-  const [menu, setMenu] = useState<MenuState>({ isOpen: false });
+  const [menu, setMenu] = useState<ContextMenuState>({ isOpen: false });
   const close = useCallback(() => setMenu({ isOpen: false }), [setMenu]);
 
   useEffect(() => {
     function handleContextMenu(event: MouseEvent) {
+      console.log('handleContextMenu', event);
       event.preventDefault();
+
       setMenu({
         isOpen: true,
-        children: getContextMenuContent(event as EnhancedMouseEvent).map(
-          (Content, index) => <Content key={`menu-content-${index}`} />
-        ),
+        itemGroups: getContextMenuContent(event as EnhancedMouseEvent),
         position: {
           // TODO: Fix handling offset while scrolling
           x: event.clientX,
@@ -37,16 +43,20 @@ export function ContextMenuProvider({
     }
 
     function handleClosingEvent(event: Event) {
+      console.log('handleClosingEvent', event);
       if (!event.defaultPrevented) {
+        console.log('setting menu to false');
         setMenu({ isOpen: false });
       }
     }
 
+    console.log('adding event listeners');
     document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('click', handleClosingEvent);
+    window.addEventListener('click', handleClosingEvent);
     window.addEventListener('resize', handleClosingEvent);
 
     return () => {
+      console.log('removing event listeners');
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('click', handleClosingEvent);
       window.removeEventListener('resize', handleClosingEvent);
@@ -60,12 +70,18 @@ export function ContextMenuProvider({
     [close]
   );
 
+  const Wrapper = wrapper ?? React.Fragment;
+
   return (
-    <>
-      <Context.Provider value={value}>{children}</Context.Provider>
-      {menu.isOpen && (
-        <ContextMenu position={menu.position}>{menu.children}</ContextMenu>
-      )}
-    </>
+    <Context.Provider value={value}>
+      <>
+        {children}
+        {menu.isOpen && (
+          <ContextMenu position={menu.position}>
+            <Wrapper itemGroups={menu.itemGroups} />
+          </ContextMenu>
+        )}
+      </>
+    </Context.Provider>
   );
 }

@@ -1,10 +1,15 @@
-export type MenuState =
+export interface ContextMenuItemGroup {
+  items: ContextMenuItem[];
+  originListener: (event: MouseEvent) => void;
+}
+
+export type ContextMenuState =
   | {
       isOpen: false;
     }
   | {
       isOpen: true;
-      children: React.ReactNode;
+      itemGroups: ContextMenuItemGroup[];
       position: {
         x: number;
         y: number;
