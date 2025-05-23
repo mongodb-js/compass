@@ -647,6 +647,9 @@ async function startCompassElectron(
   // we disable the cues completely for the e2e tests
   process.env.DISABLE_GUIDE_CUES = 'true';
 
+  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
+  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
+
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {

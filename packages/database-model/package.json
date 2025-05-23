@@ -2,7 +2,7 @@
   "name": "mongodb-database-model",
   "description": "MongoDB database model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.28.0",
+  "version": "2.28.1",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -23,14 +23,14 @@
     "check": "npm run lint && npm run depcheck",
     "test-check-ci": "npm run check && npm test",
     "test": "mocha",
-    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "lint": "eslint-compass \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "test-ci": "npm run test"
   },
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-collection-model": "^5.28.0",
+    "mongodb-collection-model": "^5.28.1",
     "mongodb-data-service": "^22.27.0"
   },
   "devDependencies": {
