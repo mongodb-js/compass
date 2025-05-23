@@ -30,7 +30,6 @@ import {
   createIpcSendTrack,
 } from '@mongodb-js/compass-telemetry';
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
-import { Context } from '@segment/analytics-node';
 import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
