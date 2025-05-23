@@ -2694,6 +2694,20 @@ type CreateIndexButtonClickedEvent = CommonEvent<{
   };
 }>;
 
+type CreateIndexErrorParsingQueryEvent = CommonEvent<{
+  name: 'Error parsing query';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
+  name: 'Error generating covered queries';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2816,4 +2830,6 @@ export type TelemetryEvent =
   | CumulativeLayoutShiftEvent
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
-  | CreateIndexButtonClickedEvent;
+  | CreateIndexButtonClickedEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexErrorGettingCoveredQueriesEvent;
