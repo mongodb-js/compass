@@ -1818,18 +1818,21 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
+        const { networkTraffic, showEndOfLifeConnectionModal } =
+          preferences.getPreferences();
+
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (preferences.getPreferences().networkTraffic) {
+        } else if (showEndOfLifeConnectionModal) {
           void dataService
             .instance()
             .then(async (instance) => {
               const { version } = instance.build;
               const latestEndOfLifeServerVersion =
-                await getLatestEndOfLifeServerVersion();
+                await getLatestEndOfLifeServerVersion(networkTraffic);
               if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
                 dispatch(
                   showEndOfLifeMongoDBWarningModal(
