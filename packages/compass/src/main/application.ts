@@ -180,7 +180,6 @@ class CompassApplication {
     }
     await setupCSFLELibrary();
     setupTheme(this);
-    this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
@@ -199,12 +198,6 @@ class CompassApplication {
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
-  }
-
-  private static setupJavaScriptArguments(): void {
-    // For Linux users with drivers that are avoided by Chromium we disable the
-    // GPU check to attempt to bypass the disabled WebGL settings.
-    app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
   }
 
   private static setupAutoUpdate(): void {
