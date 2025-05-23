@@ -124,7 +124,6 @@ type SignalPopoverProps = {
   darkMode?: boolean;
   onPopoverOpenChange?: (open: boolean) => void;
   className?: string;
-  shouldExpandBadge?: boolean;
 };
 
 const signalCardContentStyles = css({
@@ -442,7 +441,6 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   darkMode: _darkMode,
   onPopoverOpenChange: _onPopoverOpenChange,
   className,
-  shouldExpandBadge,
 }) => {
   const hooks = useContext(TrackingHooksContext);
   const darkMode = useDarkMode(_darkMode);
@@ -455,7 +453,6 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = isHovered || popoverOpen;
-  const shouldShowFullBadge = isActive || shouldExpandBadge;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -592,7 +589,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                     className
                   ),
                   style: {
-                    width: shouldShowFullBadge ? activeBadgeWidth : 18,
+                    width: isActive ? activeBadgeWidth : 18,
                   },
                   ref: triggerRef,
                 },
@@ -611,7 +608,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       size="small"
                       className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
                       data-testid="insight-badge-icon"
-                      style={{ opacity: shouldShowFullBadge ? 0 : 1 }}
+                      style={{ opacity: isActive ? 0 : 1 }}
                     ></Icon>
                     <strong
                       className={cx(
@@ -621,7 +618,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       data-testid="insight-badge-text"
                       style={{
                         width: activeBadgeWidth,
-                        opacity: shouldShowFullBadge ? 1 : 0,
+                        opacity: isActive ? 1 : 0,
                       }}
                     >
                       {badgeLabel}
