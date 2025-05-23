@@ -15,7 +15,25 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '1',
     name: 'One',
-    edits: [],
+    edits: [
+      {
+        id: 'edit-id-1',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db1.collection1',
+              indexes: [],
+              displayPosition: [1, 1],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
   {
@@ -23,7 +41,7 @@ const storageItems: MongoDBDataModelDescription[] = [
     name: 'Two',
     edits: [
       {
-        id: 'edit-id',
+        id: 'edit-id-2',
         timestamp: '2023-10-01T00:00:00.000Z',
         type: 'SetModel',
         model: {
@@ -31,7 +49,7 @@ const storageItems: MongoDBDataModelDescription[] = [
             {
               ns: 'db2.collection2',
               indexes: [],
-              displayPosition: [0, 0],
+              displayPosition: [2, 2],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },
@@ -45,7 +63,25 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '3',
     name: 'Three',
-    edits: [],
+    edits: [
+      {
+        id: 'edit-id-3',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db3.collection3',
+              indexes: [],
+              displayPosition: [3, 3],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
 ];

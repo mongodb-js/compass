@@ -2,6 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { DiagramCard } from './diagram-card';
+import type { Edit } from '../services/data-model-storage';
 
 describe('DiagramCard', () => {
   const props = {
@@ -9,7 +10,25 @@ describe('DiagramCard', () => {
       id: 'test-diagram',
       connectionId: 'test-connection',
       name: 'Test Diagram',
-      edits: [],
+      edits: [
+        {
+          id: 'edit-id',
+          timestamp: '2023-10-01T00:00:00.000Z',
+          type: 'SetModel',
+          model: {
+            collections: [
+              {
+                ns: 'db.collection',
+                indexes: [],
+                displayPosition: [0, 0],
+                shardKey: {},
+                jsonSchema: { bsonType: 'object' },
+              },
+            ],
+            relationships: [],
+          },
+        },
+      ] as [Edit],
       lastModified: new Date('2025-01-01').getTime(),
       databases: 'someDatabase',
     },
