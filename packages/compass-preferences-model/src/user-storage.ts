@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import { UUID } from 'bson';
 import { UserData } from '@mongodb-js/compass-user-data';
 

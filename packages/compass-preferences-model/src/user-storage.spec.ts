@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import { expect } from 'chai';
 import os from 'os';
 import path from 'path';

@@ -1,7 +1,9 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node16",
+    "module": "node16"
   },
   "include": [
     "src/**/*",
