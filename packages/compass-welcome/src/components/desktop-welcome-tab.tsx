@@ -72,11 +72,11 @@ function AtlasHelpSection(): React.ReactElement {
   const contextRef = useContextMenuItems([
     {
       label: '1',
-      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
     },
     {
       label: '2',
-      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
     },
   ]);
 
@@ -111,7 +111,7 @@ function TestClusterButton() {
   const contextRef = useContextMenuItems([
     {
       label: '123',
-      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
     },
   ]);
   return (

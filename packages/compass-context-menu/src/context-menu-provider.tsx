@@ -5,12 +5,7 @@ import React, {
   useMemo,
   createContext,
 } from 'react';
-import type {
-  ContextMenuContext,
-  ContextMenuItemGroup,
-  ContextMenuState,
-} from './types';
-import { ContextMenu } from './compass-context-menu';
+import type { ContextMenuContext, ContextMenuState } from './types';
 import type { EnhancedMouseEvent } from './context-menu-content';
 import { getContextMenuContent } from './context-menu-content';
 
@@ -21,19 +16,39 @@ export function ContextMenuProvider({
   wrapper,
 }: {
   children: React.ReactNode;
-  wrapper: React.ComponentType<{ itemGroups: ContextMenuItemGroup[] }>;
+  wrapper: React.ComponentType<{
+    menu: ContextMenuState & { close: () => void };
+  }>;
 }) {
-  const [menu, setMenu] = useState<ContextMenuState>({ isOpen: false });
-  const close = useCallback(() => setMenu({ isOpen: false }), [setMenu]);
+  const [menu, setMenu] = useState<ContextMenuState>({
+    isOpen: false,
+    itemGroups: [],
+    position: { x: 0, y: 0 },
+  });
+  const close = useCallback(() => setMenu({ ...menu, isOpen: false }), [menu]);
+
+  const handleClosingEvent = useCallback(
+    (event: Event) => {
+      if (!event.defaultPrevented) {
+        setMenu({ ...menu, isOpen: false });
+      }
+    },
+    [menu]
+  );
 
   useEffect(() => {
     function handleContextMenu(event: MouseEvent) {
-      console.log('handleContextMenu', event);
       event.preventDefault();
+
+      const itemGroups = getContextMenuContent(event as EnhancedMouseEvent);
+
+      if (itemGroups.length === 0) {
+        return;
+      }
 
       setMenu({
         isOpen: true,
-        itemGroups: getContextMenuContent(event as EnhancedMouseEvent),
+        itemGroups,
         position: {
           // TODO: Fix handling offset while scrolling
           x: event.clientX,
@@ -42,26 +57,14 @@ export function ContextMenuProvider({
       });
     }
 
-    function handleClosingEvent(event: Event) {
-      console.log('handleClosingEvent', event);
-      if (!event.defaultPrevented) {
-        console.log('setting menu to false');
-        setMenu({ isOpen: false });
-      }
-    }
-
-    console.log('adding event listeners');
     document.addEventListener('contextmenu', handleContextMenu);
-    window.addEventListener('click', handleClosingEvent);
     window.addEventListener('resize', handleClosingEvent);
 
     return () => {
-      console.log('removing event listeners');
       document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('click', handleClosingEvent);
       window.removeEventListener('resize', handleClosingEvent);
     };
-  }, [setMenu]);
+  }, [handleClosingEvent]);
 
   const value = useMemo(
     () => ({
@@ -74,14 +77,8 @@ export function ContextMenuProvider({
 
   return (
     <Context.Provider value={value}>
-      <>
-        {children}
-        {menu.isOpen && (
-          <ContextMenu position={menu.position}>
-            <Wrapper itemGroups={menu.itemGroups} />
-          </ContextMenu>
-        )}
-      </>
+      {children}
+      <Wrapper menu={{ ...menu, close }} />
     </Context.Provider>
   );
 }

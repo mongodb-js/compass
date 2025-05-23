@@ -4,14 +4,12 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
-import type { ContextMenuItem, ContextMenuItemGroup } from './types';
+import type { ContextMenuItem, ContextMenuWrapperProps } from './types';
 
 describe('useContextMenu', function () {
-  const TestMenu: React.FC<{ itemGroups: ContextMenuItemGroup[] }> = ({
-    itemGroups,
-  }) => (
+  const TestMenu: React.FC<ContextMenuWrapperProps> = ({ menu }) => (
     <div data-testid="test-menu">
-      {itemGroups.flatMap((group, groupIdx) =>
+      {menu.itemGroups.flatMap((group, groupIdx) =>
         group.items.map((item, idx) => (
           <div
             key={`${groupIdx}-${idx}`}
