@@ -26,7 +26,7 @@
     ".esm-wrapper.mjs"
   ],
   "scripts": {
-    "lint": "eslint **/*.js",
+    "lint": "eslint-compass **/*.js",
     "test": "npm run compile && nyc mocha --colors test/*.js",
     "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",

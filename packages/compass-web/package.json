@@ -119,7 +119,6 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.16.0",
-    "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.27.0",
     "mongodb-log-writer": "^2.3.4",
     "mongodb-ns": "^2.4.2",

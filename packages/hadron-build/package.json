@@ -5,7 +5,7 @@
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
-    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
+    "lint": "eslint-compass \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
     "postinstall": "node signtool/install.js"
