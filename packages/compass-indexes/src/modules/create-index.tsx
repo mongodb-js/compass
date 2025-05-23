@@ -455,6 +455,7 @@ export const fetchIndexSuggestions = ({
         indexSuggestionsState: 'success',
       });
     } catch (e: unknown) {
+      // TODO: remove this in CLOUDP-320224
       track('Error parsing query', { context: 'Create Index Modal' });
       throwError(e);
     }

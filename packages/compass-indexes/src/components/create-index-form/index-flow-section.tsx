@@ -104,6 +104,7 @@ const generateCoveredQueries = (
   }
 
   if (rows.length === 0) {
+    // TODO: remove this in CLOUDP-320224
     track('Error generating covered queries', {
       context: 'Create Index Modal',
     });

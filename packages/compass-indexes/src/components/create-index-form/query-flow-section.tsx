@@ -108,12 +108,13 @@ const QueryFlowSection = ({
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: string | null;
 }) => {
-  const [inputQuery, setInputQuery] = React.useState(
-    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
-  );
+  const [inputQuery, setInputQuery] = React.useState(initialQuery || '');
   const [hasNewChanges, setHasNewChanges] = React.useState(
     initialQuery !== null
   );
+  const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
+    React.useState(true);
+
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
@@ -148,18 +149,22 @@ const QueryFlowSection = ({
   }, []);
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
-  let isShowSuggestionsButtonDisabled = !hasNewChanges;
 
   // Validate query upon typing
-  try {
-    parseFilter(inputQuery);
+  useMemo(() => {
+    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    try {
+      parseFilter(inputQuery);
 
-    if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
-      isShowSuggestionsButtonDisabled = true;
+      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+        _isShowSuggestionsButtonDisabled = true;
+      }
+    } catch (e) {
+      _isShowSuggestionsButtonDisabled = true;
+    } finally {
+      setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
-  } catch (e) {
-    isShowSuggestionsButtonDisabled = true;
-  }
+  }, [hasNewChanges, inputQuery]);
 
   return (
     <>
