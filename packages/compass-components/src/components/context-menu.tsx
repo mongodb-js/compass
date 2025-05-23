@@ -28,8 +28,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
     if (!menu.isOpen) {
       menu.close();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu.isOpen]);
+  }, [menu, menu.isOpen]);
 
   return (
     <div
@@ -40,7 +39,12 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         top: position.y,
       }}
     >
-      <Menu renderMode="inline" open={menu.isOpen} setOpen={menu.close}>
+      <Menu
+        renderMode="inline"
+        open={menu.isOpen}
+        setOpen={menu.close}
+        justify="start"
+      >
         {itemGroups.map(
           (itemGroup: ContextMenuItemGroup, groupIndex: number) => {
             return (
