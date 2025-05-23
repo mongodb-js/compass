@@ -4,7 +4,7 @@ import { Context } from './context-menu-provider';
 import { appendContextMenuContent } from './context-menu-content';
 import type { ContextMenuItem } from './types';
 
-export type ContextMenuMethods = {
+export type ContextMenuMethods<T extends ContextMenuItem> = {
   /**
    * Close the context menu.
    */
@@ -13,10 +13,12 @@ export type ContextMenuMethods = {
    * Register the menu items for the context menu.
    * @returns a callback ref to be passed onto the element responsible for triggering the menu.
    */
-  registerItems: (items: ContextMenuItem[]) => RefCallback<HTMLElement>;
+  registerItems: (items: T[]) => RefCallback<HTMLElement>;
 };
 
-export function useContextMenu(): ContextMenuMethods {
+export function useContextMenu<
+  T extends ContextMenuItem = ContextMenuItem
+>(): ContextMenuMethods<T> {
   const context = useContext(Context);
   const previous = useRef<null | [HTMLElement, (event: MouseEvent) => void]>(
     null
