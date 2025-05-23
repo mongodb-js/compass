@@ -23,6 +23,7 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
 import { range } from 'lodash';
 import ConnectionString from 'mongodb-connection-string-url';
+import { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -91,6 +92,112 @@ describe('DataService', function () {
         .db(testDatabaseName)
         .collection(testCollectionName)
         .drop();
+    });
+
+    describe('#connect', function () {
+      const connectionStartedId = 1_001_000_014;
+      const connectionSucceededId = 1_001_000_015;
+      const connectionFailedId = 1_001_000_359;
+      const logs: {
+        info: [
+          component: string,
+          id: MongoLogId,
+          context: string,
+          message: string,
+          attr?: unknown
+        ];
+      }[] = [];
+      const logCollector: DataServiceImplLogger = {
+        error: () => {},
+        info: (...args) => logs.push({ info: args }),
+        debug: () => {},
+        warn: () => {},
+        fatal: () => {},
+      };
+
+      let dataServiceLogTest;
+
+      beforeEach(function () {
+        logs.length = 0;
+      });
+
+      afterEach(async function () {
+        await dataServiceLogTest?.disconnect();
+        dataServiceLogTest = undefined;
+      });
+
+      // The log and connection ids in this test are used by CompassWeb to measure connect time metrics.
+      // The intention of these tests is not to restrict any changes to the logs or ids.
+      // If a change to the ids is necessary please inform the appropriate team and they can adjust before pulling in the change.
+      it('when connecting succeeds there is a start and success log with a connectionId', async function () {
+        dataServiceLogTest = new DataServiceImpl(
+          connectionOptions,
+          logCollector
+        );
+        await dataServiceLogTest.connect();
+
+        expect(logs.map(({ info: [, id] }) => id.__value)).to.include(
+          connectionStartedId
+        );
+        expect(logs.map(({ info: [, id] }) => id.__value)).to.include(
+          connectionSucceededId
+        );
+
+        const startedLog = logs.find(
+          ({ info: [, id] }) => id.__value === connectionStartedId
+        );
+        const succeededLog = logs.find(
+          ({ info: [, id] }) => id.__value === connectionSucceededId
+        );
+
+        const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
+        expect(startedAttr).to.have.property(
+          'connectionId',
+          dataServiceLogTest._id
+        );
+        const { info: [, , , , succeededAttr] = [] } = succeededLog ?? {};
+        expect(succeededAttr).to.have.property(
+          'connectionId',
+          dataServiceLogTest._id
+        );
+      });
+
+      it('when connecting fails there is a start and failure log with a connectionId', async function () {
+        dataServiceLogTest = new DataServiceImpl(
+          { connectionString: 'mongodb://iLoveJavascript' },
+          logCollector
+        );
+
+        const result = await dataServiceLogTest
+          .connect()
+          .catch((error) => error);
+        expect(result).to.be.instanceOf(Error);
+
+        expect(logs.map(({ info: [, id] }) => id.__value)).to.include(
+          connectionStartedId
+        );
+        expect(logs.map(({ info: [, id] }) => id.__value)).to.include(
+          connectionFailedId
+        );
+
+        const startedLog = logs.find(
+          ({ info: [, id] }) => id.__value === connectionStartedId
+        );
+        const failedLog = logs.find(
+          ({ info: [, id] }) => id.__value === connectionFailedId
+        );
+
+        const { info: [, , , , startedAttr] = [] } = startedLog ?? {};
+        expect(startedAttr).to.have.property(
+          'connectionId',
+          dataServiceLogTest._id
+        );
+        const { info: [, , , , succeededAttr] = [] } = failedLog ?? {};
+        expect(succeededAttr).to.have.property(
+          'connectionId',
+          dataServiceLogTest._id
+        );
+      });
     });
 
     describe('#isConnected', function () {
