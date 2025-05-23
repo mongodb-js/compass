@@ -1,23 +1,24 @@
+import type { ContextMenuItemGroup } from './types';
+
 const CONTEXT_MENUS_SYMBOL = Symbol('context_menus');
 
 export type EnhancedMouseEvent = MouseEvent & {
-  [CONTEXT_MENUS_SYMBOL]?: React.ComponentType[];
+  [CONTEXT_MENUS_SYMBOL]?: ContextMenuItemGroup[];
 };
 
 export function getContextMenuContent(
   event: EnhancedMouseEvent
-): React.ComponentType[] {
+): ContextMenuItemGroup[] {
   return event[CONTEXT_MENUS_SYMBOL] ?? [];
 }
 
 export function appendContextMenuContent(
   event: EnhancedMouseEvent,
-  content: React.ComponentType
+  content: ContextMenuItemGroup
 ) {
   // Initialize if not already patched
-  if (event[CONTEXT_MENUS_SYMBOL] === undefined) {
-    event[CONTEXT_MENUS_SYMBOL] = [content];
-    return;
+  if (!event[CONTEXT_MENUS_SYMBOL]) {
+    event[CONTEXT_MENUS_SYMBOL] = [];
   }
   event[CONTEXT_MENUS_SYMBOL].push(content);
 }

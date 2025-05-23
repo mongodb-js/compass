@@ -4,27 +4,29 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
-import type { ContextMenuItem } from './types';
+import type { ContextMenuItem, ContextMenuWrapperProps } from './types';
 
 describe('useContextMenu', function () {
-  const TestMenu: React.FC<{ items: ContextMenuItem[] }> = ({ items }) => (
+  const TestMenu: React.FC<ContextMenuWrapperProps> = ({ menu }) => (
     <div data-testid="test-menu">
-      {items.map((item, idx) => (
-        <div
-          key={idx}
-          data-testid={`menu-item-${item.label}`}
-          role="menuitem"
-          tabIndex={0}
-          onClick={(event) => item.onAction?.(event)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              item.onAction?.(event);
-            }
-          }}
-        >
-          {item.label}
-        </div>
-      ))}
+      {menu.itemGroups.flatMap((group, groupIdx) =>
+        group.items.map((item, idx) => (
+          <div
+            key={`${groupIdx}-${idx}`}
+            data-testid={`menu-item-${item.label}`}
+            role="menuitem"
+            tabIndex={0}
+            onClick={(event) => item.onAction?.(event)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                item.onAction?.(event);
+              }
+            }}
+          >
+            {item.label}
+          </div>
+        ))
+      )}
     </div>
   );
 
@@ -33,9 +35,9 @@ describe('useContextMenu', function () {
     onAction,
   }: {
     onRegister?: (ref: any) => void;
-    onAction?: (id) => void;
+    onAction?: (id: number) => void;
   }) => {
-    const contextMenu = useContextMenu({ Menu: TestMenu });
+    const contextMenu = useContextMenu();
     const items: ContextMenuItem[] = [
       {
         label: 'Test Item',
@@ -55,7 +57,6 @@ describe('useContextMenu', function () {
     );
   };
 
-  // Add new test components for nested context menu scenario
   const ParentComponent = ({
     onAction,
     children,
@@ -63,7 +64,7 @@ describe('useContextMenu', function () {
     onAction?: (id: number) => void;
     children?: React.ReactNode;
   }) => {
-    const contextMenu = useContextMenu({ Menu: TestMenu });
+    const contextMenu = useContextMenu();
     const parentItems: ContextMenuItem[] = [
       {
         label: 'Parent Item 1',
@@ -89,7 +90,7 @@ describe('useContextMenu', function () {
   }: {
     onAction?: (id: number) => void;
   }) => {
-    const contextMenu = useContextMenu({ Menu: TestMenu });
+    const contextMenu = useContextMenu();
     const childItems: ContextMenuItem[] = [
       {
         label: 'Child Item 1',
@@ -135,7 +136,7 @@ describe('useContextMenu', function () {
 
     it('renders without error', function () {
       render(
-        <ContextMenuProvider>
+        <ContextMenuProvider wrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );
@@ -147,7 +148,7 @@ describe('useContextMenu', function () {
       const onRegister = sinon.spy();
 
       render(
-        <ContextMenuProvider>
+        <ContextMenuProvider wrapper={TestMenu}>
           <TestComponent onRegister={onRegister} />
         </ContextMenuProvider>
       );
@@ -158,7 +159,7 @@ describe('useContextMenu', function () {
 
     it('shows context menu on right click', function () {
       render(
-        <ContextMenuProvider>
+        <ContextMenuProvider wrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );
@@ -173,7 +174,7 @@ describe('useContextMenu', function () {
     describe('with nested context menus', function () {
       it('shows only parent items when right clicking parent area', function () {
         render(
-          <ContextMenuProvider>
+          <ContextMenuProvider wrapper={TestMenu}>
             <ParentComponent />
           </ContextMenuProvider>
         );
@@ -192,7 +193,7 @@ describe('useContextMenu', function () {
 
       it('shows both parent and child items when right clicking child area', function () {
         render(
-          <ContextMenuProvider>
+          <ContextMenuProvider wrapper={TestMenu}>
             <ParentComponent>
               <ChildComponent />
             </ParentComponent>
@@ -214,7 +215,7 @@ describe('useContextMenu', function () {
         const childOnAction = sinon.spy();
 
         render(
-          <ContextMenuProvider>
+          <ContextMenuProvider wrapper={TestMenu}>
             <ParentComponent onAction={parentOnAction}>
               <ChildComponent onAction={childOnAction} />
             </ParentComponent>
@@ -237,7 +238,7 @@ describe('useContextMenu', function () {
         const childOnAction = sinon.spy();
 
         render(
-          <ContextMenuProvider>
+          <ContextMenuProvider wrapper={TestMenu}>
             <ParentComponent onAction={parentOnAction}>
               <ChildComponent onAction={childOnAction} />
             </ParentComponent>
