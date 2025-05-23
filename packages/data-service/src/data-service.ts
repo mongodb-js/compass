@@ -1633,7 +1633,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._crudClient
       );
     } catch (error) {
-      this._logger.info(mongoLogId(1_001_000_359), 'Connecting Error', {
+      this._logger.info(mongoLogId(1_001_000_359), 'Connecting Failed', {
         connectionId: this._id,
         error:
           error && typeof error === 'object' && 'message' in error
