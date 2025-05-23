@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu May 22 2025.
+This document was automatically generated on Fri May 23 2025.
 
 ## List of dependencies
 
@@ -592,7 +592,7 @@ This document was automatically generated on Thu May 22 2025.
 | **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**                                            | 3.1.1        | ISC                                 |
 | **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**                                            | 4.0.0        | ISC                                 |
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                       | 21.1.1       | ISC                                 |
-| **[zod](#750b81338b71d5e78ed66a065d072d2ab6b12e6aed146a736200bc63fc4f721b)**                                                | 3.23.8       | MIT                                 |
+| **[zod](#47d4f8aea57c756d184be32bcd9df03f490606057a940cf6ab006cce6cf81731)**                                                | 3.25.17      | MIT                                 |
 
 ## Package details
 
@@ -39486,9 +39486,9 @@ License files:
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="750b81338b71d5e78ed66a065d072d2ab6b12e6aed146a736200bc63fc4f721b"></a>
+<a id="47d4f8aea57c756d184be32bcd9df03f490606057a940cf6ab006cce6cf81731"></a>
 
-### [zod](https://www.npmjs.com/package/zod) (version 3.23.8)
+### [zod](https://www.npmjs.com/package/zod) (version 3.25.17)
 
 License tags: MIT
 
@@ -39498,7 +39498,7 @@ License files:
 
       MIT License
 
-      Copyright (c) 2020 Colin McDonnell
+      Copyright (c) 2025 Colin McDonnell
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal

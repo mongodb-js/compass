@@ -1,10 +1,11 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
-import { analyzeDocuments } from 'mongodb-schema';
+import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
 import { getCurrentDiagramFromState } from './diagram';
 import type { Document } from 'bson';
 import type { AggregationCursor } from 'mongodb';
+import type { Relationship } from '../services/data-model-storage';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -61,9 +62,8 @@ export type AnalysisFinishedAction = {
   type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
-  // TODO
-  schema: Record<string, unknown>;
-  relations: unknown[];
+  collections: { ns: string; schema: MongoDBJSONSchema }[];
+  relations: Relationship[];
 };
 
 export type AnalysisFailedAction = {
@@ -157,7 +157,7 @@ export function startAnalysis(
     try {
       const dataService =
         services.connections.getDataServiceForConnection(connectionId);
-      const schema = await Promise.all(
+      const collections = await Promise.all(
         namespaces.map(async (ns) => {
           const sample: AggregationCursor<Document> = dataService.sampleCursor(
             ns,
@@ -188,7 +188,7 @@ export function startAnalysis(
             type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
             namespace: ns,
           });
-          return [ns, schema];
+          return { ns, schema };
         })
       );
       if (options.automaticallyInferRelations) {
@@ -201,7 +201,7 @@ export function startAnalysis(
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
-        schema: Object.fromEntries(schema),
+        collections,
         relations: [],
       });
       void services.dataModelStorage.save(

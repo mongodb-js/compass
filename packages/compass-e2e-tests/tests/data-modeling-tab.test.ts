@@ -84,13 +84,17 @@ describe('Data Modeling tab', function () {
     const text = await browser.getCodemirrorEditorText(
       Selectors.DataModelPreview
     );
-    expect(text).to.include('"test.testCollection1": ');
-    expect(text).to.include('"test.testCollection2": ');
+
+    expect(text).to.include('"ns": "test.testCollection1"');
+    expect(text).to.include('"ns": "test.testCollection2"');
 
     // Apply change to the model
     const newModel = {
       type: 'SetModel',
-      model: { schema: { coll1: {}, coll2: {} } },
+      model: {
+        collections: [],
+        relationships: [],
+      },
     };
     const newPreview = JSON.stringify(newModel.model, null, 2);
     await browser.setCodemirrorEditorValue(
@@ -112,8 +116,8 @@ describe('Data Modeling tab', function () {
         Selectors.DataModelPreview
       );
       return (
-        textAfterUndo.includes('"test.testCollection1": ') &&
-        textAfterUndo.includes('"test.testCollection2": ')
+        textAfterUndo.includes('"ns": "test.testCollection1"') &&
+        textAfterUndo.includes('"ns": "test.testCollection2"')
       );
     });
 
