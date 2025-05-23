@@ -23,7 +23,7 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
 import { range } from 'lodash';
 import ConnectionString from 'mongodb-connection-string-url';
-import { DataServiceImplLogger, MongoLogId } from './logger';
+import type { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
@@ -164,7 +164,13 @@ describe('DataService', function () {
 
       it('when connecting fails there is a start and failure log with a connectionId', async function () {
         dataServiceLogTest = new DataServiceImpl(
-          { connectionString: 'mongodb://iLoveJavascript' },
+          {
+            connectionString:
+              'mongodb://iLoveJavascript?serverSelectionTimeoutMS=5',
+            lookup: () => {
+              throw new Error('test error');
+            },
+          },
           logCollector
         );
 
