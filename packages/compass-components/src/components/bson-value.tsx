@@ -144,7 +144,6 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
     }
     if (value.sub_type === Binary.SUBTYPE_UUID) {
       let uuid: string;
-
       try {
         // Try to get the pretty hex version of the UUID
         uuid = value.toUUID().toString();
