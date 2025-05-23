@@ -79,8 +79,8 @@ export function DiagramCard({
   onDelete,
 }: {
   diagram: MongoDBDataModelDescription & {
-    lastModified?: number;
-    databases?: string;
+    lastModified: number;
+    databases: string;
   };
   onOpen: (diagram: MongoDBDataModelDescription) => void;
   onRename: (id: string) => void;

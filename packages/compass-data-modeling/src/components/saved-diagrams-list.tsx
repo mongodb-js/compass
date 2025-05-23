@@ -141,13 +141,11 @@ export const SavedDiagramsList: React.FunctionComponent<{
   const { items, status } = useDataModelSavedItems();
   const decoratedItems = useMemo<
     (MongoDBDataModelDescription & {
-      lastModified?: number;
-      databases?: string;
+      lastModified: number;
+      databases: string;
     })[]
   >(() => {
     return items.map((item) => {
-      if (!item.edits.length) return item;
-
       const databases = new Set(
         getCurrentModel(item).collections.map(({ ns }) => toNS(ns).database)
       );

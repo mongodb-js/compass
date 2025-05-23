@@ -12,11 +12,15 @@ import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 
+function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
+  return Array.isArray(arr) && arr.length > 0;
+}
+
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
         prev: Edit[][];
-        current: Edit[];
+        current: [Edit, ...Edit[]];
         next: Edit[][];
       };
       editErrors?: string[];
@@ -154,8 +158,8 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
-    const newCurrent = state.edits.prev.pop();
-    if (!newCurrent) {
+    const newCurrent = state.edits.prev.pop() || [];
+    if (!isNonEmptyArray(newCurrent)) {
       return state;
     }
     return {
@@ -168,8 +172,8 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
-    const newCurrent = state.edits.next.pop();
-    if (!newCurrent) {
+    const newCurrent = state.edits.next.pop() || [];
+    if (!isNonEmptyArray(newCurrent)) {
       return state;
     }
     return {
