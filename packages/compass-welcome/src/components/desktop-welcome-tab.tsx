@@ -14,7 +14,6 @@ import {
   cx,
   useDarkMode,
   Icon,
-  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
@@ -67,22 +66,11 @@ const createClusterButtonLightModeStyles = css({
 });
 
 function AtlasHelpSection(): React.ReactElement {
-  const darkMode = useDarkMode();
   const track = useTelemetry();
-  const contextRef = useContextMenuItems([
-    {
-      label: '1',
-      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
-    },
-    {
-      label: '2',
-      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
-    },
-  ]);
+  const darkMode = useDarkMode();
 
   return (
     <div
-      ref={contextRef}
       className={cx(
         sectionContainerStyles,
         atlasContainerStyles,
@@ -100,40 +88,26 @@ function AtlasHelpSection(): React.ReactElement {
           MongoDB Atlas
         </Link>
       </Body>
-      <TestClusterButton />
+      <div className={createClusterContainerStyles}>
+        <Button
+          data-testid="atlas-cta-link"
+          className={cx(
+            createClusterButtonStyles,
+            !darkMode && createClusterButtonLightModeStyles
+          )}
+          onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+          variant={ButtonVariant.PrimaryOutline}
+          href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
+          target="_blank"
+          size={ButtonSize.Small}
+        >
+          CREATE FREE CLUSTER
+        </Button>
+      </div>
     </div>
   );
 }
 
-function TestClusterButton() {
-  const track = useTelemetry();
-  const darkMode = useDarkMode();
-  const contextRef = useContextMenuItems([
-    {
-      label: '123',
-      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
-    },
-  ]);
-  return (
-    <div className={createClusterContainerStyles}>
-      <Button
-        ref={contextRef}
-        data-testid="atlas-cta-link"
-        className={cx(
-          createClusterButtonStyles,
-          !darkMode && createClusterButtonLightModeStyles
-        )}
-        onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
-        variant={ButtonVariant.PrimaryOutline}
-        href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
-        target="_blank"
-        size={ButtonSize.Small}
-      >
-        CREATE FREE CLUSTER
-      </Button>
-    </div>
-  );
-}
 const welcomeTabStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -151,20 +125,9 @@ export default function DesktopWelcomeTab() {
   const enableCreatingNewConnections = usePreference(
     'enableCreatingNewConnections'
   );
-  const track = useTelemetry();
-  const contextRef = useContextMenuItems([
-    {
-      label: '4',
-      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
-    },
-    {
-      label: '5',
-      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
-    },
-  ]);
 
   return (
-    <div ref={contextRef} className={welcomeTabStyles}>
+    <div className={welcomeTabStyles}>
       <WelcomeTabImage />
       <div>
         <H3>Welcome to MongoDB Compass</H3>
