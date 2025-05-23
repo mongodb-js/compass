@@ -77,7 +77,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
-  query?: string;
+  query?: BsonDocument;
 };
 
 type CreateIndexClosedAction = {
@@ -314,7 +314,7 @@ export type State = {
   sampleDocs: Array<Document> | null;
 
   // base query to be used for query flow index creation
-  query: string | null;
+  query: BsonDocument | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -339,7 +339,7 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = (query?: BsonDocument) => ({
+export const createIndexOpened = (query?: Document) => ({
   type: ActionTypes.CreateIndexOpened,
   query,
 });
