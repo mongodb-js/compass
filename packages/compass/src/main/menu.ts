@@ -587,7 +587,8 @@ class CompassMenu {
   private static async setupDockMenu() {
     await electronApp.whenReady();
     if (process.platform === 'darwin') {
-      electronApp.dock.setMenu(
+      // Dock is always available on macOS, `?` is just to satisfy TypeScript
+      electronApp.dock?.setMenu(
         Menu.buildFromTemplate([
           {
             label: 'New Window',
