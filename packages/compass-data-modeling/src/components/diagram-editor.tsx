@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   applyEdit,
   getCurrentDiagramFromState,
@@ -18,9 +17,13 @@ import {
   css,
   spacing,
   Button,
-  palette,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import {
+  Diagram,
+  DiagramProvider,
+  type NodeProps,
+} from '@mongodb-js/diagramming';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -68,24 +71,6 @@ const modelPreviewContainerStyles = css({
   height: '100%',
 });
 
-const modelPreviewStyles = css({
-  minHeight: 0,
-});
-
-const editorContainerStyles = css({
-  height: 160 + 34 + 16,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  boxShadow: `0 0 0 2px ${palette.gray.light2}`,
-});
-
-const editorContainerApplyButtonStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
-  alignSelf: 'flex-end',
-});
-
 const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
   hasUndo: boolean;
@@ -108,18 +93,36 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyClick,
 }) => {
-  const [applyInput, setApplyInput] = useState('{}');
-  const isEditValid = useMemo(() => {
-    try {
-      JSON.parse(applyInput);
-      return true;
-    } catch {
-      return false;
-    }
-  }, [applyInput]);
-
-  const modelStr = useMemo(() => {
-    return JSON.stringify(model, null, 2);
+  const nodes = useMemo(() => {
+    return (model as any).collections.map((coll: any): NodeProps => {
+      return {
+        id: coll.ns,
+        type: 'collection',
+        title: coll.ns,
+        fields: Object.entries(coll.jsonSchema.properties).map(
+          ([name, field]) => {
+            const type =
+              typeof field.bsonType === 'string'
+                ? field.bsonType
+                : field.bsonType[0];
+            return {
+              name: name,
+              type,
+              glyphs: type === 'objectId' ? ['key'] : [],
+            };
+          }
+        ),
+        measured: {
+          width: 100,
+          height: 200,
+        },
+        position: {
+          // TODO: replace with actual positions
+          x: Math.floor(Math.random() * 1000),
+          y: Math.floor(Math.random() * 1000),
+        },
+      };
+    });
   }, [model]);
 
   let content;
@@ -163,35 +166,7 @@ const DiagramEditor: React.FunctionComponent<{
         className={modelPreviewContainerStyles}
         data-testid="diagram-editor-container"
       >
-        <div className={modelPreviewStyles} data-testid="model-preview">
-          <CodemirrorMultilineEditor
-            language="json"
-            text={modelStr}
-            readOnly
-            initialJSONFoldAll={false}
-          ></CodemirrorMultilineEditor>
-        </div>
-        <div className={editorContainerStyles} data-testid="apply-editor">
-          <div>
-            <CodemirrorMultilineEditor
-              language="json"
-              text={applyInput}
-              onChangeText={setApplyInput}
-              maxLines={10}
-            ></CodemirrorMultilineEditor>
-          </div>
-          <div className={editorContainerApplyButtonStyles}>
-            <Button
-              onClick={() => {
-                onApplyClick(JSON.parse(applyInput));
-              }}
-              data-testid="apply-button"
-              disabled={!isEditValid}
-            >
-              Apply
-            </Button>
-          </div>
-        </div>
+        <Diagram title="Schema Preview" edges={[]} nodes={nodes} />
       </div>
     );
   }
@@ -223,7 +198,7 @@ const DiagramEditor: React.FunctionComponent<{
         );
       }}
     >
-      {content}
+      <DiagramProvider>{content}</DiagramProvider>
     </WorkspaceContainer>
   );
 };
