@@ -114,7 +114,10 @@ export const diagramReducer: Reducer<DiagramState> = (
                 // TODO
                 indexes: [],
                 shardKey: undefined,
-                displayPosition: [0, 0],
+                displayPosition: [
+                  Math.random() * 1000,
+                  Math.random() * 1000,
+                ],
               })),
               relationships: action.relations,
             },

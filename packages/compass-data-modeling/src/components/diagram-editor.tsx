@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   applyEdit,
   getCurrentDiagramFromState,
@@ -23,7 +22,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import type { Edit, StaticModel } from '../services/data-model-storage';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { UUID } from 'bson';
+import {
+  Diagram,
+  DiagramProvider,
+  type NodeProps,
+} from '@mongodb-js/diagramming';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -171,8 +176,35 @@ const DiagramEditor: React.FunctionComponent<{
       setApplyInput(JSON.stringify(placeholder, null, 2));
     };
 
-  const modelStr = useMemo(() => {
-    return JSON.stringify(model, null, 2);
+  const nodes = useMemo(() => {
+    return model?.collections.map((coll): NodeProps => {
+      return {
+        id: coll.ns,
+        type: 'collection',
+        title: coll.ns,
+        fields: Object.entries(coll.jsonSchema.properties || {}).map(
+          ([name, field]) => {
+            const type =
+              Array.isArray(field.bsonType)
+                ? field.bsonType[0]
+                : field.bsonType;
+            return {
+              name: name,
+              type,
+              glyphs: type === 'objectId' ? ['key'] : [],
+            };
+          }
+        ),
+        measured: {
+          width: 100,
+          height: 200,
+        },
+        position: {
+          x: coll.displayPosition[0],
+          y: coll.displayPosition[1],
+        },
+      };
+    });
   }, [model]);
 
   let content;
@@ -217,12 +249,7 @@ const DiagramEditor: React.FunctionComponent<{
         data-testid="diagram-editor-container"
       >
         <div className={modelPreviewStyles} data-testid="model-preview">
-          <CodemirrorMultilineEditor
-            language="json"
-            text={modelStr}
-            readOnly
-            initialJSONFoldAll={false}
-          ></CodemirrorMultilineEditor>
+          {nodes && <Diagram title="Schema Preview" edges={[]} nodes={nodes} />}
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
           <div className={editorContainerPlaceholderButtonStyles}>
@@ -291,7 +318,7 @@ const DiagramEditor: React.FunctionComponent<{
         );
       }}
     >
-      {content}
+      <DiagramProvider>{content}</DiagramProvider>
     </WorkspaceContainer>
   );
 };

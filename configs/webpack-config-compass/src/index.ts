@@ -111,6 +111,14 @@ const sharedResolveOptions = (
       // Some lg test helpers that are getting bundled due to re-exporting from
       // the actual component packages, never needed in the webpack bundles
       '@lg-tools/test-harnesses': false,
+
+      // The react/jsx-runtime can fail the import when imported from an esm
+      // module because React 17 doesn't have ./jsx-runtime specified in the
+      // package.json `exports` field. This issue will go away if we can update
+      // to React 18, but for the time being we will just resolve react to
+      // actual files ourselves to work around that
+      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+      react: require.resolve('react'),
     },
   };
 };
@@ -147,6 +155,17 @@ export function createElectronMainConfig(
         sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          // Webpack compile time check for imports matching exports is too strict
+          // in cases where the code expects some name export to be optional
+          // (webpack will break the build if it fails to statically see the
+          // matching export) this is why we switch the check to just warn. If
+          // this ever hides a real case where a missing import is being used, it
+          // will definitely break in runtime anyway
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     node: false as const,
     externals: toCommonJsExternal(sharedExternals),
@@ -218,6 +237,11 @@ export function createElectronRendererConfig(
         sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     plugins: [
       ...entriesToHtml(entries),
@@ -338,6 +362,11 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
         assetsLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     // This follows current Compass plugin behavior and is here more or less to
     // keep compat for the external plugin users
