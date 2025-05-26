@@ -1,4 +1,81 @@
 import { z } from '@mongodb-js/compass-user-data';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
+
+export const RelationshipSideSchema = z.object({
+  ns: z.string(),
+  cardinality: z.number(),
+  fields: z.array(z.string()),
+});
+
+export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
+
+export const RelationshipSchema = z.object({
+  id: z.string().uuid(),
+  relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
+  isInferred: z.boolean(),
+});
+
+export type Relationship = z.output<typeof RelationshipSchema>;
+
+export const StaticModelSchema = z.object({
+  collections: z.array(
+    z.object({
+      ns: z.string(),
+      jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
+        const isObject = typeof value === 'object' && value !== null;
+        return isObject && 'bsonType' in value;
+      }),
+      indexes: z.array(z.record(z.unknown())),
+      shardKey: z.record(z.unknown()).optional(),
+      displayPosition: z.tuple([z.number(), z.number()]),
+    })
+  ),
+  relationships: z.array(RelationshipSchema),
+});
+
+export type StaticModel = z.output<typeof StaticModelSchema>;
+
+const EditSchemaBase = z.object({
+  id: z.string().uuid(),
+  timestamp: z.string().datetime(),
+});
+
+const EditSchemaVariants = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('SetModel'),
+    model: StaticModelSchema,
+  }),
+  z.object({
+    type: z.literal('AddRelationship'),
+    relationship: RelationshipSchema,
+  }),
+  z.object({
+    type: z.literal('RemoveRelationship'),
+    relationshipId: z.string().uuid(),
+  }),
+]);
+
+export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
+
+export type Edit = z.output<typeof EditSchema>;
+
+export const validateEdit = (
+  edit: unknown
+): { result: true; errors?: never } | { result: false; errors: string[] } => {
+  try {
+    EditSchema.parse(edit);
+    return { result: true };
+  } catch (e) {
+    return {
+      result: false,
+      errors: (e as z.ZodError).issues.map(({ path, message }) =>
+        message === 'Required'
+          ? `'${path}' is required`
+          : `Invalid field '${path}': ${message}`
+      ),
+    };
+  }
+};
 
 export const MongoDBDataModelDescriptionSchema = z.object({
   id: z.string(),
@@ -11,8 +88,7 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    */
   connectionId: z.string().nullable(),
 
-  // TODO: define rest of the schema based on arch doc / tech design
-  edits: z.array(z.unknown()).default([]),
+  edits: z.array(EditSchema).default([]),
 });
 
 export type MongoDBDataModelDescription = z.output<

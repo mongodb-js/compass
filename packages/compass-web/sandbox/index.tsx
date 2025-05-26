@@ -109,13 +109,6 @@ const App = () => {
   return (
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
-      extraConnectionOptions={
-        isAtlas
-          ? // In the sandbox we're waiting for cert user to be propagated to
-            // the clusters, it can take awhile on the first connection
-            { connectTimeoutMS: 120_000, serverSelectionTimeoutMS: 120_000 }
-          : {}
-      }
     >
       <SandboxPreferencesUpdateProvider
         value={sandboxPreferencesUpdateTrigger.current}

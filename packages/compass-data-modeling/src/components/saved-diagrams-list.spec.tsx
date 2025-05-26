@@ -11,44 +11,65 @@ import type { DataModelingStore } from '../../test/setup-store';
 import { DataModelStorageServiceProvider } from '../provider';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 
-describe('SavedDiagramsList', function () {
-  const renderSavedDiagramsList = ({
-    loadAll = () => Promise.resolve([]),
-  }: {
-    loadAll?: () => Promise<MongoDBDataModelDescription[]>;
-  } = {}) => {
-    const mockDataModelStorage = {
-      status: 'READY',
-      error: null,
-      items: [],
-      save: () => {
-        return Promise.resolve(false);
-      },
-      delete: () => {
-        return Promise.resolve(false);
-      },
-      loadAll,
-      load: () => {
-        return Promise.resolve(null);
-      },
-    };
-    return renderWithStore(
-      <DataModelStorageServiceProvider storage={mockDataModelStorage}>
-        <SavedDiagramsList />
-      </DataModelStorageServiceProvider>,
-      {
-        services: {
-          dataModelStorage: mockDataModelStorage,
-        },
-      }
-    );
-  };
+const storageItems: MongoDBDataModelDescription[] = [
+  {
+    id: '1',
+    name: 'One',
+    edits: [],
+    connectionId: null,
+  },
+  {
+    id: '2',
+    name: 'Two',
+    edits: [],
+    connectionId: null,
+  },
+  {
+    id: '3',
+    name: 'Three',
+    edits: [],
+    connectionId: null,
+  },
+];
 
+const renderSavedDiagramsList = ({
+  items = storageItems,
+}: {
+  items?: MongoDBDataModelDescription[];
+} = {}) => {
+  const mockDataModelStorage = {
+    status: 'READY',
+    error: null,
+    items,
+    save: () => {
+      return Promise.resolve(false);
+    },
+    delete: () => {
+      return Promise.resolve(false);
+    },
+    loadAll: () => Promise.resolve(items),
+    load: (id: string) => {
+      return Promise.resolve(items.find((x) => x.id === id) ?? null);
+    },
+  };
+  return renderWithStore(
+    <DataModelStorageServiceProvider storage={mockDataModelStorage}>
+      <SavedDiagramsList />
+    </DataModelStorageServiceProvider>,
+    {
+      services: {
+        dataModelStorage: mockDataModelStorage,
+      },
+    }
+  );
+};
+
+describe('SavedDiagramsList', function () {
   context('when there are no saved diagrams', function () {
     let store: DataModelingStore;
 
     beforeEach(async function () {
-      const result = renderSavedDiagramsList();
+      const result = renderSavedDiagramsList({ items: [] });
       store = result.store;
 
       // wait till the empty list is loaded
@@ -78,15 +99,7 @@ describe('SavedDiagramsList', function () {
     let store: DataModelingStore;
 
     beforeEach(async function () {
-      const result = renderSavedDiagramsList({
-        loadAll: () =>
-          Promise.resolve([
-            {
-              id: 'diagram-1',
-              name: 'Diagram 1',
-            } as MongoDBDataModelDescription,
-          ]),
-      });
+      const result = renderSavedDiagramsList();
       store = result.store;
 
       // wait till the list is loaded
@@ -95,8 +108,12 @@ describe('SavedDiagramsList', function () {
       });
     });
 
-    it('shows the list of diagrams', function () {
-      expect(screen.getByText('Diagram 1')).to.exist;
+    it('shows the list of diagrams', async function () {
+      await waitFor(() => {
+        expect(screen.getByText('One')).to.exist;
+        expect(screen.getByText('Two')).to.exist;
+        expect(screen.getByText('Three')).to.exist;
+      });
     });
 
     it('allows to add another diagram', function () {
@@ -107,6 +124,36 @@ describe('SavedDiagramsList', function () {
       expect(createDiagramButton).to.be.visible;
       userEvent.click(createDiagramButton);
       expect(store.getState().generateDiagramWizard.inProgress).to.be.true;
+    });
+
+    it('filters the list of diagrams', async function () {
+      const searchInput = screen.getByPlaceholderText('Search');
+      userEvent.type(searchInput, 'One');
+      await waitFor(() => {
+        expect(screen.queryByText('One')).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Two')).to.not.exist;
+        expect(screen.queryByText('Three')).to.not.exist;
+      });
+    });
+
+    it('shows empty content when filter for a non-existent diagram', async function () {
+      const searchInput = screen.getByPlaceholderText('Search');
+      userEvent.type(searchInput, 'Hello');
+      await waitFor(() => {
+        expect(screen.queryByText('No results found.')).to.exist;
+        expect(
+          screen.queryByText("We can't find any diagram matching your search.")
+        ).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('One')).to.not.exist;
+        expect(screen.queryByText('Two')).to.not.exist;
+        expect(screen.queryByText('Three')).to.not.exist;
+      });
     });
   });
 });
