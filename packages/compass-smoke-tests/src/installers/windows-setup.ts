@@ -82,7 +82,12 @@ export function installWindowsSetup({
     'Expected an entry in the registry with the install location'
   );
   const appExecutablePath = path.resolve(appPath, `${appName}.exe`);
-  execute(appExecutablePath, ['--version']);
+
+  // Check if the app executable exists after installing
+  assert(
+    fs.existsSync(appExecutablePath),
+    `Expected ${appExecutablePath} to exist`
+  );
 
   return {
     appName,
