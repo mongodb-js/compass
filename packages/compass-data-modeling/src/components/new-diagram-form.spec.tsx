@@ -11,6 +11,10 @@ import { changeName, createNewDiagram } from '../store/generate-diagram-wizard';
 import { renderWithStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
 
+function getComboboxByTestId(testId: string) {
+  return within(screen.getByTestId(testId)).getByRole('combobox');
+}
+
 describe('NewDiagramForm', function () {
   context('enter-name step', function () {
     let store: DataModelingStore;
@@ -87,7 +91,7 @@ describe('NewDiagramForm', function () {
         );
       }
 
-      userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+      userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
       expect(screen.getByText('Conn1')).to.exist;
       expect(screen.getByText('Conn2')).to.exist;
 
@@ -143,7 +147,7 @@ describe('NewDiagramForm', function () {
         );
       }
 
-      userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+      userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
       userEvent.click(screen.getByText('Conn2'));
       userEvent.click(
         screen.getByRole('button', {
@@ -176,7 +180,7 @@ describe('NewDiagramForm', function () {
 
       {
         // Navigate to select db
-        userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+        userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));
         userEvent.click(
           screen.getByRole('button', {
@@ -253,7 +257,7 @@ describe('NewDiagramForm', function () {
         );
       }
 
-      userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+      userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
       userEvent.click(screen.getByText('Conn2'));
       userEvent.click(
         screen.getByRole('button', {
@@ -293,7 +297,7 @@ describe('NewDiagramForm', function () {
 
       {
         // Navigate to select db
-        userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+        userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));
         userEvent.click(
           screen.getByRole('button', {
@@ -389,7 +393,7 @@ describe('NewDiagramForm', function () {
 
       {
         // Navigate to databases list
-        userEvent.click(screen.getByTestId('new-diagram-connection-selector'));
+        userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));
         userEvent.click(
           screen.getByRole('button', {
