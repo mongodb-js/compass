@@ -7,7 +7,7 @@ import {
   useFocusRing,
   ParagraphSkeleton,
 } from '@mongodb-js/compass-components';
-import type { Document as BsonDocument } from 'bson';
+import type { Document } from 'mongodb';
 import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
@@ -107,7 +107,7 @@ const QueryFlowSection = ({
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
-  initialQuery: BsonDocument | null;
+  initialQuery: Document | null;
 }) => {
   const [inputQuery, setInputQuery] = React.useState(
     JSON.stringify(initialQuery ?? '', null, 2)

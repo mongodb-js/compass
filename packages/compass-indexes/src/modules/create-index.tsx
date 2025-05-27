@@ -1,5 +1,4 @@
 import type { Document } from 'mongodb';
-import type { Document as BsonDocument } from 'bson';
 import { EJSON, ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
@@ -77,7 +76,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
-  query?: BsonDocument;
+  query?: Document;
 };
 
 type CreateIndexClosedAction = {
@@ -314,7 +313,7 @@ export type State = {
   sampleDocs: Array<Document> | null;
 
   // base query to be used for query flow index creation
-  query: BsonDocument | null;
+  query: Document | null;
 };
 
 export const INITIAL_STATE: State = {
