@@ -194,7 +194,7 @@ describe('NewDiagramForm', function () {
         });
       }
 
-      userEvent.click(screen.getByTestId('new-diagram-database-selector'));
+      userEvent.click(getComboboxByTestId('new-diagram-database-selector'));
       expect(screen.getByText('berlin')).to.exist;
       expect(screen.getByText('sample_airbnb')).to.exist;
 
@@ -313,7 +313,7 @@ describe('NewDiagramForm', function () {
 
       {
         // Navigate to select colls
-        userEvent.click(screen.getByTestId('new-diagram-database-selector'));
+        userEvent.click(getComboboxByTestId('new-diagram-database-selector'));
         userEvent.click(screen.getByText('sample_airbnb'));
         userEvent.click(
           screen.getByRole('button', {
@@ -409,7 +409,7 @@ describe('NewDiagramForm', function () {
 
       {
         // Navigate to collections
-        userEvent.click(screen.getByTestId('new-diagram-database-selector'));
+        userEvent.click(getComboboxByTestId('new-diagram-database-selector'));
         userEvent.click(screen.getByText('sample_airbnb'));
         userEvent.click(
           screen.getByRole('button', {
