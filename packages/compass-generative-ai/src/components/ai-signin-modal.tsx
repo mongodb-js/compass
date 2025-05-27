@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -13,6 +13,7 @@ import {
 import { AiImageBanner } from './ai-image-banner';
 import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -41,6 +42,18 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   onSignInClick,
 }) => {
   const darkMode = useDarkMode();
+  const track = useTelemetry();
+
+  useEffect(() => {
+    if (isSignInModalVisible) {
+      track('AI Sign In Modal Shown', {});
+    }
+  }, [isSignInModalVisible, track]);
+
+  const handleModalClose = useCallback(() => {
+    track('AI Sign In Modal Dismissed', {});
+    onSignInModalClose?.();
+  }, [track, onSignInModalClose]);
 
   return (
     <MarketingModal
@@ -62,7 +75,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
         </div>
       }
       open={isSignInModalVisible}
-      onClose={onSignInModalClose}
+      onClose={handleModalClose}
       // @ts-expect-error leafygreen only allows strings, but we need to pass
       // icons
       buttonText={
@@ -88,7 +101,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
         onSignInClick?.();
       }}
       linkText="Not now"
-      onLinkClick={onSignInModalClose}
+      onLinkClick={handleModalClose}
     >
       <Body>
         Atlas users can now quickly create queries and aggregations with

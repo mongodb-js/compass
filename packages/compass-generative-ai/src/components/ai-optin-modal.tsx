@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -15,6 +15,7 @@ import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
@@ -79,9 +80,16 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   projectId,
 }) => {
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
+  const track = useTelemetry();
   const PROJECT_SETTINGS_LINK = projectId
     ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
     : null;
+
+  useEffect(() => {
+    if (isOptInModalVisible) {
+      track('AI Opt In Modal Shown', {});
+    }
+  }, [isOptInModalVisible, track]);
 
   const onConfirmClick = () => {
     if (isOptInInProgress) {
@@ -89,6 +97,12 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
     }
     onOptInClick();
   };
+
+  const handleModalClose = useCallback(() => {
+    track('AI Opt In Modal Dismissed' as const, {});
+    onOptInModalClose();
+  }, [track, onOptInModalClose]);
+
   return (
     <ConfirmationModal
       open={isOptInModalVisible}
@@ -99,7 +113,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
         onClick: onConfirmClick,
       }}
       cancelButtonProps={{
-        onClick: onOptInModalClose,
+        onClick: handleModalClose,
       }}
     >
       <Body className={bodyStyles}>

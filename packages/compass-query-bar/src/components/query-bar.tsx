@@ -15,6 +15,7 @@ import {
 } from '@mongodb-js/compass-generative-ai';
 import { connect } from '../stores/context';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import {
   OPTION_DEFINITION,
@@ -158,6 +159,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const track = useTelemetry();
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -177,6 +179,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           },
           darkMode,
           placeholderText: OPTION_DEFINITION.filter.placeholder,
+          track,
         })
       : placeholders?.filter;
   }, [
@@ -185,6 +188,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     darkMode,
     placeholders?.filter,
     onShowAIInputClick,
+    track,
   ]);
 
   const showAIEntryButton = useMemo(() => {
