@@ -14,7 +14,6 @@ class MiniChart extends PureComponent {
   static propTypes = {
     fieldName: PropTypes.string.isRequired,
     fieldValue: PropTypes.any,
-    actions: PropTypes.object.isRequired,
     type: PropTypes.object.isRequired,
     nestedDocType: PropTypes.object,
     onQueryChanged: PropTypes.func.isRequired,
@@ -92,7 +91,6 @@ class MiniChart extends PureComponent {
     if (typeName === 'Coordinates') {
       return (
         <CoordinatesMinichart
-          actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
           onQueryChanged={this.props.onQueryChanged}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { z } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import {
   type FeatureFlagDefinition,
   type FeatureFlags,
@@ -17,7 +17,7 @@ import {
 import { Link } from '@mongodb-js/compass-components';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
-export type THEMES = typeof THEMES_VALUES[number];
+export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
@@ -41,7 +41,7 @@ export const SORT_ORDER_VALUES = [
   '{ _id: 1 }',
   '{ _id: -1 }',
 ] as const;
-export type SORT_ORDERS = typeof SORT_ORDER_VALUES[number];
+export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -104,10 +104,9 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   };
 
 /**
- * Internally used preferences that are not configurable
+ * Internally used preferences that are not configurable by users.
  */
 export type InternalUserPreferences = {
-  // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
   cloudFeatureRolloutAccess?: {
@@ -121,6 +120,7 @@ export type InternalUserPreferences = {
   userCreatedAt: number;
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
+  showEndOfLifeConnectionModal: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -438,6 +438,21 @@ export const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Show a modal when the user tries to connect to a server which has an end-of-life version.
+   */
+  showEndOfLifeConnectionModal: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .boolean()
+      .default(
+        process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
+      ),
     type: 'boolean',
   },
   /**
@@ -1222,7 +1237,7 @@ export function getPreferencesValidator() {
       validator,
     ])
   ) as {
-    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+    [K in keyof typeof storedUserPreferencesProps]: (typeof storedUserPreferencesProps)[K]['validator'];
   };
 
   return z.object(preferencesPropsValidator);
