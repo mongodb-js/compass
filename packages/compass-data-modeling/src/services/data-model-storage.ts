@@ -3,7 +3,7 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 export const RelationshipSideSchema = z.object({
   ns: z.string(),
-  cardinality: z.number(),
+  cardinality: z.enum(['one', 'many', 'oneOrMany']),
   fields: z.array(z.string()),
 });
 

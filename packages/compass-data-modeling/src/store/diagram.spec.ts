@@ -37,12 +37,12 @@ const model: StaticModel = {
       relationship: [
         {
           ns: 'db.sourceCollection',
-          cardinality: 1,
+          cardinality: 'one',
           fields: ['field1'],
         },
         {
           ns: 'db.targetCollection',
-          cardinality: 1,
+          cardinality: 'one',
           fields: ['field2'],
         },
       ],
@@ -113,12 +113,12 @@ describe('Data Modeling store', function () {
         relationship: [
           {
             ns: 'db.sourceCollection',
-            cardinality: 1,
+            cardinality: 'one',
             fields: ['field1'],
           },
           {
             ns: 'db.targetCollection',
-            cardinality: 1,
+            cardinality: 'one',
             fields: ['field2'],
           },
         ],

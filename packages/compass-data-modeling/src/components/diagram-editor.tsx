@@ -28,6 +28,7 @@ import {
   Diagram,
   DiagramProvider,
   type NodeProps,
+  type EdgeProps,
 } from '@mongodb-js/diagramming';
 
 const loadingContainerStyles = css({
@@ -151,12 +152,12 @@ const DiagramEditor: React.FunctionComponent<{
               relationship: [
                 {
                   ns: 'db.sourceCollection',
-                  cardinality: 1,
+                  cardinality: 'one',
                   fields: ['field1'],
                 },
                 {
                   ns: 'db.targetCollection',
-                  cardinality: 1,
+                  cardinality: 'one',
                   fields: ['field2'],
                 },
               ],
@@ -176,18 +177,20 @@ const DiagramEditor: React.FunctionComponent<{
       setApplyInput(JSON.stringify(placeholder, null, 2));
     };
 
-  const nodes = useMemo(() => {
-    return model?.collections.map((coll): NodeProps => {
+  const nodes = useMemo<NodeProps[]>(() => {
+    if (!model) {
+      return [];
+    }
+    return model.collections.map((coll): NodeProps => {
       return {
         id: coll.ns,
         type: 'collection',
         title: coll.ns,
         fields: Object.entries(coll.jsonSchema.properties || {}).map(
           ([name, field]) => {
-            const type =
-              Array.isArray(field.bsonType)
-                ? field.bsonType[0]
-                : field.bsonType;
+            const type = Array.isArray(field.bsonType)
+              ? field.bsonType[0]
+              : field.bsonType;
             return {
               name: name,
               type,
@@ -203,6 +206,21 @@ const DiagramEditor: React.FunctionComponent<{
           x: coll.displayPosition[0],
           y: coll.displayPosition[1],
         },
+      };
+    });
+  }, [model]);
+
+  const edges = useMemo<EdgeProps[]>(() => {
+    if (!model) {
+      return [];
+    }
+    return model.relationships.map((relationship) => {
+      return {
+        id: relationship.id,
+        markerStart: relationship.relationship[0].cardinality,
+        markerEnd: relationship.relationship[1].cardinality,
+        source: relationship.relationship[0].ns,
+        target: relationship.relationship[1].ns,
       };
     });
   }, [model]);
@@ -249,7 +267,9 @@ const DiagramEditor: React.FunctionComponent<{
         data-testid="diagram-editor-container"
       >
         <div className={modelPreviewStyles} data-testid="model-preview">
-          {nodes && <Diagram title="Schema Preview" edges={[]} nodes={nodes} />}
+          {nodes && (
+            <Diagram title="Schema Preview" edges={edges} nodes={nodes} />
+          )}
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
           <div className={editorContainerPlaceholderButtonStyles}>
