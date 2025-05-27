@@ -1,0 +1,176 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import Document from './document';
+import { Document as HadronDocument } from 'hadron-document';
+
+<Meta
+  title="Components/Data/Document"
+  component={Document}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    value: {
+      description: 'The HadronDocument instance to display',
+      control: false,
+    },
+    editable: {
+      description: 'Whether the document fields can be edited',
+      control: 'boolean',
+      defaultValue: false,
+    },
+    editing: {
+      description: 'Whether the document is currently in editing mode',
+      control: 'boolean',
+      defaultValue: false,
+    },
+    onEditStart: {
+      description: 'Callback function called when editing starts',
+      control: false,
+    },
+    extraGutterWidth: {
+      description: 'Additional width for the gutter area',
+      control: 'number',
+    },
+  }}
+/>
+
+# Document
+
+The Document component is used to display MongoDB documents in a structured and interactive way. It supports viewing, editing, and managing document fields with features like expandable fields and field visibility controls.
+
+## Usage
+
+```tsx
+import { Document } from '@mongodb-js/compass-components';
+import { Document as HadronDocument } from 'hadron-document';
+
+function MyComponent() {
+  const doc = new HadronDocument({
+    _id: 1,
+    name: 'John Doe',
+    age: 30,
+    address: {
+      street: '123 Main St',
+      city: 'New York',
+    },
+  });
+
+  return (
+    <Document
+      value={doc}
+      editable={true}
+      onEditStart={() => console.log('Edit started')}
+    />
+  );
+}
+```
+
+## Examples
+
+### Simple Document
+
+<Story name="Simple">
+  {() => {
+    const doc = new HadronDocument({
+      _id: 1,
+      name: 'John Doe',
+      age: 30,
+    });
+    return (
+      <div style={{ width: '600px', padding: '20px' }}>
+        <Document value={doc} />
+      </div>
+    );
+  }}
+</Story>
+
+### Nested Document
+
+<Story name="Nested">
+  {() => {
+    const doc = new HadronDocument({
+      _id: 1,
+      user: {
+        name: 'John Doe',
+        address: {
+          street: '123 Main St',
+          city: 'New York',
+          country: 'USA',
+        },
+      },
+      tags: ['important', 'customer'],
+    });
+    return (
+      <div style={{ width: '600px', padding: '20px' }}>
+        <Document value={doc} />
+      </div>
+    );
+  }}
+</Story>
+
+### Editable Document
+
+<Story name="Editable">
+  {() => {
+    const doc = new HadronDocument({
+      _id: 1,
+      name: 'John Doe',
+      age: 30,
+      email: 'john@example.com',
+    });
+    return (
+      <div style={{ width: '600px', padding: '20px' }}>
+        <Document
+          value={doc}
+          editable={true}
+          onEditStart={() => console.log('Edit started')}
+        />
+      </div>
+    );
+  }}
+</Story>
+
+### Document with Many Fields
+
+<Story name="ManyFields">
+  {() => {
+    const doc = new HadronDocument({
+      _id: 1,
+      name: 'John Doe',
+      age: 30,
+      email: 'john@example.com',
+      phone: '123-456-7890',
+      address: {
+        street: '123 Main St',
+        city: 'New York',
+        country: 'USA',
+        zip: '10001',
+      },
+      preferences: {
+        theme: 'dark',
+        notifications: true,
+        language: 'en',
+      },
+      tags: ['important', 'customer', 'vip'],
+      notes:
+        'This is a test document with many fields to demonstrate the show more/hide functionality',
+    });
+    return (
+      <div style={{ width: '600px', padding: '20px' }}>
+        <Document value={doc} />
+      </div>
+    );
+  }}
+</Story>
+
+## Guidelines
+
+- The component is designed to display MongoDB documents in a structured format
+- It supports both viewing and editing modes
+- Fields can be expanded/collapsed for better organization
+- The component includes a "Show more/Hide" toggle for documents with many fields
+- It maintains proper indentation and hierarchy for nested fields
+- The component is accessible and includes appropriate ARIA roles and labels
+- When in edit mode, it provides a focused editing experience for individual fields
+
+## Props
+
+<Controls />

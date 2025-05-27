@@ -1,0 +1,363 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import { useState } from 'react';
+import { Modal } from './modal';
+import { ModalHeader } from './modal-header';
+import { ModalBody } from './modal-body';
+import { ModalFooter } from '../leafygreen';
+import { ModalFooterButton } from './modal-footer-button';
+import { Button } from '../leafygreen';
+
+<Meta
+  title="Components/Overlays/Modal"
+  component={Modal}
+  parameters={{
+    layout: 'centered',
+  }}
+  argTypes={{
+    open: {
+      control: 'boolean',
+      description: 'Whether the modal is open',
+    },
+    setOpen: {
+      action: 'opened',
+      description: 'Function called when the modal open state changes',
+    },
+    fullScreen: {
+      control: 'boolean',
+      description: 'Whether the modal should take up the full screen',
+    },
+    className: {
+      control: 'text',
+      description: 'Additional CSS class name for the modal container',
+    },
+    contentClassName: {
+      control: 'text',
+      description: 'Additional CSS class name for the modal content',
+    },
+  }}
+/>
+
+# Modal
+
+The Modal component is a dialog that appears on top of the main content.
+It's designed to focus the user's attention on a specific task or information.
+
+## Usage
+
+The Modal component is perfect for:
+
+- Confirmation dialogs
+- Form submissions
+- Information display
+- Complex interactions
+- Full-screen experiences
+
+```tsx
+import { Modal, ModalHeader, ModalBody, ModalFooter } from './modal';
+import { ModalFooterButton } from './modal-footer-button';
+
+// Basic usage
+<Modal open={isOpen} setOpen={setIsOpen}>
+  <ModalHeader title="Basic Modal" />
+  <ModalBody>
+    <p>This is a basic modal with header, body, and footer.</p>
+  </ModalBody>
+  <ModalFooter>
+    <ModalFooterButton onClick={() => setIsOpen(false)}>
+      Close
+    </ModalFooterButton>
+  </ModalFooter>
+</Modal>
+
+// Form modal
+<Modal open={isOpen} setOpen={setIsOpen}>
+  <form onSubmit={handleSubmit}>
+    <ModalHeader title="Form Modal" />
+    <ModalBody>
+      {/* Form content */}
+    </ModalBody>
+    <ModalFooter>
+      <ModalFooterButton type="submit" variant="primary">
+        Submit
+      </ModalFooterButton>
+    </ModalFooter>
+  </form>
+</Modal>
+```
+
+## Examples
+
+### Basic Modal
+
+<Story name="Basic">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Basic Modal</Button>
+        <Modal open={open} setOpen={setOpen}>
+          <ModalHeader title="Basic Modal" />
+          <ModalBody>
+            <p>This is a basic modal with header, body, and footer.</p>
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterButton onClick={() => setOpen(false)}>
+              Close
+            </ModalFooterButton>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Basic modal example with header, body, and footer.
+This demonstrates the standard usage of the Modal component with its core features.
+
+### Form Modal
+
+<Story name="Form">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Form Modal</Button>
+        <Modal open={open} setOpen={setOpen}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setOpen(false);
+            }}
+          >
+            <ModalHeader
+              title="Form Modal"
+              subtitle="This modal contains a form with submit and cancel actions"
+            />
+            <ModalBody>
+              <p>
+                This is a form modal example showing how to handle form
+                submission.
+              </p>
+              <div style={{ marginTop: '20px' }}>
+                <label>
+                  Name:
+                  <input type="text" style={{ marginLeft: '8px' }} />
+                </label>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <ModalFooterButton
+                data-testid="submit-button"
+                type="submit"
+                variant="primary"
+              >
+                Submit
+              </ModalFooterButton>
+              <ModalFooterButton
+                data-testid="cancel-button"
+                onClick={() => setOpen(false)}
+                variant="default"
+              >
+                Cancel
+              </ModalFooterButton>
+            </ModalFooter>
+          </form>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Form modal example showing how to handle form submissions.
+This demonstrates how to integrate forms within modals and handle form submission events.
+
+### Danger Modal
+
+<Story name="Danger">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Danger Modal</Button>
+        <Modal open={open} setOpen={setOpen}>
+          <ModalHeader
+            title="Delete Confirmation"
+            subtitle="This action cannot be undone"
+            variant="danger"
+          />
+          <ModalBody variant="danger">
+            <p>
+              Are you sure you want to delete this item? This action cannot be
+              undone.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterButton
+              data-testid="delete-button"
+              onClick={() => setOpen(false)}
+              variant="danger"
+            >
+              Delete
+            </ModalFooterButton>
+            <ModalFooterButton
+              data-testid="cancel-button"
+              onClick={() => setOpen(false)}
+              variant="default"
+            >
+              Cancel
+            </ModalFooterButton>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Danger modal example for destructive actions.
+This demonstrates how to use the danger variant for actions that cannot be undone.
+
+### Long Content Modal
+
+<Story name="LongContent">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Long Content Modal</Button>
+        <Modal open={open} setOpen={setOpen}>
+          <ModalHeader
+            title="Long Content Modal"
+            subtitle="This modal demonstrates scrolling behavior"
+          />
+          <ModalBody>
+            <h3>Section 1</h3>
+            <p>This is the first section of content.</p>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <p key={i}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </p>
+            ))}
+            <h3>Section 2</h3>
+            <p>This is the second section of content.</p>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <p key={i}>
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
+            ))}
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterButton onClick={() => setOpen(false)}>
+              Close
+            </ModalFooterButton>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Long content modal example showing scrolling behavior.
+This demonstrates how the modal handles content that exceeds the viewport height.
+
+### Full Screen Modal
+
+<Story name="FullScreen">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Full Screen Modal</Button>
+        <Modal open={open} setOpen={setOpen} fullScreen>
+          <ModalHeader
+            title="Full Screen Modal"
+            subtitle="This modal takes up the entire screen"
+          />
+          <ModalBody>
+            <p>This is a full screen modal example.</p>
+            <p>
+              It's useful for complex forms or when you need maximum space for
+              content.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterButton onClick={() => setOpen(false)}>
+              Close
+            </ModalFooterButton>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Full screen modal example.
+This demonstrates how to create a modal that takes up the entire screen,
+useful for complex forms or when maximum space is needed.
+
+### Info Modal
+
+<Story name="Info">
+  {() => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open Info Modal</Button>
+        <Modal open={open} setOpen={setOpen}>
+          <ModalHeader
+            title="Information"
+            subtitle="Important details about this feature"
+          />
+          <ModalBody>
+            <p>
+              This is an informational modal that provides important details to
+              the user.
+            </p>
+            <p>
+              It can contain multiple paragraphs of text and other content to
+              help explain features or provide context.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterButton onClick={() => setOpen(false)}>
+              Got it
+            </ModalFooterButton>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }}
+</Story>
+
+Info modal example for displaying information.
+This demonstrates how to use the modal for informational purposes,
+such as feature explanations or context.
+
+## Best Practices
+
+1. **Modal Content**:
+
+   - Keep content concise and focused
+   - Use clear, action-oriented titles
+   - Provide helpful subtitles when needed
+   - Structure content logically
+
+2. **User Experience**:
+
+   - Use appropriate modal sizes
+   - Provide clear action buttons
+   - Handle keyboard navigation
+   - Support escape key to close
+   - Consider mobile responsiveness
+
+3. **Accessibility**:
+   - Ensure proper focus management
+   - Use semantic HTML structure
+   - Provide clear button labels
+   - Support screen readers
+   - Maintain proper contrast ratios
+
+## Props
+
+<Controls />

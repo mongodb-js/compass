@@ -1,0 +1,64 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ChevronCollapse } from './chevron-collapse-icon';
+import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
+
+<Meta
+  title="Components/Icons/ChevronCollapse"
+  component={ChevronCollapse}
+  parameters={{ layout: 'centered' }}
+  decorators={[
+    (Story) => (
+      <LeafyGreenProvider>
+        <Story />
+      </LeafyGreenProvider>
+    ),
+  ]}
+  argTypes={{
+    width: {
+      control: 'number',
+      description: 'The width of the icon in pixels',
+    },
+    height: {
+      control: 'number',
+      description: 'The height of the icon in pixels',
+    },
+  }}
+/>
+
+# ChevronCollapse
+
+The ChevronCollapse component is a simple icon that displays a chevron pointing in both up and down directions. It's commonly used to indicate collapsible sections or navigation.
+
+## Usage
+
+```tsx
+import { ChevronCollapse } from '@mongodb-js/compass-components';
+
+<ChevronCollapse width={16} height={16} />;
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <ChevronCollapse width={16} height={16} />}</Story>
+
+Default chevron collapse icon.
+
+### Large
+
+<Story name="Large">{() => <ChevronCollapse width={24} height={24} />}</Story>
+
+Large chevron collapse icon.
+
+### Custom Size
+
+<Story name="CustomSize">
+  {() => <ChevronCollapse width={32} height={32} />}
+</Story>
+
+Chevron collapse icon with custom size.
+
+## Props
+
+<Controls />

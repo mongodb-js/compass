@@ -1,0 +1,125 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ItemActionGroup } from './item-action-group';
+import { Icon } from '../leafygreen';
+
+<Meta
+  title="Components/Actions/ItemActionGroup"
+  component={ItemActionGroup}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    actions: {
+      control: 'object',
+      description: 'Array of actions to display',
+    },
+    onAction: {
+      action: 'action selected',
+      description: 'Callback when an action is selected',
+    },
+    isVisible: {
+      control: 'boolean',
+      description: 'Whether the group is visible',
+    },
+    iconSize: {
+      control: 'select',
+      options: ['small', 'default', 'large'],
+      description: 'Size of the action icons',
+    },
+  }}
+/>
+
+# ItemActionGroup
+
+The `ItemActionGroup` component displays a horizontal group of action buttons. It's ideal for showing a small number of frequently used actions directly in the interface.
+
+## When to use
+
+- When you have 1-3 actions that need to be immediately visible
+- When the actions are primary or frequently used
+- When you want to show actions in a toolbar or header
+- When you need to emphasize certain actions over others
+
+## When not to use
+
+- When you have more than 3 actions (use `ItemActionMenu` instead)
+- When space is limited and actions can be hidden
+- When the actions are secondary or rarely used
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+      },
+    ];
+    return (
+      <ItemActionGroup
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+### With Tooltips
+
+<Story name="WithTooltips">
+  {() => {
+    const actions = [
+      {
+        action: 'edit',
+        label: 'Edit',
+        icon: <Icon glyph="Edit" />,
+        tooltip: 'Edit this item',
+      },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+        tooltip: 'Permanently delete this item',
+      },
+    ];
+    return (
+      <ItemActionGroup
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+### With Disabled Actions
+
+<Story name="WithDisabledActions">
+  {() => {
+    const actions = [
+      { action: 'edit', label: 'Edit', icon: <Icon glyph="Edit" /> },
+      {
+        action: 'delete',
+        label: 'Delete',
+        icon: <Icon glyph="Trash" />,
+        variant: 'destructive',
+        isDisabled: true,
+        disabledDescription: 'Cannot delete while item is in use',
+      },
+    ];
+    return (
+      <ItemActionGroup
+        actions={actions}
+        onAction={(action) => alert(`Action: ${action}`)}
+      />
+    );
+  }}
+</Story>
+
+## Props
+
+<Controls />

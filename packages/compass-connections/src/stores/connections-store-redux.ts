@@ -1413,7 +1413,7 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in typeof NonRetryableErrorCodes[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: string;
 } = {
   3000: 'Unauthorized',
   3003: 'Forbidden',
@@ -1438,7 +1438,7 @@ function getDescriptionForNonRetryableError(error: Error): string {
     : NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
-        ) as typeof NonRetryableErrorCodes[number]
+        ) as (typeof NonRetryableErrorCodes)[number]
       ] ?? 'Unknown';
 }
 

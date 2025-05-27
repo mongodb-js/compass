@@ -1,0 +1,113 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { IndexKeysBadge, IndexBadge } from './index-keys-badge';
+
+<Meta
+  title="Components/Indexes/IndexKeysBadge"
+  component={IndexKeysBadge}
+  parameters={{ controls: { expanded: true } }}
+  argTypes={{
+    keys: {
+      description: 'Array of key objects with field and value properties',
+    },
+  }}
+/>
+
+# IndexKeysBadge
+
+The IndexKeysBadge component displays a collection of index keys with their sort directions.
+It's used to show the structure of database indexes in a compact and readable format.
+
+## Usage
+
+```tsx
+import { IndexKeysBadge } from '@mongodb-js/compass-components';
+
+function IndexKeysBadgeExample() {
+  const keys = [
+    { field: 'name', value: 1 },
+    { field: 'age', value: -1 },
+    { field: 'email', value: 1 },
+  ];
+
+  return <IndexKeysBadge keys={keys} />;
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">
+  {() => (
+    <IndexKeysBadge
+      keys={[
+        { field: 'name', value: 1 },
+        { field: 'age', value: -1 },
+        { field: 'email', value: 1 },
+      ]}
+    />
+  )}
+</Story>
+
+Index keys badge with multiple fields and different sort directions.
+
+### Single Key
+
+<Story name="SingleKey">
+  {() => <IndexKeysBadge keys={[{ field: 'name', value: 1 }]} />}
+</Story>
+
+Index keys badge with a single field.
+
+### With Nested Fields
+
+<Story name="WithNestedFields">
+  {() => (
+    <IndexKeysBadge
+      keys={[
+        { field: 'profile.name', value: 1 },
+        { field: 'profile.address.city', value: -1 },
+        { field: 'metadata.tags', value: 1 },
+      ]}
+    />
+  )}
+</Story>
+
+Index keys badge with nested field names.
+
+### With Long Field Names
+
+<Story name="WithLongFieldNames">
+  {() => (
+    <IndexKeysBadge
+      keys={[
+        { field: 'reallyLongFieldNameThatMightOverflow', value: 1 },
+        { field: 'anotherVeryLongFieldNameForTesting', value: -1 },
+        { field: 'third.nested.long.field.name', value: 1 },
+      ]}
+    />
+  )}
+</Story>
+
+Index keys badge with long field names, demonstrating text truncation.
+
+### Single Index Badge
+
+<Story name="SingleIndexBadge">
+  {() => (
+    <div style={{ padding: '20px' }}>
+      <h3>Individual Index Badges</h3>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <IndexBadge field="name" value={1} />
+        <IndexBadge field="age" value={-1} />
+        <IndexBadge field="email" value={1} />
+      </div>
+    </div>
+  )}
+</Story>
+
+Individual IndexBadge components showing different fields and sort directions.
+
+## Props
+
+<Controls />

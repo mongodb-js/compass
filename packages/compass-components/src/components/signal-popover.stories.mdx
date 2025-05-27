@@ -1,0 +1,314 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { SignalPopover, SignalHooksProvider } from './signal-popover';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Insights/SignalPopover"
+  component={SignalPopover}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    signals: {
+      description: 'The signal(s) to display in the popover',
+    },
+    darkMode: {
+      control: 'boolean',
+      description: 'Whether to use dark mode styles',
+    },
+    onPopoverOpenChange: {
+      description: 'Callback when popover open state changes',
+    },
+    shouldExpandBadge: {
+      control: 'boolean',
+      description: 'Whether the badge should always be expanded',
+    },
+  }}
+/>
+
+# SignalPopover
+
+The SignalPopover component displays contextual insights and suggestions in a popover format. It's designed to provide users with helpful information, warnings, or recommendations about their current context or actions.
+
+## Usage
+
+```tsx
+import { SignalPopover, SignalHooksProvider } from '@mongodb-js/compass-components';
+
+// Basic usage with tracking
+<SignalHooksProvider
+  onSignalMount={handleSignalMount}
+  onSignalOpen={handleSignalOpen}
+  onSignalLinkClick={handleSignalLinkClick}
+  onSignalPrimaryActionClick={handleSignalPrimaryActionClick}
+  onSignalClose={handleSignalClose}
+>
+  <SignalPopover signals={signals} />
+</SignalHooksProvider>
+
+// Single signal with action
+<SignalPopover
+  signals={{
+    id: 'signal-1',
+    title: 'Performance suggestion',
+    description: 'This query could be optimized...',
+    learnMoreLink: 'https://docs.example.com',
+    primaryActionButtonLabel: 'Optimize',
+    primaryActionButtonIcon: 'Plus'
+  }}
+/>
+
+// Multiple signals
+<SignalPopover signals={[
+  {
+    id: 'signal-1',
+    title: 'First suggestion',
+    description: 'First description...'
+  },
+  {
+    id: 'signal-2',
+    title: 'Second suggestion',
+    description: 'Second description...'
+  }
+]} />
+```
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const singleSignal = {
+      id: 'single-signal-example',
+      title: 'Performance optimization suggestion',
+      description: 'This query could be optimized by adding an index on the fields being queried.',
+      learnMoreLink: 'https://www.mongodb.com/docs/manual/indexes/',
+      primaryActionButtonLabel: 'Create index',
+      primaryActionButtonIcon: 'Plus',
+    };
+
+    const multipleSignals = [
+      {
+        id: 'signal-1',
+        title: 'Query executed without index',
+        description: 'This query ran without an index. If you plan on using this query heavily in your application, you should create an index that covers this query.',
+        learnMoreLink: 'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+        primaryActionButtonLabel: 'Create index',
+        primaryActionButtonIcon: 'Plus',
+      },
+      {
+        id: 'signal-2',
+        title: 'Alternate text search options available',
+        description: "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+        primaryActionButtonLabel: 'Create Search Index',
+      },
+      {
+        id: 'signal-3',
+        title: '$lookup usage',
+        description: '$lookup operations can be resource-intensive because they perform operations on two collections instead of one. In certain situations, embedding documents or arrays can enhance read performance.',
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+      },
+    ];
+
+    const containerStyles = css`
+      padding: ${spacing[400]}px;
+      display: flex;
+      align-items: center;
+      gap: ${spacing[300]}px;
+    `;
+
+    const handleSignalMount = (id) => {
+      // Track signal mount
+    };
+
+    const handleSignalOpen = (id) => {
+      // Track signal open
+    };
+
+    const handleSignalLinkClick = (id) => {
+      // Track link click
+    };
+
+    const handleSignalPrimaryActionClick = (id) => {
+      // Track primary action click
+    };
+
+    const handleSignalClose = (id) => {
+      // Track signal close
+    };
+
+    return (
+      <SignalHooksProvider
+        onSignalMount={handleSignalMount}
+        onSignalOpen={handleSignalOpen}
+        onSignalLinkClick={handleSignalLinkClick}
+        onSignalPrimaryActionClick={handleSignalPrimaryActionClick}
+        onSignalClose={handleSignalClose}
+      >
+        <div className={containerStyles}>
+          <div>
+            <h3>Single Signal</h3>
+            <SignalPopover signals={singleSignal} />
+          </div>
+
+          <div>
+            <h3>Multiple Signals</h3>
+            <SignalPopover signals={multipleSignals} />
+          </div>
+        </div>
+      </SignalHooksProvider>
+    );
+
+}}
+
+</Story>
+
+Basic example showing both single and multiple signals with tracking enabled.
+
+### Single Signal
+
+<Story name="SingleSignal">
+  {() => {
+    const singleSignal = {
+      id: 'single-signal-example',
+      title: 'Performance optimization suggestion',
+      description: 'This query could be optimized by adding an index on the fields being queried.',
+      learnMoreLink: 'https://www.mongodb.com/docs/manual/indexes/',
+      primaryActionButtonLabel: 'Create index',
+      primaryActionButtonIcon: 'Plus',
+    };
+
+    const containerStyles = css`
+      padding: ${spacing[400]}px;
+      display: flex;
+      align-items: center;
+      gap: ${spacing[300]}px;
+    `;
+
+    return (
+      <div className={containerStyles}>
+        <SignalPopover signals={singleSignal} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Example showing a single signal with a primary action.
+
+### Multiple Signals
+
+<Story name="MultipleSignals">
+  {() => {
+    const multipleSignals = [
+      {
+        id: 'signal-1',
+        title: 'Query executed without index',
+        description: 'This query ran without an index. If you plan on using this query heavily in your application, you should create an index that covers this query.',
+        learnMoreLink: 'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+        primaryActionButtonLabel: 'Create index',
+        primaryActionButtonIcon: 'Plus',
+      },
+      {
+        id: 'signal-2',
+        title: 'Alternate text search options available',
+        description: "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+        primaryActionButtonLabel: 'Create Search Index',
+      },
+      {
+        id: 'signal-3',
+        title: '$lookup usage',
+        description: '$lookup operations can be resource-intensive because they perform operations on two collections instead of one. In certain situations, embedding documents or arrays can enhance read performance.',
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+      },
+    ];
+
+    const containerStyles = css`
+      padding: ${spacing[400]}px;
+      display: flex;
+      align-items: center;
+      gap: ${spacing[300]}px;
+    `;
+
+    return (
+      <div className={containerStyles}>
+        <SignalPopover signals={multipleSignals} />
+      </div>
+    );
+
+}}
+
+</Story>
+
+Example showing multiple signals that users can navigate between.
+
+### Expanded Badge
+
+<Story name="ExpandedBadge">
+  {() => {
+    const singleSignal = {
+      id: 'single-signal-example',
+      title: 'Performance optimization suggestion',
+      description: 'This query could be optimized by adding an index on the fields being queried.',
+      learnMoreLink: 'https://www.mongodb.com/docs/manual/indexes/',
+      primaryActionButtonLabel: 'Create index',
+      primaryActionButtonIcon: 'Plus',
+    };
+
+    const multipleSignals = [
+      {
+        id: 'signal-1',
+        title: 'Query executed without index',
+        description: 'This query ran without an index. If you plan on using this query heavily in your application, you should create an index that covers this query.',
+        learnMoreLink: 'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+        primaryActionButtonLabel: 'Create index',
+        primaryActionButtonIcon: 'Plus',
+      },
+      {
+        id: 'signal-2',
+        title: 'Alternate text search options available',
+        description: "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your query to $search for a wider range of functionality.",
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+        primaryActionButtonLabel: 'Create Search Index',
+      },
+      {
+        id: 'signal-3',
+        title: '$lookup usage',
+        description: '$lookup operations can be resource-intensive because they perform operations on two collections instead of one. In certain situations, embedding documents or arrays can enhance read performance.',
+        learnMoreLink: 'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+      },
+    ];
+
+    const containerStyles = css`
+      padding: ${spacing[400]}px;
+      display: flex;
+      align-items: center;
+      gap: ${spacing[300]}px;
+    `;
+
+    return (
+      <div className={containerStyles}>
+        <div>
+          <h3>Single Signal</h3>
+          <SignalPopover signals={singleSignal} shouldExpandBadge={true} />
+        </div>
+
+        <div>
+          <h3>Multiple Signals</h3>
+          <SignalPopover signals={multipleSignals} shouldExpandBadge={true} />
+        </div>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Example showing signals with always-expanded badges.
+
+## Props
+
+<Controls />

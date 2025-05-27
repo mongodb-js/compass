@@ -1,0 +1,159 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ItemActionButton } from './item-action-button';
+import { Icon } from '../leafygreen';
+import { ItemActionButtonSize } from './constants';
+
+<Meta
+  title="Components/Actions/ItemActionButton"
+  component={ItemActionButton}
+  parameters={{ layout: 'centered' }}
+  argTypes={{
+    action: {
+      control: 'text',
+      description: 'The action identifier',
+    },
+    icon: {
+      control: 'select',
+      options: ['Play', 'Stop', 'Pause'],
+      mapping: {
+        Play: <Icon glyph="Play" />,
+        Stop: <Icon glyph="Stop" />,
+        Pause: <Icon glyph="Pause" />,
+      },
+      description: 'The icon to display in the button',
+    },
+    label: {
+      control: 'text',
+      description: 'The label for the button',
+    },
+    tooltip: {
+      control: 'text',
+      description: 'Optional tooltip text (if not provided, label is used)',
+    },
+    iconSize: {
+      control: 'select',
+      options: Object.values(ItemActionButtonSize),
+      description: 'The size of the button',
+    },
+    isDisabled: {
+      control: 'boolean',
+      description: 'Whether the button is disabled',
+    },
+    onClick: {
+      action: 'clicked',
+      description: 'Function called when the button is clicked',
+    },
+  }}
+/>
+
+# ItemActionButton
+
+The ItemActionButton component is a button that displays an icon and can be used in item lists or tables. It wraps the SmallIconButton component and adds additional functionality for item actions.
+
+## Usage
+
+```tsx
+import { ItemActionButton } from '@mongodb-js/compass-components';
+import { Icon } from '@mongodb-js/compass-components';
+
+<ItemActionButton action="play" icon={<Icon glyph="Play" />} label="Play" />;
+```
+
+## Examples
+
+### Play
+
+<Story name="Play">
+  {() => (
+    <ItemActionButton
+      action="play"
+      icon={<Icon glyph="Play" />}
+      label="Play"
+      iconSize={ItemActionButtonSize.Default}
+    />
+  )}
+</Story>
+
+### Stop
+
+<Story name="Stop">
+  {() => (
+    <ItemActionButton
+      action="stop"
+      icon={<Icon glyph="Stop" />}
+      label="Stop"
+      iconSize={ItemActionButtonSize.Default}
+    />
+  )}
+</Story>
+
+### Pause
+
+<Story name="Pause">
+  {() => (
+    <ItemActionButton
+      action="pause"
+      icon={<Icon glyph="Pause" />}
+      label="Pause"
+      iconSize={ItemActionButtonSize.Default}
+    />
+  )}
+</Story>
+
+### With Tooltip
+
+<Story name="WithTooltip">
+  {() => (
+    <ItemActionButton
+      action="play"
+      icon={<Icon glyph="Play" />}
+      label="Play"
+      tooltip="Start playback"
+      iconSize={ItemActionButtonSize.Default}
+    />
+  )}
+</Story>
+
+### Small
+
+<Story name="Small">
+  {() => (
+    <ItemActionButton
+      action="play"
+      icon={<Icon glyph="Play" />}
+      label="Play"
+      iconSize={ItemActionButtonSize.Small}
+    />
+  )}
+</Story>
+
+### XSmall
+
+<Story name="XSmall">
+  {() => (
+    <ItemActionButton
+      action="play"
+      icon={<Icon glyph="Play" />}
+      label="Play"
+      iconSize={ItemActionButtonSize.XSmall}
+    />
+  )}
+</Story>
+
+### Disabled
+
+<Story name="Disabled">
+  {() => (
+    <ItemActionButton
+      action="play"
+      icon={<Icon glyph="Play" />}
+      label="Play"
+      iconSize={ItemActionButtonSize.Default}
+      isDisabled
+    />
+  )}
+</Story>
+
+## Props
+
+<Controls />

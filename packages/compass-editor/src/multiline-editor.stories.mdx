@@ -1,0 +1,186 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { useState } from 'react';
+import { CodemirrorMultilineEditor } from './editor';
+
+<Meta
+  title="Components/Editor/MultilineEditor"
+  component={CodemirrorMultilineEditor}
+  argTypes={{
+    text: { control: 'text' },
+    language: {
+      control: 'select',
+      options: ['json', 'javascript', 'javascript-expression'],
+      defaultValue: 'javascript',
+    },
+    disabled: { control: 'boolean' },
+    readOnly: { control: 'boolean' },
+    showLineNumbers: { control: 'boolean', defaultValue: true },
+    showFoldGutter: { control: 'boolean', defaultValue: true },
+    showAnnotationsGutter: { control: 'boolean', defaultValue: true },
+    showScroll: { control: 'boolean', defaultValue: true },
+    highlightActiveLine: { control: 'boolean', defaultValue: true },
+    darkMode: { control: 'boolean' },
+    copyable: { control: 'boolean', defaultValue: true },
+    formattable: { control: 'boolean', defaultValue: true },
+    expanded: { control: 'boolean' },
+    minLines: { control: 'number' },
+    maxLines: { control: 'number' },
+    lineHeight: { control: 'number', defaultValue: 16 },
+    placeholder: { control: 'text' },
+    onChangeText: { action: 'changed' },
+    onFocus: { action: 'focused' },
+    onBlur: { action: 'blurred' },
+    onPaste: { action: 'pasted' },
+    onExpand: { action: 'expanded' },
+    onCopy: { action: 'copied' },
+  }}
+/>
+
+# Multiline Editor
+
+A full-featured code editor component based on CodeMirror, designed for editing multi-line code with advanced features like syntax highlighting, line numbers, folding, and custom actions.
+
+## Usage
+
+```jsx
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+
+function MyComponent() {
+  const [text, setText] = useState('');
+
+  return (
+    <CodemirrorMultilineEditor
+      text={text}
+      onChangeText={setText}
+      language="javascript"
+      showLineNumbers
+      showFoldGutter
+    />
+  );
+}
+```
+
+## When to use
+
+- For multi-line code editing
+- When you need advanced editor features
+- For complex code editing with syntax highlighting
+- When you need custom actions or formatting
+
+## When not to use
+
+- For single-line code input
+- For simple text input
+- When space is limited
+- When you don't need advanced features
+
+## Examples
+
+### Basic Usage
+
+<Story name="Basic">
+  {() => {
+    const [text, setText] = useState('const x = 42;\nconst y = 24;');
+
+    return (
+      <CodemirrorMultilineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+        showLineNumbers
+        showFoldGutter
+      />
+    );
+
+}}
+
+</Story>
+
+### With Custom Actions
+
+<Story name="WithCustomActions">
+  {() => {
+    const [text, setText] = useState('const x = 42;\nconst y = 24;');
+
+    return (
+      <CodemirrorMultilineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+        showLineNumbers
+        showFoldGutter
+        customActions={[
+          {
+            icon: 'Code',
+            tooltip: 'Format Code',
+            onClick: () => console.log('Format clicked')
+          }
+        ]}
+      />
+    );
+
+}}
+
+</Story>
+
+### With Annotations
+
+<Story name="WithAnnotations">
+  {() => {
+    const [text, setText] = useState('const x = 42;\nconst y = 24;');
+
+    return (
+      <CodemirrorMultilineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+        showLineNumbers
+        showFoldGutter
+        showAnnotationsGutter
+        annotations={[
+          {
+            from: 0,
+            to: 10,
+            severity: 'error',
+            message: 'Variable x is not used'
+          }
+        ]}
+      />
+    );
+
+}}
+
+</Story>
+
+### With Autocompletion
+
+<Story name="WithAutocompletion">
+  {() => {
+    const [text, setText] = useState('const x = 42;\nconst y = 24;');
+
+    return (
+      <CodemirrorMultilineEditor
+        text={text}
+        onChangeText={setText}
+        language="javascript"
+        showLineNumbers
+        showFoldGutter
+        completer={async (context) => {
+          return {
+            from: context.pos,
+            options: [
+              { label: 'console', type: 'keyword' },
+              { label: 'log', type: 'function' }
+            ]
+          };
+        }}
+      />
+    );
+
+}}
+
+</Story>
+
+## Props
+
+<Controls />

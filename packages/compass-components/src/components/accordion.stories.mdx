@@ -1,0 +1,227 @@
+import { Meta, Story, Controls, Primary } from '@storybook/blocks';
+import { useState } from 'react';
+import { Accordion } from './accordion';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Layout/Accordion"
+  component={Accordion}
+  parameters={{
+    layout: 'centered',
+  }}
+  argTypes={{
+    text: {
+      control: 'text',
+      description: 'The text to display in the accordion header',
+    },
+    hintText: {
+      control: 'text',
+      description: 'Optional hint text to display next to the header text',
+    },
+    open: {
+      control: 'boolean',
+      description: 'Whether the accordion is open (controlled)',
+    },
+    setOpen: {
+      action: 'opened',
+      description: 'Function called when the accordion open state changes',
+    },
+  }}
+/>
+
+# Accordion
+
+The Accordion component is a collapsible section that can be used to show and hide content.
+It's commonly used to organize content into expandable sections.
+
+## Usage
+
+The Accordion component is perfect for:
+
+- Organizing content into sections
+- Creating collapsible forms
+- Showing/hiding detailed information
+- Creating expandable navigation menus
+
+```tsx
+import { Accordion } from './accordion';
+
+// Basic usage
+<Accordion text="Basic Accordion">
+  <div>
+    <p>This is the content of the accordion.</p>
+    <p>It can contain any React elements.</p>
+  </div>
+</Accordion>
+
+// With hint text
+<Accordion text="Accordion with Hint" hintText="(Optional)">
+  <div>
+    <p>This accordion includes a hint text next to the header.</p>
+  </div>
+</Accordion>
+
+// Controlled mode
+const [open, setOpen] = useState(false);
+<Accordion text="Controlled Accordion" open={open} setOpen={setOpen}>
+  <div>
+    <p>This is a controlled accordion.</p>
+  </div>
+</Accordion>
+```
+
+## Examples
+
+### Basic Accordion
+
+<Story name="Basic">
+  {() => {
+    const contentStyles = css({
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+      marginTop: spacing[2],
+    });
+
+    return (
+      <div style={{ width: '400px' }}>
+        <Accordion text="Basic Accordion">
+          <div className={contentStyles}>
+            <p>This is the content of the accordion.</p>
+            <p>It can contain any React elements.</p>
+          </div>
+        </Accordion>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic accordion with simple content.
+This demonstrates the standard usage of the Accordion component with its core features.
+
+### With Hint Text
+
+<Story name="WithHintText">
+  {() => {
+    const contentStyles = css({
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+      marginTop: spacing[2],
+    });
+
+    return (
+      <div style={{ width: '400px' }}>
+        <Accordion text="Accordion with Hint" hintText="(Optional)">
+          <div className={contentStyles}>
+            <p>This accordion includes a hint text next to the header.</p>
+            <p>The hint text can be used to provide additional context.</p>
+          </div>
+        </Accordion>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Accordion with hint text next to the header.
+This demonstrates how to add additional context to the accordion header.
+
+### Controlled Accordion
+
+<Story name="Controlled">
+  {() => {
+    const contentStyles = css({
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+      marginTop: spacing[2],
+    });
+
+    const [open, setOpen] = useState(false);
+    return (
+      <div style={{ width: '400px' }}>
+        <Accordion text="Controlled Accordion" open={open} setOpen={setOpen}>
+          <div className={contentStyles}>
+            <p>This is a controlled accordion.</p>
+            <p>The open state is managed by the parent component.</p>
+            <p>Current state: {open ? 'Open' : 'Closed'}</p>
+          </div>
+        </Accordion>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Controlled accordion where the open state is managed by the parent component.
+This demonstrates how to control the accordion's open state programmatically.
+
+### Multiple Accordions
+
+<Story name="MultipleAccordions">
+  {() => {
+    const contentStyles = css({
+      padding: spacing[3],
+      backgroundColor: 'var(--leafygreen-ui-gray-light-3)',
+      borderRadius: '6px',
+      marginTop: spacing[2],
+    });
+
+    return (
+      <div style={{ width: '400px' }}>
+        <Accordion text="First Section">
+          <div className={contentStyles}>
+            <p>This is the first section of content.</p>
+          </div>
+        </Accordion>
+        <Accordion text="Second Section">
+          <div className={contentStyles}>
+            <p>This is the second section of content.</p>
+          </div>
+        </Accordion>
+        <Accordion text="Third Section">
+          <div className={contentStyles}>
+            <p>This is the third section of content.</p>
+          </div>
+        </Accordion>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Multiple accordions used together to create a sectioned interface.
+This demonstrates how to use multiple accordions to organize content into sections.
+
+## Best Practices
+
+1. **Content Organization**:
+
+   - Use clear, descriptive headers
+   - Group related content together
+   - Keep content concise and focused
+   - Use hint text for additional context
+
+2. **User Experience**:
+
+   - Consider using controlled mode for complex interactions
+   - Maintain consistent styling across accordions
+   - Use appropriate spacing between sections
+   - Consider mobile responsiveness
+
+3. **Accessibility**:
+   - Ensure proper keyboard navigation
+   - Use semantic HTML structure
+   - Provide clear visual indicators
+   - Support screen readers
+
+## Props
+
+<Controls />

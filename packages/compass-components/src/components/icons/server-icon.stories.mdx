@@ -1,0 +1,40 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ServerIcon } from './server-icon';
+
+<Meta
+  title="Components/Icons/Server"
+  component={ServerIcon}
+  parameters={{ layout: 'centered' }}
+/>
+
+# Server Icon
+
+The Server Icon represents a database server or connection. It's commonly used to indicate server-related actions or to represent server items in lists.
+
+## Usage
+
+```tsx
+import { ServerIcon } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  return <ServerIcon />;
+}
+```
+
+## Examples
+
+### Default
+
+<Story name="Default">{() => <ServerIcon />}</Story>
+
+## Guidelines
+
+- The icon is designed to be used at its original size (72x72 pixels)
+- It automatically adapts to light/dark mode
+- It's SVG-based for crisp rendering at any size
+- It should be used to represent servers, databases, or connections
+- It should always be accompanied by text or a tooltip for screen readers
+
+## Props
+
+<Controls />

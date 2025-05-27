@@ -1,0 +1,155 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { WorkspaceContainer } from './workspace-container';
+import { Button } from './leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
+<Meta
+  title="Components/Layout/WorkspaceContainer"
+  component={WorkspaceContainer}
+  parameters={{ controls: { expanded: true } }}
+  argTypes={{
+    toolbar: {
+      description: 'The toolbar content to display at the top of the container',
+    },
+    toolbarRef: {
+      description: 'Ref to the toolbar element',
+    },
+    scrollableContainerRef: {
+      description: 'Ref to the scrollable container element',
+    },
+    initialTopInView: {
+      control: 'boolean',
+      description: 'Whether the top of the content is initially in view',
+    },
+  }}
+/>
+
+# WorkspaceContainer
+
+The WorkspaceContainer component provides a scrollable container with optional toolbar support.
+It's designed to handle large amounts of content while maintaining a fixed toolbar at the top.
+
+## Usage
+
+```tsx
+import { WorkspaceContainer } from '@mongodb-js/compass-components';
+import { Button } from '@mongodb-js/compass-components';
+
+function WorkspaceContainerExample() {
+  return (
+    <WorkspaceContainer
+      toolbar={
+        <div style={{ padding: '8px', display: 'flex', gap: '8px' }}>
+          <Button>Action 1</Button>
+          <Button>Action 2</Button>
+        </div>
+      }
+    >
+      <div style={{ padding: '16px' }}>{/* Your content here */}</div>
+    </WorkspaceContainer>
+  );
+}
+```
+
+## Examples
+
+### Basic
+
+<Story name="Basic">
+  {() => {
+    const longContentContainerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[200],
+      padding: spacing[300],
+    });
+
+    const ContentBlock = () => (
+      <div
+        style={{
+          padding: spacing[300],
+          border: '1px solid currentColor',
+          borderRadius: spacing[100],
+        }}
+      >
+        Content block
+      </div>
+    );
+
+    return (
+      <div style={{ height: '400px' }}>
+        <WorkspaceContainer>
+          <div className={longContentContainerStyles}>
+            {Array.from({ length: 20 }).map((_, i) => (
+              <ContentBlock key={i} />
+            ))}
+          </div>
+        </WorkspaceContainer>
+      </div>
+    );
+
+}}
+
+</Story>
+
+Basic example of the WorkspaceContainer component with minimal configuration.
+
+### With Toolbar
+
+<Story name="WithToolbar">
+  {() => {
+    const longContentContainerStyles = css({
+      display: 'flex',
+      flexDirection: 'column',
+      gap: spacing[200],
+      padding: spacing[300],
+    });
+
+    const toolbarStyles = css({
+      display: 'flex',
+      padding: spacing[200],
+      gap: spacing[200],
+      alignItems: 'center',
+    });
+
+    const ContentBlock = () => (
+      <div
+        style={{
+          padding: spacing[300],
+          border: '1px solid currentColor',
+          borderRadius: spacing[100],
+        }}
+      >
+        Content block
+      </div>
+    );
+
+    return (
+      <div style={{ height: '400px' }}>
+        <WorkspaceContainer
+          toolbar={
+            <div className={toolbarStyles}>
+              <Button>Toolbar Button 1</Button>
+              <Button variant="default">Toolbar Button 2</Button>
+            </div>
+          }
+        >
+          <div className={longContentContainerStyles}>
+            {Array.from({ length: 20 }).map((_, i) => (
+              <ContentBlock key={i} />
+            ))}
+          </div>
+        </WorkspaceContainer>
+      </div>
+    );
+
+}}
+
+</Story>
+
+WorkspaceContainer with a toolbar at the top containing action buttons.
+
+## Props
+
+<Controls />

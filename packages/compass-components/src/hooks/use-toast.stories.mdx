@@ -1,0 +1,148 @@
+import { Meta, Story, Controls } from '@storybook/blocks';
+import { ToastArea, openToast } from './use-toast';
+import Button from '@leafygreen-ui/button';
+
+<Meta title="Hooks/useToast" component={ToastArea} />
+
+# Toast Hook
+
+A hook that provides programmatic control over toast notifications. It allows showing toasts from anywhere in the application, both inside and outside React components, with support for different variants, timeouts, and progress indicators.
+
+## Usage
+
+```jsx
+import { ToastArea, openToast } from '@mongodb-js/compass-components';
+
+function MyComponent() {
+  const handleSuccess = () => {
+    openToast('success-toast', {
+      variant: 'success',
+      title: 'Operation successful',
+      description: 'Your changes have been saved',
+    });
+  };
+
+  return (
+    <ToastArea>
+      <Button onClick={handleSuccess}>Show Success Toast</Button>
+    </ToastArea>
+  );
+}
+```
+
+## When to use
+
+- When you need to show temporary notifications to users
+- When you need to display operation results (success, error, warning)
+- When you need to show progress updates for long-running operations
+- When you need to show toasts from outside React components
+
+## When not to use
+
+- For permanent notifications (use a status component instead)
+- For critical errors that require immediate attention (use a modal instead)
+- For complex user interactions (use a modal or form instead)
+
+## Examples
+
+### Success Toast
+
+<Story name="SuccessToast">
+  {() => {
+    const handleClick = () => {
+      openToast('success-toast', {
+        variant: 'success',
+        title: 'Success',
+        description: 'Operation completed successfully'
+      });
+    };
+
+    return (
+      <ToastArea>
+        <Button onClick={handleClick}>Show Success Toast</Button>
+      </ToastArea>
+    );
+
+}}
+
+</Story>
+
+### Error Toast
+
+<Story name="ErrorToast">
+  {() => {
+    const handleClick = () => {
+      openToast('error-toast', {
+        variant: 'warning',
+        title: 'Error',
+        description: 'Something went wrong'
+      });
+    };
+
+    return (
+      <ToastArea>
+        <Button onClick={handleClick}>Show Error Toast</Button>
+      </ToastArea>
+    );
+
+}}
+
+</Story>
+
+### Progress Toast
+
+<Story name="ProgressToast">
+  {() => {
+    const handleClick = () => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 0.1;
+        if (progress > 1) {
+          clearInterval(interval);
+          return;
+        }
+        openToast('progress-toast', {
+          variant: 'progress',
+          title: 'Processing',
+          description: 'Please wait...',
+          progress
+        });
+      }, 500);
+    };
+
+    return (
+      <ToastArea>
+        <Button onClick={handleClick}>Show Progress Toast</Button>
+      </ToastArea>
+    );
+
+}}
+
+</Story>
+
+### Toast with Action
+
+<Story name="ToastWithAction">
+  {() => {
+    const handleClick = () => {
+      openToast('action-toast', {
+        variant: 'note',
+        title: 'New version available',
+        description: 'A new version of the application is ready to install',
+        actionElement: <Button onClick={() => console.log('Update clicked')}>Update Now</Button>
+      });
+    };
+
+    return (
+      <ToastArea>
+        <Button onClick={handleClick}>Show Toast with Action</Button>
+      </ToastArea>
+    );
+
+}}
+
+</Story>
+
+## Props
+
+<Controls />
