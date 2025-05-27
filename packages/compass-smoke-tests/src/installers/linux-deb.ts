@@ -25,10 +25,6 @@ export function installLinuxDeb({
     execute('sudo', ['apt', 'remove', '--yes', '--purge', packageName]);
   }
 
-  console.warn(
-    "Installing globally, since we haven't discovered a way to specify an install path"
-  );
-
   if (fs.existsSync(installPath)) {
     console.warn(
       'Found an existing install directory (likely from a previous run): Uninstalling first'
@@ -43,6 +39,9 @@ export function installLinuxDeb({
   console.warn(
     "Installing globally, since we haven't discovered a way to specify an install path"
   );
+  // Update package index first to avoid fetching missing packages
+  execute('sudo', ['apt-get', 'update']);
+  // Using "apt" instead of "apt-get" to install dependencies
   execute('sudo', ['apt', 'install', filepath]);
 
   assert(

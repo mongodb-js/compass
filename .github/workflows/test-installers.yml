@@ -3,6 +3,11 @@ name: Test Installers
 permissions:
   contents: read
 
+# Using "bash" everywhere to make "--" separation of arguments work predictively when invoking NPM script on Windows
+defaults:
+  run:
+    shell: bash
+
 on:
   workflow_dispatch:
     inputs:
@@ -176,7 +181,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.15.1
           cache: 'npm'
 
       - name: Run post-checkout command
