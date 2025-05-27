@@ -1,7 +1,12 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import {
+  validateEdit,
+  type Edit,
+  type MongoDBDataModelDescription,
+  type StaticModel,
+} from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
@@ -10,10 +15,11 @@ import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
-        prev: MongoDBDataModelDescription['edits'][];
-        current: MongoDBDataModelDescription['edits'];
-        next: MongoDBDataModelDescription['edits'][];
+        prev: Edit[][];
+        current: Edit[];
+        next: Edit[][];
       };
+      editErrors?: string[];
     })
   | null; // null when no diagram is currently open
 
@@ -22,6 +28,7 @@ export enum DiagramActionTypes {
   DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
   APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
+  APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
 }
@@ -44,8 +51,12 @@ export type RenameDiagramAction = {
 
 export type ApplyEditAction = {
   type: DiagramActionTypes.APPLY_EDIT;
-  // TODO
-  edit: unknown;
+  edit: Edit;
+};
+
+export type ApplyEditFailedAction = {
+  type: DiagramActionTypes.APPLY_EDIT_FAILED;
+  errors: string[];
 };
 
 export type UndoEditAction = {
@@ -61,6 +72,7 @@ export type DiagramActions =
   | DeleteDiagramAction
   | RenameDiagramAction
   | ApplyEditAction
+  | ApplyEditFailedAction
   | UndoEditAction
   | RedoEditAction;
 
@@ -92,11 +104,19 @@ export const diagramReducer: Reducer<DiagramState> = (
         prev: [],
         current: [
           {
-            // TODO
             type: 'SetModel',
+            id: new UUID().toString(),
+            timestamp: new Date().toISOString(),
             model: {
-              schema: action.schema,
-              relations: action.relations,
+              collections: action.collections.map((collection) => ({
+                ns: collection.ns,
+                jsonSchema: collection.schema,
+                // TODO
+                indexes: [],
+                shardKey: undefined,
+                displayPosition: [0, 0],
+              })),
+              relationships: action.relations,
             },
           },
         ],
@@ -124,6 +144,13 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: [...state.edits.current, action.edit],
         next: [],
       },
+      editErrors: undefined,
+    };
+  }
+  if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
+    return {
+      ...state,
+      editErrors: action.errors,
     };
   }
   if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
@@ -172,10 +199,27 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
 }
 
 export function applyEdit(
-  edit: unknown
-): DataModelingThunkAction<void, ApplyEditAction> {
+  rawEdit: Omit<Edit, 'id' | 'timestamp'>
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
   return (dispatch, getState, { dataModelStorage }) => {
-    dispatch({ type: DiagramActionTypes.APPLY_EDIT, edit });
+    const edit = {
+      ...rawEdit,
+      id: new UUID().toString(),
+      timestamp: new Date().toISOString(),
+      // TS has a problem recognizing the discriminated union
+    } as Edit;
+    const { result: isValid, errors } = validateEdit(edit);
+    if (!isValid) {
+      dispatch({
+        type: DiagramActionTypes.APPLY_EDIT_FAILED,
+        errors,
+      });
+      return;
+    }
+    dispatch({
+      type: DiagramActionTypes.APPLY_EDIT,
+      edit,
+    });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
 }
@@ -227,22 +271,64 @@ export function renameDiagram(
   };
 }
 
-// TODO
-function _applyEdit(model: any, edit: any) {
-  if (edit && 'type' in edit) {
-    if (edit.type === 'SetModel') {
-      return edit.model;
+function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
+  if (edit.type === 'SetModel') {
+    return edit.model;
+  }
+  if (!model) {
+    throw new Error('Editing a model that has not been initialized');
+  }
+  switch (edit.type) {
+    case 'AddRelationship': {
+      return {
+        ...model,
+        relationships: [...model.relationships, edit.relationship],
+      };
+    }
+    case 'RemoveRelationship': {
+      return {
+        ...model,
+        relationships: model.relationships.filter(
+          (relationship) => relationship.id !== edit.relationshipId
+        ),
+      };
+    }
+    default: {
+      return model;
     }
   }
-  return model;
 }
 
-export function getCurrentModel(diagram: MongoDBDataModelDescription): unknown {
-  let model;
-  for (const edit of diagram.edits) {
-    model = _applyEdit(model, edit);
+export function getCurrentModel(
+  description: MongoDBDataModelDescription
+): StaticModel {
+  // Get the last 'SetModel' edit.
+  const reversedSetModelEditIndex = description.edits
+    .slice()
+    .reverse()
+    .findIndex((edit) => edit.type === 'SetModel');
+  if (reversedSetModelEditIndex === -1) {
+    throw new Error('No diagram model found.');
   }
-  return model;
+
+  // Calculate the actual index in the original array.
+  const lastSetModelEditIndex =
+    description.edits.length - 1 - reversedSetModelEditIndex;
+
+  // Start with the StaticModel from the last `SetModel` edit.
+  const lastSetModelEdit = description.edits[lastSetModelEditIndex];
+  if (lastSetModelEdit.type !== 'SetModel') {
+    throw new Error('Something went wrong, last edit is not a SetModel');
+  }
+  let currentModel = lastSetModelEdit.model;
+
+  // Apply all subsequent edits after the last `SetModel` edit.
+  for (let i = lastSetModelEditIndex + 1; i < description.edits.length; i++) {
+    const edit = description.edits[i];
+    currentModel = _applyEdit(edit, currentModel);
+  }
+
+  return currentModel;
 }
 
 export function getCurrentDiagramFromState(
