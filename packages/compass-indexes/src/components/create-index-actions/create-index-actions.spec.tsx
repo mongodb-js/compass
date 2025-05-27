@@ -14,9 +14,9 @@ import { Provider } from 'react-redux';
 import CreateIndexActions from '.';
 
 describe('CreateIndexActions Component', function () {
-  let clearErrorSpy;
-  let onCreateIndexClickSpy;
-  let closeCreateIndexModalSpy;
+  let clearErrorSpy: any;
+  let onCreateIndexClickSpy: any;
+  let closeCreateIndexModalSpy: any;
   const store = setupStore();
 
   beforeEach(function () {
