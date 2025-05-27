@@ -79,7 +79,6 @@ export function DiagramCard({
   onDelete,
 }: {
   diagram: MongoDBDataModelDescription & {
-    lastModified: number;
     databases: string;
   };
   onOpen: (diagram: MongoDBDataModelDescription) => void;
@@ -87,7 +86,7 @@ export function DiagramCard({
   onDelete: (id: string) => void;
 }) {
   const darkmode = useDarkMode();
-  const formattedDate = useFormattedDate(diagram.lastModified);
+  const formattedDate = useFormattedDate(new Date(diagram.updatedAt).getTime());
   return (
     <Card
       className={diagramCardStyles}

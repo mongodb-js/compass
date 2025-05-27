@@ -15,10 +15,12 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '1',
     name: 'One',
+    createdAt: '2023-10-01T00:00:00.000Z',
+    updatedAt: '2023-10-03T00:00:00.000Z',
     edits: [
       {
         id: 'edit-id-1',
-        timestamp: '2023-10-01T00:00:00.000Z',
+        timestamp: '2023-10-02T00:00:00.000Z',
         type: 'SetModel',
         model: {
           collections: [
@@ -39,6 +41,8 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '2',
     name: 'Two',
+    createdAt: '2023-10-02T00:00:00.000Z',
+    updatedAt: '2023-10-04T00:00:00.000Z',
     edits: [
       {
         id: 'edit-id-2',
@@ -63,6 +67,8 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '3',
     name: 'Three',
+    createdAt: '2023-10-01T00:00:00.000Z',
+    updatedAt: '2023-10-05T00:00:00.000Z',
     edits: [
       {
         id: 'edit-id-3',

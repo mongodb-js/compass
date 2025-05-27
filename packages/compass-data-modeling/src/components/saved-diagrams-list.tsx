@@ -34,7 +34,7 @@ const sortBy = [
     label: 'Name',
   },
   {
-    name: 'lastModified',
+    name: 'updatedAt',
     label: 'Last Modified',
   },
 ] as const;
@@ -141,7 +141,6 @@ export const SavedDiagramsList: React.FunctionComponent<{
   const { items, status } = useDataModelSavedItems();
   const decoratedItems = useMemo<
     (MongoDBDataModelDescription & {
-      lastModified: number;
       databases: string;
     })[]
   >(() => {
@@ -151,7 +150,6 @@ export const SavedDiagramsList: React.FunctionComponent<{
       );
       return {
         ...item,
-        lastModified: Date.parse(item.edits[item.edits.length - 1].timestamp),
         databases: Array.from(databases).join(', '),
       };
     });

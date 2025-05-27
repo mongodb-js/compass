@@ -10,6 +10,8 @@ describe('DiagramCard', () => {
       id: 'test-diagram',
       connectionId: 'test-connection',
       name: 'Test Diagram',
+      createdAt: '2023-10-01T00:00:00.000Z',
+      updatedAt: '2023-10-03T00:00:00.000Z',
       edits: [
         {
           id: 'edit-id',
@@ -29,7 +31,6 @@ describe('DiagramCard', () => {
           },
         },
       ] as [Edit],
-      lastModified: new Date('2025-01-01').getTime(),
       databases: 'someDatabase',
     },
     onOpen: () => {},
@@ -41,6 +42,6 @@ describe('DiagramCard', () => {
     render(<DiagramCard {...props} />);
     expect(screen.getByText('Test Diagram')).to.be.visible;
     expect(screen.getByText('someDatabase')).to.be.visible;
-    expect(screen.getByText('Last modified: January 1, 2025')).to.be.visible;
+    expect(screen.getByText('Last modified: October 3, 2023')).to.be.visible;
   });
 });

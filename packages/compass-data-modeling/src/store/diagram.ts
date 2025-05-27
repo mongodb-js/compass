@@ -88,9 +88,7 @@ export const diagramReducer: Reducer<DiagramState> = (
 ) => {
   if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
     return {
-      id: action.diagram.id,
-      connectionId: action.diagram.connectionId,
-      name: action.diagram.name,
+      ...action.diagram,
       edits: {
         prev: [],
         current: action.diagram.edits,
@@ -104,6 +102,8 @@ export const diagramReducer: Reducer<DiagramState> = (
       id: new UUID().toString(),
       name: action.name,
       connectionId: action.connectionId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       edits: {
         prev: [],
         current: [
@@ -138,6 +138,7 @@ export const diagramReducer: Reducer<DiagramState> = (
     return {
       ...state,
       name: action.name,
+      updatedAt: new Date().toISOString(),
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
@@ -149,6 +150,7 @@ export const diagramReducer: Reducer<DiagramState> = (
         next: [],
       },
       editErrors: undefined,
+      updatedAt: new Date().toISOString(),
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
@@ -169,6 +171,7 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: newCurrent,
         next: [...state.edits.next, state.edits.current],
       },
+      updatedAt: new Date().toISOString(),
     };
   }
   if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
@@ -183,6 +186,7 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: newCurrent,
         next: [...state.edits.next],
       },
+      updatedAt: new Date().toISOString(),
     };
   }
   return state;
@@ -345,10 +349,12 @@ export function getCurrentDiagramFromState(
     id,
     connectionId,
     name,
+    createdAt,
+    updatedAt,
     edits: { current: edits },
   } = state.diagram;
 
-  return { id, connectionId, name, edits };
+  return { id, connectionId, name, edits, createdAt, updatedAt };
 }
 
 export const selectCurrentModel = memoize(getCurrentModel);
