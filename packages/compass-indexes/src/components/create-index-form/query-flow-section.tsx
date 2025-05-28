@@ -7,6 +7,7 @@ import {
   useFocusRing,
   ParagraphSkeleton,
 } from '@mongodb-js/compass-components';
+import type { Document } from 'mongodb';
 import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
@@ -21,7 +22,7 @@ import type {
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
-import type { Document } from 'bson';
+import { parseFilter } from 'mongodb-query-parser';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -81,6 +82,8 @@ const insightStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
+  marginBottom: spacing[200],
+  height: spacing[500],
 });
 
 const QueryFlowSection = ({
@@ -107,8 +110,14 @@ const QueryFlowSection = ({
   initialQuery: Document | null;
 }) => {
   const [inputQuery, setInputQuery] = React.useState(
-    JSON.stringify(initialQuery?.filter ?? {}, null, 2)
+    JSON.stringify(initialQuery ?? '', null, 2)
   );
+  const [hasNewChanges, setHasNewChanges] = React.useState(
+    initialQuery !== null
+  );
+  const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
+    React.useState(true);
+
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
@@ -133,9 +142,32 @@ const QueryFlowSection = ({
       collectionName,
       inputQuery: sanitizedInputQuery,
     });
+
+    setHasNewChanges(false);
   }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
 
+  const handleQueryInputChange = useCallback((text: string) => {
+    setInputQuery(text);
+    setHasNewChanges(true);
+  }, []);
+
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
+
+  // Validate query upon typing
+  useMemo(() => {
+    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    try {
+      parseFilter(inputQuery);
+
+      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+        _isShowSuggestionsButtonDisabled = true;
+      }
+    } catch (e) {
+      _isShowSuggestionsButtonDisabled = true;
+    } finally {
+      setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
+    }
+  }, [hasNewChanges, inputQuery]);
 
   return (
     <>
@@ -164,7 +196,7 @@ const QueryFlowSection = ({
             copyable={false}
             formattable={false}
             text={inputQuery}
-            onChangeText={(text) => setInputQuery(text)}
+            onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
             className={codeEditorStyles}
@@ -176,6 +208,7 @@ const QueryFlowSection = ({
             onClick={handleSuggestedIndexButtonClick}
             className={suggestedIndexButtonStyles}
             size="small"
+            disabled={isShowSuggestionsButtonDisabled}
           >
             Show suggested index
           </Button>

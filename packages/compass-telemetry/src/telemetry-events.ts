@@ -2694,6 +2694,20 @@ type CreateIndexButtonClickedEvent = CommonEvent<{
   };
 }>;
 
+type CreateIndexErrorParsingQueryEvent = CommonEvent<{
+  name: 'Error parsing query';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
+  name: 'Error generating covered queries';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 type UUIDEncounteredEvent = CommonEvent<{
   name: 'UUID Encountered';
   payload: {
@@ -2825,4 +2839,6 @@ export type TelemetryEvent =
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
   | CreateIndexButtonClickedEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexErrorGettingCoveredQueriesEvent
   | UUIDEncounteredEvent;

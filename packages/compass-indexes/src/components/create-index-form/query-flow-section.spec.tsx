@@ -67,7 +67,7 @@ describe('QueryFlowSection', () => {
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: [],
         indexSuggestions: { a: 1, b: 2 },
-        fetchingSuggestionsError: null,
+        error: null,
         indexSuggestionsState: 'success',
       });
     });
