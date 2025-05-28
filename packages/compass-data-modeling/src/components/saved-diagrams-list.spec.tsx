@@ -139,9 +139,7 @@ describe('SavedDiagramsList', function () {
     });
 
     it('shows the empty state', function () {
-      expect(
-        screen.getByText('Design, Visualize, and Evolve your Data Model')
-      ).to.be.visible;
+      expect(screen.getByText('Visualize your Data Model')).to.be.visible;
     });
 
     it('allows to start adding diagrams', function () {
