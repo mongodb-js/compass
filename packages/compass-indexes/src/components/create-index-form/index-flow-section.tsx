@@ -11,6 +11,7 @@ import {
   fontFamilies,
   InfoSprinkle,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
@@ -52,12 +53,18 @@ const coveredQueriesHeaderContainerStyles = css({
 
 const coveredQueriesCalloutStyles = css({
   border: `1px solid ${palette.gray.light2}`,
-  background: palette.gray.light3,
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
 });
 
+const lightModeCoveredQueriesCalloutStyles = css({
+  background: palette.gray.light3,
+});
+
+const darkModeCoveredQueriesCalloutStyles = css({
+  background: palette.black,
+});
 const buttonContainerStyles = css({
   display: 'flex',
   justifyContent: 'right',
@@ -171,6 +178,7 @@ const IndexFlowSection = ({
   onErrorEncountered,
   onErrorCleared,
 }: IndexFlowSectionProps) => {
+  const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
   const [hasFieldChanges, setHasFieldChanges] = useState(false);
@@ -321,7 +329,14 @@ const IndexFlowSection = ({
             </InfoSprinkle>
           </div>
 
-          <div className={coveredQueriesCalloutStyles}>
+          <div
+            className={cx(
+              coveredQueriesCalloutStyles,
+              darkMode
+                ? darkModeCoveredQueriesCalloutStyles
+                : lightModeCoveredQueriesCalloutStyles
+            )}
+          >
             {/* Covered Queries */}
             <Body
               className={codeStyles}
