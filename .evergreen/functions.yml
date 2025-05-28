@@ -688,6 +688,22 @@ functions:
             npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --ref ${branch_name}
           fi
 
+  # Creating the webpack compass-web bundle ensures
+  # that the bundle size does not grow too large for.
+  # The webpack compile fails when it exceeds the size limit.
+  compile-compass-web:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          DEBUG: ${debug|}
+        script: |
+          set -e
+          npm run --unsafe-perm --workspace @mongodb-js/compass-web compile
+
   test-web-sandbox:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins

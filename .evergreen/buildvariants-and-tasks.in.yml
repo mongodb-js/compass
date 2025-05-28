@@ -290,6 +290,12 @@ buildvariants:
     <% } %>
     <% } %>
 
+  - name: test-can-bundle-compass-web
+    display_name: Test Can Bundle Compass Web
+    run_on: ubuntu2004-large
+    tasks:
+      - name: test-can-bundle-compass-web
+
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2004-large
@@ -556,6 +562,19 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   <% } %>
 <% } %>
+
+  - name: test-can-bundle-compass-web
+    tags:
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: compile-compass-web
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
 
   - name: test-web-sandbox-atlas-cloud
     tags:
