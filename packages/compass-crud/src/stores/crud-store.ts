@@ -112,11 +112,13 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 
 export const fetchDocuments: (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion: string,
   isDataLake: boolean,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion,
   isDataLake,
   ns,
@@ -145,17 +147,31 @@ export const fetchDocuments: (
   };
 
   try {
-    return (
+    let uuidSubtype3Count = 0;
+    let uuidSubtype4Count = 0;
+    const docs = (
       await dataService.find(ns, filter, modifiedOptions, executionOptions)
     ).map((doc) => {
       const { __doc, __size, ...rest } = doc;
+      let hadronDoc: HadronDocument;
       if (__doc && __size && Object.keys(rest).length === 0) {
-        const hadronDoc = new HadronDocument(__doc);
+        hadronDoc = new HadronDocument(__doc);
         hadronDoc.size = Number(__size);
-        return hadronDoc;
+      } else {
+        hadronDoc = new HadronDocument(doc);
       }
-      return new HadronDocument(doc);
+      const { subtype3Count, subtype4Count } = hadronDoc.findUUIDs();
+      uuidSubtype3Count += subtype3Count;
+      uuidSubtype4Count += subtype4Count;
+      return hadronDoc;
     });
+    if (uuidSubtype3Count > 0) {
+      track('UUID Encountered', { subtype: 3, count: uuidSubtype3Count });
+    }
+    if (uuidSubtype4Count > 0) {
+      track('UUID Encountered', { subtype: 4, count: uuidSubtype4Count });
+    }
+    return docs;
   } catch (err) {
     // We are handling all the cases where the size calculating projection might
     // not work, but just in case we run into some other environment or use-case
@@ -896,6 +912,7 @@ class CrudStoreImpl
     try {
       documents = await fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
@@ -1733,6 +1750,7 @@ class CrudStoreImpl
       ),
       fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
