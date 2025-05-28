@@ -154,6 +154,8 @@ Generated on Wed, May 28, 2025
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
 - [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
+- [Error parsing query](#event--CreateIndexErrorParsingQueryEvent)
+- [Error generating covered queries](#event--CreateIndexErrorGettingCoveredQueriesEvent)
 - [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
@@ -1800,6 +1802,24 @@ a system that doesn't offer a suitable secret storage backend.
 **Properties**:
 
 - **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorParsingQueryEvent"></a>
+
+### Error parsing query
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorGettingCoveredQueriesEvent"></a>
+
+### Error generating covered queries
+
+**Properties**:
+
 - **context** (required): `"Create Index Modal"`
 - **is_compass_web** (optional): `true | undefined`
 
