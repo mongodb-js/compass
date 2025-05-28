@@ -6,6 +6,7 @@ import {
   cx,
   useFocusRing,
   ParagraphSkeleton,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { useMemo, useCallback } from 'react';
@@ -61,12 +62,17 @@ const codeEditorContainerStyles = css({
 const codeEditorStyles = css({
   borderRadius: editorContainerRadius,
   '& .cm-editor': {
-    background: `${palette.white} !important`,
     borderRadius: editorContainerRadius,
   },
   '& .cm-content': {
     padding: spacing[600],
     paddingBottom: spacing[1400],
+  },
+});
+
+const lightModeCodeEditorStyles = css({
+  '& .cm-editor': {
+    background: `${palette.white} !important`,
   },
 });
 
@@ -109,6 +115,7 @@ const QueryFlowSection = ({
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: Document | null;
 }) => {
+  const darkMode = useDarkMode();
   const [inputQuery, setInputQuery] = React.useState(
     JSON.stringify(initialQuery ?? '', null, 2)
   );
@@ -199,7 +206,10 @@ const QueryFlowSection = ({
             onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
-            className={codeEditorStyles}
+            className={cx(
+              codeEditorStyles,
+              !darkMode && lightModeCodeEditorStyles
+            )}
           />
         </div>
 
