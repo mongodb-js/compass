@@ -2716,6 +2716,82 @@ type UUIDEncounteredEvent = CommonEvent<{
   };
 }>;
 
+type CreateIndexNewFieldAdded = CommonEvent<{
+  name: 'New Index Field Added';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+type CreateIndexOptionsClicked = CommonEvent<{
+  name: 'Options Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCoveredQueriesButtonClicked = CommonEvent<{
+  name: 'Covered Queries Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexSuggestedIndexButtonClicked = CommonEvent<{
+  name: 'Suggested Index Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexIndexTabClicked = CommonEvent<{
+  name: 'Start with an Index Tab Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexQueryTabClicked = CommonEvent<{
+  name: 'Start with a Query Tab Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCodeEquivalentToggled = CommonEvent<{
+  name: 'Code Equivalent Toggled';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexModalClosed = CommonEvent<{
+  name: 'Create Index Modal Closed';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexModalCancelled = CommonEvent<{
+  name: 'Cancel Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
+  name: 'View Programming Language Syntax Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
+  name: 'Covered Queries Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2723,8 +2799,8 @@ export type TelemetryEvent =
   | AggregationEditedEvent
   | AggregationExecutedEvent
   | AggregationExplainedEvent
-  | AggregationExportedEvent
   | AggregationExportOpenedEvent
+  | AggregationExportedEvent
   | AggregationOpenedEvent
   | AggregationSavedAsViewEvent
   | AggregationSavedEvent
@@ -2737,15 +2813,15 @@ export type TelemetryEvent =
   | AiResponseFailedEvent
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
+  | ApplicationRestartAcceptedEvent
   | AtlasLinkClickedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
   | AutoupdateAcceptedEvent
-  | AutoupdateDismissedEvent
-  | ApplicationRestartAcceptedEvent
-  | AutoupdateEnabledEvent
   | AutoupdateDisabledEvent
+  | AutoupdateDismissedEvent
+  | AutoupdateEnabledEvent
   | BulkDeleteExecutedEvent
   | BulkDeleteOpenedEvent
   | BulkUpdateExecutedEvent
@@ -2759,10 +2835,25 @@ export type TelemetryEvent =
   | ConnectionFailedEvent
   | ConnectionImportedEvent
   | ConnectionRemovedEvent
+  | CreateIndexButtonClickedEvent
+  | CreateIndexCodeEquivalentToggled
+  | CreateIndexCoveredQueriesButtonClicked
+  | CreateIndexCoveredQueriesLearnMoreClicked
+  | CreateIndexErrorGettingCoveredQueriesEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexIndexTabClicked
+  | CreateIndexModalCancelled
+  | CreateIndexModalClosed
+  | CreateIndexNewFieldAdded
+  | CreateIndexOptionsClicked
+  | CreateIndexProgrammingLanguageLinkClicked
+  | CreateIndexQueryTabClicked
+  | CreateIndexSuggestedIndexButtonClicked
+  | CumulativeLayoutShiftEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
-  | DeleteExportedEvent
   | DeleteExportOpenedEvent
+  | DeleteExportedEvent
   | DetailViewHideOperationDetailsEvent
   | DetailViewKillOpEvent
   | DocumentClonedEvent
@@ -2772,9 +2863,12 @@ export type TelemetryEvent =
   | DocumentUpdatedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
+  | ExperimentViewedEvent
   | ExplainPlanExecutedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
+  | FirstContentfulPaintEvent
+  | FirstInputDelayEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
   | GuideCueDismissedEvent
@@ -2782,12 +2876,13 @@ export type TelemetryEvent =
   | ImportCompletedEvent
   | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
-  | IndexCreatedEvent
   | IndexCreateFailedEvent
   | IndexCreateOpenedEvent
+  | IndexCreatedEvent
   | IndexDroppedEvent
   | IndexEditedEvent
   | KeytarSecretsMigrationFailedEvent
+  | LargestContentfulPaintEvent
   | MyQueriesFilterEvent
   | MyQueriesSearchEvent
   | MyQueriesSortEvent
@@ -2799,27 +2894,28 @@ export type TelemetryEvent =
   | PipelineAiFeedbackEvent
   | QueryEditedEvent
   | QueryExecutedEvent
-  | QueryExportedEvent
   | QueryExportOpenedEvent
+  | QueryExportedEvent
   | QueryHistoryClosedEvent
   | QueryHistoryFavoriteAddedEvent
   | QueryHistoryFavoriteCopiedEvent
   | QueryHistoryFavoriteRemovedEvent
-  | QueryHistoryFavoritesEvent
   | QueryHistoryFavoriteUsedEvent
+  | QueryHistoryFavoritesEvent
   | QueryHistoryOpenedEvent
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
-  | SchemaExportedEvent
   | SchemaExportFailedEvent
+  | SchemaExportedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
-  | SchemaValidationUpdatedEvent
   | SchemaValidationGeneratedEvent
+  | SchemaValidationUpdatedEvent
   | ScreenEvent
+  | SecretStorageNotAvailableEvent
   | ShellEvent
   | SignalActionButtonClickedEvent
   | SignalClosedEvent
@@ -2828,17 +2924,8 @@ export type TelemetryEvent =
   | SignalShownEvent
   | SwitchViewTypeEvent
   | ThemeChangedEvent
-  | UpdateExportedEvent
-  | UpdateExportOpenedEvent
-  | ViewUpdatedEvent
-  | SecretStorageNotAvailableEvent
-  | FirstContentfulPaintEvent
-  | LargestContentfulPaintEvent
-  | FirstInputDelayEvent
-  | CumulativeLayoutShiftEvent
   | TimeToFirstByteEvent
-  | ExperimentViewedEvent
-  | CreateIndexButtonClickedEvent
-  | CreateIndexErrorParsingQueryEvent
-  | CreateIndexErrorGettingCoveredQueriesEvent
-  | UUIDEncounteredEvent;
+  | UUIDEncounteredEvent
+  | UpdateExportOpenedEvent
+  | UpdateExportedEvent
+  | ViewUpdatedEvent;
