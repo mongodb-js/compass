@@ -2722,6 +2722,7 @@ type CreateIndexNewFieldAdded = CommonEvent<{
     context: CreateIndexModalContext;
   };
 }>;
+
 type CreateIndexOptionsClicked = CommonEvent<{
   name: 'Options Clicked';
   payload: {

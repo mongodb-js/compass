@@ -64,6 +64,8 @@ function CreateIndexFields({
   onSelectFieldNameClick,
   onSelectFieldTypeClick,
 }: CreateIndexFieldsProps): React.ReactElement {
+  const track = useTelemetry();
+
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
       hasColumnstoreIndexesSupport(serverVersion);
@@ -89,14 +91,14 @@ function CreateIndexFields({
     [onSelectFieldNameClick]
   );
 
-  const comboboxOptions = schemaFields.map((value) => ({ value }));
-  const track = useTelemetry();
   const handleOnAddFieldClick = useCallback(() => {
     onAddFieldClick();
     track('New Index Field Added', {
       context: 'Create Index Modal',
     });
   }, []);
+
+  const comboboxOptions = schemaFields.map((value) => ({ value }));
 
   return (
     <ListEditor
