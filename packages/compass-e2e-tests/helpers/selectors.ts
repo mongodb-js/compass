@@ -835,7 +835,8 @@ export const AggregationSettingsButton =
 export const AggregationPipelineName = '[data-testid="pipeline-name"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
-export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
+export const AggregationSettingsApplyButton =
+  '[data-testid="aggregation-settings-apply"]';
 export const AddStageButton = '[data-testid="add-stage"]';
 export const ExportAggregationToLanguage =
   '[data-testid="pipeline-toolbar-export-button"]';

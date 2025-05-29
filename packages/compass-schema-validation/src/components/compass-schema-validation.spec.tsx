@@ -1,31 +1,24 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { expect } from 'chai';
+import { render, screen } from '@mongodb-js/testing-library-compass';
+import { Provider } from 'react-redux';
 
 import { CompassSchemaValidation } from './compass-schema-validation';
 import { configureStore } from '../stores/store';
-import { Provider } from 'react-redux';
 
 describe('CompassSchemaValidation [Component]', function () {
-  let component: any;
   let store: ReturnType<typeof configureStore> | null;
 
   beforeEach(function () {
     store = configureStore({}, {} as any);
-    component = mount(
+    render(
       <Provider store={store}>
         <CompassSchemaValidation />
       </Provider>
     );
   });
 
-  afterEach(function () {
-    store = null;
-    component = null;
-  });
-
-  it('renders the correct root classname', function () {
-    expect(component.find(`[data-testid="compass-schema-validation"]`)).to
-      .exist;
+  it('renders the correct root', function () {
+    expect(screen.getByTestId('compass-schema-validation')).to.be.visible;
   });
 });
