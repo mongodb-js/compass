@@ -1,5 +1,6 @@
 stepback: false
 exec_timeout_secs: 5400
+foliage_should_block_merges: false
 ignore:
   - docs/**/*.md
   - AUTHORS
