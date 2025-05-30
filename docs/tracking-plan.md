@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, May 29, 2025
+Generated on Fri, May 30, 2025
 
 ## Table of Contents
 
@@ -110,6 +110,11 @@ Generated on Thu, May 29, 2025
 
 ### Gen AI
 
+- [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
+- [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
+- [AI Sign In Modal Shown](#event--AiSignInModalShownEvent)
+- [AI Sign In Modal Dismissed](#event--AiSignInModalDismissedEvent)
+- [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
@@ -1292,6 +1297,42 @@ This event is fired when user clicks the refresh button in the UI to refresh
 the query results.
 
 ## Gen AI
+
+<a name="event--AiOptInModalShownEvent"></a>
+
+### AI Opt In Modal Shown
+
+This event is fired when the AI Opt-In Modal is shown to the user.
+
+<a name="event--AiOptInModalDismissedEvent"></a>
+
+### AI Opt In Modal Dismissed
+
+This event is fired when the AI Opt-In Modal is dismissed by the user.
+
+<a name="event--AiSignInModalShownEvent"></a>
+
+### AI Sign In Modal Shown
+
+This event is fired when the AI Sign-In Modal is shown to the user.
+
+<a name="event--AiSignInModalDismissedEvent"></a>
+
+### AI Sign In Modal Dismissed
+
+This event is fired when the AI Sign-In Modal is dismissed by the user.
+
+<a name="event--AiGenerateQueryClickedEvent"></a>
+
+### AI Generate Query Clicked
+
+This event is fired when a user clicks the Generate Query / Aggregation entry point.
+
+**Properties**:
+
+- **type** (required): `"aggregation" | "query"`
+  - The type of query being generated.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AiPromptSubmittedEvent"></a>
 
