@@ -23,6 +23,7 @@ import type {
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
 import { parseFilter } from 'mongodb-query-parser';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -109,8 +110,9 @@ const QueryFlowSection = ({
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: Document | null;
 }) => {
+  const track = useTelemetry();
   const [inputQuery, setInputQuery] = React.useState(
-    JSON.stringify(initialQuery ?? '', null, 2)
+    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
   );
   const [hasNewChanges, setHasNewChanges] = React.useState(
     initialQuery !== null
@@ -141,6 +143,10 @@ const QueryFlowSection = ({
       dbName,
       collectionName,
       inputQuery: sanitizedInputQuery,
+    });
+
+    track('Suggested Index Button Clicked', {
+      context: 'Create Index Modal',
     });
 
     setHasNewChanges(false);
