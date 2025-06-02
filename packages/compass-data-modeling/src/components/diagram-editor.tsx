@@ -186,8 +186,8 @@ const DiagramEditor: React.FunctionComponent<{
         id: relationship.id,
         source: source.ns,
         target: target.ns,
-        markerStart: 'one',
-        markerEnd: 'many',
+        markerStart: source.cardinality === 1 ? 'one' : 'many',
+        markerEnd: target.cardinality === 1 ? 'one' : 'many',
       };
     });
   }, [model?.relationships]);
@@ -209,9 +209,10 @@ const DiagramEditor: React.FunctionComponent<{
                 ? 'Unknown'
                 : typeof field.bsonType === 'string'
                 ? field.bsonType
-                : field.bsonType[0];
+                : // TODO: Show possible types of the field
+                  field.bsonType[0];
             return {
-              name: name,
+              name,
               type,
               glyphs: type === 'objectId' ? ['key'] : [],
             };
