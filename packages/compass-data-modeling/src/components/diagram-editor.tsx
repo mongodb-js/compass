@@ -174,7 +174,7 @@ const DiagramEditor: React.FunctionComponent<{
           };
           break;
         default:
-          throw new Error(`Unknown placeholder ${placeholder}`);
+          throw new Error(`Unknown placeholder ${type}`);
       }
       setApplyInput(JSON.stringify(placeholder, null, 2));
     };
