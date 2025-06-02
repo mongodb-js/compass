@@ -8,13 +8,19 @@ export async function selectOption(
   optionText: string
 ): Promise<void> {
   // click the field's button
-  const selectButton = browser.$(selector);
+  const selectButton = browser.$(`${selector}`);
   await selectButton.waitForDisplayed();
   await selectButton.click();
 
-  const controlledMenuId: string = await selectButton.getAttribute(
-    'aria-controls'
-  );
+  let controlledMenuId = await selectButton.getAttribute('aria-controls');
+  // In leafygreen combobox we usually not immediately targeting the element
+  // that controls the listbox, so if we haven't find it, try to look in the
+  // element we selected
+  if (!controlledMenuId) {
+    controlledMenuId = await selectButton
+      .$('[aria-controls]')
+      .getAttribute('aria-controls');
+  }
   // wait for the list to pop up
   const selectList = browser.$(`[id="${controlledMenuId}"][role="listbox"]`);
   await selectList.waitForDisplayed();

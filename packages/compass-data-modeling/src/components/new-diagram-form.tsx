@@ -27,14 +27,14 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Option,
-  Select,
   SelectList,
   spacing,
   SpinLoader,
   Body,
   TextInput,
   SearchInput,
+  Combobox,
+  ComboboxOption,
 } from '@mongodb-js/compass-components';
 
 const footerStyles = css({
@@ -238,6 +238,18 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   onCollectionsSelectionConfirm,
 }) => {
   const connections = useConnectionsList();
+  const [activeConnections, otherConnections] = useMemo(() => {
+    const active = [];
+    const other = [];
+    for (const connection of connections) {
+      if (connection.status === 'connected') {
+        active.push(connection);
+      } else {
+        other.push(connection);
+      }
+    }
+    return [active, other];
+  }, [connections]);
   const {
     title,
     description,
@@ -333,22 +345,40 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-connection':
         return (
           <FormFieldContainer className={formContainerStyles}>
-            <Select
+            <Combobox
               label=""
               aria-label="Select connection"
               value={selectedConnectionId ?? ''}
               data-testid="new-diagram-connection-selector"
-              onChange={onConnectionSelect}
+              onChange={(connectionId) => {
+                if (connectionId) {
+                  onConnectionSelect(connectionId);
+                }
+              }}
+              clearable={false}
+              multiselect={false}
               disabled={connections.length === 0}
             >
-              {connections.map((connection) => {
+              {activeConnections.map((connection) => {
                 return (
-                  <Option key={connection.info.id} value={connection.info.id}>
-                    {connection.title}
-                  </Option>
+                  <ComboboxOption
+                    key={connection.info.id}
+                    value={connection.info.id}
+                    displayName={connection.title}
+                    description="Active"
+                  ></ComboboxOption>
                 );
               })}
-            </Select>
+              {otherConnections.map((connection) => {
+                return (
+                  <ComboboxOption
+                    key={connection.info.id}
+                    value={connection.info.id}
+                    displayName={connection.title}
+                  ></ComboboxOption>
+                );
+              })}
+            </Combobox>
             {connections.length === 0 && (
               <Banner variant="warning">
                 You do not have any connections, create a new connection first
@@ -359,21 +389,23 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-database':
         return (
           <FormFieldContainer>
-            <Select
+            <Combobox
               label=""
               aria-label="Select database"
               value={selectedDatabase ?? ''}
               data-testid="new-diagram-database-selector"
-              onChange={onDatabaseSelect}
+              onChange={(databaseName) => {
+                if (databaseName) {
+                  onDatabaseSelect(databaseName);
+                }
+              }}
+              clearable={false}
+              multiselect={false}
             >
               {databases.map((db) => {
-                return (
-                  <Option key={db} value={db}>
-                    {db}
-                  </Option>
-                );
+                return <ComboboxOption key={db} value={db}></ComboboxOption>;
               })}
-            </Select>
+            </Combobox>
           </FormFieldContainer>
         );
       case 'select-collections':
@@ -386,8 +418,9 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
     }
   }, [
+    activeConnections,
     collections,
-    connections,
+    connections.length,
     currentStep,
     databases,
     diagramName,
@@ -395,6 +428,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     onConnectionSelect,
     onDatabaseSelect,
     onNameChange,
+    otherConnections,
     selectedCollections,
     selectedConnectionId,
     selectedDatabase,

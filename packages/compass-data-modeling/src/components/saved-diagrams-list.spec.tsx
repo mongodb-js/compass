@@ -15,19 +15,79 @@ const storageItems: MongoDBDataModelDescription[] = [
   {
     id: '1',
     name: 'One',
-    edits: [],
+    createdAt: '2023-10-01T00:00:00.000Z',
+    updatedAt: '2023-10-03T00:00:00.000Z',
+    edits: [
+      {
+        id: 'edit-id-1',
+        timestamp: '2023-10-02T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db1.collection1',
+              indexes: [],
+              displayPosition: [1, 1],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
   {
     id: '2',
     name: 'Two',
-    edits: [],
+    createdAt: '2023-10-02T00:00:00.000Z',
+    updatedAt: '2023-10-04T00:00:00.000Z',
+    edits: [
+      {
+        id: 'edit-id-2',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db2.collection2',
+              indexes: [],
+              displayPosition: [2, 2],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
   {
     id: '3',
     name: 'Three',
-    edits: [],
+    createdAt: '2023-10-01T00:00:00.000Z',
+    updatedAt: '2023-10-05T00:00:00.000Z',
+    edits: [
+      {
+        id: 'edit-id-3',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db3.collection3',
+              indexes: [],
+              displayPosition: [3, 3],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
     connectionId: null,
   },
 ];
@@ -126,33 +186,50 @@ describe('SavedDiagramsList', function () {
       expect(store.getState().generateDiagramWizard.inProgress).to.be.true;
     });
 
-    it('filters the list of diagrams', async function () {
-      const searchInput = screen.getByPlaceholderText('Search');
-      userEvent.type(searchInput, 'One');
-      await waitFor(() => {
-        expect(screen.queryByText('One')).to.exist;
+    describe('search', function () {
+      it('filters the list of diagrams by name', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'One');
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.exist;
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText('Two')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
 
-      await waitFor(() => {
-        expect(screen.queryByText('Two')).to.not.exist;
-        expect(screen.queryByText('Three')).to.not.exist;
-      });
-    });
+      it('filters the list of diagrams by database', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'db2');
+        await waitFor(() => {
+          expect(screen.queryByText('Two')).to.exist;
+        });
 
-    it('shows empty content when filter for a non-existent diagram', async function () {
-      const searchInput = screen.getByPlaceholderText('Search');
-      userEvent.type(searchInput, 'Hello');
-      await waitFor(() => {
-        expect(screen.queryByText('No results found.')).to.exist;
-        expect(
-          screen.queryByText("We can't find any diagram matching your search.")
-        ).to.exist;
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
 
-      await waitFor(() => {
-        expect(screen.queryByText('One')).to.not.exist;
-        expect(screen.queryByText('Two')).to.not.exist;
-        expect(screen.queryByText('Three')).to.not.exist;
+      it('shows empty content when filter for a non-existent diagram', async function () {
+        const searchInput = screen.getByPlaceholderText('Search');
+        userEvent.type(searchInput, 'Hello');
+        await waitFor(() => {
+          expect(screen.queryByText('No results found.')).to.exist;
+          expect(
+            screen.queryByText(
+              "We can't find any diagram matching your search."
+            )
+          ).to.exist;
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText('One')).to.not.exist;
+          expect(screen.queryByText('Two')).to.not.exist;
+          expect(screen.queryByText('Three')).to.not.exist;
+        });
       });
     });
   });

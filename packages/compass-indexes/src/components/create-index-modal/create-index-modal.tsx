@@ -29,7 +29,7 @@ import {
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import CreateIndexModalHeader from './create-index-modal-header';
-import type { Document } from 'bson';
+import type { Document } from 'mongodb';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -121,6 +121,7 @@ function CreateIndexModal({
           onErrorBannerCloseClick={onErrorBannerCloseClick}
           onCreateIndexClick={onCreateIndexClick}
           onCancelCreateIndexClick={onCancelCreateIndexClick}
+          showIndexesGuidanceVariant={showIndexesGuidanceVariant}
         />
       </ModalFooter>
     </Modal>

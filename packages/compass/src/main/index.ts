@@ -1,5 +1,7 @@
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
-import '../setup-hadron-distribution';
+import { setupHadronDistribution } from '../setup-hadron-distribution';
+setupHadronDistribution();
+// ------------------------------------------------------------
 
 import { app, dialog, crashReporter } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';

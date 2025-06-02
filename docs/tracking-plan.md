@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, May 25, 2025
+Generated on Sun, Jun 1, 2025
 
 ## Table of Contents
 
@@ -110,6 +110,11 @@ Generated on Sun, May 25, 2025
 
 ### Gen AI
 
+- [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
+- [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
+- [AI Sign In Modal Shown](#event--AiSignInModalShownEvent)
+- [AI Sign In Modal Dismissed](#event--AiSignInModalDismissedEvent)
+- [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
@@ -154,6 +159,9 @@ Generated on Sun, May 25, 2025
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
 - [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
+- [Error parsing query](#event--CreateIndexErrorParsingQueryEvent)
+- [Error generating covered queries](#event--CreateIndexErrorGettingCoveredQueriesEvent)
+- [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
 
@@ -1290,6 +1298,42 @@ the query results.
 
 ## Gen AI
 
+<a name="event--AiOptInModalShownEvent"></a>
+
+### AI Opt In Modal Shown
+
+This event is fired when the AI Opt-In Modal is shown to the user.
+
+<a name="event--AiOptInModalDismissedEvent"></a>
+
+### AI Opt In Modal Dismissed
+
+This event is fired when the AI Opt-In Modal is dismissed by the user.
+
+<a name="event--AiSignInModalShownEvent"></a>
+
+### AI Sign In Modal Shown
+
+This event is fired when the AI Sign-In Modal is shown to the user.
+
+<a name="event--AiSignInModalDismissedEvent"></a>
+
+### AI Sign In Modal Dismissed
+
+This event is fired when the AI Sign-In Modal is dismissed by the user.
+
+<a name="event--AiGenerateQueryClickedEvent"></a>
+
+### AI Generate Query Clicked
+
+This event is fired when a user clicks the Generate Query / Aggregation entry point.
+
+**Properties**:
+
+- **type** (required): `"aggregation" | "query"`
+  - The type of query being generated.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--AiPromptSubmittedEvent"></a>
 
 ### AI Prompt Submitted
@@ -1800,6 +1844,34 @@ a system that doesn't offer a suitable secret storage backend.
 
 - **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
 - **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorParsingQueryEvent"></a>
+
+### Error parsing query
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorGettingCoveredQueriesEvent"></a>
+
+### Error generating covered queries
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--UUIDEncounteredEvent"></a>
+
+### UUID Encountered
+
+**Properties**:
+
+- **subtype** (required): `3 | 4`
+- **count** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Performance Tab
