@@ -55,6 +55,8 @@ const loadedDiagram: MongoDBDataModelDescription = {
   id: 'diagram-id',
   name: 'diagram-name',
   connectionId: 'connection-id',
+  createdAt: '2023-10-01T00:00:00.000Z',
+  updatedAt: '2023-10-05T00:00:00.000Z',
   edits: [{ type: 'SetModel', model } as Edit],
 };
 

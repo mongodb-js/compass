@@ -249,7 +249,15 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openDataModelingWorkspace: () => {
         return void store.dispatch(
-          openWorkspaceAction({ type: 'Data Modeling' })
+          openWorkspaceAction(
+            { type: 'Data Modeling' },
+            {
+              // Data Modeling tab is a special case, we always want to open it
+              // in a new tab to make it easier for users to create / open new
+              // diagrams
+              newTab: true,
+            }
+          )
         );
       },
       openShellWorkspace(connectionId, options = {}) {

@@ -88,7 +88,10 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    */
   connectionId: z.string().nullable(),
 
-  edits: z.array(EditSchema).default([]),
+  edits: z.array(EditSchema).nonempty(),
+
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
 export type MongoDBDataModelDescription = z.output<

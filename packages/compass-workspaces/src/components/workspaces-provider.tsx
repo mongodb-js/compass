@@ -30,7 +30,10 @@ export const useWorkspacePlugins = () => {
     hasWorkspacePlugin: <T extends AnyWorkspace['type']>(name: T) => {
       return workspaces.some((ws) => ws.name === name);
     },
-    getWorkspacePluginByName: <T extends AnyWorkspace['type']>(name: T) => {
+    getWorkspacePluginByName: <T extends AnyWorkspace['type']>(name?: T) => {
+      if (!name) {
+        return null;
+      }
       const plugin = workspaces.find((ws) => ws.name === name);
       if (!plugin) {
         throw new Error(
