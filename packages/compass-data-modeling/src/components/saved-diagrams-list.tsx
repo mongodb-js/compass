@@ -11,6 +11,7 @@ import {
   VirtualGrid,
   Link,
   WorkspaceContainer,
+  Body,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import {
@@ -23,7 +24,6 @@ import type { MongoDBDataModelDescription } from '../services/data-model-storage
 import CollaborateIcon from './icons/collaborate';
 import SchemaVisualizationIcon from './icons/schema-visualization';
 import FlexibilityIcon from './icons/flexibility';
-import InsightIcon from './icons/insight';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 import toNS from 'mongodb-ns';
@@ -69,27 +69,35 @@ const subTitleStyles = css({
 
 const featuresListStyles = css({
   display: 'flex',
+  flexDirection: 'row',
   justifyContent: 'center',
+  alignItems: 'flex-start',
   gap: spacing[600],
   marginTop: spacing[400],
+  marginBottom: spacing[400],
+});
+
+const featureItemTitleStyles = css({
+  fontWeight: 'bold',
 });
 
 const featureItemStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
+  display: 'grid',
+  gridTemplateRows: `${spacing[1800]}px 1fr 1fr`,
+  justifyItems: 'center',
   gap: spacing[400],
+  width: spacing[1400] * 3,
 });
 
-type Feature = 'visualization' | 'collaboration' | 'interactive' | 'insights';
+type Feature = 'visualization' | 'collaboration' | 'interactive';
 const featureDescription: Record<
   Feature,
   { icon: React.FunctionComponent; title: string; subtitle: string }
 > = {
   visualization: {
     icon: SchemaVisualizationIcon,
-    title: 'Quick Visualization & Refactoring',
-    subtitle: 'Instantly visualize and refactor data models',
+    title: 'Quick Visualization',
+    subtitle: 'Instantly visualize your data models',
   },
   collaboration: {
     icon: CollaborateIcon,
@@ -100,11 +108,6 @@ const featureDescription: Record<
     icon: FlexibilityIcon,
     title: 'Interactive Diagram Analysis',
     subtitle: 'Explore and annotate interactive diagrams',
-  },
-  insights: {
-    icon: InsightIcon,
-    title: 'Performance Insights & Optimization',
-    subtitle: 'Uncover performance insights & best practices',
   },
 };
 
@@ -118,12 +121,48 @@ const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
         return (
           <div key={key} className={featureItemStyles}>
             <Icon />
-            <h3>{title}</h3>
-            <p>{subtitle}</p>
+            <Body className={featureItemTitleStyles}>{title}</Body>
+            <Body>{subtitle}</Body>
           </div>
         );
       })}
     </div>
+  );
+};
+
+const DiagramListEmptyContent: React.FunctionComponent<{
+  onCreateDiagramClick: () => void;
+}> = ({ onCreateDiagramClick }) => {
+  return (
+    <WorkspaceContainer>
+      <EmptyContent
+        title="Visualize your Data Model"
+        subTitle={
+          <>
+            Your data model is the foundation of application performance. As
+            applications evolve, so must your schema—intelligently and
+            strategically. Minimize complexity, prevent performance bottlenecks,
+            and keep your development agile.
+            <FeaturesList
+              features={['visualization', 'collaboration', 'interactive']}
+            />
+            <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
+              Data modeling documentation
+            </Link>
+          </>
+        }
+        subTitleClassName={subTitleStyles}
+        callToAction={
+          <Button
+            onClick={onCreateDiagramClick}
+            variant="primary"
+            data-testid="create-diagram-button"
+          >
+            Generate diagram
+          </Button>
+        }
+      ></EmptyContent>
+    </WorkspaceContainer>
   );
 };
 
@@ -173,40 +212,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
   }
   if (items.length === 0) {
     return (
-      <WorkspaceContainer>
-        <EmptyContent
-          title="Design, Visualize, and Evolve your Data Model"
-          subTitle={
-            <>
-              Your data model is the foundation of application performance. As
-              applications evolve, so must your schema—intelligently and
-              strategically. Minimize complexity, prevent performance
-              bottlenecks, and keep your development agile.
-              <FeaturesList
-                features={[
-                  'visualization',
-                  'collaboration',
-                  'interactive',
-                  'insights',
-                ]}
-              />
-              <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
-                Data Modeling Documentation
-              </Link>
-            </>
-          }
-          subTitleClassName={subTitleStyles}
-          callToAction={
-            <Button
-              onClick={onCreateDiagramClick}
-              variant="primary"
-              data-testid="create-diagram-button"
-            >
-              Generate diagram
-            </Button>
-          }
-        ></EmptyContent>
-      </WorkspaceContainer>
+      <DiagramListEmptyContent onCreateDiagramClick={onCreateDiagramClick} />
     );
   }
 
