@@ -2800,8 +2800,8 @@ export type TelemetryEvent =
   | AggregationEditedEvent
   | AggregationExecutedEvent
   | AggregationExplainedEvent
-  | AggregationExportOpenedEvent
   | AggregationExportedEvent
+  | AggregationExportOpenedEvent
   | AggregationOpenedEvent
   | AggregationSavedAsViewEvent
   | AggregationSavedEvent
@@ -2814,15 +2814,15 @@ export type TelemetryEvent =
   | AiResponseFailedEvent
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
-  | ApplicationRestartAcceptedEvent
   | AtlasLinkClickedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
   | AutoupdateAcceptedEvent
-  | AutoupdateDisabledEvent
   | AutoupdateDismissedEvent
+  | ApplicationRestartAcceptedEvent
   | AutoupdateEnabledEvent
+  | AutoupdateDisabledEvent
   | BulkDeleteExecutedEvent
   | BulkDeleteOpenedEvent
   | BulkUpdateExecutedEvent
@@ -2836,25 +2836,10 @@ export type TelemetryEvent =
   | ConnectionFailedEvent
   | ConnectionImportedEvent
   | ConnectionRemovedEvent
-  | CreateIndexButtonClickedEvent
-  | CreateIndexCodeEquivalentToggled
-  | CreateIndexCoveredQueriesButtonClicked
-  | CreateIndexCoveredQueriesLearnMoreClicked
-  | CreateIndexErrorGettingCoveredQueriesEvent
-  | CreateIndexErrorParsingQueryEvent
-  | CreateIndexIndexTabClicked
-  | CreateIndexModalCancelled
-  | CreateIndexModalClosed
-  | CreateIndexNewFieldAdded
-  | CreateIndexOptionsClicked
-  | CreateIndexProgrammingLanguageLinkClicked
-  | CreateIndexQueryTabClicked
-  | CreateIndexSuggestedIndexButtonClicked
-  | CumulativeLayoutShiftEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
-  | DeleteExportOpenedEvent
   | DeleteExportedEvent
+  | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
   | DetailViewKillOpEvent
   | DocumentClonedEvent
@@ -2864,12 +2849,9 @@ export type TelemetryEvent =
   | DocumentUpdatedEvent
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
-  | ExperimentViewedEvent
   | ExplainPlanExecutedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
-  | FirstContentfulPaintEvent
-  | FirstInputDelayEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
   | GuideCueDismissedEvent
@@ -2877,13 +2859,12 @@ export type TelemetryEvent =
   | ImportCompletedEvent
   | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
+  | IndexCreatedEvent
   | IndexCreateFailedEvent
   | IndexCreateOpenedEvent
-  | IndexCreatedEvent
   | IndexDroppedEvent
   | IndexEditedEvent
   | KeytarSecretsMigrationFailedEvent
-  | LargestContentfulPaintEvent
   | MyQueriesFilterEvent
   | MyQueriesSearchEvent
   | MyQueriesSortEvent
@@ -2895,28 +2876,27 @@ export type TelemetryEvent =
   | PipelineAiFeedbackEvent
   | QueryEditedEvent
   | QueryExecutedEvent
-  | QueryExportOpenedEvent
   | QueryExportedEvent
+  | QueryExportOpenedEvent
   | QueryHistoryClosedEvent
   | QueryHistoryFavoriteAddedEvent
   | QueryHistoryFavoriteCopiedEvent
   | QueryHistoryFavoriteRemovedEvent
-  | QueryHistoryFavoriteUsedEvent
   | QueryHistoryFavoritesEvent
+  | QueryHistoryFavoriteUsedEvent
   | QueryHistoryOpenedEvent
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
-  | SchemaExportFailedEvent
   | SchemaExportedEvent
+  | SchemaExportFailedEvent
   | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
-  | SchemaValidationGeneratedEvent
   | SchemaValidationUpdatedEvent
+  | SchemaValidationGeneratedEvent
   | ScreenEvent
-  | SecretStorageNotAvailableEvent
   | ShellEvent
   | SignalActionButtonClickedEvent
   | SignalClosedEvent
@@ -2925,8 +2905,28 @@ export type TelemetryEvent =
   | SignalShownEvent
   | SwitchViewTypeEvent
   | ThemeChangedEvent
-  | TimeToFirstByteEvent
-  | UUIDEncounteredEvent
-  | UpdateExportOpenedEvent
   | UpdateExportedEvent
-  | ViewUpdatedEvent;
+  | UpdateExportOpenedEvent
+  | ViewUpdatedEvent
+  | SecretStorageNotAvailableEvent
+  | FirstContentfulPaintEvent
+  | LargestContentfulPaintEvent
+  | FirstInputDelayEvent
+  | CumulativeLayoutShiftEvent
+  | TimeToFirstByteEvent
+  | ExperimentViewedEvent
+  | CreateIndexButtonClickedEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexErrorGettingCoveredQueriesEvent
+  | CreateIndexCodeEquivalentToggled
+  | CreateIndexCoveredQueriesButtonClicked
+  | CreateIndexCoveredQueriesLearnMoreClicked
+  | CreateIndexIndexTabClicked
+  | CreateIndexModalCancelled
+  | CreateIndexModalClosed
+  | CreateIndexNewFieldAdded
+  | CreateIndexOptionsClicked
+  | CreateIndexProgrammingLanguageLinkClicked
+  | CreateIndexQueryTabClicked
+  | CreateIndexSuggestedIndexButtonClicked
+  | UUIDEncounteredEvent;

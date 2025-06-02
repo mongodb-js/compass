@@ -52,14 +52,14 @@ interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   hintText?: string;
   open?: boolean;
   setOpen?: (newValue: boolean) => void;
-  onOpenCallback?: () => void;
+  onToggle?: () => void;
 }
 function Accordion({
   text,
   hintText,
   open: _open,
   setOpen: _setOpen,
-  onOpenCallback,
+  onToggle,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
@@ -72,8 +72,8 @@ function Accordion({
       setOpenRef.current?.(newValue);
       return newValue;
     });
-    if (typeof onOpenCallback === 'function') {
-      onOpenCallback();
+    if (typeof onToggle === 'function') {
+      onToggle();
     }
   }, []);
   const regionId = useId();
