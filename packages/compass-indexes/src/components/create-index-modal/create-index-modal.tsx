@@ -25,6 +25,7 @@ import {
   type TrackFunction,
   useFireExperimentViewed,
   TestName,
+  useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -55,10 +56,15 @@ function CreateIndexModal({
   ...props
 }: CreateIndexModalProps) {
   const connectionInfoRef = useConnectionInfoRef();
+  const track = useTelemetry();
+
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
         onCancelCreateIndexClick();
+        track('Create Index Modal Closed', {
+          context: 'Create Index Modal',
+        });
       }
     },
     [onCancelCreateIndexClick]

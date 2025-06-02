@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import type { Field, Tab } from '../../modules/create-index';
 import type { RootState } from '../../modules';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -45,6 +46,8 @@ function CreateIndexActions({
   showIndexesGuidanceVariant: boolean;
   indexSuggestions: Record<string, number> | null;
 }) {
+  const track = useTelemetry();
+
   let isCreateIndexButtonDisabled = false;
 
   if (showIndexesGuidanceVariant) {
@@ -81,7 +84,12 @@ function CreateIndexActions({
 
       <Button
         data-testid="create-index-actions-cancel-button"
-        onClick={onCancelCreateIndexClick}
+        onClick={() => {
+          onCancelCreateIndexClick();
+          track('Cancel Button Clicked', {
+            context: 'Create Index Modal',
+          });
+        }}
       >
         Cancel
       </Button>
