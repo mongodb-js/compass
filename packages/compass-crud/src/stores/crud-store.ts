@@ -1852,7 +1852,7 @@ class CrudStoreImpl
 
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal', {
-      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')),
+      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')?.filter),
     });
   }
 

@@ -1525,6 +1525,61 @@ type AiResponseGeneratedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the AI Opt-In Modal is shown to the user.
+ *
+ * @category Gen AI
+ */
+type AiOptInModalShownEvent = CommonEvent<{
+  name: 'AI Opt In Modal Shown';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Opt-In Modal is dismissed by the user.
+ *
+ * @category Gen AI
+ */
+type AiOptInModalDismissedEvent = CommonEvent<{
+  name: 'AI Opt In Modal Dismissed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Sign-In Modal is shown to the user.
+ *
+ * @category Gen AI
+ */
+type AiSignInModalShownEvent = CommonEvent<{
+  name: 'AI Sign In Modal Shown';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Sign-In Modal is dismissed by the user.
+ *
+ * @category Gen AI
+ */
+type AiSignInModalDismissedEvent = CommonEvent<{
+  name: 'AI Sign In Modal Dismissed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a user clicks the Generate Query / Aggregation entry point.
+ *
+ * @category Gen AI
+ */
+type AiGenerateQueryClickedEvent = CommonEvent<{
+  name: 'AI Generate Query Clicked';
+  payload: {
+    /**
+     * The type of query being generated.
+     */
+    type: 'aggregation' | 'query';
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a pipeline generation.
  *
  * @category Gen AI
@@ -2694,6 +2749,20 @@ type CreateIndexButtonClickedEvent = CommonEvent<{
   };
 }>;
 
+type CreateIndexErrorParsingQueryEvent = CommonEvent<{
+  name: 'Error parsing query';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
+  name: 'Error generating covered queries';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 type UUIDEncounteredEvent = CommonEvent<{
   name: 'UUID Encountered';
   payload: {
@@ -2718,6 +2787,11 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AiOptInModalShownEvent
+  | AiOptInModalDismissedEvent
+  | AiSignInModalShownEvent
+  | AiSignInModalDismissedEvent
+  | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
   | AiResponseFailedEvent
@@ -2825,4 +2899,6 @@ export type TelemetryEvent =
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
   | CreateIndexButtonClickedEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexErrorGettingCoveredQueriesEvent
   | UUIDEncounteredEvent;

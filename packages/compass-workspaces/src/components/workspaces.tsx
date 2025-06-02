@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import React, { useCallback, useMemo } from 'react';
 import {
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
   palette,
-  rafraf,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -20,7 +18,6 @@ import type {
 import {
   closeTab,
   getActiveTab,
-  getLocalAppRegistryForTab,
   moveTab,
   openFallbackWorkspace,
   openTabFromCurrent,
@@ -32,17 +29,9 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import {
-  WorkspaceTabStateProvider,
-  useTabState,
-} from './workspace-tab-state-provider';
-import { useOnTabReplace } from './workspace-close-handler';
-import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
-import {
-  ConnectionInfoProvider,
-  useTabConnectionTheme,
-} from '@mongodb-js/compass-connections/provider';
+import { useTabConnectionTheme } from '@mongodb-js/compass-connections/provider';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
+import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 
 type Tooltip = [string, string][];
 
@@ -60,51 +49,6 @@ const EmptyWorkspaceContent = () => {
         height={spacing[7] * 2}
         color={darkMode ? 'white' : 'black'}
       ></MongoDBLogoMark>
-    </div>
-  );
-};
-
-const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
-  const mountedRef = useRef(false);
-  const [hasInteractedOnce, setHasInteractedOnce] = useTabState(
-    'hasInteractedOnce',
-    false
-  );
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  });
-
-  const markAsInteracted = useCallback(() => {
-    // Make sure we don't count clicking on buttons that actually cause the
-    // workspace to change, like using breadcrumbs or clicking on an item in the
-    // Databases / Collections list. There are certain corner-cases this doesn't
-    // handle, but it's good enough to prevent most cases where users can lose
-    // content by accident
-    rafraf(() => {
-      if (mountedRef.current) {
-        setHasInteractedOnce(true);
-      }
-    });
-  }, [setHasInteractedOnce]);
-
-  useOnTabReplace(() => {
-    return !hasInteractedOnce;
-  });
-
-  return (
-    // We're not using these for actual user interactions, just to capture the
-    // interacted state
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div
-      style={{ display: 'contents' }}
-      onKeyDown={markAsInteracted}
-      onClickCapture={markAsInteracted}
-    >
-      {children}
     </div>
   );
 };
@@ -309,71 +253,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [tabs, collectionInfo, databaseInfo, getThemeOf, getConnectionById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
-
-  const activeWorkspaceElement = useMemo(() => {
-    switch (activeTab?.type) {
-      case 'Welcome':
-      case 'My Queries':
-      case 'Data Modeling': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component></Component>;
-      }
-      case 'Shell': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return (
-          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
-            <Component
-              initialEvaluate={activeTab.initialEvaluate}
-              initialInput={activeTab.initialInput}
-            ></Component>
-          </ConnectionInfoProvider>
-        );
-      }
-      case 'Performance':
-      case 'Databases': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return (
-          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
-            <Component></Component>
-          </ConnectionInfoProvider>
-        );
-      }
-      case 'Collections': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return (
-          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
-            <NamespaceProvider
-              namespace={activeTab.namespace}
-              onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, ns);
-              }}
-            >
-              <Component namespace={activeTab.namespace}></Component>
-            </NamespaceProvider>
-          </ConnectionInfoProvider>
-        );
-      }
-      case 'Collection': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, type, connectionId, ...collectionMetadata } = activeTab;
-        return (
-          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
-            <NamespaceProvider
-              namespace={activeTab.namespace}
-              onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, ns);
-              }}
-            >
-              <Component tabId={id} {...collectionMetadata}></Component>
-            </NamespaceProvider>
-          </ConnectionInfoProvider>
-        );
-      }
-      default:
-        return null;
-    }
-  }, [activeTab, getWorkspacePluginByName, onNamespaceNotFound]);
+  const WorkspaceComponent = getWorkspacePluginByName(activeTab?.type);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
@@ -397,31 +277,26 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
-        {activeTab && activeWorkspaceElement ? (
-          <WorkspaceTabStateProvider id={activeTab.id}>
-            <AppRegistryProvider
-              key={activeTab.id}
-              scopeName="Workspace Tab"
-              localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
-              deactivateOnUnmount={false}
+        {activeTab && WorkspaceComponent ? (
+          <ErrorBoundary
+            displayName={activeTab.type}
+            onError={(error, errorInfo) => {
+              log.error(
+                mongoLogId(1_001_000_277),
+                'Workspace',
+                'Rendering workspace tab failed',
+                { name: activeTab.type, error: error.message, errorInfo }
+              );
+            }}
+          >
+            <WorkspaceTabContextProvider
+              tab={activeTab}
+              sectionType="tab-content"
+              onNamespaceNotFound={onNamespaceNotFound}
             >
-              <ActiveTabCloseHandler>
-                <ErrorBoundary
-                  displayName={activeTab.type}
-                  onError={(error, errorInfo) => {
-                    log.error(
-                      mongoLogId(1_001_000_277),
-                      'Workspace',
-                      'Rendering workspace tab failed',
-                      { name: activeTab.type, error: error.message, errorInfo }
-                    );
-                  }}
-                >
-                  {activeWorkspaceElement}
-                </ErrorBoundary>
-              </ActiveTabCloseHandler>
-            </AppRegistryProvider>
-          </WorkspaceTabStateProvider>
+              <WorkspaceComponent></WorkspaceComponent>
+            </WorkspaceTabContextProvider>
+          </ErrorBoundary>
         ) : (
           <EmptyWorkspaceContent></EmptyWorkspaceContent>
         )}
