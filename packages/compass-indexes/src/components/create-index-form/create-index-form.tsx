@@ -184,7 +184,7 @@ function CreateIndexForm({
       <Accordion
         data-testid="create-index-modal-toggle-options"
         text={showIndexesGuidanceVariant ? 'Index Options' : 'Options'}
-        onToggle={() => {
+        setOpen={() => {
           track('Options Clicked', {
             context: 'Create Index Modal',
           });
