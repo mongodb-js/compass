@@ -198,8 +198,8 @@ const DiagramEditor: React.FunctionComponent<{
         id: coll.ns,
         type: 'collection',
         position: {
-          x: Math.floor(Math.random() * 1000),
-          y: Math.floor(Math.random() * 1000),
+          x: coll.displayPosition[0],
+          y: coll.displayPosition[1],
         },
         title: coll.ns,
         fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
@@ -217,6 +217,10 @@ const DiagramEditor: React.FunctionComponent<{
             };
           }
         ),
+        measured: {
+          width: 100,
+          height: 200,
+        },
       })
     );
   }, [model?.collections]);
