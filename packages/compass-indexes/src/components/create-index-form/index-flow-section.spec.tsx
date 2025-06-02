@@ -3,8 +3,11 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import IndexFlowSection from './index-flow-section';
 import { expect } from 'chai';
 import type { Field } from '../../modules/create-index';
+import { Provider } from 'react-redux';
+import { setupStore } from '../../../test/setup-store';
 
 describe('IndexFlowSection', () => {
+  const store = setupStore();
   const renderComponent = ({
     createIndexFieldsComponent,
     fields,
@@ -13,12 +16,14 @@ describe('IndexFlowSection', () => {
     fields?: Field[];
   }) => {
     render(
-      <IndexFlowSection
-        createIndexFieldsComponent={createIndexFieldsComponent ?? null}
-        fields={fields || []}
-        dbName={'fakeDBName'}
-        collectionName={'fakeCollectionName'}
-      />
+      <Provider store={store}>
+        <IndexFlowSection
+          createIndexFieldsComponent={createIndexFieldsComponent ?? null}
+          fields={fields || []}
+          dbName={'fakeDBName'}
+          collectionName={'fakeCollectionName'}
+        />
+      </Provider>
     );
   };
 

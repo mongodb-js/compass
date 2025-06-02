@@ -21,7 +21,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import IndexFlowSection from './index-flow-section';
 import QueryFlowSection from './query-flow-section';
 import toNS from 'mongodb-ns';
-import type { Document } from 'bson';
+import type { Document } from 'mongodb';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,

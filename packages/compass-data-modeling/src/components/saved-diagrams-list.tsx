@@ -13,7 +13,12 @@ import {
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
-import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
+import {
+  deleteDiagram,
+  getCurrentModel,
+  openDiagram,
+  renameDiagram,
+} from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import CollaborateIcon from './icons/collaborate';
 import SchemaVisualizationIcon from './icons/schema-visualization';
@@ -21,17 +26,17 @@ import FlexibilityIcon from './icons/flexibility';
 import InsightIcon from './icons/insight';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
+import toNS from 'mongodb-ns';
 
 const sortBy = [
   {
     name: 'name',
     label: 'Name',
   },
-  // TODO(COMPASS-9398): Currently we do not have lastModified.
-  // {
-  //   name: 'lastModified',
-  //   label: 'Last Modified',
-  // },
+  {
+    name: 'updatedAt',
+    label: 'Last Modified',
+  },
 ] as const;
 
 const listContainerStyles = css({ height: '100%' });
@@ -134,24 +139,38 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onDiagramDeleteClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
+  const decoratedItems = useMemo<
+    (MongoDBDataModelDescription & {
+      databases: string;
+    })[]
+  >(() => {
+    return items.map((item) => {
+      const databases = new Set(
+        getCurrentModel(item).collections.map(({ ns }) => toNS(ns).database)
+      );
+      return {
+        ...item,
+        databases: Array.from(databases).join(', '),
+      };
+    });
+  }, [items]);
   const [search, setSearch] = useState('');
   const filteredItems = useMemo(() => {
     try {
       const regex = new RegExp(search, 'i');
-      // TODO(COMPASS-9398): Currently only searching for name.
-      // We want to include more fields like namespace.
-      return items.filter((x) => regex.test(x.name));
+      return decoratedItems.filter(
+        (x) => regex.test(x.name) || (x.databases && regex.test(x.databases))
+      );
     } catch {
-      return items;
+      return decoratedItems;
     }
-  }, [items, search]);
+  }, [decoratedItems, search]);
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState);
 
   if (status === 'INITIAL' || status === 'LOADING') {
     return null;
   }
-
   if (items.length === 0) {
     return (
       <WorkspaceContainer>
