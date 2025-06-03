@@ -42,6 +42,10 @@ const indexFieldsCalloutStyles = css({
   marginBottom: spacing[600],
 });
 
+const indexFieldsCalloutDarkStyles = css({
+  border: `1px solid ${palette.gray.base}`,
+});
+
 const codeEquivalentToggleLabelStyles = css({
   marginRight: spacing[100],
   fontWeight: 'normal',
@@ -52,17 +56,18 @@ const coveredQueriesHeaderContainerStyles = css({
 });
 
 const coveredQueriesCalloutStyles = css({
-  border: `1px solid ${palette.gray.light2}`,
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
 });
 
 const lightModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
   background: palette.gray.light3,
 });
 
 const darkModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.dark2}`,
   background: palette.black,
 });
 const buttonContainerStyles = css({
@@ -274,7 +279,12 @@ const IndexFlowSection = ({
           />
         </div>
       </div>
-      <div className={indexFieldsCalloutStyles}>
+      <div
+        className={cx(
+          indexFieldsCalloutStyles,
+          darkMode && indexFieldsCalloutDarkStyles
+        )}
+      >
         {isCodeEquivalentToggleChecked ? (
           <MDBCodeViewer
             dbName={dbName}
