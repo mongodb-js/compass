@@ -80,9 +80,12 @@ const lightModeCodeEditorStyles = css({
 const indexSuggestionsLoaderStyles = css({
   marginBottom: spacing[600],
   padding: spacing[600],
+  borderRadius: editorContainerRadius,
+});
+
+const indexSuggestionsLoaderLightStyles = css({
   background: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
-  borderRadius: editorContainerRadius,
 });
 
 const insightStyles = css({
@@ -240,7 +243,10 @@ const QueryFlowSection = ({
       {isFetchingIndexSuggestions ? (
         <ParagraphSkeleton
           data-testid="query-flow-section-code-loader"
-          className={indexSuggestionsLoaderStyles}
+          className={cx(
+            indexSuggestionsLoaderStyles,
+            !darkMode && indexSuggestionsLoaderLightStyles
+          )}
         />
       ) : (
         indexSuggestions && (
