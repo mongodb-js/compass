@@ -210,6 +210,10 @@ const IndexFlowSection = ({
       return { [field.name]: index + 1 };
     });
 
+    track('Covered Queries Button Clicked', {
+      context: 'Create Index Modal',
+    });
+
     try {
       setCoveredQueriesObj({
         coveredQueries: generateCoveredQueries(coveredQueriesArr, track),
@@ -251,7 +255,12 @@ const IndexFlowSection = ({
             size="xsmall"
             id="code-equivalent-toggle"
             aria-label="Toggle Code Equivalent"
-            onChange={(value) => setIsCodeEquivalentToggleChecked(value)}
+            onChange={(value) => {
+              setIsCodeEquivalentToggleChecked(value);
+              track('Code Equivalent Toggled', {
+                context: 'Create Index Modal',
+              });
+            }}
             checked={isCodeEquivalentToggleChecked}
             disabled={!areAllFieldsFilledIn}
           />
@@ -336,7 +345,14 @@ const IndexFlowSection = ({
                     {optimalQueries}
                   </Body>
                 </p>
-                <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
+                <Link
+                  href="https://www.mongodb.com/docs/manual/core/query-optimization/"
+                  onClick={() => {
+                    track('Covered Queries Learn More Clicked', {
+                      context: 'Create Index Modal',
+                    });
+                  }}
+                >
                   Learn More
                 </Link>
               </>

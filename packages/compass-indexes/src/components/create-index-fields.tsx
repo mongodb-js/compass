@@ -13,6 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { Field } from '../modules/create-index';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 /**
  * Current allowed types for indexes.
@@ -63,6 +64,8 @@ function CreateIndexFields({
   onSelectFieldNameClick,
   onSelectFieldTypeClick,
 }: CreateIndexFieldsProps): React.ReactElement {
+  const track = useTelemetry();
+
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
       hasColumnstoreIndexesSupport(serverVersion);
@@ -87,6 +90,13 @@ function CreateIndexFields({
     },
     [onSelectFieldNameClick]
   );
+
+  const handleOnAddFieldClick = useCallback(() => {
+    onAddFieldClick();
+    track('New Index Field Added', {
+      context: 'Create Index Modal',
+    });
+  }, []);
 
   const comboboxOptions = schemaFields.map((value) => ({ value }));
 
@@ -154,7 +164,7 @@ function CreateIndexFields({
           </div>
         </div>
       )}
-      onAddItem={onAddFieldClick}
+      onAddItem={handleOnAddFieldClick}
       onRemoveItem={onRemoveFieldClick}
       addButtonTestId="add-index-field-button"
       removeButtonTestId="remove-index-field-button"

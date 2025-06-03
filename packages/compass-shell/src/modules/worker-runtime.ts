@@ -63,7 +63,7 @@ export function createWorkerRuntime(
       // already check whether Compass telemetry is enabled or not.
       track: ({ event, properties }) => {
         return track(
-          `Shell ${event as string}`,
+          `Shell ${event}`,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           properties,
           connectionInfo.current
