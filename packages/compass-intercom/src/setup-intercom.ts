@@ -25,6 +25,11 @@ export async function setupIntercom(
     return;
   }
 
+  if (!(await isIntercomAllowed())) {
+    debug('skipping Intercom (not allowed)');
+    return;
+  }
+
   const user = getActiveUser(preferences);
 
   const metadata: IntercomMetadata = {
@@ -79,4 +84,62 @@ export async function setupIntercom(
       toggleEnableFeedbackPanel(enableFeedbackPanel);
     }
   );
+}
+
+/**
+ * Memoized promise that resolves to whether the intercom integration is allowed.
+ * Access this through `this.isAllowed` to fire the request only once.
+ */
+let isIntercomAllowedResponse: null | Promise<boolean> = null;
+
+function isIntercomAllowed(): Promise<boolean> {
+  if (!isIntercomAllowedResponse) {
+    isIntercomAllowedResponse = fetchIntegrations().then(
+      ({ intercom }) => intercom,
+      (error) => {
+        debug(
+          'Failed to fetch intercom integration status, defaulting to false',
+          { error: error instanceof Error && error.message }
+        );
+        return false;
+      }
+    );
+  }
+  return isIntercomAllowedResponse;
+}
+
+/**
+ * TODO: Move this to a shared package if we start using it to toggle other integrations.
+ */
+function getAutoUpdateEndpoint() {
+  const { HADRON_AUTO_UPDATE_ENDPOINT, HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE } =
+    process.env;
+  const result =
+    HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE || HADRON_AUTO_UPDATE_ENDPOINT;
+  if (!result) {
+    throw new Error(
+      'Expected HADRON_AUTO_UPDATE_ENDPOINT or HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE to be set'
+    );
+  }
+  return result;
+}
+
+/**
+ * Fetches the integrations configuration from the update server.
+ * TODO: Move this to a shared package if we start using it to toggle other integrations.
+ */
+async function fetchIntegrations(): Promise<{ intercom: boolean }> {
+  const url = `${getAutoUpdateEndpoint()}/api/v2/integrations`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Expected an OK response, got ${response.status} '${response.statusText}'`
+    );
+  }
+  const result = await response.json();
+  debug('Got integrations response', { result });
+  if (typeof result.intercom !== 'boolean') {
+    throw new Error(`Expected 'intercom' to be a boolean`);
+  }
+  return result;
 }
