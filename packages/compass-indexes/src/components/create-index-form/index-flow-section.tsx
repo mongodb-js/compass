@@ -262,7 +262,7 @@ const IndexFlowSection = ({
               });
             }}
             checked={isCodeEquivalentToggleChecked}
-            disabled={!areAllFieldsFilledIn}
+            disabled={!areAllFieldsFilledIn(fields)}
           />
         </div>
       </div>
