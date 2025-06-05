@@ -18,6 +18,7 @@ describe('QueryFlowSection', () => {
           serverVersion="5.0.0"
           dbName={dbName}
           collectionName={collectionName}
+          initialQuery={null}
         />
       </Provider>
     );
@@ -66,7 +67,7 @@ describe('QueryFlowSection', () => {
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: [],
         indexSuggestions: { a: 1, b: 2 },
-        fetchingSuggestionsError: null,
+        error: null,
         indexSuggestionsState: 'success',
       });
     });

@@ -6,19 +6,19 @@ import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
-import { Document } from 'hadron-document';
-import { validate } from 'mongodb-query-parser';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { Document } from 'hadron-document';
+import { toJSString, validate } from 'mongodb-query-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { EJSON } from 'bson';
 import type {
-  FavoriteQueryStorageAccess,
   FavoriteQueryStorage,
-  RecentQueryStorageAccess,
+  FavoriteQueryStorageAccess,
   RecentQueryStorage,
+  RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
 import {
@@ -29,12 +29,12 @@ import {
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
-  DOCUMENTS_STATUS_INITIAL,
-  DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_ERROR,
-  DOCUMENTS_STATUS_FETCHED_INITIAL,
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_INITIAL,
 } from '../constants/documents-statuses';
 
 import type { UpdatePreview } from 'mongodb-data-service';
@@ -42,9 +42,9 @@ import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
+import type { ActivateHelpers } from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
-import { toJSString } from 'mongodb-query-parser';
 import {
   openBulkDeleteFailureToast,
   openBulkDeleteProgressToast,
@@ -59,7 +59,6 @@ import type {
   MongoDBInstance,
 } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
-import type { ActivateHelpers } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -113,11 +112,13 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 
 export const fetchDocuments: (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion: string,
   isDataLake: boolean,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion,
   isDataLake,
   ns,
@@ -146,17 +147,31 @@ export const fetchDocuments: (
   };
 
   try {
-    return (
+    let uuidSubtype3Count = 0;
+    let uuidSubtype4Count = 0;
+    const docs = (
       await dataService.find(ns, filter, modifiedOptions, executionOptions)
     ).map((doc) => {
       const { __doc, __size, ...rest } = doc;
+      let hadronDoc: HadronDocument;
       if (__doc && __size && Object.keys(rest).length === 0) {
-        const hadronDoc = new HadronDocument(__doc);
+        hadronDoc = new HadronDocument(__doc);
         hadronDoc.size = Number(__size);
-        return hadronDoc;
+      } else {
+        hadronDoc = new HadronDocument(doc);
       }
-      return new HadronDocument(doc);
+      const { subtype3Count, subtype4Count } = hadronDoc.findUUIDs();
+      uuidSubtype3Count += subtype3Count;
+      uuidSubtype4Count += subtype4Count;
+      return hadronDoc;
     });
+    if (uuidSubtype3Count > 0) {
+      track('UUID Encountered', { subtype: 3, count: uuidSubtype3Count });
+    }
+    if (uuidSubtype4Count > 0) {
+      track('UUID Encountered', { subtype: 4, count: uuidSubtype4Count });
+    }
+    return docs;
   } catch (err) {
     // We are handling all the cases where the size calculating projection might
     // not work, but just in case we run into some other environment or use-case
@@ -897,6 +912,7 @@ class CrudStoreImpl
     try {
       documents = await fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
@@ -1734,6 +1750,7 @@ class CrudStoreImpl
       ),
       fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
@@ -1834,7 +1851,9 @@ class CrudStoreImpl
   }
 
   openCreateIndexModal() {
-    this.localAppRegistry.emit('open-create-index-modal');
+    this.localAppRegistry.emit('open-create-index-modal', {
+      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')?.filter),
+    });
   }
 
   openCreateSearchIndexModal() {
@@ -1999,6 +2018,7 @@ export type DocumentsPluginServices = {
   queryBar: QueryBarService;
   collection: Collection;
 };
+
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
   {
@@ -2125,6 +2145,7 @@ type ErrorOrResult =
       result: undefined
     ]
   | [error: undefined | null, result: BSONObject];
+
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,

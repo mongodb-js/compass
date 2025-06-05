@@ -37,6 +37,11 @@ const toolbarButtonsContainer = css({
   alignItems: 'center',
 });
 
+const indexesToolbarContainerStyles = css({
+  padding: spacing[400],
+  paddingBottom: 0,
+});
+
 const alignSelfEndStyles = css({
   marginLeft: 'auto',
 });
@@ -98,7 +103,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   return (
-    <div data-testid="indexes-toolbar-container">
+    <div
+      className={indexesToolbarContainerStyles}
+      data-testid="indexes-toolbar-container"
+    >
       {!isReadonlyView && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
@@ -303,7 +311,7 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCreateRegularIndexClick: createIndexOpened,
+  onCreateRegularIndexClick: () => createIndexOpened(),
   onCreateSearchIndexClick: createSearchIndexOpened,
   onIndexViewChanged: indexViewChanged,
 };

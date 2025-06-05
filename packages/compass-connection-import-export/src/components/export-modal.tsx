@@ -6,7 +6,7 @@ import {
   FormFieldContainer,
   FormModal,
   openToast,
-  SelectTable,
+  SelectList,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
@@ -21,7 +21,10 @@ const tableStyles = css({
   overflow: 'auto',
 });
 
-const selectTableColumns = [['name', 'Connection Name']] as const;
+const SelectListLabel = {
+  displayLabelKey: 'name',
+  name: 'Connection Name',
+} as const;
 
 export function ExportConnectionsModal({
   open,
@@ -97,10 +100,10 @@ export function ExportConnectionsModal({
       }
       data-testid="connection-export-modal"
     >
-      <SelectTable
+      <SelectList
         className={tableStyles}
         items={connectionList}
-        columns={selectTableColumns}
+        label={SelectListLabel}
         disabled={inProgress}
         onChange={onChangeConnectionList}
       />

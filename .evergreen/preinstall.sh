@@ -39,7 +39,7 @@ if [ -n "$IS_WINDOWS" ]; then
     rm -rf node-v$NODE_JS_VERSION-win-$ARCH
 
     echo "Installing npm@$NPM_VERSION..."
-    rm -rf npm npx npm.cmd npx.cmd
+    rm -rf npm npx npm.cmd npx.cmd npm.ps1 npx.ps1
     mv node_modules/npm node_modules/npm2
     chmod +x ./node.exe
 

@@ -182,6 +182,17 @@ export const INITIAL_STATE: State = {
   error: undefined,
 };
 
+function processError(error: string): string {
+  const internalCodePattern = /[A-Z_]+:/; // Matches all caps with underscores followed by a colon anywhere in the string
+  const httpCodePattern = /\b(4\d{2}|5\d{2})\b/; // Matches HTTP codes 400-599 anywhere in the string
+
+  if (internalCodePattern.test(error) || httpCodePattern.test(error)) {
+    return "We're sorry, an unexpected error has occurred. Please try again.";
+  }
+
+  return error; // Return original error if it doesn't match the patterns
+}
+
 export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
@@ -248,7 +259,9 @@ export default function reducer(
       // previous list of indexes is shown to the user.
       // If fetch fails for refresh or polling, set the status to READY again.
       error:
-        state.status === FetchStatuses.FETCHING ? action.error : state.error,
+        state.status === FetchStatuses.FETCHING
+          ? processError(action.error)
+          : state.error,
       status:
         state.status === FetchStatuses.FETCHING
           ? FetchStatuses.ERROR

@@ -1,11 +1,13 @@
 import {
   Button,
   palette,
+  InsightsChip,
   Body,
   cx,
   useFocusRing,
   ParagraphSkeleton,
 } from '@mongodb-js/compass-components';
+import type { Document } from 'mongodb';
 import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
@@ -20,6 +22,8 @@ import type {
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
+import { parseFilter } from 'mongodb-query-parser';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -75,6 +79,14 @@ const indexSuggestionsLoaderStyles = css({
   borderRadius: editorContainerRadius,
 });
 
+const insightStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  marginBottom: spacing[200],
+  height: spacing[500],
+});
+
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
@@ -83,6 +95,7 @@ const QueryFlowSection = ({
   onSuggestedIndexButtonClick,
   indexSuggestions,
   fetchingSuggestionsState,
+  initialQuery,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -95,8 +108,18 @@ const QueryFlowSection = ({
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
+  initialQuery: Document | null;
 }) => {
-  const [inputQuery, setInputQuery] = React.useState('');
+  const track = useTelemetry();
+  const [inputQuery, setInputQuery] = React.useState(
+    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
+  );
+  const [hasNewChanges, setHasNewChanges] = React.useState(
+    initialQuery !== null
+  );
+  const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
+    React.useState(true);
+
   const completer = useMemo(
     () =>
       createQueryAutocompleter({
@@ -121,12 +144,47 @@ const QueryFlowSection = ({
       collectionName,
       inputQuery: sanitizedInputQuery,
     });
+
+    track('Suggested Index Button Clicked', {
+      context: 'Create Index Modal',
+    });
+
+    setHasNewChanges(false);
   }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+
+  const handleQueryInputChange = useCallback((text: string) => {
+    setInputQuery(text);
+    setHasNewChanges(true);
+  }, []);
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
+  // Validate query upon typing
+  useMemo(() => {
+    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    try {
+      parseFilter(inputQuery);
+
+      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+        _isShowSuggestionsButtonDisabled = true;
+      }
+    } catch (e) {
+      _isShowSuggestionsButtonDisabled = true;
+    } finally {
+      setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
+    }
+  }, [hasNewChanges, inputQuery]);
+
   return (
     <>
+      {initialQuery && (
+        <div className={insightStyles}>
+          <InsightsChip />
+          <p>
+            We prefilled the query input below based on your recently run query
+          </p>
+        </div>
+      )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
         Input Query
       </Body>
@@ -144,7 +202,7 @@ const QueryFlowSection = ({
             copyable={false}
             formattable={false}
             text={inputQuery}
-            onChangeText={(text) => setInputQuery(text)}
+            onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
             className={codeEditorStyles}
@@ -156,6 +214,7 @@ const QueryFlowSection = ({
             onClick={handleSuggestedIndexButtonClick}
             className={suggestedIndexButtonStyles}
             size="small"
+            disabled={isShowSuggestionsButtonDisabled}
           >
             Show suggested index
           </Button>

@@ -718,9 +718,13 @@ FindIterable<Document> result = collection.find(filter);`);
 
       const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
       await errorElement.waitForDisplayed();
-      expect(await errorElement.getText()).to.include(
-        'Document failed validation'
-      );
+
+      await browser.waitUntil(async () => {
+        return (await errorElement.getText()).includes(
+          'Document failed validation'
+        );
+      });
+
       // enter details
       const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
       await errorElement.waitForDisplayed();
@@ -764,9 +768,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(
@@ -810,9 +817,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(
@@ -853,9 +863,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
         const errorMessage = browser.$(Selectors.DocumentFooterMessage);
         await errorMessage.waitForDisplayed();
-        expect(await errorMessage.getText()).to.include(
-          'Document failed validation'
-        );
+
+        await browser.waitUntil(async () => {
+          return (await errorMessage.getText()).includes(
+            'Document failed validation'
+          );
+        });
 
         // enter details
         const errorDetailsBtn = browser.$(

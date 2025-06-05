@@ -1,19 +1,172 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
   Button,
-  Card,
+  css,
   EmptyContent,
-  Icon,
-  ItemActionMenu,
+  spacing,
+  useSortControls,
+  useSortedItems,
+  VirtualGrid,
+  Link,
   WorkspaceContainer,
+  Body,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
-import { deleteDiagram, openDiagram, renameDiagram } from '../store/diagram';
+import {
+  deleteDiagram,
+  getCurrentModel,
+  openDiagram,
+  renameDiagram,
+} from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import CollaborateIcon from './icons/collaborate';
+import SchemaVisualizationIcon from './icons/schema-visualization';
+import FlexibilityIcon from './icons/flexibility';
+import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
+import { DiagramListToolbar } from './diagram-list-toolbar';
+import toNS from 'mongodb-ns';
 
-const SavedDiagramsList: React.FunctionComponent<{
+const sortBy = [
+  {
+    name: 'name',
+    label: 'Name',
+  },
+  {
+    name: 'updatedAt',
+    label: 'Last Modified',
+  },
+] as const;
+
+const listContainerStyles = css({ height: '100%' });
+const rowStyles = css({
+  gap: spacing[200],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[200],
+});
+
+export const DiagramListContext = React.createContext<{
+  onSearchDiagrams: (search: string) => void;
+  onCreateDiagram: () => void;
+  sortControls: React.ReactElement | null;
+  searchTerm: string;
+}>({
+  onSearchDiagrams: () => {
+    /** */
+  },
+  onCreateDiagram: () => {
+    /** */
+  },
+  sortControls: null,
+  searchTerm: '',
+});
+
+const subTitleStyles = css({
+  maxWidth: '750px',
+});
+
+const featuresListStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  gap: spacing[600],
+  marginTop: spacing[400],
+  marginBottom: spacing[400],
+});
+
+const featureItemTitleStyles = css({
+  fontWeight: 'bold',
+});
+
+const featureItemStyles = css({
+  display: 'grid',
+  gridTemplateRows: `${spacing[1800]}px 1fr 1fr`,
+  justifyItems: 'center',
+  gap: spacing[400],
+  width: spacing[1400] * 3,
+});
+
+type Feature = 'visualization' | 'collaboration' | 'interactive';
+const featureDescription: Record<
+  Feature,
+  { icon: React.FunctionComponent; title: string; subtitle: string }
+> = {
+  visualization: {
+    icon: SchemaVisualizationIcon,
+    title: 'Quick Visualization',
+    subtitle: 'Instantly visualize your data models',
+  },
+  collaboration: {
+    icon: CollaborateIcon,
+    title: 'Collaboration & Sharing with your team',
+    subtitle: 'Collaborate and share schemas across teams',
+  },
+  interactive: {
+    icon: FlexibilityIcon,
+    title: 'Interactive Diagram Analysis',
+    subtitle: 'Explore and annotate interactive diagrams',
+  },
+};
+
+const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
+  features,
+}) => {
+  return (
+    <div className={featuresListStyles}>
+      {features.map((feature, key) => {
+        const { icon: Icon, title, subtitle } = featureDescription[feature];
+        return (
+          <div key={key} className={featureItemStyles}>
+            <Icon />
+            <Body className={featureItemTitleStyles}>{title}</Body>
+            <Body>{subtitle}</Body>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const DiagramListEmptyContent: React.FunctionComponent<{
+  onCreateDiagramClick: () => void;
+}> = ({ onCreateDiagramClick }) => {
+  return (
+    <WorkspaceContainer>
+      <EmptyContent
+        title="Visualize your Data Model"
+        subTitle={
+          <>
+            Your data model is the foundation of application performance. As
+            applications evolve, so must your schema—intelligently and
+            strategically. Minimize complexity, prevent performance bottlenecks,
+            and keep your development agile.
+            <FeaturesList
+              features={['visualization', 'collaboration', 'interactive']}
+            />
+            <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
+              Data modeling documentation
+            </Link>
+          </>
+        }
+        subTitleClassName={subTitleStyles}
+        callToAction={
+          <Button
+            onClick={onCreateDiagramClick}
+            variant="primary"
+            data-testid="create-diagram-button"
+          >
+            Generate diagram
+          </Button>
+        }
+      ></EmptyContent>
+    </WorkspaceContainer>
+  );
+};
+
+export const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
@@ -25,95 +178,82 @@ const SavedDiagramsList: React.FunctionComponent<{
   onDiagramDeleteClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
+  const decoratedItems = useMemo<
+    (MongoDBDataModelDescription & {
+      databases: string;
+    })[]
+  >(() => {
+    return items.map((item) => {
+      const databases = new Set(
+        getCurrentModel(item).collections.map(({ ns }) => toNS(ns).database)
+      );
+      return {
+        ...item,
+        databases: Array.from(databases).join(', '),
+      };
+    });
+  }, [items]);
+  const [search, setSearch] = useState('');
+  const filteredItems = useMemo(() => {
+    try {
+      const regex = new RegExp(search, 'i');
+      return decoratedItems.filter(
+        (x) => regex.test(x.name) || (x.databases && regex.test(x.databases))
+      );
+    } catch {
+      return decoratedItems;
+    }
+  }, [decoratedItems, search]);
+  const [sortControls, sortState] = useSortControls(sortBy);
+  const sortedItems = useSortedItems(filteredItems, sortState);
 
   if (status === 'INITIAL' || status === 'LOADING') {
     return null;
   }
-
-  const showList = items.length > 0;
-
-  let content;
-
-  if (showList) {
-    content = (
-      <div>
-        {items.map((diagram) => {
-          return (
-            <Card
-              style={{ marginTop: 8, display: 'flex' }}
-              key={diagram.id}
-              onClick={() => {
-                onOpenDiagramClick(diagram);
-              }}
-              data-testid="saved-diagram-card"
-              data-diagram-name={diagram.name}
-            >
-              {diagram.name}
-              <ItemActionMenu
-                isVisible
-                actions={[
-                  { action: 'rename', label: 'Rename' },
-                  { action: 'delete', label: 'Delete' },
-                ]}
-                onAction={(action) => {
-                  if (action === 'rename') {
-                    onDiagramRenameClick(diagram.id);
-                  }
-                  if (action === 'delete') {
-                    onDiagramDeleteClick(diagram.id);
-                  }
-                }}
-              ></ItemActionMenu>
-            </Card>
-          );
-        })}
-      </div>
-    );
-  } else {
-    content = (
-      <EmptyContent
-        icon={() => <Icon size={80} glyph="Diagram"></Icon>}
-        title="Design, Visualize, and Evolve your Data Model"
-        subTitle={
-          <>
-            Your data model is the foundation of application performance. As
-            applications evolve, so must your schema—intelligently and
-            strategically. Minimize complexity, prevent performance bottlenecks,
-            and keep your development agile.
-          </>
-        }
-        callToAction={
-          <Button
-            onClick={onCreateDiagramClick}
-            variant="primary"
-            data-testid="create-diagram-button"
-          >
-            Create diagram
-          </Button>
-        }
-      ></EmptyContent>
+  if (items.length === 0) {
+    return (
+      <DiagramListEmptyContent onCreateDiagramClick={onCreateDiagramClick} />
     );
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={() => {
-        return showList ? (
-          <>
-            <Button
-              onClick={onCreateDiagramClick}
-              variant="primary"
-              size="xsmall"
-              data-testid="create-diagram-button"
-            >
-              Create diagram
-            </Button>
-          </>
-        ) : null;
+    <DiagramListContext.Provider
+      value={{
+        sortControls,
+        searchTerm: search,
+        onCreateDiagram: onCreateDiagramClick,
+        onSearchDiagrams: setSearch,
       }}
     >
-      {content}
-    </WorkspaceContainer>
+      <WorkspaceContainer>
+        <VirtualGrid
+          data-testid="saved-diagram-list"
+          itemMinWidth={CARD_WIDTH}
+          itemHeight={CARD_HEIGHT + spacing[200]}
+          itemsCount={sortedItems.length}
+          className={listContainerStyles}
+          renderItem={({ index }) => (
+            <DiagramCard
+              diagram={sortedItems[index]}
+              onOpen={onOpenDiagramClick}
+              onRename={onDiagramRenameClick}
+              onDelete={onDiagramDeleteClick}
+            />
+          )}
+          itemKey={(index) => sortedItems[index].id}
+          renderHeader={DiagramListToolbar}
+          headerHeight={spacing[800] * 3 + spacing[200]}
+          classNames={{ row: rowStyles }}
+          resetActiveItemOnBlur={false}
+          renderEmptyList={() => (
+            <EmptyContent
+              title="No results found."
+              subTitle="We can't find any diagram matching your search."
+            />
+          )}
+        ></VirtualGrid>
+      </WorkspaceContainer>
+    </DiagramListContext.Provider>
   );
 };
 

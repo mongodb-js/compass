@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import { type Logger } from '@mongodb-js/compass-logging';
 
 import type { ParsedGlobalPreferencesResult } from './global-config';

@@ -5,7 +5,7 @@ import type {
 } from '../services/data-model-storage';
 import { createServiceLocator } from 'hadron-app-registry';
 
-type DataModelStorageServiceState = {
+export type DataModelStorageServiceState = {
   status: 'INITIAL' | 'LOADING' | 'REFRESHING' | 'READY' | 'ERROR';
   error: Error | null;
   items: MongoDBDataModelDescription[];

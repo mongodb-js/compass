@@ -3,11 +3,10 @@ import { EJSON, ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
-import type { Action, Reducer, Dispatch } from 'redux';
+import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
-import type { IndexesThunkAction } from '.';
-import type { RootState } from '.';
+import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
@@ -77,6 +76,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
+  query?: Document;
 };
 
 type CreateIndexClosedAction = {
@@ -306,14 +306,14 @@ export type State = {
   // state of the index suggestions
   fetchingSuggestionsState: IndexSuggestionState;
 
-  // error specific to fetching index suggestions
-  fetchingSuggestionsError: string | null;
-
   // index suggestions in a format such as {fieldName: 1}
   indexSuggestions: Record<string, number> | null;
 
   // sample documents used for getting index suggestions
   sampleDocs: Array<Document> | null;
+
+  // base query to be used for query flow index creation
+  query: Document | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -324,9 +324,9 @@ export const INITIAL_STATE: State = {
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
   fetchingSuggestionsState: 'initial',
-  fetchingSuggestionsError: null,
   indexSuggestions: null,
   sampleDocs: null,
+  query: null,
 };
 
 function getInitialState(): State {
@@ -338,15 +338,16 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = () => ({
+export const createIndexOpened = (query?: Document) => ({
   type: ActionTypes.CreateIndexOpened,
+  query,
 });
 
 export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
 });
 
-const errorEncountered = (error: string): ErrorEncounteredAction => ({
+export const errorEncountered = (error: string): ErrorEncounteredAction => ({
   type: ActionTypes.ErrorEncountered,
   error,
 });
@@ -367,7 +368,7 @@ export type SuggestedIndexFetchedAction = {
   type: ActionTypes.SuggestedIndexesFetched;
   sampleDocs: Array<Document>;
   indexSuggestions: { [key: string]: number } | null;
-  fetchingSuggestionsError: string | null;
+  error: string | null;
   indexSuggestionsState: IndexSuggestionState;
 };
 
@@ -389,7 +390,7 @@ export const fetchIndexSuggestions = ({
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
 > => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, track }) => {
     dispatch({
       type: ActionTypes.SuggestedIndexesRequested,
     });
@@ -410,6 +411,19 @@ export const fetchIndexSuggestions = ({
       }
     }
 
+    const throwError = (e?: unknown) => {
+      dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: sampleDocuments || [],
+        indexSuggestions: null,
+        error:
+          e instanceof Error
+            ? 'Error parsing query. Please follow query structure. ' + e.message
+            : 'Error parsing query. Please follow query structure.',
+        indexSuggestionsState: 'error',
+      });
+    };
+
     // Analyze namespace and fetch suggestions
     try {
       const analyzedNamespace = mql.analyzeNamespace(
@@ -422,18 +436,13 @@ export const fetchIndexSuggestions = ({
         analyzedNamespace
       );
       const results = await mql.suggestIndex([query]);
-      const indexSuggestions = results?.index || null;
+      const indexSuggestions = results?.index;
 
-      // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
-      if (!indexSuggestions) {
-        dispatch({
-          type: ActionTypes.SuggestedIndexesFetched,
-          sampleDocs: sampleDocuments,
-          indexSuggestions,
-          fetchingSuggestionsError:
-            'No suggested index found. Please choose "Start with an Index" at the top to continue.',
-          indexSuggestionsState: 'error',
-        });
+      if (
+        !indexSuggestions ||
+        Object.keys(indexSuggestions as Record<string, unknown>).length === 0
+      ) {
+        throwError();
         return;
       }
 
@@ -441,20 +450,13 @@ export const fetchIndexSuggestions = ({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
         indexSuggestions,
-        fetchingSuggestionsError: null,
+        error: null,
         indexSuggestionsState: 'success',
       });
     } catch (e: unknown) {
-      dispatch({
-        type: ActionTypes.SuggestedIndexesFetched,
-        sampleDocs: sampleDocuments,
-        indexSuggestions: null,
-        fetchingSuggestionsError:
-          e instanceof Error
-            ? 'Error parsing query. Please follow query structure. ' + e.message
-            : 'Error parsing query. Please follow query structure.',
-        indexSuggestionsState: 'error',
-      });
+      // TODO: remove this in CLOUDP-320224
+      track('Error parsing query', { context: 'Create Index Modal' });
+      throwError(e);
     }
   };
 };
@@ -490,6 +492,8 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   return (dispatch, getState, { track, preferences }) => {
     // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
     const currentTab = getState().createIndex.currentTab;
+    const isQueryFlow = currentTab === 'QueryFlow';
+    const indexSuggestions = getState().createIndex.indexSuggestions;
     const { enableIndexesGuidanceExp, showIndexesGuidanceVariant } =
       preferences.getPreferences();
 
@@ -505,6 +509,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     // Check for field errors.
     if (
+      !isQueryFlow &&
       getState().createIndex.fields.some(
         (field: Field) => field.name === '' || field.type === ''
       )
@@ -515,14 +520,22 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     const formIndexOptions = getState().createIndex.options;
 
-    let spec: Record<string, IndexDirection>;
+    let spec: Record<string, IndexDirection> = {};
 
     try {
-      spec = Object.fromEntries(
-        getState().createIndex.fields.map((field) => {
-          return [field.name, fieldTypeToIndexDirection(field.type)];
-        })
-      );
+      if (isQueryFlow) {
+        // Gather from suggested index
+        if (indexSuggestions) {
+          spec = indexSuggestions;
+        }
+      } else {
+        // Gather from the index input fields
+        spec = Object.fromEntries(
+          getState().createIndex.fields.map((field) => {
+            return [field.name, fieldTypeToIndexDirection(field.type)];
+          })
+        );
+      }
     } catch (e) {
       dispatch(errorEncountered((e as any).message));
       return;
@@ -706,6 +719,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...getInitialState(),
       isVisible: true,
+      query: action.query ?? null,
+      currentTab: action.query ? 'QueryFlow' : 'IndexFlow',
     };
   }
 
@@ -760,7 +775,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: 'fetching',
-      fetchingSuggestionsError: null,
+      error: null,
       indexSuggestions: null,
     };
   }
@@ -774,7 +789,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: action.indexSuggestionsState,
-      fetchingSuggestionsError: action.fetchingSuggestionsError,
+      error: action.error,
       indexSuggestions: action.indexSuggestions,
       sampleDocs: action.sampleDocs,
     };

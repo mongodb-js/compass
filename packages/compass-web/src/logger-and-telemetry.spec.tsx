@@ -42,7 +42,8 @@ describe('useCompassWebLoggerAndTelemetry', function () {
   beforeEach(cleanup);
 
   it('should call callback props when logger is called', function () {
-    const onLog = Sinon.stub();
+    const logs: any[] = [];
+    const onLog = Sinon.stub().callsFake((entry) => logs.push(entry));
     const onTrack = Sinon.stub();
     const onDebug = Sinon.stub();
 
@@ -54,13 +55,16 @@ describe('useCompassWebLoggerAndTelemetry', function () {
     loggerAndTelemetry.log.info(mongoLogId(123), 'Ctx', 'msg', { attr: 1 });
 
     expect(onDebug).to.have.been.calledOnceWith('TEST', 'foo bar');
-    expect(onLog).to.have.been.calledOnceWith(
-      'info',
-      'TEST',
-      mongoLogId(123),
-      'Ctx',
-      'msg',
-      { attr: 1 }
-    );
+    expect(logs).to.deep.equal([
+      {
+        t: logs[0].t,
+        s: 'I',
+        c: 'TEST',
+        id: 123,
+        ctx: 'Ctx',
+        msg: 'msg',
+        attr: { attr: 1 },
+      },
+    ]);
   });
 });

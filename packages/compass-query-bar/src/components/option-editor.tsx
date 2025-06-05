@@ -15,7 +15,6 @@ import type {
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
-  createQueryAutocompleter,
   createQueryWithHistoryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
@@ -119,9 +118,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
-  const isQueryHistoryAutocompleteEnabled = usePreference(
-    'enableQueryHistoryAutocomplete'
-  );
 
   const focusRingProps = useFocusRing({
     outer: true,
@@ -158,52 +154,45 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, [optionName, recentQueries, favoriteQueries]);
 
   const completer = useMemo(() => {
-    return isQueryHistoryAutocompleteEnabled
-      ? createQueryWithHistoryAutocompleter({
-          queryProperty: optionName,
-          savedQueries,
-          options: {
-            fields: schemaFields,
-            serverVersion,
-          },
-          onApply: (query: SavedQuery['queryProperties']) => {
-            // When we are applying a query from `filter` field, we want to apply the whole query,
-            // otherwise we want to preserve the other fields that are already in the current query.
-            const fieldsToPreserve =
-              optionName === 'filter'
-                ? []
-                : QUERY_PROPERTIES.filter((x) => x !== optionName);
-            onApplyQuery(query, fieldsToPreserve);
-            if (!query[optionName]) {
-              return;
-            }
-            const formFields = mapQueryToFormFields(
-              { maxTimeMS: maxTimeMSPreference },
-              {
-                ...DEFAULT_FIELD_VALUES,
-                ...query,
-              }
-            );
-            const optionFormField =
-              formFields[optionName as keyof QueryFormFields];
-            if (optionFormField?.string) {
-              // When we did apply something we want to move the cursor to the end of the input.
-              editorRef.current?.cursorDocEnd();
-            }
-          },
-          theme: darkMode ? 'dark' : 'light',
-        })
-      : createQueryAutocompleter({
-          fields: schemaFields,
-          serverVersion,
-        });
+    return createQueryWithHistoryAutocompleter({
+      queryProperty: optionName,
+      savedQueries,
+      options: {
+        fields: schemaFields,
+        serverVersion,
+      },
+      onApply: (query: SavedQuery['queryProperties']) => {
+        // When we are applying a query from `filter` field, we want to apply the whole query,
+        // otherwise we want to preserve the other fields that are already in the current query.
+        const fieldsToPreserve =
+          optionName === 'filter'
+            ? []
+            : QUERY_PROPERTIES.filter((x) => x !== optionName);
+        onApplyQuery(query, fieldsToPreserve);
+        if (!query[optionName]) {
+          return;
+        }
+        const formFields = mapQueryToFormFields(
+          { maxTimeMS: maxTimeMSPreference },
+          {
+            ...DEFAULT_FIELD_VALUES,
+            ...query,
+          }
+        );
+        const optionFormField = formFields[optionName as keyof QueryFormFields];
+        if (optionFormField?.string) {
+          // When we did apply something we want to move the cursor to the end of the input.
+          editorRef.current?.cursorDocEnd();
+        }
+      },
+      theme: darkMode ? 'dark' : 'light',
+    });
   }, [
     maxTimeMSPreference,
     savedQueries,
     schemaFields,
     serverVersion,
     onApplyQuery,
-    isQueryHistoryAutocompleteEnabled,
     darkMode,
     optionName,
   ]);
@@ -216,8 +205,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
           editorRef.current?.editorContents === '{}'
         ) {
           editorRef.current?.applySnippet('\\{${}}');
-          if (isQueryHistoryAutocompleteEnabled && editorRef.current?.editor)
-            editorRef.current?.startCompletion();
+          if (editorRef.current?.editor) editorRef.current?.startCompletion();
         }
       });
     }

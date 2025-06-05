@@ -366,11 +366,10 @@ describe('Connection Import / Export', function () {
             );
           }
           // Wait until the favorite is listed in the import connection list
-          const favoriteNameTableCell = browser.$(
-            `${Selectors.ImportConnectionsModal} [data-testid="item-${favoriteIdForImport}-displayName"]`
+          const favoriteItem = browser.$(
+            `${Selectors.ImportConnectionsModal} [data-testid="select-${favoriteIdForImport}"]`
           );
-          await favoriteNameTableCell.waitForDisplayed();
-          expect(await favoriteNameTableCell.getText()).to.equal(
+          expect(await favoriteItem.getAttribute('aria-label')).to.equal(
             favoriteNameForImport
           );
         }

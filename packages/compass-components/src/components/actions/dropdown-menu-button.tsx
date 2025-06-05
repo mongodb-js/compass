@@ -43,9 +43,8 @@ export function DropdownMenuButton<Action extends string>({
   'data-testid': dataTestId,
   hideOnNarrow = true,
 }: DropdownMenuButtonProps<Action>) {
-  // this ref is used by the Menu component to calculate the height and position
-  // of the menu, and by us to give back the focus to the trigger when the menu
-  // is closed (https://jira.mongodb.org/browse/PD-1674).
+  // This ref is used by the Menu component to calculate the height and position
+  // of the menu.
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -54,8 +53,6 @@ export function DropdownMenuButton<Action extends string>({
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
         setIsMenuOpen(false);
-        // Workaround for https://jira.mongodb.org/browse/PD-1674
-        menuTriggerRef.current?.focus();
       }
       const actionName = evt.currentTarget.dataset.action;
       if (typeof actionName !== 'string') {

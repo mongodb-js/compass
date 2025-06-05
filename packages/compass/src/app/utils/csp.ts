@@ -74,7 +74,7 @@ const defaultCSP = {
   'worker-src': ["'self'", 'file:'],
 };
 
-function injectCSP() {
+export function injectCSP() {
   const metaCSP = document.createElement('meta');
   const extraAllowed: string[] = [];
   if (
@@ -107,5 +107,3 @@ function injectCSP() {
   metaCSP.setAttribute('content', cspContent);
   document.head.prepend(metaCSP);
 }
-
-injectCSP();

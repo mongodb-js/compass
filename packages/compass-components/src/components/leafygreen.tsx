@@ -12,6 +12,7 @@ import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 export type { GlyphName } from '@leafygreen-ui/icon';
+import { Chip } from '@leafygreen-ui/chip';
 import {
   AtlasNavGraphic,
   MongoDBLogoMark,
@@ -142,6 +143,7 @@ export {
   Banner,
   Card,
   Checkbox,
+  Chip,
   Code,
   ConfirmationModal,
   ExpandedContent,

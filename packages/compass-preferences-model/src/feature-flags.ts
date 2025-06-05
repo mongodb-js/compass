@@ -19,7 +19,6 @@ export type FeatureFlags = {
   showInsights: boolean;
   enableExportSchema: boolean;
   enableRenameCollectionModal: boolean;
-  enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
   enableRollingIndexes: boolean;
   showDisabledConnections: boolean;
@@ -67,17 +66,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',
-    },
-  },
-
-  /**
-   * Feature flag for adding query history items to the query bar autocompletion. COMPASS-8096
-   */
-  enableQueryHistoryAutocomplete: {
-    stage: 'released',
-    description: {
-      short:
-        'Enables showing query history items in the query bar autocomplete.',
     },
   },
 

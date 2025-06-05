@@ -1579,7 +1579,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
     debug('connecting...');
     this._isConnecting = true;
 
-    this._logger.info(mongoLogId(1_001_000_014), 'Connecting', {
+    this._logger.info(mongoLogId(1_001_000_014), 'Connecting Started', {
+      connectionId: this._id,
       url: redactConnectionString(this._connectionOptions.connectionString),
       csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
@@ -1599,11 +1600,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
         });
 
       const attr = {
+        connectionId: this._id,
         isWritable: this.isWritable(),
         isMongos: this.isMongos(),
       };
 
-      this._logger.info(mongoLogId(1_001_000_015), 'Connected', attr);
+      this._logger.info(
+        mongoLogId(1_001_000_015),
+        'Connecting Succeeded',
+        attr
+      );
       debug('connected!', attr);
 
       state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
@@ -1626,6 +1632,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this,
         this._crudClient
       );
+    } catch (error) {
+      this._logger.info(mongoLogId(1_001_000_359), 'Connecting Failed', {
+        connectionId: this._id,
+        error:
+          error && typeof error === 'object' && 'message' in error
+            ? error?.message
+            : 'unknown error',
+      });
+      throw error;
     } finally {
       this._isConnecting = false;
     }

@@ -27,14 +27,14 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Option,
-  Select,
-  SelectTable,
+  SelectList,
   spacing,
   SpinLoader,
   Body,
   TextInput,
   SearchInput,
+  Combobox,
+  ComboboxOption,
 } from '@mongodb-js/compass-components';
 
 const footerStyles = css({
@@ -61,6 +61,7 @@ const FormStepContainer: React.FunctionComponent<{
   isNextDisabled: boolean;
   nextLabel: string;
   previousLabel: string;
+  step: string;
   footerText?: React.ReactNode;
 }> = ({
   title,
@@ -72,16 +73,28 @@ const FormStepContainer: React.FunctionComponent<{
   nextLabel,
   previousLabel,
   children,
+  step,
   footerText,
 }) => {
   return (
     <>
       <ModalHeader title={title} subtitle={description}></ModalHeader>
-      <ModalBody>{children}</ModalBody>
+      <ModalBody>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onNextClick();
+          }}
+        >
+          {children}
+        </form>
+      </ModalBody>
       <ModalFooter className={footerStyles}>
         <Body className={footerTextStyles}>{footerText}</Body>
         <div className={footerActionsStyles}>
-          <Button onClick={onPreviousClick}>{previousLabel}</Button>
+          <Button onClick={onPreviousClick} key={`${step}-previous`}>
+            {previousLabel}
+          </Button>
           <Button
             onClick={onNextClick}
             disabled={isNextDisabled}
@@ -89,6 +102,7 @@ const FormStepContainer: React.FunctionComponent<{
             data-testid="new-diagram-confirm-button"
             variant="primary"
             loadingIndicator={<SpinLoader />}
+            key={`${step}-next`}
           >
             {nextLabel}
           </Button>
@@ -98,7 +112,7 @@ const FormStepContainer: React.FunctionComponent<{
   );
 };
 
-const selectTableStyles = css({
+const SelectListStyles = css({
   height: 300,
   overflow: 'scroll',
 });
@@ -131,8 +145,8 @@ function SelectCollectionsStep({
           setSearchTerm(e.target.value);
         }}
       />
-      <SelectTable
-        className={selectTableStyles}
+      <SelectList
+        className={SelectListStyles}
         items={filteredCollections.map((collName) => {
           return {
             id: collName,
@@ -140,8 +154,8 @@ function SelectCollectionsStep({
             'data-testid': `new-diagram-collection-checkbox-${collName}`,
           };
         })}
-        columns={[['id', 'Collection Name']]}
-        onChange={(items) => {
+        label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+        onChange={(items: { id: string; selected: boolean }[]) => {
           // When a user is searching, less collections are shown to the user
           // and we need to keep existing selected collections selected.
           const currentSelectedItems = selectedCollections.filter(
@@ -164,7 +178,7 @@ function SelectCollectionsStep({
             Array.from(new Set([...newSelectedItems, ...currentSelectedItems]))
           );
         }}
-      ></SelectTable>
+      ></SelectList>
     </FormFieldContainer>
   );
 }
@@ -224,6 +238,18 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
   onCollectionsSelectionConfirm,
 }) => {
   const connections = useConnectionsList();
+  const [activeConnections, otherConnections] = useMemo(() => {
+    const active = [];
+    const other = [];
+    for (const connection of connections) {
+      if (connection.status === 'connected') {
+        active.push(connection);
+      } else {
+        other.push(connection);
+      }
+    }
+    return [active, other];
+  }, [connections]);
   const {
     title,
     description,
@@ -319,22 +345,40 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-connection':
         return (
           <FormFieldContainer className={formContainerStyles}>
-            <Select
+            <Combobox
               label=""
               aria-label="Select connection"
               value={selectedConnectionId ?? ''}
               data-testid="new-diagram-connection-selector"
-              onChange={onConnectionSelect}
+              onChange={(connectionId) => {
+                if (connectionId) {
+                  onConnectionSelect(connectionId);
+                }
+              }}
+              clearable={false}
+              multiselect={false}
               disabled={connections.length === 0}
             >
-              {connections.map((connection) => {
+              {activeConnections.map((connection) => {
                 return (
-                  <Option key={connection.info.id} value={connection.info.id}>
-                    {connection.title}
-                  </Option>
+                  <ComboboxOption
+                    key={connection.info.id}
+                    value={connection.info.id}
+                    displayName={connection.title}
+                    description="Active"
+                  ></ComboboxOption>
                 );
               })}
-            </Select>
+              {otherConnections.map((connection) => {
+                return (
+                  <ComboboxOption
+                    key={connection.info.id}
+                    value={connection.info.id}
+                    displayName={connection.title}
+                  ></ComboboxOption>
+                );
+              })}
+            </Combobox>
             {connections.length === 0 && (
               <Banner variant="warning">
                 You do not have any connections, create a new connection first
@@ -345,21 +389,23 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
       case 'select-database':
         return (
           <FormFieldContainer>
-            <Select
+            <Combobox
               label=""
               aria-label="Select database"
               value={selectedDatabase ?? ''}
               data-testid="new-diagram-database-selector"
-              onChange={onDatabaseSelect}
+              onChange={(databaseName) => {
+                if (databaseName) {
+                  onDatabaseSelect(databaseName);
+                }
+              }}
+              clearable={false}
+              multiselect={false}
             >
               {databases.map((db) => {
-                return (
-                  <Option key={db} value={db}>
-                    {db}
-                  </Option>
-                );
+                return <ComboboxOption key={db} value={db}></ComboboxOption>;
               })}
-            </Select>
+            </Combobox>
           </FormFieldContainer>
         );
       case 'select-collections':
@@ -372,8 +418,9 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         );
     }
   }, [
+    activeConnections,
     collections,
-    connections,
+    connections.length,
     currentStep,
     databases,
     diagramName,
@@ -381,6 +428,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
     onConnectionSelect,
     onDatabaseSelect,
     onNameChange,
+    otherConnections,
     selectedCollections,
     selectedConnectionId,
     selectedDatabase,
@@ -405,6 +453,7 @@ const NewDiagramForm: React.FunctionComponent<NewDiagramFormProps> = ({
         previousLabel={cancelLabel}
         isNextDisabled={isConfirmDisabled}
         isLoading={isLoading}
+        step={currentStep}
         footerText={footerText}
       >
         {formContent}

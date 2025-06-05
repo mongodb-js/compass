@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       releaseTicket:
-        description: "releaseTicket (required): it must have a fixVersion which will be used as release version."
+        description: 'releaseTicket (required): it must have a fixVersion which will be used as release version.'
         required: true
       mergeBranch:
         description: 'mergeBranch (optional, default="beta-releases"): the branch to merge from, useful to perform quick fixes or to skip beta.'
-        default: "beta-releases"
+        default: 'beta-releases'
         required: false
 
 permissions:
@@ -33,8 +33,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.16.0
-          cache: "npm"
+          node-version: 22.15.1
+          cache: 'npm'
 
       - name: Install npm@10.2.4
         run: |

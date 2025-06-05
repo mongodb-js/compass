@@ -573,8 +573,12 @@ describe('Collection import', function () {
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
-      const errorText = await toastElement.getText();
-      expect(errorText).to.include('Document failed validation');
+
+      await browser.waitUntil(async () => {
+        return (await toastElement.getText()).includes(
+          'Document failed validation'
+        );
+      });
 
       // Visit error details
       await browser.clickVisible(Selectors.ImportToastErrorDetailsBtn);
@@ -618,9 +622,14 @@ describe('Collection import', function () {
       // Wait for the error toast to appear
       const toastElement = browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
-      const errorText = await toastElement.getText();
-      expect(errorText).to.include('Document failed validation');
-      expect(errorText).to.include('VIEW LOG');
+
+      await browser.waitUntil(async () => {
+        const text = await toastElement.getText();
+        return (
+          text.includes('Document failed validation') &&
+          text.includes('VIEW LOG')
+        );
+      });
 
       // Find the log file
       const logFilePath = path.resolve(

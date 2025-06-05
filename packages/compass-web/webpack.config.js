@@ -45,6 +45,16 @@ module.exports = (env, args) => {
           '@mongodb-js/devtools-proxy-support'
         ),
 
+        ...(config.mode === 'production'
+          ? {
+              // We don't need saslprep in the product web bundle, as we don't use scram auth there.
+              // We use a local polyfill for the driver to avoid having it in the bundle
+              // as it is a decent size. We do use scram auth in tests and local
+              // development, so we want it there.
+              '@mongodb-js/saslprep': localPolyfill('@mongodb-js/saslprep'),
+            }
+          : {}),
+
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
         // contains a lot of logic that makes sense in a desktop application/CLI but
@@ -218,7 +228,7 @@ module.exports = (env, args) => {
       'react-dom': 'commonjs2 react-dom',
 
       // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
-      // active work on the connumicatino protocol is wrapped up
+      // active work on the communication protocol is wrapped up
       tls: 'commonjs2 tls',
     },
     plugins: [

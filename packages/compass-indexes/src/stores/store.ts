@@ -1,5 +1,5 @@
 import type { Store } from 'redux';
-import { createStore, applyMiddleware } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import type { IndexesThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
@@ -12,16 +12,16 @@ import {
   stopPollingRegularIndexes,
 } from '../modules/regular-indexes';
 import {
-  fetchSearchIndexes,
   createSearchIndexOpened,
+  fetchSearchIndexes,
   stopPollingSearchIndexes,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type {
-  MongoDBInstance,
   Collection,
+  MongoDBInstance,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -128,9 +128,13 @@ export function activateIndexesPlugin(
     )
   );
 
-  on(localAppRegistry, 'open-create-index-modal', () => {
-    store.dispatch(createIndexOpened());
-  });
+  on(
+    localAppRegistry,
+    'open-create-index-modal',
+    (openCreateModalRequest?: { query: Document }) => {
+      store.dispatch(createIndexOpened(openCreateModalRequest?.query));
+    }
+  );
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
     store.dispatch(createSearchIndexOpened());

@@ -1,4 +1,5 @@
 import { Code, Link, css, spacing } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import React from 'react';
 
 const containerStyles = css({
@@ -62,6 +63,7 @@ const MDBCodeViewer = ({
   indexNameTypeMap: Record<string, string | number>;
   dataTestId?: string;
 }) => {
+  const track = useTelemetry();
   const GeneratedCode = generateCode({
     dbName,
     collectionName,
@@ -79,6 +81,11 @@ const MDBCodeViewer = ({
           href="https://www.mongodb.com/docs/manual/core/indexes/create-index/"
           target="_blank"
           rel="noreferrer noopener"
+          onClick={() => {
+            track('View Programming Language Syntax Clicked', {
+              context: 'Create Index Modal',
+            });
+          }}
         >
           here
         </Link>
