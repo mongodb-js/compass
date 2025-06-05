@@ -4,7 +4,7 @@ import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram-form';
 import type { DataModelingState } from '../store/reducer';
-
+import { DiagramProvider } from '@mongodb-js/diagramming';
 type DataModelingPluginInitialProps = {
   showList: boolean;
 };
@@ -17,7 +17,9 @@ const DataModeling: React.FunctionComponent<DataModelingPluginInitialProps> = ({
       {showList ? (
         <SavedDiagramsList></SavedDiagramsList>
       ) : (
-        <DiagramEditor></DiagramEditor>
+        <DiagramProvider>
+          <DiagramEditor />
+        </DiagramProvider>
       )}
       <NewDiagramFormModal></NewDiagramFormModal>
     </>
