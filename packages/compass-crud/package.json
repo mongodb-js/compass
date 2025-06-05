@@ -96,7 +96,7 @@
     "mongodb-data-service": "^22.28.0",
     "mongodb": "^6.16.0",
     "mongodb-ns": "^2.4.2",
-    "mongodb-query-parser": "^4.3.0",
+    "mongodb-query-parser": "^4.3.2",
     "numeral": "^2.0.6",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
