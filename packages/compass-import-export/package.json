@@ -67,7 +67,7 @@
     "mongodb": "^6.16.0",
     "mongodb-data-service": "^22.28.0",
     "mongodb-ns": "^2.4.2",
-    "mongodb-query-parser": "^4.3.0",
+    "mongodb-query-parser": "^4.3.2",
     "mongodb-schema": "^12.5.2",
     "papaparse": "^5.3.2",
     "react": "^17.0.2",
