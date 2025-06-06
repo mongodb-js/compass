@@ -28,7 +28,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
     if (!menu.isOpen) {
       menu.close();
     }
-  }, [menu, menu.isOpen]);
+  }, [menu.isOpen]);
 
   return (
     <div

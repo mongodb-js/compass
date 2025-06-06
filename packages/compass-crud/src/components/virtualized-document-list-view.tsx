@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import HadronDocument from 'hadron-document';
 import {
   css,
-  KeylineCard,
   spacing,
   VirtualList,
   type VirtualListItemRenderer,
@@ -10,7 +9,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type BSONObject } from '../stores/crud-store';
-import Document, { type DocumentProps } from './document';
+import type { DocumentProps } from './document';
+import { DocumentListViewItem } from './document-list-view-item';
 
 const spacingStyles = css({
   padding: spacing[400],
@@ -90,22 +90,25 @@ const VirtualizedDocumentListView: React.FC<
   }, [_docs]);
 
   const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
-    (doc, docRef, docIndex) => {
+    (
+      doc: HadronDocument,
+      docRef: React.Ref<HTMLDivElement>,
+      docIndex: number
+    ) => {
       return (
-        <KeylineCard ref={docRef}>
-          {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-          <Document
-            doc={doc}
-            key={doc.uuid}
-            editable={isEditable}
-            isTimeSeries={isTimeSeries}
-            copyToClipboard={copyToClipboard}
-            removeDocument={removeDocument}
-            replaceDocument={replaceDocument}
-            updateDocument={updateDocument}
-            openInsertDocumentDialog={openInsertDocumentDialog}
-          />
-        </KeylineCard>
+        <DocumentListViewItem
+          doc={doc}
+          docRef={docRef}
+          docIndex={docIndex}
+          isEditable={isEditable}
+          isTimeSeries={isTimeSeries}
+          scrollTriggerRef={scrollTriggerRef}
+          copyToClipboard={copyToClipboard}
+          removeDocument={removeDocument}
+          replaceDocument={replaceDocument}
+          updateDocument={updateDocument}
+          openInsertDocumentDialog={openInsertDocumentDialog}
+        />
       );
     },
     [
