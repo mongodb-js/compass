@@ -11,6 +11,36 @@ import {
   type User,
 } from 'compass-preferences-model';
 
+// Picking something which won't be blocked by CORS
+const FAKE_HADRON_AUTO_UPDATE_ENDPOINT = 'https://compass.mongodb.com';
+
+function createMockFetch({
+  integrations,
+}: {
+  integrations: Record<string, boolean>;
+}) {
+  return async (url) => {
+    if (typeof url !== 'string') {
+      throw new Error('Expected url to be a string');
+    }
+    if (url.startsWith(FAKE_HADRON_AUTO_UPDATE_ENDPOINT)) {
+      if (url === `${FAKE_HADRON_AUTO_UPDATE_ENDPOINT}/api/v2/integrations`) {
+        return {
+          ok: true,
+          async json() {
+            return integrations;
+          },
+        } as Response;
+      }
+    } else if (url === 'https://widget.intercom.io/widget/appid123') {
+      // NOTE: we use 301 since intercom will redirects
+      // to the actual location of the widget script
+      return { status: 301 } as Response;
+    }
+    throw new Error(`Unexpected URL called on the fake update server: ${url}`);
+  };
+}
+
 const mockUser: User = {
   id: 'user-123',
   createdAt: new Date(1649432549945),
@@ -39,6 +69,7 @@ describe('setupIntercom', function () {
 
   beforeEach(async function () {
     backupEnv = {
+      HADRON_AUTO_UPDATE_ENDPOINT: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       HADRON_METRICS_INTERCOM_APP_ID:
         process.env.HADRON_METRICS_INTERCOM_APP_ID,
       HADRON_PRODUCT_NAME: process.env.HADRON_PRODUCT_NAME,
@@ -46,6 +77,7 @@ describe('setupIntercom', function () {
       NODE_ENV: process.env.NODE_ENV,
     };
 
+    process.env.HADRON_AUTO_UPDATE_ENDPOINT = FAKE_HADRON_AUTO_UPDATE_ENDPOINT;
     process.env.HADRON_PRODUCT_NAME = 'My App Name' as any;
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
@@ -60,6 +92,8 @@ describe('setupIntercom', function () {
   });
 
   afterEach(function () {
+    process.env.HADRON_AUTO_UPDATE_ENDPOINT =
+      backupEnv.HADRON_AUTO_UPDATE_ENDPOINT;
     process.env.HADRON_METRICS_INTERCOM_APP_ID =
       backupEnv.HADRON_METRICS_INTERCOM_APP_ID;
     process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
@@ -70,6 +104,10 @@ describe('setupIntercom', function () {
 
   describe('when it can be enabled', function () {
     it('calls intercomScript.load when feedback gets enabled and intercomScript.unload when feedback gets disabled', async function () {
+      fetchMock.callsFake(
+        createMockFetch({ integrations: { intercom: true } })
+      );
+
       await preferences.savePreferences({
         enableFeedbackPanel: true,
       });
@@ -94,6 +132,19 @@ describe('setupIntercom', function () {
     it('calls intercomScript.unload when feedback gets disabled', async function () {
       await preferences.savePreferences({
         enableFeedbackPanel: false,
+      });
+      const { intercomScript } = await testRunSetupIntercom();
+      expect(intercomScript.load).not.to.have.been.called;
+      expect(intercomScript.unload).to.have.been.called;
+    });
+
+    it('calls intercomScript.unload when the update server disables the integration', async function () {
+      fetchMock.callsFake(
+        createMockFetch({ integrations: { intercom: false } })
+      );
+
+      await preferences.savePreferences({
+        enableFeedbackPanel: true,
       });
       const { intercomScript } = await testRunSetupIntercom();
       expect(intercomScript.load).not.to.have.been.called;
