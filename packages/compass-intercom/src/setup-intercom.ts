@@ -92,28 +92,19 @@ export async function setupIntercom(
   );
 }
 
-/**
- * Memoized promise that resolves to whether the intercom integration is allowed.
- * Access this through `this.isAllowed` to fire the request only once.
- */
-let isIntercomAllowedResponse: null | Promise<boolean> = null;
-
 function isIntercomAllowed(allowNetworkTraffic = true): Promise<boolean> {
-  if (!isIntercomAllowedResponse) {
-    isIntercomAllowedResponse = allowNetworkTraffic
-      ? fetchIntegrations().then(
-          ({ intercom }) => intercom,
-          (error) => {
-            debug(
-              'Failed to fetch intercom integration status, defaulting to false',
-              { error: error instanceof Error && error.message }
-            );
-            return false;
-          }
-        )
-      : Promise.resolve(false);
-  }
-  return isIntercomAllowedResponse;
+  return allowNetworkTraffic
+    ? fetchIntegrations().then(
+        ({ intercom }) => intercom,
+        (error) => {
+          debug(
+            'Failed to fetch intercom integration status, defaulting to false',
+            { error: error instanceof Error && error.message }
+          );
+          return false;
+        }
+      )
+    : Promise.resolve(false);
 }
 
 /**
