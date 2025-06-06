@@ -129,6 +129,7 @@ function getAutoUpdateEndpoint() {
  */
 async function fetchIntegrations(): Promise<{ intercom: boolean }> {
   const url = `${getAutoUpdateEndpoint()}/api/v2/integrations`;
+  debug('requesting integrations status', { url });
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
@@ -136,7 +137,7 @@ async function fetchIntegrations(): Promise<{ intercom: boolean }> {
     );
   }
   const result = await response.json();
-  debug('Got integrations response', { result });
+  debug('got integrations response', { result });
   if (typeof result.intercom !== 'boolean') {
     throw new Error(`Expected 'intercom' to be a boolean`);
   }
