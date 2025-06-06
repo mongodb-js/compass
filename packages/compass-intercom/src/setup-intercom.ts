@@ -14,7 +14,7 @@ export async function setupIntercom(
     return;
   }
 
-  const { enableFeedbackPanel } = preferences.getPreferences();
+  const { enableFeedbackPanel, networkTraffic } = preferences.getPreferences();
 
   const intercomAppId = process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
@@ -22,11 +22,6 @@ export async function setupIntercom(
     debug(
       'skipping Intercom setup HADRON_METRICS_INTERCOM_APP_ID is not defined'
     );
-    return;
-  }
-
-  if (!(await isIntercomAllowed())) {
-    debug('skipping Intercom (not allowed)');
     return;
   }
 
@@ -41,7 +36,22 @@ export async function setupIntercom(
     app_stage: process.env.NODE_ENV,
   };
 
-  if (enableFeedbackPanel) {
+  async function toggleEnableFeedbackPanel(enableFeedbackPanel: boolean) {
+    if (enableFeedbackPanel) {
+      if (await isIntercomAllowed(networkTraffic)) {
+        debug('loading intercom script');
+        intercomScript.load(metadata);
+      }
+    } else {
+      debug('unloading intercom script');
+      intercomScript.unload();
+    }
+  }
+
+  const shouldLoad =
+    enableFeedbackPanel && (await isIntercomAllowed(networkTraffic));
+
+  if (shouldLoad) {
     // In some environment the network can be firewalled, this is a safeguard to avoid
     // uncaught errors when injecting the script.
     debug('testing intercom availability');
@@ -61,27 +71,23 @@ export async function setupIntercom(
     debug('intercom is reachable, proceeding with the setup');
   } else {
     debug(
-      'not testing intercom connectivity because enableFeedbackPanel == false'
+      'not testing intercom connectivity because enableFeedbackPanel == false || isAllowed == false'
     );
   }
 
-  const toggleEnableFeedbackPanel = (enableFeedbackPanel: boolean) => {
-    if (enableFeedbackPanel) {
-      debug('loading intercom script');
-      intercomScript.load(metadata);
-    } else {
-      debug('unloading intercom script');
-      intercomScript.unload();
-    }
-  };
-
-  toggleEnableFeedbackPanel(!!enableFeedbackPanel);
+  try {
+    await toggleEnableFeedbackPanel(shouldLoad);
+  } catch (error) {
+    debug('initial toggle failed', {
+      error: error instanceof Error && error.message,
+    });
+  }
 
   preferences.onPreferenceValueChanged(
     'enableFeedbackPanel',
     (enableFeedbackPanel) => {
       debug('enableFeedbackPanel changed');
-      toggleEnableFeedbackPanel(enableFeedbackPanel);
+      void toggleEnableFeedbackPanel(enableFeedbackPanel);
     }
   );
 }
@@ -92,18 +98,20 @@ export async function setupIntercom(
  */
 let isIntercomAllowedResponse: null | Promise<boolean> = null;
 
-function isIntercomAllowed(): Promise<boolean> {
+function isIntercomAllowed(allowNetworkTraffic = true): Promise<boolean> {
   if (!isIntercomAllowedResponse) {
-    isIntercomAllowedResponse = fetchIntegrations().then(
-      ({ intercom }) => intercom,
-      (error) => {
-        debug(
-          'Failed to fetch intercom integration status, defaulting to false',
-          { error: error instanceof Error && error.message }
-        );
-        return false;
-      }
-    );
+    isIntercomAllowedResponse = allowNetworkTraffic
+      ? fetchIntegrations().then(
+          ({ intercom }) => intercom,
+          (error) => {
+            debug(
+              'Failed to fetch intercom integration status, defaulting to false',
+              { error: error instanceof Error && error.message }
+            );
+            return false;
+          }
+        )
+      : Promise.resolve(false);
   }
   return isIntercomAllowedResponse;
 }
