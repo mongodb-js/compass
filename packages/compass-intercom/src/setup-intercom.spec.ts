@@ -18,24 +18,24 @@ function createMockFetch({
   integrations,
 }: {
   integrations: Record<string, boolean>;
-}) {
-  return async (url) => {
+}): typeof globalThis.fetch {
+  return (url) => {
     if (typeof url !== 'string') {
       throw new Error('Expected url to be a string');
     }
     if (url.startsWith(FAKE_HADRON_AUTO_UPDATE_ENDPOINT)) {
       if (url === `${FAKE_HADRON_AUTO_UPDATE_ENDPOINT}/api/v2/integrations`) {
-        return {
+        return Promise.resolve({
           ok: true,
-          async json() {
-            return integrations;
+          json() {
+            return Promise.resolve(integrations);
           },
-        } as Response;
+        } as Response);
       }
     } else if (url === 'https://widget.intercom.io/widget/appid123') {
       // NOTE: we use 301 since intercom will redirects
       // to the actual location of the widget script
-      return { status: 301 } as Response;
+      return Promise.resolve({ status: 301 } as Response);
     }
     throw new Error(`Unexpected URL called on the fake update server: ${url}`);
   };
