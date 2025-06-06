@@ -19,7 +19,10 @@ const mockUser: User = {
 
 describe('setupIntercom', function () {
   let backupEnv: Partial<typeof process.env>;
-  let fetchMock: SinonStub;
+  let fetchMock: SinonStub<
+    Parameters<typeof globalThis.fetch>,
+    ReturnType<typeof globalThis.fetch>
+  >;
   let preferences: PreferencesAccess;
 
   async function testRunSetupIntercom() {
@@ -47,11 +50,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
-    fetchMock = sinon.stub();
-    window.fetch = fetchMock;
-    // NOTE: we use 301 since intercom will redirects
-    // to the actual location of the widget script
-    fetchMock.resolves({ status: 301 } as Response);
+    fetchMock = sinon.stub(globalThis, 'fetch');
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableFeedbackPanel: true,
@@ -66,7 +65,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
     process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
-    fetchMock.reset();
+    fetchMock.restore();
   });
 
   describe('when it can be enabled', function () {

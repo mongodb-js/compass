@@ -58,7 +58,7 @@ export async function setupIntercom(
 
     const intercomWidgetUrl = buildIntercomScriptUrl(metadata.app_id);
 
-    const response = await window.fetch(intercomWidgetUrl).catch((e) => {
+    const response = await fetch(intercomWidgetUrl).catch((e) => {
       debug('fetch failed', e);
       return null;
     });
