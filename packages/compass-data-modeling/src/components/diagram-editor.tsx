@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -20,6 +20,8 @@ import {
   palette,
   ErrorSummary,
   useDarkMode,
+  Tooltip,
+  Link,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -27,6 +29,8 @@ import {
   Diagram,
   type NodeProps,
   type EdgeProps,
+  addNodesWithinBounds,
+  applyLayout,
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
@@ -133,6 +137,10 @@ const DiagramEditor: React.FunctionComponent<{
 }) => {
   const isDarkMode = useDarkMode();
   const [applyInput, setApplyInput] = useState('{}');
+  const [selection, setSelection] = useState<{
+    nodes: NodeProps[];
+    edges: EdgeProps[];
+  }>({ nodes: [], edges: [] });
   const isEditValid = useMemo(() => {
     try {
       JSON.parse(applyInput);
@@ -192,8 +200,9 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships]);
 
-  const nodes = useMemo(() => {
-    return (model?.collections ?? []).map(
+  const [nodes, setNodes] = useState<NodeProps[]>([]);
+  useEffect(async () => {
+    const initialNodes = (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
         type: 'collection',
@@ -202,19 +211,22 @@ const DiagramEditor: React.FunctionComponent<{
           y: coll.displayPosition[1],
         },
         title: coll.ns,
+        selected: selection.nodes.some((n) => n.id === coll.ns),
         fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
           ([name, field]) => {
-            const type =
-              field.bsonType === undefined
-                ? 'Unknown'
-                : typeof field.bsonType === 'string'
-                ? field.bsonType
-                : // TODO: Show possible types of the field
-                  field.bsonType[0];
+            const type = (
+              // field.bsonType === undefined
+              //   ? 'Unknown'
+              //   : typeof field.bsonType === 'string'
+              //   ? field.bsonType
+              //   : // TODO: Show possible types of the field
+              <Tooltip trigger={<Link>mixed</Link>}>toooltip tooltip</Tooltip>
+            );
             return {
               name,
               type,
-              glyphs: type === 'objectId' ? ['key'] : [],
+              variant: name === '_id' ? 'preview' : 'primary',
+              // glyphs: type === 'objectId' ? ['key'] : [],
             };
           }
         ),
@@ -222,9 +234,44 @@ const DiagramEditor: React.FunctionComponent<{
           width: 100,
           height: 200,
         },
-      })
+      }),
+      [model?.collections]
     );
+
+    if (initialNodes.length === 0) {
+      setNodes([]);
+      return;
+    }
+    if (
+      initialNodes[0].position.x === -1 &&
+      initialNodes[0].position.y === -1
+    ) {
+      console.log('placing the nodes', initialNodes);
+      const { nodes: placedNodes } = await applyLayout(
+        initialNodes,
+        edges,
+        'STAR'
+      );
+      // TODO: save
+      console.log('PLACED NODES', placedNodes);
+      setNodes(placedNodes);
+      return;
+    }
+    setNodes(initialNodes);
   }, [model?.collections]);
+
+  // const nodes = useMemo(async () => {
+  //   const initial = unplacedNodes.filter(
+  //     (node) => node.position.x === -1 && node.position.y === -1
+  //   );
+  //   console.log('NOT INITIAL', unplacedNodes, initial);
+  //   if (!initial?.length) return unplacedNodes;
+  //   console.log('INITIAL', unplacedNodes, initial);
+  //   const { nodes: placedNodes } = await applyLayout(unplacedNodes, edges, 'LEFT_RIGHT');
+  //   console.log('PLACED NODES', placedNodes);
+  //   // todo: save!!
+  //   return placedNodes;
+  // }, [unplacedNodes]);
 
   let content;
 
@@ -261,6 +308,10 @@ const DiagramEditor: React.FunctionComponent<{
     );
   }
 
+  const handleSelectionChange = useCallback(({ nodes, edges }) => {
+    setSelection({ nodes, edges });
+  }, []);
+
   if (step === 'EDITING') {
     content = (
       <div
@@ -273,18 +324,7 @@ const DiagramEditor: React.FunctionComponent<{
             title={diagramLabel}
             edges={edges}
             nodes={nodes}
-            onEdgeClick={(evt, edge) => {
-              setApplyInput(
-                JSON.stringify(
-                  {
-                    type: 'RemoveRelationship',
-                    relationshipId: edge.id,
-                  },
-                  null,
-                  2
-                )
-              );
-            }}
+            onSelectionChange={handleSelectionChange}
           />
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
