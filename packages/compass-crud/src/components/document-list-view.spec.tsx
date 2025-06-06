@@ -2,9 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import DocumentListView from './document-list-view';
+import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 describe('<DocumentListView />', function () {
   describe('#render', function () {
@@ -16,12 +16,8 @@ describe('<DocumentListView />', function () {
           docs={hadronDocs}
           isEditable={false}
           isTimeSeries={false}
-          copyToClipboard={sinon.spy()}
-          removeDocument={sinon.spy()}
-          replaceDocument={sinon.spy()}
-          updateDocument={sinon.spy()}
-          openInsertDocumentDialog={sinon.spy()}
-        />
+        />,
+        { wrappingComponent: ContextMenuProvider }
       );
 
       it('renders all the documents', function () {
