@@ -1,5 +1,6 @@
 import React from 'react';
-import { ReactWrapper, mount } from 'enzyme';
+import { mount } from 'enzyme';
+import type { ReactWrapper } from 'enzyme';
 import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
 
