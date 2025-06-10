@@ -11,13 +11,11 @@ import { dataModelStorageServiceLocator } from './provider';
 import { activateDataModelingStore } from './store';
 import { PluginTabTitle, WorkspaceName } from './plugin-tab-title';
 
-// TODO: Maybe rename to DataModelingPlugin
 export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
   provider: registerHadronPlugin(
     {
       name: 'DataModeling',
-      // component: DataModelingComponent,
       component: function DataModelingProvider({ children }) {
         return React.createElement(React.Fragment, null, children);
       },
@@ -34,34 +32,4 @@ export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   ),
   content: DataModelingComponent,
   header: PluginTabTitle,
-  // ({
-  //   // todo: type
-  //   id,
-  // }: {
-  //   id: string;
-  // }) => ({
-  //   id,
-  //   type: WorkspaceName,
-  //   title: WorkspaceName,
-  //   iconGlyph: 'Diagram' as const,
-  // }),
 };
-
-// export const WorkspaceTab: WorkspaceComponent<typeof WorkspaceName> = {
-//   name: WorkspaceName,
-//   provider: DataModelingPlugin,
-//   content: DataModelingComponent,
-//   // component: DataModelingPlugin,
-//   header: ({
-//     id
-//   }: {
-//     id: string;
-//   }) => ({
-//     id,
-//     type: WorkspaceName,
-//     title: WorkspaceName,
-//     iconGlyph: 'Diagram' as const,
-//   })
-// };
-
-// export default DataModelingPlugin;

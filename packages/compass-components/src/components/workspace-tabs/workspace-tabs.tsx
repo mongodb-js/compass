@@ -302,8 +302,6 @@ const SortableItem = ({
   const tab = useMemo(
     () =>
       renderTab({
-        // ...tabProps,
-        // TODO: id here?
         isSelected,
         isDragging,
         tabContentId: tabId,
@@ -311,20 +309,9 @@ const SortableItem = ({
         onClose: onTabClosed,
       }),
     [renderTab]
-  ); // TODO: Add the rest of the tab props. Maybe no useMemo.
+  );
 
   return tab;
-
-  // return tab;(
-  //   <Tab
-  //     {...tabProps}
-  //     isSelected={isSelected}
-  //     isDragging={isDragging}
-  //     tabContentId={tabId}
-  //     onSelect={onTabSelected}
-  //     onClose={onTabClosed}
-  //   />
-  // );
 };
 
 function WorkspaceTabs({

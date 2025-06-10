@@ -82,7 +82,6 @@ export type WorkspaceTab = {
   id: string;
 } & WorkspaceTabProps;
 
-// TODO: Can we remove this type?
 export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
@@ -93,13 +92,11 @@ export type AnyWorkspace =
   | CollectionsWorkspace
   | CollectionWorkspace;
 
-// TODO: can we remove this type?
 export type Workspace<T extends AnyWorkspace['type']> = Extract<
   AnyWorkspace,
   { type: T }
 >;
 
-// TODO: can we remove this type?
 export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   Workspace<T>,
   'type' | 'connectionId'
@@ -107,7 +104,7 @@ export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
 
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  // TODO: How to type the services and activate.
+  // TODO: Type the services and activate if we can.
   // provider: HadronPluginComponent<T, Record<string, () => unknown>, any>;
   provider: HadronPluginComponent<WorkspacePluginProps<T>, any, any>;
   content:
