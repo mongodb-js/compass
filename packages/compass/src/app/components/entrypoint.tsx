@@ -102,9 +102,7 @@ export const CompassElectron = (props: React.ComponentProps<typeof Home>) => {
       <WithAtlasProviders>
         <WithStorageProviders>
           <AppRegistryProvider scopeName="Application Root">
-            <ContextMenuProvider>
-              <Home {...props} />
-            </ContextMenuProvider>
+            <Home {...props} />
           </AppRegistryProvider>
         </WithStorageProviders>
       </WithAtlasProviders>

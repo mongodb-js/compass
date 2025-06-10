@@ -6,6 +6,7 @@ import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
 import { StackedComponentProvider } from '../hooks/use-stacked-component';
+import { ContextMenuProvider } from './context-menu';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -135,15 +136,17 @@ export const CompassComponentsProvider = ({
           >
             <SignalHooksProvider {...signalHooksProviderProps}>
               <ConfirmationModalArea>
-                <ToastArea>
-                  {typeof children === 'function'
-                    ? children({
-                        darkMode,
-                        portalContainerRef: setPortalContainer,
-                        scrollContainerRef: setScrollContainer,
-                      })
-                    : children}
-                </ToastArea>
+                <ContextMenuProvider>
+                  <ToastArea>
+                    {typeof children === 'function'
+                      ? children({
+                          darkMode,
+                          portalContainerRef: setPortalContainer,
+                          scrollContainerRef: setScrollContainer,
+                        })
+                      : children}
+                  </ToastArea>
+                </ContextMenuProvider>
               </ConfirmationModalArea>
             </SignalHooksProvider>
           </GuideCueProvider>
