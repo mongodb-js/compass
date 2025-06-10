@@ -93,10 +93,7 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
-export {
-  ContextMenuProvider,
-  useContextMenuItems,
-} from './components/context-menu';
+export { useContextMenuItems } from './components/context-menu';
 
 export type {
   FileInputBackend,
