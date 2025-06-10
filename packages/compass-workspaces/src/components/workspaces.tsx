@@ -12,7 +12,6 @@ import type {
   CollectionTabInfo,
   DatabaseTabInfo,
   OpenWorkspaceOptions,
-  WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
 import {
@@ -32,6 +31,7 @@ import { connect } from '../stores/context';
 import { useTabConnectionTheme } from '@mongodb-js/compass-connections/provider';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
+import { WorkspaceTab } from '../types';
 
 type Tooltip = [string, string][];
 
@@ -86,9 +86,14 @@ type CompassWorkspacesProps = {
   ): void;
 };
 
+// TODO: Move this somewhere shared. Also darkmode?
 const nonExistantStyles = css({
   color: palette.gray.base,
 });
+
+// function useWorkspaceTabs(props: WorkspaceMetadata) {
+
+// }
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   tabs,
@@ -105,11 +110,22 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onNamespaceNotFound,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
-  const { getWorkspacePluginByName } = useWorkspacePlugins();
+  const {
+    // getWorkspacePluginContentByName,
+    getWorkspacePlugins,
+  } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
 
   const tabDescriptions = useMemo(() => {
+    // TODO: Goal is to move all of these to the packages. Similar to collection tabs.
+
+    // We should get the workspace by it's name and then pull the header from that.
+
+    // TODO: We should error boundary and do the tooltip things here?
+    // For now let's go less change and just move these type defs to those places.
+    // TODO: make the WorkspaceTabProps header function accept the required args here.
+
     return tabs.map((tab) => {
       switch (tab.type) {
         case 'Welcome':
@@ -253,17 +269,103 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [tabs, collectionInfo, databaseInfo, getThemeOf, getConnectionById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
-  const WorkspaceComponent = getWorkspacePluginByName(activeTab?.type);
+  // const WorkspaceComponent = getWorkspacePluginContentByName(activeTab?.type);
+
+  // TODO: We need all of the providers wrapping?
+  // const WorkspaceProvider = getWorkspacePluginProviderByName(activeTab?.type);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
+
+  const workspaceTabs = useMemo(() => {
+    const workspacePlugins = getWorkspacePlugins();
+    return tabs.map((tab) => {
+      const plugin = workspacePlugins.find((p) => p.name === tab.type);
+      if (!plugin) {
+        throw new Error(
+          `Content component for workspace "${tab.type}" is missing in context. Did you forget to set up WorkspacesProvider?`
+        );
+      }
+      const {
+        content: WorkspaceTabContent,
+        header: headerFn, // TODO: Not a fn, a component.
+        provider,
+      } = plugin;
+
+      // getThemeOf(tab.connectionId)
+
+      const Provider = provider as any;
+
+      const header = headerFn(tab);
+
+      return {
+        // ...tab,
+        header: headerFn(tab),
+        // (
+        //   <ErrorBoundary
+        //     displayName={tab.type}
+        //     onError={(error, errorInfo) => {
+        //       log.error(
+        //         mongoLogId(1_001_000_360),
+        //         'Workspace',
+        //         'Rendering workspace tab header failed',
+        //         { name: tab.type, error: error.message, errorInfo }
+        //       );
+        //     }}
+        //   >
+        //     <WorkspaceTabContextProvider
+        //       tab={tab}
+        //       sectionType="tab-title"
+        //       onNamespaceNotFound={onNamespaceNotFound}
+        //     >
+        //       <Provider
+        //         // TODO
+        //       >
+        //         <WorkspaceTabHeader
+        //           // TODO
+        //         />
+        //       </Provider>
+        //     </WorkspaceTabContextProvider>
+        //   </ErrorBoundary>
+        // ),
+        content: (
+          <ErrorBoundary
+            displayName={tab.type}
+            onError={(error, errorInfo) => {
+              log.error(
+                mongoLogId(1_001_000_277),
+                'Workspace',
+                'Rendering workspace tab content failed',
+                { name: tab.type, error: error.message, errorInfo }
+              );
+            }}
+          >
+            <WorkspaceTabContextProvider
+              tab={tab}
+              sectionType="tab-content"
+              onNamespaceNotFound={onNamespaceNotFound}
+            >
+              <Provider>
+                <WorkspaceTabContent
+                  {...(tab as any)} // TODO: This typing.
+                />
+              </Provider>
+            </WorkspaceTabContextProvider>
+          </ErrorBoundary>
+        ),
+      };
+    });
+  }, [getWorkspacePlugins, tabs, getThemeOf, getConnectionById]);
+
+  const workspaceTabContent = workspaceTabs[activeTabIndex].content;
 
   return (
     <div
       className={workspacesContainerStyles}
       data-testid="workspace-tabs-container"
     >
+      {/* TODO: Do we add the workspace tab context provider here now? */}
       <WorkspaceTabs
         aria-label="Workspace Tabs"
         onSelectTab={onSelectTab}
@@ -272,12 +374,19 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onMoveTab={onMoveTab}
         onCreateNewTab={onCreateNewTab}
         onCloseTab={onCloseTab}
-        tabs={tabDescriptions}
+        // TabProps
+        // Need to make the tabs render themselves? Or be opinionated in how they do it.
+        // Right now they're opinionated objects.
+        // Let's keep them as objects for now. We can update them in other prs.
+        // tabs={tabDescriptions}
+        tabs={workspaceTabs.map((tab) => tab.header)}
+        // TODO: Don't do a function here.
+
         selectedTabIndex={activeTabIndex}
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
-        {activeTab && WorkspaceComponent ? (
+        {activeTab && workspaceTabContent ? (
           <ErrorBoundary
             displayName={activeTab.type}
             onError={(error, errorInfo) => {
@@ -294,7 +403,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               sectionType="tab-content"
               onNamespaceNotFound={onNamespaceNotFound}
             >
-              <WorkspaceComponent></WorkspaceComponent>
+              {workspaceTabContent}
             </WorkspaceTabContextProvider>
           </ErrorBoundary>
         ) : (

@@ -188,7 +188,7 @@ const workspaceTabTooltipStyles = css({
 type TabProps = {
   connectionName?: string;
   type: string;
-  title: string;
+  title: React.ReactNode;
   isSelected: boolean;
   isDragging: boolean;
   onSelect: () => void;
@@ -213,7 +213,7 @@ function Tab({
   tabTheme,
   className: tabClassName,
   ...props
-}: TabProps & React.HTMLProps<HTMLDivElement>) {
+}: TabProps & Omit<React.HTMLProps<HTMLDivElement>, 'title'>) {
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({

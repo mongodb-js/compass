@@ -29,6 +29,7 @@ import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { Tab } from './tab';
+import type { TabTheme } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
@@ -140,7 +141,7 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
 }
 
 type SortableItemProps = {
-  tab: TabProps;
+  tab: WorkspaceTabComponentProps;
   index: number;
   selectedTabIndex: number;
   activeId: UniqueIdentifier | null;
@@ -149,7 +150,7 @@ type SortableItemProps = {
 };
 
 type SortableListProps = {
-  tabs: TabProps[];
+  tabs: WorkspaceTabComponentProps[];
   selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
@@ -164,17 +165,20 @@ type WorkspaceTabsProps = {
   onSelectPrevTab: () => void;
   onCloseTab: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
-  tabs: TabProps[];
+  tabs: WorkspaceTabComponentProps[];
   selectedTabIndex: number;
 };
 
-export type TabProps = {
+export type WorkspaceTabComponentProps = {
+  connectionName?: string;
   id: string;
   type: string;
-  title: string;
+  title: React.ReactNode;
   tooltip?: [string, string][];
   connectionId?: string;
   iconGlyph: GlyphName | 'Logo' | 'Server';
+  tabTheme?: Partial<TabTheme>;
+  ['data-namespace']?: string;
 } & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
@@ -263,7 +267,7 @@ const SortableList = ({
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className={sortableItemContainerStyles}>
-          {tabs.map((tab: TabProps, index: number) => (
+          {tabs.map((tab: WorkspaceTabComponentProps, index: number) => (
             <SortableItem
               key={tab.id}
               index={index}
