@@ -29,8 +29,10 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import { useTabConnectionTheme } from '@mongodb-js/compass-connections/provider';
-import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionThemeProvider,
+  useConnectionsListRef,
+} from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 
 type Tooltip = [string, string][];
@@ -106,7 +108,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
-  const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
 
   const tabDescriptions = useMemo(() => {
@@ -149,7 +150,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               : 'MongoDB Shell',
             tooltip,
             iconGlyph: 'Shell',
-            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
         case 'Databases': {
@@ -162,7 +162,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: connectionName,
             tooltip: [['Connection', connectionName || '']] as Tooltip,
             iconGlyph: 'Server',
-            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
         case 'Performance': {
@@ -175,7 +174,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: `Performance: ${connectionName}`,
             tooltip: [['Performance', connectionName || '']] as Tooltip,
             iconGlyph: 'Gauge',
-            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
         case 'Collections': {
@@ -195,7 +193,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             ] as Tooltip,
             iconGlyph: isNonExistent ? 'EmptyDatabase' : 'Database',
             'data-namespace': tab.namespace,
-            tabTheme: getThemeOf(tab.connectionId),
             ...(isNonExistent && {
               className: nonExistantStyles,
             }),
@@ -242,7 +239,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 ? 'EmptyFolder'
                 : 'Folder',
             'data-namespace': ns,
-            tabTheme: getThemeOf(tab.connectionId),
             ...(isNonExistent && {
               className: nonExistantStyles,
             }),
@@ -250,7 +246,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, databaseInfo, getThemeOf, getConnectionById]);
+  }, [tabs, collectionInfo, databaseInfo, getConnectionById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
   const WorkspaceComponent = getWorkspacePluginByName(activeTab?.type);

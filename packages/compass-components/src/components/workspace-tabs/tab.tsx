@@ -12,6 +12,7 @@ import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
+import { useTabTheme } from './use-tab-theme';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -84,20 +85,6 @@ const tabStyles = css({
     gridArea: 'top',
   },
 });
-
-export type TabTheme = {
-  '--workspace-tab-background-color': string;
-  '--workspace-tab-selected-background-color': string;
-  '--workspace-tab-top-border-color': string;
-  '--workspace-tab-selected-top-border-color': string;
-  '--workspace-tab-border-color': string;
-  '--workspace-tab-color': string;
-  '--workspace-tab-selected-color': string;
-  '&:focus-visible': {
-    '--workspace-tab-selected-color': string;
-    '--workspace-tab-border-color': string;
-  };
-};
 
 const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
@@ -196,7 +183,6 @@ type TabProps = {
   iconGlyph: GlyphName | 'Logo' | 'Server';
   tabContentId: string;
   tooltip?: [string, string][];
-  tabTheme?: Partial<TabTheme>;
 };
 
 function Tab({
@@ -210,10 +196,10 @@ function Tab({
   onClose,
   tabContentId,
   iconGlyph,
-  tabTheme,
   className: tabClassName,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
+  const tabTheme = useTabTheme();
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({

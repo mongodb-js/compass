@@ -1,25 +1,20 @@
+import React, { useMemo } from 'react';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
-import { palette } from '@mongodb-js/compass-components';
-import { useCallback } from 'react';
+import { palette, useDarkMode, TabThemeProvider } from '@mongodb-js/compass-components';
 import { useConnectionsColorList } from '../stores/store-context';
 
-type ThemeProvider = {
-  getThemeOf(
-    this: void,
-    connectionId: ConnectionInfo['id']
-  ): Partial<TabTheme> | undefined;
-};
-
-export function useTabConnectionTheme(): ThemeProvider {
+export const ConnectionThemeProvider: React.FunctionComponent<{
+  children: React.ReactNode;
+  connectionId?: ConnectionInfo['id'];
+}> = ({ children, connectionId }) => {
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
   const connectionColorsList = useConnectionsColorList();
-  const darkTheme = useDarkMode();
+  const darkMode = useDarkMode();
 
-  const getThemeOf = useCallback(
-    (connectionId: ConnectionInfo['id']) => {
+  const theme = useMemo(
+    () => {
       const color = connectionColorsList.find((connection) => {
         return connection.id === connectionId;
       })?.color;
@@ -33,39 +28,41 @@ export function useTabConnectionTheme(): ThemeProvider {
       return {
         '--workspace-tab-background-color': bgColor,
         '--workspace-tab-top-border-color': bgColor,
-        '--workspace-tab-border-color': darkTheme
+        '--workspace-tab-border-color': darkMode
           ? palette.gray.dark2
           : palette.gray.light2,
-        '--workspace-tab-color': darkTheme
+        '--workspace-tab-color': darkMode
           ? palette.gray.base
           : palette.gray.dark1,
-        '--workspace-tab-selected-background-color': darkTheme
+        '--workspace-tab-selected-background-color': darkMode
           ? palette.black
           : palette.white,
         '--workspace-tab-selected-top-border-color': activeBgColor,
-        '--workspace-tab-selected-color': darkTheme
+        '--workspace-tab-selected-color': darkMode
           ? palette.white
           : palette.gray.dark3,
         '&:focus-visible': {
-          '--workspace-tab-border-color': darkTheme
+          '--workspace-tab-border-color': darkMode
             ? palette.blue.light1
             : palette.blue.base,
-          '--workspace-tab-selected-color': darkTheme
+          '--workspace-tab-selected-color': darkMode
             ? palette.blue.light1
             : palette.blue.base,
         },
       };
     },
     [
-      palette,
+      connectionId,
       connectionColorsList,
       connectionColorToHex,
       connectionColorToHexActive,
-      darkTheme,
+      darkMode,
     ]
   );
-
-  return {
-    getThemeOf,
-  };
-}
+  
+  return (
+    <TabThemeProvider value={theme}>
+      {children}
+    </TabThemeProvider>
+  )
+};
