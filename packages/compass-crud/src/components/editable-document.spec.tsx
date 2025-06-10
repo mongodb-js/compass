@@ -6,6 +6,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import EditableDocument from './editable-document';
+import { ContextMenuProvider } from '@mongodb-js/compass-context-menu';
 
 describe('<EditableDocument />', function () {
   describe('#render', function () {
@@ -22,7 +23,8 @@ describe('<EditableDocument />', function () {
           updateDocument={sinon.spy(action)}
           copyToClipboard={sinon.spy(action)}
           openInsertDocumentDialog={sinon.spy(action)}
-        />
+        />,
+        { wrappingComponent: ContextMenuProvider }
       );
     });
 

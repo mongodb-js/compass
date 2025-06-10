@@ -9,10 +9,7 @@ import {
   userEvent,
   render,
 } from '@mongodb-js/testing-library-compass';
-import {
-  ContextMenuProvider,
-  type VirtualListRef,
-} from '@mongodb-js/compass-components';
+import { type VirtualListRef } from '@mongodb-js/compass-components';
 
 import VirtualizedDocumentListView from './virtualized-document-list-view';
 
@@ -39,20 +36,12 @@ const getDocs = () => [
 ];
 
 describe('VirtualizedDocumentListView', function () {
-  const renderWithContextMenu = (element: React.ReactElement) => {
-    return render(element, {
-      wrapper: ContextMenuProvider,
-    });
-  };
-
   afterEach(function () {
     cleanup();
   });
 
   it('renders the list of provided BSON objects', function () {
-    renderWithContextMenu(
-      <VirtualizedDocumentListView docs={getDocs()} isEditable={false} />
-    );
+    render(<VirtualizedDocumentListView docs={getDocs()} isEditable={false} />);
 
     expect(screen.getByTitle('1')).to.be.visible;
     expect(screen.getByTitle('Doc1')).to.be.visible;
@@ -61,7 +50,7 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('renders the list of provided HadronDocuments', function () {
-    renderWithContextMenu(
+    render(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={false}
@@ -75,7 +64,7 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('renders a readonly list when isEditable is false', function () {
-    renderWithContextMenu(
+    render(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={false}
@@ -86,7 +75,7 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('renders an editable list when isEditable is true', function () {
-    renderWithContextMenu(
+    render(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={true}
@@ -102,7 +91,7 @@ describe('VirtualizedDocumentListView', function () {
       (_, idx) => new HadronDocument(createBigDocument(idx))
     );
     const listRef: VirtualListRef = React.createRef();
-    renderWithContextMenu(
+    render(
       <VirtualizedDocumentListView
         docs={bigDocuments}
         isEditable={true}
@@ -163,7 +152,7 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('discards the state of document when the underlying document changes', function () {
-    const { rerender } = renderWithContextMenu(
+    const { rerender } = render(
       <VirtualizedDocumentListView
         docs={[new HadronDocument(createBigDocument(1))]}
         isEditable={true}

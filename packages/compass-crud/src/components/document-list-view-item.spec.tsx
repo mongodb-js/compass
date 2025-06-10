@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import { DocumentListViewItem } from './document-list-view-item';
-import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 describe('DocumentListViewItem', function () {
   describe('document context menu', function () {
@@ -42,20 +41,18 @@ describe('DocumentListViewItem', function () {
     });
 
     /**
-     * Renders the element with the context menu provider and returns a reference to the first child of the container.
+     * Renders the element and returns a reference to the first child of the container.
      */
-    const renderWithContextMenu = (doc: HadronDocument): HTMLElement => {
+    const renderDocumentListViewItem = (doc: HadronDocument): HTMLElement => {
       const { container } = render(
-        <ContextMenuProvider>
-          <DocumentListViewItem
-            doc={doc}
-            docRef={null}
-            docIndex={0}
-            isEditable={true}
-            copyToClipboard={copyToClipboardStub}
-            openInsertDocumentDialog={openInsertDocumentDialogStub}
-          />
-        </ContextMenuProvider>
+        <DocumentListViewItem
+          doc={doc}
+          docRef={null}
+          docIndex={0}
+          isEditable={true}
+          copyToClipboard={copyToClipboardStub}
+          openInsertDocumentDialog={openInsertDocumentDialogStub}
+        />
       );
       return container.firstChild as HTMLElement;
     };
@@ -67,7 +64,7 @@ describe('DocumentListViewItem', function () {
     it('shows "Expand all fields" when document is collapsed', function () {
       doc.expanded = false;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -78,7 +75,7 @@ describe('DocumentListViewItem', function () {
     it('shows "Collapse all fields" when document is expanded', function () {
       doc.expanded = true;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -89,7 +86,7 @@ describe('DocumentListViewItem', function () {
     it('expands document when "Expand all fields" is clicked', function () {
       doc.expanded = false;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -103,7 +100,7 @@ describe('DocumentListViewItem', function () {
     it('collapses document when "Collapse all fields" is clicked', function () {
       doc.expanded = true;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -119,7 +116,7 @@ describe('DocumentListViewItem', function () {
     it('shows "Edit document" when document is not in editing mode', function () {
       doc.editing = false;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -130,7 +127,7 @@ describe('DocumentListViewItem', function () {
     it('does not show "Edit document" when document is in editing mode', function () {
       doc.editing = true;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -141,7 +138,7 @@ describe('DocumentListViewItem', function () {
     it('starts editing when "Edit document" is clicked', function () {
       doc.editing = false;
 
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -155,7 +152,7 @@ describe('DocumentListViewItem', function () {
     });
 
     it('calls copyToClipboard when "Copy document" is clicked', function () {
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -169,7 +166,7 @@ describe('DocumentListViewItem', function () {
     });
 
     it('opens insert dialog with cloned document when "Clone document..." is clicked', async function () {
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });
@@ -197,7 +194,7 @@ describe('DocumentListViewItem', function () {
     });
 
     it('marks document for deletion when "Delete document" is clicked', function () {
-      const container = renderWithContextMenu(doc);
+      const container = renderDocumentListViewItem(doc);
 
       // Right-click to open context menu
       userEvent.click(container, { button: 2 });

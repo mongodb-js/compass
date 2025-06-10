@@ -5,7 +5,6 @@ import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import { HadronElement } from './element';
 import type { Element } from 'hadron-document';
-import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 describe('HadronElement', function () {
   describe('context menu', function () {
@@ -27,12 +26,8 @@ describe('HadronElement', function () {
       clipboardWriteTextStub.restore();
     });
 
-    const renderWithContextMenu = (element: JSX.Element) => {
-      return render(<ContextMenuProvider>{element}</ContextMenuProvider>);
-    };
-
     it('copies field and value when "Copy field & value" is clicked', function () {
-      renderWithContextMenu(
+      render(
         <HadronElement
           value={element}
           editable={true}
@@ -57,7 +52,7 @@ describe('HadronElement', function () {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const urlElement = urlDoc.elements.at(0)!;
 
-      renderWithContextMenu(
+      render(
         <HadronElement
           value={urlElement}
           editable={true}
@@ -80,7 +75,7 @@ describe('HadronElement', function () {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const urlElement = urlDoc.elements.at(0)!;
 
-      renderWithContextMenu(
+      render(
         <HadronElement
           value={urlElement}
           editable={true}
@@ -105,7 +100,7 @@ describe('HadronElement', function () {
     });
 
     it('does not show "Open URL in browser" for non-URL string values', function () {
-      renderWithContextMenu(
+      render(
         <HadronElement
           value={element}
           editable={true}
