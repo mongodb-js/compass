@@ -44,7 +44,7 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
         }
       },
     },
-    ...(!doc.editing
+    ...(isEditable && !doc.editing
       ? [
           {
             label: 'Edit document',
@@ -60,21 +60,25 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
         copyToClipboard?.(doc);
       },
     },
-    {
-      label: 'Clone document...',
-      onAction: () => {
-        const clonedDoc = doc.generateObject({
-          excludeInternalFields: true,
-        });
-        openInsertDocumentDialog?.(clonedDoc, true);
-      },
-    },
-    {
-      label: 'Delete document',
-      onAction: () => {
-        doc.markForDeletion();
-      },
-    },
+    ...(isEditable
+      ? [
+          {
+            label: 'Clone document...',
+            onAction: () => {
+              const clonedDoc = doc.generateObject({
+                excludeInternalFields: true,
+              });
+              openInsertDocumentDialog?.(clonedDoc, true);
+            },
+          },
+          {
+            label: 'Delete document',
+            onAction: () => {
+              doc.markForDeletion();
+            },
+          },
+        ]
+      : []),
   ]);
 
   return (

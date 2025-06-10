@@ -30,7 +30,6 @@ import {
   createIpcSendTrack,
 } from '@mongodb-js/compass-telemetry';
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
-import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -102,9 +101,7 @@ export const CompassElectron = (props: React.ComponentProps<typeof Home>) => {
       <WithAtlasProviders>
         <WithStorageProviders>
           <AppRegistryProvider scopeName="Application Root">
-            <ContextMenuProvider>
-              <Home {...props} />
-            </ContextMenuProvider>
+            <Home {...props} />
           </AppRegistryProvider>
         </WithStorageProviders>
       </WithAtlasProviders>

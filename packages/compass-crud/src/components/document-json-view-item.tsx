@@ -1,6 +1,6 @@
 import React from 'react';
 import type HadronDocument from 'hadron-document';
-import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
+import { css, KeylineCard } from '@mongodb-js/compass-components';
 
 import JSONEditor, { type JSONEditorProps } from './json-editor';
 import { useContextMenuItems } from '@mongodb-js/compass-components';
@@ -43,23 +43,50 @@ const DocumentJsonViewItem: React.FC<DocumentJsonViewItemProps> = ({
 }) => {
   const ref = useContextMenuItems([
     {
-      label: 'Update document',
+      label: doc.expanded ? 'Collapse all fields' : 'Expand all fields',
       onAction: () => {
-        updateDocument?.(doc);
+        if (doc.expanded) {
+          doc.collapse();
+        } else {
+          doc.expand();
+        }
       },
     },
+    ...(isEditable && !doc.editing
+      ? [
+          {
+            label: 'Edit document',
+            onAction: () => {
+              doc.startEditing();
+            },
+          },
+        ]
+      : []),
     {
       label: 'Copy document',
       onAction: () => {
         copyToClipboard?.(doc);
       },
     },
-    {
-      label: 'Delete document',
-      onAction: () => {
-        removeDocument?.(doc);
-      },
-    },
+    ...(isEditable
+      ? [
+          {
+            label: 'Clone document...',
+            onAction: () => {
+              const clonedDoc = doc.generateObject({
+                excludeInternalFields: true,
+              });
+              openInsertDocumentDialog?.(clonedDoc, true);
+            },
+          },
+          {
+            label: 'Delete document',
+            onAction: () => {
+              doc.markForDeletion();
+            },
+          },
+        ]
+      : []),
   ]);
 
   return (

@@ -32,6 +32,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
 
   return (
     <div
+      data-testid="context-menu"
       style={{
         position: 'absolute',
         pointerEvents: 'all',

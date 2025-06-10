@@ -28,40 +28,88 @@ describe('useContextMenuItems', function () {
     );
   };
 
-  describe('when used outside provider', function () {
-    it('throws an error', function () {
-      const items = [
-        {
-          label: 'Test Item',
-          onAction: () => {},
-        },
-      ];
+  it('errors if the component is double wrapped', function () {
+    const items = [
+      {
+        label: 'Test Item',
+        onAction: () => {},
+      },
+    ];
 
-      expect(() => {
-        render(<TestComponent items={items} />);
-      }).to.throw('useContextMenu called outside of the provider');
-    });
+    expect(() => {
+      render(
+        <ContextMenuProvider wrapper={ContextMenu}>
+          <TestComponent items={items} />
+        </ContextMenuProvider>
+      );
+    }).to.throw(
+      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+    );
   });
 
-  describe('with a valid provider', function () {
-    it('renders without error', function () {
-      const items = [
-        {
-          label: 'Test Item',
-          onAction: () => {},
-        },
-      ];
+  it('renders without error', function () {
+    const items = [
+      {
+        label: 'Test Item',
+        onAction: () => {},
+      },
+    ];
 
-      render(
-        <ContextMenuProvider wrapper={ContextMenu}>
-          <TestComponent items={items} />
-        </ContextMenuProvider>
-      );
+    render(<TestComponent items={items} />);
 
-      expect(screen.getByTestId(menuTestTriggerId)).to.exist;
-    });
+    expect(screen.getByTestId(menuTestTriggerId)).to.exist;
+  });
 
-    it('shows context menu with items on right click', function () {
+  it('shows context menu with items on right click', function () {
+    const items = [
+      {
+        label: 'Test Item 1',
+        onAction: () => {},
+      },
+      {
+        label: 'Test Item 2',
+        onAction: () => {},
+      },
+    ];
+
+    render(<TestComponent items={items} />);
+
+    const trigger = screen.getByTestId(menuTestTriggerId);
+    userEvent.click(trigger, { button: 2 });
+
+    // The menu items should be rendered
+    expect(screen.getByTestId('menu-group-0-item-0')).to.exist;
+    expect(screen.getByTestId('menu-group-0-item-1')).to.exist;
+  });
+
+  it('triggers the correct action when menu item is clicked', function () {
+    const onAction = sinon.spy();
+    const items = [
+      {
+        label: 'Test Item 1',
+        onAction: () => onAction(1),
+      },
+      {
+        label: 'Test Item 2',
+        onAction: () => onAction(2),
+      },
+    ];
+
+    render(<TestComponent items={items} />);
+
+    const trigger = screen.getByTestId(menuTestTriggerId);
+    userEvent.click(trigger, { button: 2 });
+
+    const menuItem = screen.getByTestId('menu-group-0-item-1');
+    userEvent.click(menuItem);
+
+    expect(onAction).to.have.been.calledOnceWithExactly(2);
+  });
+
+  describe('with nested components', function () {
+    const childTriggerId = 'child-trigger';
+
+    beforeEach(function () {
       const items = [
         {
           label: 'Test Item 1',
@@ -73,101 +121,41 @@ describe('useContextMenuItems', function () {
         },
       ];
 
-      render(
-        <ContextMenuProvider wrapper={ContextMenu}>
-          <TestComponent items={items} />
-        </ContextMenuProvider>
-      );
-
-      const trigger = screen.getByTestId(menuTestTriggerId);
-      userEvent.click(trigger, { button: 2 });
-
-      // The menu items should be rendered
-      expect(screen.getByTestId('menu-group-0-item-0')).to.exist;
-      expect(screen.getByTestId('menu-group-0-item-1')).to.exist;
-    });
-
-    it('triggers the correct action when menu item is clicked', function () {
-      const onAction = sinon.spy();
-      const items = [
+      const childItems = [
         {
-          label: 'Test Item 1',
-          onAction: () => onAction(1),
-        },
-        {
-          label: 'Test Item 2',
-          onAction: () => onAction(2),
+          label: 'Child Item 1',
+          onAction: () => {},
         },
       ];
 
       render(
-        <ContextMenuProvider wrapper={ContextMenu}>
-          <TestComponent items={items} />
-        </ContextMenuProvider>
+        <TestComponent items={items}>
+          <TestComponent items={childItems} data-testid={childTriggerId} />
+        </TestComponent>
       );
-
-      const trigger = screen.getByTestId(menuTestTriggerId);
-      userEvent.click(trigger, { button: 2 });
-
-      const menuItem = screen.getByTestId('menu-group-0-item-1');
-      userEvent.click(menuItem);
-
-      expect(onAction).to.have.been.calledOnceWithExactly(2);
     });
 
-    describe('with nested components', function () {
-      const childTriggerId = 'child-trigger';
+    it('renders menu items with separators', function () {
+      const trigger = screen.getByTestId(childTriggerId);
+      userEvent.click(trigger, { button: 2 });
 
-      beforeEach(function () {
-        const items = [
-          {
-            label: 'Test Item 1',
-            onAction: () => {},
-          },
-          {
-            label: 'Test Item 2',
-            onAction: () => {},
-          },
-        ];
+      // Should find the menu item and the separator
+      expect(screen.getByTestId('menu-group-0').children.length).to.equal(2);
+      expect(
+        screen.getByTestId('menu-group-0').children.item(0)?.textContent
+      ).to.equal('Child Item 1');
 
-        const childItems = [
-          {
-            label: 'Child Item 1',
-            onAction: () => {},
-          },
-        ];
+      expect(screen.getByTestId('menu-group-0-separator')).to.exist;
 
-        render(
-          <ContextMenuProvider wrapper={ContextMenu}>
-            <TestComponent items={items}>
-              <TestComponent items={childItems} data-testid={childTriggerId} />
-            </TestComponent>
-          </ContextMenuProvider>
-        );
-      });
+      expect(screen.getByTestId('menu-group-1').children.length).to.equal(2);
+      expect(
+        screen.getByTestId('menu-group-1').children.item(0)?.textContent
+      ).to.equal('Test Item 1');
+      expect(
+        screen.getByTestId('menu-group-1').children.item(1)?.textContent
+      ).to.equal('Test Item 2');
 
-      it('renders menu items with separators', function () {
-        const trigger = screen.getByTestId(childTriggerId);
-        userEvent.click(trigger, { button: 2 });
-
-        // Should find the menu item and the separator
-        expect(screen.getByTestId('menu-group-0').children.length).to.equal(2);
-        expect(
-          screen.getByTestId('menu-group-0').children.item(0)?.textContent
-        ).to.equal('Child Item 1');
-
-        expect(screen.getByTestId('menu-group-0-separator')).to.exist;
-
-        expect(screen.getByTestId('menu-group-1').children.length).to.equal(2);
-        expect(
-          screen.getByTestId('menu-group-1').children.item(0)?.textContent
-        ).to.equal('Test Item 1');
-        expect(
-          screen.getByTestId('menu-group-1').children.item(1)?.textContent
-        ).to.equal('Test Item 2');
-
-        expect(screen.queryByTestId('menu-group-1-separator')).not.to.exist;
-      });
+      expect(screen.queryByTestId('menu-group-1-separator')).not.to.exist;
     });
   });
 });
