@@ -45,7 +45,10 @@ import {
   ReadOnlyPreferenceAccess,
 } from 'compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import { CompassComponentsProvider } from '@mongodb-js/compass-components';
+import {
+  CompassComponentsProvider,
+  ContextMenuProvider,
+} from '@mongodb-js/compass-components';
 import {
   TestEnvCurrentConnectionContext,
   ConnectionInfoProvider,
@@ -349,41 +352,43 @@ function createWrapper(
             <PreferencesProvider value={wrapperState.preferences}>
               <LoggerProvider value={logger}>
                 <TelemetryProvider options={telemetryOptions}>
-                  <ConnectionStorageProvider
-                    value={wrapperState.connectionStorage}
-                  >
-                    <ConnectFnProvider connect={wrapperState.connect}>
-                      <CompassConnections
-                        appName={options.appName ?? 'TEST'}
-                        onFailToLoadConnections={
-                          options.onFailToLoadConnections ??
-                          (() => {
-                            // noop
-                          })
-                        }
-                        onExtraConnectionDataRequest={
-                          options.onExtraConnectionDataRequest ??
-                          (() => {
-                            return Promise.resolve([{}, null] as [any, null]);
-                          })
-                        }
-                        onAutoconnectInfoRequest={
-                          options.onAutoconnectInfoRequest
-                        }
-                        preloadStorageConnectionInfos={connections}
-                      >
-                        <StoreGetter>
-                          <TestEnvCurrentConnectionContext.Provider
-                            value={TEST_ENV_CURRENT_CONNECTION}
-                          >
-                            <TestingLibraryWrapper {...props}>
-                              {children}
-                            </TestingLibraryWrapper>
-                          </TestEnvCurrentConnectionContext.Provider>
-                        </StoreGetter>
-                      </CompassConnections>
-                    </ConnectFnProvider>
-                  </ConnectionStorageProvider>
+                  <ContextMenuProvider>
+                    <ConnectionStorageProvider
+                      value={wrapperState.connectionStorage}
+                    >
+                      <ConnectFnProvider connect={wrapperState.connect}>
+                        <CompassConnections
+                          appName={options.appName ?? 'TEST'}
+                          onFailToLoadConnections={
+                            options.onFailToLoadConnections ??
+                            (() => {
+                              // noop
+                            })
+                          }
+                          onExtraConnectionDataRequest={
+                            options.onExtraConnectionDataRequest ??
+                            (() => {
+                              return Promise.resolve([{}, null] as [any, null]);
+                            })
+                          }
+                          onAutoconnectInfoRequest={
+                            options.onAutoconnectInfoRequest
+                          }
+                          preloadStorageConnectionInfos={connections}
+                        >
+                          <StoreGetter>
+                            <TestEnvCurrentConnectionContext.Provider
+                              value={TEST_ENV_CURRENT_CONNECTION}
+                            >
+                              <TestingLibraryWrapper {...props}>
+                                {children}
+                              </TestingLibraryWrapper>
+                            </TestEnvCurrentConnectionContext.Provider>
+                          </StoreGetter>
+                        </CompassConnections>
+                      </ConnectFnProvider>
+                    </ConnectionStorageProvider>
+                  </ContextMenuProvider>
                 </TelemetryProvider>
               </LoggerProvider>
             </PreferencesProvider>
