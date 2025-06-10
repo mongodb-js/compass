@@ -7,12 +7,12 @@ import {
   palette,
   spacing,
   useDarkMode,
+  type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import type {
   CollectionTabInfo,
   DatabaseTabInfo,
   OpenWorkspaceOptions,
-  WorkspaceTab,
   WorkspacesState,
 } from '../stores/workspaces';
 import {
@@ -29,11 +29,12 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import { useTabConnectionTheme } from '@mongodb-js/compass-connections/provider';
-import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionsListRef,
+  useTabConnectionTheme,
+} from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
-
-type Tooltip = [string, string][];
+import { WorkspaceTab } from '../types';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -86,10 +87,6 @@ type CompassWorkspacesProps = {
   ): void;
 };
 
-const nonExistantStyles = css({
-  color: palette.gray.base,
-});
-
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   tabs,
   activeTab,
@@ -105,159 +102,117 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onNamespaceNotFound,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
-  const { getWorkspacePluginByName } = useWorkspacePlugins();
+  const { getWorkspacePlugins } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
 
-  const tabDescriptions = useMemo(() => {
-    return tabs.map((tab) => {
-      switch (tab.type) {
-        case 'Welcome':
-          return {
-            id: tab.id,
-            type: tab.type,
-            title: tab.type,
-            iconGlyph: 'Logo',
-          } as const;
-        case 'My Queries':
-          return {
-            id: tab.id,
-            type: tab.type,
-            title: tab.type,
-            iconGlyph: 'CurlyBraces',
-          } as const;
-        case 'Data Modeling':
-          return {
-            id: tab.id,
-            type: tab.type,
-            title: tab.type,
-            iconGlyph: 'Diagram' as const,
-          };
-        case 'Shell': {
-          const connectionName =
-            getConnectionById(tab.connectionId)?.title || '';
-          const tooltip: Tooltip = [];
-          if (connectionName) {
-            tooltip.push(['mongosh', connectionName || '']);
-          }
-          return {
-            id: tab.id,
-            connectionName,
-            type: tab.type,
-            title: connectionName
-              ? `mongosh: ${connectionName}`
-              : 'MongoDB Shell',
-            tooltip,
-            iconGlyph: 'Shell',
-            tabTheme: getThemeOf(tab.connectionId),
-          } as const;
-        }
-        case 'Databases': {
-          const connectionName =
-            getConnectionById(tab.connectionId)?.title || '';
-          return {
-            id: tab.id,
-            connectionName,
-            type: tab.type,
-            title: connectionName,
-            tooltip: [['Connection', connectionName || '']] as Tooltip,
-            iconGlyph: 'Server',
-            tabTheme: getThemeOf(tab.connectionId),
-          } as const;
-        }
-        case 'Performance': {
-          const connectionName =
-            getConnectionById(tab.connectionId)?.title || '';
-          return {
-            id: tab.id,
-            connectionName,
-            type: tab.type,
-            title: `Performance: ${connectionName}`,
-            tooltip: [['Performance', connectionName || '']] as Tooltip,
-            iconGlyph: 'Gauge',
-            tabTheme: getThemeOf(tab.connectionId),
-          } as const;
-        }
-        case 'Collections': {
-          const connectionName =
-            getConnectionById(tab.connectionId)?.title || '';
-          const database = tab.namespace;
-          const namespaceId = `${tab.connectionId}.${database}`;
-          const { isNonExistent } = databaseInfo[namespaceId] ?? {};
-          return {
-            id: tab.id,
-            connectionName,
-            type: tab.type,
-            title: database,
-            tooltip: [
-              ['Connection', connectionName || ''],
-              ['Database', database],
-            ] as Tooltip,
-            iconGlyph: isNonExistent ? 'EmptyDatabase' : 'Database',
-            'data-namespace': tab.namespace,
-            tabTheme: getThemeOf(tab.connectionId),
-            ...(isNonExistent && {
-              className: nonExistantStyles,
-            }),
-          } as const;
-        }
-        case 'Collection': {
-          const { database, collection, ns } = toNS(tab.namespace);
-          const namespaceId = `${tab.connectionId}.${ns}`;
-          const info = collectionInfo[namespaceId] ?? {};
-          const { isTimeSeries, isReadonly, sourceName, isNonExistent } = info;
-          const connectionName =
-            getConnectionById(tab.connectionId)?.title || '';
-          const collectionType = isTimeSeries
-            ? 'timeseries'
-            : isReadonly
-            ? 'view'
-            : 'collection';
-          // Similar to what we have in the collection breadcrumbs.
-          const tooltip: Tooltip = [
-            ['Connection', connectionName || ''],
-            ['Database', database],
-          ];
-          if (sourceName) {
-            tooltip.push(['View', collection]);
-            tooltip.push(['Derived from', toNS(sourceName).collection]);
-          } else if (tab.editViewName) {
-            tooltip.push(['View', toNS(tab.editViewName).collection]);
-            tooltip.push(['Derived from', collection]);
-          } else {
-            tooltip.push(['Collection', collection]);
-          }
-          return {
-            id: tab.id,
-            connectionName,
-            type: tab.type,
-            title: collection,
-            tooltip,
-            iconGlyph:
-              collectionType === 'view'
-                ? 'Visibility'
-                : collectionType === 'timeseries'
-                ? 'TimeSeries'
-                : isNonExistent
-                ? 'EmptyFolder'
-                : 'Folder',
-            'data-namespace': ns,
-            tabTheme: getThemeOf(tab.connectionId),
-            ...(isNonExistent && {
-              className: nonExistantStyles,
-            }),
-          } as const;
-        }
-      }
-    });
-  }, [tabs, collectionInfo, databaseInfo, getThemeOf, getConnectionById]);
-
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
-  const WorkspaceComponent = getWorkspacePluginByName(activeTab?.type);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
   }, [onCreateTab, openOnEmptyWorkspace]);
+
+  const workspaceTabs = useMemo(() => {
+    const workspacePlugins = getWorkspacePlugins();
+    return tabs.map((tab) => {
+      const plugin = workspacePlugins.find((p) => p.name === tab.type);
+      if (!plugin) {
+        throw new Error(
+          `Content component for workspace "${tab.type}" is missing in context. Did you forget to set up WorkspacesProvider?`
+        );
+      }
+      const {
+        content: WorkspaceTabContent,
+        header: headerFn,
+        provider,
+      } = plugin;
+
+      const Provider = provider as any;
+
+      let connectionName: string | undefined;
+      if ('connectionId' in tab) {
+        connectionName = getConnectionById(tab.connectionId)?.title;
+      }
+
+      let isNonExistent: boolean | undefined;
+      if ('isNonExistent' in tab && tab.isNonExistent) {
+        if (tab.type === 'Collections') {
+          // TODO: Can/should we move this logic into the collections plugin title?
+          const database = tab.namespace;
+          const namespaceId = `${tab.connectionId}.${database}`;
+          const { isNonExistent: databaseDoesNotExist } =
+            databaseInfo[namespaceId] ?? {};
+          isNonExistent = databaseDoesNotExist;
+        } else if (tab.type === 'Collection') {
+          // TODO: Can/should we move this logic into the collection plugin title?
+          const { ns } = toNS(tab.namespace);
+          const namespaceId = `${tab.connectionId}.${ns}`;
+          const { isNonExistent: collectionDoesNotExist } =
+            collectionInfo[namespaceId] ?? {};
+          isNonExistent = collectionDoesNotExist;
+        }
+      }
+
+      const PluginTabComponent = headerFn({
+        ...(isNonExistent !== undefined ? { isNonExistent } : {}),
+        ...tab,
+      });
+
+      return {
+        id: tab.id,
+        renderTab: (workspaceTabProps: WorkspaceTabCoreProps) => (
+          <ErrorBoundary
+            displayName={tab.type}
+            onError={(error, errorInfo) => {
+              log.error(
+                mongoLogId(1_001_000_360),
+                'Workspace',
+                'Rendering workspace tab header failed',
+                { name: tab.type, error: error.message, errorInfo }
+              );
+            }}
+          >
+            <WorkspaceTabContextProvider
+              tab={tab}
+              sectionType="tab-title"
+              onNamespaceNotFound={onNamespaceNotFound}
+            >
+              <Provider>
+                <PluginTabComponent {...workspaceTabProps} />
+              </Provider>
+            </WorkspaceTabContextProvider>
+          </ErrorBoundary>
+        ),
+        content: (
+          <ErrorBoundary
+            displayName={tab.type}
+            onError={(error, errorInfo) => {
+              log.error(
+                mongoLogId(1_001_000_277),
+                'Workspace',
+                'Rendering workspace tab content failed',
+                { name: tab.type, error: error.message, errorInfo }
+              );
+            }}
+          >
+            <WorkspaceTabContextProvider
+              tab={tab}
+              sectionType="tab-content"
+              onNamespaceNotFound={onNamespaceNotFound}
+            >
+              <Provider>
+                <WorkspaceTabContent
+                  {...(tab as any)} // TODO: This typing.
+                />
+              </Provider>
+            </WorkspaceTabContextProvider>
+          </ErrorBoundary>
+        ),
+      };
+    });
+  }, [getWorkspacePlugins, tabs, getThemeOf, getConnectionById]);
+
+  const workspaceTabContent = workspaceTabs[activeTabIndex].content;
 
   return (
     <div
@@ -272,31 +227,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onMoveTab={onMoveTab}
         onCreateNewTab={onCreateNewTab}
         onCloseTab={onCloseTab}
-        tabs={tabDescriptions}
+        tabs={workspaceTabs}
         selectedTabIndex={activeTabIndex}
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
-        {activeTab && WorkspaceComponent ? (
-          <ErrorBoundary
-            displayName={activeTab.type}
-            onError={(error, errorInfo) => {
-              log.error(
-                mongoLogId(1_001_000_277),
-                'Workspace',
-                'Rendering workspace tab failed',
-                { name: activeTab.type, error: error.message, errorInfo }
-              );
-            }}
-          >
-            <WorkspaceTabContextProvider
-              tab={activeTab}
-              sectionType="tab-content"
-              onNamespaceNotFound={onNamespaceNotFound}
-            >
-              <WorkspaceComponent></WorkspaceComponent>
-            </WorkspaceTabContextProvider>
-          </ErrorBoundary>
+        {activeTab && workspaceTabContent ? (
+          workspaceTabContent
         ) : (
           <EmptyWorkspaceContent></EmptyWorkspaceContent>
         )}

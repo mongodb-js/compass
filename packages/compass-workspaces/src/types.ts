@@ -1,3 +1,9 @@
+import type { HadronPluginComponent } from 'hadron-app-registry';
+import type {
+  Tab,
+  WorkspaceTabCoreProps,
+} from '@mongodb-js/compass-components';
+
 export type CollectionSubtab =
   | 'Documents'
   | 'Aggregations'
@@ -39,6 +45,7 @@ export type CollectionsWorkspace = {
   type: 'Collections';
   connectionId: string;
   namespace: string;
+  isNonExistent?: boolean;
 };
 
 export type CollectionWorkspace = {
@@ -56,8 +63,26 @@ export type CollectionWorkspace = {
   initialPipelineText?: string;
   initialAggregation?: unknown;
   editViewName?: string;
+  isNonExistent?: boolean;
 };
 
+export type WorkspaceTabProps =
+  | WelcomeWorkspace
+  | MyQueriesWorkspace
+  | DataModelingWorkspace
+  | ShellWorkspace
+  | ServerStatsWorkspace
+  | DatabasesWorkspace
+  | CollectionsWorkspace
+  | (Omit<CollectionWorkspace, 'tabId'> & {
+      subTab: CollectionSubtab;
+    });
+
+export type WorkspaceTab = {
+  id: string;
+} & WorkspaceTabProps;
+
+// TODO: Can we remove this type?
 export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
@@ -68,19 +93,29 @@ export type AnyWorkspace =
   | CollectionsWorkspace
   | CollectionWorkspace;
 
+// TODO: can we remove this type?
 export type Workspace<T extends AnyWorkspace['type']> = Extract<
   AnyWorkspace,
   { type: T }
 >;
 
+// TODO: can we remove this type?
 export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   Workspace<T>,
   'type' | 'connectionId'
 >;
 
-export type WorkspaceComponent<T extends AnyWorkspace['type']> = {
+export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  component:
+  // TODO: How to type the services and activate.
+  // provider: HadronPluginComponent<T, Record<string, () => unknown>, any>;
+  provider: HadronPluginComponent<WorkspacePluginProps<T>, any, any>;
+  content:
     | React.ComponentClass<WorkspacePluginProps<T>>
     | ((props: WorkspacePluginProps<T>) => React.ReactElement | null);
+  header: (
+    workspaceProps: any
+    // TODO: Typing. We want a type like this V
+    // workspaceProps: WorkspacePluginProps<T>
+  ) => (tabProps: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
 };
