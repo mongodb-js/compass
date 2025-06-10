@@ -752,6 +752,11 @@ function createPluginTestHelpers<
 const fireEvent = testingLibraryFireEvent;
 
 /**
+ * @deprecated @testing-library/react installs these hooks automatically
+ */
+const cleanup = rtlCleanup;
+
+/**
  * @deprecated @testing-library/react-hooks installs these hooks automatically
  */
 const cleanupHook = rtlCleanupHook;
