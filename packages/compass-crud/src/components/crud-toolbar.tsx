@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   Body,
@@ -13,6 +13,7 @@ import {
   Select,
   Option,
   SignalPopover,
+  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -200,8 +201,80 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
   );
+  const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
+
+  const contextMenuRef = useContextMenuItems([
+    {
+      label: allDocumentsExpanded
+        ? 'Collapse all documents'
+        : 'Expand all documents',
+      onAction: () => {
+        allDocumentsExpanded ? onCollapseAllClicked() : onExpandAllClicked();
+        setAllDocumentsExpanded(!allDocumentsExpanded);
+      },
+    },
+    ...(isImportExportEnabled
+      ? [
+          {
+            label: 'Import JSON or CSV file',
+            onAction: () => {
+              insertDataHandler('import-file');
+            },
+          },
+        ]
+      : []),
+    ...(!readonly
+      ? [
+          {
+            label: 'Insert document...',
+            onAction: () => {
+              insertDataHandler('insert-document');
+            },
+          },
+        ]
+      : []),
+    ...(isImportExportEnabled
+      ? [
+          {
+            label: 'Export query results...',
+            onAction: () => {
+              openExportFileDialog(false);
+            },
+          },
+          {
+            label: 'Export full collection...',
+            onAction: () => {
+              openExportFileDialog(true);
+            },
+          },
+        ]
+      : []),
+    ...(!readonly && isWritable && !shouldDisableBulkOp
+      ? [
+          {
+            label: 'Bulk update',
+            onAction: () => {
+              onUpdateButtonClicked();
+            },
+          },
+          {
+            label: 'Bulk delete',
+            onAction: () => {
+              onDeleteButtonClicked();
+            },
+          },
+        ]
+      : []),
+    {
+      label: 'Refresh',
+      onAction: () => {
+        onClickRefreshDocuments();
+      },
+    },
+  ]);
+
   return (
-    <div className={crudToolbarStyles}>
+    <div className={crudToolbarStyles} ref={contextMenuRef}>
       <div className={crudQueryBarStyles}>
         <QueryBar
           source="crud"
