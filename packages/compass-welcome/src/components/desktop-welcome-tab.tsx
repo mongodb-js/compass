@@ -14,6 +14,7 @@ import {
   cx,
   useDarkMode,
   Icon,
+  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
@@ -68,6 +69,16 @@ const createClusterButtonLightModeStyles = css({
 function AtlasHelpSection(): React.ReactElement {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const contextRef = useContextMenuItems([
+    {
+      label: 'Parent 1',
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
+    },
+    {
+      label: 'Parent 2',
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
+    },
+  ]);
 
   return (
     <div
@@ -76,6 +87,7 @@ function AtlasHelpSection(): React.ReactElement {
         atlasContainerStyles,
         darkMode && atlasContainerDarkModeStyles
       )}
+      ref={contextRef}
       data-testid="welcome-tab-atlas-help-section"
     >
       <Subtitle className={titleStyles}>
@@ -108,6 +120,35 @@ function AtlasHelpSection(): React.ReactElement {
   );
 }
 
+function TestClusterButton() {
+  const track = useTelemetry();
+  const darkMode = useDarkMode();
+  const contextRef = useContextMenuItems([
+    {
+      label: 'Child',
+      onAction: () => console.log('Atlas Link Clicked', { screen: 'connect' }),
+    },
+  ]);
+  return (
+    <div className={createClusterContainerStyles}>
+      <Button
+        ref={contextRef}
+        data-testid="atlas-cta-link"
+        className={cx(
+          createClusterButtonStyles,
+          !darkMode && createClusterButtonLightModeStyles
+        )}
+        onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+        variant={ButtonVariant.PrimaryOutline}
+        href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
+        target="_blank"
+        size={ButtonSize.Small}
+      >
+        CREATE FREE CLUSTER
+      </Button>
+    </div>
+  );
+}
 const welcomeTabStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -125,6 +166,17 @@ export default function DesktopWelcomeTab() {
   const enableCreatingNewConnections = usePreference(
     'enableCreatingNewConnections'
   );
+  const track = useTelemetry();
+  const contextRef = useContextMenuItems([
+    {
+      label: 'Grandparent 1',
+      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
+    },
+    {
+      label: 'Grandparent 2',
+      onAction: () => track('Atlas Link Clicked', { screen: 'connect' }),
+    },
+  ]);
 
   return (
     <div className={welcomeTabStyles}>
