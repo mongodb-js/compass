@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import {
   render,
   screen,
+  cleanup,
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
@@ -69,7 +70,7 @@ describe('CrudToolbar Component', function () {
             onResetClicked={noop}
             onUpdateButtonClicked={noop}
             onDeleteButtonClicked={noop}
-            onExpandAllClicked={props?.onExpandAllClicked || noop}
+            onExpandAllClicked={noop}
             onCollapseAllClicked={noop}
             openExportFileDialog={noop}
             outdated={false}
@@ -88,6 +89,10 @@ describe('CrudToolbar Component', function () {
       </PreferencesProvider>
     );
   }
+
+  afterEach(function () {
+    cleanup();
+  });
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();

@@ -43,11 +43,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
       <Menu
         renderMode="inline"
         open={menu.isOpen}
-        setOpen={(open) => {
-          if (!open) {
-            menu.close();
-          }
-        }}
+        setOpen={menu.close}
         justify="start"
       >
         {itemGroups.map(
@@ -65,8 +61,8 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
                         data-text={item.label}
                         data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
                         onClick={(evt: React.MouseEvent) => {
-                          menu.close();
                           item.onAction?.(evt);
+                          menu.close();
                         }}
                       >
                         {item.label}
