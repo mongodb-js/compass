@@ -24,7 +24,6 @@ import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 const crudQueryBarStyles = css({
   width: '100%',

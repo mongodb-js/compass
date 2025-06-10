@@ -49,7 +49,6 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
           }
         }}
         justify="start"
-        data-testid="context-menu"
       >
         {itemGroups.map(
           (itemGroup: ContextMenuItemGroup, groupIndex: number) => {

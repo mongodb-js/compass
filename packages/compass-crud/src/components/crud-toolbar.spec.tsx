@@ -527,11 +527,11 @@ describe('CrudToolbar Component', function () {
       await preferences.savePreferences({ enableImportExport: true });
     });
 
-    it('should open context menu on right click', async function () {
+    it('should open context menu on right click', function () {
       renderCrudToolbar();
 
       const toolbar = screen.getByTestId('query-bar').closest('div');
-      await userEvent.pointer({ target: toolbar!, keys: '[MouseRight]' });
+      userEvent.click(toolbar!, { button: 2 });
 
       const contextMenu = screen.getByTestId('context-menu');
       expect(within(contextMenu).getByText('Expand all documents')).to.be
@@ -539,7 +539,7 @@ describe('CrudToolbar Component', function () {
       expect(within(contextMenu).getByText('Refresh')).to.be.visible;
     });
 
-    it('should call onExpandAllClicked when "Expand all documents" is clicked', async function () {
+    it('should call onExpandAllClicked when "Expand all documents" is clicked', function () {
       const onExpandAllClicked = sinon.spy();
       renderCrudToolbar({ onExpandAllClicked });
 
@@ -555,20 +555,36 @@ describe('CrudToolbar Component', function () {
       expect(onExpandAllClicked).to.have.been.calledOnce;
     });
 
-    it('should call onCollapseAllClicked when "Collapse all documents" is clicked', function () {
-      const onCollapseAllClicked = sinon.spy();
-      renderCrudToolbar({ onCollapseAllClicked });
+    it('should show collapse all documents if all documents were previously expanded', function () {
+      renderCrudToolbar();
 
-      const toolbar = screen.getByTestId('query-bar').closest('div');
-      userEvent.click(toolbar!, { button: 2 });
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const toolbar = screen.getByTestId('query-bar').closest('div')!;
+      userEvent.click(toolbar, { button: 2 });
 
       const contextMenu = screen.getByTestId('context-menu');
+
+      // No Collapse all documents should be shown
+      expect(within(contextMenu).queryByText('Collapse all documents')).to.not
+        .exist;
+
+      // Click expand all documents
+      const expandMenuItem = within(contextMenu).getByText(
+        'Expand all documents'
+      );
+      userEvent.click(expandMenuItem);
+
+      // Right click again to open the context menu
+      userEvent.click(toolbar, { button: 2 });
+
+      // Now it should show collapse all documents
       const collapseMenuItem = within(contextMenu).getByText(
         'Collapse all documents'
       );
       userEvent.click(collapseMenuItem);
 
-      expect(onCollapseAllClicked).to.have.been.calledOnce;
+      expect(within(contextMenu).getByText('Collapse all documents')).to.be
+        .visible;
     });
 
     it('should call insertDataHandler with "import-file" when "Import JSON or CSV file" is clicked', function () {
