@@ -3,9 +3,9 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import { DocumentListViewItem } from './document-list-view-item';
+import { DocumentJsonViewItem } from './document-json-view-item';
 
-describe('DocumentListViewItem', function () {
+describe('DocumentJsonViewItem', function () {
   let doc: HadronDocument;
   let copyToClipboardStub: sinon.SinonStub;
   let openInsertDocumentDialogStub: sinon.SinonStub;
@@ -26,12 +26,13 @@ describe('DocumentListViewItem', function () {
     sinon.restore();
   });
 
-  it('renders the document component', function () {
+  it('renders the JSON editor component', function () {
     render(
-      <DocumentListViewItem
+      <DocumentJsonViewItem
         doc={doc}
         docRef={null}
         docIndex={0}
+        namespace="test.test"
         isEditable={true}
         copyToClipboard={copyToClipboardStub}
         openInsertDocumentDialog={openInsertDocumentDialogStub}
@@ -39,16 +40,16 @@ describe('DocumentListViewItem', function () {
     );
 
     // Should render without error
-    expect(document.querySelector('[data-testid="editable-document"]')).to
-      .exist;
+    expect(document.querySelector('[data-testid="editable-json"]')).to.exist;
   });
 
   it('renders context menu when right-clicked', function () {
     const { container } = render(
-      <DocumentListViewItem
+      <DocumentJsonViewItem
         doc={doc}
         docRef={null}
         docIndex={0}
+        namespace="test.test"
         isEditable={true}
         copyToClipboard={copyToClipboardStub}
         openInsertDocumentDialog={openInsertDocumentDialogStub}
@@ -70,10 +71,11 @@ describe('DocumentListViewItem', function () {
     const scrollTriggerRef = React.createRef<HTMLDivElement>();
 
     render(
-      <DocumentListViewItem
+      <DocumentJsonViewItem
         doc={doc}
         docRef={null}
         docIndex={0}
+        namespace="test.test"
         isEditable={true}
         scrollTriggerRef={scrollTriggerRef}
         copyToClipboard={copyToClipboardStub}
@@ -88,10 +90,11 @@ describe('DocumentListViewItem', function () {
     const scrollTriggerRef = React.createRef<HTMLDivElement>();
 
     render(
-      <DocumentListViewItem
+      <DocumentJsonViewItem
         doc={doc}
         docRef={null}
         docIndex={1}
+        namespace="test.test"
         isEditable={true}
         scrollTriggerRef={scrollTriggerRef}
         copyToClipboard={copyToClipboardStub}
