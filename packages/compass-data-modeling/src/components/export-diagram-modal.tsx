@@ -56,19 +56,21 @@ const getDiagramPngUrl = async (diagram: ReactFlowInstance) => {
   const width = bounds.width;
   const height = bounds.height;
 
-  const transform = getViewportForBounds(bounds, width, height, 0.5, 2, 20);
+  const transform = getViewportForBounds(bounds, width, height, 0.5, 2, '10px');
 
   const element = document.querySelector('.react-flow__viewport');
   if (!element) {
     throw new Error('Viewport not found');
   }
   const url = await toPng(element as HTMLElement, {
-    backgroundColor: '#ececec',
+    backgroundColor: '#fff',
     width,
     height,
     style: {
       transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
     },
+    pixelRatio: 2,
+    quality: 1,
   });
   await diagram.setViewport(currentViewport);
   return url;
