@@ -30,6 +30,7 @@ import {
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
+import { ExportDiagramModal } from './export-diagram-modal';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -133,6 +134,7 @@ const DiagramEditor: React.FunctionComponent<{
 }) => {
   const isDarkMode = useDarkMode();
   const [applyInput, setApplyInput] = useState('{}');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const isEditValid = useMemo(() => {
     try {
       JSON.parse(applyInput);
@@ -350,11 +352,21 @@ const DiagramEditor: React.FunctionComponent<{
             >
               <Icon glyph="Redo"></Icon>
             </IconButton>
+            <IconButton
+              aria-label="Export"
+              onClick={() => setIsExportModalOpen(true)}
+            >
+              <Icon glyph="Export"></Icon>
+            </IconButton>
           </>
         );
       }}
     >
       {content}
+      <ExportDiagramModal
+        isModalOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </WorkspaceContainer>
   );
 };
