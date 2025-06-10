@@ -2,12 +2,12 @@ import React from 'react';
 import { expect } from 'chai';
 import HadronDocument from 'hadron-document';
 import {
+  render,
   screen,
   cleanup,
   within,
   act,
   userEvent,
-  render,
 } from '@mongodb-js/testing-library-compass';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
