@@ -135,9 +135,7 @@ export function activateAggregationsPlugin(
 
   const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
-  const store: Store<RootState> & {
-    dispatch: PipelineBuilderThunkDispatch;
-  } = createStore(
+  const store = createStore(
     reducer,
     {
       // TODO: move this to thunk extra arg
@@ -189,6 +187,7 @@ export function activateAggregationsPlugin(
         atlasAiService,
         connectionInfoRef,
         connectionScopedAppRegistry,
+        dataService,
       })
     )
   );
