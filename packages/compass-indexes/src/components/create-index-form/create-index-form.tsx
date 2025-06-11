@@ -93,6 +93,9 @@ function CreateIndexForm({
     showIndexesGuidanceVariant && currentTab === 'IndexFlow';
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
+  const [inputQuery, setInputQuery] = React.useState(
+    query ? JSON.stringify(query, null, 2) : ''
+  );
 
   const { database: dbName, collection: collectionName } = toNS(namespace);
 
@@ -178,6 +181,8 @@ function CreateIndexForm({
           dbName={dbName}
           collectionName={collectionName}
           initialQuery={query}
+          inputQuery={inputQuery}
+          setInputQuery={setInputQuery}
         />
       )}
 
