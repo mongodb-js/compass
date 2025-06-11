@@ -258,7 +258,7 @@ const QueryFlowSection = ({
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
                 onCopy={() => {
-                  track('Input Index Copied', {
+                  track('Index Suggestions Copied', {
                     context: 'Create Index Modal',
                   });
                 }}

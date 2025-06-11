@@ -2856,6 +2856,20 @@ type CreateIndexInputIndexCopied = CommonEvent<{
   };
 }>;
 
+type CreateIndexIndexSuggestionsCopied = CommonEvent<{
+  name: 'Index Suggestions Copied';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
+  name: 'Index Strategies Documentation Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2998,4 +3012,6 @@ export type TelemetryEvent =
   | CreateIndexQueryTabClicked
   | CreateIndexSuggestedIndexButtonClicked
   | CreateIndexInputIndexCopied
+  | CreateIndexIndexSuggestionsCopied
+  | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent;

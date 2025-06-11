@@ -291,6 +291,11 @@ const IndexFlowSection = ({
             dbName={dbName}
             collectionName={collectionName}
             indexNameTypeMap={indexNameTypeMap}
+            onCopy={() => {
+              track('Input Index Copied', {
+                context: 'Create Index Modal',
+              });
+            }}
           />
         ) : (
           createIndexFieldsComponent
