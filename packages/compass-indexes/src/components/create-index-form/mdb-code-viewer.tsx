@@ -77,11 +77,7 @@ const MDBCodeViewer = ({
       <Code
         data-testid={dataTestId || 'mdb-code-viewer'}
         language="javascript"
-        onCopy={() => {
-          if (onCopy) {
-            onCopy();
-          }
-        }}
+        onCopy={onCopy}
       >
         {GeneratedCode}
       </Code>
