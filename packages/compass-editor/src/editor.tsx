@@ -76,11 +76,6 @@ import type { Action } from './action-button';
 import { ActionsContainer } from './actions-container';
 import type { EditorRef } from './types';
 
-// TODO(COMPASS-8453): Re-enable this once the linked tickets are resolved
-// https://github.com/codemirror/dev/issues/1458
-// https://issues.chromium.org/issues/375711382?pli=1
-(EditorView as any).EDIT_CONTEXT = false;
-
 const editorStyle = css({
   fontSize: 13,
   fontFamily: fontFamilies.code,
