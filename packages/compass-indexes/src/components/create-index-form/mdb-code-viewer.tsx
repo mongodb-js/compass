@@ -56,14 +56,14 @@ const MDBCodeViewer = ({
   dbName,
   collectionName,
   indexNameTypeMap,
-  dataTestId,
   onCopy,
+  dataTestId,
 }: {
   dbName: string;
   collectionName: string;
   indexNameTypeMap: Record<string, string | number>;
+  onCopy: () => void;
   dataTestId?: string;
-  onCopy?: () => void;
 }) => {
   const track = useTelemetry();
   const GeneratedCode = generateCode({
