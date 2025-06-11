@@ -57,11 +57,13 @@ const MDBCodeViewer = ({
   collectionName,
   indexNameTypeMap,
   dataTestId,
+  onCopy,
 }: {
   dbName: string;
   collectionName: string;
   indexNameTypeMap: Record<string, string | number>;
   dataTestId?: string;
+  onCopy?: () => void;
 }) => {
   const track = useTelemetry();
   const GeneratedCode = generateCode({
@@ -72,7 +74,15 @@ const MDBCodeViewer = ({
 
   return (
     <div className={containerStyles}>
-      <Code data-testid={dataTestId || 'mdb-code-viewer'} language="javascript">
+      <Code
+        data-testid={dataTestId || 'mdb-code-viewer'}
+        language="javascript"
+        onCopy={() => {
+          if (onCopy) {
+            onCopy();
+          }
+        }}
+      >
         {GeneratedCode}
       </Code>
       <span className={programmingLanguageLinkStyles}>

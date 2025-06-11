@@ -272,6 +272,7 @@ const IndexFlowSection = ({
               setIsCodeEquivalentToggleChecked(value);
               track('Code Equivalent Toggled', {
                 context: 'Create Index Modal',
+                toggled: value === true ? 'On' : 'Off',
               });
             }}
             checked={isCodeEquivalentToggleChecked}

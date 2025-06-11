@@ -257,6 +257,11 @@ const QueryFlowSection = ({
                 dbName={dbName}
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
+                onCopy={() => {
+                  track('Input Index Copied', {
+                    context: 'Create Index Modal',
+                  });
+                }}
               />
             </div>
           </>
