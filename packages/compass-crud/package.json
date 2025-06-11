@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "13.58.0",
+  "version": "13.58.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -70,18 +70,18 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-app-stores": "^7.44.0",
-    "@mongodb-js/compass-collection": "^4.57.0",
+    "@mongodb-js/compass-app-stores": "^7.44.1",
+    "@mongodb-js/compass-collection": "^4.57.1",
     "@mongodb-js/compass-components": "^1.38.0",
-    "@mongodb-js/compass-connections": "^1.58.0",
-    "@mongodb-js/compass-editor": "^0.40.0",
-    "@mongodb-js/compass-field-store": "^9.33.0",
+    "@mongodb-js/compass-connections": "^1.58.1",
+    "@mongodb-js/compass-editor": "^0.40.1",
+    "@mongodb-js/compass-field-store": "^9.33.1",
     "@mongodb-js/compass-logging": "^1.7.0",
-    "@mongodb-js/compass-query-bar": "^8.59.0",
+    "@mongodb-js/compass-query-bar": "^8.59.1",
     "@mongodb-js/compass-telemetry": "^1.8.0",
-    "@mongodb-js/compass-workspaces": "^0.39.0",
+    "@mongodb-js/compass-workspaces": "^0.39.1",
     "@mongodb-js/explain-plan-helper": "^1.4.9",
-    "@mongodb-js/my-queries-storage": "^0.27.0",
+    "@mongodb-js/my-queries-storage": "^0.27.1",
     "@mongodb-js/reflux-state-mixin": "^1.2.9",
     "@mongodb-js/shell-bson-parser": "^1.2.0",
     "ag-grid-community": "^20.2.0",
