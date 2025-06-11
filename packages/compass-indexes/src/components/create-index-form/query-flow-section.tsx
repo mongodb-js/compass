@@ -148,7 +148,7 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  const generateSuggestedIndexes = () => {
+  const generateSuggestedIndexes = useCallback(() => {
     const sanitizedInputQuery = inputQuery.trim();
 
     void onSuggestedIndexButtonClick({
@@ -157,14 +157,14 @@ const QueryFlowSection = ({
       inputQuery: sanitizedInputQuery,
     });
     setHasNewChanges(false);
-  };
+  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
 
-  const handleSuggestedIndexButtonClick = useCallback(() => {
+  const handleSuggestedIndexButtonClick = () => {
     generateSuggestedIndexes();
     track('Suggested Index Button Clicked', {
       context: 'Create Index Modal',
     });
-  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+  };
 
   const handleQueryInputChange = useCallback((text: string) => {
     setInputQuery(text);
