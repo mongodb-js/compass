@@ -15,24 +15,28 @@ type WorkspaceProps = {
   connectionId: string;
 };
 
-export function DatabasesPluginTitle(workspaceProps: WorkspaceProps) {
-  return (tabProps: WorkspaceTabCoreProps) => {
-    const { getConnectionById } = useConnectionsListRef();
-    const { getThemeOf } = useTabConnectionTheme();
+export function DatabasesPluginTitleComponent({
+  workspaceProps,
+  tabProps,
+}: {
+  workspaceProps: WorkspaceProps;
+  tabProps: WorkspaceTabCoreProps;
+}) {
+  const { getConnectionById } = useConnectionsListRef();
+  const { getThemeOf } = useTabConnectionTheme();
 
-    const connectionName =
-      getConnectionById(workspaceProps.connectionId)?.title || '';
-    return (
-      <WorkspaceTab
-        connectionName={connectionName}
-        {...tabProps}
-        id={workspaceProps.id}
-        type={DatabasesWorkspaceName}
-        title={connectionName}
-        tooltip={[['Connection', connectionName || '']]}
-        iconGlyph="Server"
-        tabTheme={getThemeOf(workspaceProps.connectionId)}
-      />
-    );
-  };
+  const connectionName =
+    getConnectionById(workspaceProps.connectionId)?.title || '';
+  return (
+    <WorkspaceTab
+      connectionName={connectionName}
+      {...tabProps}
+      id={workspaceProps.id}
+      type={DatabasesWorkspaceName}
+      title={connectionName}
+      tooltip={[['Connection', connectionName || '']]}
+      iconGlyph="Server"
+      tabTheme={getThemeOf(workspaceProps.connectionId)}
+    />
+  );
 }

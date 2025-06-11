@@ -123,7 +123,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       }
       const {
         content: WorkspaceTabContent,
-        header: headerFn,
+        header: WorkspaceTabTitle,
         provider,
       } = plugin;
 
@@ -153,14 +153,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
 
-      const PluginTabComponent = headerFn({
-        ...(isNonExistent !== undefined ? { isNonExistent } : {}),
-        ...tab,
-      });
-
       return {
         id: tab.id,
-        renderTab: (workspaceTabProps: WorkspaceTabCoreProps) => (
+        renderTab: (workspaceTabCoreProps: WorkspaceTabCoreProps) => (
           <ErrorBoundary
             displayName={tab.type}
             onError={(error, errorInfo) => {
@@ -172,13 +167,15 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               );
             }}
           >
-            <WorkspaceTabContextProvider
-              tab={tab}
-              sectionType="tab-title"
-              onNamespaceNotFound={onNamespaceNotFound}
-            >
+            <WorkspaceTabContextProvider tab={tab} sectionType="tab-title">
               <Provider>
-                <PluginTabComponent {...workspaceTabProps} />
+                <WorkspaceTabTitle
+                  workspaceProps={{
+                    ...(isNonExistent !== undefined ? { isNonExistent } : {}),
+                    ...tab,
+                  }}
+                  tabProps={workspaceTabCoreProps}
+                />
               </Provider>
             </WorkspaceTabContextProvider>
           </ErrorBoundary>

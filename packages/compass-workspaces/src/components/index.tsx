@@ -110,7 +110,6 @@ const WorkspacesWithSidebar: React.FunctionComponent<
       >
         <div className={sidebarStyles}>{renderSidebar?.()}</div>
         <div className={workspacesStyles}>
-          {/* TODO: Workspace providers here? */}
           <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
         </div>
       </div>

@@ -11,7 +11,10 @@ import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
 import TopStore from './stores/top-store';
 import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
-import { WorkspaceName, ServerStatsPluginTitle } from './plugin-tab-title';
+import {
+  WorkspaceName,
+  ServerStatsPluginTitleComponent,
+} from './plugin-tab-title';
 
 type PerformancePluginInitialProps = {};
 
@@ -47,7 +50,7 @@ const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     }
   ),
   content: PerformanceComponent,
-  header: ServerStatsPluginTitle,
+  header: ServerStatsPluginTitleComponent,
 };
 
 export { WorkspaceTab };

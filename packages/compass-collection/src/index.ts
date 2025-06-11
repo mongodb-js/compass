@@ -12,7 +12,7 @@ import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import {
   CollectionWorkspaceTitle,
-  CollectionPluginTitle,
+  CollectionPluginTitleComponent,
 } from './plugin-tab-title';
 
 export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
@@ -32,7 +32,7 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
     }
   ),
   content: CollectionTab,
-  header: CollectionPluginTitle,
+  header: CollectionPluginTitleComponent,
 };
 
 export type { CollectionTabPluginMetadata } from './modules/collection-tab';

@@ -13,7 +13,7 @@ import {
 } from '@mongodb-js/my-queries-storage/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
-import { PluginTabTitle, WorkspaceName } from './plugin-tab-title';
+import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 
 export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
@@ -37,5 +37,5 @@ export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     }
   ),
   content: AggregationsQueriesList,
-  header: PluginTabTitle,
+  header: PluginTabTitleComponent,
 };

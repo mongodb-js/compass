@@ -11,7 +11,7 @@ import {
   connectionInfoRefLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { WorkspaceName, ShellPluginTitle } from './plugin-tab-title';
+import { WorkspaceName, ShellPluginTitleComponent } from './plugin-tab-title';
 
 export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
@@ -32,5 +32,5 @@ export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     }
   ),
   content: ShellPlugin,
-  header: ShellPluginTitle,
+  header: ShellPluginTitleComponent,
 };

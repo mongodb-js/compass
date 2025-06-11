@@ -110,9 +110,9 @@ export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   content:
     | React.ComponentClass<WorkspacePluginProps<T>>
     | ((props: WorkspacePluginProps<T>) => React.ReactElement | null);
-  header: (
-    workspaceProps: any
-    // TODO: Typing. We want a type like this V
-    // workspaceProps: WorkspacePluginProps<T>
-  ) => (tabProps: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
+  header: (props: {
+    tabProps: WorkspaceTabCoreProps;
+    workspaceProps: any;
+    // workspaceProps: WorkspacePluginProps<T> // TODO: Typing
+  }) => ReturnType<typeof Tab>;
 };

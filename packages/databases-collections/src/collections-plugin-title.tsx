@@ -17,31 +17,35 @@ type WorkspaceProps = {
   isNonExistent: boolean;
 };
 
-export function CollectionsPluginTitle(workspaceProps: WorkspaceProps) {
-  return (tabProps: WorkspaceTabCoreProps) => {
-    const { getConnectionById } = useConnectionsListRef();
-    const { getThemeOf } = useTabConnectionTheme();
+export function CollectionsPluginTitleComponent({
+  tabProps,
+  workspaceProps,
+}: {
+  tabProps: WorkspaceTabCoreProps;
+  workspaceProps: WorkspaceProps;
+}) {
+  const { getConnectionById } = useConnectionsListRef();
+  const { getThemeOf } = useTabConnectionTheme();
 
-    const connectionName =
-      getConnectionById(workspaceProps.connectionId)?.title || '';
-    const database = workspaceProps.namespace;
+  const connectionName =
+    getConnectionById(workspaceProps.connectionId)?.title || '';
+  const database = workspaceProps.namespace;
 
-    return (
-      <WorkspaceTab
-        {...tabProps}
-        id={workspaceProps.id}
-        connectionName={connectionName}
-        type={CollectionsWorkspaceName}
-        title={database}
-        tooltip={[
-          ['Connection', connectionName || ''],
-          ['Database', database],
-        ]}
-        iconGlyph={workspaceProps.isNonExistent ? 'EmptyDatabase' : 'Database'}
-        data-namespace={workspaceProps.namespace}
-        tabTheme={getThemeOf(workspaceProps.connectionId)}
-        isNonExistent={workspaceProps.isNonExistent}
-      />
-    );
-  };
+  return (
+    <WorkspaceTab
+      {...tabProps}
+      id={workspaceProps.id}
+      connectionName={connectionName}
+      type={CollectionsWorkspaceName}
+      title={database}
+      tooltip={[
+        ['Connection', connectionName || ''],
+        ['Database', database],
+      ]}
+      iconGlyph={workspaceProps.isNonExistent ? 'EmptyDatabase' : 'Database'}
+      data-namespace={workspaceProps.namespace}
+      tabTheme={getThemeOf(workspaceProps.connectionId)}
+      isNonExistent={workspaceProps.isNonExistent}
+    />
+  );
 }

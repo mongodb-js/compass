@@ -79,15 +79,26 @@ const TabCloseHandler: React.FunctionComponent = ({ children }) => {
   );
 };
 
-const WorkspaceTabContextProvider: React.FunctionComponent<{
+type WorkspaceTabContextProviderProps = {
   tab: WorkspaceTab;
-  sectionType: 'tab-content' | 'tab-title';
-  onNamespaceNotFound?: (
-    tab: Extract<WorkspaceTab, { namespace: string }>,
-    fallbackNamespace: string | null
-  ) => void;
   children: React.JSX.Element;
-}> = ({ tab, onNamespaceNotFound, sectionType: type, children }) => {
+} & (
+  | {
+      sectionType: 'tab-content';
+      onNamespaceNotFound: (
+        tab: Extract<WorkspaceTab, { namespace: string }>,
+        fallbackNamespace: string | null
+      ) => void;
+    }
+  | {
+      sectionType: 'tab-title';
+      onNamespaceNotFound?: undefined;
+    }
+);
+
+const WorkspaceTabContextProvider: React.FunctionComponent<
+  WorkspaceTabContextProviderProps
+> = ({ tab, onNamespaceNotFound, sectionType: type, children }) => {
   const initialProps = getInitialPropsForWorkspace(tab);
 
   if (initialProps) {

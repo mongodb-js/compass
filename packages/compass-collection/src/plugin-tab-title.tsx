@@ -99,13 +99,14 @@ const ConnectedPluginTitle = connect((state: CollectionState) => ({
 }))(_PluginTitle);
 
 export const CollectionWorkspaceTitle = 'Collection' as const;
-export function CollectionPluginTitle(workspaceProps: WorkspaceProps) {
-  return (tabProps: WorkspaceTabCoreProps) => {
-    return (
-      <ConnectedPluginTitle
-        tabProps={tabProps}
-        workspaceProps={workspaceProps}
-      />
-    );
-  };
+export function CollectionPluginTitleComponent({
+  tabProps,
+  workspaceProps,
+}: {
+  tabProps: WorkspaceTabCoreProps;
+  workspaceProps: WorkspaceProps;
+}) {
+  return (
+    <ConnectedPluginTitle tabProps={tabProps} workspaceProps={workspaceProps} />
+  );
 }

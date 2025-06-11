@@ -42,8 +42,14 @@ const ConnectedTabTitle = connect((state: DataModelingState) => {
   };
 })(_TabTitle);
 
-export function PluginTabTitle(workspaceProps: WorkspaceProps) {
-  return (tabProps: WorkspaceTabCoreProps) => (
+export function PluginTabTitleComponent({
+  tabProps,
+  workspaceProps,
+}: {
+  tabProps: WorkspaceTabCoreProps;
+  workspaceProps: WorkspaceProps;
+}) {
+  return (
     <ConnectedTabTitle tabProps={tabProps} workspaceProps={workspaceProps} />
   );
 }

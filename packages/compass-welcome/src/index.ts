@@ -6,7 +6,7 @@ import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
 import { WelcomeModal, DesktopWelcomeTab, WebWelcomeTab } from './components';
 import { activatePlugin } from './stores';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { PluginTabTitle, WorkspaceName } from './plugin-tab-title';
+import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 
 const serviceLocators = {
   logger: createLoggerLocator('COMPASS-MY-QUERIES-UI'),
@@ -27,7 +27,7 @@ export const DesktopWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     serviceLocators
   ),
   content: DesktopWelcomeTab,
-  header: PluginTabTitle,
+  header: PluginTabTitleComponent,
 };
 
 export const WebWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
@@ -43,7 +43,7 @@ export const WebWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     serviceLocators
   ),
   content: WebWelcomeTab,
-  header: PluginTabTitle,
+  header: PluginTabTitleComponent,
 };
 
 export { WelcomeModal };

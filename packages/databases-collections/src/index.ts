@@ -24,8 +24,8 @@ import {
 } from '@mongodb-js/my-queries-storage/provider';
 import Databases from './components/databases';
 import CollectionsList from './components/collections';
-import { DatabasesPluginTitle } from './databases-plugin-title';
-import { CollectionsPluginTitle } from './collections-plugin-title';
+import { DatabasesPluginTitleComponent } from './databases-plugin-title';
+import { CollectionsPluginTitleComponent } from './collections-plugin-title';
 
 export const CollectionsWorkspaceTab: WorkspacePlugin<
   typeof CollectionsWorkspaceName
@@ -33,7 +33,7 @@ export const CollectionsWorkspaceTab: WorkspacePlugin<
   name: CollectionsWorkspaceName,
   provider: CollectionsPlugin,
   content: CollectionsList,
-  header: CollectionsPluginTitle,
+  header: CollectionsPluginTitleComponent,
 };
 
 export const DatabasesWorkspaceTab: WorkspacePlugin<
@@ -42,7 +42,7 @@ export const DatabasesWorkspaceTab: WorkspacePlugin<
   name: DatabasesWorkspaceName,
   provider: DatabasesPlugin,
   content: Databases,
-  header: DatabasesPluginTitle,
+  header: DatabasesPluginTitleComponent,
 };
 
 export const CreateNamespacePlugin = registerHadronPlugin(

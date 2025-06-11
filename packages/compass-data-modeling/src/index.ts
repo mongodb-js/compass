@@ -9,7 +9,7 @@ import DataModelingComponent from './components/data-modeling';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { dataModelStorageServiceLocator } from './provider';
 import { activateDataModelingStore } from './store';
-import { PluginTabTitle, WorkspaceName } from './plugin-tab-title';
+import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 
 export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
@@ -31,5 +31,5 @@ export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     }
   ),
   content: DataModelingComponent,
-  header: PluginTabTitle,
+  header: PluginTabTitleComponent,
 };

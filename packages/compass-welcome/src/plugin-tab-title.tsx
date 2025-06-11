@@ -6,8 +6,14 @@ import {
 
 export const WorkspaceName = 'Welcome' as const;
 
-export function PluginTabTitle(workspaceProps: { id: string }) {
-  return (tabProps: WorkspaceTabCoreProps) => (
+export function PluginTabTitleComponent({
+  tabProps,
+  workspaceProps,
+}: {
+  tabProps: WorkspaceTabCoreProps;
+  workspaceProps: { id: string };
+}) {
+  return (
     <WorkspaceTab
       {...tabProps}
       id={workspaceProps.id}
