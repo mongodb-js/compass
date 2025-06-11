@@ -56,11 +56,13 @@ const MDBCodeViewer = ({
   dbName,
   collectionName,
   indexNameTypeMap,
+  onCopy,
   dataTestId,
 }: {
   dbName: string;
   collectionName: string;
   indexNameTypeMap: Record<string, string | number>;
+  onCopy: () => void;
   dataTestId?: string;
 }) => {
   const track = useTelemetry();
@@ -72,7 +74,11 @@ const MDBCodeViewer = ({
 
   return (
     <div className={containerStyles}>
-      <Code data-testid={dataTestId || 'mdb-code-viewer'} language="javascript">
+      <Code
+        data-testid={dataTestId || 'mdb-code-viewer'}
+        language="javascript"
+        onCopy={onCopy}
+      >
         {GeneratedCode}
       </Code>
       <span className={programmingLanguageLinkStyles}>
