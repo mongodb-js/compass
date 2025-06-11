@@ -11,6 +11,7 @@ import {
   fontFamilies,
   InfoSprinkle,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
@@ -41,6 +42,10 @@ const indexFieldsCalloutStyles = css({
   marginBottom: spacing[600],
 });
 
+const indexFieldsCalloutDarkStyles = css({
+  border: `1px solid ${palette.gray.base}`,
+});
+
 const codeEquivalentToggleLabelStyles = css({
   marginRight: spacing[100],
   fontWeight: 'normal',
@@ -51,13 +56,20 @@ const coveredQueriesHeaderContainerStyles = css({
 });
 
 const coveredQueriesCalloutStyles = css({
-  border: `1px solid ${palette.gray.light2}`,
-  background: palette.gray.light3,
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
 });
 
+const lightModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  background: palette.gray.light3,
+});
+
+const darkModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.dark2}`,
+  background: palette.black,
+});
 const buttonContainerStyles = css({
   display: 'flex',
   justifyContent: 'right',
@@ -171,6 +183,7 @@ const IndexFlowSection = ({
   onErrorEncountered,
   onErrorCleared,
 }: IndexFlowSectionProps) => {
+  const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
   const [hasFieldChanges, setHasFieldChanges] = useState(false);
@@ -208,6 +221,10 @@ const IndexFlowSection = ({
   const onCoveredQueriesButtonClick = useCallback(() => {
     const coveredQueriesArr = fields.map((field, index) => {
       return { [field.name]: index + 1 };
+    });
+
+    track('Covered Queries Button Clicked', {
+      context: 'Create Index Modal',
     });
 
     try {
@@ -251,13 +268,23 @@ const IndexFlowSection = ({
             size="xsmall"
             id="code-equivalent-toggle"
             aria-label="Toggle Code Equivalent"
-            onChange={(value) => setIsCodeEquivalentToggleChecked(value)}
+            onChange={(value) => {
+              setIsCodeEquivalentToggleChecked(value);
+              track('Code Equivalent Toggled', {
+                context: 'Create Index Modal',
+              });
+            }}
             checked={isCodeEquivalentToggleChecked}
-            disabled={!areAllFieldsFilledIn}
+            disabled={!areAllFieldsFilledIn(fields)}
           />
         </div>
       </div>
-      <div className={indexFieldsCalloutStyles}>
+      <div
+        className={cx(
+          indexFieldsCalloutStyles,
+          darkMode && indexFieldsCalloutDarkStyles
+        )}
+      >
         {isCodeEquivalentToggleChecked ? (
           <MDBCodeViewer
             dbName={dbName}
@@ -312,7 +339,14 @@ const IndexFlowSection = ({
             </InfoSprinkle>
           </div>
 
-          <div className={coveredQueriesCalloutStyles}>
+          <div
+            className={cx(
+              coveredQueriesCalloutStyles,
+              darkMode
+                ? darkModeCoveredQueriesCalloutStyles
+                : lightModeCoveredQueriesCalloutStyles
+            )}
+          >
             {/* Covered Queries */}
             <Body
               className={codeStyles}
@@ -336,7 +370,14 @@ const IndexFlowSection = ({
                     {optimalQueries}
                   </Body>
                 </p>
-                <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
+                <Link
+                  href="https://www.mongodb.com/docs/manual/core/query-optimization/"
+                  onClick={() => {
+                    track('Covered Queries Learn More Clicked', {
+                      context: 'Create Index Modal',
+                    });
+                  }}
+                >
                   Learn More
                 </Link>
               </>

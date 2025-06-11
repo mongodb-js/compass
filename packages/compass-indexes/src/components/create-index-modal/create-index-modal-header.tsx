@@ -5,6 +5,7 @@ import {
   css,
   palette,
   Link,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -13,18 +14,23 @@ const headerStyle = css({
   paddingBottom: 0,
 });
 
-const subtitleStyle = css({
+const subtitleLightStyle = css({
   color: palette.gray.dark1,
 });
 
+const subtitleDarkStyle = css({
+  color: palette.gray.light1,
+});
+
 const CreateIndexModalHeader = () => {
+  const darkMode = useDarkMode();
   return (
     <div className={headerStyle}>
       <H3 data-testid="create-index-modal-header-title">Create Index</H3>
 
       <Body
         data-testid="create-index-modal-header-subtitle"
-        className={subtitleStyle}
+        className={darkMode ? subtitleDarkStyle : subtitleLightStyle}
       >
         The best indexes for your application should consider a number of
         factors, such as your data model, and the queries you use most often. To

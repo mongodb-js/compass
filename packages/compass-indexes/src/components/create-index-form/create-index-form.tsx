@@ -22,6 +22,7 @@ import IndexFlowSection from './index-flow-section';
 import QueryFlowSection from './query-flow-section';
 import toNS from 'mongodb-ns';
 import type { Document } from 'mongodb';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,
@@ -74,6 +75,9 @@ function CreateIndexForm({
   );
   const showRollingIndexOption =
     rollingIndexesFeatureEnabled && supportsRollingIndexes;
+
+  const track = useTelemetry();
+
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -108,6 +112,13 @@ function CreateIndexForm({
             data-testid="create-index-form-flows"
             id="create-index-form-flows"
             onChange={(e) => {
+              const tabName =
+                e.target.value === 'IndexFlow'
+                  ? 'Start with an Index'
+                  : 'Start with a Query';
+              track(`${tabName} Tab Clicked`, {
+                context: 'Create Index Modal',
+              });
               onTabClick(e.target.value as Tab);
             }}
             value={currentTab}
@@ -173,6 +184,11 @@ function CreateIndexForm({
       <Accordion
         data-testid="create-index-modal-toggle-options"
         text={showIndexesGuidanceVariant ? 'Index Options' : 'Options'}
+        setOpen={() => {
+          track('Options Clicked', {
+            context: 'Create Index Modal',
+          });
+        }}
       >
         <div
           data-testid="create-index-modal-options"
