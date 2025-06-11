@@ -4,8 +4,9 @@ const { exec } = require('child_process');
 
 const ONE_HOUR = 1000 * 60 * 60;
 
-async function runInDir(command, cwd = process.cwd(), timeout = ONE_HOUR) {
-  const execPromise = promisify(exec)(command, {
+async function runInDir(command, args = [], cwd = process.cwd(), timeout = ONE_HOUR) {
+  const execFile = promisify(require('child_process').execFile);
+  const execPromise = execFile(command, args, {
     stdio: 'pipe',
     cwd,
     timeout,
