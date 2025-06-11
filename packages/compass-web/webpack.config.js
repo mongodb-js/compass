@@ -41,12 +41,16 @@ function resolveDepEntry(name) {
  *
  * This is opposed to using a webpack chunk splitting feature that will generate
  * the code that uses internal webpack module runtime that will not be handled
- * by any other bundler. This custom code splitting is way less advanced, but
- * works well for leaf node dependencies of the package.
+ * by any other bundler (see TODO). This custom code splitting is way less
+ * advanced, but works well for leaf node dependencies of the package.
  *
- * NB: This naive implementation works well only for leaf dependencies with a
- * single export file. It can be updated to support multiple exports packages,
- * but we can skip this for now
+ * TODO(COMPASS-9445): This naive implementation works well only for leaf
+ * dependencies with a single export file. A better approach would be to coerce
+ * webpack to produce a require-able web bundle, which in theory should be
+ * possible with a combination of `splitChunks`, `chunkFormat: 'commonjs'`, and
+ * `target: 'web'`, but in practice produced bundle doesn't work due to webpack
+ * runtime exports not being built correctly. We should investigate and try to
+ * fix this to remove this custom chunk splitting logic.
  */
 function createSiblingBundleFromLeafDeps(
   config,
@@ -323,6 +327,7 @@ module.exports = (env, args) => {
   // shared dependencies possible
   const bundles = createSiblingBundleFromLeafDeps(compassWebConfig, [
     '@mongodb-js/compass-components',
+    'ag-grid-community',
     'bson-transpilers',
     // bson is not that big, but is a shared dependency of compass-web,
     // compass-components and bson-transpilers, so splitting it out
