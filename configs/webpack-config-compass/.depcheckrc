@@ -18,4 +18,3 @@ ignores:
   - 'mongodb-compass'
   # used as a resolve alias
   - 'jose'
-  - 'react'
