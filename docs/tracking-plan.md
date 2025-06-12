@@ -172,6 +172,9 @@ Generated on Wed, Jun 11, 2025
 - [View Programming Language Syntax Clicked](#event--CreateIndexProgrammingLanguageLinkClicked)
 - [Start with a Query Tab Clicked](#event--CreateIndexQueryTabClicked)
 - [Suggested Index Button Clicked](#event--CreateIndexSuggestedIndexButtonClicked)
+- [Input Index Copied](#event--CreateIndexInputIndexCopied)
+- [Index Suggestions Copied](#event--CreateIndexIndexSuggestionsCopied)
+- [Index Strategies Documentation Clicked](#event--CreateIndexStrategiesDocumentationClicked)
 - [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
@@ -1882,6 +1885,7 @@ a system that doesn't offer a suitable secret storage backend.
 **Properties**:
 
 - **context** (required): `"Create Index Modal"`
+- **toggled** (required): `"On" | "Off"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--CreateIndexCoveredQueriesButtonClicked"></a>
@@ -1968,6 +1972,33 @@ a system that doesn't offer a suitable secret storage backend.
 <a name="event--CreateIndexSuggestedIndexButtonClicked"></a>
 
 ### Suggested Index Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexInputIndexCopied"></a>
+
+### Input Index Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexIndexSuggestionsCopied"></a>
+
+### Index Suggestions Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexStrategiesDocumentationClicked"></a>
+
+### Index Strategies Documentation Clicked
 
 **Properties**:
 
