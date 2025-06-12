@@ -17,7 +17,7 @@ const DataModeling: React.FunctionComponent<DataModelingPluginInitialProps> = ({
       {showList ? (
         <SavedDiagramsList></SavedDiagramsList>
       ) : (
-        <DiagramProvider>
+        <DiagramProvider fitView>
           <DiagramEditor />
         </DiagramProvider>
       )}

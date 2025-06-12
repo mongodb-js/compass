@@ -1451,3 +1451,4 @@ export const DataModelsListItem = (diagramName: string) =>
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
+export const DataModelingDiagramNode = '.react-flow__node > div';

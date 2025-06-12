@@ -14,26 +14,10 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
-type DiagramInstance = {
-  getNodes: () => Array<{ id: string; data: { title: string } }>;
-};
-
-async function getDiagramNodes(browser: CompassBrowser) {
-  return await browser.execute(() => {
-    // eslint-disable-next-line no-restricted-globals
-    if ('diagramInstance' in window) {
-      // eslint-disable-next-line no-restricted-globals
-      const diagramInstance = window.diagramInstance as DiagramInstance;
-      const nodes = diagramInstance.getNodes();
-      return nodes.map((node) => ({
-        id: node.id,
-        title: node.data.title,
-      }));
-    }
-    throw new Error(
-      'Diagram instance not found in the window object. Ensure the diagram is set for tests.'
-    );
-  });
+async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+  return await browser
+    .$$(Selectors.DataModelingDiagramNode)
+    .map((element) => element.getAttribute('title'));
 }
 
 describe('Data Modeling tab', function () {
@@ -104,7 +88,7 @@ describe('Data Modeling tab', function () {
 
     let nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes.map((x) => x.title)).to.deep.equal([
+    expect(nodes).to.deep.equal([
       'test.testCollection1',
       'test.testCollection2',
     ]);
@@ -131,7 +115,7 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.DataModelUndoButton);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes.map((x) => x.title)).to.deep.equal([
+    expect(nodes).to.deep.equal([
       'test.testCollection1',
       'test.testCollection2',
     ]);

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -134,18 +134,6 @@ const DiagramEditor: React.FunctionComponent<{
 }) => {
   const isDarkMode = useDarkMode();
   const [applyInput, setApplyInput] = useState('{}');
-  const diagram = useDiagram();
-
-  // For tests, we are setting the diagram instance on the window object
-  // so that we can access it in the tests.
-  useEffect(() => {
-    if (
-      process.env.APP_ENV === 'webdriverio' ||
-      process.env.NODE_ENV === 'development'
-    ) {
-      (window as any).diagramInstance = diagram;
-    }
-  }, [diagram]);
 
   const isEditValid = useMemo(() => {
     try {
