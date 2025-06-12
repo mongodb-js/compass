@@ -221,5 +221,9 @@ describe('IndexFlowSection', () => {
         screen.queryByTestId('index-flow-section-optimal-queries-examples')
       ).not.to.exist;
     });
+
+    it('does not render ESR Learn More link', () => {
+      expect(screen.queryByText('Learn about ESR')).not.to.exist;
+    });
   });
 });
