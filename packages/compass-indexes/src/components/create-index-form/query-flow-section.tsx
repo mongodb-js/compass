@@ -190,9 +190,9 @@ const QueryFlowSection = ({
       {initialQuery && (
         <div className={insightStyles}>
           <InsightsChip />
-          <p>
+          <span>
             We prefilled the query input below based on your recently run query
-          </p>
+          </span>
         </div>
       )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -257,6 +257,11 @@ const QueryFlowSection = ({
                 dbName={dbName}
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
+                onCopy={() => {
+                  track('Index Suggestions Copied', {
+                    context: 'Create Index Modal',
+                  });
+                }}
               />
             </div>
           </>
