@@ -8,6 +8,8 @@ import {
   type ConnectionInfo,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
+// This plugin is an exception from the rule
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
