@@ -27,7 +27,6 @@ import {
   Diagram,
   type NodeProps,
   type EdgeProps,
-  useDiagram,
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
