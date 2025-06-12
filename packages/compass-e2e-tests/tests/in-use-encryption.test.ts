@@ -735,9 +735,12 @@ describe('CSFLE / QE', function () {
         await button.click();
 
         const footer = copiedDocument.$(Selectors.DocumentFooterMessage);
-        expect(await footer.getText()).to.equal(
-          'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
-        );
+        await browser.waitUntil(async () => {
+          return (
+            (await footer.getText()) ===
+            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+          );
+        });
       });
 
       it('shows incomplete schema for cloned document banner', async function () {
