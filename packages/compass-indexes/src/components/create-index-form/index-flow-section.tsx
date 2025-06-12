@@ -163,7 +163,7 @@ const generateOptimalQueries = (
 
   const optimalQueries = coveredQueriesArr
     .slice(0, -2)
-    .reduce<Record<string, unknown>>((acc, obj, index) => {
+    .reduce<Record<string, unknown>>((acc, obj) => {
       const key = Object.keys(obj)[0];
       const value = obj[key];
 

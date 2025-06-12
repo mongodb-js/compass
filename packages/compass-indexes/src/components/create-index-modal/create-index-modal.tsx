@@ -67,7 +67,7 @@ function CreateIndexModal({
         });
       }
     },
-    [onCancelCreateIndexClick]
+    [onCancelCreateIndexClick, track]
   );
 
   useTrackOnChange(
