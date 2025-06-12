@@ -15,6 +15,68 @@ function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
 }
 
+function normalizeDepName(name) {
+  return name.replaceAll('@', '').replaceAll('/', '__');
+}
+
+function resolveDepEntry(name) {
+  const monorepoPackagesDir = path.resolve(__dirname, '..');
+  const resolvedPath = require.resolve(name);
+  if (resolvedPath.startsWith(monorepoPackagesDir)) {
+    const packageJson = require(`${name}/package.json`);
+    const packageRoot = path.dirname(require.resolve(`${name}/package.json`));
+    const entrypoint = path.join(
+      packageRoot,
+      packageJson['compass:main'] ?? packageJson['main']
+    );
+    return entrypoint;
+  }
+  return require.resolve(name);
+}
+
+/**
+ * Takes in a webpack configuration for a library package and creates a
+ * multi-compiler config that splits the library into multiple parts that can be
+ * properly processed by another webpack compilation.
+ *
+ * This is opposed to using a webpack chunk splitting feature that will generate
+ * the code that uses internal webpack module runtime that will not be handled
+ * by any other bundler (see TODO). This custom code splitting is way less
+ * advanced, but works well for leaf node dependencies of the package.
+ *
+ * TODO(COMPASS-9445): This naive implementation works well only for leaf
+ * dependencies with a single export file. A better approach would be to coerce
+ * webpack to produce a require-able web bundle, which in theory should be
+ * possible with a combination of `splitChunks`, `chunkFormat: 'commonjs'`, and
+ * `target: 'web'`, but in practice produced bundle doesn't work due to webpack
+ * runtime exports not being built correctly. We should investigate and try to
+ * fix this to remove this custom chunk splitting logic.
+ */
+function createSiblingBundleFromLeafDeps(
+  config,
+  deps,
+  moduleType = 'commonjs2'
+) {
+  const siblings = Object.fromEntries(
+    deps.map((depName) => {
+      return [depName, `${moduleType} ./${normalizeDepName(depName)}.js`];
+    })
+  );
+  const baseConfig = merge(config, { externals: siblings });
+  const configs = [baseConfig].concat(
+    deps.map((depName) => {
+      return merge(baseConfig, {
+        entry: resolveDepEntry(depName),
+        output: {
+          filename: `${normalizeDepName(depName)}.js`,
+          library: { type: moduleType },
+        },
+      });
+    })
+  );
+  return configs;
+}
+
 /**
  * Atlas Cloud uses in-flight compression that doesn't compress anything that is
  * bigger than 10MB, we want to make sure that compass-web assets stay under the
@@ -44,6 +106,16 @@ module.exports = (env, args) => {
         '@mongodb-js/devtools-proxy-support': localPolyfill(
           '@mongodb-js/devtools-proxy-support'
         ),
+
+        ...(config.mode === 'production'
+          ? {
+              // We don't need saslprep in the product web bundle, as we don't use scram auth there.
+              // We use a local polyfill for the driver to avoid having it in the bundle
+              // as it is a decent size. We do use scram auth in tests and local
+              // development, so we want it there.
+              '@mongodb-js/saslprep': localPolyfill('@mongodb-js/saslprep'),
+            }
+          : {}),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
@@ -212,13 +284,13 @@ module.exports = (env, args) => {
     },
   };
 
-  return merge(config, {
+  const compassWebConfig = merge(config, {
     externals: {
       react: 'commonjs2 react',
       'react-dom': 'commonjs2 react-dom',
 
       // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
-      // active work on the connumicatino protocol is wrapped up
+      // active work on the communication protocol is wrapped up
       tls: 'commonjs2 tls',
     },
     plugins: [
@@ -248,4 +320,19 @@ module.exports = (env, args) => {
       },
     ],
   });
+
+  // Split production bundle into more chunks to make sure it's easier for us to
+  // stay under the max chunk limit. Be careful when adding new packages here,
+  // make sure you're only selecting big packages with the smallest amount of
+  // shared dependencies possible
+  const bundles = createSiblingBundleFromLeafDeps(compassWebConfig, [
+    '@mongodb-js/compass-components',
+    'ag-grid-community',
+    'bson-transpilers',
+    // bson is not that big, but is a shared dependency of compass-web,
+    // compass-components and bson-transpilers, so splitting it out
+    'bson',
+  ]);
+
+  return bundles;
 };

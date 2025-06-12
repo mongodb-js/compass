@@ -125,7 +125,7 @@ describe('InstanceStore [Store]', function () {
         const instance = instancesManager.getMongoDBInstanceForConnection(
           connectedConnectionInfoId
         );
-        expect(instance).to.have.nested.property('build.version', '0.0.0');
+        expect(instance).to.have.nested.property('build.version', '100.0.0');
         globalAppRegistry.emit('refresh-data');
         await waitForInstanceRefresh(instance);
       });

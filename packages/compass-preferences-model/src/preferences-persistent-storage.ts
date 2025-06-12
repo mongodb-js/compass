@@ -1,5 +1,4 @@
-import type { z } from 'zod';
-import { UserData } from '@mongodb-js/compass-user-data';
+import { type z, UserData } from '@mongodb-js/compass-user-data';
 import {
   getDefaultsForStoredPreferences,
   getPreferencesValidator,

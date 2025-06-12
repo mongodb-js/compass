@@ -91,7 +91,7 @@ export function ConnectButtonWithMenu({
           glyph="Connect"
           onClick={onClick}
         >
-          Here
+          Connect
         </ConnectMenuItem>,
         <ConnectMenuItem
           key="connection-connect-in-new-window"

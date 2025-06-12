@@ -1,3 +1,4 @@
+// @ts-expect-error import vs require
 import { ipVersion } from 'is-ip';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
@@ -150,6 +151,7 @@ class Socket extends Duplex {
   }
 }
 
+// @ts-expect-error import vs require
 export { isIPv4, isIPv6 } from 'is-ip';
 export const isIP = (input: string) => ipVersion(input) ?? 0;
 export const createConnection = (options: { host: string; port: number }) => {

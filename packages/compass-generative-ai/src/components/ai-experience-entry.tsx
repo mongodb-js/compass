@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   css,
   cx,
@@ -8,6 +8,10 @@ import {
   useDarkMode,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
+import {
+  type TrackFunction,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 
 import {
   AIEntrySVG,
@@ -95,6 +99,12 @@ function AIExperienceEntry({
   onClick: () => void;
 }) {
   const darkMode = useDarkMode();
+  const track = useTelemetry();
+
+  const handleClick = useCallback(() => {
+    track('AI Generate Query Clicked', { type });
+    onClick();
+  }, [track, onClick, type]);
 
   return (
     <button
@@ -102,7 +112,7 @@ function AIExperienceEntry({
         aiEntryStyles,
         darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
       )}
-      onClick={onClick}
+      onClick={handleClick}
       data-testid={dataTestId}
       type="button"
       title={`Generate ${type}`}
@@ -119,10 +129,12 @@ function createAIPlaceholderHTMLPlaceholder({
   onClickAI,
   darkMode,
   placeholderText,
+  track,
 }: {
   onClickAI: () => void;
   darkMode?: boolean;
   placeholderText: string;
+  track: TrackFunction;
 }): HTMLElement {
   const containerEl = document.createElement('div');
 
@@ -144,6 +156,7 @@ function createAIPlaceholderHTMLPlaceholder({
   aiButtonEl.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    track('AI Generate Query Clicked' as const, { type: 'query' });
     onClickAI();
   });
 

@@ -1,8 +1,6 @@
-import type {
-  Logger,
-  MongoLogWriter,
-} from '@mongodb-js/compass-logging/provider';
-import { Writable } from 'stream';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
+import { PassThrough } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { useRef } from 'react';
 
@@ -11,82 +9,18 @@ export type TrackFunction = (
   properties: Record<string, any>
 ) => void;
 
-export type LogFunction = (
-  type: 'debug' | 'info' | 'warn' | 'error' | 'fatal',
-  ...args: any[]
-) => void;
+export type LogMessage = {
+  id: number;
+  t: { $date: string };
+  s: 'F' | 'E' | 'W' | 'I' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5';
+  c: string;
+  ctx: string;
+  msg: string;
+  attr?: any;
+};
+export type LogFunction = (message: LogMessage) => void;
 
 export type DebugFunction = (...args: any[]) => void;
-
-class CompassWebLogWriter extends Writable implements MongoLogWriter {
-  _logId = '';
-  get logId() {
-    return this._logId;
-  }
-  _logFilePath = null;
-  get logFilePath() {
-    return this._logFilePath;
-  }
-  _target = {} as Writable;
-  get target() {
-    return this._target;
-  }
-  _now = () => {
-    return new Date();
-  };
-  constructor(private callbackRef: { current: { onLog?: LogFunction } }) {
-    super();
-  }
-  private _log = (
-    type: 'debug' | 'info' | 'warn' | 'error' | 'fatal',
-    ...args: any[]
-  ) => {
-    this.callbackRef?.current.onLog?.(type, ...args);
-  };
-  mongoLogId = mongoLogId;
-  flush = () => {
-    return Promise.resolve();
-  };
-  debug = (...args: any[]) => {
-    this._log('debug', ...args);
-  };
-  info = (...args: any[]) => {
-    this._log('info', ...args);
-  };
-  warn = (...args: any[]) => {
-    this._log('warn', ...args);
-  };
-  error = (...args: any[]) => {
-    this._log('error', ...args);
-  };
-  fatal = (...args: any[]) => {
-    this._log('fatal', ...args);
-  };
-  bindComponent = (component: string) => {
-    return {
-      component,
-      unbound: this as CompassWebLogWriter,
-      debug: (...args: any[]) => {
-        return this.info(component, ...args);
-      },
-      info: (...args: any[]) => {
-        return this.info(component, ...args);
-      },
-      warn: (...args: any[]) => {
-        return this.warn(component, ...args);
-      },
-      error: (...args: any[]) => {
-        return this.error(component, ...args);
-      },
-      fatal: (...args: any[]) => {
-        return this.fatal(component, ...args);
-      },
-      write: () => {
-        return true;
-      },
-    };
-  };
-}
 
 type Debugger = Logger['debug'];
 
@@ -133,9 +67,13 @@ export class CompassWebLoggerAndTelemetry implements Logger {
       };
     }
   ) {
-    this.log = new CompassWebLogWriter(this.callbackRef).bindComponent(
+    const passThrough = new PassThrough({ objectMode: true });
+    this.log = new MongoLogWriter('', '', passThrough).bindComponent(
       this.component
     );
+    passThrough.on('data', (line) => {
+      callbackRef.current.onLog?.(JSON.parse(line));
+    });
 
     this.debug = createCompassWebDebugger(this.component, this.callbackRef);
   }

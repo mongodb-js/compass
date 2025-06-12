@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, May 11, 2025
+Generated on Wed, Jun 11, 2025
 
 ## Table of Contents
 
@@ -110,6 +110,11 @@ Generated on Sun, May 11, 2025
 
 ### Gen AI
 
+- [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
+- [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
+- [AI Sign In Modal Shown](#event--AiSignInModalShownEvent)
+- [AI Sign In Modal Dismissed](#event--AiSignInModalDismissedEvent)
+- [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
@@ -154,6 +159,23 @@ Generated on Sun, May 11, 2025
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
 - [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
+- [Error parsing query](#event--CreateIndexErrorParsingQueryEvent)
+- [Error generating covered queries](#event--CreateIndexErrorGettingCoveredQueriesEvent)
+- [Code Equivalent Toggled](#event--CreateIndexCodeEquivalentToggled)
+- [Covered Queries Button Clicked](#event--CreateIndexCoveredQueriesButtonClicked)
+- [Covered Queries Learn More Clicked](#event--CreateIndexCoveredQueriesLearnMoreClicked)
+- [Start with an Index Tab Clicked](#event--CreateIndexIndexTabClicked)
+- [Cancel Button Clicked](#event--CreateIndexModalCancelled)
+- [Create Index Modal Closed](#event--CreateIndexModalClosed)
+- [New Index Field Added](#event--CreateIndexNewFieldAdded)
+- [Options Clicked](#event--CreateIndexOptionsClicked)
+- [View Programming Language Syntax Clicked](#event--CreateIndexProgrammingLanguageLinkClicked)
+- [Start with a Query Tab Clicked](#event--CreateIndexQueryTabClicked)
+- [Suggested Index Button Clicked](#event--CreateIndexSuggestedIndexButtonClicked)
+- [Input Index Copied](#event--CreateIndexInputIndexCopied)
+- [Index Suggestions Copied](#event--CreateIndexIndexSuggestionsCopied)
+- [Index Strategies Documentation Clicked](#event--CreateIndexStrategiesDocumentationClicked)
+- [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
 
@@ -1290,6 +1312,42 @@ the query results.
 
 ## Gen AI
 
+<a name="event--AiOptInModalShownEvent"></a>
+
+### AI Opt In Modal Shown
+
+This event is fired when the AI Opt-In Modal is shown to the user.
+
+<a name="event--AiOptInModalDismissedEvent"></a>
+
+### AI Opt In Modal Dismissed
+
+This event is fired when the AI Opt-In Modal is dismissed by the user.
+
+<a name="event--AiSignInModalShownEvent"></a>
+
+### AI Sign In Modal Shown
+
+This event is fired when the AI Sign-In Modal is shown to the user.
+
+<a name="event--AiSignInModalDismissedEvent"></a>
+
+### AI Sign In Modal Dismissed
+
+This event is fired when the AI Sign-In Modal is dismissed by the user.
+
+<a name="event--AiGenerateQueryClickedEvent"></a>
+
+### AI Generate Query Clicked
+
+This event is fired when a user clicks the Generate Query / Aggregation entry point.
+
+**Properties**:
+
+- **type** (required): `"aggregation" | "query"`
+  - The type of query being generated.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--AiPromptSubmittedEvent"></a>
 
 ### AI Prompt Submitted
@@ -1770,7 +1828,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | undefined`
   - The name of the screen that was activated.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -1800,6 +1858,161 @@ a system that doesn't offer a suitable secret storage backend.
 
 - **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
 - **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorParsingQueryEvent"></a>
+
+### Error parsing query
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexErrorGettingCoveredQueriesEvent"></a>
+
+### Error generating covered queries
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCodeEquivalentToggled"></a>
+
+### Code Equivalent Toggled
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **toggled** (required): `"On" | "Off"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCoveredQueriesButtonClicked"></a>
+
+### Covered Queries Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCoveredQueriesLearnMoreClicked"></a>
+
+### Covered Queries Learn More Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexIndexTabClicked"></a>
+
+### Start with an Index Tab Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexModalCancelled"></a>
+
+### Cancel Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexModalClosed"></a>
+
+### Create Index Modal Closed
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexNewFieldAdded"></a>
+
+### New Index Field Added
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexOptionsClicked"></a>
+
+### Options Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexProgrammingLanguageLinkClicked"></a>
+
+### View Programming Language Syntax Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexQueryTabClicked"></a>
+
+### Start with a Query Tab Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexSuggestedIndexButtonClicked"></a>
+
+### Suggested Index Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexInputIndexCopied"></a>
+
+### Input Index Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexIndexSuggestionsCopied"></a>
+
+### Index Suggestions Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexStrategiesDocumentationClicked"></a>
+
+### Index Strategies Documentation Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--UUIDEncounteredEvent"></a>
+
+### UUID Encountered
+
+**Properties**:
+
+- **subtype** (required): `3 | 4`
+- **count** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Performance Tab

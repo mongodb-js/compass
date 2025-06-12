@@ -12,7 +12,7 @@ import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
 import { DocumentEvents } from '.';
-import type { MongoServerError } from 'mongodb';
+import type { Binary, MongoServerError } from 'mongodb';
 
 /**
  * The event constant.
@@ -448,6 +448,30 @@ export class Document extends EventEmitter {
         totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
       );
     }, 0);
+  }
+
+  findUUIDs() {
+    let subtype4Count = 0;
+    let subtype3Count = 0;
+    for (const element of this.elements) {
+      if (element.currentType === 'Binary') {
+        if ((element.value as Binary).sub_type === 4) {
+          subtype4Count++;
+        }
+        if ((element.value as Binary).sub_type === 3) {
+          subtype3Count++;
+        }
+      } else if (
+        element.currentType === 'Object' ||
+        element.currentType === 'Array'
+      ) {
+        const { subtype3Count: sub3, subtype4Count: sub4 } =
+          element.findUUIDs();
+        subtype3Count += sub3;
+        subtype4Count += sub4;
+      }
+    }
+    return { subtype3Count, subtype4Count };
   }
 
   startEditing(elementId?: string, field?: 'key' | 'value' | 'type'): void {

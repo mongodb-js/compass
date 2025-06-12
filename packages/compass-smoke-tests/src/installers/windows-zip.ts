@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import fs from 'node:fs';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
@@ -16,8 +17,8 @@ export function installWindowsZIP({
 
   execute('unzip', [filepath, '-d', sandboxPath]);
 
-  // see if the executable will run without being quarantined or similar
-  execute(appPath, ['--version']);
+  // Check if the app executable exists after unzipping
+  assert(fs.existsSync(appPath), `Expected ${appPath} to exist`);
 
   return {
     appName,

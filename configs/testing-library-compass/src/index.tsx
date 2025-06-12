@@ -181,7 +181,8 @@ export class MockDataService
       },
       build: {
         isEnterprise: false,
-        version: '0.0.0',
+        // Picking a large version to avoid the end-of-life confirmation modal
+        version: '100.0.0',
       },
       host: {},
       genuineMongoDB: {

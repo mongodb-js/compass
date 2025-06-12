@@ -1,14 +1,13 @@
 import createDebug from 'debug';
+import type { LogMessage } from '../src/logger-and-telemetry';
 
-const logging: { name: string; component: string; args: any[] }[] = ((
-  globalThis as any
-).logging = []);
+const logging: LogMessage[] = ((globalThis as any).logging = []);
 
 const debug = createDebug(`mongodb-compass:compass-web-sandbox`);
 
 export const sandboxLogger = {
-  log: (name: string, component: string, ...args: any[]) => {
-    logging.push({ name, component, args });
+  log: (event: any) => {
+    logging.push(event);
   },
 
   debug,
