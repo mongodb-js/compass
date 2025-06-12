@@ -4,7 +4,6 @@ import {
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
-  palette,
   spacing,
   useDarkMode,
   type WorkspaceTabCoreProps,
@@ -34,7 +33,7 @@ import {
   useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
-import { WorkspaceTab } from '../types';
+import type { WorkspaceTab } from '../types';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -129,11 +128,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
       const Provider = provider as any;
 
-      let connectionName: string | undefined;
-      if ('connectionId' in tab) {
-        connectionName = getConnectionById(tab.connectionId)?.title;
-      }
-
       let isNonExistent: boolean | undefined;
       if ('isNonExistent' in tab && tab.isNonExistent) {
         if (tab.type === 'Collections') {
@@ -209,7 +203,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
     });
   }, [getWorkspacePlugins, tabs, getThemeOf, getConnectionById]);
 
-  const workspaceTabContent = workspaceTabs[activeTabIndex].content;
+  const workspaceTabContent = workspaceTabs[activeTabIndex]?.content ?? null;
 
   return (
     <div

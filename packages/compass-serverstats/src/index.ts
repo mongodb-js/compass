@@ -16,7 +16,7 @@ import {
   ServerStatsPluginTitleComponent,
 } from './plugin-tab-title';
 
-type PerformancePluginInitialProps = {};
+type PerformancePluginInitialProps = Record<string, never>;
 
 const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,

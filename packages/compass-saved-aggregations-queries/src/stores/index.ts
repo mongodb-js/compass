@@ -79,7 +79,9 @@ export type SavedQueryAggregationThunkAction<
   A extends Action = AnyAction
 > = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
-type SavedQueryAggregationPluginProps = {};
+type SavedQueryAggregationPluginProps = {
+  children?: React.ReactNode;
+};
 
 export function activatePlugin(
   _initialProps: SavedQueryAggregationPluginProps,

@@ -16,7 +16,9 @@ type DatabasesTabServices = {
   dataService: DataService;
 };
 
-type DatabasesPluginInitialProps = {};
+type DatabasesPluginInitialProps = {
+  children?: React.ReactNode;
+};
 export function activatePlugin(
   _initialProps: DatabasesPluginInitialProps,
   { globalAppRegistry, instance, dataService }: DatabasesTabServices,

@@ -43,7 +43,6 @@ function _PluginTitle({
   const { getConnectionById } = useConnectionsListRef();
 
   const { database, collection, ns } = toNS(workspaceProps.namespace);
-  const namespaceId = `${workspaceProps.connectionId}.${ns}`;
   const connectionName =
     getConnectionById(workspaceProps.connectionId)?.title || '';
   const collectionType = isTimeSeries

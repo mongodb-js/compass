@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import type { AnyWorkspace } from '../';
-import { WorkspacePlugin } from '../types';
+import type { WorkspacePlugin } from '../types';
 
 export type AnyWorkspacePlugin =
   | WorkspacePlugin<'Welcome'>

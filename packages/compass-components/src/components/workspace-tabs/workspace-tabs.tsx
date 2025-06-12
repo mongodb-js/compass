@@ -27,7 +27,7 @@ import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import { Tab } from './tab';
+import type { Tab } from './tab';
 import type { WorkspaceTabCoreProps } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
@@ -299,19 +299,13 @@ const SortableItem = ({
 
   const isDragging = useMemo(() => tabId === activeId, [tabId, activeId]);
 
-  const tab = useMemo(
-    () =>
-      renderTab({
-        isSelected,
-        isDragging,
-        tabContentId: tabId,
-        onSelect: onTabSelected,
-        onClose: onTabClosed,
-      }),
-    [renderTab]
-  );
-
-  return tab;
+  return renderTab({
+    isSelected,
+    isDragging,
+    tabContentId: tabId,
+    onSelect: onTabSelected,
+    onClose: onTabClosed,
+  });
 };
 
 function WorkspaceTabs({
