@@ -127,7 +127,6 @@ function CreateIndexModal({
           onErrorBannerCloseClick={onErrorBannerCloseClick}
           onCreateIndexClick={onCreateIndexClick}
           onCancelCreateIndexClick={onCancelCreateIndexClick}
-          showIndexesGuidanceVariant={showIndexesGuidanceVariant}
         />
       </ModalFooter>
     </Modal>
