@@ -507,17 +507,6 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
           : undefined,
     });
 
-    // Check for field errors.
-    if (
-      !isQueryFlow &&
-      getState().createIndex.fields.some(
-        (field: Field) => field.name === '' || field.type === ''
-      )
-    ) {
-      dispatch(errorEncountered('You must select a field name and type'));
-      return;
-    }
-
     const formIndexOptions = getState().createIndex.options;
 
     let spec: Record<string, IndexDirection> = {};
