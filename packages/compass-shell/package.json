@@ -60,7 +60,7 @@
     "@mongosh/browser-repl": "^3.10.3",
     "@mongosh/logging": "^3.7.2",
     "@mongosh/node-runtime-worker-thread": "^3.3.8",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "compass-preferences-model": "^2.40.1",
     "hadron-app-registry": "^9.4.10",
     "react": "^17.0.2",
