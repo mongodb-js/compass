@@ -1,5 +1,4 @@
-import React, { useCallback } from 'react';
-import { useDiagram } from '@mongodb-js/diagramming';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
   Button,
   css,
@@ -13,13 +12,19 @@ import {
   Radio,
   RadioGroup,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
+import { ExportDiagramContext } from './export-diagram-context';
+import { Diagram, DiagramProvider } from '@mongodb-js/diagramming';
 import {
-  getNodesBounds,
-  getViewportForBounds,
-  type ReactFlowInstance,
-} from '@xyflow/react';
-import { toPng } from 'html-to-image';
+  downloadImage,
+  downloadJsonSchema,
+  getDiagramJsonSchema,
+  getPngDataUrl,
+  mapEdgeToEdgeProps,
+  mapNodeToNodeProps,
+} from './diagram-editor/utils';
+import { getNodesBounds } from '@xyflow/react';
 
 const nbsp = '\u00a0';
 
@@ -44,67 +49,48 @@ const footerStyles = css({
   gap: spacing[200],
 });
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const getDiagramPngUrl = async (diagram: ReactFlowInstance) => {
-  const currentViewport = diagram.getViewport();
-
-  await diagram.fitView({ padding: '4px' });
-  await wait(500);
-
-  const bounds = getNodesBounds(diagram.getNodes());
-  const width = bounds.width;
-  const height = bounds.height;
-
-  const transform = getViewportForBounds(bounds, width, height, 0.5, 2, '10px');
-
-  const element = document.querySelector('.react-flow__viewport');
-  if (!element) {
-    throw new Error('Viewport not found');
-  }
-  const url = await toPng(element as HTMLElement, {
-    backgroundColor: '#fff',
-    width,
-    height,
-    style: {
-      transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
-    },
-    pixelRatio: 2,
-    quality: 1,
-  });
-  await diagram.setViewport(currentViewport);
-  return url;
-};
-
-const downloadDataUri = (dataUri: string, filename: string) => {
-  const link = document.createElement('a');
-  link.href = dataUri;
-  link.download = filename;
-  link.click();
-  link.remove();
-};
-
 type ExportDiagramModalProps = {
   isModalOpen: boolean;
   onClose: () => void;
+  diagramLabel: string;
 };
 
 export const ExportDiagramModal = ({
   isModalOpen,
   onClose,
+  diagramLabel,
 }: ExportDiagramModalProps) => {
   const [exportFormat, setExportFormat] = React.useState<'png' | 'json' | null>(
     null
   );
-  const diagram = useDiagram();
+  const [isExporting, setIsExporting] = React.useState(false);
+  const exportDiagramContainerRef = useRef<HTMLDivElement>(null);
+  const { edges, nodes } = useContext(ExportDiagramContext);
+  const [imageUri, setImageUri] = React.useState<string | null>(null);
+  const bounds = useMemo(() => getNodesBounds(nodes), [nodes]);
 
   const onExport = useCallback(async () => {
-    if (exportFormat === 'png') {
-      const dataUrl = await getDiagramPngUrl(diagram);
-      downloadDataUri(dataUrl, 'diagram.png');
+    if (!exportFormat) {
+      return;
     }
-    onClose();
-  }, [exportFormat, diagram, onClose]);
+    setIsExporting(true);
+
+    if (exportFormat === 'png') {
+      const dataUri = await getPngDataUrl(exportDiagramContainerRef, nodes);
+      setImageUri(dataUri);
+      // downloadImage(dataUri, `${diagramLabel}.png`);
+    } else if (exportFormat === 'json') {
+      return;
+      // const jsonSchema = getDiagramJsonSchema({nodes, edges});
+      // downloadJsonSchema(
+      //   jsonSchema,
+      //   `${diagramLabel}.json`
+      // );
+    }
+
+    setIsExporting(false);
+    // onClose();
+  }, [exportFormat, nodes]);
 
   return (
     <Modal open={isModalOpen} setOpen={onClose}>
@@ -145,12 +131,44 @@ export const ExportDiagramModal = ({
             </Radio>
           </RadioGroup>
         </div>
+        {exportFormat === 'png' && imageUri && (
+          <img
+            src={imageUri}
+            alt="Exported Diagram"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              border: '1px solid red',
+            }}
+          />
+        )}
+        <DiagramProvider>
+          <div
+            style={{
+              width: bounds.width,
+              height: bounds.height,
+              position: 'absolute',
+              top: `${-bounds.width}px`,
+              left: `${-bounds.height}px`,
+            }}
+            ref={exportDiagramContainerRef}
+          >
+            <Diagram
+              // TODO: this is not exposed yet
+              edges={edges.map(mapEdgeToEdgeProps)}
+              nodes={nodes.map(mapNodeToNodeProps)}
+              onlyRenderVisibleElements={false}
+            />
+          </div>
+        </DiagramProvider>
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
           variant="primary"
           onClick={() => void onExport()}
           data-testid="export-button"
+          isLoading={isExporting}
+          loadingIndicator={<SpinLoader />}
         >
           Export
         </Button>

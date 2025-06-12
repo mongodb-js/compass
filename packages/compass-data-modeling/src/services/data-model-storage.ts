@@ -1,6 +1,18 @@
 import { z } from '@mongodb-js/compass-user-data';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
+const CollectionSchema = z.object({
+  ns: z.string(),
+  jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
+    const isObject = typeof value === 'object' && value !== null;
+    return isObject && 'bsonType' in value;
+  }),
+  indexes: z.array(z.record(z.unknown())),
+  shardKey: z.record(z.unknown()).optional(),
+  displayPosition: z.tuple([z.number(), z.number()]),
+});
+export type Collection = z.output<typeof CollectionSchema>;
+
 export const RelationshipSideSchema = z.object({
   ns: z.string(),
   cardinality: z.number(),
@@ -18,18 +30,7 @@ export const RelationshipSchema = z.object({
 export type Relationship = z.output<typeof RelationshipSchema>;
 
 export const StaticModelSchema = z.object({
-  collections: z.array(
-    z.object({
-      ns: z.string(),
-      jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
-        const isObject = typeof value === 'object' && value !== null;
-        return isObject && 'bsonType' in value;
-      }),
-      indexes: z.array(z.record(z.unknown())),
-      shardKey: z.record(z.unknown()).optional(),
-      displayPosition: z.tuple([z.number(), z.number()]),
-    })
-  ),
+  collections: z.array(CollectionSchema),
   relationships: z.array(RelationshipSchema),
 });
 
