@@ -392,19 +392,18 @@ const IndexFlowSection = ({
                     {optimalQueries}
                   </Body>
                 </p>
+                <Link
+                  href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+                  onClick={() => {
+                    track('ESR Learn More Clicked', {
+                      context: 'Create Index Modal',
+                    });
+                  }}
+                >
+                  Learn about ESR
+                </Link>
               </>
             )}
-
-            <Link
-              href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
-              onClick={() => {
-                track('ESR Learn More Clicked', {
-                  context: 'Create Index Modal',
-                });
-              }}
-            >
-              Learn about ESR
-            </Link>
           </div>
         </>
       )}
