@@ -156,23 +156,27 @@ const generateOptimalQueries = (
   }
 
   // If there are more than two fields, we want to show a longer optimal query with gt and sort
-  // i.e. {a:1, b:2, c:{gt:3}}.sort({d:1})
+  // i.e. {a:1, b:2, d:{gt:3}}.sort({c:1})
+
+  const secondToLastField = coveredQueriesArr[numOfFields - 2];
+  const secondToLastFieldKey = Object.keys(secondToLastField)[0];
+
   const optimalQueries = coveredQueriesArr
-    .slice(0, -1)
+    .slice(0, -2)
     .reduce<Record<string, unknown>>((acc, obj, index) => {
       const key = Object.keys(obj)[0];
       const value = obj[key];
 
-      if (index === numOfFields - 2) {
-        acc[key] = { $gt: value };
-      } else {
-        acc[key] = value;
-      }
+      acc[key] = value;
 
       return acc;
     }, {});
 
-  return JSON.stringify(optimalQueries) + `.sort(${lastFieldKey}: 1})`;
+  // Put last field in range and second to last field in sort
+  optimalQueries[lastFieldKey] = { $gt: coveredQueriesArr.length - 1 };
+  return (
+    JSON.stringify(optimalQueries) + `.sort("${secondToLastFieldKey}": 1})`
+  );
 };
 
 const IndexFlowSection = ({
@@ -358,15 +362,25 @@ const IndexFlowSection = ({
               className={codeStyles}
               data-testid="index-flow-section-covered-queries-examples"
             >
-              {coveredQueries}
+              <p>{coveredQueries}</p>
             </Body>
+            <Link
+              href="https://www.mongodb.com/docs/manual/core/query-optimization/"
+              onClick={() => {
+                track('Covered Queries Learn More Clicked', {
+                  context: 'Create Index Modal',
+                });
+              }}
+            >
+              Learn about covered queries
+            </Link>
 
             {!!optimalQueries && (
               <>
                 <p>
                   <span className={underlineStyles}>
                     Follow the Equality, Sort, Range (ESR) Rule. This index is
-                    optimal for queries that have this pattern:
+                    great for queries that have this pattern:
                   </span>
                   {/* Optimal queries */}
                   <Body
@@ -376,18 +390,19 @@ const IndexFlowSection = ({
                     {optimalQueries}
                   </Body>
                 </p>
-                <Link
-                  href="https://www.mongodb.com/docs/manual/core/query-optimization/"
-                  onClick={() => {
-                    track('Covered Queries Learn More Clicked', {
-                      context: 'Create Index Modal',
-                    });
-                  }}
-                >
-                  Learn More
-                </Link>
               </>
             )}
+
+            <Link
+              href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+              onClick={() => {
+                track('ESR Learn More Clicked', {
+                  context: 'Create Index Modal',
+                });
+              }}
+            >
+              Learn about ESR
+            </Link>
           </div>
         </>
       )}
