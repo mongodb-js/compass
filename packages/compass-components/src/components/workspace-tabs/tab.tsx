@@ -149,7 +149,6 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
-// TODO: Should this have a dark mode version?
 const nonExistentStyles = css({
   color: palette.gray.base,
 });

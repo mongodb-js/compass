@@ -131,14 +131,14 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       let isNonExistent: boolean | undefined;
       if ('isNonExistent' in tab && tab.isNonExistent) {
         if (tab.type === 'Collections') {
-          // TODO: Can/should we move this logic into the collections plugin title?
+          // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
           const database = tab.namespace;
           const namespaceId = `${tab.connectionId}.${database}`;
           const { isNonExistent: databaseDoesNotExist } =
             databaseInfo[namespaceId] ?? {};
           isNonExistent = databaseDoesNotExist;
         } else if (tab.type === 'Collection') {
-          // TODO: Can/should we move this logic into the collection plugin title?
+          // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
           const { ns } = toNS(tab.namespace);
           const namespaceId = `${tab.connectionId}.${ns}`;
           const { isNonExistent: collectionDoesNotExist } =
@@ -193,7 +193,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             >
               <Provider>
                 <WorkspaceTabContent
-                  {...(tab as any)} // TODO: This typing.
+                  // Cast to any as it can be any of the workspace types
+                  // here.
+                  {...(tab as any)}
                 />
               </Provider>
             </WorkspaceTabContextProvider>
@@ -201,7 +203,15 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         ),
       };
     });
-  }, [getWorkspacePlugins, tabs, getThemeOf, getConnectionById]);
+  }, [
+    getWorkspacePlugins,
+    tabs,
+    log,
+    getThemeOf,
+    mongoLogId,
+    onNamespaceNotFound,
+    getConnectionById,
+  ]);
 
   const workspaceTabContent = workspaceTabs[activeTabIndex]?.content ?? null;
 

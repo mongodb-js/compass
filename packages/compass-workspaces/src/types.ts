@@ -104,15 +104,16 @@ export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
 
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  // TODO: Type the services and activate if we can.
-  // provider: HadronPluginComponent<T, Record<string, () => unknown>, any>;
-  provider: HadronPluginComponent<WorkspacePluginProps<T>, any, any>;
+  provider: HadronPluginComponent<
+    WorkspacePluginProps<T>,
+    Record<string, () => unknown>,
+    any
+  >;
   content:
     | React.ComponentClass<WorkspacePluginProps<T>>
     | ((props: WorkspacePluginProps<T>) => React.ReactElement | null);
   header: (props: {
     tabProps: WorkspaceTabCoreProps;
-    workspaceProps: any;
-    // workspaceProps: WorkspacePluginProps<T> // TODO: Typing
+    workspaceProps: WorkspaceTabProps;
   }) => ReturnType<typeof Tab>;
 };

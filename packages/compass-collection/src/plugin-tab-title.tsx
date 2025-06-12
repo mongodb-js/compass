@@ -90,8 +90,6 @@ function _PluginTitle({
 }
 
 const ConnectedPluginTitle = connect((state: CollectionState) => ({
-  // TODO: Need to check the implications of moving this metadata here
-  // instead of having it passed from the workspaces store.
   isTimeSeries: state.metadata?.isTimeSeries,
   isReadonly: state.metadata?.isReadonly,
   sourceName: state.metadata?.sourceName,
