@@ -362,18 +362,20 @@ const IndexFlowSection = ({
               className={codeStyles}
               data-testid="index-flow-section-covered-queries-examples"
             >
-              <p>{coveredQueries}</p>
+              {coveredQueries}
             </Body>
-            <Link
-              href="https://www.mongodb.com/docs/manual/core/query-optimization/"
-              onClick={() => {
-                track('Covered Queries Learn More Clicked', {
-                  context: 'Create Index Modal',
-                });
-              }}
-            >
-              Learn about covered queries
-            </Link>
+            <p>
+              <Link
+                href="https://www.mongodb.com/docs/manual/core/query-optimization/"
+                onClick={() => {
+                  track('Covered Queries Learn More Clicked', {
+                    context: 'Create Index Modal',
+                  });
+                }}
+              >
+                Learn about covered queries
+              </Link>
+            </p>
 
             {!!optimalQueries && (
               <>
