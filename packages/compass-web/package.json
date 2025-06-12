@@ -37,6 +37,7 @@
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
+    "prewebpack": "echo \"making sure compass webpack config is up to date...\" && npm run compile --workspace=@mongodb-js/webpack-config-compass",
     "webpack": "webpack-compass",
     "postcompile": "npm run typescript",
     "typescript": "tsc -p tsconfig-build.json --emitDeclarationOnly",
