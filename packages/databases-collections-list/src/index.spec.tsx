@@ -35,8 +35,8 @@ function createDatabase(name) {
   };
 }
 
-function createCollection(name) {
-  return {
+function createCollection(name, props: any = {}) {
+  const col = {
     _id: name,
     name: name,
     type: 'collection' as const,
@@ -71,12 +71,19 @@ function createCollection(name) {
     free_storage_size: 1000,
     index_count: 15,
     index_size: 16,
+    ...props,
   };
+
+  if (col.storage_size !== undefined && col.free_storage_size !== undefined) {
+    col.calculated_storage_size = col.storage_size - col.free_storage_size;
+  }
+
+  return col;
 }
 
-function createTimeSeries(name) {
+function createTimeSeries(name, props: any = {}) {
   return {
-    ...createCollection(name),
+    ...createCollection(name, props),
     type: 'timeseries' as const,
   };
 }
@@ -89,10 +96,10 @@ const dbs = [
 ];
 
 const colls = [
-  createCollection('foo.foo'),
-  createCollection('bar.bar'),
-  createCollection('buz.buz'),
-  createTimeSeries('bat.bat'),
+  createCollection('foo.foo', { storage_size: 1000, free_storage_size: 1000 }), // 1000
+  createCollection('bar.bar', { storage_size: 2000, free_storage_size: 500 }), // 1500
+  createCollection('buz.buz', { storage_size: 3000, free_storage_size: 2000 }), // 1000
+  createTimeSeries('bat.bat', { storage_size: 4000, free_storage_size: 0 }), // 4000
 ];
 
 describe('databases and collections list', function () {
@@ -211,6 +218,35 @@ describe('databases and collections list', function () {
       userEvent.click(screen.getByText('bar.bar'));
 
       expect(clickSpy).to.be.calledWith('bar.bar');
+    });
+
+    it('should sort collections', function () {
+      renderCollectionsList({
+        namespace: 'db',
+        collections: colls,
+      });
+
+      screen
+        .getByRole('button', {
+          name: 'Sort by',
+        })
+        .click();
+
+      screen
+        .getByRole('option', {
+          name: 'Storage size',
+        })
+        .click();
+
+      const sorted = screen
+        .getAllByRole('gridcell')
+        .map((el: HTMLElement) => el.getAttribute('data-id'));
+      expect(sorted).to.deep.equal([
+        'foo.foo',
+        'buz.buz',
+        'bar.bar',
+        'bat.bat',
+      ]);
     });
 
     it('should not display statistics (except storage size) on timeseries collection card', function () {
