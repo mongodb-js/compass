@@ -37,7 +37,6 @@ const extraTsRules = {
   '@typescript-eslint/no-floating-promises': 'warn',
   '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
   '@typescript-eslint/no-misused-promises': 'warn',
-  '@typescript-eslint/no-duplicate-enum-values': 'warn',
 };
 
 const tsRules = {
