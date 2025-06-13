@@ -92,6 +92,14 @@ const coveredQueriesHeaderStyles = css({
   marginRight: spacing[200],
 });
 
+const coveredQueriesLinkStyles = css({
+  marginTop: spacing[200],
+});
+
+const optimalQueriesStyles = css({
+  marginTop: spacing[400],
+});
+
 export type IndexFlowSectionProps = {
   fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
@@ -148,7 +156,7 @@ const generateOptimalQueries = (
 
     return (
       <>
-        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}}`}
+        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}`}
         <br />
         {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
       </>
@@ -175,7 +183,7 @@ const generateOptimalQueries = (
   // Put last field in range and second to last field in sort
   optimalQueries[lastFieldKey] = { $gt: coveredQueriesArr.length - 1 };
   return (
-    JSON.stringify(optimalQueries) + `.sort("${secondToLastFieldKey}": 1})`
+    JSON.stringify(optimalQueries) + `.sort({"${secondToLastFieldKey}": 1})`
   );
 };
 
@@ -358,51 +366,54 @@ const IndexFlowSection = ({
             )}
           >
             {/* Covered Queries */}
-            <Body
-              className={codeStyles}
-              data-testid="index-flow-section-covered-queries-examples"
-            >
-              {coveredQueries}
-            </Body>
-            <p>
-              <Link
-                href="https://www.mongodb.com/docs/manual/core/query-optimization/"
-                onClick={() => {
-                  track('Covered Queries Learn More Clicked', {
-                    context: 'Create Index Modal',
-                  });
-                }}
-              >
-                Learn about covered queries
-              </Link>
-            </p>
 
-            {!!optimalQueries && (
-              <>
-                <p>
-                  <span className={underlineStyles}>
-                    Follow the Equality, Sort, Range (ESR) Rule. This index is
-                    great for queries that have this pattern:
-                  </span>
-                  {/* Optimal queries */}
-                  <Body
-                    className={codeStyles}
-                    data-testid="index-flow-section-optimal-queries-examples"
-                  >
-                    {optimalQueries}
-                  </Body>
-                </p>
+            <div>
+              <Body
+                className={codeStyles}
+                data-testid="index-flow-section-covered-queries-examples"
+              >
+                {coveredQueries}
+              </Body>
+              <div className={coveredQueriesLinkStyles}>
                 <Link
-                  href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+                  href="https://www.mongodb.com/docs/manual/core/query-optimization/"
                   onClick={() => {
-                    track('ESR Learn More Clicked', {
+                    track('Covered Queries Learn More Clicked', {
                       context: 'Create Index Modal',
                     });
                   }}
                 >
-                  Learn about ESR
+                  Learn about covered queries
                 </Link>
-              </>
+              </div>
+            </div>
+
+            {!!optimalQueries && (
+              <div className={optimalQueriesStyles}>
+                <span className={underlineStyles}>
+                  Follow the Equality, Sort, Range (ESR) Rule. This index is
+                  great for queries that have this pattern:
+                </span>
+                {/* Optimal queries */}
+                <Body
+                  className={codeStyles}
+                  data-testid="index-flow-section-optimal-queries-examples"
+                >
+                  {optimalQueries}
+                </Body>
+                <div className={coveredQueriesLinkStyles}>
+                  <Link
+                    href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+                    onClick={() => {
+                      track('ESR Learn More Clicked', {
+                        context: 'Create Index Modal',
+                      });
+                    }}
+                  >
+                    Learn about ESR
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </>

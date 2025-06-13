@@ -109,7 +109,7 @@ describe('IndexFlowSection', () => {
       );
       expect(optimalQueriesExamples).to.exist;
       expect(optimalQueriesExamples).to.contain.text(
-        `{"field1":1,"field2":2,"field4":{"$gt":3}}.sort("field3": 1})`
+        `{"field1":1,"field2":2,"field4":{"$gt":3}}.sort({"field3": 1})`
       );
     });
 
@@ -156,7 +156,7 @@ describe('IndexFlowSection', () => {
       );
       expect(optimalQueriesExamples).to.exist;
       expect(optimalQueriesExamples).to.contain.text(
-        `{"field1":1,"field3":{"$gt":2}}.sort("field2": 1})`
+        `{"field1":1,"field3":{"$gt":2}}.sort({"field2": 1})`
       );
     });
 
@@ -195,7 +195,7 @@ describe('IndexFlowSection', () => {
       );
       expect(optimalQueriesExamples).to.exist;
       expect(optimalQueriesExamples).to.contain.text(
-        `{"field1":1,"field2":{"$gt":2}}}`
+        `{"field1":1,"field2":{"$gt":2}}`
       );
       expect(optimalQueriesExamples).to.contain.text(
         `{"field1":1}.sort({"field2":2})`
