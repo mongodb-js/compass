@@ -37,7 +37,9 @@ const Document = (props: DocumentProps) => {
       <ReadonlyDocument
         doc={doc}
         copyToClipboard={copyToClipboard}
-        openInsertDocumentDialog={openInsertDocumentDialog}
+        openInsertDocumentDialog={(doc, cloned) => {
+          void openInsertDocumentDialog?.(doc, cloned);
+        }}
       />
     );
   }
