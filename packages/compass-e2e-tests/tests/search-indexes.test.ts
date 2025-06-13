@@ -185,7 +185,7 @@ describe('Search Indexes', function () {
       // Try to delete a namespace if it exists
       try {
         await dbInstance.dropCollection(collectionName);
-      } catch (e) {
+      } catch {
         // noop
       }
 
@@ -210,7 +210,7 @@ describe('Search Indexes', function () {
     {
       try {
         await dbInstance.dropCollection(collectionName);
-      } catch (e) {
+      } catch {
         console.log(`Failed to drop collection: ${DB_NAME}.${collectionName}`);
       }
     }

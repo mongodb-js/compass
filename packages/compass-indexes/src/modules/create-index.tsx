@@ -405,7 +405,7 @@ export const fetchIndexSuggestions = ({
       try {
         sampleDocuments =
           (await dataService.sample(namespace, { size: 50 })) || [];
-      } catch (e) {
+      } catch {
         // Swallow the error because mql package still will work fine with empty sampleDocuments
         sampleDocuments = [];
       }

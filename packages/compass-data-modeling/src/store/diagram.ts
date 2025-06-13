@@ -273,7 +273,7 @@ export function renameDiagram(
       }
       dispatch({ type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName });
       void dataModelStorage.save({ ...diagram, name: newName });
-    } catch (err) {
+    } catch {
       // TODO log
     }
   };
