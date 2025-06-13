@@ -22,7 +22,6 @@ const extraTsRules = {
   // clean those out and re-enable the rules
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
-  '@typescript-eslint/no-require-imports': 'warn',
   '@typescript-eslint/no-unused-vars': [
     'error',
     {

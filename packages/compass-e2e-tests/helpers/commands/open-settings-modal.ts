@@ -6,7 +6,7 @@ export async function openSettingsModal(
   tab?: string
 ): Promise<void> {
   await browser.execute(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('electron').ipcRenderer.emit('window:show-settings');
   });
 
