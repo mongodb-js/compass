@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { createLogger } from '@mongodb-js/compass-logging';
 import path from 'path';
 import { promises as fs } from 'fs';
