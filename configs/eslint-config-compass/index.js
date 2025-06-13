@@ -23,14 +23,7 @@ const extraTsRules = {
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
   '@typescript-eslint/no-require-imports': 'warn',
-  '@typescript-eslint/no-unused-vars': [
-    'error',
-    {
-      caughtErrors: 'none', // should be `'all'`
-    },
-  ],
   '@typescript-eslint/no-unused-expressions': 'off', // replace with eslint-plugin-chai-friendly
-  '@typescript-eslint/no-redundant-type-constituents': 'warn',
   '@typescript-eslint/unbound-method': 'warn',
   '@typescript-eslint/no-duplicate-type-constituents': 'warn',
   '@typescript-eslint/no-unsafe-declaration-merging': 'warn',

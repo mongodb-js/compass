@@ -15,7 +15,7 @@ function getHistory(): ConnectionInfo[] {
     const bytes = Uint8Array.from(binStr, (v) => v.codePointAt(0) ?? 0);
     const str = new TextDecoder().decode(bytes);
     return JSON.parse(str);
-  } catch (err) {
+  } catch {
     return [];
   }
 }
@@ -25,7 +25,7 @@ function saveHistory(history: ConnectionInfo[]) {
     const binStr = String.fromCodePoint(...bytes);
     const b64Str = window.btoa(binStr);
     localStorage.setItem(historyKey, b64Str);
-  } catch (err) {
+  } catch {
     // noop
   }
 }

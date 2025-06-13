@@ -12,7 +12,7 @@ export async function existsEventually(
       typeof timeout !== 'undefined' ? { timeout } : undefined
     );
     return true;
-  } catch (err) {
+  } catch {
     // return false if not
     return false;
   }

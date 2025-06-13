@@ -28,7 +28,7 @@ export function getConnectionTitle(info: ConnectionInfoForTitle): string {
     try {
       const url = new ConnectionString(info.connectionOptions.connectionString);
       title = url.hosts.join(',');
-    } catch (e) {
+    } catch {
       // When parsing a connection for its title fails we default the title.
       title = info.connectionOptions.connectionString || 'Connection';
     }

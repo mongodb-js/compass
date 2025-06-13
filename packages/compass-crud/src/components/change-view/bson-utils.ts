@@ -16,12 +16,12 @@ export function stringifyBSON(value: any) {
   return EJSON.stringify(value);
 }
 
-export function unBSON(value: any | any[]): any | any[] {
+export function unBSON(value: any): any {
   const shape = getValueShape(value);
   if (shape === 'array') {
     return value.map(unBSON);
   } else if (shape === 'object') {
-    const mapped: Record<string, any | any[]> = {};
+    const mapped: Record<string, any> = {};
     for (const [k, v] of Object.entries(value)) {
       mapped[k] = unBSON(v);
     }

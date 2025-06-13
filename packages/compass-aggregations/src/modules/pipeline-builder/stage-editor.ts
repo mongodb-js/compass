@@ -886,13 +886,13 @@ const formatWizardValue = (value?: string): string => {
   let reIndented = value;
   try {
     reIndented = JSON.stringify(JSON.parse(value), null, 2);
-  } catch (e) {
+  } catch {
     // not valid json
   }
 
   try {
     return prettify(reIndented);
-  } catch (e) {
+  } catch {
     // not valid js (ie. the generated stage has placeholders for the user to fill etc ..)
     return reIndented;
   }

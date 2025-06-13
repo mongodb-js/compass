@@ -74,7 +74,7 @@ function getCurrentlyConnectedUri(
 
   try {
     connectionStringUrl = dataService.getConnectionString().clone();
-  } catch (e) {
+  } catch {
     return '<uri>';
   }
 

@@ -178,7 +178,7 @@ const QueryFlowSection = ({
       if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
         _isShowSuggestionsButtonDisabled = true;
       }
-    } catch (e) {
+    } catch {
       _isShowSuggestionsButtonDisabled = true;
     } finally {
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);

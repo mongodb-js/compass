@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from '@leafygreen-ui/icon';
 
-type IndexDirection = number | unknown;
+type IndexDirection = unknown;
 
 const IndexIcon = ({
   className,

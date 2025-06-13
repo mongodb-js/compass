@@ -1216,7 +1216,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -1978,7 +1978,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -2193,7 +2193,7 @@ export async function findAndModifyWithFLEFallback(
         { promoteValues: false }
       );
       return [undefined, docs[0]] as ErrorOrResult;
-    } catch (e) {
+    } catch {
       /* fallthrough */
     }
   }

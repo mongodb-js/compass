@@ -25,7 +25,7 @@ class DataModelStorageElectron implements DataModelStorage {
     try {
       const res = await this.userData.readAll();
       return res.data;
-    } catch (err) {
+    } catch {
       return [];
     }
   }

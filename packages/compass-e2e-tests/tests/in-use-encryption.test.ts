@@ -575,7 +575,7 @@ describe('CSFLE / QE', function () {
             // present and smaller than the default one to allow for tests to
             // proceed correctly
             await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
-          } catch (err) {
+          } catch {
             if (
               mode === 'unindexed' &&
               (await footer.getText()) ===

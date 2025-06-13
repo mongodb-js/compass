@@ -29,7 +29,7 @@ export async function screenshot(
   const fullPath = path.join(LOG_SCREENSHOTS_PATH, filename);
   try {
     await withTimeout(10000, browser.saveScreenshot(fullPath));
-  } catch (err: any) {
+  } catch {
     // For some reason browser.saveScreenshot() sometimes times out on mac with
     // `WARN webdriver: Request timed out! Consider increasing the
     // "connectionRetryTimeout" option.`. The default is 120 seconds.

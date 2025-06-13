@@ -21,7 +21,7 @@ export function parseAuthMechanismProperties(
     return new CommaAndColonSeparatedRecord<AuthMechanismProperties>(
       authMechanismPropertiesString
     );
-  } catch (e) {
+  } catch {
     return new CommaAndColonSeparatedRecord<AuthMechanismProperties>();
   }
 }
