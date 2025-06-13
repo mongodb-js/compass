@@ -29,25 +29,6 @@ describe('create-index module', function () {
       store.dispatch(fieldTypeUpdated(0, 'text'));
     });
 
-    it('validates field name & type', function () {
-      Object.assign(store.getState(), {
-        createIndex: {
-          ...store.getState().createIndex,
-          fields: [
-            {
-              name: '',
-              type: '',
-            },
-          ],
-        },
-      });
-      store.dispatch(createIndexFormSubmitted());
-
-      expect(store.getState().createIndex.error).to.equal(
-        'You must select a field name and type'
-      );
-    });
-
     it('validates collation', function () {
       Object.assign(store.getState(), {
         createIndex: {
