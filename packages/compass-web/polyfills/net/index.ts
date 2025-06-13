@@ -137,12 +137,12 @@ class Socket extends Duplex {
 
   decodeMessageWithTypeByte(message: Uint8Array) {
     const typeByte = message[0];
-    if (typeByte === MESSAGE_TYPE.JSON) {
+    if (typeByte === Number(MESSAGE_TYPE.JSON)) {
       const jsonBytes = message.subarray(1);
       const textDecoder = new TextDecoder('utf-8');
       const jsonStr = textDecoder.decode(jsonBytes);
       return JSON.parse(jsonStr);
-    } else if (typeByte === MESSAGE_TYPE.BINARY) {
+    } else if (typeByte === Number(MESSAGE_TYPE.BINARY)) {
       return message.subarray(1);
     } else {
       // eslint-disable-next-line no-console
