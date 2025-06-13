@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { WorkspaceTab } from '../stores/workspaces';
+import type { WorkspaceTab } from '../types';
 import { useWorkspaceTabId } from './workspace-tab-state-provider';
 
 export type WorkspaceDestroyHandler = () => boolean;
