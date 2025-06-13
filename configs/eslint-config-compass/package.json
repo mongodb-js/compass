@@ -22,6 +22,7 @@
     "@typescript-eslint/parser": "^8.34.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-chai-friendly": "^1.1.0",
     "eslint-plugin-filename-rules": "^1.2.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-mocha": "^8.0.0",

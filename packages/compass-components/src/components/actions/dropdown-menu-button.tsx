@@ -90,7 +90,7 @@ export function DropdownMenuButton<Action extends string>({
             data-testid={dataTestId ? `${dataTestId}-show-actions` : undefined}
             onClick={(evt) => {
               evt.stopPropagation();
-              onClick && onClick(evt);
+              onClick?.(evt);
             }}
             rightGlyph={<Icon glyph={'CaretDown'} />}
             title={buttonText}
