@@ -164,6 +164,7 @@ Generated on Fri, Jun 13, 2025
 - [Code Equivalent Toggled](#event--CreateIndexCodeEquivalentToggled)
 - [Covered Queries Button Clicked](#event--CreateIndexCoveredQueriesButtonClicked)
 - [Covered Queries Learn More Clicked](#event--CreateIndexCoveredQueriesLearnMoreClicked)
+- [ESR Learn More Clicked](#event--CreateIndexESRLearnMoreClicked)
 - [Start with an Index Tab Clicked](#event--CreateIndexIndexTabClicked)
 - [Cancel Button Clicked](#event--CreateIndexModalCancelled)
 - [Create Index Modal Closed](#event--CreateIndexModalClosed)
@@ -1900,6 +1901,15 @@ a system that doesn't offer a suitable secret storage backend.
 <a name="event--CreateIndexCoveredQueriesLearnMoreClicked"></a>
 
 ### Covered Queries Learn More Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexESRLearnMoreClicked"></a>
+
+### ESR Learn More Clicked
 
 **Properties**:
 
