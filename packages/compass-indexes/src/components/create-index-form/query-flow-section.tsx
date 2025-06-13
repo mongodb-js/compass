@@ -160,7 +160,7 @@ const QueryFlowSection = ({
     });
 
     setHasNewChanges(false);
-  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick, track]);
 
   const handleQueryInputChange = useCallback((text: string) => {
     setInputQuery(text);
