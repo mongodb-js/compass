@@ -7,6 +7,7 @@ import {
   Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import React from 'react';
 
 const headerStyle = css({
@@ -24,6 +25,7 @@ const subtitleDarkStyle = css({
 
 const CreateIndexModalHeader = () => {
   const darkMode = useDarkMode();
+  const track = useTelemetry();
   return (
     <div className={headerStyle}>
       <H3 data-testid="create-index-modal-header-title">Create Index</H3>
@@ -39,6 +41,11 @@ const CreateIndexModalHeader = () => {
           href="https://docs.mongodb.com/manual/applications/indexes/"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            track('Index Strategies Documentation Clicked', {
+              context: 'Create Index Modal',
+            });
+          }}
         >
           Index Strategies Documentation
         </Link>

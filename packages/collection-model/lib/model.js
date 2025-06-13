@@ -239,6 +239,18 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         return getProperties(this);
       },
     },
+    calculated_storage_size: {
+      deps: ['storage_size', 'free_storage_size'],
+      fn() {
+        if (
+          this.storage_size === undefined ||
+          this.free_storage_size === undefined
+        ) {
+          return undefined;
+        }
+        return this.storage_size - this.free_storage_size;
+      },
+    },
   },
 
   /**
