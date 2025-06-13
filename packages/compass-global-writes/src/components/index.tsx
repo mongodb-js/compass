@@ -72,7 +72,7 @@ function ShardingStateView({
     return <IncompleteShardingSetup />;
   }
 
-  if (shardingStatus === ShardingStatuses.LOADING_ERROR) {
+  if (shardingStatus === String(ShardingStatuses.LOADING_ERROR)) {
     return <LoadingError />;
   }
 
