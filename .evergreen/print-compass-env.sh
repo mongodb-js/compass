@@ -43,8 +43,8 @@ if [[ "${EVERGREEN_PROJECT}" == "10gen-compass-main" ]]; then
         month=$(escapeLeadingZero "${ts[1]}")
         day=$(escapeLeadingZero "${ts[2]}")
         hour=$(escapeLeadingZero "${ts[3]}")
-        minute="${ts[4]}"
-        second="${ts[5]}"
+        minute=$(escapeLeadingZero "${ts[4]}")
+        second=$(escapeLeadingZero "${ts[5]}")
         export DEV_VERSION_IDENTIFIER="${year}.${month}.${day}-dev.${hour}${minute}${second}"
     fi
 fi
