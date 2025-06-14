@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 const setupIpc = () => {
   let preferences = {};
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('hadron-ipc').ipcRenderer = Object.assign(new EventEmitter(), {
     createInvoke: (name: string, methods: string[]) => {
       return Object.fromEntries(methods.map((m) => [m, () => {}]));

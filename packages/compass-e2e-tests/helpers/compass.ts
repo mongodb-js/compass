@@ -220,7 +220,7 @@ export class Compass {
     // close it and load the logs
     [this.logPath, this.userDataPath, this.appName, this.mainProcessPid] =
       await this.browser.execute(() => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { ipcRenderer } = require('electron');
         return Promise.all([
           ipcRenderer.invoke('compass:logPath'),
@@ -350,7 +350,7 @@ export class Compass {
       debug('Writing coverage');
       const coverage: Coverage = await this.browser.executeAsync((done) => {
         void (async () => {
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
           const mainCoverage = await require('electron').ipcRenderer.invoke(
             'coverage'
           );
@@ -966,6 +966,7 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
         packagerOptions: { name: process.env.COMPASS_APP_NAME },
       };
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       metadata = require('mongodb-compass/dist/target.json');
     }
     // Double-checking that Compass app path exists, not only the metadata
@@ -1100,7 +1101,7 @@ export async function init(
     }
   } else {
     await browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { ipcRenderer } = require('electron');
       void ipcRenderer.invoke('compass:maximize');
     });

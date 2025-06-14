@@ -301,7 +301,7 @@ export function createElectronRendererConfig(
 export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   const opts = webpackArgsWithDefaults(args, { target: 'web' });
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { peerDependencies } = require(path.join(opts.cwd, 'package.json')) as {
     peerDependencies: Record<string, string>;
   };
