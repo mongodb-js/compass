@@ -14,7 +14,7 @@ export async function setupIntercom(
     return;
   }
 
-  const { enableFeedbackPanel, networkTraffic } = preferences.getPreferences();
+  const { enableFeedbackPanel } = preferences.getPreferences();
 
   const intercomAppId = process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
@@ -37,19 +37,16 @@ export async function setupIntercom(
   };
 
   async function toggleEnableFeedbackPanel(enableFeedbackPanel: boolean) {
-    if (enableFeedbackPanel) {
-      if (await isIntercomAllowed(networkTraffic)) {
-        debug('loading intercom script');
-        intercomScript.load(metadata);
-      }
+    if (enableFeedbackPanel && (await isIntercomAllowed())) {
+      debug('loading intercom script');
+      intercomScript.load(metadata);
     } else {
       debug('unloading intercom script');
       intercomScript.unload();
     }
   }
 
-  const shouldLoad =
-    enableFeedbackPanel && (await isIntercomAllowed(networkTraffic));
+  const shouldLoad = enableFeedbackPanel && (await isIntercomAllowed());
 
   if (shouldLoad) {
     // In some environment the network can be firewalled, this is a safeguard to avoid
@@ -79,7 +76,7 @@ export async function setupIntercom(
     await toggleEnableFeedbackPanel(shouldLoad);
   } catch (error) {
     debug('initial toggle failed', {
-      error: error instanceof Error && error.message,
+      error,
     });
   }
 
@@ -92,19 +89,17 @@ export async function setupIntercom(
   );
 }
 
-function isIntercomAllowed(allowNetworkTraffic = true): Promise<boolean> {
-  return allowNetworkTraffic
-    ? fetchIntegrations().then(
-        ({ intercom }) => intercom,
-        (error) => {
-          debug(
-            'Failed to fetch intercom integration status, defaulting to false',
-            { error: error instanceof Error && error.message }
-          );
-          return false;
-        }
-      )
-    : Promise.resolve(false);
+function isIntercomAllowed(): Promise<boolean> {
+  return fetchIntegrations().then(
+    ({ intercom }) => intercom,
+    (error) => {
+      debug(
+        'Failed to fetch intercom integration status, defaulting to false',
+        { error }
+      );
+      return false;
+    }
+  );
 }
 
 /**
