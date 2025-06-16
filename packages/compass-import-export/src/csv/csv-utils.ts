@@ -204,7 +204,7 @@ function isEJSON(value: string) {
   ) {
     try {
       JSON.parse(value);
-    } catch (err) {
+    } catch {
       return false;
     }
     return true;
@@ -254,7 +254,7 @@ export function detectCSVFieldType(
     let number;
     try {
       number = BigInt(value);
-    } catch (err) {
+    } catch {
       // just in case something makes it past the regex by accident
       return 'string';
     }

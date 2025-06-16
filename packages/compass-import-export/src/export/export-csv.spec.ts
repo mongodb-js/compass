@@ -48,7 +48,7 @@ describe('exportCSV', function () {
 
     try {
       await dataService.dropCollection('db.col');
-    } catch (err) {
+    } catch {
       // ignore
     }
     await dataService.createCollection('db.col', {});
@@ -57,7 +57,7 @@ describe('exportCSV', function () {
   afterEach(async function () {
     try {
       await dataService.disconnect();
-    } catch (err) {
+    } catch {
       // ignore
     }
   });

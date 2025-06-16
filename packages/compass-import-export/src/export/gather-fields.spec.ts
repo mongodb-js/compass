@@ -47,7 +47,7 @@ describe('gatherFields', function () {
 
     try {
       await dataService.dropCollection(testNS);
-    } catch (err) {
+    } catch {
       // ignore
     }
     await dataService.createCollection(testNS, {});
@@ -56,7 +56,7 @@ describe('gatherFields', function () {
   afterEach(async function () {
     try {
       await dataService.disconnect();
-    } catch (err) {
+    } catch {
       // ignore
     }
   });

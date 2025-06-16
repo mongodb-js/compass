@@ -9,7 +9,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -105,6 +105,8 @@ const QueryFlowSection = ({
   indexSuggestions,
   fetchingSuggestionsState,
   initialQuery,
+  inputQuery,
+  setInputQuery,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -118,12 +120,12 @@ const QueryFlowSection = ({
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: Document | null;
+  inputQuery: string;
+  setInputQuery: (query: string) => void;
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-  const [inputQuery, setInputQuery] = React.useState(
-    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
-  );
+
   const [hasNewChanges, setHasNewChanges] = React.useState(
     initialQuery !== null
   );
@@ -146,7 +148,7 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  const handleSuggestedIndexButtonClick = useCallback(() => {
+  const generateSuggestedIndexes = useCallback(() => {
     const sanitizedInputQuery = inputQuery.trim();
 
     void onSuggestedIndexButtonClick({
@@ -154,13 +156,15 @@ const QueryFlowSection = ({
       collectionName,
       inputQuery: sanitizedInputQuery,
     });
+    setHasNewChanges(false);
+  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
 
+  const handleSuggestedIndexButtonClick = () => {
+    generateSuggestedIndexes();
     track('Suggested Index Button Clicked', {
       context: 'Create Index Modal',
     });
-
-    setHasNewChanges(false);
-  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+  };
 
   const handleQueryInputChange = useCallback((text: string) => {
     setInputQuery(text);
@@ -178,21 +182,27 @@ const QueryFlowSection = ({
       if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
         _isShowSuggestionsButtonDisabled = true;
       }
-    } catch (e) {
+    } catch {
       _isShowSuggestionsButtonDisabled = true;
     } finally {
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
   }, [hasNewChanges, inputQuery]);
 
+  useEffect(() => {
+    if (initialQuery !== null) {
+      generateSuggestedIndexes();
+    }
+  }, [initialQuery]);
+
   return (
     <>
       {initialQuery && (
         <div className={insightStyles}>
           <InsightsChip />
-          <p>
+          <span>
             We prefilled the query input below based on your recently run query
-          </p>
+          </span>
         </div>
       )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -257,6 +267,11 @@ const QueryFlowSection = ({
                 dbName={dbName}
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
+                onCopy={() => {
+                  track('Index Suggestions Copied', {
+                    context: 'Create Index Modal',
+                  });
+                }}
               />
             </div>
           </>

@@ -34,7 +34,6 @@ function CreateIndexActions({
   onCancelCreateIndexClick,
   fields,
   currentTab,
-  showIndexesGuidanceVariant,
   indexSuggestions,
 }: {
   error: string | null;
@@ -43,25 +42,21 @@ function CreateIndexActions({
   onCancelCreateIndexClick: () => void;
   fields: Field[];
   currentTab: Tab;
-  showIndexesGuidanceVariant: boolean;
   indexSuggestions: Record<string, number> | null;
 }) {
   const track = useTelemetry();
 
   let isCreateIndexButtonDisabled = false;
-
-  if (showIndexesGuidanceVariant) {
-    // Disable create index button if the user is in Query Flow and has no suggestions
-    if (currentTab === 'QueryFlow') {
-      if (indexSuggestions === null) {
-        isCreateIndexButtonDisabled = true;
-      }
+  // Disable create index button if the user is in Query Flow and has no suggestions
+  if (currentTab === 'QueryFlow') {
+    if (indexSuggestions === null) {
+      isCreateIndexButtonDisabled = true;
     }
-    // Or if they are in the Index Flow but have not completed the fields
-    else {
-      if (!areAllFieldsFilledIn(fields)) {
-        isCreateIndexButtonDisabled = true;
-      }
+  }
+  // Or if they are in the Index Flow but have not completed the fields
+  else {
+    if (!areAllFieldsFilledIn(fields)) {
+      isCreateIndexButtonDisabled = true;
     }
   }
 

@@ -8,7 +8,7 @@ const dohEndpoints = process.env.COMPASS_WEB_DOH_ENDPOINT ?? [
 
 export function resolveSrv(
   hostname: string,
-  cb: (err: null | any, answers?: any[]) => void
+  cb: (err: any, answers?: any[]) => void
 ) {
   query(
     { question: { type: 'SRV', name: hostname } },
@@ -29,7 +29,7 @@ export function resolveSrv(
 }
 export function resolveTxt(
   hostname: string,
-  cb: (err: null | any, answers?: string[][]) => void
+  cb: (err: any, answers?: string[][]) => void
 ) {
   lookupTxt(hostname, { endpoints: dohEndpoints }).then(({ entries }) => {
     const res = entries.map((entry) => {

@@ -42,7 +42,7 @@ export const enum StageEditorActionTypes {
   StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
   StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
   StageRunSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StageRunSuccess',
-  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
+  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StageRunError',
   StageValueChange = 'compass-aggregations/pipeline-builder/stage-editor/StageValueChange',
   StageOperatorChange = 'compass-aggregations/pipeline-builder/stage-editor/StageOperatorChange',
   StageCollapsedChange = 'compass-aggregations/pipeline-builder/stage-editor/StageCollapsedChange',
@@ -886,13 +886,13 @@ const formatWizardValue = (value?: string): string => {
   let reIndented = value;
   try {
     reIndented = JSON.stringify(JSON.parse(value), null, 2);
-  } catch (e) {
+  } catch {
     // not valid json
   }
 
   try {
     return prettify(reIndented);
-  } catch (e) {
+  } catch {
     // not valid js (ie. the generated stage has placeholders for the user to fill etc ..)
     return reIndented;
   }
