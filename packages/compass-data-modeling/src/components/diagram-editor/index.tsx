@@ -84,12 +84,14 @@ const DiagramEditor: React.FunctionComponent<{
       }}
     >
       <ExportDiagramContextProvider value={exportDiagramContextValue}>
-        <DiagramProvider>{content}</DiagramProvider>
-        <ExportDiagramModal
-          isModalOpen={isExportModalOpen}
-          onClose={() => setIsExportModalOpen(false)}
-          diagramLabel={diagramLabel}
-        />
+        <DiagramProvider>
+          {content}
+          <ExportDiagramModal
+            isModalOpen={isExportModalOpen}
+            onClose={() => setIsExportModalOpen(false)}
+            diagramLabel={diagramLabel}
+          />
+        </DiagramProvider>
       </ExportDiagramContextProvider>
     </WorkspaceContainer>
   );

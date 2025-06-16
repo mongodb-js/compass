@@ -1,4 +1,4 @@
-import type { NodeProps, EdgeProps, NodeType } from '@mongodb-js/diagramming';
+import { type NodeProps, type EdgeProps, type NodeType, DiagramProvider, Diagram } from '@mongodb-js/diagramming';
 import type { Node, Edge } from '@xyflow/react';
 import type {
   Relationship,
@@ -6,7 +6,9 @@ import type {
 } from '../../services/data-model-storage';
 import { toPng } from 'html-to-image';
 import { getNodesBounds, getViewportForBounds } from '@xyflow/react';
-import type { ReactFlowNode } from '../export-diagram-context';
+import type { ReactFlowEdge, ReactFlowNode } from '../export-diagram-context';
+import ReactDOM from 'react-dom';
+import React from 'react';
 
 export function mapNodeToNodeProps(node: Node): NodeProps {
   const { data, type, ...restOfNode } = node;
@@ -83,41 +85,57 @@ export function mapRelationshipToEdgeProps(
 
 export async function getPngDataUrl(
   containerRef: React.RefObject<HTMLDivElement>,
-  nodes: ReactFlowNode[]
+  nodes: ReactFlowNode[],
+  edges: ReactFlowEdge[]
 ): Promise<string> {
   if (!containerRef.current) {
     throw new Error('Container reference is not set');
   }
-  const diagramElement = containerRef.current.querySelector(
-    '.react-flow__viewport'
-  );
-  if (!diagramElement) {
-    throw new Error('Diagram element not found');
-  }
-
-  const padding = '20px';
-  const bounds = getNodesBounds(nodes);
-  const transform = getViewportForBounds(
-    bounds,
-    bounds.width,
-    bounds.height,
-    0.5,
-    2,
-    padding
-  );
-
-  const uri = await toPng(diagramElement as HTMLElement, {
-    backgroundColor: '#fff',
-    pixelRatio: 2,
-    width: bounds.width,
-    height: bounds.height,
-    style: {
-      width: `${bounds.width}px`,
-      height: `${bounds.height}px`,
-      transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
-    },
+  return new Promise<string>((resolve, reject) => {
+    console.time('Diagram rendering');
+    ReactDOM.render(
+      <DiagramProvider>
+        <Diagram edges={edges.map(mapEdgeToEdgeProps)} nodes={nodes.map(mapNodeToNodeProps)} onlyRenderVisibleElements={false}/>
+      </DiagramProvider>,
+      containerRef.current,
+      () => {
+        console.timeEnd('Diagram rendering');
+        const diagramElement = containerRef.current.querySelector(
+          '.react-flow__viewport'
+        );
+        if (!diagramElement) {
+          throw new Error('Diagram element not found');
+        }
+      
+        const padding = '20px';
+        const bounds = getNodesBounds(nodes);
+        const transform = getViewportForBounds(
+          bounds,
+          bounds.width,
+          bounds.height,
+          0.5,
+          2,
+          padding
+        );
+      
+        console.time('Diagram to PNG conversion');
+        toPng(diagramElement as HTMLElement, {
+          backgroundColor: '#fff',
+          pixelRatio: 2,
+          width: bounds.width,
+          height: bounds.height,
+          style: {
+            width: `${bounds.width}px`,
+            height: `${bounds.height}px`,
+            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+          },
+        }).then((uri) => {
+          console.timeEnd('Diagram to PNG conversion');
+          resolve(uri);
+        }).catch(reject);
+      }
+    );
   });
-  return uri;
 }
 
 export function getDiagramJsonSchema(data: unknown) {
@@ -139,8 +157,13 @@ export function downloadJsonSchema(
   const blob = new Blob([JSON.stringify(jsonSchema, null, 2)], {
     type: 'application/json',
   });
+  const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
+  link.href = url;
   link.download = filename;
-  link.href = URL.createObjectURL(blob);
   link.click();
+  setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  }, 0);
 }

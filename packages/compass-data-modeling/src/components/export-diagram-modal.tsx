@@ -15,16 +15,14 @@ import {
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { ExportDiagramContext } from './export-diagram-context';
-import { Diagram, DiagramProvider } from '@mongodb-js/diagramming';
 import {
   downloadImage,
   downloadJsonSchema,
   getDiagramJsonSchema,
   getPngDataUrl,
-  mapEdgeToEdgeProps,
-  mapNodeToNodeProps,
 } from './diagram-editor/utils';
 import { getNodesBounds } from '@xyflow/react';
+import { useDiagram } from '@mongodb-js/diagramming';
 
 const nbsp = '\u00a0';
 
@@ -65,32 +63,35 @@ export const ExportDiagramModal = ({
   );
   const [isExporting, setIsExporting] = React.useState(false);
   const exportDiagramContainerRef = useRef<HTMLDivElement>(null);
-  const { edges, nodes } = useContext(ExportDiagramContext);
   const [imageUri, setImageUri] = React.useState<string | null>(null);
-  const bounds = useMemo(() => getNodesBounds(nodes), [nodes]);
+  const diagram = useDiagram();
+
+  const bounds = useMemo(() => getNodesBounds(diagram.getNodes()), [diagram]);
 
   const onExport = useCallback(async () => {
     if (!exportFormat) {
       return;
     }
     setIsExporting(true);
+    const nodes = diagram.getNodes();
+    const edges = diagram.getEdges();
 
     if (exportFormat === 'png') {
-      const dataUri = await getPngDataUrl(exportDiagramContainerRef, nodes);
+      const dataUri = await getPngDataUrl(
+        exportDiagramContainerRef,
+        nodes,
+        edges
+      );
       setImageUri(dataUri);
       // downloadImage(dataUri, `${diagramLabel}.png`);
     } else if (exportFormat === 'json') {
-      return;
-      // const jsonSchema = getDiagramJsonSchema({nodes, edges});
-      // downloadJsonSchema(
-      //   jsonSchema,
-      //   `${diagramLabel}.json`
-      // );
+      const jsonSchema = getDiagramJsonSchema({ nodes, edges });
+      downloadJsonSchema(jsonSchema, `${diagramLabel}.json`);
     }
 
     setIsExporting(false);
     // onClose();
-  }, [exportFormat, nodes]);
+  }, [exportFormat, diagram, diagramLabel]);
 
   return (
     <Modal open={isModalOpen} setOpen={onClose}>
@@ -142,25 +143,18 @@ export const ExportDiagramModal = ({
             }}
           />
         )}
-        <DiagramProvider>
-          <div
-            style={{
-              width: bounds.width,
-              height: bounds.height,
-              position: 'absolute',
-              top: `${-bounds.width}px`,
-              left: `${-bounds.height}px`,
-            }}
-            ref={exportDiagramContainerRef}
-          >
-            <Diagram
-              // TODO: this is not exposed yet
-              edges={edges.map(mapEdgeToEdgeProps)}
-              nodes={nodes.map(mapNodeToNodeProps)}
-              onlyRenderVisibleElements={false}
-            />
-          </div>
-        </DiagramProvider>
+        {/* Container where we render export diagram */}
+        <div
+          style={{
+            width: bounds.width,
+            height: bounds.height,
+            // Fixed at bottom right corner
+            position: 'fixed',
+            top: '100vh',
+            left: '100vw',
+          }}
+          ref={exportDiagramContainerRef}
+        />
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
