@@ -120,7 +120,7 @@ class Application {
    */
   private enableDevelopmentDebug() {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('debug').enable('mon*,had*');
     }
   }

@@ -191,7 +191,7 @@ function ExportModal({
   );
 
   const onClickExport = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-require-imports
     const electron: typeof import('@electron/remote') = require('@electron/remote');
     const fileBackend = createElectronFileInputBackend(electron, null)();
 

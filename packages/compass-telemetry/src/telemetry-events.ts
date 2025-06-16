@@ -2849,6 +2849,13 @@ type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
   };
 }>;
 
+type CreateIndexESRLearnMoreClicked = CommonEvent<{
+  name: 'ESR Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 type CreateIndexInputIndexCopied = CommonEvent<{
   name: 'Input Index Copied';
   payload: {
@@ -3003,6 +3010,7 @@ export type TelemetryEvent =
   | CreateIndexCodeEquivalentToggled
   | CreateIndexCoveredQueriesButtonClicked
   | CreateIndexCoveredQueriesLearnMoreClicked
+  | CreateIndexESRLearnMoreClicked
   | CreateIndexIndexTabClicked
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
