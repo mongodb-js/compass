@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.8.9",
+  "version": "0.9.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -67,6 +67,6 @@
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
-    "electron": "^36.3.1"
+    "electron": "^36.4.0"
   }
 }

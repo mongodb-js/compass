@@ -57,4 +57,36 @@ describe('Base Search Index Modal', function () {
       expect(screen.getByRole('option', { name: knnVectorText })).to.be.visible;
     });
   });
+
+  it('renders search index info by default', function () {
+    renderUpdateSearchIndexModal();
+    expect(
+      screen
+        .getByText('View Atlas Search tutorials')
+        .closest('a')
+        ?.getAttribute('href')
+    ).to.equal('https://www.mongodb.com/docs/atlas/atlas-search/tutorial/');
+  });
+
+  it('renders search index info for regular search indexes', function () {
+    renderUpdateSearchIndexModal({ indexType: 'search' });
+    expect(
+      screen
+        .getByText('View Atlas Search tutorials')
+        .closest('a')
+        ?.getAttribute('href')
+    ).to.equal('https://www.mongodb.com/docs/atlas/atlas-search/tutorial/');
+  });
+
+  it('renders vector search index info for vector search indexes', function () {
+    renderUpdateSearchIndexModal({ indexType: 'vectorSearch' });
+    expect(
+      screen
+        .getByText('View Atlas Vector Search tutorials')
+        .closest('a')
+        ?.getAttribute('href')
+    ).to.equal(
+      'https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-tutorial/'
+    );
+  });
 });

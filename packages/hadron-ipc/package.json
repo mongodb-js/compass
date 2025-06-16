@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "3.4.9",
+  "version": "3.5.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "electron": "^36.3.1",
+    "electron": "^36.4.0",
     "is-electron-renderer": "^2.0.1"
   }
 }

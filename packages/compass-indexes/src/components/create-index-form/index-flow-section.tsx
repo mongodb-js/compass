@@ -11,6 +11,7 @@ import {
   fontFamilies,
   InfoSprinkle,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
@@ -41,6 +42,10 @@ const indexFieldsCalloutStyles = css({
   marginBottom: spacing[600],
 });
 
+const indexFieldsCalloutDarkStyles = css({
+  border: `1px solid ${palette.gray.base}`,
+});
+
 const codeEquivalentToggleLabelStyles = css({
   marginRight: spacing[100],
   fontWeight: 'normal',
@@ -51,13 +56,20 @@ const coveredQueriesHeaderContainerStyles = css({
 });
 
 const coveredQueriesCalloutStyles = css({
-  border: `1px solid ${palette.gray.light2}`,
-  background: palette.gray.light3,
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
 });
 
+const lightModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  background: palette.gray.light3,
+});
+
+const darkModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.dark2}`,
+  background: palette.black,
+});
 const buttonContainerStyles = css({
   display: 'flex',
   justifyContent: 'right',
@@ -78,6 +90,14 @@ const codeStyles = css({
 
 const coveredQueriesHeaderStyles = css({
   marginRight: spacing[200],
+});
+
+const coveredQueriesLinkStyles = css({
+  marginTop: spacing[200],
+});
+
+const optimalQueriesStyles = css({
+  marginTop: spacing[400],
 });
 
 export type IndexFlowSectionProps = {
@@ -136,7 +156,7 @@ const generateOptimalQueries = (
 
     return (
       <>
-        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}}`}
+        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}`}
         <br />
         {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
       </>
@@ -144,23 +164,27 @@ const generateOptimalQueries = (
   }
 
   // If there are more than two fields, we want to show a longer optimal query with gt and sort
-  // i.e. {a:1, b:2, c:{gt:3}}.sort({d:1})
+  // i.e. {a:1, b:2, d:{gt:3}}.sort({c:1})
+
+  const secondToLastField = coveredQueriesArr[numOfFields - 2];
+  const secondToLastFieldKey = Object.keys(secondToLastField)[0];
+
   const optimalQueries = coveredQueriesArr
-    .slice(0, -1)
-    .reduce<Record<string, unknown>>((acc, obj, index) => {
+    .slice(0, -2)
+    .reduce<Record<string, unknown>>((acc, obj) => {
       const key = Object.keys(obj)[0];
       const value = obj[key];
 
-      if (index === numOfFields - 2) {
-        acc[key] = { $gt: value };
-      } else {
-        acc[key] = value;
-      }
+      acc[key] = value;
 
       return acc;
     }, {});
 
-  return JSON.stringify(optimalQueries) + `.sort(${lastFieldKey}: 1})`;
+  // Put last field in range and second to last field in sort
+  optimalQueries[lastFieldKey] = { $gt: coveredQueriesArr.length - 1 };
+  return (
+    JSON.stringify(optimalQueries) + `.sort({"${secondToLastFieldKey}": 1})`
+  );
 };
 
 const IndexFlowSection = ({
@@ -171,6 +195,7 @@ const IndexFlowSection = ({
   onErrorEncountered,
   onErrorCleared,
 }: IndexFlowSectionProps) => {
+  const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
   const [hasFieldChanges, setHasFieldChanges] = useState(false);
@@ -259,6 +284,7 @@ const IndexFlowSection = ({
               setIsCodeEquivalentToggleChecked(value);
               track('Code Equivalent Toggled', {
                 context: 'Create Index Modal',
+                toggled: value === true ? 'On' : 'Off',
               });
             }}
             checked={isCodeEquivalentToggleChecked}
@@ -266,12 +292,22 @@ const IndexFlowSection = ({
           />
         </div>
       </div>
-      <div className={indexFieldsCalloutStyles}>
+      <div
+        className={cx(
+          indexFieldsCalloutStyles,
+          darkMode && indexFieldsCalloutDarkStyles
+        )}
+      >
         {isCodeEquivalentToggleChecked ? (
           <MDBCodeViewer
             dbName={dbName}
             collectionName={collectionName}
             indexNameTypeMap={indexNameTypeMap}
+            onCopy={() => {
+              track('Input Index Copied', {
+                context: 'Create Index Modal',
+              });
+            }}
           />
         ) : (
           createIndexFieldsComponent
@@ -321,30 +357,24 @@ const IndexFlowSection = ({
             </InfoSprinkle>
           </div>
 
-          <div className={coveredQueriesCalloutStyles}>
+          <div
+            className={cx(
+              coveredQueriesCalloutStyles,
+              darkMode
+                ? darkModeCoveredQueriesCalloutStyles
+                : lightModeCoveredQueriesCalloutStyles
+            )}
+          >
             {/* Covered Queries */}
-            <Body
-              className={codeStyles}
-              data-testid="index-flow-section-covered-queries-examples"
-            >
-              {coveredQueries}
-            </Body>
 
-            {!!optimalQueries && (
-              <>
-                <p>
-                  <span className={underlineStyles}>
-                    Follow the Equality, Sort, Range (ESR) Rule. This index is
-                    optimal for queries that have this pattern:
-                  </span>
-                  {/* Optimal queries */}
-                  <Body
-                    className={codeStyles}
-                    data-testid="index-flow-section-optimal-queries-examples"
-                  >
-                    {optimalQueries}
-                  </Body>
-                </p>
+            <div>
+              <Body
+                className={codeStyles}
+                data-testid="index-flow-section-covered-queries-examples"
+              >
+                {coveredQueries}
+              </Body>
+              <div className={coveredQueriesLinkStyles}>
                 <Link
                   href="https://www.mongodb.com/docs/manual/core/query-optimization/"
                   onClick={() => {
@@ -353,9 +383,37 @@ const IndexFlowSection = ({
                     });
                   }}
                 >
-                  Learn More
+                  Learn about covered queries
                 </Link>
-              </>
+              </div>
+            </div>
+
+            {!!optimalQueries && (
+              <div className={optimalQueriesStyles}>
+                <span className={underlineStyles}>
+                  Follow the Equality, Sort, Range (ESR) Rule. This index is
+                  great for queries that have this pattern:
+                </span>
+                {/* Optimal queries */}
+                <Body
+                  className={codeStyles}
+                  data-testid="index-flow-section-optimal-queries-examples"
+                >
+                  {optimalQueries}
+                </Body>
+                <div className={coveredQueriesLinkStyles}>
+                  <Link
+                    href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+                    onClick={() => {
+                      track('ESR Learn More Clicked', {
+                        context: 'Create Index Modal',
+                      });
+                    }}
+                  >
+                    Learn about ESR
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </>
