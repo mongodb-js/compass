@@ -15,6 +15,7 @@ import {
 } from '../helpers/insert-data';
 
 async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+  await browser.waitForAnimations(Selectors.DataModelingDiagram);
   return await browser
     .$$(Selectors.DataModelingDiagramNode)
     .map((element) => element.getAttribute('title'));
