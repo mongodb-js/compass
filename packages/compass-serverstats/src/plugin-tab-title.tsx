@@ -1,41 +1,38 @@
 import React from 'react';
 import {
-  useTabConnectionTheme,
+  useConnectionInfo,
   useConnectionsListRef,
+  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import {
   WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 export const WorkspaceName = 'Performance' as const;
 
-export function ServerStatsPluginTitleComponent({
-  tabProps,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: {
-    id: string;
-    connectionId: string;
-  };
-}) {
+type PluginTitleComponentProps = WorkspaceTabCoreProps &
+  WorkspacePluginProps<typeof WorkspaceName>;
+
+export function ServerStatsPluginTitleComponent(
+  props: PluginTitleComponentProps
+) {
   const { getConnectionById } = useConnectionsListRef();
-  const connectionName =
-    getConnectionById(workspaceProps.connectionId)?.title || '';
+  const { id: connectionId } = useConnectionInfo();
+  const connectionName = getConnectionById(connectionId)?.title || '';
 
   const { getThemeOf } = useTabConnectionTheme();
 
   return (
     <WorkspaceTab
-      {...tabProps}
-      id={workspaceProps.id}
+      {...props}
       type={WorkspaceName}
       connectionName={connectionName}
       title={`Performance: ${connectionName}`}
       tooltip={[['Performance', connectionName || '']]}
       iconGlyph="Gauge"
-      tabTheme={getThemeOf(workspaceProps.connectionId)}
+      tabTheme={getThemeOf(connectionId)}
     />
   );
 }

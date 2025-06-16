@@ -4,39 +4,32 @@ import {
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import {
-  useTabConnectionTheme,
+  useConnectionInfo,
   useConnectionsListRef,
+  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 import { DatabasesWorkspaceName } from './databases-plugin';
 
-type WorkspaceProps = {
-  id: string;
-  connectionId: string;
-};
+type PluginTitleProps = WorkspaceTabCoreProps &
+  WorkspacePluginProps<typeof DatabasesWorkspaceName>;
 
-export function DatabasesPluginTitleComponent({
-  workspaceProps,
-  tabProps,
-}: {
-  workspaceProps: WorkspaceProps;
-  tabProps: WorkspaceTabCoreProps;
-}) {
+export function DatabasesPluginTitleComponent(props: PluginTitleProps) {
+  const { id: connectionId } = useConnectionInfo();
   const { getConnectionById } = useConnectionsListRef();
   const { getThemeOf } = useTabConnectionTheme();
 
-  const connectionName =
-    getConnectionById(workspaceProps.connectionId)?.title || '';
+  const connectionName = getConnectionById(connectionId)?.title || '';
   return (
     <WorkspaceTab
+      {...props}
       connectionName={connectionName}
-      {...tabProps}
-      id={workspaceProps.id}
       type={DatabasesWorkspaceName}
       title={connectionName}
       tooltip={[['Connection', connectionName || '']]}
       iconGlyph="Server"
-      tabTheme={getThemeOf(workspaceProps.connectionId)}
+      tabTheme={getThemeOf(connectionId)}
     />
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
 import {
+  useConnectionInfo,
   useConnectionsListRef,
   useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
@@ -9,42 +10,34 @@ import {
   WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 import { type CollectionState } from './modules/collection-tab';
 
-type WorkspaceProps = {
-  id: string;
-  connectionId: string;
-  namespace: string;
-  subTab: CollectionSubtab;
-  initialQuery?: unknown;
-  initialPipeline?: unknown[];
-  initialPipelineText?: string;
-  initialAggregation?: unknown;
-  editViewName?: string;
-  isNonExistent: boolean;
-};
+export const CollectionWorkspaceTitle = 'Collection' as const;
 
-function _PluginTitle({
-  isTimeSeries,
-  isReadonly,
-  sourceName,
-  tabProps,
-  workspaceProps,
-}: {
+type PluginTitleProps = {
   isTimeSeries?: boolean;
   isReadonly?: boolean;
   sourceName?: string | null;
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: WorkspaceProps;
-}) {
+} & WorkspaceTabCoreProps &
+  WorkspacePluginProps<typeof CollectionWorkspaceTitle>;
+
+function _PluginTitle({
+  editViewName,
+  isNonExistent,
+  isReadonly,
+  isTimeSeries,
+  sourceName,
+  namespace,
+  ...tabProps
+}: PluginTitleProps) {
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
+  const { id: connectionId } = useConnectionInfo();
 
-  const { database, collection, ns } = toNS(workspaceProps.namespace);
-  const connectionName =
-    getConnectionById(workspaceProps.connectionId)?.title || '';
+  const { database, collection, ns } = toNS(namespace);
+  const connectionName = getConnectionById(connectionId)?.title || '';
   const collectionType = isTimeSeries
     ? 'timeseries'
     : isReadonly
@@ -58,8 +51,8 @@ function _PluginTitle({
   if (sourceName) {
     tooltip.push(['View', collection]);
     tooltip.push(['Derived from', toNS(sourceName).collection]);
-  } else if (workspaceProps.editViewName) {
-    tooltip.push(['View', toNS(workspaceProps.editViewName).collection]);
+  } else if (editViewName) {
+    tooltip.push(['View', toNS(editViewName).collection]);
     tooltip.push(['Derived from', collection]);
   } else {
     tooltip.push(['Collection', collection]);
@@ -68,7 +61,6 @@ function _PluginTitle({
   return (
     <WorkspaceTab
       {...tabProps}
-      id={workspaceProps.id}
       connectionName={connectionName}
       type={CollectionWorkspaceTitle}
       title={collection}
@@ -78,32 +70,21 @@ function _PluginTitle({
           ? 'Visibility'
           : collectionType === 'timeseries'
           ? 'TimeSeries'
-          : workspaceProps.isNonExistent
+          : isNonExistent
           ? 'EmptyFolder'
           : 'Folder'
       }
       data-namespace={ns}
-      tabTheme={getThemeOf(workspaceProps.connectionId)}
-      isNonExistent={workspaceProps.isNonExistent}
+      tabTheme={getThemeOf(connectionId)}
+      isNonExistent={isNonExistent}
     />
   );
 }
 
-const ConnectedPluginTitle = connect((state: CollectionState) => ({
-  isTimeSeries: state.metadata?.isTimeSeries,
-  isReadonly: state.metadata?.isReadonly,
-  sourceName: state.metadata?.sourceName,
-}))(_PluginTitle);
-
-export const CollectionWorkspaceTitle = 'Collection' as const;
-export function CollectionPluginTitleComponent({
-  tabProps,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: WorkspaceProps;
-}) {
-  return (
-    <ConnectedPluginTitle tabProps={tabProps} workspaceProps={workspaceProps} />
-  );
-}
+export const CollectionPluginTitleComponent = connect(
+  (state: CollectionState) => ({
+    isTimeSeries: state.metadata?.isTimeSeries,
+    isReadonly: state.metadata?.isReadonly,
+    sourceName: state.metadata?.sourceName,
+  })
+)(_PluginTitle);

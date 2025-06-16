@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  useConnectionInfo,
   useConnectionsListRef,
   useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
@@ -7,34 +8,28 @@ import {
   WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 export const WorkspaceName = 'Shell' as const;
 
-export function ShellPluginTitleComponent({
-  tabProps,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: {
-    id: string;
-    connectionId: string;
-  };
-}) {
+type PluginTitleProps = WorkspaceTabCoreProps &
+  WorkspacePluginProps<typeof WorkspaceName>;
+
+export function ShellPluginTitleComponent(tabProps: PluginTitleProps) {
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
+  const { id: connectionId } = useConnectionInfo();
 
-  const connectionName =
-    getConnectionById(workspaceProps.connectionId)?.title || '';
+  const connectionName = getConnectionById(connectionId)?.title || '';
   return (
     <WorkspaceTab
       {...tabProps}
-      id={workspaceProps.id}
       connectionName={connectionName}
       type={WorkspaceName}
       title={connectionName ? `mongosh: ${connectionName}` : 'MongoDB Shell'}
       tooltip={connectionName ? [['mongosh', connectionName]] : []}
       iconGlyph="Shell"
-      tabTheme={getThemeOf(workspaceProps.connectionId)}
+      tabTheme={getThemeOf(connectionId)}
     />
   );
 }

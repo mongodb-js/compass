@@ -6,26 +6,20 @@ import {
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import type { DataModelingState } from './store/reducer';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 export const WorkspaceName = 'Data Modeling' as const;
 
-type WorkspaceProps = {
-  id: string;
-};
-
-function _TabTitle({
-  tabProps,
-  tabTitle,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
+type WorkspaceProps = WorkspacePluginProps<typeof WorkspaceName>;
+type PluginTabTitleProps = {
   tabTitle: string;
-  workspaceProps: WorkspaceProps;
-}) {
+} & WorkspaceTabCoreProps &
+  WorkspaceProps;
+
+function _TabTitle({ tabTitle, ...props }: PluginTabTitleProps) {
   return (
     <WorkspaceTab
-      {...tabProps}
-      id={workspaceProps.id}
+      {...props}
       type={WorkspaceName}
       title={tabTitle}
       iconGlyph="Diagram"
@@ -33,7 +27,7 @@ function _TabTitle({
   );
 }
 
-const ConnectedTabTitle = connect((state: DataModelingState) => {
+export const PluginTabTitleComponent = connect((state: DataModelingState) => {
   return {
     tabTitle:
       state.step === 'NO_DIAGRAM_SELECTED'
@@ -41,15 +35,3 @@ const ConnectedTabTitle = connect((state: DataModelingState) => {
         : state.diagram?.name ?? WorkspaceName,
   };
 })(_TabTitle);
-
-export function PluginTabTitleComponent({
-  tabProps,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: WorkspaceProps;
-}) {
-  return (
-    <ConnectedTabTitle tabProps={tabProps} workspaceProps={workspaceProps} />
-  );
-}

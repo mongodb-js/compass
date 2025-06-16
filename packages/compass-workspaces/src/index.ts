@@ -250,7 +250,7 @@ export type {
   AnyWorkspace,
   Workspace,
   WorkspacePlugin,
-  WorkspacePluginProps,
   WorkspaceTab,
   CollectionSubtab,
+  WorkspacePluginProps,
 } from './types';

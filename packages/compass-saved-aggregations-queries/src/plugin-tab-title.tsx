@@ -3,20 +3,17 @@ import {
   WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
+import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
 export const WorkspaceName = 'My Queries' as const;
 
-export function PluginTabTitleComponent({
-  tabProps,
-  workspaceProps,
-}: {
-  tabProps: WorkspaceTabCoreProps;
-  workspaceProps: { id: string };
-}) {
+type PluginTabTitleProps = WorkspaceTabCoreProps &
+  WorkspacePluginProps<typeof WorkspaceName>;
+
+export function PluginTabTitleComponent(props: PluginTabTitleProps) {
   return (
     <WorkspaceTab
-      {...tabProps}
-      id={workspaceProps.id}
+      {...props}
       type={WorkspaceName}
       title={WorkspaceName}
       iconGlyph="CurlyBraces"

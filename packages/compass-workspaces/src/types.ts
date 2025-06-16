@@ -1,8 +1,5 @@
 import type { HadronPluginComponent } from 'hadron-app-registry';
-import type {
-  Tab,
-  WorkspaceTabCoreProps,
-} from '@mongodb-js/compass-components';
+import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
 
 export type CollectionSubtab =
   | 'Documents'
@@ -45,6 +42,7 @@ export type CollectionsWorkspace = {
   type: 'Collections';
   connectionId: string;
   namespace: string;
+  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
   isNonExistent?: boolean;
 };
 
@@ -63,6 +61,7 @@ export type CollectionWorkspace = {
   initialPipelineText?: string;
   initialAggregation?: unknown;
   editViewName?: string;
+  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
   isNonExistent?: boolean;
 };
 
@@ -102,18 +101,12 @@ export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   'type' | 'connectionId'
 >;
 
+export type PluginHeaderProps<T extends AnyWorkspace['type']> =
+  WorkspaceTabCoreProps & WorkspacePluginProps<T>;
+
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  provider: HadronPluginComponent<
-    WorkspacePluginProps<T>,
-    Record<string, () => unknown>,
-    any
-  >;
-  content:
-    | React.ComponentClass<WorkspacePluginProps<T>>
-    | ((props: WorkspacePluginProps<T>) => React.ReactElement | null);
-  header: (props: {
-    tabProps: WorkspaceTabCoreProps;
-    workspaceProps: WorkspaceTabProps;
-  }) => ReturnType<typeof Tab>;
+  provider: HadronPluginComponent<any, any, any>;
+  content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
+  header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
 };

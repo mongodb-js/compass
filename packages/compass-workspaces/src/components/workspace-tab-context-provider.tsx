@@ -10,6 +10,7 @@ import {
   WorkspaceTabStateProvider,
 } from './workspace-tab-state-provider';
 import { AppRegistryProvider } from 'hadron-app-registry';
+import { useWorkspacePlugins } from './workspaces-provider';
 
 function getInitialPropsForWorkspace(tab: WorkspaceTab) {
   switch (tab.type) {
@@ -100,6 +101,9 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
   WorkspaceTabContextProviderProps
 > = ({ tab, onNamespaceNotFound, sectionType: type, children }) => {
   const initialProps = getInitialPropsForWorkspace(tab);
+  const { getWorkspacePluginByName } = useWorkspacePlugins();
+
+  const { provider: WorkspaceProvider } = getWorkspacePluginByName(tab.type);
 
   if (initialProps) {
     children = React.cloneElement(children, initialProps);
@@ -138,7 +142,7 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
         localAppRegistry={getLocalAppRegistryForTab(tab.id)}
         deactivateOnUnmount={false}
       >
-        {children}
+        <WorkspaceProvider>{children}</WorkspaceProvider>
       </AppRegistryProvider>
     </WorkspaceTabStateProvider>
   );

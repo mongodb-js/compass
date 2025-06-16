@@ -34,6 +34,15 @@ export const useWorkspacePlugins = () => {
     getWorkspacePlugins: (): AnyWorkspacePlugin[] => {
       return workspaces;
     },
+    getWorkspacePluginByName: <T extends AnyWorkspace['type']>(name: T) => {
+      const plugin = workspaces.find((ws) => ws.name === name);
+      if (!plugin) {
+        throw new Error(
+          `Component for workspace "${name}" is missing in context. Did you forget to set up WorkspacesProvider?`
+        );
+      }
+      return plugin as unknown as WorkspacePlugin<T>;
+    },
   });
   return workspacePlugins.current;
 };

@@ -32,9 +32,9 @@ function mockWorkspace(name: string) {
     header: function Component(props: any) {
       return (
         <WorkspaceTab
-          {...props.tabProps}
-          name={`${props.workspaceProps.namespace ?? name}`}
-          title={`${props.workspaceProps.namespace ?? name}`}
+          {...props}
+          name={props.namespace ?? name}
+          title={props.namespace ?? name}
           iconGlyph="Home"
           type={name}
         />

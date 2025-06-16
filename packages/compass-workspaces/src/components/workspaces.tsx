@@ -28,10 +28,6 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import {
-  useConnectionsListRef,
-  useTabConnectionTheme,
-} from '@mongodb-js/compass-connections/provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
 import type { WorkspaceTab } from '../types';
 
@@ -101,9 +97,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onNamespaceNotFound,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
-  const { getWorkspacePlugins } = useWorkspacePlugins();
-  const { getThemeOf } = useTabConnectionTheme();
-  const { getConnectionById } = useConnectionsListRef();
+  const { getWorkspacePluginByName } = useWorkspacePlugins();
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
@@ -112,39 +106,31 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [onCreateTab, openOnEmptyWorkspace]);
 
   const workspaceTabs = useMemo(() => {
-    const workspacePlugins = getWorkspacePlugins();
     return tabs.map((tab) => {
-      const plugin = workspacePlugins.find((p) => p.name === tab.type);
+      const plugin = getWorkspacePluginByName(tab.type);
       if (!plugin) {
         throw new Error(
           `Content component for workspace "${tab.type}" is missing in context. Did you forget to set up WorkspacesProvider?`
         );
       }
-      const {
-        content: WorkspaceTabContent,
-        header: WorkspaceTabTitle,
-        provider,
-      } = plugin;
-
-      const Provider = provider as any;
+      const { content: WorkspaceTabContent, header: WorkspaceTabTitle } =
+        plugin;
 
       let isNonExistent: boolean | undefined;
-      if ('isNonExistent' in tab && tab.isNonExistent) {
-        if (tab.type === 'Collections') {
-          // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
-          const database = tab.namespace;
-          const namespaceId = `${tab.connectionId}.${database}`;
-          const { isNonExistent: databaseDoesNotExist } =
-            databaseInfo[namespaceId] ?? {};
-          isNonExistent = databaseDoesNotExist;
-        } else if (tab.type === 'Collection') {
-          // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
-          const { ns } = toNS(tab.namespace);
-          const namespaceId = `${tab.connectionId}.${ns}`;
-          const { isNonExistent: collectionDoesNotExist } =
-            collectionInfo[namespaceId] ?? {};
-          isNonExistent = collectionDoesNotExist;
-        }
+      if (tab.type === 'Collections') {
+        // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
+        const database = tab.namespace;
+        const namespaceId = `${tab.connectionId}.${database}`;
+        const { isNonExistent: databaseDoesNotExist } =
+          databaseInfo[namespaceId] ?? {};
+        isNonExistent = databaseDoesNotExist;
+      } else if (tab.type === 'Collection') {
+        // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
+        const { ns } = toNS(tab.namespace);
+        const namespaceId = `${tab.connectionId}.${ns}`;
+        const { isNonExistent: collectionDoesNotExist } =
+          collectionInfo[namespaceId] ?? {};
+        isNonExistent = collectionDoesNotExist;
       }
 
       return {
@@ -162,15 +148,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             }}
           >
             <WorkspaceTabContextProvider tab={tab} sectionType="tab-title">
-              <Provider>
-                <WorkspaceTabTitle
-                  workspaceProps={{
-                    ...(isNonExistent !== undefined ? { isNonExistent } : {}),
-                    ...tab,
-                  }}
-                  tabProps={workspaceTabCoreProps}
-                />
-              </Provider>
+              <WorkspaceTabTitle
+                {...workspaceTabCoreProps}
+                {...(isNonExistent ? { isNonExistent } : {})}
+              />
             </WorkspaceTabContextProvider>
           </ErrorBoundary>
         ),
@@ -191,26 +172,20 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               sectionType="tab-content"
               onNamespaceNotFound={onNamespaceNotFound}
             >
-              <Provider>
-                <WorkspaceTabContent
-                  // Cast to any as it can be any of the workspace types
-                  // here.
-                  {...(tab as any)}
-                />
-              </Provider>
+              <WorkspaceTabContent />
             </WorkspaceTabContextProvider>
           </ErrorBoundary>
         ),
       };
     });
   }, [
-    getWorkspacePlugins,
+    getWorkspacePluginByName,
     tabs,
     log,
-    getThemeOf,
+    collectionInfo,
+    databaseInfo,
     mongoLogId,
     onNamespaceNotFound,
-    getConnectionById,
   ]);
 
   const workspaceTabContent = workspaceTabs[activeTabIndex]?.content ?? null;
