@@ -35,7 +35,6 @@ const extraTsRules = {
   '@typescript-eslint/unbound-method': 'warn',
   '@typescript-eslint/no-duplicate-type-constituents': 'warn',
   '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
-  '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
 };
 
 const tsRules = {
