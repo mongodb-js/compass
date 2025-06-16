@@ -1,4 +1,10 @@
-import React from 'react';
+import React, {
+  useMemo,
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import {
   BSONValue,
   css,
@@ -8,7 +14,7 @@ import {
   spacing,
   withDarkMode,
 } from '@mongodb-js/compass-components';
-import { Element } from 'hadron-document';
+import { type Document, Element } from 'hadron-document';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
@@ -60,6 +66,11 @@ const UNEDITABLE = 'is-uneditable';
 const INVALID = 'is-invalid';
 
 /**
+ * The valid constant.
+ */
+const VALID = 'valid';
+
+/**
  * The deleted constant.
  */
 const DELETED = 'is-deleted';
@@ -78,6 +89,141 @@ const cellContainerStyle = css({
 const decrypdedIconStyles = css({
   display: 'flex',
 });
+
+interface CellContentProps {
+  element: Element | undefined | null;
+  cellState:
+    | typeof UNEDITABLE
+    | typeof EMPTY
+    | typeof INVALID
+    | typeof DELETED
+    | typeof ADDED
+    | typeof EDITED
+    | typeof VALID;
+  onUndo: (event: React.MouseEvent) => void;
+  onExpand: (event: React.MouseEvent) => void;
+}
+
+const CellContent: React.FC<CellContentProps> = ({
+  element,
+  cellState,
+  onUndo,
+  onExpand,
+}) => {
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  const isEmpty = element === undefined || element === null;
+  const handleElementEvent = useCallback(() => {
+    forceUpdate();
+  }, []);
+
+  // Subscribe to element events
+  useEffect(() => {
+    if (!isEmpty && element) {
+      element.on(Element.Events.Added, handleElementEvent);
+      element.on(Element.Events.Converted, handleElementEvent);
+      element.on(Element.Events.Edited, handleElementEvent);
+      element.on(Element.Events.Reverted, handleElementEvent);
+
+      return () => {
+        element.removeListener(Element.Events.Added, handleElementEvent);
+        element.removeListener(Element.Events.Converted, handleElementEvent);
+        element.removeListener(Element.Events.Edited, handleElementEvent);
+        element.removeListener(Element.Events.Reverted, handleElementEvent);
+      };
+    }
+  }, [isEmpty, element, handleElementEvent]);
+
+  const elementLength = useMemo((): number | undefined => {
+    if (!element) {
+      return undefined;
+    }
+
+    if (element.currentType === 'Object') {
+      return Object.keys(element.generateObject() as object).length;
+    }
+    if (element.currentType === 'Array' && element.elements) {
+      return element.elements.size;
+    }
+  }, [element]);
+
+  const renderContent = useCallback(() => {
+    if (cellState === EMPTY || !element) {
+      return 'No field';
+    }
+
+    if (cellState === UNEDITABLE) {
+      return '';
+    }
+
+    if (cellState === DELETED) {
+      return 'Deleted field';
+    }
+
+    if (cellState === INVALID) {
+      let valueClass = `${VALUE_CLASS}-is-${element.currentType.toLowerCase()}`;
+      valueClass = `${valueClass} ${INVALID_VALUE}`;
+
+      return <div className={valueClass}>{element.currentValue}</div>;
+    }
+
+    let className = VALUE_BASE;
+    let elementContent: string | JSX.Element = '';
+    if (cellState === ADDED || cellState === EDITED) {
+      className = `${className} ${VALUE_BASE}-${cellState}`;
+    }
+
+    const isArrayOrObject =
+      element.currentType === 'Array' || element.currentType === 'Object';
+
+    if (elementLength !== undefined && isArrayOrObject) {
+      if (element.currentType === 'Object') {
+        elementContent = `{} ${elementLength} fields`;
+      } else if (element.currentType === 'Array') {
+        elementContent = `[] ${elementLength} elements`;
+      }
+    } else {
+      elementContent = (
+        //@ts-expect-error Types for this are currently not consistent
+        <BSONValue type={element.currentType} value={element.currentValue} />
+      );
+    }
+
+    return (
+      <div className={className}>
+        <div className={cellContainerStyle}>
+          {element.decrypted && (
+            <span
+              data-testid="hadron-document-element-decrypted-icon"
+              title="Encrypted Field"
+              className={decrypdedIconStyles}
+            >
+              <Icon glyph="Key" size="small" />
+            </span>
+          )}
+          {elementContent}
+        </div>
+      </div>
+    );
+  }, [element, elementLength, cellState]);
+
+  const canUndo =
+    cellState === ADDED ||
+    cellState === EDITED ||
+    cellState === INVALID ||
+    cellState === DELETED;
+
+  const canExpand =
+    (cellState === VALID || cellState === ADDED || cellState === EDITED) &&
+    (element?.currentType === 'Object' || element?.currentType === 'Array');
+
+  return (
+    <>
+      {canUndo && <CellUndoButton alignLeft={canExpand} onClick={onUndo} />}
+      {canExpand && <CellExpandButton onClick={onExpand} />}
+      {renderContent()}
+    </>
+  );
+};
 
 export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   context: GridContext;
@@ -106,13 +252,12 @@ const CellRenderer: React.FC<CellRendererProps> = ({
   api,
   darkMode,
 }) => {
-  const element = value as Element;
+  const element = value as Element | undefined | null;
 
   const isEmpty = element === undefined || element === null;
-  const [isDeleted, setIsDeleted] = React.useState(false);
-  const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
+  const [isDeleted, setIsDeleted] = useState(false);
 
-  const isEditable = React.useMemo(() => {
+  const isEditable = useMemo(() => {
     /* Can't get the editable() function from here, so have to reevaluate */
     let editable = true;
     if (context.path.length > 0 && column.getColId() !== '$_id') {
@@ -132,30 +277,12 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     return editable;
   }, [context.path, column, node.data.hadronDocument, parentType]);
 
-  const handleElementEvent = React.useCallback(() => {
-    forceUpdate();
-  }, []);
-
-  // Subscribe to element events
-  React.useEffect(() => {
-    if (!isEmpty && element) {
-      element.on(Element.Events.Added, handleElementEvent);
-      element.on(Element.Events.Converted, handleElementEvent);
-      element.on(Element.Events.Edited, handleElementEvent);
-      element.on(Element.Events.Reverted, handleElementEvent);
-
-      return () => {
-        element.removeListener(Element.Events.Added, handleElementEvent);
-        element.removeListener(Element.Events.Converted, handleElementEvent);
-        element.removeListener(Element.Events.Edited, handleElementEvent);
-        element.removeListener(Element.Events.Reverted, handleElementEvent);
-      };
-    }
-  }, [isEmpty, element, handleElementEvent]);
-
-  const handleUndo = React.useCallback(
+  const handleUndo = useCallback(
     (event: React.MouseEvent) => {
       event.stopPropagation();
+      if (!element) {
+        return;
+      }
       const oid: string = node.data.hadronDocument.getStringId();
       if (element.isAdded()) {
         setIsDeleted(true);
@@ -178,15 +305,18 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     ]
   );
 
-  const handleDrillDown = React.useCallback(
+  const handleDrillDown = useCallback(
     (event: React.MouseEvent) => {
       event.stopPropagation();
-      drillDown(node.data.hadronDocument, element);
+      if (!element) {
+        return;
+      }
+      drillDown(node.data.hadronDocument as Document, element);
     },
     [drillDown, node.data.hadronDocument, element]
   );
 
-  const handleClicked = React.useCallback(() => {
+  const handleClicked = useCallback(() => {
     if (node.data.state === 'editing') {
       api.startEditingCell({
         rowIndex: node.rowIndex,
@@ -195,138 +325,30 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     }
   }, [node, api, column]);
 
-  const renderInvalidCell = React.useCallback(() => {
-    let valueClass = `${VALUE_CLASS}-is-${element.currentType.toLowerCase()}`;
-    valueClass = `${valueClass} ${INVALID_VALUE}`;
-
-    return <div className={valueClass}>{element.currentValue}</div>;
-  }, [element]);
-
-  const getLength = React.useCallback((): number | undefined => {
-    if (element.currentType === 'Object') {
-      return Object.keys(element.generateObject() as object).length;
-    }
-    if (element.currentType === 'Array' && element.elements) {
-      return element.elements.size;
-    }
-  }, [element]);
-
-  const renderValidCell = React.useCallback(() => {
-    let className = VALUE_BASE;
-    let elementContent: string | JSX.Element = '';
-    if (element.isAdded()) {
-      className = `${className} ${VALUE_BASE}-${ADDED}`;
-    } else if (element.isEdited()) {
-      className = `${className} ${VALUE_BASE}-${EDITED}`;
-    }
-
-    if (element.currentType === 'Object') {
-      elementContent = `{} ${getLength() as number} fields`;
-    } else if (element.currentType === 'Array') {
-      elementContent = `[] ${getLength() as number} elements`;
-    } else {
-      elementContent = (
-        //@ts-expect-error Types for this are currently not consistent
-        <BSONValue type={element.currentType} value={element.currentValue} />
-      );
-    }
-
-    return (
-      <div className={className}>
-        <div className={cellContainerStyle}>
-          {element.decrypted && (
-            <span
-              data-testid="hadron-document-element-decrypted-icon"
-              title="Encrypted Field"
-              className={decrypdedIconStyles}
-            >
-              <Icon glyph="Key" size="small" />
-            </span>
-          )}
-          {elementContent}
-        </div>
-      </div>
-    );
-  }, [element, getLength]);
-
-  const renderUndo = React.useCallback(
-    (canUndo: boolean, canExpand: boolean) => {
-      let undoButtonClass = `${BUTTON_CLASS} ${BUTTON_CLASS}-undo`;
-      if (canUndo && canExpand) {
-        undoButtonClass = `${undoButtonClass} ${BUTTON_CLASS}-left`;
-      }
-
-      if (!canUndo) {
-        return null;
-      }
-      return (
-        <IconButton
-          className={undoButtonClass}
-          // @ts-expect-error TODO: size="small" is not an acceptable size
-          size="small"
-          aria-label="Undo"
-          onClick={handleUndo}
-        >
-          <Icon glyph="Undo"></Icon>
-        </IconButton>
-      );
-    },
-    [handleUndo]
-  );
-
-  const renderExpand = React.useCallback(
-    (canExpand: boolean) => {
-      if (!canExpand) {
-        return null;
-      }
-      return (
-        <span>
-          <IconButton
-            className={BUTTON_CLASS}
-            // @ts-expect-error TODO: size="small" is not an acceptable size
-            size="small"
-            aria-label="Expand"
-            onClick={handleDrillDown}
-          >
-            <Icon glyph="OpenNewTab" size="xsmall" />
-          </IconButton>
-        </span>
-      );
-    },
-    [handleDrillDown]
-  );
-
-  // Render logic
-  let elementToRender;
-  let className = BEM_BASE;
-  let canUndo = false;
-  let canExpand = false;
+  // Determine cell state
+  let cellState:
+    | typeof UNEDITABLE
+    | typeof EMPTY
+    | typeof INVALID
+    | typeof DELETED
+    | typeof ADDED
+    | typeof EDITED
+    | typeof VALID;
 
   if (!isEditable) {
-    elementToRender = '';
-    className = `${className}-${UNEDITABLE}`;
+    cellState = UNEDITABLE;
   } else if (isEmpty || isDeleted) {
-    elementToRender = 'No field';
-    className = `${className}-${EMPTY}`;
+    cellState = EMPTY;
   } else if (!element.isCurrentTypeValid()) {
-    elementToRender = renderInvalidCell();
-    className = `${className}-${INVALID}`;
-    canUndo = true;
+    cellState = INVALID;
   } else if (element.isRemoved()) {
-    elementToRender = 'Deleted field';
-    className = `${className}-${DELETED}`;
-    canUndo = true;
+    cellState = DELETED;
+  } else if (element.isAdded()) {
+    cellState = ADDED;
+  } else if (element.isModified()) {
+    cellState = EDITED;
   } else {
-    elementToRender = renderValidCell();
-    if (element.isAdded()) {
-      className = `${className}-${ADDED}`;
-      canUndo = true;
-    } else if (element.isModified()) {
-      className = `${className}-${EDITED}`;
-      canUndo = true;
-    }
-    canExpand =
-      element.currentType === 'Object' || element.currentType === 'Array';
+    cellState = VALID;
   }
 
   return (
@@ -335,10 +357,19 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     <LeafyGreenProvider darkMode={darkMode}>
       <div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
-        <div className={className} onClick={handleClicked} role="button">
-          {renderUndo(canUndo, canExpand)}
-          {renderExpand(canExpand)}
-          {elementToRender}
+        <div
+          className={
+            cellState === VALID ? BEM_BASE : `${BEM_BASE}-${cellState}`
+          }
+          onClick={handleClicked}
+          role="button"
+        >
+          <CellContent
+            element={element}
+            cellState={cellState}
+            onUndo={handleUndo}
+            onExpand={handleDrillDown}
+          />
         </div>
       </div>
     </LeafyGreenProvider>
@@ -346,3 +377,48 @@ const CellRenderer: React.FC<CellRendererProps> = ({
 };
 
 export default withDarkMode(CellRenderer);
+
+interface CellUndoButtonProps {
+  alignLeft: boolean;
+  onClick: (event: React.MouseEvent) => void;
+}
+
+const CellUndoButton: React.FC<CellUndoButtonProps> = ({
+  alignLeft,
+  onClick,
+}) => {
+  let undoButtonClass = `${BUTTON_CLASS} ${BUTTON_CLASS}-undo`;
+  if (alignLeft) {
+    undoButtonClass = `${undoButtonClass} ${BUTTON_CLASS}-left`;
+  }
+
+  return (
+    <IconButton
+      className={undoButtonClass}
+      // @ts-expect-error TODO: size="small" is not an acceptable size
+      size="small"
+      aria-label="Undo"
+      onClick={onClick}
+    >
+      <Icon glyph="Undo"></Icon>
+    </IconButton>
+  );
+};
+
+interface CellExpandButtonProps {
+  onClick: (event: React.MouseEvent) => void;
+}
+
+const CellExpandButton: React.FC<CellExpandButtonProps> = ({ onClick }) => {
+  return (
+    <IconButton
+      className={BUTTON_CLASS}
+      // @ts-expect-error TODO: size="small" is not an acceptable size
+      size="small"
+      aria-label="Expand"
+      onClick={onClick}
+    >
+      <Icon glyph="OpenNewTab" size="xsmall" />
+    </IconButton>
+  );
+};
