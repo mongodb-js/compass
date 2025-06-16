@@ -5,6 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import type { GlyphName } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../../hooks/use-theme';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
@@ -253,6 +254,8 @@ function Tab({
     cursor: 'grabbing !important',
   };
 
+  const tabId = useId();
+
   return (
     <Tooltip
       enabled={!!tooltip}
@@ -281,6 +284,7 @@ function Tab({
           data-testid="workspace-tab-button"
           data-connection-name={connectionName}
           data-type={type}
+          id={tabId}
           {...tabProps}
         >
           {iconGlyph === 'Logo' && (
