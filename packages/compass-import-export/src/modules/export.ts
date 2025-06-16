@@ -411,10 +411,11 @@ export const runExport = ({
             projection: createProjectionFromSchemaFields(
               Object.values(fieldsToExport)
                 .filter((field) => {
-                  field.selected
-                    ? fieldsIncludedCount++
-                    : fieldsExcludedCount++;
-
+                  if (field.selected) {
+                    fieldsIncludedCount++;
+                  } else {
+                    fieldsExcludedCount++;
+                  }
                   return field.selected;
                 })
                 .map((field) => field.path)

@@ -96,7 +96,7 @@ function CreateIndexFields({
     track('New Index Field Added', {
       context: 'Create Index Modal',
     });
-  }, []);
+  }, [onAddFieldClick]);
 
   const comboboxOptions = schemaFields.map((value) => ({ value }));
 

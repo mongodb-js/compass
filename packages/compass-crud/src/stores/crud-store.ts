@@ -89,15 +89,15 @@ export type CrudActions = {
       rowIndex: number;
     }
   ): void;
-  updateDocument(doc: Document): void;
-  removeDocument(doc: Document): void;
-  replaceDocument(doc: Document): void;
-  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
+  updateDocument(doc: Document): Promise<void>;
+  removeDocument(doc: Document): Promise<void>;
+  replaceDocument(doc: Document): Promise<void>;
+  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
-  runBulkUpdate(): void;
+  runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
-  runBulkDelete(): void;
+  runBulkDelete(): Promise<void>;
   openDeleteQueryExportToLanguageDialog(): void;
   saveUpdateQuery(name: string): Promise<void>;
 };

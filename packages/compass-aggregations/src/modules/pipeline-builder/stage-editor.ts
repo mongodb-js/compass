@@ -42,7 +42,7 @@ export const enum StageEditorActionTypes {
   StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
   StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
   StageRunSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StageRunSuccess',
-  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
+  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StageRunError',
   StageValueChange = 'compass-aggregations/pipeline-builder/stage-editor/StageValueChange',
   StageOperatorChange = 'compass-aggregations/pipeline-builder/stage-editor/StageOperatorChange',
   StageCollapsedChange = 'compass-aggregations/pipeline-builder/stage-editor/StageCollapsedChange',

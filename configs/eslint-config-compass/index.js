@@ -3,6 +3,7 @@
 const path = require('path');
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
+const chaiFriendly = require('eslint-plugin-chai-friendly');
 
 const extraTsRules = {
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
@@ -15,6 +16,8 @@ const extraTsRules = {
     'error',
     { fixMixedExportsWithInlineTypeSpecifier: false },
   ],
+  // We use chai outside of tests, hence applying these rules to all ts files
+  ...chaiFriendly.configs.recommended.rules,
   '@typescript-eslint/prefer-promise-reject-errors': 'off',
   '@typescript-eslint/only-throw-error': 'off',
 
@@ -22,15 +25,10 @@ const extraTsRules = {
   // clean those out and re-enable the rules
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
-  '@typescript-eslint/no-require-imports': 'warn',
-  '@typescript-eslint/no-unused-expressions': 'off', // replace with eslint-plugin-chai-friendly
   '@typescript-eslint/unbound-method': 'warn',
   '@typescript-eslint/no-duplicate-type-constituents': 'warn',
   '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
-  '@typescript-eslint/no-floating-promises': 'warn',
   '@typescript-eslint/no-unsafe-enum-comparison': 'warn',
-  '@typescript-eslint/no-misused-promises': 'warn',
-  '@typescript-eslint/no-duplicate-enum-values': 'warn',
 };
 
 const tsRules = {
@@ -100,7 +98,7 @@ const testTsOverrides = {
 };
 
 module.exports = {
-  plugins: [...shared.plugins, '@mongodb-js/compass'],
+  plugins: [...shared.plugins, '@mongodb-js/compass', 'chai-friendly'],
   rules: {
     ...shared.rules,
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
