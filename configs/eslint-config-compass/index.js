@@ -25,13 +25,6 @@ const extraTsRules = {
   // clean those out and re-enable the rules
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
-  '@typescript-eslint/no-unused-vars': [
-    'error',
-    {
-      caughtErrors: 'none', // should be `'all'`
-    },
-  ],
-  '@typescript-eslint/no-redundant-type-constituents': 'warn',
   '@typescript-eslint/unbound-method': 'warn',
   '@typescript-eslint/no-duplicate-type-constituents': 'warn',
   '@typescript-eslint/no-unsafe-declaration-merging': 'warn',

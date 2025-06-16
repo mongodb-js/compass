@@ -211,7 +211,7 @@ describe('store', function () {
 
     try {
       await dataService.dropCollection('compass-crud.test');
-    } catch (err) {
+    } catch {
       // noop
     }
 
@@ -357,7 +357,7 @@ describe('store', function () {
             writeText: mockCopyToClipboard,
           },
         });
-      } catch (e) {
+      } catch {
         // Electron has the global navigator as a getter.
         sinon.replaceGetter(global as any, 'navigator', () => ({
           clipboard: {
@@ -1836,7 +1836,7 @@ describe('store', function () {
 
         try {
           await dataService.dropCollection('compass-crud.timeseries');
-        } catch (err) {
+        } catch {
           // noop
         }
 

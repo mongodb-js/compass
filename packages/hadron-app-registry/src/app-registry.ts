@@ -6,9 +6,7 @@ import type { ReactReduxContext } from 'react-redux';
 // type can derive it automatically based on the passed activate function. This
 // is helpful when using useActivate hook to get the stricter type of returned
 // activate store elsewhere in the code
-export type Store = any & {
-  onActivated?: (appRegistry: AppRegistry) => void;
-};
+export type Store = any;
 
 // This is basically what createActions will return, this doesn't exactly match
 // reflux.Actions type

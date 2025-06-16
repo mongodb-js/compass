@@ -13,7 +13,7 @@ export function isAtlasVectorSearchSupportedForServerVersion(
       semver.gte(serverVersion, '7.0.2') ||
       (semver.gte(serverVersion, '6.0.11') && semver.lt(serverVersion, '7.0.0'))
     );
-  } catch (e) {
+  } catch {
     return true;
   }
 }

@@ -38,7 +38,7 @@ export function entriesToHtml(
           fs.statSync(maybeTemplatePath);
           template = maybeTemplatePath;
           break;
-        } catch (e) {
+        } catch {
           // ignore and use default template, electron renderer entry will need
           // at least some kind of html page provided one way or the other
         }
