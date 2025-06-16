@@ -5,12 +5,6 @@ import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-const toolbarTextStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-});
-
 const OperatorLink: React.FunctionComponent<{
   stageOperator: string;
   description?: string;
@@ -56,7 +50,7 @@ function StagePreviewHeader({
     return null;
   }
   return (
-    <Body className={toolbarTextStyles}>
+    <Body>
       {destination ? (
         `Documents will be saved to ${destination}.`
       ) : (
