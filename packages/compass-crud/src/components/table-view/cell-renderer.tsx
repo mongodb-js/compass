@@ -13,8 +13,10 @@ import {
   LeafyGreenProvider,
   spacing,
   withDarkMode,
+  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import { type Document, Element } from 'hadron-document';
+import { objectToIdiomaticEJSON } from 'hadron-document';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
@@ -257,6 +259,72 @@ const CellRenderer: React.FC<CellRendererProps> = ({
   const isEmpty = element === undefined || element === null;
   const [isDeleted, setIsDeleted] = useState(false);
 
+  // Helper function to check if a string is a URL
+  const isValidUrl = useCallback((str: string): boolean => {
+    try {
+      const url = new URL(str);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // Add context menu functionality
+  const contextMenuRef = useContextMenuItems([
+    ...(element && !isEmpty
+      ? [
+          {
+            label: 'Copy field & value',
+            onAction: () => {
+              const fieldName = column.getColId();
+              const fieldStr = `${fieldName}: ${objectToIdiomaticEJSON(
+                element.currentValue
+              )}`;
+              void navigator.clipboard.writeText(fieldStr);
+            },
+          },
+        ]
+      : []),
+    ...(element &&
+    element.currentType === 'String' &&
+    isValidUrl(element.currentValue)
+      ? [
+          {
+            label: 'Open URL in browser',
+            onAction: () => {
+              window.open(element.currentValue, '_blank', 'noopener');
+            },
+          },
+        ]
+      : []),
+    ...(element &&
+    (element.currentType === 'Object' || element.currentType === 'Array')
+      ? [
+          {
+            label: 'Expand field',
+            onAction: () => {
+              handleDrillDown({
+                stopPropagation: () => {},
+              } as React.MouseEvent);
+            },
+          },
+        ]
+      : []),
+    ...(cellState === ADDED ||
+    cellState === EDITED ||
+    cellState === INVALID ||
+    cellState === DELETED
+      ? [
+          {
+            label: 'Undo changes',
+            onAction: () => {
+              handleUndo({ stopPropagation: () => {} } as React.MouseEvent);
+            },
+          },
+        ]
+      : []),
+  ]);
+
   const isEditable = useMemo(() => {
     /* Can't get the editable() function from here, so have to reevaluate */
     let editable = true;
@@ -328,6 +396,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
       elementRemoved,
       elementAdded,
       elementTypeChanged,
+      cellState,
     ]
   );
 
@@ -355,7 +424,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     // `ag-grid` renders this component outside of the context chain
     // so we re-supply the dark mode theme here.
     <LeafyGreenProvider darkMode={darkMode}>
-      <div>
+      <div ref={contextMenuRef}>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
         <div
           className={
