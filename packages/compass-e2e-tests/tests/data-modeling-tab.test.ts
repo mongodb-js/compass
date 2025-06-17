@@ -26,8 +26,6 @@ describe('Data Modeling tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'data modeling not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('enableDataModeling', true);
