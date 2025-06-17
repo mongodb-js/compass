@@ -3,7 +3,7 @@ import type HadronDocument from 'hadron-document';
 import { css, KeylineCard } from '@mongodb-js/compass-components';
 
 import JSONEditor, { type JSONEditorProps } from './json-editor';
-import { useContextMenuItems } from '@mongodb-js/compass-components';
+import { useDocumentItemContextMenu } from './use-document-item-context-menu';
 
 const keylineCardStyles = css({
   overflow: 'hidden',
@@ -41,53 +41,12 @@ const DocumentJsonViewItem: React.FC<DocumentJsonViewItemProps> = ({
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const ref = useContextMenuItems([
-    {
-      label: doc.expanded ? 'Collapse all fields' : 'Expand all fields',
-      onAction: () => {
-        if (doc.expanded) {
-          doc.collapse();
-        } else {
-          doc.expand();
-        }
-      },
-    },
-    ...(isEditable && !doc.editing
-      ? [
-          {
-            label: 'Edit document',
-            onAction: () => {
-              doc.startEditing();
-            },
-          },
-        ]
-      : []),
-    {
-      label: 'Copy document',
-      onAction: () => {
-        copyToClipboard?.(doc);
-      },
-    },
-    ...(isEditable
-      ? [
-          {
-            label: 'Clone document...',
-            onAction: () => {
-              const clonedDoc = doc.generateObject({
-                excludeInternalFields: true,
-              });
-              openInsertDocumentDialog?.(clonedDoc, true);
-            },
-          },
-          {
-            label: 'Delete document',
-            onAction: () => {
-              doc.markForDeletion();
-            },
-          },
-        ]
-      : []),
-  ]);
+  const ref = useDocumentItemContextMenu({
+    doc,
+    isEditable,
+    copyToClipboard,
+    openInsertDocumentDialog,
+  });
 
   return (
     <div ref={ref}>
