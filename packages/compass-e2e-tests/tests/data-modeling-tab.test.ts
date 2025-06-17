@@ -14,11 +14,23 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+type DiagramInstance = {
+  getNodes: () => Array<{
+    id: string;
+  }>;
+};
+
 async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
-  await browser.waitForAnimations(Selectors.DataModelingDiagram);
-  return await browser
-    .$$(Selectors.DataModelingDiagramNode)
-    .map((element) => element.getAttribute('title'));
+  const nodes = await browser.execute(function (selector) {
+    const node = document.querySelector(selector);
+    if (!node) {
+      throw new Error(`Element with selector ${selector} not found`);
+    }
+    return (
+      node as Element & { _diagram: DiagramInstance }
+    )._diagram.getNodes();
+  }, Selectors.DataModelEditor);
+  return nodes.map((x) => x.id);
 }
 
 describe('Data Modeling tab', function () {
