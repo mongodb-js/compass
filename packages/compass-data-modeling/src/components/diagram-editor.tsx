@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -27,6 +27,7 @@ import {
   Diagram,
   type NodeProps,
   type EdgeProps,
+  useDiagram,
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
@@ -132,6 +133,20 @@ const DiagramEditor: React.FunctionComponent<{
   onApplyClick,
 }) => {
   const isDarkMode = useDarkMode();
+  const diagramContainerRef = useRef<HTMLDivElement | null>(null);
+  const diagram = useDiagram();
+
+  const setDiagramContainerRef = useCallback(
+    (ref: HTMLDivElement | null) => {
+      if (ref) {
+        // For debugging purposes, we attach the diagram to the ref.
+        (ref as any)._diagram = diagram;
+      }
+      diagramContainerRef.current = ref;
+    },
+    [diagram]
+  );
+
   const [applyInput, setApplyInput] = useState('{}');
 
   const isEditValid = useMemo(() => {
@@ -265,6 +280,7 @@ const DiagramEditor: React.FunctionComponent<{
   if (step === 'EDITING') {
     content = (
       <div
+        ref={setDiagramContainerRef}
         className={modelPreviewContainerStyles}
         data-testid="diagram-editor-container"
       >
