@@ -96,6 +96,25 @@ const insightStyles = css({
   height: spacing[500],
 });
 
+const validateQuery = ({
+  inputQuery,
+  defaultState,
+}: {
+  inputQuery: string;
+  defaultState: boolean;
+}) => {
+  let isShowSuggestionsButtonDisabled = defaultState;
+  try {
+    parseFilter(inputQuery);
+    if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+      isShowSuggestionsButtonDisabled = true;
+    }
+  } catch {
+    isShowSuggestionsButtonDisabled = true;
+  }
+  return isShowSuggestionsButtonDisabled;
+};
+
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
@@ -166,34 +185,38 @@ const QueryFlowSection = ({
     });
   };
 
-  const handleQueryInputChange = useCallback((text: string) => {
-    setInputQuery(text);
-    setHasNewChanges(true);
-  }, []);
+  const handleQueryInputChange = useCallback(
+    (text: string) => {
+      setInputQuery(text);
+      setHasNewChanges(true);
+    },
+    [setInputQuery]
+  );
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
-  // Validate query upon typing
   useMemo(() => {
-    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
-    try {
-      parseFilter(inputQuery);
-
-      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
-        _isShowSuggestionsButtonDisabled = true;
-      }
-    } catch {
-      _isShowSuggestionsButtonDisabled = true;
-    } finally {
-      setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
-    }
+    const isQueryInvalid = validateQuery({
+      inputQuery,
+      defaultState: !hasNewChanges,
+    });
+    setIsShowSuggestionsButtonDisabled(isQueryInvalid);
   }, [hasNewChanges, inputQuery]);
 
+  // We need to validate the changes upon initial render to possibly enable the button
   useEffect(() => {
+    const isQueryInvalid = validateQuery({ inputQuery, defaultState: false });
+    setIsShowSuggestionsButtonDisabled(isQueryInvalid);
+    // only run this validation once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // If there is an initial query from the insights nudge, we generate suggested indexes
     if (initialQuery !== null) {
       generateSuggestedIndexes();
     }
-  }, [initialQuery]);
+  }, [generateSuggestedIndexes, initialQuery]);
 
   return (
     <>
