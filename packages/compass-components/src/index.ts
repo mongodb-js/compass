@@ -40,9 +40,9 @@ import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
 export {
   Tab as WorkspaceTab,
-  type TabTheme,
   type WorkspaceTabCoreProps,
 } from './components/workspace-tabs/tab';
+export { TabThemeProvider } from './components/workspace-tabs/use-tab-theme';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,

@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { getLocalAppRegistryForTab } from '../stores/workspaces';
 import type { WorkspaceTab } from '../types';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
-import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionInfoProvider,
+  ConnectionThemeProvider,
+} from '@mongodb-js/compass-connections/provider';
 import { rafraf } from '@mongodb-js/compass-components';
 import { useOnTabReplace } from './workspace-close-handler';
 import {
@@ -149,7 +152,11 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
         localAppRegistry={getLocalAppRegistryForTab(tab.id)}
         deactivateOnUnmount={false}
       >
-        {children}
+        <ConnectionThemeProvider
+          connectionId={'connectionId' in tab ? tab.connectionId : undefined}
+        >
+          {children}
+        </ConnectionThemeProvider>
       </AppRegistryProvider>
     </WorkspaceTabStateProvider>
   );

@@ -4,7 +4,6 @@ import toNS from 'mongodb-ns';
 import {
   useConnectionInfo,
   useConnectionsListRef,
-  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import {
   WorkspaceTab,
@@ -32,7 +31,6 @@ function _PluginTitle({
   namespace,
   ...tabProps
 }: PluginTitleProps) {
-  const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionById } = useConnectionsListRef();
   const { id: connectionId } = useConnectionInfo();
 
@@ -75,7 +73,6 @@ function _PluginTitle({
           : 'Folder'
       }
       data-namespace={ns}
-      tabTheme={getThemeOf(connectionId)}
       isNonExistent={isNonExistent}
     />
   );
