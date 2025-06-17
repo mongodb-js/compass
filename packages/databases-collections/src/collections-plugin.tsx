@@ -1,8 +1,8 @@
+import React from 'react';
 import {
   databaseModelLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
-import CollectionsList from './components/collections';
 import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
@@ -11,10 +11,14 @@ import {
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
 
+export const CollectionsWorkspaceName = 'Collections' as const;
+
 export const CollectionsPlugin = registerHadronPlugin(
   {
-    name: 'Collections',
-    component: CollectionsList,
+    name: 'Collections' as const,
+    component: function CollectionsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
+    },
     activate: activateCollectionsTabPlugin,
   },
   {

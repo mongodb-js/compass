@@ -9,14 +9,23 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { WorkspaceTabs } from './workspace-tabs';
-import type { TabProps } from './workspace-tabs';
+import { Tab, type WorkspaceTabCoreProps } from './tab';
 
-function mockTab(tabId: number): TabProps {
+function mockTab(tabId: number): {
+  id: string;
+  renderTab: (tabProps: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
+} {
   return {
-    type: 'Documents',
-    title: `mock-tab-${tabId}`,
     id: `${tabId}-content`,
-    iconGlyph: 'Folder',
+    renderTab: (tabProps: WorkspaceTabCoreProps) => (
+      <Tab
+        {...tabProps}
+        type="Documents"
+        title={`mock-tab-${tabId}`}
+        id={`${tabId}-content`}
+        iconGlyph="Folder"
+      />
+    ),
   };
 }
 
