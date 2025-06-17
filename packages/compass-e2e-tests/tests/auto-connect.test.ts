@@ -307,7 +307,7 @@ describe('Automatically connecting from the command line', function () {
       await browser.closeWorkspaceTabs();
 
       await browser.execute(() => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require('electron').ipcRenderer.call('test:show-connect-window');
       });
 

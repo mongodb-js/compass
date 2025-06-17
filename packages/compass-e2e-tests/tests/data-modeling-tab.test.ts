@@ -14,6 +14,13 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+  await browser.waitForAnimations(Selectors.DataModelingDiagram);
+  return await browser
+    .$$(Selectors.DataModelingDiagramNode)
+    .map((element) => element.getAttribute('title'));
+}
+
 describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -80,13 +87,12 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    // Verify that the diagram is displayed and contains both collections
-    const text = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-
-    expect(text).to.include('"ns": "test.testCollection1"');
-    expect(text).to.include('"ns": "test.testCollection2"');
+    let nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes).to.deep.equal([
+      'test.testCollection1',
+      'test.testCollection2',
+    ]);
 
     // Apply change to the model
     const newModel = {
@@ -96,7 +102,6 @@ describe('Data Modeling tab', function () {
         relationships: [],
       },
     };
-    const newPreview = JSON.stringify(newModel.model, null, 2);
     await browser.setCodemirrorEditorValue(
       Selectors.DataModelApplyEditor,
       JSON.stringify(newModel)
@@ -104,32 +109,23 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.DataModelEditorApplyButton);
 
     // Verify that the model is updated
-    const updatedText = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-    expect(updatedText).to.equal(newPreview);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
-    await browser.waitUntil(async () => {
-      const textAfterUndo = await browser.getCodemirrorEditorText(
-        Selectors.DataModelPreview
-      );
-      return (
-        textAfterUndo.includes('"ns": "test.testCollection1"') &&
-        textAfterUndo.includes('"ns": "test.testCollection2"')
-      );
-    });
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes).to.deep.equal([
+      'test.testCollection1',
+      'test.testCollection2',
+    ]);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
-    await browser.waitUntil(async () => {
-      const redoneText = await browser.getCodemirrorEditorText(
-        Selectors.DataModelPreview
-      );
-      return redoneText === newPreview;
-    });
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Open a new tab
     await browser.openNewTab();
@@ -139,10 +135,8 @@ describe('Data Modeling tab', function () {
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
     // Verify that the diagram has the latest changes
-    const savedText = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-    expect(savedText).to.equal(newPreview);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Open a new tab
     await browser.openNewTab();

@@ -6,9 +6,10 @@ import {
   cx,
   useFocusRing,
   ParagraphSkeleton,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -23,6 +24,7 @@ import type {
 } from '../../modules/create-index';
 import { connect } from 'react-redux';
 import { parseFilter } from 'mongodb-query-parser';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const inputQueryContainerStyles = css({
   display: 'flex',
@@ -61,7 +63,6 @@ const codeEditorContainerStyles = css({
 const codeEditorStyles = css({
   borderRadius: editorContainerRadius,
   '& .cm-editor': {
-    background: `${palette.white} !important`,
     borderRadius: editorContainerRadius,
   },
   '& .cm-content': {
@@ -70,12 +71,21 @@ const codeEditorStyles = css({
   },
 });
 
+const lightModeCodeEditorStyles = css({
+  '& .cm-editor': {
+    background: `${palette.white} !important`,
+  },
+});
+
 const indexSuggestionsLoaderStyles = css({
   marginBottom: spacing[600],
   padding: spacing[600],
+  borderRadius: editorContainerRadius,
+});
+
+const indexSuggestionsLoaderLightStyles = css({
   background: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
-  borderRadius: editorContainerRadius,
 });
 
 const insightStyles = css({
@@ -95,6 +105,8 @@ const QueryFlowSection = ({
   indexSuggestions,
   fetchingSuggestionsState,
   initialQuery,
+  inputQuery,
+  setInputQuery,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -108,10 +120,12 @@ const QueryFlowSection = ({
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: Document | null;
+  inputQuery: string;
+  setInputQuery: (query: string) => void;
 }) => {
-  const [inputQuery, setInputQuery] = React.useState(
-    JSON.stringify(initialQuery ?? '', null, 2)
-  );
+  const track = useTelemetry();
+  const darkMode = useDarkMode();
+
   const [hasNewChanges, setHasNewChanges] = React.useState(
     initialQuery !== null
   );
@@ -134,7 +148,7 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  const handleSuggestedIndexButtonClick = useCallback(() => {
+  const generateSuggestedIndexes = useCallback(() => {
     const sanitizedInputQuery = inputQuery.trim();
 
     void onSuggestedIndexButtonClick({
@@ -142,9 +156,15 @@ const QueryFlowSection = ({
       collectionName,
       inputQuery: sanitizedInputQuery,
     });
-
     setHasNewChanges(false);
   }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+
+  const handleSuggestedIndexButtonClick = () => {
+    generateSuggestedIndexes();
+    track('Suggested Index Button Clicked', {
+      context: 'Create Index Modal',
+    });
+  };
 
   const handleQueryInputChange = useCallback((text: string) => {
     setInputQuery(text);
@@ -162,21 +182,27 @@ const QueryFlowSection = ({
       if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
         _isShowSuggestionsButtonDisabled = true;
       }
-    } catch (e) {
+    } catch {
       _isShowSuggestionsButtonDisabled = true;
     } finally {
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
   }, [hasNewChanges, inputQuery]);
 
+  useEffect(() => {
+    if (initialQuery !== null) {
+      generateSuggestedIndexes();
+    }
+  }, [initialQuery]);
+
   return (
     <>
       {initialQuery && (
         <div className={insightStyles}>
           <InsightsChip />
-          <p>
+          <span>
             We prefilled the query input below based on your recently run query
-          </p>
+          </span>
         </div>
       )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -199,7 +225,10 @@ const QueryFlowSection = ({
             onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
-            className={codeEditorStyles}
+            className={cx(
+              codeEditorStyles,
+              !darkMode && lightModeCodeEditorStyles
+            )}
           />
         </div>
 
@@ -224,7 +253,10 @@ const QueryFlowSection = ({
       {isFetchingIndexSuggestions ? (
         <ParagraphSkeleton
           data-testid="query-flow-section-code-loader"
-          className={indexSuggestionsLoaderStyles}
+          className={cx(
+            indexSuggestionsLoaderStyles,
+            !darkMode && indexSuggestionsLoaderLightStyles
+          )}
         />
       ) : (
         indexSuggestions && (
@@ -235,6 +267,11 @@ const QueryFlowSection = ({
                 dbName={dbName}
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
+                onCopy={() => {
+                  track('Index Suggestions Copied', {
+                    context: 'Create Index Modal',
+                  });
+                }}
               />
             </div>
           </>

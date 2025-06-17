@@ -151,7 +151,10 @@ const colorPreviewStyles = css({
 type ColorCircleGlyphProps = { hexColor?: string };
 export const ColorCircleGlyph = createGlyphComponent(
   'ColorCircle',
-  ({ hexColor, ...props }: any & ColorCircleGlyphProps) => (
+  ({
+    hexColor,
+    ...props
+  }: ColorCircleGlyphProps & React.SVGProps<SVGSVGElement>) => (
     <svg
       {...props}
       className={colorPreviewStyles}

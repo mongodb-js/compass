@@ -157,12 +157,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onSubmit,
   onClose,
 }) => {
+  const initialSearchIndexType: SearchIndexType =
+    initialIndexType === 'search' || initialIndexType === 'vectorSearch'
+      ? initialIndexType
+      : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
 
   const [indexName, setIndexName] = useState(initialIndexName);
-  const [searchIndexType, setSearchIndexType] = useState<string>(
-    initialIndexType ?? searchIndexTypes[0].value
+  const [searchIndexType, setSearchIndexType] = useState<SearchIndexType>(
+    initialSearchIndexType
   );
   const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
@@ -211,7 +215,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   useEffect(() => {
     if (isModalOpen) {
-      setSearchIndexType('search');
+      setSearchIndexType(initialSearchIndexType);
       setIndexName(initialIndexName);
       setIndexDefinition(initialIndexDefinition);
       setParsingError(undefined);

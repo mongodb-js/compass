@@ -64,7 +64,7 @@ describe('In-Use Encryption', function () {
       fireEvent.click(screen.getByTestId('connect-button'));
       try {
         await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
-      } catch (e) {
+      } catch {
         const errors = screen.getByTestId(
           'connection-error-summary'
         ).textContent;

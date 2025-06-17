@@ -109,7 +109,7 @@ export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
         type: ActionTypes.FetchIndexesFinished,
         indexes,
       });
-    } catch (e) {
+    } catch {
       dispatch({
         type: ActionTypes.FetchIndexesFailed,
       });

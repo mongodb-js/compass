@@ -60,9 +60,7 @@ const editorAreaBaseStyles = css({
   paddingTop: spacing[600],
 });
 
-const editorAreaDarkStyles = css({
-  backgroundColor: palette.gray.dark4,
-});
+const editorAreaDarkStyles = css({});
 
 const editorAreaLightStyles = css({
   backgroundColor: palette.gray.light3,

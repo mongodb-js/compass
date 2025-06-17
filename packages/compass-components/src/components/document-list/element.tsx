@@ -483,7 +483,11 @@ export const HadronElement: React.FunctionComponent<{
   ]);
 
   const toggleExpanded = () => {
-    expanded ? collapse() : expand();
+    if (expanded) {
+      collapse();
+    } else {
+      expand();
+    }
   };
 
   const lineNumberMinWidth = useMemo(() => {

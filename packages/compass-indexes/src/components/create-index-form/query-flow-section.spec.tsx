@@ -19,6 +19,8 @@ describe('QueryFlowSection', () => {
           dbName={dbName}
           collectionName={collectionName}
           initialQuery={null}
+          inputQuery={''}
+          setInputQuery={() => {}}
         />
       </Provider>
     );

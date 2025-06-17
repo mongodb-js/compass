@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Jun 1, 2025
+Generated on Tue, Jun 17, 2025
 
 ## Table of Contents
 
@@ -161,6 +161,21 @@ Generated on Sun, Jun 1, 2025
 - [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
 - [Error parsing query](#event--CreateIndexErrorParsingQueryEvent)
 - [Error generating covered queries](#event--CreateIndexErrorGettingCoveredQueriesEvent)
+- [Code Equivalent Toggled](#event--CreateIndexCodeEquivalentToggled)
+- [Covered Queries Button Clicked](#event--CreateIndexCoveredQueriesButtonClicked)
+- [Covered Queries Learn More Clicked](#event--CreateIndexCoveredQueriesLearnMoreClicked)
+- [ESR Learn More Clicked](#event--CreateIndexESRLearnMoreClicked)
+- [Start with an Index Tab Clicked](#event--CreateIndexIndexTabClicked)
+- [Cancel Button Clicked](#event--CreateIndexModalCancelled)
+- [Create Index Modal Closed](#event--CreateIndexModalClosed)
+- [New Index Field Added](#event--CreateIndexNewFieldAdded)
+- [Options Clicked](#event--CreateIndexOptionsClicked)
+- [View Programming Language Syntax Clicked](#event--CreateIndexProgrammingLanguageLinkClicked)
+- [Start with a Query Tab Clicked](#event--CreateIndexQueryTabClicked)
+- [Suggested Index Button Clicked](#event--CreateIndexSuggestedIndexButtonClicked)
+- [Input Index Copied](#event--CreateIndexInputIndexCopied)
+- [Index Suggestions Copied](#event--CreateIndexIndexSuggestionsCopied)
+- [Index Strategies Documentation Clicked](#event--CreateIndexStrategiesDocumentationClicked)
 - [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
@@ -1858,6 +1873,142 @@ a system that doesn't offer a suitable secret storage backend.
 <a name="event--CreateIndexErrorGettingCoveredQueriesEvent"></a>
 
 ### Error generating covered queries
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCodeEquivalentToggled"></a>
+
+### Code Equivalent Toggled
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **toggled** (required): `"On" | "Off"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCoveredQueriesButtonClicked"></a>
+
+### Covered Queries Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexCoveredQueriesLearnMoreClicked"></a>
+
+### Covered Queries Learn More Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexESRLearnMoreClicked"></a>
+
+### ESR Learn More Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexIndexTabClicked"></a>
+
+### Start with an Index Tab Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexModalCancelled"></a>
+
+### Cancel Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexModalClosed"></a>
+
+### Create Index Modal Closed
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexNewFieldAdded"></a>
+
+### New Index Field Added
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexOptionsClicked"></a>
+
+### Options Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexProgrammingLanguageLinkClicked"></a>
+
+### View Programming Language Syntax Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexQueryTabClicked"></a>
+
+### Start with a Query Tab Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexSuggestedIndexButtonClicked"></a>
+
+### Suggested Index Button Clicked
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexInputIndexCopied"></a>
+
+### Input Index Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexIndexSuggestionsCopied"></a>
+
+### Index Suggestions Copied
+
+**Properties**:
+
+- **context** (required): `"Create Index Modal"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateIndexStrategiesDocumentationClicked"></a>
+
+### Index Strategies Documentation Clicked
 
 **Properties**:
 
