@@ -137,7 +137,7 @@ const DiagramEditor: React.FunctionComponent<{
   const diagram = useDiagram();
 
   const setDiagramContainerRef = useCallback(
-    (ref: HTMLDivElement) => {
+    (ref: HTMLDivElement | null) => {
       if (ref) {
         // For debugging purposes, we attach the diagram to the ref.
         (ref as any)._diagram = diagram;
