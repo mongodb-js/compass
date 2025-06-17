@@ -277,6 +277,32 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     return editable;
   }, [context.path, column, node.data.hadronDocument, parentType]);
 
+  // Determine cell state
+  let cellState:
+    | typeof UNEDITABLE
+    | typeof EMPTY
+    | typeof INVALID
+    | typeof DELETED
+    | typeof ADDED
+    | typeof EDITED
+    | typeof VALID;
+
+  if (!isEditable) {
+    cellState = UNEDITABLE;
+  } else if (isEmpty || isDeleted) {
+    cellState = EMPTY;
+  } else if (!element.isCurrentTypeValid()) {
+    cellState = INVALID;
+  } else if (element.isRemoved()) {
+    cellState = DELETED;
+  } else if (element.isAdded()) {
+    cellState = ADDED;
+  } else if (element.isModified()) {
+    cellState = EDITED;
+  } else {
+    cellState = VALID;
+  }
+
   const handleUndo = useCallback(
     (event: React.MouseEvent) => {
       event.stopPropagation();
@@ -284,12 +310,12 @@ const CellRenderer: React.FC<CellRendererProps> = ({
         return;
       }
       const oid: string = node.data.hadronDocument.getStringId();
-      if (element.isAdded()) {
+      if (cellState === ADDED) {
         setIsDeleted(true);
         const isArray =
           !element.parent?.isRoot() && element.parent?.currentType === 'Array';
         elementRemoved(String(element.currentKey), oid, isArray);
-      } else if (element.isRemoved()) {
+      } else if (cellState === DELETED) {
         elementAdded(String(element.currentKey), element.currentType, oid);
       } else {
         elementTypeChanged(String(element.currentKey), element.type, oid);
@@ -324,32 +350,6 @@ const CellRenderer: React.FC<CellRendererProps> = ({
       });
     }
   }, [node, api, column]);
-
-  // Determine cell state
-  let cellState:
-    | typeof UNEDITABLE
-    | typeof EMPTY
-    | typeof INVALID
-    | typeof DELETED
-    | typeof ADDED
-    | typeof EDITED
-    | typeof VALID;
-
-  if (!isEditable) {
-    cellState = UNEDITABLE;
-  } else if (isEmpty || isDeleted) {
-    cellState = EMPTY;
-  } else if (!element.isCurrentTypeValid()) {
-    cellState = INVALID;
-  } else if (element.isRemoved()) {
-    cellState = DELETED;
-  } else if (element.isAdded()) {
-    cellState = ADDED;
-  } else if (element.isModified()) {
-    cellState = EDITED;
-  } else {
-    cellState = VALID;
-  }
 
   return (
     // `ag-grid` renders this component outside of the context chain
