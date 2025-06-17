@@ -107,6 +107,16 @@ export type IndexFlowSectionProps = {
   collectionName: string;
   onErrorEncountered: (error: string) => void;
   onErrorCleared: () => void;
+  coveredQueriesObj: {
+    coveredQueries: JSX.Element;
+    optimalQueries: string | JSX.Element;
+    showCoveredQueries: boolean;
+  };
+  setCoveredQueriesObj: (coveredQueriesObj: {
+    coveredQueries: JSX.Element;
+    optimalQueries: string | JSX.Element;
+    showCoveredQueries: boolean;
+  }) => void;
 };
 
 const generateCoveredQueries = (
@@ -194,6 +204,8 @@ const IndexFlowSection = ({
   collectionName,
   onErrorEncountered,
   onErrorCleared,
+  coveredQueriesObj,
+  setCoveredQueriesObj,
 }: IndexFlowSectionProps) => {
   const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
@@ -220,16 +232,6 @@ const IndexFlowSection = ({
     {}
   );
 
-  const [coveredQueriesObj, setCoveredQueriesObj] = useState<{
-    coveredQueries: JSX.Element;
-    optimalQueries: string | JSX.Element;
-    showCoveredQueries: boolean;
-  }>({
-    coveredQueries: <></>,
-    optimalQueries: '',
-    showCoveredQueries: false,
-  });
-
   const onCoveredQueriesButtonClick = useCallback(() => {
     const coveredQueriesArr = fields.map((field, index) => {
       return { [field.name]: index + 1 };
@@ -250,7 +252,7 @@ const IndexFlowSection = ({
     }
 
     setHasFieldChanges(false);
-  }, [fields, onErrorEncountered, track]);
+  }, [fields, onErrorEncountered, setCoveredQueriesObj, track]);
 
   useEffect(() => {
     setHasFieldChanges(true);
