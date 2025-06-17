@@ -57,7 +57,7 @@
     "@mongodb-js/connection-form": "^1.52.3",
     "@mongodb-js/connection-info": "^0.15.2",
     "@mongodb-js/my-queries-storage": "^0.27.3",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "compass-preferences-model": "^2.40.2",
     "fuse.js": "^6.5.3",
     "hadron-app-registry": "^9.4.11",
