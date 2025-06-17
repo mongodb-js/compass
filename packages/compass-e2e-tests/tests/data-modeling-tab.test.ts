@@ -119,6 +119,7 @@ describe('Data Modeling tab', function () {
       JSON.stringify(newModel)
     );
     await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    await browser.waitForAnimations(dataModelEditor);
 
     // Verify that the model is updated
     nodes = await getDiagramNodes(browser);
@@ -126,6 +127,7 @@ describe('Data Modeling tab', function () {
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
+    await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes).to.deep.equal([
@@ -136,6 +138,7 @@ describe('Data Modeling tab', function () {
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
+    await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(0);
 
