@@ -109,6 +109,13 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
     children = React.cloneElement(children, initialProps);
   }
 
+  // The ordering of the these providers is important,
+  // the workspace provider needs access to the
+  // connection info and namespace providers.
+  children = (
+    <WorkspaceProvider {...initialProps}>{children}</WorkspaceProvider>
+  );
+
   if ('namespace' in tab) {
     children = (
       <NamespaceProvider
@@ -142,7 +149,7 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
         localAppRegistry={getLocalAppRegistryForTab(tab.id)}
         deactivateOnUnmount={false}
       >
-        <WorkspaceProvider>{children}</WorkspaceProvider>
+        {children}
       </AppRegistryProvider>
     </WorkspaceTabStateProvider>
   );
