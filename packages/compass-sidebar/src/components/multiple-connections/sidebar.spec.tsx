@@ -106,8 +106,18 @@ describe('Multiple Connections Sidebar Component', function () {
       <ConnectionImportExportProvider>
         <WorkspacesProvider
           value={[
-            { name: 'My Queries', component: () => null },
-            { name: 'Performance', component: () => null },
+            {
+              name: 'My Queries',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
+            {
+              name: 'Performance',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
           ]}
         >
           <WorkspacesServiceProvider value={workspace as any}>

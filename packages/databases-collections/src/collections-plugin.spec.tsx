@@ -9,7 +9,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { CollectionsPlugin } from './collections-plugin';
+import { CollectionsWorkspaceTab } from './';
 import Sinon from 'sinon';
 import {
   type PreferencesAccess,
@@ -61,13 +61,17 @@ describe('Collections [Plugin]', function () {
 
   describe('with loaded collections', function () {
     beforeEach(async function () {
-      const Plugin = CollectionsPlugin.withMockServices({
+      const Plugin = CollectionsWorkspaceTab.provider.withMockServices({
         instance: mongodbInstance,
         database: mongodbInstance.databases.get('foo'),
         dataService,
       });
 
-      const { globalAppRegistry } = render(<Plugin namespace="foo"></Plugin>);
+      const { globalAppRegistry } = render(
+        <Plugin namespace="foo">
+          <CollectionsWorkspaceTab.content namespace="foo" />
+        </Plugin>
+      );
       appRegistry = Sinon.spy(globalAppRegistry);
 
       await waitFor(() => {

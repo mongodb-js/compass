@@ -5,6 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import type { GlyphName } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../../hooks/use-theme';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
@@ -149,6 +150,10 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
+const nonExistentStyles = css({
+  color: palette.gray.base,
+});
+
 const tabIconStyles = css({
   color: 'currentColor',
   marginLeft: spacing[300],
@@ -185,25 +190,34 @@ const workspaceTabTooltipStyles = css({
   textWrap: 'wrap',
 });
 
-type TabProps = {
+// The plugins provide these essential props use to render the tab.
+// The workspace-tabs component provides the other parts of TabProps.
+export type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
-  title: string;
+  title: React.ReactNode;
+  isNonExistent?: boolean;
+  iconGlyph: GlyphName | 'Logo' | 'Server';
+  tooltip?: [string, string][];
+  tabTheme?: Partial<TabTheme>;
+};
+
+export type WorkspaceTabCoreProps = {
   isSelected: boolean;
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: GlyphName | 'Logo' | 'Server';
   tabContentId: string;
-  tooltip?: [string, string][];
-  tabTheme?: Partial<TabTheme>;
 };
+
+type TabProps = WorkspaceTabCoreProps & WorkspaceTabPluginProps;
 
 function Tab({
   connectionName,
   type,
   title,
   tooltip,
+  isNonExistent,
   isSelected,
   isDragging,
   onSelect,
@@ -213,7 +227,7 @@ function Tab({
   tabTheme,
   className: tabClassName,
   ...props
-}: TabProps & React.HTMLProps<HTMLDivElement>) {
+}: TabProps & Omit<React.HTMLProps<HTMLDivElement>, 'title'>) {
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({
@@ -240,6 +254,8 @@ function Tab({
     cursor: 'grabbing !important',
   };
 
+  const tabId = useId();
+
   return (
     <Tooltip
       enabled={!!tooltip}
@@ -254,6 +270,7 @@ function Tab({
           className={cx(
             tabStyles,
             themeClass,
+            isNonExistent && nonExistentStyles,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
             isDragging && draggingTabStyles,
@@ -267,6 +284,7 @@ function Tab({
           data-testid="workspace-tab-button"
           data-connection-name={connectionName}
           data-type={type}
+          id={tabId}
           {...tabProps}
         >
           {iconGlyph === 'Logo' && (
