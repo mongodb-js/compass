@@ -204,7 +204,10 @@ const QueryFlowSection = ({
     if (initialQuery !== null) {
       generateSuggestedIndexes();
     }
-  }, [generateSuggestedIndexes, initialQuery]);
+    // we do not want to update this when the initialQuery changes
+    // this should just be done when the component first renders
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <>
