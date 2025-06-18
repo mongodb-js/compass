@@ -24,6 +24,7 @@ export function installWindowsSetup({
   kind,
   filepath,
   buildInfo,
+  sandboxPath,
 }: InstallablePackage): InstalledAppInfo {
   assert.equal(kind, 'windows_setup');
   const appName = buildInfo.installerOptions.name;
@@ -83,7 +84,12 @@ export function installWindowsSetup({
   console.warn(
     "Installing globally, since we haven't discovered a way to specify an install path"
   );
-  execute(filepath, []);
+  execute(filepath, [], {
+    env: {
+      // As per https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/UpdateRunner.cpp#L173C40-L173C54
+      SQUIRREL_TEMP: sandboxPath,
+    },
+  });
 
   const entry = queryRegistry();
   assert(entry !== null, 'Expected an entry in the registry after installing');
