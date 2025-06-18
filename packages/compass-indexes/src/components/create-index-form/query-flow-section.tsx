@@ -121,7 +121,7 @@ const QueryFlowSection = ({
   fetchingSuggestionsState: IndexSuggestionState;
   initialQuery: string | null;
   query: string;
-  hasQueryChanges: boolean; // to keep track of the state between the tab flows
+  hasQueryChanges: boolean;
   onQueryUpdated: ({ query, hasQueryChanges }: QueryUpdatedProps) => void;
 }) => {
   const track = useTelemetry();
