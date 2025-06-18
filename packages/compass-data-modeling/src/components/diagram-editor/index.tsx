@@ -1,7 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
-import { redoEdit, undoEdit } from '../../store/diagram';
+import {
+  redoEdit,
+  selectCurrentModel,
+  undoEdit,
+  getCurrentDiagramFromState,
+} from '../../store/diagram';
 import {
   Icon,
   IconButton,
@@ -17,6 +22,7 @@ import {
   type ReactFlowEdge,
   type ReactFlowNode,
 } from '../export-diagram-context';
+import { StaticModel } from '../../services/data-model-storage';
 
 const DiagramEditor: React.FunctionComponent<{
   step: DataModelingState['step'];
@@ -25,7 +31,16 @@ const DiagramEditor: React.FunctionComponent<{
   onUndoClick: () => void;
   hasRedo: boolean;
   onRedoClick: () => void;
-}> = ({ step, diagramLabel, hasUndo, onUndoClick, hasRedo, onRedoClick }) => {
+  model: StaticModel | null;
+}> = ({
+  step,
+  diagramLabel,
+  hasUndo,
+  onUndoClick,
+  hasRedo,
+  onRedoClick,
+  model,
+}) => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [nodes, setNodes] = useState<ReactFlowNode[]>([]);
   const [edges, setEdges] = useState<ReactFlowEdge[]>([]);
@@ -90,6 +105,7 @@ const DiagramEditor: React.FunctionComponent<{
             isModalOpen={isExportModalOpen}
             onClose={() => setIsExportModalOpen(false)}
             diagramLabel={diagramLabel}
+            model={model}
           />
         </DiagramProvider>
       </ExportDiagramContextProvider>
@@ -100,11 +116,15 @@ const DiagramEditor: React.FunctionComponent<{
 export default connect(
   (state: DataModelingState) => {
     const { diagram, step } = state;
+    const model = diagram
+      ? selectCurrentModel(getCurrentDiagramFromState(state))
+      : null;
     return {
       step: step,
       diagramLabel: diagram?.name ?? 'Data Model',
       hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
       hasRedo: (diagram?.edits.next.length ?? 0) > 0,
+      model,
     };
   },
   {

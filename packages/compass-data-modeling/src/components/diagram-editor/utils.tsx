@@ -1,14 +1,22 @@
-import { type NodeProps, type EdgeProps, type NodeType, DiagramProvider, Diagram } from '@mongodb-js/diagramming';
+import {
+  type NodeProps,
+  type EdgeProps,
+  type NodeType,
+  DiagramProvider,
+  Diagram,
+} from '@mongodb-js/diagramming';
 import type { Node, Edge } from '@xyflow/react';
 import type {
   Relationship,
   Collection,
+  StaticModel,
 } from '../../services/data-model-storage';
 import { toPng } from 'html-to-image';
 import { getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import type { ReactFlowEdge, ReactFlowNode } from '../export-diagram-context';
 import ReactDOM from 'react-dom';
 import React from 'react';
+import { analyzeDocuments } from 'mongodb-schema';
 
 export function mapNodeToNodeProps(node: Node): NodeProps {
   const { data, type, ...restOfNode } = node;
@@ -95,7 +103,11 @@ export async function getPngDataUrl(
     console.time('Diagram rendering');
     ReactDOM.render(
       <DiagramProvider>
-        <Diagram edges={edges.map(mapEdgeToEdgeProps)} nodes={nodes.map(mapNodeToNodeProps)} onlyRenderVisibleElements={false}/>
+        <Diagram
+          edges={edges.map(mapEdgeToEdgeProps)}
+          nodes={nodes.map(mapNodeToNodeProps)}
+          onlyRenderVisibleElements={false}
+        />
       </DiagramProvider>,
       containerRef.current,
       () => {
@@ -106,7 +118,7 @@ export async function getPngDataUrl(
         if (!diagramElement) {
           throw new Error('Diagram element not found');
         }
-      
+
         const padding = '20px';
         const bounds = getNodesBounds(nodes);
         const transform = getViewportForBounds(
@@ -117,7 +129,7 @@ export async function getPngDataUrl(
           2,
           padding
         );
-      
+
         console.time('Diagram to PNG conversion');
         toPng(diagramElement as HTMLElement, {
           backgroundColor: '#fff',
@@ -129,18 +141,87 @@ export async function getPngDataUrl(
             height: `${bounds.height}px`,
             transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
           },
-        }).then((uri) => {
-          console.timeEnd('Diagram to PNG conversion');
-          resolve(uri);
-        }).catch(reject);
+        })
+          .then((uri) => {
+            console.timeEnd('Diagram to PNG conversion');
+            resolve(uri);
+          })
+          .catch(reject);
       }
     );
   });
 }
 
-export function getDiagramJsonSchema(data: unknown) {
-  // TODO: Implement this function to return the JSON schema for the diagram
-  return data;
+export async function getDiagramJsonSchema(
+  format: 'standard' | 'mongodb' | 'extended',
+  data: StaticModel
+) {
+  // Remove unwanted data
+  data.collections = data.collections.map((x) => {
+    const { displayPosition, ...rest } = x;
+    return rest;
+  });
+  const exportMethod =
+    format === 'standard'
+      ? 'getStandardJsonSchema'
+      : format === 'mongodb'
+      ? 'getMongoDBJsonSchema'
+      : ('getExpandedJSONSchema' as const);
+  console.time('AnalyzingState.Collections');
+  const collections = await Promise.all(
+    data.collections.map(async (c) => {
+      return [c.ns, await (await analyzeDocuments([c]))[exportMethod]()];
+    })
+  );
+  console.timeEnd('AnalyzingState.Collections');
+
+  console.time('AnalyzingState.Relationships');
+  const relationships = await Promise.all(
+    data.relationships.map(async (r) => {
+      return [r.id, await (await analyzeDocuments([r]))[exportMethod]()];
+    })
+  );
+  console.timeEnd('AnalyzingState.Relationships');
+
+  // Remove unnecessary properties from collections and relationships
+  let defTypes = {};
+  function cleanUpSchema(schema: unknown) {
+    if (typeof schema === 'string') {
+      return schema;
+    }
+
+    let newSchema = schema;
+
+    if ('$schema' in newSchema) {
+      const { $schema, ...rest } = newSchema;
+      newSchema = rest;
+    }
+    if ('$defs' in newSchema) {
+      const { $defs, ...rest } = newSchema;
+      defTypes = {
+        ...defTypes,
+        ...$defs,
+      };
+      newSchema = rest;
+    }
+    return newSchema;
+  }
+  const cleanedCollections = collections.map(([id, schema]) => {
+    return [id, cleanUpSchema(schema)];
+  });
+  const cleanedRelationships = relationships.map(([id, schema]) => {
+    return [id, cleanUpSchema(schema)];
+  });
+
+  // Create a unique list of $defs types
+  console.log('Def types:', defTypes);
+
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    collections: Object.fromEntries(cleanedCollections),
+    relationships: Object.fromEntries(cleanedRelationships),
+    $defs: defTypes,
+  };
 }
 
 export function downloadImage(dataUrl: string, filename = 'diagram.png'): void {

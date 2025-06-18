@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   Button,
+  Code,
   css,
   Icon,
   Label,
@@ -14,15 +15,11 @@ import {
   spacing,
   SpinLoader,
 } from '@mongodb-js/compass-components';
-import { ExportDiagramContext } from './export-diagram-context';
-import {
-  downloadImage,
-  downloadJsonSchema,
-  getDiagramJsonSchema,
-  getPngDataUrl,
-} from './diagram-editor/utils';
+import { getDiagramJsonSchema, getPngDataUrl } from './diagram-editor/utils';
 import { getNodesBounds } from '@xyflow/react';
 import { useDiagram } from '@mongodb-js/diagramming';
+import { StaticModel } from '../services/data-model-storage';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const nbsp = '\u00a0';
 
@@ -51,25 +48,40 @@ type ExportDiagramModalProps = {
   isModalOpen: boolean;
   onClose: () => void;
   diagramLabel: string;
+  model: StaticModel | null;
 };
 
 export const ExportDiagramModal = ({
   isModalOpen,
-  onClose,
+  onClose: _onClose,
   diagramLabel,
+  model,
 }: ExportDiagramModalProps) => {
   const [exportFormat, setExportFormat] = React.useState<'png' | 'json' | null>(
     null
   );
+  const [jsonExportFormat, setJsonExportFormat] = React.useState<
+    'standard' | 'mongodb' | 'extended'
+  >('standard');
   const [isExporting, setIsExporting] = React.useState(false);
   const exportDiagramContainerRef = useRef<HTMLDivElement>(null);
   const [imageUri, setImageUri] = React.useState<string | null>(null);
+  const [exportJson, setExportJson] = React.useState<string | null>(null);
   const diagram = useDiagram();
 
   const bounds = useMemo(() => getNodesBounds(diagram.getNodes()), [diagram]);
 
+  const onClose = useCallback(() => {
+    _onClose();
+    setExportFormat(null);
+    setIsExporting(false);
+    setImageUri(null);
+    setExportJson(null);
+    setJsonExportFormat('standard');
+  }, [_onClose]);
+
   const onExport = useCallback(async () => {
-    if (!exportFormat) {
+    if (!exportFormat || !model) {
       return;
     }
     setIsExporting(true);
@@ -83,15 +95,13 @@ export const ExportDiagramModal = ({
         edges
       );
       setImageUri(dataUri);
-      // downloadImage(dataUri, `${diagramLabel}.png`);
     } else if (exportFormat === 'json') {
-      const jsonSchema = getDiagramJsonSchema({ nodes, edges });
-      downloadJsonSchema(jsonSchema, `${diagramLabel}.json`);
+      const jsonSchema = await getDiagramJsonSchema(jsonExportFormat, model);
+      setExportJson(JSON.stringify(jsonSchema, null, 2));
     }
 
     setIsExporting(false);
-    // onClose();
-  }, [exportFormat, diagram, diagramLabel]);
+  }, [exportFormat, diagram, diagramLabel, model, jsonExportFormat]);
 
   return (
     <Modal open={isModalOpen} setOpen={onClose}>
@@ -131,6 +141,20 @@ export const ExportDiagramModal = ({
               JSON Schema
             </Radio>
           </RadioGroup>
+
+          <RadioGroup
+            className={radioGroupStyles}
+            value={jsonExportFormat}
+            onChange={(e) =>
+              setJsonExportFormat(
+                e.target.value as 'standard' | 'mongodb' | 'extended'
+              )
+            }
+          >
+            <Radio value="standard">Standard</Radio>
+            <Radio value="mongodb">MongoDB</Radio>
+            <Radio value="extended">Extended</Radio>
+          </RadioGroup>
         </div>
         {exportFormat === 'png' && imageUri && (
           <img
@@ -141,6 +165,13 @@ export const ExportDiagramModal = ({
               maxHeight: '100%',
               border: '1px solid red',
             }}
+          />
+        )}
+        {exportFormat === 'json' && exportJson && (
+          <CodemirrorMultilineEditor
+            className={css({ height: '400px', marginTop: '10px' })}
+            language="json"
+            text={exportJson}
           />
         )}
         {/* Container where we render export diagram */}
