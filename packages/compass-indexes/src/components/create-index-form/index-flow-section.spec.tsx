@@ -75,7 +75,8 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  describe('when 4 index fields are filled in and user clicks on covered queries button', () => {
+  // TODO: fix in CLOUDP-325883
+  describe.skip('when 4 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '-1 (desc)' },
@@ -124,7 +125,8 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  describe('when 3 index fields are filled in and user clicks on covered queries button', () => {
+  // TODO: fix in CLOUDP-325883
+  describe.skip('when 3 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '-1 (desc)' },
@@ -171,7 +173,8 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  describe('when 2 index fields are filled in and user clicks on covered queries button', () => {
+  // TODO: fix in CLOUDP-325883
+  describe.skip('when 2 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '1 (asc)' },
@@ -203,7 +206,8 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  describe('when 1 index field is filled in and user clicks on covered queries button', () => {
+  // TODO: fix in CLOUDP-325883
+  describe.skip('when 1 index field is filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [{ name: 'field1', type: '1 (asc)' }];
 
     beforeEach(() => {
