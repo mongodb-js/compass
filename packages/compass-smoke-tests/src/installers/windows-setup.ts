@@ -62,9 +62,17 @@ export function installWindowsSetup({
       debug(`Running command to uninstall: ${uninstallCommand}`);
       cp.execSync(uninstallCommand, { stdio: 'inherit' });
       // Removing the any remaining files manually
-      if (fs.existsSync(installLocation)) {
-        debug(`Removing installer: ${installLocation}`);
-        fs.rmSync(installLocation, { recursive: true, force: true });
+      try {
+        if (fs.existsSync(installLocation)) {
+          debug(`Removing installer: ${installLocation}`);
+          fs.rmSync(installLocation, { recursive: true, force: true });
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to remove install location ${installLocation}: ${
+            error instanceof Error ? error.message : error
+          }`
+        );
       }
     }
   }
