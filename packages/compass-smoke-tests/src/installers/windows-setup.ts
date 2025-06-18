@@ -87,8 +87,9 @@ export function installWindowsSetup({
   execute(
     filepath,
     [
-      // See https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/winmain.cpp#L60C22-L68
-      '--checkInstall',
+      // Args are passed through to the Update.exe https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/winmain.cpp#L125
+      // See options in https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Update/StartupOption.cs
+      '--silent',
     ],
     {
       env: {
