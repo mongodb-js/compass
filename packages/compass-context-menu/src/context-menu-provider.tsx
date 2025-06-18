@@ -24,6 +24,13 @@ export function ContextMenuProvider({
   // Check if there's already a parent context menu provider
   const parentContext = useContext(Context);
 
+  // Prevent accidental nested providers
+  if (parentContext) {
+    throw new Error(
+      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+    );
+  }
+
   const [menu, setMenu] = useState<ContextMenuState>({
     isOpen: false,
     itemGroups: [],
@@ -41,11 +48,6 @@ export function ContextMenuProvider({
   );
 
   useEffect(() => {
-    // If there's a parent provider, don't add event listeners
-    if (parentContext) {
-      return;
-    }
-
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
 
@@ -73,7 +75,7 @@ export function ContextMenuProvider({
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
     };
-  }, [handleClosingEvent, parentContext]);
+  }, [handleClosingEvent]);
 
   const value = useMemo(
     () => ({
@@ -81,13 +83,6 @@ export function ContextMenuProvider({
     }),
     [close]
   );
-
-  // Prevent accidental nested providers
-  if (parentContext) {
-    throw new Error(
-      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
-    );
-  }
 
   const Wrapper = wrapper ?? React.Fragment;
 
