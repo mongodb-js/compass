@@ -132,7 +132,7 @@ export function activateIndexesPlugin(
     localAppRegistry,
     'open-create-index-modal',
     (openCreateModalRequest?: { query: Document }) => {
-      store.dispatch(createIndexOpened(openCreateModalRequest?.query));
+      void store.dispatch(createIndexOpened(openCreateModalRequest?.query));
     }
   );
 
