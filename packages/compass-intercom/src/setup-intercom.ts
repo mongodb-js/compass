@@ -89,17 +89,26 @@ export async function setupIntercom(
   );
 }
 
+let isIntercomAllowedPromise: Promise<boolean> | null = null;
+
 function isIntercomAllowed(): Promise<boolean> {
-  return fetchIntegrations().then(
-    ({ intercom }) => intercom,
-    (error) => {
-      debug(
-        'Failed to fetch intercom integration status, defaulting to false',
-        { error }
-      );
-      return false;
-    }
-  );
+  if (!isIntercomAllowedPromise) {
+    isIntercomAllowedPromise = fetchIntegrations().then(
+      ({ intercom }) => intercom,
+      (error) => {
+        debug(
+          'Failed to fetch intercom integration status, defaulting to false',
+          { error }
+        );
+        return false;
+      }
+    );
+  }
+  return isIntercomAllowedPromise;
+}
+
+export function resetIntercomAllowedCache(): void {
+  isIntercomAllowedPromise = null;
 }
 
 /**

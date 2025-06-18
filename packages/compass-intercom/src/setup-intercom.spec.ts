@@ -2,7 +2,7 @@
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
 
-import { setupIntercom } from './setup-intercom';
+import { setupIntercom, resetIntercomAllowedCache } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -100,6 +100,7 @@ describe('setupIntercom', function () {
     process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
     fetchMock.restore();
+    resetIntercomAllowedCache();
   });
 
   describe('when it can be enabled', function () {
