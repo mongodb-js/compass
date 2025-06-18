@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
-import { CompassShellPlugin } from './index';
+import { WorkspaceTab } from './index';
 import {
   renderWithActiveConnection,
   screen,
@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { RuntimeMap } from './stores/store';
 
-describe('CompassShellPlugin', function () {
+describe('CompassShellPlugin WorkspaceTab', function () {
   it('returns a renderable plugin', async function () {
     RuntimeMap.set('test', {
       eventEmitter: new EventEmitter(),
@@ -19,7 +19,12 @@ describe('CompassShellPlugin', function () {
       },
     } as any);
 
-    await renderWithActiveConnection(<CompassShellPlugin runtimeId="test" />);
+    const ShellContentComponent = WorkspaceTab.content;
+    await renderWithActiveConnection(
+      <WorkspaceTab.provider runtimeId="test">
+        <ShellContentComponent />
+      </WorkspaceTab.provider>
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('shell-section')).to.exist;

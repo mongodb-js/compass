@@ -74,6 +74,7 @@ interface CollectionProps {
   avg_document_size: number | undefined;
   storage_size: number | undefined;
   free_storage_size: number | undefined;
+  calculated_storage_size: number | undefined;
   index_count: number | undefined;
   index_size: number | undefined;
   isTimeSeries: boolean;

@@ -405,7 +405,7 @@ export const fetchIndexSuggestions = ({
       try {
         sampleDocuments =
           (await dataService.sample(namespace, { size: 50 })) || [];
-      } catch (e) {
+      } catch {
         // Swallow the error because mql package still will work fine with empty sampleDocuments
         sampleDocuments = [];
       }
@@ -506,17 +506,6 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
             : 'Start with Query'
           : undefined,
     });
-
-    // Check for field errors.
-    if (
-      !isQueryFlow &&
-      getState().createIndex.fields.some(
-        (field: Field) => field.name === '' || field.type === ''
-      )
-    ) {
-      dispatch(errorEncountered('You must select a field name and type'));
-      return;
-    }
 
     const formIndexOptions = getState().createIndex.options;
 

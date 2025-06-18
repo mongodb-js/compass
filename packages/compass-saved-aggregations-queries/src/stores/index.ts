@@ -79,8 +79,12 @@ export type SavedQueryAggregationThunkAction<
   A extends Action = AnyAction
 > = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
+type SavedQueryAggregationPluginProps = {
+  children?: React.ReactNode;
+};
+
 export function activatePlugin(
-  _: Record<string, never>,
+  _initialProps: SavedQueryAggregationPluginProps,
   services: MyQueriesServices
 ) {
   const store = configureStore(services);

@@ -39,26 +39,29 @@ function quitItem(
     label: label,
     accelerator: 'CmdOrCtrl+Q',
     click() {
-      !compassApp.preferences.getPreferences().enableShowDialogOnQuit
-        ? electronApp.quit()
-        : void dialog
-            .showMessageBox({
-              type: 'warning',
-              title: `Quit ${electronApp.getName()}`,
-              icon: COMPASS_ICON,
-              message: 'Are you sure you want to quit?',
-              buttons: ['Quit', 'Cancel'],
-              checkboxLabel: 'Do not ask me again',
-            })
-            .then((result) => {
-              if (result.response === 0) {
-                if (result.checkboxChecked)
-                  void compassApp.preferences.savePreferences({
-                    enableShowDialogOnQuit: false,
-                  });
-                electronApp.quit();
-              }
-            });
+      if (!compassApp.preferences.getPreferences().enableShowDialogOnQuit) {
+        electronApp.quit();
+        return;
+      }
+
+      void dialog
+        .showMessageBox({
+          type: 'warning',
+          title: `Quit ${electronApp.getName()}`,
+          icon: COMPASS_ICON,
+          message: 'Are you sure you want to quit?',
+          buttons: ['Quit', 'Cancel'],
+          checkboxLabel: 'Do not ask me again',
+        })
+        .then((result) => {
+          if (result.response === 0) {
+            if (result.checkboxChecked)
+              void compassApp.preferences.savePreferences({
+                enableShowDialogOnQuit: false,
+              });
+            electronApp.quit();
+          }
+        });
     },
   };
 }
@@ -587,7 +590,8 @@ class CompassMenu {
   private static async setupDockMenu() {
     await electronApp.whenReady();
     if (process.platform === 'darwin') {
-      electronApp.dock.setMenu(
+      // Dock is always available on macOS, `?` is just to satisfy TypeScript
+      electronApp.dock?.setMenu(
         Menu.buildFromTemplate([
           {
             label: 'New Window',

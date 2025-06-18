@@ -2,7 +2,7 @@ import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { queries, pipelines } from '../test/fixtures';
-import { MyQueriesPlugin } from '.';
+import { WorkspaceTab } from '.';
 import type {
   PipelineStorage,
   FavoriteQueryStorage,
@@ -81,7 +81,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
   let connectionsStore: RenderWithConnectionsResult['connectionsStore'];
 
   const renderPlugin = () => {
-    const PluginWithMocks = MyQueriesPlugin.withMockServices({
+    const PluginWithMocks = WorkspaceTab.provider.withMockServices({
       instancesManager,
       favoriteQueryStorageAccess: {
         getStorage() {
@@ -91,9 +91,17 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       pipelineStorage: pipelineStorage,
       workspaces,
     });
-    const result = renderWithConnections(<PluginWithMocks></PluginWithMocks>, {
-      connections: [connectionOne.connectionInfo, connectionTwo.connectionInfo],
-    });
+    const result = renderWithConnections(
+      <PluginWithMocks>
+        <WorkspaceTab.content />
+      </PluginWithMocks>,
+      {
+        connections: [
+          connectionOne.connectionInfo,
+          connectionTwo.connectionInfo,
+        ],
+      }
+    );
     connectionsStore = result.connectionsStore;
   };
 

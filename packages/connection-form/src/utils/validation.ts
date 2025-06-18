@@ -342,7 +342,7 @@ export function validateConnectionOptionsWarnings(
         looseValidation: true,
       }
     );
-  } catch (err: unknown) {
+  } catch {
     return [];
   }
 

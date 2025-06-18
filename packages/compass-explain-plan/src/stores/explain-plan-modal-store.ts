@@ -49,7 +49,7 @@ export type ExplainPlanModalState = {
   isModalOpen: boolean;
   status: 'initial' | 'loading' | 'ready' | 'error';
   explainPlan: SerializedExplainPlan | null;
-  rawExplainPlan: unknown | null;
+  rawExplainPlan: unknown;
   explainPlanFetchId: number;
 };
 

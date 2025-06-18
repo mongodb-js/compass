@@ -97,7 +97,7 @@ export type ArrayItemBranch = UnifiedBranch & {
 
 export type Branch = {
   path: ObjectPath;
-  value: any | any[];
+  value: any;
 };
 
 export type BranchesWithChanges = {
