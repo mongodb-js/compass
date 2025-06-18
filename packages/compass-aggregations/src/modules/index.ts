@@ -95,10 +95,10 @@ const rootReducer = combineReducers({
 export type RootState = ReturnType<typeof rootReducer>;
 
 export type PipelineBuilderExtraArgs = {
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
+  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
+  localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   pipelineBuilder: PipelineBuilder;
-  pipelineStorage: PipelineStorage;
+  pipelineStorage: PipelineStorage | undefined;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: Logger;

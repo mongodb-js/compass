@@ -37,10 +37,10 @@ const editorStyles = css({
 
 const editorDarkModeStyles = css({
   '& .cm-editor': {
-    backgroundColor: `${palette.gray.dark4} !important`,
+    backgroundColor: `${palette.black} !important`,
   },
   '& .cm-gutters': {
-    backgroundColor: `${palette.gray.dark4} !important`,
+    backgroundColor: `${palette.black} !important`,
   },
 });
 
@@ -104,7 +104,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     const clonedDoc = doc.generateObject({
       excludeInternalFields: true,
     });
-    openInsertDocumentDialog?.(clonedDoc, true);
+    void openInsertDocumentDialog?.(clonedDoc, true);
   }, [doc, openInsertDocumentDialog]);
 
   const onChange = useCallback((value: string) => {
@@ -137,7 +137,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 
   const onUpdate = useCallback(() => {
     doc.apply(HadronDocument.FromEJSON(value || ''));
-    replaceDocument?.(doc);
+    void replaceDocument?.(doc);
   }, [doc, replaceDocument, value]);
 
   const onEditingFinished = useCallback(() => {
@@ -153,7 +153,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, []);
 
   const onDelete = useCallback(() => {
-    removeDocument?.(doc);
+    void removeDocument?.(doc);
   }, [doc, removeDocument]);
 
   const onDeletionFinished = useCallback(() => {

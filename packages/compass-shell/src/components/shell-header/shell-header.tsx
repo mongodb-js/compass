@@ -120,7 +120,10 @@ export const ShellHeader = ({
             <span>&gt;_MONGOSH</span>
 
             {!isExpanded && isOperationInProgress && (
-              <span className={operationInProgressStyles}>
+              <span
+                data-testid="shell-operation-in-progress"
+                className={operationInProgressStyles}
+              >
                 <SpinLoader darkMode={true} />
                 &nbsp;Command in progress&hellip;
               </span>
@@ -142,6 +145,9 @@ export const ShellHeader = ({
         {showCollapseExpandChevron && (
           <IconButton
             aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            data-testid={`shell-toggle-button${
+              isExpanded ? '-close' : '-open'
+            }`}
             onClick={onShellToggleClicked}
             aria-pressed={isExpanded}
           >

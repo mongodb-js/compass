@@ -47,7 +47,7 @@ function SchemeInput({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
         type: 'update-connection-scheme',
-        isSrv: event.target.value === MONGODB_SCHEME.MONGODB_SRV,
+        isSrv: event.target.value === String(MONGODB_SCHEME.MONGODB_SRV),
       });
     },
     [updateConnectionFormField]

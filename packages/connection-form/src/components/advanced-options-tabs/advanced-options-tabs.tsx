@@ -100,7 +100,7 @@ function AdvancedOptionsTabs({
       return new ConnectionStringUrl(connectionOptions.connectionString, {
         looseValidation: true,
       });
-    } catch (e) {
+    } catch {
       // Return default connection string url when can't be parsed.
       return new ConnectionStringUrl(defaultConnectionString);
     }
