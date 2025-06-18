@@ -108,6 +108,7 @@ export function installWindowsSetup({
   const appExecutablePath = path.resolve(appPath, `${appName}.exe`);
 
   // Check if the app executable exists after installing
+  debug('Using app executable path: %s', appExecutablePath);
   assert(
     fs.existsSync(appExecutablePath),
     `Expected ${appExecutablePath} to exist`
