@@ -115,9 +115,11 @@ export type IndexFlowSectionProps = {
     optimalQueries,
     showCoveredQueries,
   }: CoveredQueriesFetchedProps) => void;
-  coveredQueries: JSX.Element | null;
-  optimalQueries: string | JSX.Element | null;
-  showCoveredQueries: boolean;
+  coveredQueriesObj: {
+    coveredQueries: JSX.Element | null;
+    optimalQueries: string | JSX.Element | null;
+    showCoveredQueries: boolean;
+  };
   hasIndexFieldChanges: boolean;
 };
 
@@ -207,9 +209,8 @@ const IndexFlowSection = ({
   onErrorEncountered,
   onErrorCleared,
   onCoveredQueriesFetched,
-  coveredQueries,
-  optimalQueries,
-  showCoveredQueries,
+  coveredQueriesObj,
+
   hasIndexFieldChanges,
 }: IndexFlowSectionProps) => {
   const darkMode = useDarkMode();
@@ -259,6 +260,9 @@ const IndexFlowSection = ({
   useEffect(() => {
     onErrorCleared();
   }, [fields, onErrorCleared]);
+
+  const { coveredQueries, optimalQueries, showCoveredQueries } =
+    coveredQueriesObj;
 
   return (
     <div>
@@ -423,16 +427,9 @@ const IndexFlowSection = ({
 };
 
 const mapState = ({ createIndex }: RootState) => {
-  const {
-    coveredQueries,
-    optimalQueries,
-    showCoveredQueries,
-    hasIndexFieldChanges,
-  } = createIndex;
+  const { coveredQueriesObj, hasIndexFieldChanges } = createIndex;
   return {
-    coveredQueries,
-    optimalQueries,
-    showCoveredQueries,
+    coveredQueriesObj,
     hasIndexFieldChanges,
   };
 };

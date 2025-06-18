@@ -323,14 +323,12 @@ export type State = {
   // to determine whether there has been new query changes since user last pressed the button
   hasQueryChanges: boolean;
 
-  // covered queries for the index flow
-  coveredQueries: JSX.Element | null;
-
-  // optimal queries for the index flow
-  optimalQueries: string | JSX.Element | null;
-
-  // to determine whether to show the covered queries or not
-  showCoveredQueries: boolean;
+  // covered queries obj for the index flow
+  coveredQueriesObj: {
+    coveredQueries: JSX.Element | null;
+    optimalQueries: string | JSX.Element | null;
+    showCoveredQueries: boolean;
+  };
 
   // to determine whether there has been new index field changes since user last pressed the button
   hasIndexFieldChanges: boolean;
@@ -352,9 +350,11 @@ export const INITIAL_STATE: State = {
   hasQueryChanges: false,
 
   // Index flow
-  coveredQueries: null,
-  optimalQueries: null,
-  showCoveredQueries: false,
+  coveredQueriesObj: {
+    coveredQueries: null,
+    optimalQueries: null,
+    showCoveredQueries: false,
+  },
   hasIndexFieldChanges: false,
 };
 
@@ -866,9 +866,11 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      coveredQueries: action.coveredQueries,
-      optimalQueries: action.optimalQueries,
-      showCoveredQueries: action.showCoveredQueries,
+      coveredQueriesObj: {
+        coveredQueries: action.coveredQueries,
+        optimalQueries: action.optimalQueries,
+        showCoveredQueries: action.showCoveredQueries,
+      },
       hasIndexFieldChanges: false,
     };
   }
