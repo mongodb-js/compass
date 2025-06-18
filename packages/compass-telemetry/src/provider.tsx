@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from 'compass-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';

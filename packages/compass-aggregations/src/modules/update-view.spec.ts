@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from 'compass-app-registry';
 import {
   type ConnectionInfoRef,
   ConnectionScopedAppRegistryImpl,

@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
@@ -7,7 +7,7 @@ import reducer, {
   collectionMetadataFetched,
 } from '../modules/collection-tab';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 export type CollectionTabOptions = {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
 import { MongoDBInstance } from 'mongodb-instance-model';
 
 import {

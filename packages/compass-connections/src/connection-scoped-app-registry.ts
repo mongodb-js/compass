@@ -2,7 +2,7 @@ import {
   type AppRegistry,
   createServiceLocator,
   useGlobalAppRegistry,
-} from 'hadron-app-registry';
+} from 'compass-app-registry';
 import type { ConnectionInfoRef } from './connection-info-provider';
 import { connectionInfoRefLocator } from './connection-info-provider';
 

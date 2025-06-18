@@ -9,7 +9,7 @@ import {
   useTabState,
   WorkspaceTabStateProvider,
 } from './workspace-tab-state-provider';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider } from 'compass-app-registry';
 import { useWorkspacePlugins } from './workspaces-provider';
 
 function getInitialPropsForWorkspace(tab: WorkspaceTab) {

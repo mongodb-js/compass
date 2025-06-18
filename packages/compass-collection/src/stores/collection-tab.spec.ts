@@ -3,7 +3,7 @@ import { activatePlugin } from './collection-tab';
 import { selectTab } from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from 'compass-app-registry';
 import { expect } from 'chai';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 

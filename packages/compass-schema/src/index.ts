@@ -6,7 +6,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 
 import CompassSchema from './components/compass-schema';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { activateSchemaPlugin } from './stores/store';
 import type { RequiredDataServiceProps } from './stores/store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -16,7 +16,7 @@ import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { SchemaTabTitle } from './plugin-title';
 
-const CompassSchemaHadronPlugin = registerHadronPlugin(
+const CompassSchemaPluginProvider = registerCompassPlugin(
   {
     name: 'CompassSchemaPlugin',
     component: function SchemaProvider({ children, ...props }) {
@@ -45,7 +45,7 @@ const CompassSchemaHadronPlugin = registerHadronPlugin(
 
 export const CompassSchemaPlugin = {
   name: 'Schema' as const,
-  provider: CompassSchemaHadronPlugin,
+  provider: CompassSchemaPluginProvider,
   content: CompassSchema as React.FunctionComponent /* reflux store */,
   header: SchemaTabTitle,
 };

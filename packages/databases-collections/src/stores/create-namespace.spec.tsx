@@ -1,7 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { CreateNamespacePlugin } from '../index';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
 import { expect } from 'chai';
 import { type DataService } from '@mongodb-js/compass-connections/provider';
 import {

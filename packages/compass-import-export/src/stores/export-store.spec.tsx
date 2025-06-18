@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
 import { expect } from 'chai';
 import {
   createPluginTestHelpers,

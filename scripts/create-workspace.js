@@ -296,7 +296,7 @@ async function createWorkspace({
       typescript: '*',
       ...(isPublic && { 'gen-esm-wrapper': '*' }),
       ...(isPlugin && {
-        'hadron-app-registry': '*',
+        'compass-app-registry': '*',
         'xvfb-maybe': '*',
       }),
     },
@@ -388,9 +388,9 @@ module.exports = {
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
   const indexSrcContent = isPlugin
     ? `
-import { registerHadronPlugin } from "hadron-app-registry";
+import { registerCompassPlugin } from 'compass-app-registry';
 
-const Plugin = registerHadronPlugin({
+const Plugin = registerCompassPlugin({
   name: 'Plugin',
   component: () => null,
   activate(initialProps, services, activateHelpers) {

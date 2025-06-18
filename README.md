@@ -67,7 +67,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
-- [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry
+- [**compass-app-registry**](packages/compass-app-registry): Compass App Registry
 - [**hadron-build**](packages/hadron-build): Tooling for Hadron apps like Compass
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.

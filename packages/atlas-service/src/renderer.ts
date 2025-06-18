@@ -1,8 +1,8 @@
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { activatePlugin } from './store/atlas-signin-store';
 import { atlasAuthServiceLocator } from './provider';
 
-export const AtlasAuthPlugin = registerHadronPlugin(
+export const AtlasAuthPlugin = registerCompassPlugin(
   {
     name: 'AtlasAuth',
     component: () => null,

@@ -4,7 +4,7 @@ import type { RenameCollectionRootState } from './rename-collection';
 import { renameCollection, renameRequestInProgress } from './rename-collection';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { activateRenameCollectionPlugin } from '../../stores/rename-collection';
 

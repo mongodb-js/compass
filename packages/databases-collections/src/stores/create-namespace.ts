@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import {} from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
@@ -15,7 +15,7 @@ import reducer, {
 } from '../modules/create-namespace';
 import type toNS from 'mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,

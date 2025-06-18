@@ -1,7 +1,7 @@
 import React from 'react';
 import { onActivated } from './stores';
 import { CompassSchemaValidation } from './components/compass-schema-validation';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
@@ -15,7 +15,7 @@ import { SchemaValidationTabTitle } from './plugin-title';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { RequiredDataServiceProps } from './modules';
 
-const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
+const CompassSchemaValidationPluginProvider = registerCompassPlugin(
   {
     name: 'CompassSchemaValidationPlugin',
     component: function SchemaValidationsProvider({ children }) {
@@ -36,7 +36,7 @@ const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
 );
 export const CompassSchemaValidationPlugin = {
   name: 'Validation' as const,
-  provider: CompassSchemaValidationHadronPlugin,
+  provider: CompassSchemaValidationPluginProvider,
   content: CompassSchemaValidation,
   header: SchemaValidationTabTitle,
 };

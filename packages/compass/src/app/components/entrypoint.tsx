@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider } from 'compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';

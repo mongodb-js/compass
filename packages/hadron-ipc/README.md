@@ -8,7 +8,7 @@ Simplified wrapper around Electron's IPC events.
 process.env.DEBUG = 'hadron-*';
 
 const ipc = require('hadron-ipc');
-const AppRegistry = require('hadron-app-registry');
+const AppRegistry = require('compass-app-registry');
 
 const globalAppRegistry = new AppRegistry();
 
@@ -158,11 +158,11 @@ npm install hadron-ipc
 - [Electron's ipcMain][ipc-main]
 - [Electron's ipcRenderer][ipc-renderer]
 - [Hadron App][hadron-app]
-- [Hadron App Registry][hadron-app-registry]
+- [Compass App Registry][compass-app-registry]
 
 [npm_img]: https://img.shields.io/npm/v/hadron-ipc.svg
 [npm_url]: https://npmjs.org/package/hadron-ipc
 [ipc-renderer]: https://electronjs.org/docs/api/ipc-renderer
 [ipc-main]: https://electronjs.org/docs/api/ipc-mai://electronjs.org/docs/api/ipc-main
-[hadron-app]: https://github.com/mongodb-js/hadron-app
-[hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registr://github.com/mongodb-js/hadron-app-registry
+[hadron-app]: https://github.com/mongodb-js/compass/tree/main/packages/hadron-app
+[compass-app-registry]: https://github.com/mongodb-js/compass/tree/main/packages/compass-app-registry

@@ -1,4 +1,4 @@
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
@@ -12,7 +12,7 @@ import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 /**
  * The import plugin.
  */
-export const ImportPlugin = registerHadronPlugin(
+export const ImportPlugin = registerCompassPlugin(
   {
     name: 'Import',
     component: ImportPluginComponent,
@@ -30,7 +30,7 @@ export const ImportPlugin = registerHadronPlugin(
 /**
  * The export plugin.
  */
-export const ExportPlugin = registerHadronPlugin(
+export const ExportPlugin = registerCompassPlugin(
   {
     name: 'Export',
     component: ExportPluginComponent,

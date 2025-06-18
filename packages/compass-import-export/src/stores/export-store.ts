@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
 import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -11,7 +11,7 @@ import {
 } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 

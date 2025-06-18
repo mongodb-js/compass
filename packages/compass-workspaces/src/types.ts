@@ -1,4 +1,4 @@
-import type { HadronPluginComponent } from 'hadron-app-registry';
+import type { CompassPluginComponent } from 'compass-app-registry';
 import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
 
 export type CollectionSubtab =
@@ -106,7 +106,7 @@ export type PluginHeaderProps<T extends AnyWorkspace['type']> =
 
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  provider: HadronPluginComponent<any, any, any>;
+  provider: CompassPluginComponent<any, any, any>;
   content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
   header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
 };

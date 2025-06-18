@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
@@ -17,7 +17,7 @@ import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 
 export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
-  provider: registerHadronPlugin(
+  provider: registerCompassPlugin(
     {
       name: WorkspaceName,
       component: function MyQueriesProvider({ children }): any {

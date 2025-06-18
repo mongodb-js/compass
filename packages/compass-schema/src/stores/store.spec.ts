@@ -1,6 +1,6 @@
 import { activateSchemaPlugin } from './store';
 import type { SchemaStore, SchemaPluginServices } from './store';
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 

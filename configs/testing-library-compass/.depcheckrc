@@ -15,7 +15,7 @@ ignores:
   - '@mongodb-js/compass-components'
   - '@mongodb-js/connection-storage'
   - 'compass-preferences-model'
-  - 'hadron-app-registry'
+  - 'compass-app-registry'
   - 'mongodb-data-service'
 ignore-patterns:
   - 'dist'

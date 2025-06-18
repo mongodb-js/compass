@@ -1,4 +1,4 @@
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
 import {
   closeExplainPlanModal,
   openExplainPlanModal,

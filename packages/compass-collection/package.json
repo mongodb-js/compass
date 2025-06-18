@@ -57,7 +57,7 @@
     "@mongodb-js/connection-info": "^0.15.2",
     "@mongodb-js/mongodb-constants": "^0.11.0",
     "compass-preferences-model": "^2.41.0",
-    "hadron-app-registry": "^9.4.11",
+    "compass-app-registry": "^9.4.11",
     "mongodb-collection-model": "^5.29.2",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",

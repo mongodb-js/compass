@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { activatePlugin } from './stores/query-bar-store';
 import {
   connectionInfoRefLocator,
@@ -27,7 +27,7 @@ import {
 } from '@mongodb-js/my-queries-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
-const QueryBarPlugin = registerHadronPlugin(
+const QueryBarPlugin = registerCompassPlugin(
   {
     name: 'QueryBar',
     // Query bar is a special case where we render nothing for the purposes of

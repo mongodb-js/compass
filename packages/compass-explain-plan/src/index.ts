@@ -1,6 +1,6 @@
 import ExplainPlanModal from './components/explain-plan-modal';
 import { activatePlugin } from './stores';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
@@ -10,7 +10,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
-const ExplainPlanModalPlugin = registerHadronPlugin(
+const ExplainPlanModalPlugin = registerCompassPlugin(
   {
     name: 'ExplainPlanModal',
     component: ExplainPlanModal,

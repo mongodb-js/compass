@@ -29,7 +29,7 @@ import { getId } from './stage-ids';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from 'compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
 

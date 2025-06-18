@@ -1,4 +1,4 @@
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
@@ -45,7 +45,7 @@ export const DatabasesWorkspaceTab: WorkspacePlugin<
   header: DatabasesPluginTitleComponent,
 };
 
-export const CreateNamespacePlugin = registerHadronPlugin(
+export const CreateNamespacePlugin = registerCompassPlugin(
   {
     name: 'CreateNamespace',
     activate: activateCreateNamespacePlugin,
@@ -60,7 +60,7 @@ export const CreateNamespacePlugin = registerHadronPlugin(
   }
 );
 
-export const DropNamespacePlugin = registerHadronPlugin(
+export const DropNamespacePlugin = registerCompassPlugin(
   {
     name: 'DropNamespace',
     component: DropNamespaceComponent,
@@ -73,7 +73,7 @@ export const DropNamespacePlugin = registerHadronPlugin(
   }
 );
 
-export const RenameCollectionPlugin = registerHadronPlugin(
+export const RenameCollectionPlugin = registerCompassPlugin(
   {
     name: 'RenameCollectionPlugin',
     component: MappedRenameCollectionModal,

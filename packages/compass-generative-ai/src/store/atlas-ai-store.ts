@@ -10,7 +10,7 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasAiPluginProps } from '../components/plugin';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 
 export let store: CompassGenerativeAIServiceStore;
 

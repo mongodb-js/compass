@@ -41,8 +41,8 @@ import type { UpdatePreview } from 'mongodb-data-service';
 import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import {

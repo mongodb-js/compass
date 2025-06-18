@@ -17,8 +17,8 @@ import {
   stopPollingSearchIndexes,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
 import type {
   Collection,
   MongoDBInstance,

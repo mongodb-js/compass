@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { webUtils, webFrame } from 'electron';
-import { globalAppRegistry } from 'hadron-app-registry';
+import { globalAppRegistry } from 'compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';

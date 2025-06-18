@@ -1,7 +1,7 @@
 import React from 'react';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { activatePlugin as activateDatabasesTabPlugin } from './stores/databases-store';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -10,7 +10,7 @@ import {
 
 export const DatabasesWorkspaceName = 'Databases' as const;
 
-export const DatabasesPlugin = registerHadronPlugin(
+export const DatabasesPlugin = registerCompassPlugin(
   {
     name: 'Databases' as const,
     component: function DatabasesProvider({ children }) {

@@ -11,7 +11,7 @@ import {
 import { type AllPreferences } from './';
 import type { PreferencesAccess } from './preferences';
 import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from 'compass-app-registry';
 import { pick } from 'lodash';
 
 const PreferencesContext = createContext<PreferencesAccess | null>(null);

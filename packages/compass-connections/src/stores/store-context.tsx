@@ -39,7 +39,7 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from 'compass-app-registry';
 import { isEqual } from 'lodash';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<

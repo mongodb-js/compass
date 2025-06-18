@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { activatePlugin } from './stores/store';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -11,7 +11,7 @@ const FieldStoreComponent: React.FunctionComponent = ({ children }) => {
   return <>{children}</>;
 };
 
-const FieldStorePlugin = registerHadronPlugin(
+const FieldStorePlugin = registerCompassPlugin(
   {
     name: 'FieldStore',
     component: FieldStoreComponent,

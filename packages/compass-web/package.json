@@ -114,7 +114,7 @@
     "events": "^3.3.0",
     "express": "^4.21.1",
     "express-http-proxy": "^2.0.0",
-    "hadron-app-registry": "^9.4.11",
+    "compass-app-registry": "^9.4.11",
     "is-ip": "^5.0.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",

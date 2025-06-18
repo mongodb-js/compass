@@ -1,7 +1,7 @@
 import React from 'react';
 import CollectionTab from './components/collection-tab';
 import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -17,7 +17,7 @@ import {
 
 export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
   name: CollectionWorkspaceTitle,
-  provider: registerHadronPlugin(
+  provider: registerCompassPlugin(
     {
       name: CollectionWorkspaceTitle,
       component: function CollectionProvider({ children }) {

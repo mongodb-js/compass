@@ -4,7 +4,7 @@ import type {
   MongoLogId,
   MongoLogWriter,
 } from 'mongodb-log-writer/mongo-log-writer';
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from 'compass-app-registry';
 
 export type { Logger } from './logger';
 

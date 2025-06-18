@@ -1,9 +1,9 @@
 import React from 'react';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import type AppRegistry from 'compass-app-registry';
+import type { ActivateHelpers } from 'compass-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import { MongoDBInstancesManagerContext } from './provider';
 import { createInstancesStore } from './stores';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
@@ -28,7 +28,7 @@ function MongoDBInstancesManagerProvider({
   );
 }
 
-export const CompassInstanceStorePlugin = registerHadronPlugin(
+export const CompassInstanceStorePlugin = registerCompassPlugin(
   {
     name: 'CompassInstanceStore',
     component: MongoDBInstancesManagerProvider as React.FunctionComponent<

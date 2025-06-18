@@ -60,11 +60,14 @@ import {
 import CompassConnections, {
   ConnectFnProvider,
 } from '@mongodb-js/compass-connections/src/index';
-import type { HadronPluginComponent, HadronPlugin } from 'hadron-app-registry';
+import type {
+  CompassPluginComponent,
+  CompassPlugin,
+} from 'compass-app-registry';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
-} from 'hadron-app-registry';
+} from 'compass-app-registry';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -560,9 +563,9 @@ async function renderHookWithActiveConnection<HookProps, HookResult>(
 function createPluginWrapper<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends HadronPlugin
+  PluginContext extends CompassPlugin
 >(
-  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   initialPluginProps?: Props,
   ReactTestingLibraryWrapper: ComponentWithChildren = EmptyWrapper
 ) {
@@ -585,9 +588,9 @@ function createPluginWrapper<
 function createPluginTestHelpers<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends HadronPlugin
+  PluginContext extends CompassPlugin
 >(
-  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   defaultInitialPluginProps?: Props
 ) {
   return {

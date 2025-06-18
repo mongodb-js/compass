@@ -2,7 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from '../modules';
 import { closeInstance, setupInstance } from '../modules/instance';
-import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers, AppRegistry } from 'compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import {
   type MongoDBInstancesManager,

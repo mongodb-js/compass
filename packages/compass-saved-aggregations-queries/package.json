@@ -60,7 +60,7 @@
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.41.0",
     "fuse.js": "^6.5.3",
-    "hadron-app-registry": "^9.4.11",
+    "compass-app-registry": "^9.4.11",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

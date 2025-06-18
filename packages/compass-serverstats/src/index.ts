@@ -1,6 +1,6 @@
 import React from 'react';
 import { PerformanceComponent } from './components';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from 'compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -20,7 +20,7 @@ type PerformancePluginInitialProps = Record<string, never>;
 
 const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
   name: WorkspaceName,
-  provider: registerHadronPlugin(
+  provider: registerCompassPlugin(
     {
       name: WorkspaceName,
       component: function PerformanceProvider({ children }) {
