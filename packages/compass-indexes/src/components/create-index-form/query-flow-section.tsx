@@ -22,6 +22,7 @@ import type {
   IndexSuggestionState,
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
+import { queryUpdated } from '../../modules/create-index';
 import { connect } from 'react-redux';
 import { parseFilter } from 'mongodb-query-parser';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -96,25 +97,6 @@ const insightStyles = css({
   height: spacing[500],
 });
 
-const validateQuery = ({
-  inputQuery,
-  defaultState,
-}: {
-  inputQuery: string;
-  defaultState: boolean;
-}) => {
-  let isShowSuggestionsButtonDisabled = defaultState;
-  try {
-    parseFilter(inputQuery);
-    if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
-      isShowSuggestionsButtonDisabled = true;
-    }
-  } catch {
-    isShowSuggestionsButtonDisabled = true;
-  }
-  return isShowSuggestionsButtonDisabled;
-};
-
 const QueryFlowSection = ({
   schemaFields,
   serverVersion,
@@ -126,6 +108,8 @@ const QueryFlowSection = ({
   initialQuery,
   inputQuery,
   setInputQuery,
+  hasQueryChanges,
+  onQueryUpdated,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
@@ -141,13 +125,17 @@ const QueryFlowSection = ({
   initialQuery: Document | null;
   inputQuery: string;
   setInputQuery: (query: string) => void;
+  hasQueryChanges: boolean; // to keep track of the state between the tab flows
+  onQueryUpdated: () => void;
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
 
+  // if initialQuery isnt null then we should have new changes
   const [hasNewChanges, setHasNewChanges] = React.useState(
-    initialQuery !== null
+    initialQuery !== null || hasQueryChanges
   );
+
   const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
     React.useState(true);
 
@@ -176,7 +164,7 @@ const QueryFlowSection = ({
       inputQuery: sanitizedInputQuery,
     });
     setHasNewChanges(false);
-  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
+  }, [inputQuery, onSuggestedIndexButtonClick, dbName, collectionName]);
 
   const handleSuggestedIndexButtonClick = () => {
     generateSuggestedIndexes();
@@ -189,27 +177,27 @@ const QueryFlowSection = ({
     (text: string) => {
       setInputQuery(text);
       setHasNewChanges(true);
+      onQueryUpdated();
     },
-    [setInputQuery]
+    [onQueryUpdated, setInputQuery]
   );
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
   useMemo(() => {
-    const isQueryInvalid = validateQuery({
-      inputQuery,
-      defaultState: !hasNewChanges,
-    });
-    setIsShowSuggestionsButtonDisabled(isQueryInvalid);
-  }, [hasNewChanges, inputQuery]);
+    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    try {
+      parseFilter(inputQuery);
 
-  // We need to validate the changes upon initial render to possibly enable the button
-  useEffect(() => {
-    const isQueryInvalid = validateQuery({ inputQuery, defaultState: false });
-    setIsShowSuggestionsButtonDisabled(isQueryInvalid);
-    // only run this validation once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+        _isShowSuggestionsButtonDisabled = true;
+      }
+    } catch {
+      _isShowSuggestionsButtonDisabled = true;
+    } finally {
+      setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
+    }
+  }, [hasNewChanges, inputQuery]);
 
   useEffect(() => {
     // If there is an initial query from the insights nudge, we generate suggested indexes
@@ -305,17 +293,23 @@ const QueryFlowSection = ({
 };
 
 const mapState = ({ createIndex }: RootState) => {
-  const { indexSuggestions, sampleDocs, fetchingSuggestionsState } =
-    createIndex;
+  const {
+    indexSuggestions,
+    sampleDocs,
+    fetchingSuggestionsState,
+    hasQueryChanges,
+  } = createIndex;
   return {
     indexSuggestions,
     sampleDocs,
     fetchingSuggestionsState,
+    hasQueryChanges,
   };
 };
 
 const mapDispatch = {
   onSuggestedIndexButtonClick: fetchIndexSuggestions,
+  onQueryUpdated: queryUpdated,
 };
 
 export default connect(mapState, mapDispatch)(QueryFlowSection);

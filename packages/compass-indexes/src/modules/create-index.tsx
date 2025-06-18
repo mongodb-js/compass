@@ -30,8 +30,13 @@ export enum ActionTypes {
 
   TabUpdated = 'compass-indexes/create-index/tab-updated',
 
+  // Query Flow
   SuggestedIndexesRequested = 'compass-indexes/create-index/suggested-indexes-requested',
   SuggestedIndexesFetched = 'compass-indexes/create-index/suggested-indexes-fetched',
+  QueryUpdatedAction = 'compass-indexes/create-index/clear-has-query-changes',
+
+  // Index Flow
+  CoveredQueriesFetched = 'compass-indexes/create-index/covered-queries-fetched',
 }
 
 // fields
@@ -314,6 +319,21 @@ export type State = {
 
   // base query to be used for query flow index creation
   query: Document | null;
+
+  // to determine whether there has been new query changes since user last pressed the button
+  hasQueryChanges: boolean;
+
+  // covered queries for the index flow
+  coveredQueries: JSX.Element | null;
+
+  // optimal queries for the index flow
+  optimalQueries: string | JSX.Element | null;
+
+  // to determine whether to show the covered queries or not
+  showCoveredQueries: boolean;
+
+  // to determine whether there has been new index field changes since user last pressed the button
+  hasIndexFieldChanges: boolean;
 };
 
 export const INITIAL_STATE: State = {
@@ -323,10 +343,19 @@ export const INITIAL_STATE: State = {
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
+
+  // Query flow
   fetchingSuggestionsState: 'initial',
   indexSuggestions: null,
   sampleDocs: null,
   query: null,
+  hasQueryChanges: false,
+
+  // Index flow
+  coveredQueries: null,
+  optimalQueries: null,
+  showCoveredQueries: false,
+  hasIndexFieldChanges: false,
 };
 
 function getInitialState(): State {
@@ -378,15 +407,28 @@ export type SuggestedIndexFetchedProps = {
   inputQuery: string;
 };
 
+export type CoveredQueriesFetchedProps = {
+  coveredQueries: JSX.Element;
+  optimalQueries: string | JSX.Element;
+  showCoveredQueries: boolean;
+};
+
+export type CoveredQueriesFetchedAction = {
+  type: ActionTypes.CoveredQueriesFetched;
+  coveredQueries: JSX.Element;
+  optimalQueries: string | JSX.Element;
+  showCoveredQueries: boolean;
+};
+
+export type QueryUpdatedAction = {
+  type: ActionTypes.QueryUpdatedAction;
+};
+
 export const fetchIndexSuggestions = ({
   dbName,
   collectionName,
   inputQuery,
-}: {
-  dbName: string;
-  collectionName: string;
-  inputQuery: string;
-}): IndexesThunkAction<
+}: SuggestedIndexFetchedProps): IndexesThunkAction<
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
 > => {
@@ -458,6 +500,33 @@ export const fetchIndexSuggestions = ({
       track('Error parsing query', { context: 'Create Index Modal' });
       throwError(e);
     }
+  };
+};
+
+export const fetchCoveredQueries = ({
+  coveredQueries,
+  optimalQueries,
+  showCoveredQueries,
+}: CoveredQueriesFetchedProps): IndexesThunkAction<
+  void,
+  CoveredQueriesFetchedAction
+> => {
+  return (dispatch) => {
+    dispatch({
+      type: ActionTypes.CoveredQueriesFetched,
+      coveredQueries,
+      optimalQueries,
+      showCoveredQueries,
+    });
+  };
+};
+
+export const queryUpdated = (): IndexesThunkAction<
+  void,
+  QueryUpdatedAction
+> => {
+  return (dispatch) => {
+    dispatch({ type: ActionTypes.QueryUpdatedAction });
   };
 };
 
@@ -639,6 +708,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: [...state.fields, { name: '', type: '' }],
+      hasIndexFieldChanges: true,
     };
   }
 
@@ -648,6 +718,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
     };
   }
 
@@ -661,6 +732,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
     };
   }
 
@@ -668,6 +740,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: action.fields,
+      hasIndexFieldChanges: true,
     };
   }
 
@@ -781,6 +854,29 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       error: action.error,
       indexSuggestions: action.indexSuggestions,
       sampleDocs: action.sampleDocs,
+      hasQueryChanges: false,
+    };
+  }
+
+  if (
+    isAction<CoveredQueriesFetchedAction>(
+      action,
+      ActionTypes.CoveredQueriesFetched
+    )
+  ) {
+    return {
+      ...state,
+      coveredQueries: action.coveredQueries,
+      optimalQueries: action.optimalQueries,
+      showCoveredQueries: action.showCoveredQueries,
+      hasIndexFieldChanges: false,
+    };
+  }
+
+  if (isAction<QueryUpdatedAction>(action, ActionTypes.QueryUpdatedAction)) {
+    return {
+      ...state,
+      hasQueryChanges: true,
     };
   }
 

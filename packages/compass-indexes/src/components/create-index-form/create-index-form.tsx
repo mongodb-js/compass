@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   css,
   spacing,
@@ -78,16 +78,6 @@ function CreateIndexForm({
 
   const track = useTelemetry();
 
-  const [coveredQueriesObj, setCoveredQueriesObj] = useState<{
-    coveredQueries: JSX.Element;
-    optimalQueries: string | JSX.Element;
-    showCoveredQueries: boolean;
-  }>({
-    coveredQueries: <></>,
-    optimalQueries: '',
-    showCoveredQueries: false,
-  });
-
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -165,8 +155,6 @@ function CreateIndexForm({
                   onRemoveFieldClick={onRemoveFieldClick}
                 />
               }
-              coveredQueriesObj={coveredQueriesObj}
-              setCoveredQueriesObj={setCoveredQueriesObj}
             />
           ) : (
             // Control UI
