@@ -42,7 +42,10 @@ export {
   Tab as WorkspaceTab,
   type WorkspaceTabCoreProps,
 } from './components/workspace-tabs/tab';
-export { TabThemeProvider } from './components/workspace-tabs/use-tab-theme';
+export {
+  TabThemeProvider,
+  useTabTheme,
+} from './components/workspace-tabs/use-tab-theme';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
