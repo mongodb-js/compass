@@ -10,6 +10,7 @@ import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import toNS from 'mongodb-ns';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -363,10 +364,27 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = (initialQuery?: Document) => ({
-  type: ActionTypes.CreateIndexOpened,
-  initialQuery,
-});
+export const createIndexOpened = (
+  initialQuery?: Document
+): IndexesThunkAction<
+  Promise<void>,
+  SuggestedIndexFetchedAction | CreateIndexOpenedAction
+> => {
+  return async (dispatch) => {
+    dispatch({
+      type: ActionTypes.CreateIndexOpened,
+      initialQuery,
+    });
+
+    if (initialQuery) {
+      await dispatch(
+        fetchIndexSuggestions({
+          query: JSON.stringify(initialQuery, null, 2) || '',
+        })
+      );
+    }
+  };
+};
 
 export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
@@ -398,8 +416,6 @@ export type SuggestedIndexFetchedAction = {
 };
 
 export type SuggestedIndexFetchedProps = {
-  dbName: string;
-  collectionName: string;
   query: string;
 };
 
@@ -419,8 +435,6 @@ export type QueryUpdatedAction = {
 };
 
 export const fetchIndexSuggestions = ({
-  dbName,
-  collectionName,
   query,
 }: SuggestedIndexFetchedProps): IndexesThunkAction<
   Promise<void>,
@@ -430,12 +444,11 @@ export const fetchIndexSuggestions = ({
     dispatch({
       type: ActionTypes.SuggestedIndexesRequested,
     });
-    const namespace = `${dbName}.${collectionName}`;
 
+    const namespace = getState().namespace;
     // Get sample documents from state if it's already there, otherwise fetch it
     let sampleDocuments: Array<Document> | null =
       getState().createIndex.sampleDocs || null;
-
     // If it's null, that means it has not been fetched before
     if (sampleDocuments === null) {
       try {
@@ -462,8 +475,9 @@ export const fetchIndexSuggestions = ({
 
     // Analyze namespace and fetch suggestions
     try {
+      const { database, collection } = toNS(getState().namespace);
       const analyzedNamespace = mql.analyzeNamespace(
-        { database: dbName, collection: collectionName },
+        { database, collection },
         sampleDocuments
       );
 

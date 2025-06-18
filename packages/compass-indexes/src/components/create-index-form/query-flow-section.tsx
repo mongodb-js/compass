@@ -115,8 +115,6 @@ const QueryFlowSection = ({
   dbName: string;
   collectionName: string;
   onSuggestedIndexButtonClick: ({
-    dbName,
-    collectionName,
     query,
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
@@ -152,11 +150,9 @@ const QueryFlowSection = ({
     const sanitizedInputQuery = query.trim();
 
     void onSuggestedIndexButtonClick({
-      dbName,
-      collectionName,
       query: sanitizedInputQuery,
     });
-  }, [query, onSuggestedIndexButtonClick, dbName, collectionName]);
+  }, [query, onSuggestedIndexButtonClick]);
 
   const handleSuggestedIndexButtonClick = () => {
     generateSuggestedIndexes();
@@ -188,16 +184,6 @@ const QueryFlowSection = ({
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
   }, [hasQueryChanges, query]);
-
-  // useEffect(() => {
-  //   // If there is an initial query from the insights nudge, we generate suggested indexes
-  //   if (initialQuery !== null) {
-  //     generateSuggestedIndexes();
-  //   }
-  //   // we do not want to update this when the initialQuery changes
-  //   // this should just be done when the component first renders
-  //   // eslint-disable-next-line
-  // }, []);
 
   return (
     <>

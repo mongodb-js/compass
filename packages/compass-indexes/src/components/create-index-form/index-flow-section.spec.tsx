@@ -1,10 +1,6 @@
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
-import IndexFlowSection, {
-  generateCoveredQueries,
-  generateCoveredQueriesArr,
-  generateOptimalQueries,
-} from './index-flow-section';
+import IndexFlowSection from './index-flow-section';
 import { expect } from 'chai';
 import { ActionTypes, type Field } from '../../modules/create-index';
 import { Provider } from 'react-redux';
@@ -87,19 +83,16 @@ describe('IndexFlowSection', () => {
       { name: 'field4', type: '1 (asc)' },
     ];
 
-    const coveredQueriesArr = generateCoveredQueriesArr(fields);
-    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
-    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
-
     beforeEach(() => {
       renderComponent({ fields });
 
       screen.getByTestId('index-flow-section-covered-queries-button').click();
       store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
         type: ActionTypes.CoveredQueriesFetched,
-        coveredQueries,
-        optimalQueries,
-        showCoveredQueries: true,
       });
     });
 
@@ -146,19 +139,17 @@ describe('IndexFlowSection', () => {
       { name: 'field3', type: '1 (asc)' },
     ];
 
-    const coveredQueriesArr = generateCoveredQueriesArr(fields);
-    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
-    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
-
     beforeEach(() => {
       renderComponent({ fields });
 
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
       store.dispatch({
         type: ActionTypes.CoveredQueriesFetched,
-        coveredQueries,
-        optimalQueries,
-        showCoveredQueries: true,
       });
     });
 
@@ -203,19 +194,16 @@ describe('IndexFlowSection', () => {
       { name: 'field2', type: '1 (asc)' },
     ];
 
-    const coveredQueriesArr = generateCoveredQueriesArr(fields);
-    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
-    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
-
     beforeEach(() => {
       renderComponent({ fields });
 
       screen.getByTestId('index-flow-section-covered-queries-button').click();
       store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
         type: ActionTypes.CoveredQueriesFetched,
-        coveredQueries,
-        optimalQueries,
-        showCoveredQueries: true,
       });
     });
 
@@ -243,19 +231,16 @@ describe('IndexFlowSection', () => {
   describe('when 1 index field is filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [{ name: 'field1', type: '1 (asc)' }];
 
-    const coveredQueriesArr = generateCoveredQueriesArr(fields);
-    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
-    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
-
     beforeEach(() => {
       renderComponent({ fields });
 
       screen.getByTestId('index-flow-section-covered-queries-button').click();
       store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
         type: ActionTypes.CoveredQueriesFetched,
-        coveredQueries,
-        optimalQueries,
-        showCoveredQueries: true,
       });
     });
 
