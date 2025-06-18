@@ -122,7 +122,7 @@ const QueryFlowSection = ({
   initialQuery: string | null;
   query: string;
   hasQueryChanges: boolean;
-  onQueryUpdated: ({ query, hasQueryChanges }: QueryUpdatedProps) => void;
+  onQueryUpdated: ({ query }: QueryUpdatedProps) => void;
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
@@ -163,7 +163,7 @@ const QueryFlowSection = ({
 
   const handleQueryInputChange = useCallback(
     (text: string) => {
-      onQueryUpdated({ query: text, hasQueryChanges: true });
+      onQueryUpdated({ query: text });
     },
     [onQueryUpdated]
   );

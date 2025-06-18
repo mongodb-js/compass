@@ -425,13 +425,11 @@ export type CoveredQueriesFetchedAction = {
 
 export type QueryUpdatedProps = {
   query: string;
-  hasQueryChanges: boolean;
 };
 
 export type QueryUpdatedAction = {
   type: ActionTypes.QueryUpdatedAction;
   query: string;
-  hasQueryChanges: boolean;
 };
 
 export const fetchIndexSuggestions = ({
@@ -517,11 +515,9 @@ export const fetchCoveredQueries = (): CoveredQueriesFetchedAction => ({
 
 export const queryUpdated = ({
   query,
-  hasQueryChanges,
 }: QueryUpdatedProps): QueryUpdatedAction => ({
   type: ActionTypes.QueryUpdatedAction,
   query,
-  hasQueryChanges,
 });
 
 function isEmptyValue(value: unknown) {
@@ -882,7 +878,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       query: action.query,
-      hasQueryChanges: action.hasQueryChanges,
+      hasQueryChanges: true,
       error: null,
     };
   }
