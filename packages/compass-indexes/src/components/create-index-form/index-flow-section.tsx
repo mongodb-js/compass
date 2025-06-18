@@ -123,7 +123,7 @@ export type IndexFlowSectionProps = {
   hasIndexFieldChanges: boolean;
 };
 
-const generateCoveredQueries = (
+export const generateCoveredQueries = (
   coveredQueriesArr: Array<Record<string, number>>,
   track: TrackFunction
 ) => {
@@ -149,7 +149,7 @@ const generateCoveredQueries = (
   return <>{rows}</>;
 };
 
-const generateOptimalQueries = (
+export const generateOptimalQueries = (
   coveredQueriesArr: Array<Record<string, number>>
 ) => {
   const numOfFields = coveredQueriesArr.length;
@@ -201,6 +201,12 @@ const generateOptimalQueries = (
   );
 };
 
+export const generateCoveredQueriesArr = (fields: Field[]) => {
+  return fields.map((field, index) => {
+    return { [field.name]: index + 1 };
+  });
+};
+
 const IndexFlowSection = ({
   createIndexFieldsComponent,
   fields,
@@ -238,9 +244,7 @@ const IndexFlowSection = ({
   );
 
   const onCoveredQueriesButtonClick = useCallback(() => {
-    const coveredQueriesArr = fields.map((field, index) => {
-      return { [field.name]: index + 1 };
-    });
+    const coveredQueriesArr = generateCoveredQueriesArr(fields);
 
     track('Covered Queries Button Clicked', {
       context: 'Create Index Modal',

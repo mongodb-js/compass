@@ -1,8 +1,12 @@
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
-import IndexFlowSection from './index-flow-section';
+import IndexFlowSection, {
+  generateCoveredQueries,
+  generateCoveredQueriesArr,
+  generateOptimalQueries,
+} from './index-flow-section';
 import { expect } from 'chai';
-import type { Field } from '../../modules/create-index';
+import { ActionTypes, type Field } from '../../modules/create-index';
 import { Provider } from 'react-redux';
 import { setupStore } from '../../../test/setup-store';
 
@@ -75,8 +79,7 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  // TODO: fix in CLOUDP-325883
-  describe.skip('when 4 index fields are filled in and user clicks on covered queries button', () => {
+  describe('when 4 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '-1 (desc)' },
@@ -84,9 +87,20 @@ describe('IndexFlowSection', () => {
       { name: 'field4', type: '1 (asc)' },
     ];
 
+    const coveredQueriesArr = generateCoveredQueriesArr(fields);
+    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
+    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+        coveredQueries,
+        optimalQueries,
+        showCoveredQueries: true,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -125,17 +139,27 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  // TODO: fix in CLOUDP-325883
-  describe.skip('when 3 index fields are filled in and user clicks on covered queries button', () => {
+  describe('when 3 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '-1 (desc)' },
       { name: 'field3', type: '1 (asc)' },
     ];
 
+    const coveredQueriesArr = generateCoveredQueriesArr(fields);
+    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
+    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+        coveredQueries,
+        optimalQueries,
+        showCoveredQueries: true,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -173,16 +197,26 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  // TODO: fix in CLOUDP-325883
-  describe.skip('when 2 index fields are filled in and user clicks on covered queries button', () => {
+  describe('when 2 index fields are filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [
       { name: 'field1', type: '1 (asc)' },
       { name: 'field2', type: '1 (asc)' },
     ];
 
+    const coveredQueriesArr = generateCoveredQueriesArr(fields);
+    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
+    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+        coveredQueries,
+        optimalQueries,
+        showCoveredQueries: true,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -206,13 +240,23 @@ describe('IndexFlowSection', () => {
     });
   });
 
-  // TODO: fix in CLOUDP-325883
-  describe.skip('when 1 index field is filled in and user clicks on covered queries button', () => {
+  describe('when 1 index field is filled in and user clicks on covered queries button', () => {
     const fields: Field[] = [{ name: 'field1', type: '1 (asc)' }];
+
+    const coveredQueriesArr = generateCoveredQueriesArr(fields);
+    const coveredQueries = generateCoveredQueries(coveredQueriesArr, () => {});
+    const optimalQueries = generateOptimalQueries(coveredQueriesArr);
 
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+        coveredQueries,
+        optimalQueries,
+        showCoveredQueries: true,
+      });
     });
 
     it('renders the covered queries examples', () => {
