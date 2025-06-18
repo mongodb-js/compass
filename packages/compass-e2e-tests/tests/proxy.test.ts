@@ -65,10 +65,12 @@ describe('Proxy support', function () {
     browser = compass.browser;
 
     const result = await browser.execute(async function () {
-      const response = await fetch('http://compass.mongodb.com/');
+      const response = await fetch('http://proxy-test-compass.mongodb.com/');
       return await response.text();
     });
-    expect(result).to.equal('hello, http://compass.mongodb.com/ (proxy1)');
+    expect(result).to.equal(
+      'hello, http://proxy-test-compass.mongodb.com/ (proxy1)'
+    );
   });
 
   it('can change the proxy option dynamically', async function () {
@@ -80,10 +82,12 @@ describe('Proxy support', function () {
       `http://localhost:${port(httpProxyServer2)}`
     );
     const result = await browser.execute(async function () {
-      const response = await fetch('http://compass.mongodb.com/');
+      const response = await fetch('http://proxy-test-compass.mongodb.com/');
       return await response.text();
     });
-    expect(result).to.equal('hello, http://compass.mongodb.com/ (proxy2)');
+    expect(result).to.equal(
+      'hello, http://proxy-test-compass.mongodb.com/ (proxy2)'
+    );
   });
 
   context('when connecting to a cluster', function () {
