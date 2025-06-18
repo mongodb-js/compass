@@ -8,8 +8,7 @@ import {
   ParagraphSkeleton,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -20,6 +19,7 @@ import type { RootState } from '../../modules';
 import { fetchIndexSuggestions } from '../../modules/create-index';
 import type {
   IndexSuggestionState,
+  QueryUpdatedProps,
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
 import { queryUpdated } from '../../modules/create-index';
@@ -106,8 +106,7 @@ const QueryFlowSection = ({
   indexSuggestions,
   fetchingSuggestionsState,
   initialQuery,
-  inputQuery,
-  setInputQuery,
+  query,
   hasQueryChanges,
   onQueryUpdated,
 }: {
@@ -118,23 +117,17 @@ const QueryFlowSection = ({
   onSuggestedIndexButtonClick: ({
     dbName,
     collectionName,
-    inputQuery,
+    query,
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
-  initialQuery: Document | null;
-  inputQuery: string;
-  setInputQuery: (query: string) => void;
+  initialQuery: string | null;
+  query: string;
   hasQueryChanges: boolean; // to keep track of the state between the tab flows
-  onQueryUpdated: () => void;
+  onQueryUpdated: ({ query, hasQueryChanges }: QueryUpdatedProps) => void;
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
-
-  // if initialQuery isnt null then we should have new changes
-  const [hasNewChanges, setHasNewChanges] = React.useState(
-    initialQuery !== null || hasQueryChanges
-  );
 
   const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
     React.useState(true);
@@ -156,15 +149,14 @@ const QueryFlowSection = ({
   });
 
   const generateSuggestedIndexes = useCallback(() => {
-    const sanitizedInputQuery = inputQuery.trim();
+    const sanitizedInputQuery = query.trim();
 
     void onSuggestedIndexButtonClick({
       dbName,
       collectionName,
-      inputQuery: sanitizedInputQuery,
+      query: sanitizedInputQuery,
     });
-    setHasNewChanges(false);
-  }, [inputQuery, onSuggestedIndexButtonClick, dbName, collectionName]);
+  }, [query, onSuggestedIndexButtonClick, dbName, collectionName]);
 
   const handleSuggestedIndexButtonClick = () => {
     generateSuggestedIndexes();
@@ -175,21 +167,19 @@ const QueryFlowSection = ({
 
   const handleQueryInputChange = useCallback(
     (text: string) => {
-      setInputQuery(text);
-      setHasNewChanges(true);
-      onQueryUpdated();
+      onQueryUpdated({ query: text, hasQueryChanges: true });
     },
-    [onQueryUpdated, setInputQuery]
+    [onQueryUpdated]
   );
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
   useMemo(() => {
-    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    let _isShowSuggestionsButtonDisabled = !hasQueryChanges;
     try {
-      parseFilter(inputQuery);
+      parseFilter(query);
 
-      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+      if (!query.startsWith('{') || !query.endsWith('}')) {
         _isShowSuggestionsButtonDisabled = true;
       }
     } catch {
@@ -197,17 +187,17 @@ const QueryFlowSection = ({
     } finally {
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
-  }, [hasNewChanges, inputQuery]);
+  }, [hasQueryChanges, query]);
 
-  useEffect(() => {
-    // If there is an initial query from the insights nudge, we generate suggested indexes
-    if (initialQuery !== null) {
-      generateSuggestedIndexes();
-    }
-    // we do not want to update this when the initialQuery changes
-    // this should just be done when the component first renders
-    // eslint-disable-next-line
-  }, []);
+  // useEffect(() => {
+  //   // If there is an initial query from the insights nudge, we generate suggested indexes
+  //   if (initialQuery !== null) {
+  //     generateSuggestedIndexes();
+  //   }
+  //   // we do not want to update this when the initialQuery changes
+  //   // this should just be done when the component first renders
+  //   // eslint-disable-next-line
+  // }, []);
 
   return (
     <>
@@ -235,7 +225,7 @@ const QueryFlowSection = ({
             showAnnotationsGutter={false}
             copyable={false}
             formattable={false}
-            text={inputQuery}
+            text={query}
             onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
@@ -300,12 +290,16 @@ const mapState = ({ createIndex }: RootState) => {
     indexSuggestions,
     sampleDocs,
     fetchingSuggestionsState,
+    query,
+    initialQuery,
     hasQueryChanges,
   } = createIndex;
   return {
     indexSuggestions,
     sampleDocs,
     fetchingSuggestionsState,
+    query,
+    initialQuery,
     hasQueryChanges,
   };
 };

@@ -81,7 +81,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
-  query?: Document;
+  initialQuery?: Document;
 };
 
 type CreateIndexClosedAction = {
@@ -318,7 +318,10 @@ export type State = {
   sampleDocs: Array<Document> | null;
 
   // base query to be used for query flow index creation
-  query: Document | null;
+  query: string;
+
+  // the initial query that user had prefilled from the insights nudge in the documents tab
+  initialQuery: string;
 
   // to determine whether there has been new query changes since user last pressed the button
   hasQueryChanges: boolean;
@@ -342,7 +345,8 @@ export const INITIAL_STATE: State = {
   fetchingSuggestionsState: 'initial',
   indexSuggestions: null,
   sampleDocs: null,
-  query: null,
+  query: '',
+  initialQuery: '',
   hasQueryChanges: false,
 
   // Index flow
@@ -359,9 +363,9 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = (query?: Document) => ({
+export const createIndexOpened = (initialQuery?: Document) => ({
   type: ActionTypes.CreateIndexOpened,
-  query,
+  initialQuery,
 });
 
 export const createIndexClosed = () => ({
@@ -396,26 +400,28 @@ export type SuggestedIndexFetchedAction = {
 export type SuggestedIndexFetchedProps = {
   dbName: string;
   collectionName: string;
-  inputQuery: string;
-};
-
-export type CoveredQueriesFetchedProps = {
-  fields: Field[];
+  query: string;
 };
 
 export type CoveredQueriesFetchedAction = {
   type: ActionTypes.CoveredQueriesFetched;
-  coveredQueriesArr: Array<Record<string, number>>;
+};
+
+export type QueryUpdatedProps = {
+  query: string;
+  hasQueryChanges: boolean;
 };
 
 export type QueryUpdatedAction = {
   type: ActionTypes.QueryUpdatedAction;
+  query: string;
+  hasQueryChanges: boolean;
 };
 
 export const fetchIndexSuggestions = ({
   dbName,
   collectionName,
-  inputQuery,
+  query,
 }: SuggestedIndexFetchedProps): IndexesThunkAction<
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
@@ -461,11 +467,11 @@ export const fetchIndexSuggestions = ({
         sampleDocuments
       );
 
-      const query = mql.parseQuery(
-        _parseShellBSON(inputQuery, { mode: ParseMode.Loose }),
+      const parsedQuery = mql.parseQuery(
+        _parseShellBSON(query, { mode: ParseMode.Loose }),
         analyzedNamespace
       );
-      const results = await mql.suggestIndex([query]);
+      const results = await mql.suggestIndex([parsedQuery]);
       const indexSuggestions = results?.index;
 
       if (
@@ -491,32 +497,18 @@ export const fetchIndexSuggestions = ({
   };
 };
 
-export const fetchCoveredQueries = ({
-  fields,
-}: CoveredQueriesFetchedProps): IndexesThunkAction<
-  void,
-  CoveredQueriesFetchedAction
-> => {
-  return (dispatch) => {
-    const coveredQueriesArr = fields.map((field, index) => {
-      return { [field.name]: index + 1 };
-    });
+export const fetchCoveredQueries = (): CoveredQueriesFetchedAction => ({
+  type: ActionTypes.CoveredQueriesFetched,
+});
 
-    dispatch({
-      type: ActionTypes.CoveredQueriesFetched,
-      coveredQueriesArr,
-    });
-  };
-};
-
-export const queryUpdated = (): IndexesThunkAction<
-  void,
-  QueryUpdatedAction
-> => {
-  return (dispatch) => {
-    dispatch({ type: ActionTypes.QueryUpdatedAction });
-  };
-};
+export const queryUpdated = ({
+  query,
+  hasQueryChanges,
+}: QueryUpdatedProps): QueryUpdatedAction => ({
+  type: ActionTypes.QueryUpdatedAction,
+  query,
+  hasQueryChanges,
+});
 
 function isEmptyValue(value: unknown) {
   if (value === '') {
@@ -697,6 +689,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       fields: [...state.fields, { name: '', type: '' }],
       hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -707,6 +700,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       fields,
       hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -721,6 +715,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       fields,
       hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -729,6 +724,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       fields: action.fields,
       hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -766,11 +762,17 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<CreateIndexOpenedAction>(action, ActionTypes.CreateIndexOpened)
   ) {
+    const parsedInitialQuery = action.initialQuery
+      ? JSON.stringify(action.initialQuery, null, 2)
+      : '';
+
     return {
       ...getInitialState(),
       isVisible: true,
-      query: action.query ?? null,
-      currentTab: action.query ? 'QueryFlow' : 'IndexFlow',
+      // get it from the current query or initial query from insights nudge
+      query: state.query || parsedInitialQuery,
+      initialQuery: parsedInitialQuery,
+      currentTab: action.initialQuery ? 'QueryFlow' : 'IndexFlow',
     };
   }
 
@@ -794,6 +796,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      query: '',
     };
   }
 
@@ -854,7 +857,9 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      coveredQueriesArr: action.coveredQueriesArr,
+      coveredQueriesArr: state.fields.map((field, index) => {
+        return { [field.name]: index + 1 };
+      }),
       hasIndexFieldChanges: false,
     };
   }
@@ -862,7 +867,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<QueryUpdatedAction>(action, ActionTypes.QueryUpdatedAction)) {
     return {
       ...state,
-      hasQueryChanges: true,
+      query: action.query,
+      hasQueryChanges: action.hasQueryChanges,
     };
   }
 

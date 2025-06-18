@@ -13,13 +13,11 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  errorCleared,
   errorEncountered,
   fetchCoveredQueries,
   type Field,
-  type CoveredQueriesFetchedProps,
 } from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
@@ -109,8 +107,7 @@ export type IndexFlowSectionProps = {
   dbName: string;
   collectionName: string;
   onErrorEncountered: (error: string) => void;
-  onErrorCleared: () => void;
-  onCoveredQueriesFetched: ({ fields }: CoveredQueriesFetchedProps) => void;
+  onCoveredQueriesFetched: () => void;
   coveredQueriesArr: Array<Record<string, number>> | null;
   hasIndexFieldChanges: boolean;
 };
@@ -211,7 +208,6 @@ const IndexFlowSection = ({
   dbName,
   collectionName,
   onErrorEncountered,
-  onErrorCleared,
   onCoveredQueriesFetched,
   coveredQueriesArr,
   hasIndexFieldChanges,
@@ -246,17 +242,11 @@ const IndexFlowSection = ({
     });
 
     try {
-      onCoveredQueriesFetched({
-        fields,
-      });
+      onCoveredQueriesFetched();
     } catch (e) {
       onErrorEncountered(e instanceof Error ? e.message : String(e));
     }
-  }, [fields, onCoveredQueriesFetched, onErrorEncountered, track]);
-
-  useEffect(() => {
-    onErrorCleared();
-  }, [fields, onErrorCleared]);
+  }, [onCoveredQueriesFetched, onErrorEncountered, track]);
 
   const coveredQueries = generateCoveredQueries(coveredQueriesArr, track);
   const optimalQueries = generateOptimalQueries(coveredQueriesArr);
@@ -434,7 +424,6 @@ const mapState = ({ createIndex }: RootState) => {
 
 const mapDispatch = {
   onErrorEncountered: errorEncountered,
-  onErrorCleared: errorCleared,
   onCoveredQueriesFetched: fetchCoveredQueries,
 };
 
