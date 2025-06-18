@@ -84,12 +84,19 @@ export function installWindowsSetup({
   console.warn(
     "Installing globally, since we haven't discovered a way to specify an install path"
   );
-  execute(filepath, [], {
-    env: {
-      // As per https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/UpdateRunner.cpp#L173C40-L173C54
-      SQUIRREL_TEMP: sandboxPath,
-    },
-  });
+  execute(
+    filepath,
+    [
+      // See https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/winmain.cpp#L60C22-L68
+      '--checkInstall',
+    ],
+    {
+      env: {
+        // See https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/UpdateRunner.cpp#L173C40-L173C54
+        SQUIRREL_TEMP: sandboxPath,
+      },
+    }
+  );
 
   const entry = queryRegistry();
   assert(entry !== null, 'Expected an entry in the registry after installing');
