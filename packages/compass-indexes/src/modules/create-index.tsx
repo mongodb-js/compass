@@ -883,6 +883,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ...state,
       query: action.query,
       hasQueryChanges: action.hasQueryChanges,
+      error: null,
     };
   }
 
