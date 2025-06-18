@@ -62,7 +62,10 @@ export function installWindowsSetup({
       debug(`Running command to uninstall: ${uninstallCommand}`);
       cp.execSync(uninstallCommand, { stdio: 'inherit' });
       // Removing the any remaining files manually
-      fs.rmSync(installLocation, { recursive: true, force: true });
+      if (fs.existsSync(installLocation)) {
+        debug(`Removing installer: ${installLocation}`);
+        fs.rmSync(installLocation, { recursive: true, force: true });
+      }
     }
   }
 
