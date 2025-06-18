@@ -1,5 +1,5 @@
 import { type Schema } from 'mongodb-schema';
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import {
   useConnectionInfoRef,
   type ConnectionInfoRef,

@@ -1,5 +1,7 @@
 import { expect } from 'chai';
-import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
+import AppRegistry, {
+  createActivateHelpers,
+} from '@mongodb-js/compass-app-registry';
 import { MongoDBInstance } from 'mongodb-instance-model';
 
 import {

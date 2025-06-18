@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import {
   type ConnectionStorage,
   type ConnectionInfo,

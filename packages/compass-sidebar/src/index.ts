@@ -1,5 +1,8 @@
-import type { ActivateHelpers } from 'compass-app-registry';
-import { registerCompassPlugin, type AppRegistry } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import {
+  registerCompassPlugin,
+  type AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {

@@ -68,7 +68,7 @@ This is for:
 Setting values via configure:
 
 ```js
-import AppRegistry from 'compass-app-registry';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 import AggregationsPlugin, {
   configureStore as configureAggregationsStore
 } from '@mongodb-js/compass-aggregations';
@@ -250,4 +250,4 @@ npm run analyze
 npm i -S @mongodb-js/compass-aggregations
 ```
 
-[compass-app-registry]: https://github.com/mongodb-js/compass-app-registry
+[compass-app-registry]: https://github.com/mongodb-js/compass/tree/main/packages/compass-app-registry

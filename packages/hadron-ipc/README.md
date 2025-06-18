@@ -8,7 +8,7 @@ Simplified wrapper around Electron's IPC events.
 process.env.DEBUG = 'hadron-*';
 
 const ipc = require('hadron-ipc');
-const AppRegistry = require('compass-app-registry');
+const AppRegistry = require('@mongodb-js/compass-app-registry');
 
 const globalAppRegistry = new AppRegistry();
 

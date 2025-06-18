@@ -1,4 +1,4 @@
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   createStore as _createStore,
   applyMiddleware,
@@ -23,7 +23,7 @@ import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { Logger } from '@mongodb-js/compass-logging/provider';

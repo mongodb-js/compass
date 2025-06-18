@@ -7,7 +7,7 @@ import type { DataModelStorageService } from '../provider';
 import { applyMiddleware, createStore } from 'redux';
 import reducer from './reducer';
 import thunk from 'redux-thunk';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 export type DataModelingStoreOptions = Record<string, unknown>;
 

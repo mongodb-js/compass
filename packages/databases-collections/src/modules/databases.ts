@@ -1,7 +1,7 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { ThunkAction } from 'redux-thunk';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,

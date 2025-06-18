@@ -63,11 +63,11 @@ import CompassConnections, {
 import type {
   CompassPluginComponent,
   CompassPlugin,
-} from 'compass-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
-} from 'compass-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import ConnectionString from 'mongodb-connection-string-url';

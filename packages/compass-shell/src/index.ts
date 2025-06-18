@@ -2,7 +2,7 @@ import React from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ShellPlugin, onActivated } from './plugin';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
 import {

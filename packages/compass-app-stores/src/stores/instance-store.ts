@@ -5,7 +5,10 @@ import type {
   ConnectionsService,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers, AppRegistry } from 'compass-app-registry';
+import type {
+  ActivateHelpers,
+  AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';

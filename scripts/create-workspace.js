@@ -296,7 +296,7 @@ async function createWorkspace({
       typescript: '*',
       ...(isPublic && { 'gen-esm-wrapper': '*' }),
       ...(isPlugin && {
-        'compass-app-registry': '*',
+        '@mongodb-js/compass-app-registry': '*',
         'xvfb-maybe': '*',
       }),
     },
@@ -388,7 +388,7 @@ module.exports = {
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
   const indexSrcContent = isPlugin
     ? `
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 const Plugin = registerCompassPlugin({
   name: 'Plugin',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PerformanceComponent } from './components';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,

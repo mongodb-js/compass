@@ -1,6 +1,6 @@
 import ExplainPlanModal from './components/explain-plan-modal';
 import { activatePlugin } from './stores';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,

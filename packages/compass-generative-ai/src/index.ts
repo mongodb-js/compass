@@ -1,4 +1,4 @@
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiPlugin } from './components';
 import { atlasAiServiceLocator } from './provider';

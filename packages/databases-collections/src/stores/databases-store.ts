@@ -5,10 +5,10 @@ import databasesReducer, {
   databasesChanged,
   instanceChanged,
 } from '../modules/databases';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 type DatabasesTabServices = {
   globalAppRegistry: AppRegistry;

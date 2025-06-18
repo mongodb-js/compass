@@ -1,9 +1,9 @@
 import React from 'react';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from 'compass-app-registry';
-import type { ActivateHelpers } from 'compass-app-registry';
-import { registerCompassPlugin } from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { MongoDBInstancesManagerContext } from './provider';
 import { createInstancesStore } from './stores';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';

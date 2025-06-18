@@ -54,7 +54,7 @@
     "@mongodb-js/compass-generative-ai": "^0.41.0",
     "@mongodb-js/compass-logging": "^1.7.2",
     "compass-preferences-model": "^2.41.0",
-    "compass-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "hadron-ipc": "^3.5.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

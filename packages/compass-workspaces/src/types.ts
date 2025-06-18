@@ -1,4 +1,4 @@
-import type { CompassPluginComponent } from 'compass-app-registry';
+import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
 
 export type CollectionSubtab =

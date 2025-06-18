@@ -11,8 +11,8 @@ import type {
   ConnectionInfoRef,
   DataService as OriginalDataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers } from 'compass-app-registry';
-import type AppRegistry from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';

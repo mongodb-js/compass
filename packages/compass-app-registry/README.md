@@ -1,4 +1,4 @@
-# compass-app-registry
+# @mongodb-js/compass-app-registry
 
 ## Concepts
 
@@ -55,7 +55,7 @@ import {
   AppRegistry,
   AppRegistryProvider,
   registerCompassPlugin,
-} from 'compass-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import CompassLogging from '@mongodb-js/compass-logging';
 import {
   LoggingProvider,
@@ -93,7 +93,7 @@ intended to use.
 Typically, these functions are implemented using React contexts.
 
 ```typescript
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 const ConnectionStorageContext = createContext<ConnectionStorage | null>(null);
 

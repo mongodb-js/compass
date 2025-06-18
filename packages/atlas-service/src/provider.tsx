@@ -6,7 +6,7 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   createServiceLocator,
   createServiceProvider,
-} from 'compass-app-registry';
+} from '@mongodb-js/compass-app-registry';
 
 const AtlasAuthServiceContext = createContext<AtlasAuthService | null>(null);
 

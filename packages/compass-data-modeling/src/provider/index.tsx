@@ -3,7 +3,7 @@ import type {
   DataModelStorage,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 export type DataModelStorageServiceState = {
   status: 'INITIAL' | 'LOADING' | 'REFRESHING' | 'READY' | 'ERROR';

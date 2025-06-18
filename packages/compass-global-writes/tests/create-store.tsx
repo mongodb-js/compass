@@ -4,7 +4,7 @@ import type {
   GlobalWritesPluginServices,
 } from '../src/store';
 import { activateGlobalWritesPlugin } from '../src/store';
-import { createActivateHelpers } from 'compass-app-registry';
+import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';

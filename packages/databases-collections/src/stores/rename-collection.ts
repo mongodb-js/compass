@@ -1,6 +1,6 @@
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
 import type {
@@ -8,7 +8,7 @@ import type {
   PipelineStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 export type RenameCollectionPluginServices = {
   globalAppRegistry: AppRegistry;

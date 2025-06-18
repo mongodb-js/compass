@@ -42,7 +42,7 @@ To enable the Chrome DevTools for the Electron renderer processes, click "Settin
 
 > [!NOTE]
 > For documentation regarding how to write plugin packages, check out the
-> [compass-app-registry](./packages/compass-app-registry/README.md) documentation.
+> [@mongodb-js/compass-app-registry](./packages/compass-app-registry/README.md) documentation.
 
 To run npm scripts inside specific workspaces in the monorepo you can use either `lerna --scope` or `npm --workspace` command line arguments. As an example, to run all tests in one plugin that you are working on such as the `compass-aggregations` plugin, you can run `npm run test --workspace packages/compass-aggregation` or `lerna run test --scope @mongodb-js/compass-aggregations` commands
 

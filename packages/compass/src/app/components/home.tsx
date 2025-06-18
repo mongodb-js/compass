@@ -18,7 +18,7 @@ import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
-import { AppRegistryProvider } from 'compass-app-registry';
+import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React, { useCallback, useState } from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';

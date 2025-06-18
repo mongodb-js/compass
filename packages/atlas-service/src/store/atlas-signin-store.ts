@@ -7,7 +7,7 @@ import reducer, {
 } from './atlas-signin-reducer';
 import { type AtlasAuthService } from '../provider';
 import { ipcRenderer } from 'hadron-ipc';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 let store: AtlasServiceStore;
 export function getStore() {

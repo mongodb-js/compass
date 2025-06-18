@@ -1,4 +1,4 @@
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';

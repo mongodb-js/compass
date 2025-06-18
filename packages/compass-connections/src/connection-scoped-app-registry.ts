@@ -2,7 +2,7 @@ import {
   type AppRegistry,
   createServiceLocator,
   useGlobalAppRegistry,
-} from 'compass-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from './connection-info-provider';
 import { connectionInfoRefLocator } from './connection-info-provider';
 

@@ -1,5 +1,5 @@
 {
-  "name": "compass-app-registry",
+  "name": "@mongodb-js/compass-app-registry",
   "description": "Compass App Registry",
   "author": {
     "name": "MongoDB Inc",

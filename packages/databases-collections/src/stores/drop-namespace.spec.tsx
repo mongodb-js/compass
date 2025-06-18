@@ -1,7 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { DropNamespacePlugin } from '../index';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
 import { expect } from 'chai';
 import {

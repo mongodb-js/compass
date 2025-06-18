@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { AggregationsPlugin } from './plugin';
 import { activateAggregationsPlugin } from './stores/store';
 import { Aggregations } from './components/aggregations';

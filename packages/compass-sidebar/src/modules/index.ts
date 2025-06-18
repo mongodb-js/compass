@@ -9,7 +9,7 @@ import type {
   ConnectionOptionsState,
 } from './connection-options';
 import connectionOptions from './connection-options';
-import type { AppRegistry } from 'compass-app-registry';
+import type { AppRegistry } from '@mongodb-js/compass-app-registry';
 import type {
   IsPerformanceTabSupportedState,
   SetIsPerformanceTabSupportedAction,

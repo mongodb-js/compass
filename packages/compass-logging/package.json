@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "compass-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "hadron-ipc": "^3.5.2",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^2.3.4",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { onActivated } from './stores';
 import { CompassSchemaValidation } from './components/compass-schema-validation';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,

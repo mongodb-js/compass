@@ -7,7 +7,10 @@ import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
 import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { ActivateHelpers, AppRegistry } from 'compass-app-registry';
+import type {
+  ActivateHelpers,
+  AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';

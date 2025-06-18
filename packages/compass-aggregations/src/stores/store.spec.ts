@@ -1,4 +1,4 @@
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import rootReducer from '../modules';
 import { expect } from 'chai';
 import configureStore from '../../test/configure-store';

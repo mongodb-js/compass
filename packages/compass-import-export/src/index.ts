@@ -1,4 +1,4 @@
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';

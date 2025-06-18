@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
-import type { CompassPluginComponent } from 'compass-app-registry';
+import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 
 export interface CollectionTabPlugin {

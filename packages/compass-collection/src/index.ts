@@ -1,7 +1,7 @@
 import React from 'react';
 import CollectionTab from './components/collection-tab';
 import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,

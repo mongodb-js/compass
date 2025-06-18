@@ -4,7 +4,7 @@ import type {
   MongoLogId,
   MongoLogWriter,
 } from 'mongodb-log-writer/mongo-log-writer';
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 export type { Logger } from './logger';
 

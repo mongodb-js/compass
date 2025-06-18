@@ -54,7 +54,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.4.4",
     "@mongodb-js/compass-components": "^1.39.0",
     "bson": "^6.10.3",
-    "compass-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "hadron-ipc": "^3.5.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",

@@ -15,7 +15,7 @@ import {
   mapStoreStagesToStageIdAndType,
 } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
 import {
   setCollectionFields,
@@ -26,7 +26,7 @@ import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ActivateHelpers } from 'compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';

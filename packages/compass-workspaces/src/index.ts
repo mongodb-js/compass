@@ -1,6 +1,6 @@
-import type AppRegistry from 'compass-app-registry';
-import type { ActivateHelpers } from 'compass-app-registry';
-import { registerCompassPlugin } from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type {
   OpenWorkspaceOptions,
   CollectionTabInfo,

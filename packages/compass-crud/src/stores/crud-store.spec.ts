@@ -1,7 +1,9 @@
 import util from 'util';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import AppRegistry, { createActivateHelpers } from 'compass-app-registry';
+import AppRegistry, {
+  createActivateHelpers,
+} from '@mongodb-js/compass-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import { once } from 'events';

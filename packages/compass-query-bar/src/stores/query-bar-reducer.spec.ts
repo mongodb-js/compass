@@ -17,7 +17,7 @@ import {
 import { configureStore } from './query-bar-store';
 import type { QueryBarExtraArgs, RootState } from './query-bar-store';
 import Sinon from 'sinon';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';

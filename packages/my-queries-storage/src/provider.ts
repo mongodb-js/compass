@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import type { QueryStorageOptions } from './compass-query-storage';
 import type { PipelineStorage } from './pipeline-storage';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
-import { createServiceLocator } from 'compass-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };
 

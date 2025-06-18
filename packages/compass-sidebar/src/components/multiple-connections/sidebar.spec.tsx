@@ -21,7 +21,7 @@ import {
   CompassSidebarPlugin,
 } from '../../index';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from 'compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',

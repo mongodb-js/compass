@@ -9,7 +9,7 @@ import {
   useTabState,
   WorkspaceTabStateProvider,
 } from './workspace-tab-state-provider';
-import { AppRegistryProvider } from 'compass-app-registry';
+import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { useWorkspacePlugins } from './workspaces-provider';
 
 function getInitialPropsForWorkspace(tab: WorkspaceTab) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { activatePlugin } from './stores/store';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 import GlobalWrites from './components';
 import { GlobalWritesTabTitle } from './plugin-title';

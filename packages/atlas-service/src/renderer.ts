@@ -1,4 +1,4 @@
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { activatePlugin } from './store/atlas-signin-store';
 import { atlasAuthServiceLocator } from './provider';
 

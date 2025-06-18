@@ -1,4 +1,4 @@
-import { registerCompassPlugin } from 'compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import ExportToLanguageModal from './components/modal';
 import { activatePlugin } from './stores';
 import {
