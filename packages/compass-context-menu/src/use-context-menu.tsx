@@ -1,6 +1,6 @@
 import type { RefCallback } from 'react';
 import { useContext, useMemo, useRef } from 'react';
-import { Context } from './context-menu-provider';
+import { ContextMenuContext } from './context-menu-provider';
 import { appendContextMenuContent } from './context-menu-content';
 import type { ContextMenuItem } from './types';
 
@@ -19,7 +19,7 @@ export type ContextMenuMethods<T extends ContextMenuItem> = {
 export function useContextMenu<
   T extends ContextMenuItem = ContextMenuItem
 >(): ContextMenuMethods<T> {
-  const context = useContext(Context);
+  const context = useContext(ContextMenuContext);
   const previous = useRef<null | [HTMLElement, (event: MouseEvent) => void]>(
     null
   );

@@ -10,13 +10,12 @@ import {
   css,
   Icon,
   IconButton,
-  LeafyGreenProvider,
   spacing,
   withDarkMode,
-  useContextMenuItems,
+  useFieldContextMenu,
+  LeafyGreenProvider,
 } from '@mongodb-js/compass-components';
 import { type Document, Element } from 'hadron-document';
-import { objectToIdiomaticEJSON } from 'hadron-document';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
@@ -94,6 +93,7 @@ const decrypdedIconStyles = css({
 
 interface CellContentProps {
   element: Element | undefined | null;
+  fieldName: string;
   cellState:
     | typeof UNEDITABLE
     | typeof EMPTY
@@ -111,12 +111,19 @@ const CellContent: React.FC<CellContentProps> = ({
   cellState,
   onUndo,
   onExpand,
+  fieldName,
 }) => {
   const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
   const isEmpty = element === undefined || element === null;
   const handleElementEvent = useCallback(() => {
     forceUpdate();
   }, []);
+
+  // Context menu functionality
+  const cellContextMenuRef = useFieldContextMenu({
+    element,
+    fieldName,
+  });
 
   // Subscribe to element events
   useEffect(() => {
@@ -148,7 +155,7 @@ const CellContent: React.FC<CellContentProps> = ({
     }
   }, [element]);
 
-  const renderContent = useCallback(() => {
+  const renderContent = useMemo(() => {
     if (cellState === EMPTY || !element) {
       return 'No field';
     }
@@ -192,7 +199,7 @@ const CellContent: React.FC<CellContentProps> = ({
 
     return (
       <div className={className}>
-        <div className={cellContainerStyle}>
+        <div ref={cellContextMenuRef} className={cellContainerStyle}>
           {element.decrypted && (
             <span
               data-testid="hadron-document-element-decrypted-icon"
@@ -206,7 +213,7 @@ const CellContent: React.FC<CellContentProps> = ({
         </div>
       </div>
     );
-  }, [element, elementLength, cellState]);
+  }, [element, elementLength, cellState, cellContextMenuRef]);
 
   const canUndo =
     cellState === ADDED ||
@@ -222,7 +229,7 @@ const CellContent: React.FC<CellContentProps> = ({
     <>
       {canUndo && <CellUndoButton alignLeft={canExpand} onClick={onUndo} />}
       {canExpand && <CellExpandButton onClick={onExpand} />}
-      {renderContent()}
+      {renderContent}
     </>
   );
 };
@@ -256,74 +263,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
 }) => {
   const element = value as Element | undefined | null;
 
-  const isEmpty = element === undefined || element === null;
   const [isDeleted, setIsDeleted] = useState(false);
-
-  // Helper function to check if a string is a URL
-  const isValidUrl = useCallback((str: string): boolean => {
-    try {
-      const url = new URL(str);
-      return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  }, []);
-
-  // Add context menu functionality
-  const contextMenuRef = useContextMenuItems([
-    ...(element && !isEmpty
-      ? [
-          {
-            label: 'Copy field & value',
-            onAction: () => {
-              const fieldName = column.getColId();
-              const fieldStr = `${fieldName}: ${objectToIdiomaticEJSON(
-                element.currentValue
-              )}`;
-              void navigator.clipboard.writeText(fieldStr);
-            },
-          },
-        ]
-      : []),
-    ...(element &&
-    element.currentType === 'String' &&
-    isValidUrl(element.currentValue)
-      ? [
-          {
-            label: 'Open URL in browser',
-            onAction: () => {
-              window.open(element.currentValue, '_blank', 'noopener');
-            },
-          },
-        ]
-      : []),
-    ...(element &&
-    (element.currentType === 'Object' || element.currentType === 'Array')
-      ? [
-          {
-            label: 'Expand field',
-            onAction: () => {
-              handleDrillDown({
-                stopPropagation: () => {},
-              } as React.MouseEvent);
-            },
-          },
-        ]
-      : []),
-    ...(cellState === ADDED ||
-    cellState === EDITED ||
-    cellState === INVALID ||
-    cellState === DELETED
-      ? [
-          {
-            label: 'Undo changes',
-            onAction: () => {
-              handleUndo({ stopPropagation: () => {} } as React.MouseEvent);
-            },
-          },
-        ]
-      : []),
-  ]);
 
   const isEditable = useMemo(() => {
     /* Can't get the editable() function from here, so have to reevaluate */
@@ -357,7 +297,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
 
   if (!isEditable) {
     cellState = UNEDITABLE;
-  } else if (isEmpty || isDeleted) {
+  } else if (!element || isDeleted) {
     cellState = EMPTY;
   } else if (!element.isCurrentTypeValid()) {
     cellState = INVALID;
@@ -393,10 +333,10 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     [
       element,
       node.data.hadronDocument,
+      cellState,
       elementRemoved,
       elementAdded,
       elementTypeChanged,
-      cellState,
     ]
   );
 
@@ -424,7 +364,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     // `ag-grid` renders this component outside of the context chain
     // so we re-supply the dark mode theme here.
     <LeafyGreenProvider darkMode={darkMode}>
-      <div ref={contextMenuRef}>
+      <div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
         <div
           className={
@@ -435,6 +375,7 @@ const CellRenderer: React.FC<CellRendererProps> = ({
         >
           <CellContent
             element={element}
+            fieldName={column.getColId()}
             cellState={cellState}
             onUndo={handleUndo}
             onExpand={handleDrillDown}
