@@ -323,12 +323,8 @@ export type State = {
   // to determine whether there has been new query changes since user last pressed the button
   hasQueryChanges: boolean;
 
-  // covered queries obj for the index flow
-  coveredQueriesObj: {
-    coveredQueries: JSX.Element | null;
-    optimalQueries: string | JSX.Element | null;
-    showCoveredQueries: boolean;
-  };
+  // covered queries array for the index flow to keep track of what the user last sees after pressing the covered queries button
+  coveredQueriesArr: Array<Record<string, number>> | null;
 
   // to determine whether there has been new index field changes since user last pressed the button
   hasIndexFieldChanges: boolean;
@@ -350,11 +346,7 @@ export const INITIAL_STATE: State = {
   hasQueryChanges: false,
 
   // Index flow
-  coveredQueriesObj: {
-    coveredQueries: null,
-    optimalQueries: null,
-    showCoveredQueries: false,
-  },
+  coveredQueriesArr: null,
   hasIndexFieldChanges: false,
 };
 
@@ -408,16 +400,12 @@ export type SuggestedIndexFetchedProps = {
 };
 
 export type CoveredQueriesFetchedProps = {
-  coveredQueries: JSX.Element;
-  optimalQueries: string | JSX.Element;
-  showCoveredQueries: boolean;
+  fields: Field[];
 };
 
 export type CoveredQueriesFetchedAction = {
   type: ActionTypes.CoveredQueriesFetched;
-  coveredQueries: JSX.Element;
-  optimalQueries: string | JSX.Element;
-  showCoveredQueries: boolean;
+  coveredQueriesArr: Array<Record<string, number>>;
 };
 
 export type QueryUpdatedAction = {
@@ -504,19 +492,19 @@ export const fetchIndexSuggestions = ({
 };
 
 export const fetchCoveredQueries = ({
-  coveredQueries,
-  optimalQueries,
-  showCoveredQueries,
+  fields,
 }: CoveredQueriesFetchedProps): IndexesThunkAction<
   void,
   CoveredQueriesFetchedAction
 > => {
   return (dispatch) => {
+    const coveredQueriesArr = fields.map((field, index) => {
+      return { [field.name]: index + 1 };
+    });
+
     dispatch({
       type: ActionTypes.CoveredQueriesFetched,
-      coveredQueries,
-      optimalQueries,
-      showCoveredQueries,
+      coveredQueriesArr,
     });
   };
 };
@@ -866,11 +854,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      coveredQueriesObj: {
-        coveredQueries: action.coveredQueries,
-        optimalQueries: action.optimalQueries,
-        showCoveredQueries: action.showCoveredQueries,
-      },
+      coveredQueriesArr: action.coveredQueriesArr,
       hasIndexFieldChanges: false,
     };
   }

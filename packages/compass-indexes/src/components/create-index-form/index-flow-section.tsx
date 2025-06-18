@@ -110,23 +110,18 @@ export type IndexFlowSectionProps = {
   collectionName: string;
   onErrorEncountered: (error: string) => void;
   onErrorCleared: () => void;
-  onCoveredQueriesFetched: ({
-    coveredQueries,
-    optimalQueries,
-    showCoveredQueries,
-  }: CoveredQueriesFetchedProps) => void;
-  coveredQueriesObj: {
-    coveredQueries: JSX.Element | null;
-    optimalQueries: string | JSX.Element | null;
-    showCoveredQueries: boolean;
-  };
+  onCoveredQueriesFetched: ({ fields }: CoveredQueriesFetchedProps) => void;
+  coveredQueriesArr: Array<Record<string, number>> | null;
   hasIndexFieldChanges: boolean;
 };
 
 export const generateCoveredQueries = (
-  coveredQueriesArr: Array<Record<string, number>>,
+  coveredQueriesArr: Array<Record<string, number>> | null,
   track: TrackFunction
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const rows = [];
   for (let i = 0; i < coveredQueriesArr.length; i++) {
     const currentRow = Object.assign({}, ...coveredQueriesArr.slice(0, i + 1));
@@ -150,8 +145,11 @@ export const generateCoveredQueries = (
 };
 
 export const generateOptimalQueries = (
-  coveredQueriesArr: Array<Record<string, number>>
+  coveredQueriesArr: Array<Record<string, number>> | null
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const numOfFields = coveredQueriesArr.length;
 
   // Do not show for 1 field or less
@@ -215,8 +213,7 @@ const IndexFlowSection = ({
   onErrorEncountered,
   onErrorCleared,
   onCoveredQueriesFetched,
-  coveredQueriesObj,
-
+  coveredQueriesArr,
   hasIndexFieldChanges,
 }: IndexFlowSectionProps) => {
   const darkMode = useDarkMode();
@@ -244,17 +241,13 @@ const IndexFlowSection = ({
   );
 
   const onCoveredQueriesButtonClick = useCallback(() => {
-    const coveredQueriesArr = generateCoveredQueriesArr(fields);
-
     track('Covered Queries Button Clicked', {
       context: 'Create Index Modal',
     });
 
     try {
       onCoveredQueriesFetched({
-        coveredQueries: generateCoveredQueries(coveredQueriesArr, track),
-        optimalQueries: generateOptimalQueries(coveredQueriesArr),
-        showCoveredQueries: true,
+        fields,
       });
     } catch (e) {
       onErrorEncountered(e instanceof Error ? e.message : String(e));
@@ -265,8 +258,9 @@ const IndexFlowSection = ({
     onErrorCleared();
   }, [fields, onErrorCleared]);
 
-  const { coveredQueries, optimalQueries, showCoveredQueries } =
-    coveredQueriesObj;
+  const coveredQueries = generateCoveredQueries(coveredQueriesArr, track);
+  const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+  const showCoveredQueries = coveredQueriesArr !== null;
 
   return (
     <div>
@@ -431,9 +425,9 @@ const IndexFlowSection = ({
 };
 
 const mapState = ({ createIndex }: RootState) => {
-  const { coveredQueriesObj, hasIndexFieldChanges } = createIndex;
+  const { coveredQueriesArr, hasIndexFieldChanges } = createIndex;
   return {
-    coveredQueriesObj,
+    coveredQueriesArr,
     hasIndexFieldChanges,
   };
 };
