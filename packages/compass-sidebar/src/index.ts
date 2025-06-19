@@ -1,5 +1,8 @@
-import type { ActivateHelpers } from 'hadron-app-registry';
-import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import {
+  registerCompassPlugin,
+  type AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {
@@ -13,7 +16,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
 
-export const CompassSidebarPlugin = registerHadronPlugin(
+export const CompassSidebarPlugin = registerCompassPlugin(
   {
     name: 'CompassSidebar',
     component: SidebarPlugin,

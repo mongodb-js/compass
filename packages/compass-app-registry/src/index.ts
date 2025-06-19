@@ -7,15 +7,15 @@ export {
   GlobalAppRegistryProvider,
 } from './react-context';
 export type {
-  HadronPluginComponent,
-  HadronPluginConfig,
+  CompassPluginComponent,
+  CompassPluginConfig,
   ActivateHelpers,
 } from './register-plugin';
 export {
-  registerHadronPlugin,
+  registerCompassPlugin,
   createActivateHelpers,
   createServiceLocator,
   createServiceProvider,
 } from './register-plugin';
-export type { Plugin as HadronPlugin } from './app-registry';
+export type { Plugin as CompassPlugin } from './app-registry';
 export default AppRegistry;

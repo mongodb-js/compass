@@ -178,6 +178,10 @@ jobs:
     container: ${{ matrix.container }}
     env:
       DEBUG: compass:smoketests:*,compass-e2e-tests:*
+      # Similar to total task timeout, setting these higher than the default
+      # value to account for very slow windows machines
+      COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
+      COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 360000 # 6min
     steps:
       - name: Checkout
         uses: actions/checkout@v2
