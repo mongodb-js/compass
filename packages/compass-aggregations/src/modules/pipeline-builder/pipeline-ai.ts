@@ -430,14 +430,14 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
-type resetIsAggregationGeneratedFromQueryAction = {
+type ResetIsAggregationGeneratedFromQueryAction = {
   type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
 };
 
 export const resetIsAggregationGeneratedFromQuery =
   (): PipelineBuilderThunkAction<
     void,
-    resetIsAggregationGeneratedFromQueryAction
+    ResetIsAggregationGeneratedFromQueryAction
   > => {
     return (dispatch) => {
       dispatch({
@@ -477,9 +477,8 @@ export type AIPipelineAction =
   | AIPipelineFailedAction
   | LoadGeneratedPipelineAction
   | PipelineGeneratedFromQueryAction
-  | LoadGeneratedPipelineAction
   | CancelAIPipelineGenerationAction
-  | resetIsAggregationGeneratedFromQueryAction
+  | ResetIsAggregationGeneratedFromQueryAction
   | ShowInputAction
   | HideInputAction
   | ChangeAIPromptTextAction;
@@ -567,7 +566,7 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
   }
 
   if (
-    isAction<resetIsAggregationGeneratedFromQueryAction>(
+    isAction<ResetIsAggregationGeneratedFromQueryAction>(
       action,
       AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery
     )
