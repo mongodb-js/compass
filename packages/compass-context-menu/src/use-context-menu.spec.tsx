@@ -1,11 +1,17 @@
 import React from 'react';
-import { render } from './render';
-import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  userEvent,
+  testingLibrary,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { ContextMenuItem, ContextMenuWrapperProps } from './types';
+
+// We need to import from testing-library-compass directly to avoid the extra wrapping.
+const { render } = testingLibrary;
 
 describe('useContextMenu', function () {
   const TestMenu: React.FC<ContextMenuWrapperProps> = ({ menu }) => (

@@ -1,8 +1,11 @@
 import React from 'react';
-import { render } from './render';
+import { testingLibrary } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { ContextMenuWrapperProps } from './types';
+
+// We need to import from testing-library-compass directly to avoid the extra wrapping.
+const { render } = testingLibrary;
 
 describe('ContextMenuProvider', function () {
   const TestMenu: React.FC<ContextMenuWrapperProps> = () => (
