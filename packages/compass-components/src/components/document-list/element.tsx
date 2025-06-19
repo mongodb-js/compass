@@ -460,27 +460,30 @@ export const HadronElement: React.FunctionComponent<{
   } = useHadronElement(element);
 
   // Add context menu hook for the field
-  const fieldContextMenuRef = useContextMenuItems([
-    {
-      label: 'Copy field & value',
-      onAction: () => {
-        const fieldStr = `${key.value}: ${objectToIdiomaticEJSON(
-          value.originalValue
-        )}`;
-        void navigator.clipboard.writeText(fieldStr);
+  const fieldContextMenuRef = useContextMenuItems(
+    () => [
+      {
+        label: 'Copy field & value',
+        onAction: () => {
+          const fieldStr = `${key.value}: ${objectToIdiomaticEJSON(
+            value.originalValue
+          )}`;
+          void navigator.clipboard.writeText(fieldStr);
+        },
       },
-    },
-    ...(type.value === 'String' && isValidUrl(value.value)
-      ? [
-          {
-            label: 'Open URL in browser',
-            onAction: () => {
-              window.open(value.value, '_blank', 'noopener');
+      ...(type.value === 'String' && isValidUrl(value.value)
+        ? [
+            {
+              label: 'Open URL in browser',
+              onAction: () => {
+                window.open(value.value, '_blank', 'noopener');
+              },
             },
-          },
-        ]
-      : []),
-  ]);
+          ]
+        : []),
+    ],
+    [key.value, value.originalValue, value.value, type.value]
+  );
 
   const toggleExpanded = () => {
     if (expanded) {
