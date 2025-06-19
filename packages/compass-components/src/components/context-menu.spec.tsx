@@ -38,7 +38,7 @@ describe('useContextMenuItems', function () {
 
     expect(() => {
       render(
-        <ContextMenuProvider wrapper={ContextMenu}>
+        <ContextMenuProvider menuWrapper={ContextMenu}>
           <TestComponent items={items} />
         </ContextMenuProvider>
       );

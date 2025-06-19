@@ -14,7 +14,7 @@ export function ContextMenuProvider({
   children: React.ReactNode;
 }) {
   return (
-    <ContextMenuProviderBase wrapper={ContextMenu}>
+    <ContextMenuProviderBase menuWrapper={ContextMenu}>
       {children}
     </ContextMenuProviderBase>
   );

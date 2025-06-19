@@ -17,9 +17,9 @@ describe('ContextMenuProvider', function () {
     it('throws an error when providers are nested', function () {
       expect(() => {
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <div>
-              <ContextMenuProvider wrapper={TestMenu}>
+              <ContextMenuProvider menuWrapper={TestMenu}>
                 <TestComponent />
               </ContextMenuProvider>
             </div>
@@ -34,7 +34,7 @@ describe('ContextMenuProvider', function () {
   describe('when not nested', function () {
     it('renders without error', function () {
       render(
-        <ContextMenuProvider wrapper={TestMenu}>
+        <ContextMenuProvider menuWrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );
