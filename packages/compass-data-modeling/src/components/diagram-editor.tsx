@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   applyEdit,
   getCurrentDiagramFromState,
@@ -20,8 +19,16 @@ import {
   Button,
   palette,
   ErrorSummary,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import {
+  Diagram,
+  type NodeProps,
+  type EdgeProps,
+  useDiagram,
+} from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
 
@@ -83,13 +90,12 @@ const editorContainerStyles = css({
 });
 
 const editorContainerApplyContainerStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
+  padding: spacing[200],
   justifyContent: 'flex-end',
   gap: spacing[200],
   display: 'flex',
   width: '100%',
-  height: spacing[100],
+  alignItems: 'center',
 });
 
 const editorContainerPlaceholderButtonStyles = css({
@@ -102,6 +108,7 @@ const editorContainerPlaceholderButtonStyles = css({
 });
 
 const DiagramEditor: React.FunctionComponent<{
+  diagramLabel: string;
   step: DataModelingState['step'];
   hasUndo: boolean;
   onUndoClick: () => void;
@@ -113,6 +120,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
 }> = ({
+  diagramLabel,
   step,
   hasUndo,
   onUndoClick,
@@ -124,7 +132,23 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyClick,
 }) => {
+  const isDarkMode = useDarkMode();
+  const diagramContainerRef = useRef<HTMLDivElement | null>(null);
+  const diagram = useDiagram();
+
+  const setDiagramContainerRef = useCallback(
+    (ref: HTMLDivElement | null) => {
+      if (ref) {
+        // For debugging purposes, we attach the diagram to the ref.
+        (ref as any)._diagram = diagram;
+      }
+      diagramContainerRef.current = ref;
+    },
+    [diagram]
+  );
+
   const [applyInput, setApplyInput] = useState('{}');
+
   const isEditValid = useMemo(() => {
     try {
       JSON.parse(applyInput);
@@ -166,14 +190,57 @@ const DiagramEditor: React.FunctionComponent<{
           };
           break;
         default:
-          throw new Error(`Unknown placeholder ${placeholder}`);
+          throw new Error(`Unknown placeholder ${type}`);
       }
       setApplyInput(JSON.stringify(placeholder, null, 2));
     };
 
-  const modelStr = useMemo(() => {
-    return JSON.stringify(model, null, 2);
-  }, [model]);
+  const edges = useMemo(() => {
+    return (model?.relationships ?? []).map((relationship): EdgeProps => {
+      const [source, target] = relationship.relationship;
+      return {
+        id: relationship.id,
+        source: source.ns,
+        target: target.ns,
+        markerStart: source.cardinality === 1 ? 'one' : 'many',
+        markerEnd: target.cardinality === 1 ? 'one' : 'many',
+      };
+    });
+  }, [model?.relationships]);
+
+  const nodes = useMemo(() => {
+    return (model?.collections ?? []).map(
+      (coll): NodeProps => ({
+        id: coll.ns,
+        type: 'collection',
+        position: {
+          x: coll.displayPosition[0],
+          y: coll.displayPosition[1],
+        },
+        title: coll.ns,
+        fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
+          ([name, field]) => {
+            const type =
+              field.bsonType === undefined
+                ? 'Unknown'
+                : typeof field.bsonType === 'string'
+                ? field.bsonType
+                : // TODO: Show possible types of the field
+                  field.bsonType[0];
+            return {
+              name,
+              type,
+              glyphs: type === 'objectId' ? ['key'] : [],
+            };
+          }
+        ),
+        measured: {
+          width: 100,
+          height: 200,
+        },
+      })
+    );
+  }, [model?.collections]);
 
   let content;
 
@@ -213,16 +280,29 @@ const DiagramEditor: React.FunctionComponent<{
   if (step === 'EDITING') {
     content = (
       <div
+        ref={setDiagramContainerRef}
         className={modelPreviewContainerStyles}
         data-testid="diagram-editor-container"
       >
         <div className={modelPreviewStyles} data-testid="model-preview">
-          <CodemirrorMultilineEditor
-            language="json"
-            text={modelStr}
-            readOnly
-            initialJSONFoldAll={false}
-          ></CodemirrorMultilineEditor>
+          <Diagram
+            isDarkMode={isDarkMode}
+            title={diagramLabel}
+            edges={edges}
+            nodes={nodes}
+            onEdgeClick={(evt, edge) => {
+              setApplyInput(
+                JSON.stringify(
+                  {
+                    type: 'RemoveRelationship',
+                    relationshipId: edge.id,
+                  },
+                  null,
+                  2
+                )
+              );
+            }}
+          />
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
           <div className={editorContainerPlaceholderButtonStyles}>
@@ -307,6 +387,7 @@ export default connect(
         ? selectCurrentModel(getCurrentDiagramFromState(state))
         : null,
       editErrors: diagram?.editErrors,
+      diagramLabel: diagram?.name || 'Schema Preview',
     };
   },
   {

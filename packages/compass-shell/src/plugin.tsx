@@ -16,7 +16,7 @@ import reducer, {
   destroyCurrentRuntime,
   loadHistory,
 } from './stores/store';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
 
 const SHELL_THEME = { theme: Theme.Dark, enabled: true };

@@ -205,6 +205,11 @@ class CompassApplication {
     // For Linux users with drivers that are avoided by Chromium we disable the
     // GPU check to attempt to bypass the disabled WebGL settings.
     app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+
+    if (process.platform === 'linux') {
+      // Force GTK 3 on Linux (Workaround for https://github.com/electron/electron/issues/46538)
+      app.commandLine.appendSwitch('gtk-version', '3');
+    }
   }
 
   private static setupAutoUpdate(): void {

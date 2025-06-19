@@ -135,7 +135,7 @@ class EditableDocument extends React.Component<
     const clonedDoc = this.props.doc.generateObject({
       excludeInternalFields: true,
     });
-    this.props.openInsertDocumentDialog?.(clonedDoc, true);
+    void this.props.openInsertDocumentDialog?.(clonedDoc, true);
   }
 
   /**
@@ -267,13 +267,13 @@ class EditableDocument extends React.Component<
         deleting={this.state.deleting}
         onUpdate={(force) => {
           if (force) {
-            this.props.replaceDocument?.(this.props.doc);
+            void this.props.replaceDocument?.(this.props.doc);
           } else {
-            this.props.updateDocument?.(this.props.doc);
+            void this.props.updateDocument?.(this.props.doc);
           }
         }}
         onDelete={() => {
-          this.props.removeDocument?.(this.props.doc);
+          void this.props.removeDocument?.(this.props.doc);
         }}
         onCancel={() => {
           this.handleCancel();

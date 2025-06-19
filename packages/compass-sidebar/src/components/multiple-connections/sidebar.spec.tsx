@@ -21,7 +21,7 @@ import {
   CompassSidebarPlugin,
 } from '../../index';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from '../../../../hadron-app-registry/dist';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
@@ -106,8 +106,18 @@ describe('Multiple Connections Sidebar Component', function () {
       <ConnectionImportExportProvider>
         <WorkspacesProvider
           value={[
-            { name: 'My Queries', component: () => null },
-            { name: 'Performance', component: () => null },
+            {
+              name: 'My Queries',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
+            {
+              name: 'Performance',
+              content: () => null,
+              header: () => null as any,
+              provider: (() => null) as any,
+            },
           ]}
         >
           <WorkspacesServiceProvider value={workspace as any}>

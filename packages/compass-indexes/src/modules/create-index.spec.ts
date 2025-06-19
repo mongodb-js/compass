@@ -29,25 +29,6 @@ describe('create-index module', function () {
       store.dispatch(fieldTypeUpdated(0, 'text'));
     });
 
-    it('validates field name & type', function () {
-      Object.assign(store.getState(), {
-        createIndex: {
-          ...store.getState().createIndex,
-          fields: [
-            {
-              name: '',
-              type: '',
-            },
-          ],
-        },
-      });
-      store.dispatch(createIndexFormSubmitted());
-
-      expect(store.getState().createIndex.error).to.equal(
-        'You must select a field name and type'
-      );
-    });
-
     it('validates collation', function () {
       Object.assign(store.getState(), {
         createIndex: {
@@ -228,25 +209,25 @@ describe('create-index module', function () {
   describe('createIndexOpened', function () {
     const query = EJSON.serialize({});
     it('sets isVisible=true', function () {
-      store.dispatch(createIndexOpened());
+      void store.dispatch(createIndexOpened());
 
       expect(store.getState().createIndex.isVisible).to.equal(true);
     });
 
     it('sets isVisible=true with a query', function () {
-      store.dispatch(createIndexOpened({ query }));
+      void store.dispatch(createIndexOpened({ query }));
 
       expect(store.getState().createIndex.isVisible).to.equal(true);
     });
 
     it('sets currentTab=IndexFlow if no query is provided', function () {
-      store.dispatch(createIndexOpened());
+      void store.dispatch(createIndexOpened());
 
       expect(store.getState().createIndex.currentTab).to.equal('IndexFlow');
     });
 
     it('sets currentTab=QueryFlow if a query is provided', function () {
-      store.dispatch(createIndexOpened({ query }));
+      void store.dispatch(createIndexOpened({ query }));
 
       expect(store.getState().createIndex.currentTab).to.equal('QueryFlow');
     });

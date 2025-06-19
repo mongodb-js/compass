@@ -181,7 +181,7 @@ export function Indexes({
       </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
-      <CreateIndexModal />
+      <CreateIndexModal query={null} />
     </div>
   );
 }

@@ -97,7 +97,7 @@ export class DocStatsCollector {
         this.stats.biggestDocSize,
         docString.length
       );
-    } catch (error) {
+    } catch {
       // We ignore the JSON stringification error
     }
   }

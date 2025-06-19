@@ -19,7 +19,7 @@ export class CompassGuideCueStorage implements GuideCueStorage {
   get data(): GuideCueData {
     try {
       return JSON.parse(this.storage.getItem(this.key) ?? '[]');
-    } catch (e) {
+    } catch {
       return [];
     }
   }

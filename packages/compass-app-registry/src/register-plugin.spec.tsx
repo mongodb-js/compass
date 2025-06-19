@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import {
   AppRegistryProvider,
-  registerHadronPlugin,
+  registerCompassPlugin,
   createActivateHelpers,
   createServiceLocator,
 } from './';
@@ -12,13 +12,13 @@ import { createStore } from 'redux';
 import { connect } from 'react-redux';
 import { EventEmitter } from 'events';
 
-describe('registerHadronPlugin', function () {
+describe('registerCompassPlugin', function () {
   afterEach(cleanup);
 
   it('allows registering plugins with a reflux-ish store', function () {
     const component = sinon.stub().callsFake(() => <></>);
     const activate = sinon.stub().returns({ store: { state: { foo: 'bar' } } });
-    const Plugin = registerHadronPlugin({
+    const Plugin = registerCompassPlugin({
       name: 'refluxish',
       component,
       activate,
@@ -44,7 +44,7 @@ describe('registerHadronPlugin', function () {
     const component = sinon.stub().callsFake(() => <></>);
     const store = { state: { foo: 'bar' } };
     const activate = sinon.stub().returns({ store });
-    const Plugin = registerHadronPlugin({
+    const Plugin = registerCompassPlugin({
       name: 'reflux',
       component,
       activate,
@@ -77,7 +77,7 @@ describe('registerHadronPlugin', function () {
       }
     );
     const activate = sinon.stub().returns({ store });
-    const Plugin = registerHadronPlugin({
+    const Plugin = registerCompassPlugin({
       name: 'redux',
       component: connector(component),
       activate,
@@ -112,7 +112,7 @@ describe('registerHadronPlugin', function () {
     const component = sinon.stub().callsFake(() => <></>);
     const store = createStore(() => ({}));
     const activate = sinon.stub().returns({ store });
-    const Plugin = registerHadronPlugin(
+    const Plugin = registerCompassPlugin(
       {
         name: 'service1',
         component: connector(component),

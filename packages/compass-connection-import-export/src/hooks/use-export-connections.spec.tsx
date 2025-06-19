@@ -133,10 +133,12 @@ describe('useExportConnections', function () {
       await connectionsStore.actions.refreshConnections();
     });
 
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: connectionInfo1.id, name: 'name1', selected: false },
-      { id: connectionInfo2.id, name: 'name2', selected: true },
-    ]);
+    await waitFor(() => {
+      expect(result.current.state.connectionList).to.deep.equal([
+        { id: connectionInfo1.id, name: 'name1', selected: false },
+        { id: connectionInfo2.id, name: 'name2', selected: true },
+      ]);
+    });
   });
 
   it('updates filename if changed', function () {

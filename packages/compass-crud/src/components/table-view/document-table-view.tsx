@@ -93,7 +93,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   AGGrid: React.ReactElement;
   collection: string;
   topLevel: boolean;
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   unsubscribeGridStore?: Function;
   gridApi?: GridApi;
   columnApi?: ColumnApi;
@@ -187,7 +187,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     const clonedDoc = hadronDocument.generateObject({
       excludeInternalFields: true,
     });
-    this.props.openInsertDocumentDialog?.(clonedDoc, true);
+    void this.props.openInsertDocumentDialog?.(clonedDoc, true);
   };
 
   /**

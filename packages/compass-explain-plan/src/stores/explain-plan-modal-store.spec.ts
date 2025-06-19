@@ -1,4 +1,6 @@
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, {
+  createActivateHelpers,
+} from '@mongodb-js/compass-app-registry';
 import {
   closeExplainPlanModal,
   openExplainPlanModal,

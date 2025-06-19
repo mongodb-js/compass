@@ -12,6 +12,7 @@ import { setupStore } from '../../../test/setup-store';
 import { Provider } from 'react-redux';
 
 import CreateIndexActions from '.';
+import { ActionTypes } from '../../modules/create-index';
 
 describe('CreateIndexActions Component', function () {
   let clearErrorSpy: any;
@@ -39,7 +40,6 @@ describe('CreateIndexActions Component', function () {
           onErrorBannerCloseClick={clearErrorSpy}
           onCreateIndexClick={onCreateIndexClickSpy}
           onCancelCreateIndexClick={closeCreateIndexModalSpy}
-          showIndexesGuidanceVariant={false}
         />
       </Provider>
     );
@@ -62,9 +62,24 @@ describe('CreateIndexActions Component', function () {
   });
 
   context('onConfirm', function () {
+    it('will not call onCreateIndexClick function if fields are not valid and the button will be disabled', function () {
+      renderComponent();
+      const button = screen.getByTestId(
+        'create-index-actions-create-index-button'
+      );
+      userEvent.click(button);
+      expect(button.ariaDisabled).to.equal('true');
+      expect(onCreateIndexClickSpy).not.to.have.been.calledOnce;
+    });
+
     it('calls the onCreateIndexClick function', function () {
       renderComponent();
 
+      // populate with valid fields first
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields: [{ name: 'a', type: '1' }],
+      });
       const button = screen.getByTestId(
         'create-index-actions-create-index-button'
       );

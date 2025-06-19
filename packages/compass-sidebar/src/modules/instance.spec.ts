@@ -4,7 +4,7 @@ import { spy, stub, type SinonSpy, type SinonStub } from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { setupInstance } from './instance';
 import type { RootState } from '.';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type {
   MongoDBInstance,

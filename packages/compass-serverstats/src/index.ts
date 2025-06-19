@@ -1,5 +1,6 @@
+import React from 'react';
 import { PerformanceComponent } from './components';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -9,38 +10,48 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
 import TopStore from './stores/top-store';
-import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import {
+  WorkspaceName,
+  ServerStatsPluginTitleComponent,
+} from './plugin-tab-title';
 
-const PerformancePlugin = registerHadronPlugin(
-  {
-    name: 'Performance',
-    component: PerformanceComponent,
-    activate(_initialProps: Record<string, never>, { dataService, instance }) {
-      CurrentOpStore.onActivated(dataService);
-      ServerStatsStore.onActivated(dataService);
-      TopStore.onActivated(dataService, instance);
+type PerformancePluginInitialProps = Record<string, never>;
 
-      // TODO(COMPASS-7416): no stores or subscriptions are returned here, we'd
-      // need to refactor the stores of this package
-      return {
-        store: {},
-        deactivate() {
-          // noop
-        },
-      };
+const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
+  name: WorkspaceName,
+  provider: registerCompassPlugin(
+    {
+      name: WorkspaceName,
+      component: function PerformanceProvider({ children }) {
+        return React.createElement(React.Fragment, null, children);
+      },
+      activate(
+        _initialProps: PerformancePluginInitialProps,
+        { dataService, instance }
+      ) {
+        CurrentOpStore.onActivated(dataService);
+        ServerStatsStore.onActivated(dataService);
+        TopStore.onActivated(dataService, instance);
+
+        // TODO(COMPASS-7416): no stores or subscriptions are returned here, we'd
+        // need to refactor the stores of this package
+        return {
+          store: {},
+          deactivate() {
+            // noop
+          },
+        };
+      },
     },
-  },
-  {
-    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
-    instance: mongoDBInstanceLocator,
-  }
-);
-
-const WorkspaceTab: WorkspaceComponent<'Performance'> = {
-  name: 'Performance' as const,
-  component: PerformancePlugin,
+    {
+      dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+      instance: mongoDBInstanceLocator,
+    }
+  ),
+  content: PerformanceComponent,
+  header: ServerStatsPluginTitleComponent,
 };
 
-export default PerformancePlugin;
 export { WorkspaceTab };
 export { default as d3 } from './d3';

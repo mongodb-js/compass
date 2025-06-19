@@ -17,8 +17,8 @@ import {
   stopPollingSearchIndexes,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type {
   Collection,
   MongoDBInstance,
@@ -132,7 +132,7 @@ export function activateIndexesPlugin(
     localAppRegistry,
     'open-create-index-modal',
     (openCreateModalRequest?: { query: Document }) => {
-      store.dispatch(createIndexOpened(openCreateModalRequest?.query));
+      void store.dispatch(createIndexOpened(openCreateModalRequest?.query));
     }
   );
 

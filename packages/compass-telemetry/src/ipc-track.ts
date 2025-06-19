@@ -30,7 +30,7 @@ export function createIpcTrack(
 export function createIpcSendTrack() {
   // This application may not be running in an Node.js/Electron context.
   const ipc =
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('hadron-ipc').ipcRenderer;
 
   const sendTrack = (event: string, properties: Record<string, unknown>) =>

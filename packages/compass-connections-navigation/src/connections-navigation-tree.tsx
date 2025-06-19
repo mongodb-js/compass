@@ -227,7 +227,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         considering that to be a pointless usecase and hence the type
         definitions are pretty strict. We require these disabled to avoid
         tests flaking out hence ignoring the usage here.
-        @ts-ignore */}
+        @ts-expect-error ^^^ */}
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width = isTestEnv ? 1024 : '', height = isTestEnv ? 768 : '' }) => (
           <VirtualTree<SidebarTreeItem>

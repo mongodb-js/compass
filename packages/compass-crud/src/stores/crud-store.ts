@@ -41,8 +41,8 @@ import type { UpdatePreview } from 'mongodb-data-service';
 import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import {
@@ -89,15 +89,15 @@ export type CrudActions = {
       rowIndex: number;
     }
   ): void;
-  updateDocument(doc: Document): void;
-  removeDocument(doc: Document): void;
-  replaceDocument(doc: Document): void;
-  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
+  updateDocument(doc: Document): Promise<void>;
+  removeDocument(doc: Document): Promise<void>;
+  replaceDocument(doc: Document): Promise<void>;
+  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
-  runBulkUpdate(): void;
+  runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
-  runBulkDelete(): void;
+  runBulkDelete(): Promise<void>;
   openDeleteQueryExportToLanguageDialog(): void;
   saveUpdateQuery(name: string): Promise<void>;
 };
@@ -1216,7 +1216,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -1978,7 +1978,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -2193,7 +2193,7 @@ export async function findAndModifyWithFLEFallback(
         { promoteValues: false }
       );
       return [undefined, docs[0]] as ErrorOrResult;
-    } catch (e) {
+    } catch {
       /* fallthrough */
     }
   }

@@ -9,7 +9,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { DatabasesPlugin } from './databases-plugin';
+import { DatabasesWorkspaceTab } from './';
 import Sinon from 'sinon';
 import {
   createSandboxFromDefaultPreferences,
@@ -49,12 +49,16 @@ describe('Databasees [Plugin]', function () {
         },
       };
 
-      const Plugin = DatabasesPlugin.withMockServices({
+      const Plugin = DatabasesWorkspaceTab.provider.withMockServices({
         instance: mongodbInstance,
         dataService,
       });
 
-      const { globalAppRegistry } = render(<Plugin></Plugin>);
+      const { globalAppRegistry } = render(
+        <Plugin>
+          <DatabasesWorkspaceTab.content />
+        </Plugin>
+      );
 
       appRegistry = Sinon.spy(globalAppRegistry);
 

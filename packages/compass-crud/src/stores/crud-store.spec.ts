@@ -1,7 +1,9 @@
 import util from 'util';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
+import AppRegistry, {
+  createActivateHelpers,
+} from '@mongodb-js/compass-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import { once } from 'events';
@@ -211,7 +213,7 @@ describe('store', function () {
 
     try {
       await dataService.dropCollection('compass-crud.test');
-    } catch (err) {
+    } catch {
       // noop
     }
 
@@ -357,7 +359,7 @@ describe('store', function () {
             writeText: mockCopyToClipboard,
           },
         });
-      } catch (e) {
+      } catch {
         // Electron has the global navigator as a getter.
         sinon.replaceGetter(global as any, 'navigator', () => ({
           clipboard: {
@@ -1836,7 +1838,7 @@ describe('store', function () {
 
         try {
           await dataService.dropCollection('compass-crud.timeseries');
-        } catch (err) {
+        } catch {
           // noop
         }
 

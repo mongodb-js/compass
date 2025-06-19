@@ -78,7 +78,7 @@ describe('Authentication OIDC Connection Form', function () {
       fireEvent.click(screen.getByTestId('connect-button'));
       try {
         await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
-      } catch (e) {
+      } catch {
         // this only finds something if it is a validation error
         const errors = screen.getByTestId(
           'connection-error-summary'

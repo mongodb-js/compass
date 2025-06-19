@@ -1,4 +1,4 @@
-# hadron-app-registry
+# @mongodb-js/compass-app-registry
 
 ## Concepts
 
@@ -54,15 +54,15 @@ import {
   globalAppRegistry,
   AppRegistry,
   AppRegistryProvider,
-  registerHadronPlugin,
-} from 'hadron-app-registry';
+  registerCompassPlugin,
+} from '@mongodb-js/compass-app-registry';
 import CompassLogging from '@mongodb-js/compass-logging';
 import {
   LoggingProvider,
   loggingLocator,
 } from '@mongodb-js/compass-logging/provider';
 
-const PluginWithLogger = registerHadronPlugin(
+const PluginWithLogger = registerCompassPlugin(
   {
     name: 'LoggingPlugin',
     component: function () {
@@ -93,7 +93,7 @@ intended to use.
 Typically, these functions are implemented using React contexts.
 
 ```typescript
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 const ConnectionStorageContext = createContext<ConnectionStorage | null>(null);
 
@@ -133,7 +133,7 @@ associated with it is destroyed). In order to make this easier, helpers are
 provided that automatically register cleanup functions:
 
 ```js
-const Plugin = registerHadronPlugin({
+const Plugin = registerCompassPlugin({
   name: 'TestPlugin',
   component: TestPluginComponent,
   activate(props, services, { on, addCleanup, cleanup }) {

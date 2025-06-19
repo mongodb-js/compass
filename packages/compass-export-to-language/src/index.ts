@@ -1,4 +1,4 @@
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import ExportToLanguageModal from './components/modal';
 import { activatePlugin } from './stores';
 import {
@@ -6,7 +6,7 @@ import {
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 
-const ExportToLanguagePlugin = registerHadronPlugin(
+const ExportToLanguagePlugin = registerCompassPlugin(
   {
     name: 'ExportToLanguage',
     component: ExportToLanguageModal,

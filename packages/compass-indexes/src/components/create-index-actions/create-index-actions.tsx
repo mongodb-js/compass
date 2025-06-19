@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import type { Field, Tab } from '../../modules/create-index';
 import type { RootState } from '../../modules';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -33,7 +34,6 @@ function CreateIndexActions({
   onCancelCreateIndexClick,
   fields,
   currentTab,
-  showIndexesGuidanceVariant,
   indexSuggestions,
 }: {
   error: string | null;
@@ -42,23 +42,21 @@ function CreateIndexActions({
   onCancelCreateIndexClick: () => void;
   fields: Field[];
   currentTab: Tab;
-  showIndexesGuidanceVariant: boolean;
   indexSuggestions: Record<string, number> | null;
 }) {
-  let isCreateIndexButtonDisabled = false;
+  const track = useTelemetry();
 
-  if (showIndexesGuidanceVariant) {
-    // Disable create index button if the user is in Query Flow and has no suggestions
-    if (currentTab === 'QueryFlow') {
-      if (indexSuggestions === null) {
-        isCreateIndexButtonDisabled = true;
-      }
+  let isCreateIndexButtonDisabled = false;
+  // Disable create index button if the user is in Query Flow and has no suggestions
+  if (currentTab === 'QueryFlow') {
+    if (indexSuggestions === null) {
+      isCreateIndexButtonDisabled = true;
     }
-    // Or if they are in the Index Flow but have not completed the fields
-    else {
-      if (!areAllFieldsFilledIn(fields)) {
-        isCreateIndexButtonDisabled = true;
-      }
+  }
+  // Or if they are in the Index Flow but have not completed the fields
+  else {
+    if (!areAllFieldsFilledIn(fields)) {
+      isCreateIndexButtonDisabled = true;
     }
   }
 
@@ -81,7 +79,12 @@ function CreateIndexActions({
 
       <Button
         data-testid="create-index-actions-cancel-button"
-        onClick={onCancelCreateIndexClick}
+        onClick={() => {
+          onCancelCreateIndexClick();
+          track('Cancel Button Clicked', {
+            context: 'Create Index Modal',
+          });
+        }}
       >
         Cancel
       </Button>

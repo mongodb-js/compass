@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   activateIndexesPlugin,
   type IndexesDataServiceProps,
@@ -20,7 +20,7 @@ import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
-export const CompassIndexesHadronPlugin = registerHadronPlugin(
+export const CompassIndexesPluginProvider = registerCompassPlugin(
   {
     name: 'CompassIndexes',
     component: function IndexesProvider({ children }) {
@@ -43,7 +43,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin(
 
 export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
-  provider: CompassIndexesHadronPlugin,
+  provider: CompassIndexesPluginProvider,
   content: Indexes as React.FunctionComponent,
   header: IndexesTabTitle as React.FunctionComponent,
 };

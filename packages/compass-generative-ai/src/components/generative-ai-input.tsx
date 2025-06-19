@@ -366,7 +366,11 @@ function GenerativeAIInput({
         }
         handleSubmit(aiPromptText);
       } else if (evt.key === 'Escape') {
-        isFetching ? onCancelRequest() : onClose();
+        if (isFetching) {
+          onCancelRequest();
+        } else {
+          onClose();
+        }
       }
     },
     [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
@@ -443,6 +447,7 @@ function GenerativeAIInput({
                 ref={promptTextInputRef}
                 data-testid="ai-user-text-input"
                 aria-labelledby=""
+                spellCheck={false}
                 aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
                 placeholder={placeholder}
                 value={aiPromptText}

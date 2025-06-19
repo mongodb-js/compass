@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 import GlobalWrites from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
@@ -9,7 +9,7 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
-const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
+const CompassGlobalWritesPluginProvider = registerCompassPlugin(
   {
     name: 'CompassGlobalWrites',
     component: function GlobalWritesProvider({ children }) {
@@ -27,7 +27,7 @@ const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
 
 export const CompassGlobalWritesPlugin = {
   name: 'GlobalWrites' as const,
-  provider: CompassGlobalWritesHadronPlugin,
+  provider: CompassGlobalWritesPluginProvider,
   content: GlobalWrites as React.FunctionComponent,
   header: GlobalWritesTabTitle as React.FunctionComponent,
 };

@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import {
-  getLocalAppRegistryForTab,
-  type WorkspaceTab,
-} from '../stores/workspaces';
+import { getLocalAppRegistryForTab } from '../stores/workspaces';
+import type { WorkspaceTab } from '../types';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
 import { rafraf } from '@mongodb-js/compass-components';
@@ -11,7 +9,8 @@ import {
   useTabState,
   WorkspaceTabStateProvider,
 } from './workspace-tab-state-provider';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
+import { useWorkspacePlugins } from './workspaces-provider';
 
 function getInitialPropsForWorkspace(tab: WorkspaceTab) {
   switch (tab.type) {
@@ -81,20 +80,41 @@ const TabCloseHandler: React.FunctionComponent = ({ children }) => {
   );
 };
 
-const WorkspaceTabContextProvider: React.FunctionComponent<{
+type WorkspaceTabContextProviderProps = {
   tab: WorkspaceTab;
-  sectionType: 'tab-content' | 'tab-title';
-  onNamespaceNotFound?: (
-    tab: Extract<WorkspaceTab, { namespace: string }>,
-    fallbackNamespace: string | null
-  ) => void;
   children: React.JSX.Element;
-}> = ({ tab, onNamespaceNotFound, sectionType: type, children }) => {
+} & (
+  | {
+      sectionType: 'tab-content';
+      onNamespaceNotFound: (
+        tab: Extract<WorkspaceTab, { namespace: string }>,
+        fallbackNamespace: string | null
+      ) => void;
+    }
+  | {
+      sectionType: 'tab-title';
+      onNamespaceNotFound?: undefined;
+    }
+);
+
+const WorkspaceTabContextProvider: React.FunctionComponent<
+  WorkspaceTabContextProviderProps
+> = ({ tab, onNamespaceNotFound, sectionType: type, children }) => {
   const initialProps = getInitialPropsForWorkspace(tab);
+  const { getWorkspacePluginByName } = useWorkspacePlugins();
+
+  const { provider: WorkspaceProvider } = getWorkspacePluginByName(tab.type);
 
   if (initialProps) {
     children = React.cloneElement(children, initialProps);
   }
+
+  // The ordering of the these providers is important,
+  // the workspace provider needs access to the
+  // connection info and namespace providers.
+  children = (
+    <WorkspaceProvider {...initialProps}>{children}</WorkspaceProvider>
+  );
 
   if ('namespace' in tab) {
     children = (

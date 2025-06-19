@@ -85,7 +85,7 @@ const filterDatabases = (
   const results: FilteredDatabase[] = [];
   for (const db of databases) {
     const isMatch = !regex || regex.test(db.name);
-    const childMatches = filterCollections(db.collections, regex);
+    const childMatches = filterCollections(db.collections, regex, db.name);
 
     if (isMatch || childMatches.length) {
       // If the db doesn't match, we want to use just the matching collections.
@@ -111,10 +111,14 @@ const filterDatabases = (
 
 const filterCollections = (
   collections: SidebarCollection[],
-  regex: RegExp | null
+  regex: RegExp | null,
+  dbName: string
 ): FilteredCollection[] => {
   return collections
-    .filter(({ name }) => !regex || regex.test(name))
+    .filter(
+      ({ name }) =>
+        !regex || regex.test(name) || regex.test(`${dbName}.${name}`)
+    )
     .map((collection) => ({ ...collection, isMatch: true }));
 };
 

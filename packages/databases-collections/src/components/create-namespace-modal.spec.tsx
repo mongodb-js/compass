@@ -7,7 +7,7 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 import { CreateNamespacePlugin } from '../..';
 import {

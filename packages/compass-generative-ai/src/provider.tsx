@@ -6,7 +6,7 @@ import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {
   createServiceLocator,
   createServiceProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 

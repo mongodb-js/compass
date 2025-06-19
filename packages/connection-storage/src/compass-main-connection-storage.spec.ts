@@ -1415,7 +1415,7 @@ describe('ConnectionStorage', function () {
           expect.fail(
             'Did not expect auto connect info to be saved but it was'
           );
-        } catch (error) {
+        } catch {
           //
         }
       });

@@ -1,4 +1,4 @@
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
@@ -8,7 +8,7 @@ import { onActivated } from './stores';
 
 export type { SettingsTabId } from './stores/settings';
 
-export const CompassSettingsPlugin = registerHadronPlugin(
+export const CompassSettingsPlugin = registerCompassPlugin(
   {
     name: 'CompassSettings',
     component: SettingsPlugin,

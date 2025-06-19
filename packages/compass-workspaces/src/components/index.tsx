@@ -4,9 +4,9 @@ import type { CollectionTabInfo } from '../stores/workspaces';
 import {
   getActiveTab,
   type OpenWorkspaceOptions,
-  type WorkspaceTab,
   type WorkspacesState,
 } from '../stores/workspaces';
+import type { WorkspaceTab } from '../types';
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';

@@ -25,7 +25,7 @@ describe('CompassMenu', function () {
   beforeEach(async function () {
     App.preferences = await createSandboxFromDefaultPreferences();
     delete require.cache[require.resolve('./menu')];
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     CompassMenu = require('./menu').CompassMenu;
     CompassMenu.init(App);
   });

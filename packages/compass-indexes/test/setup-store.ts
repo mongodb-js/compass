@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import Sinon from 'sinon';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type {
   IndexesDataService,
   IndexesPluginOptions,
@@ -8,7 +8,7 @@ import type {
   IndexesStore,
 } from '../src/stores/store';
 import { activateIndexesPlugin } from '../src/stores/store';
-import { createActivateHelpers } from 'hadron-app-registry';
+import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';

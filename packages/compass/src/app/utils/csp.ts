@@ -89,7 +89,7 @@ export function injectCSP() {
     extraAllowed.push('ws://localhost:*');
     // Used by proxy tests, since Chrome does not like proxying localhost
     // (this does not result in actual outgoing HTTP requests)
-    extraAllowed.push('http://compass.mongodb.com/');
+    extraAllowed.push('http://proxy-test-compass.mongodb.com/');
   }
   const cspContent =
     Object.entries(defaultCSP)

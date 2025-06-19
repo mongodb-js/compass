@@ -36,9 +36,7 @@ const editorContainerStyles = css({
   height: '100%',
 });
 
-const editorContainerStylesDark = css({
-  background: palette.gray.dark4,
-});
+const editorContainerStylesDark = css({});
 
 const editorContainerStylesLight = css({
   background: palette.gray.light3,

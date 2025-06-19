@@ -1,3 +1,6 @@
+import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
+import type { WorkspaceTabCoreProps } from '@mongodb-js/compass-components';
+
 export type CollectionSubtab =
   | 'Documents'
   | 'Aggregations'
@@ -39,6 +42,8 @@ export type CollectionsWorkspace = {
   type: 'Collections';
   connectionId: string;
   namespace: string;
+  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
+  isNonExistent?: boolean;
 };
 
 export type CollectionWorkspace = {
@@ -56,7 +61,25 @@ export type CollectionWorkspace = {
   initialPipelineText?: string;
   initialAggregation?: unknown;
   editViewName?: string;
+  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
+  isNonExistent?: boolean;
 };
+
+export type WorkspaceTabProps =
+  | WelcomeWorkspace
+  | MyQueriesWorkspace
+  | DataModelingWorkspace
+  | ShellWorkspace
+  | ServerStatsWorkspace
+  | DatabasesWorkspace
+  | CollectionsWorkspace
+  | (Omit<CollectionWorkspace, 'tabId'> & {
+      subTab: CollectionSubtab;
+    });
+
+export type WorkspaceTab = {
+  id: string;
+} & WorkspaceTabProps;
 
 export type AnyWorkspace =
   | WelcomeWorkspace
@@ -78,9 +101,12 @@ export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   'type' | 'connectionId'
 >;
 
-export type WorkspaceComponent<T extends AnyWorkspace['type']> = {
+export type PluginHeaderProps<T extends AnyWorkspace['type']> =
+  WorkspaceTabCoreProps & WorkspacePluginProps<T>;
+
+export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
-  component:
-    | React.ComponentClass<WorkspacePluginProps<T>>
-    | ((props: WorkspacePluginProps<T>) => React.ReactElement | null);
+  provider: CompassPluginComponent<any, any, any>;
+  content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
+  header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
 };

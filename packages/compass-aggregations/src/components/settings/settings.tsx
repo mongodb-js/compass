@@ -169,14 +169,14 @@ function Settings({
         <Body weight="medium">Settings</Body>
         <div className={headerButtonGroupStyles}>
           <Button
-            id="aggregations-settings-cancel"
+            data-testid="aggregation-settings-cancel"
             size="xsmall"
             onClick={toggleSettingsIsExpanded}
           >
             Cancel
           </Button>
           <Button
-            id="aggregation-settings-apply"
+            data-testid="aggregation-settings-apply"
             size="xsmall"
             variant="primary"
             onClick={onApplyClicked}
@@ -253,6 +253,7 @@ function Settings({
           </div>
           <div className={inputControlStyles}>
             <TextInput
+              data-testid="aggregation-settings-limit-input"
               id={aggregationLimitId}
               aria-labelledby={aggregationLimitLabelId}
               aria-describedby={aggregationLimitDescriptionId}

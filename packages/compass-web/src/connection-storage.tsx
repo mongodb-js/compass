@@ -8,7 +8,7 @@ import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
-import { createServiceProvider } from 'hadron-app-registry';
+import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {

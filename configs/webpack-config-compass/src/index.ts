@@ -147,6 +147,17 @@ export function createElectronMainConfig(
         sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          // Webpack compile time check for imports matching exports is too strict
+          // in cases where the code expects some name export to be optional
+          // (webpack will break the build if it fails to statically see the
+          // matching export) this is why we switch the check to just warn. If
+          // this ever hides a real case where a missing import is being used, it
+          // will definitely break in runtime anyway
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     node: false as const,
     externals: toCommonJsExternal(sharedExternals),
@@ -218,6 +229,11 @@ export function createElectronRendererConfig(
         sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     plugins: [
       ...entriesToHtml(entries),
@@ -301,7 +317,7 @@ export function createElectronRendererConfig(
 export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   const opts = webpackArgsWithDefaults(args, { target: 'web' });
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { peerDependencies } = require(path.join(opts.cwd, 'package.json')) as {
     peerDependencies: Record<string, string>;
   };
@@ -338,6 +354,11 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
         assetsLoader(opts),
         sourceLoader(opts),
       ],
+      parser: {
+        javascript: {
+          importExportsPresence: 'warn' as const,
+        },
+      },
     },
     // This follows current Compass plugin behavior and is here more or less to
     // keep compat for the external plugin users

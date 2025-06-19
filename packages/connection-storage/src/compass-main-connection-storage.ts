@@ -345,7 +345,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       return legacyConnections.map((x) => ({
         name: x.name!,
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }

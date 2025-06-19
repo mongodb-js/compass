@@ -1,34 +1,26 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import ShellInfoModal from './shell-info-modal';
 
 describe('InfoModal [Component]', function () {
-  let component;
-
   beforeEach(function () {
-    component = mount(
+    render(
       <ShellInfoModal show hideInfoModal={() => {}} mongoshVersion="v2.3.456" />
     );
   });
 
-  afterEach(function () {
-    component = null;
-  });
-
   it('renders the title text', function () {
-    const title = component.find('h1').text();
-    expect(title).to.match(/^mongosh v2\.\d+\.\d+/);
+    expect(screen.getByText(/^mongosh v2\.\d+\.\d+/)).to.be.visible;
   });
 
   it('renders the hotkeys key', function () {
-    expect(component.text()).to.include('CtrlF');
+    expect(screen.getAllByText('Ctrl').at(0)).to.be.visible;
   });
 
   it('renders the hotkeys description', function () {
-    expect(component.text()).to.include(
-      'CtrlFMoves the cursor Forward one character.'
-    );
+    expect(screen.getByText('Moves the cursor Forward one character.')).to.be
+      .visible;
   });
 });

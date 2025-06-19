@@ -134,14 +134,14 @@ class FullWidthCellRenderer extends React.Component<
           onUpdate={(force) => {
             this.props.api.stopEditing();
             if (force) {
-              this.props.replaceDocument(this.doc);
+              void this.props.replaceDocument(this.doc);
             } else {
-              this.props.updateDocument(this.doc);
+              void this.props.updateDocument(this.doc);
             }
           }}
           onDelete={() => {
             this.props.api.stopEditing();
-            this.props.removeDocument(this.doc);
+            void this.props.removeDocument(this.doc);
           }}
           onCancel={() => {
             if (this.state.mode === 'editing') {

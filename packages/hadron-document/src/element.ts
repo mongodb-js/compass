@@ -465,7 +465,7 @@ export class Element extends EventEmitter {
   _isObjectIdEqual(): boolean {
     try {
       return (this.value as ObjectId).toHexString() === this.currentValue;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
