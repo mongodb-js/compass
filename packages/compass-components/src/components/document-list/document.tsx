@@ -10,7 +10,7 @@ import {
   ElementEvents,
 } from 'hadron-document';
 import { AutoFocusContext } from './auto-focus-context';
-import { useForceUpdate } from './use-force-update';
+import { useForceUpdate } from '../../hooks/use-force-update';
 import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';

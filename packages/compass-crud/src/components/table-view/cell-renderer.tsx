@@ -1,10 +1,4 @@
-import React, {
-  useMemo,
-  useCallback,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import {
   BSONValue,
   css,
@@ -13,6 +7,7 @@ import {
   LeafyGreenProvider,
   spacing,
   withDarkMode,
+  useForceUpdate,
 } from '@mongodb-js/compass-components';
 import { type Document, Element } from 'hadron-document';
 import type { ICellRendererParams } from 'ag-grid-community';
@@ -90,6 +85,21 @@ const decrypdedIconStyles = css({
   display: 'flex',
 });
 
+const getElementLength = (
+  element: Element | undefined | null
+): number | undefined => {
+  if (!element) {
+    return undefined;
+  }
+
+  if (element.currentType === 'Object') {
+    return Object.keys(element.generateObject() as object).length;
+  }
+  if (element.currentType === 'Array' && element.elements) {
+    return element.elements.size;
+  }
+};
+
 interface CellContentProps {
   element: Element | undefined | null;
   cellState:
@@ -110,7 +120,7 @@ const CellContent: React.FC<CellContentProps> = ({
   onUndo,
   onExpand,
 }) => {
-  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  const forceUpdate = useForceUpdate();
   const isEmpty = element === undefined || element === null;
   const handleElementEvent = useCallback(() => {
     forceUpdate();
@@ -133,18 +143,7 @@ const CellContent: React.FC<CellContentProps> = ({
     }
   }, [isEmpty, element, handleElementEvent]);
 
-  const elementLength = useMemo((): number | undefined => {
-    if (!element) {
-      return undefined;
-    }
-
-    if (element.currentType === 'Object') {
-      return Object.keys(element.generateObject() as object).length;
-    }
-    if (element.currentType === 'Array' && element.elements) {
-      return element.elements.size;
-    }
-  }, [element]);
+  const elementLength = getElementLength(element);
 
   const renderContent = useCallback(() => {
     if (cellState === EMPTY || !element) {
@@ -183,7 +182,6 @@ const CellContent: React.FC<CellContentProps> = ({
       }
     } else {
       elementContent = (
-        //@ts-expect-error Types for this are currently not consistent
         <BSONValue type={element.currentType} value={element.currentValue} />
       );
     }
@@ -204,7 +202,14 @@ const CellContent: React.FC<CellContentProps> = ({
         </div>
       </div>
     );
-  }, [element, elementLength, cellState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    element,
+    element?.currentType,
+    element?.currentValue,
+    elementLength,
+    cellState,
+  ]);
 
   const canUndo =
     cellState === ADDED ||
@@ -355,22 +360,18 @@ const CellRenderer: React.FC<CellRendererProps> = ({
     // `ag-grid` renders this component outside of the context chain
     // so we re-supply the dark mode theme here.
     <LeafyGreenProvider darkMode={darkMode}>
-      <div>
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
-        <div
-          className={
-            cellState === VALID ? BEM_BASE : `${BEM_BASE}-${cellState}`
-          }
-          onClick={handleClicked}
-          role="button"
-        >
-          <CellContent
-            element={element}
-            cellState={cellState}
-            onUndo={handleUndo}
-            onExpand={handleDrillDown}
-          />
-        </div>
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
+      <div
+        className={cellState === VALID ? BEM_BASE : `${BEM_BASE}-${cellState}`}
+        onClick={handleClicked}
+        role="button"
+      >
+        <CellContent
+          element={element}
+          cellState={cellState}
+          onUndo={handleUndo}
+          onExpand={handleDrillDown}
+        />
       </div>
     </LeafyGreenProvider>
   );
