@@ -4,7 +4,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -40,8 +39,8 @@ describe('Data Modeling tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setFeature('enableDataModeling', true);
     await browser.setupDefaultConnections();
+    await browser.setFeature('enableDataModeling', true);
   });
 
   beforeEach(async function () {
