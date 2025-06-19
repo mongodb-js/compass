@@ -79,7 +79,7 @@
     "@mongodb-js/my-queries-storage": "^0.28.0",
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.41.0",
-    "hadron-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "lodash": "^4.17.21",
     "mongodb": "^6.16.0",
     "mongodb-instance-model": "^12.33.0",

@@ -8,6 +8,7 @@ ignores:
   # dependency will introduce a circular one in our dependency tree, as it's only
   # used for testing and doesn't require compilation, we're escaping the
   # recursiveness issue by just not including those in the package.json
+  - '@mongodb-js/compass-app-registry'
   - '@mongodb-js/compass-logging'
   - '@mongodb-js/compass-telemetry'
   - '@mongodb-js/connection-info'
@@ -15,7 +16,6 @@ ignores:
   - '@mongodb-js/compass-components'
   - '@mongodb-js/connection-storage'
   - 'compass-preferences-model'
-  - 'hadron-app-registry'
   - 'mongodb-data-service'
 ignore-patterns:
   - 'dist'

@@ -256,7 +256,7 @@
     "electron-mocha": "^12.2.0",
     "ensure-error": "^3.0.1",
     "glob": "^10.2.5",
-    "hadron-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "hadron-build": "^25.8.2",
     "hadron-ipc": "^3.5.2",
     "make-fetch-happen": "^10.2.1",

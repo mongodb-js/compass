@@ -127,7 +127,7 @@ type Services<S extends Record<string, () => unknown>> = {
   [SvcName in keyof S]: ReturnType<S[SvcName]>;
 };
 
-export type HadronPluginConfig<
+export type CompassPluginConfig<
   T,
   S extends Record<string, () => unknown>,
   A extends Plugin
@@ -188,7 +188,7 @@ export function createServiceLocator<
       if (!serviceLocationInProgress) {
         throw new Error(
           `Using service locator function "${name}" outside of the service location lifecycle. ` +
-            `Make sure that service locator function is passed as a second argument to the registerHadronPlugin method and is not used directly in a React render method.`
+            `Make sure that service locator function is passed as a second argument to the registerCompassPlugin method and is not used directly in a React render method.`
         );
       }
       return fn.call(this, ...args);
@@ -202,7 +202,7 @@ export function createServiceLocator<
  * need access to other service locators to facilitate service injections. In
  * these cases service provider can be wrapped with the createServiceProvider
  * function to allow usage of serviceLocator functions in providers outside of
- * the usual hadron plugin "activate" lifecycle.
+ * the usual compass plugin "activate" lifecycle.
  */
 export function createServiceProvider<T extends React.FunctionComponent<any>>(
   fn: T
@@ -226,12 +226,12 @@ function isServiceLocator(val: any): boolean {
   return Object.prototype.hasOwnProperty.call(val, kLocator);
 }
 
-function useHadronPluginActivate<
+function useCompassPluginActivate<
   T,
   S extends Record<string, () => unknown>,
   A extends Plugin
 >(
-  config: HadronPluginConfig<T, S, A>,
+  config: CompassPluginConfig<T, S, A>,
   services: S | undefined,
   props: T,
   mockOptions?: MockOptions
@@ -306,7 +306,7 @@ function useHadronPluginActivate<
   return { store, actions, context };
 }
 
-export type HadronPluginComponent<
+export type CompassPluginComponent<
   T,
   S extends Record<string, () => unknown>,
   A extends Plugin
@@ -320,7 +320,7 @@ export type HadronPluginComponent<
    * first render in their lifecycle
    *
    * @example
-   * const Plugin = registerHadronPlugin(...);
+   * const Plugin = registerCompassPlugin(...);
    *
    * function Component() {
    *   Plugin.useActivate();
@@ -338,7 +338,7 @@ export type HadronPluginComponent<
    * registries available in the plugin context
    *
    * @example
-   * const PluginWithLogger = registerHadronPlugin({ ... }, { logger: loggerLocator });
+   * const PluginWithLogger = registerCompassPlugin({ ... }, { logger: loggerLocator });
    *
    * const MockPlugin = PluginWithLogger.withMockServices({ logger: Sinon.stub() });
    *
@@ -351,20 +351,20 @@ export type HadronPluginComponent<
   withMockServices(
     mocks: Partial<Registries & Services<S>>,
     options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-  ): HadronPluginComponent<T, S, A>;
+  ): CompassPluginComponent<T, S, A>;
 };
 
 /**
- * Creates a hadron plugin that will be automatically activated on first render
+ * Creates a compass plugin that will be automatically activated on first render
  * and cleaned up when localAppRegistry unmounts
  *
- * @param config Hadron plugin configuration
+ * @param config Compass plugin configuration
  * @param services Map of service locator functions that plugin depends on
  *
- * @returns Hadron plugin component
+ * @returns Compass plugin component
  *
  * @example
- * const CreateCollectionPlugin = registerHadronPlugin({
+ * const CreateCollectionPlugin = registerCompassPlugin({
  *   name: 'CreateCollection',
  *   component: CreateCollectionModal,
  *   activate(opts, { globalAppRegistry }) {
@@ -399,7 +399,7 @@ export type HadronPluginComponent<
  * // plugin.js
  * import { logging } from '@mongodb-js/compass-logging/provider'
  *
- * const PluginWithLogger = registerHadronPlugin({
+ * const PluginWithLogger = registerCompassPlugin({
  *   name: 'LoggingPlugin',
  *   component: () => null,
  *   activate(opts, { logging }) {
@@ -407,14 +407,14 @@ export type HadronPluginComponent<
  *   }
  * }, { logging })
  */
-export function registerHadronPlugin<
+export function registerCompassPlugin<
   T,
   S extends Record<string, () => unknown>,
   A extends Plugin
 >(
-  config: HadronPluginConfig<T, S, A>,
+  config: CompassPluginConfig<T, S, A>,
   services?: S
-): HadronPluginComponent<T, S, A> {
+): CompassPluginComponent<T, S, A> {
   const Component = config.component;
   const Plugin = (props: React.PropsWithChildren<T>) => {
     const isMockedEnvironment = useMockOption('mockedEnvironment');
@@ -437,7 +437,7 @@ export function registerHadronPlugin<
     // thinks so: values returned by `useMock*` hooks are constant in React
     // runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { store, actions, context } = useHadronPluginActivate(
+    const { store, actions, context } = useCompassPluginActivate(
       config,
       services,
       props
@@ -460,12 +460,12 @@ export function registerHadronPlugin<
   return Object.assign(Plugin, {
     displayName: config.name,
     useActivate: (props: T): A => {
-      return useHadronPluginActivate(config, services, props) as A;
+      return useCompassPluginActivate(config, services, props) as A;
     },
     withMockServices(
       mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-    ): HadronPluginComponent<T, S, A> {
+    ): CompassPluginComponent<T, S, A> {
       const {
         // In case globalAppRegistry mock is not provided, we use the one
         // created in scope so that plugins don't leak their events and
@@ -513,7 +513,7 @@ export function registerHadronPlugin<
       return Object.assign(MockPluginWithContext, {
         displayName: config.name,
         useActivate: (props: T): A => {
-          return useHadronPluginActivate(
+          return useCompassPluginActivate(
             config,
             services,
             props,

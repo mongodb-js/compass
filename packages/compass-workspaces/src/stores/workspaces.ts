@@ -1,7 +1,7 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
 import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
 import type { WorkspaceTab, WorkspaceTabProps } from '../types';

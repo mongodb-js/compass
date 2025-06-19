@@ -57,7 +57,7 @@
     "@mongodb-js/shell-bson-parser": "^1.2.0",
     "bson-transpilers": "^3.2.10",
     "compass-preferences-model": "^2.41.0",
-    "hadron-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
