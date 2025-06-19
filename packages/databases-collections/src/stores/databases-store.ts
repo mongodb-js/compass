@@ -5,10 +5,10 @@ import databasesReducer, {
   databasesChanged,
   instanceChanged,
 } from '../modules/databases';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 type DatabasesTabServices = {
   globalAppRegistry: AppRegistry;
@@ -16,8 +16,11 @@ type DatabasesTabServices = {
   dataService: DataService;
 };
 
+type DatabasesPluginInitialProps = {
+  children?: React.ReactNode;
+};
 export function activatePlugin(
-  _initialProps: Record<string, never>,
+  _initialProps: DatabasesPluginInitialProps,
   { globalAppRegistry, instance, dataService }: DatabasesTabServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {

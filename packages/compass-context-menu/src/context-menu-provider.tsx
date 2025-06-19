@@ -16,10 +16,10 @@ export const ContextMenuContext = createContext<ContextMenuContextType | null>(
 
 export function ContextMenuProvider({
   children,
-  wrapper,
+  menuWrapper,
 }: {
   children: React.ReactNode;
-  wrapper: React.ComponentType<{
+  menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
   }>;
 }) {
@@ -43,10 +43,8 @@ export function ContextMenuProvider({
   );
 
   useEffect(() => {
-    // If there's a parent provider, don't add event listeners
-    if (parentContext) {
-      return;
-    }
+    // Don't set up event listeners if we have a parent context
+    if (parentContext) return;
 
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
@@ -84,14 +82,12 @@ export function ContextMenuProvider({
     [close]
   );
 
-  // Prevent accidental nested providers
+  // If we have a parent context, just render children without the wrapper
   if (parentContext) {
-    throw new Error(
-      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
-    );
+    return <>{children}</>;
   }
 
-  const Wrapper = wrapper ?? React.Fragment;
+  const Wrapper = menuWrapper ?? React.Fragment;
 
   return (
     <ContextMenuContext.Provider value={value}>

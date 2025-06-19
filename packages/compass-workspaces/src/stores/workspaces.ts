@@ -1,21 +1,10 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from 'mongodb-ns';
-import type {
-  CollectionWorkspace,
-  CollectionsWorkspace,
-  DatabasesWorkspace,
-  MyQueriesWorkspace,
-  DataModelingWorkspace,
-  ShellWorkspace,
-  ServerStatsWorkspace,
-  WelcomeWorkspace,
-  Workspace,
-  WorkspacesServices,
-  CollectionSubtab,
-} from '..';
+import type { Workspace, WorkspacesServices, CollectionSubtab } from '..';
+import type { WorkspaceTab, WorkspaceTabProps } from '../types';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 import {
@@ -82,22 +71,6 @@ function isAction<A extends AnyAction>(
 ): action is A {
   return action.type === type;
 }
-
-type WorkspaceTabProps =
-  | Omit<WelcomeWorkspace, 'tabId'>
-  | Omit<MyQueriesWorkspace, 'tabId'>
-  | Omit<DataModelingWorkspace, 'tabId'>
-  | Omit<ShellWorkspace, 'tabId'>
-  | Omit<ServerStatsWorkspace, 'tabId'>
-  | Omit<DatabasesWorkspace, 'tabId'>
-  | Omit<CollectionsWorkspace, 'tabId'>
-  | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab' | 'tabId'> & {
-      subTab: CollectionSubtab;
-    });
-
-export type WorkspaceTab = {
-  id: string;
-} & WorkspaceTabProps;
 
 export type CollectionTabInfo = {
   isTimeSeries: boolean;

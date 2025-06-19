@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';

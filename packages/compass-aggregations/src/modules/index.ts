@@ -40,7 +40,7 @@ import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';

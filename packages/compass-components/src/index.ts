@@ -38,7 +38,11 @@ export {
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
-export { type TabTheme } from './components/workspace-tabs/tab';
+export {
+  Tab as WorkspaceTab,
+  type TabTheme,
+  type WorkspaceTabCoreProps,
+} from './components/workspace-tabs/tab';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,

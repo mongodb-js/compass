@@ -10,7 +10,7 @@ import {
   createDefaultConnectionInfo,
 } from '@mongodb-js/testing-library-compass';
 import { RenameCollectionPlugin } from '../..';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 describe('RenameCollectionModal [Component]', function () {
   const connectionId = '12345';

@@ -1,10 +1,17 @@
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  userEvent,
+  testingLibrary,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { ContextMenuItem, ContextMenuWrapperProps } from './types';
+
+// We need to import from testing-library-compass directly to avoid the extra wrapping.
+const { render } = testingLibrary;
 
 describe('useContextMenu', function () {
   const TestMenu: React.FC<ContextMenuWrapperProps> = ({ menu }) => (
@@ -136,7 +143,7 @@ describe('useContextMenu', function () {
 
     it('renders without error', function () {
       render(
-        <ContextMenuProvider wrapper={TestMenu}>
+        <ContextMenuProvider menuWrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );
@@ -148,7 +155,7 @@ describe('useContextMenu', function () {
       const onRegister = sinon.spy();
 
       render(
-        <ContextMenuProvider wrapper={TestMenu}>
+        <ContextMenuProvider menuWrapper={TestMenu}>
           <TestComponent onRegister={onRegister} />
         </ContextMenuProvider>
       );
@@ -159,7 +166,7 @@ describe('useContextMenu', function () {
 
     it('shows context menu on right click', function () {
       render(
-        <ContextMenuProvider wrapper={TestMenu}>
+        <ContextMenuProvider menuWrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );
@@ -174,7 +181,7 @@ describe('useContextMenu', function () {
     describe('with nested context menus', function () {
       it('shows only parent items when right clicking parent area', function () {
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <ParentComponent />
           </ContextMenuProvider>
         );
@@ -193,7 +200,7 @@ describe('useContextMenu', function () {
 
       it('shows both parent and child items when right clicking child area', function () {
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <ParentComponent>
               <ChildComponent />
             </ParentComponent>
@@ -215,7 +222,7 @@ describe('useContextMenu', function () {
         const childOnAction = sinon.spy();
 
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <ParentComponent onAction={parentOnAction}>
               <ChildComponent onAction={childOnAction} />
             </ParentComponent>
@@ -238,7 +245,7 @@ describe('useContextMenu', function () {
         const childOnAction = sinon.spy();
 
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <ParentComponent onAction={parentOnAction}>
               <ChildComponent onAction={childOnAction} />
             </ParentComponent>

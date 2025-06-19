@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { AggregationsPlugin } from './plugin';
 import { activateAggregationsPlugin } from './stores/store';
 import { Aggregations } from './components/aggregations';
@@ -29,7 +29,7 @@ import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provide
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 import { AggregationsTabTitle } from './plugin-title';
 
-const CompassAggregationsHadronPlugin = registerHadronPlugin(
+const CompassAggregationsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassAggregations',
     component: function AggregationsProvider({ children }) {
@@ -58,12 +58,12 @@ const CompassAggregationsHadronPlugin = registerHadronPlugin(
 
 export const CompassAggregationsPlugin = {
   name: 'Aggregations' as const,
-  provider: CompassAggregationsHadronPlugin,
+  provider: CompassAggregationsPluginProvider,
   content: AggregationsPlugin,
   header: AggregationsTabTitle,
 };
 
-export const CreateViewPlugin = registerHadronPlugin(
+export const CreateViewPlugin = registerCompassPlugin(
   {
     name: 'CreateView',
     component: CreateViewModal,
