@@ -18,7 +18,7 @@ describe('useContextMenuItems', function () {
     children?: React.ReactNode;
     'data-testid'?: string;
   }) => {
-    const ref = useContextMenuItems(items);
+    const ref = useContextMenuItems(() => items, [items]);
 
     return (
       <div data-testid={dataTestId} ref={ref}>

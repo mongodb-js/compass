@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
 import type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
 import { useContextMenu } from '@mongodb-js/compass-context-menu';
@@ -88,8 +88,10 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
 }
 
 export function useContextMenuItems(
-  items: ContextMenuItem[]
+  getItems: () => ContextMenuItem[],
+  dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
+  const memoizedItems = useMemo(getItems, dependencies);
   const contextMenu = useContextMenu();
-  return contextMenu.registerItems(items);
+  return contextMenu.registerItems(memoizedItems);
 }
