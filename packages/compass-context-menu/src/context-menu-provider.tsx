@@ -6,23 +6,25 @@ import React, {
   createContext,
   useContext,
 } from 'react';
-import type { ContextMenuContext, ContextMenuState } from './types';
+import type { ContextMenuContextType, ContextMenuState } from './types';
 import type { EnhancedMouseEvent } from './context-menu-content';
 import { getContextMenuContent } from './context-menu-content';
 
-export const Context = createContext<ContextMenuContext | null>(null);
+export const ContextMenuContext = createContext<ContextMenuContextType | null>(
+  null
+);
 
 export function ContextMenuProvider({
   children,
-  wrapper,
+  menuWrapper,
 }: {
   children: React.ReactNode;
-  wrapper: React.ComponentType<{
+  menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
   }>;
 }) {
   // Check if there's already a parent context menu provider
-  const parentContext = useContext(Context);
+  const parentContext = useContext(ContextMenuContext);
 
   // Prevent accidental nested providers
   if (parentContext) {
@@ -84,12 +86,12 @@ export function ContextMenuProvider({
     [close]
   );
 
-  const Wrapper = wrapper ?? React.Fragment;
+  const Wrapper = menuWrapper ?? React.Fragment;
 
   return (
-    <Context.Provider value={value}>
+    <ContextMenuContext.Provider value={value}>
       {children}
       <Wrapper menu={{ ...menu, close }} />
-    </Context.Provider>
+    </ContextMenuContext.Provider>
   );
 }
