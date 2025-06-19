@@ -91,6 +91,7 @@ export function useContextMenuItems(
   getItems: () => ContextMenuItem[],
   dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoizedItems = useMemo(getItems, dependencies);
   const contextMenu = useContextMenu();
   return contextMenu.registerItems(memoizedItems);
