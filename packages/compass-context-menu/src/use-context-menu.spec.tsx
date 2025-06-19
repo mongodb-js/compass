@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import { render } from './render';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { useContextMenu } from './use-context-menu';

@@ -6,7 +6,7 @@ import { ContextMenuProvider as ContextMenuProviderBase } from '@mongodb-js/comp
 import type {
   ContextMenuItemGroup,
   ContextMenuWrapperProps,
-} from '@mongodb-js/compass-context-menu/dist/types';
+} from '@mongodb-js/compass-context-menu';
 
 export function ContextMenuProvider({
   children,

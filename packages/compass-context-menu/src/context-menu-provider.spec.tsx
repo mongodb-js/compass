@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@mongodb-js/testing-library-compass';
+import { render } from './render';
 import { expect } from 'chai';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { ContextMenuWrapperProps } from './types';
