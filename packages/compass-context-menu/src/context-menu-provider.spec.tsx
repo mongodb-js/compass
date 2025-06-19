@@ -17,20 +17,23 @@ describe('ContextMenuProvider', function () {
   );
 
   describe('when nested', function () {
-    it('throws an error when providers are nested', function () {
-      expect(() => {
-        render(
-          <ContextMenuProvider menuWrapper={TestMenu}>
-            <div>
-              <ContextMenuProvider menuWrapper={TestMenu}>
-                <TestComponent />
-              </ContextMenuProvider>
-            </div>
-          </ContextMenuProvider>
-        );
-      }).to.throw(
-        'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+    it('uses parent provider and does not render duplicate menu wrapper', function () {
+      const { container } = render(
+        <ContextMenuProvider menuWrapper={TestMenu}>
+          <div>
+            <ContextMenuProvider menuWrapper={TestMenu}>
+              <TestComponent />
+            </ContextMenuProvider>
+          </div>
+        </ContextMenuProvider>
       );
+
+      // Should only find one test-menu element (from the parent provider)
+      expect(
+        container.querySelectorAll('[data-testid="test-menu"]')
+      ).to.have.length(1);
+      // Should still render the content
+      expect(container.querySelector('[data-testid="test-content"]')).to.exist;
     });
   });
 

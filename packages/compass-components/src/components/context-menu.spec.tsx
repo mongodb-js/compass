@@ -28,7 +28,7 @@ describe('useContextMenuItems', function () {
     );
   };
 
-  it('errors if the component is double wrapped', function () {
+  it('works with nested providers, using the parent provider', function () {
     const items = [
       {
         label: 'Test Item',
@@ -36,15 +36,20 @@ describe('useContextMenuItems', function () {
       },
     ];
 
-    expect(() => {
-      render(
+    const { container } = render(
+      <ContextMenuProvider menuWrapper={ContextMenu}>
         <ContextMenuProvider menuWrapper={ContextMenu}>
           <TestComponent items={items} />
         </ContextMenuProvider>
-      );
-    }).to.throw(
-      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+      </ContextMenuProvider>
     );
+
+    // Should only find one context menu (from the parent provider)
+    expect(
+      container.querySelectorAll('[data-testid="context-menu"]')
+    ).to.have.length(1);
+    // Should still render the trigger
+    expect(screen.getByTestId(menuTestTriggerId)).to.exist;
   });
 
   it('renders without error', function () {
