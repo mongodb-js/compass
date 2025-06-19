@@ -4,6 +4,7 @@ import React, {
   useState,
   useMemo,
   createContext,
+  useContext,
 } from 'react';
 import type { ContextMenuContextType, ContextMenuState } from './types';
 import type { EnhancedMouseEvent } from './context-menu-content';
@@ -22,6 +23,16 @@ export function ContextMenuProvider({
     menu: ContextMenuState & { close: () => void };
   }>;
 }) {
+  // Check if there's already a parent context menu provider
+  const parentContext = useContext(ContextMenuContext);
+
+  // Prevent accidental nested providers
+  if (parentContext) {
+    throw new Error(
+      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+    );
+  }
+
   const [menu, setMenu] = useState<ContextMenuState>({
     isOpen: false,
     itemGroups: [],
