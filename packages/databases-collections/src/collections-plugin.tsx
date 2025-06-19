@@ -4,7 +4,7 @@ import {
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -13,7 +13,7 @@ import {
 
 export const CollectionsWorkspaceName = 'Collections' as const;
 
-export const CollectionsPlugin = registerHadronPlugin(
+export const CollectionsPlugin = registerCompassPlugin(
   {
     name: 'Collections' as const,
     component: function CollectionsProvider({ children }) {

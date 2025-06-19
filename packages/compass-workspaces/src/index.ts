@@ -1,6 +1,6 @@
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type {
   OpenWorkspaceOptions,
   CollectionTabInfo,
@@ -221,7 +221,7 @@ export function activateWorkspacePlugin(
   };
 }
 
-const WorkspacesPlugin = registerHadronPlugin(
+const WorkspacesPlugin = registerCompassPlugin(
   {
     name: 'Workspaces',
     component: Workspaces,

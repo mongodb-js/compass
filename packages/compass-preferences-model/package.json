@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.40.2",
+  "version": "2.41.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -52,9 +52,9 @@
     "@mongodb-js/compass-logging": "^1.7.2",
     "@mongodb-js/compass-user-data": "^0.7.2",
     "@mongodb-js/devtools-proxy-support": "^0.4.4",
-    "@mongodb-js/compass-components": "^1.38.1",
+    "@mongodb-js/compass-components": "^1.39.0",
     "bson": "^6.10.3",
-    "hadron-app-registry": "^9.4.11",
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "hadron-ipc": "^3.5.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",

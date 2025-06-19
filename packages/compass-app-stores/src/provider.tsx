@@ -5,7 +5,7 @@ import {
 import {
   createServiceLocator,
   createServiceProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import React, {

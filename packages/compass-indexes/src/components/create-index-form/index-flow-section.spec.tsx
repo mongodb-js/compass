@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import IndexFlowSection from './index-flow-section';
 import { expect } from 'chai';
-import type { Field } from '../../modules/create-index';
+import { ActionTypes, type Field } from '../../modules/create-index';
 import { Provider } from 'react-redux';
 import { setupStore } from '../../../test/setup-store';
 
@@ -85,7 +85,15 @@ describe('IndexFlowSection', () => {
 
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -133,7 +141,16 @@ describe('IndexFlowSection', () => {
 
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -179,7 +196,15 @@ describe('IndexFlowSection', () => {
 
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+      });
     });
 
     it('renders the covered queries examples', () => {
@@ -208,7 +233,15 @@ describe('IndexFlowSection', () => {
 
     beforeEach(() => {
       renderComponent({ fields });
+
       screen.getByTestId('index-flow-section-covered-queries-button').click();
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields,
+      });
+      store.dispatch({
+        type: ActionTypes.CoveredQueriesFetched,
+      });
     });
 
     it('renders the covered queries examples', () => {

@@ -6,7 +6,7 @@ import {
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';

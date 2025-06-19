@@ -24,6 +24,7 @@ export function installWindowsSetup({
   kind,
   filepath,
   buildInfo,
+  sandboxPath,
 }: InstallablePackage): InstalledAppInfo {
   assert.equal(kind, 'windows_setup');
   const appName = buildInfo.installerOptions.name;
@@ -62,7 +63,18 @@ export function installWindowsSetup({
       debug(`Running command to uninstall: ${uninstallCommand}`);
       cp.execSync(uninstallCommand, { stdio: 'inherit' });
       // Removing the any remaining files manually
-      fs.rmSync(installLocation, { recursive: true, force: true });
+      try {
+        if (fs.existsSync(installLocation)) {
+          debug(`Removing installer: ${installLocation}`);
+          fs.rmSync(installLocation, { recursive: true, force: true });
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to remove install location ${installLocation}: ${
+            error instanceof Error ? error.message : error
+          }`
+        );
+      }
     }
   }
 
@@ -72,7 +84,20 @@ export function installWindowsSetup({
   console.warn(
     "Installing globally, since we haven't discovered a way to specify an install path"
   );
-  execute(filepath, []);
+  execute(
+    filepath,
+    [
+      // Args are passed through to the Update.exe https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/winmain.cpp#L125
+      // See options in https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Update/StartupOption.cs
+      '--silent',
+    ],
+    {
+      env: {
+        // See https://github.com/Squirrel/Squirrel.Windows/blob/51f5e2cb01add79280a53d51e8d0cfa20f8c9f9f/src/Setup/UpdateRunner.cpp#L173C40-L173C54
+        SQUIRREL_TEMP: sandboxPath,
+      },
+    }
+  );
 
   const entry = queryRegistry();
   assert(entry !== null, 'Expected an entry in the registry after installing');
@@ -84,6 +109,7 @@ export function installWindowsSetup({
   const appExecutablePath = path.resolve(appPath, `${appName}.exe`);
 
   // Check if the app executable exists after installing
+  debug('Using app executable path: %s', appExecutablePath);
   assert(
     fs.existsSync(appExecutablePath),
     `Expected ${appExecutablePath} to exist`

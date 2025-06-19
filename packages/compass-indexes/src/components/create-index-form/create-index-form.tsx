@@ -65,7 +65,6 @@ function CreateIndexForm({
   onRemoveFieldClick,
   onTabClick,
   showIndexesGuidanceVariant,
-  query,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
   const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
@@ -93,9 +92,6 @@ function CreateIndexForm({
     showIndexesGuidanceVariant && currentTab === 'IndexFlow';
   const showIndexesGuidanceQueryFlow =
     showIndexesGuidanceVariant && currentTab === 'QueryFlow';
-  const [inputQuery, setInputQuery] = React.useState(
-    query ? JSON.stringify(query, null, 2) : ''
-  );
 
   const { database: dbName, collection: collectionName } = toNS(namespace);
 
@@ -180,9 +176,6 @@ function CreateIndexForm({
           serverVersion={serverVersion}
           dbName={dbName}
           collectionName={collectionName}
-          initialQuery={query}
-          inputQuery={inputQuery}
-          setInputQuery={setInputQuery}
         />
       )}
 

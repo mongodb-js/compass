@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import { activatePlugin } from './query-bar-store';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { AppRegistry } from 'hadron-app-registry';
+import { AppRegistry } from '@mongodb-js/compass-app-registry';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { expect } from 'chai';

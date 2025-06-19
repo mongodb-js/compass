@@ -4,8 +4,8 @@ import type { QueryExpression, InputExpression } from '../modules/transpiler';
 import { isValidExportMode } from '../modules/transpiler';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
-import type AppRegistry from 'hadron-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 function isAction<A extends Action>(
   action: Action,

@@ -1,8 +1,11 @@
 import React from 'react';
-import { render } from '@mongodb-js/testing-library-compass';
+import { testingLibrary } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { ContextMenuProvider } from './context-menu-provider';
 import type { ContextMenuWrapperProps } from './types';
+
+// We need to import from testing-library-compass directly to avoid the extra wrapping.
+const { render } = testingLibrary;
 
 describe('ContextMenuProvider', function () {
   const TestMenu: React.FC<ContextMenuWrapperProps> = () => (
@@ -17,9 +20,9 @@ describe('ContextMenuProvider', function () {
     it('throws an error when providers are nested', function () {
       expect(() => {
         render(
-          <ContextMenuProvider wrapper={TestMenu}>
+          <ContextMenuProvider menuWrapper={TestMenu}>
             <div>
-              <ContextMenuProvider wrapper={TestMenu}>
+              <ContextMenuProvider menuWrapper={TestMenu}>
                 <TestComponent />
               </ContextMenuProvider>
             </div>
@@ -34,7 +37,7 @@ describe('ContextMenuProvider', function () {
   describe('when not nested', function () {
     it('renders without error', function () {
       render(
-        <ContextMenuProvider wrapper={TestMenu}>
+        <ContextMenuProvider menuWrapper={TestMenu}>
           <TestComponent />
         </ContextMenuProvider>
       );

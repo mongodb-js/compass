@@ -1,7 +1,10 @@
 {
-  "name": "hadron-app-registry",
-  "description": "Hadron App Registry",
-  "author": "Durran Jordan <durran@gmail.com>",
+  "name": "@mongodb-js/compass-app-registry",
+  "description": "Compass App Registry",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"

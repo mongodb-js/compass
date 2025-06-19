@@ -22,7 +22,7 @@ import {
   collectionModelLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
@@ -34,7 +34,7 @@ import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { CrudTabTitle } from './plugin-title';
 
-const CompassDocumentsHadronPlugin = registerHadronPlugin(
+const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassDocuments',
     component: function CrudProvider({ children, ...props }) {
@@ -71,7 +71,7 @@ const CompassDocumentsHadronPlugin = registerHadronPlugin(
 
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
-  provider: CompassDocumentsHadronPlugin,
+  provider: CompassDocumentsPluginProvider,
   content: DocumentList as any, // as any because of reflux store
   header: CrudTabTitle as any, // as any because of reflux store
 };

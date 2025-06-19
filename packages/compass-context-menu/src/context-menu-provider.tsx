@@ -6,23 +6,32 @@ import React, {
   createContext,
   useContext,
 } from 'react';
-import type { ContextMenuContext, ContextMenuState } from './types';
+import type { ContextMenuContextType, ContextMenuState } from './types';
 import type { EnhancedMouseEvent } from './context-menu-content';
 import { getContextMenuContent } from './context-menu-content';
 
-export const Context = createContext<ContextMenuContext | null>(null);
+export const ContextMenuContext = createContext<ContextMenuContextType | null>(
+  null
+);
 
 export function ContextMenuProvider({
   children,
-  wrapper,
+  menuWrapper,
 }: {
   children: React.ReactNode;
-  wrapper: React.ComponentType<{
+  menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
   }>;
 }) {
   // Check if there's already a parent context menu provider
-  const parentContext = useContext(Context);
+  const parentContext = useContext(ContextMenuContext);
+
+  // Prevent accidental nested providers
+  if (parentContext) {
+    throw new Error(
+      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
+    );
+  }
 
   const [menu, setMenu] = useState<ContextMenuState>({
     isOpen: false,
@@ -41,11 +50,6 @@ export function ContextMenuProvider({
   );
 
   useEffect(() => {
-    // If there's a parent provider, don't add event listeners
-    if (parentContext) {
-      return;
-    }
-
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
 
@@ -73,7 +77,7 @@ export function ContextMenuProvider({
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
     };
-  }, [handleClosingEvent, parentContext]);
+  }, [handleClosingEvent]);
 
   const value = useMemo(
     () => ({
@@ -82,19 +86,12 @@ export function ContextMenuProvider({
     [close]
   );
 
-  // Prevent accidental nested providers
-  if (parentContext) {
-    throw new Error(
-      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
-    );
-  }
-
-  const Wrapper = wrapper ?? React.Fragment;
+  const Wrapper = menuWrapper ?? React.Fragment;
 
   return (
-    <Context.Provider value={value}>
+    <ContextMenuContext.Provider value={value}>
       {children}
       <Wrapper menu={{ ...menu, close }} />
-    </Context.Provider>
+    </ContextMenuContext.Provider>
   );
 }

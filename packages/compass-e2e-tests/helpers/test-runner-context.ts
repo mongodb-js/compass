@@ -49,9 +49,9 @@ function buildCommonArgs(yargs: Argv) {
     .option('mocha-timeout', {
       type: 'number',
       description: 'Set a custom default mocha timeout',
-      // Kinda arbitrary, but longer than webdriver-waitfor-timeout so the test
-      // can fail before Mocha times out
-      default: 240_000,
+      // 4min, kinda arbitrary, but longer than webdriver-waitfor-timeout so the
+      // test can fail before Mocha times out
+      default: 1000 * 60 * 4,
     })
     .option('mocha-bail', {
       type: 'boolean',
