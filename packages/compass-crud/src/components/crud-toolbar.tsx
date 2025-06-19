@@ -203,75 +203,95 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
   const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
 
-  const contextMenuRef = useContextMenuItems([
-    {
-      label: allDocumentsExpanded
-        ? 'Collapse all documents'
-        : 'Expand all documents',
-      onAction: () => {
-        allDocumentsExpanded ? onCollapseAllClicked() : onExpandAllClicked();
-        setAllDocumentsExpanded(!allDocumentsExpanded);
+  const contextMenuRef = useContextMenuItems(
+    () => [
+      {
+        label: allDocumentsExpanded
+          ? 'Collapse all documents'
+          : 'Expand all documents',
+        onAction: () => {
+          if (allDocumentsExpanded) {
+            onCollapseAllClicked();
+          } else {
+            onExpandAllClicked();
+          }
+          setAllDocumentsExpanded(!allDocumentsExpanded);
+        },
       },
-    },
-    ...(isImportExportEnabled
-      ? [
-          {
-            label: 'Import JSON or CSV file',
-            onAction: () => {
-              insertDataHandler('import-file');
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Import JSON or CSV file',
+              onAction: () => {
+                insertDataHandler('import-file');
+              },
             },
-          },
-        ]
-      : []),
-    ...(!readonly
-      ? [
-          {
-            label: 'Insert document...',
-            onAction: () => {
-              insertDataHandler('insert-document');
+          ]
+        : []),
+      ...(!readonly
+        ? [
+            {
+              label: 'Insert document...',
+              onAction: () => {
+                insertDataHandler('insert-document');
+              },
             },
-          },
-        ]
-      : []),
-    ...(isImportExportEnabled
-      ? [
-          {
-            label: 'Export query results...',
-            onAction: () => {
-              openExportFileDialog(false);
+          ]
+        : []),
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Export query results...',
+              onAction: () => {
+                openExportFileDialog(false);
+              },
             },
-          },
-          {
-            label: 'Export full collection...',
-            onAction: () => {
-              openExportFileDialog(true);
+            {
+              label: 'Export full collection...',
+              onAction: () => {
+                openExportFileDialog(true);
+              },
             },
-          },
-        ]
-      : []),
-    ...(!readonly && isWritable && !shouldDisableBulkOp
-      ? [
-          {
-            label: 'Bulk update',
-            onAction: () => {
-              onUpdateButtonClicked();
+          ]
+        : []),
+      ...(!readonly && isWritable && !shouldDisableBulkOp
+        ? [
+            {
+              label: 'Bulk update',
+              onAction: () => {
+                onUpdateButtonClicked();
+              },
             },
-          },
-          {
-            label: 'Bulk delete',
-            onAction: () => {
-              onDeleteButtonClicked();
+            {
+              label: 'Bulk delete',
+              onAction: () => {
+                onDeleteButtonClicked();
+              },
             },
-          },
-        ]
-      : []),
-    {
-      label: 'Refresh',
-      onAction: () => {
-        onClickRefreshDocuments();
+          ]
+        : []),
+      {
+        label: 'Refresh',
+        onAction: () => {
+          onClickRefreshDocuments();
+        },
       },
-    },
-  ]);
+    ],
+    [
+      allDocumentsExpanded,
+      isImportExportEnabled,
+      readonly,
+      isWritable,
+      shouldDisableBulkOp,
+      onCollapseAllClicked,
+      onExpandAllClicked,
+      insertDataHandler,
+      openExportFileDialog,
+      onUpdateButtonClicked,
+      onDeleteButtonClicked,
+      onClickRefreshDocuments,
+    ]
+  );
 
   return (
     <div className={crudToolbarStyles} ref={contextMenuRef}>

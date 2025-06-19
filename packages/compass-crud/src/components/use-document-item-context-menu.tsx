@@ -17,51 +17,54 @@ export function useDocumentItemContextMenu({
   copyToClipboard,
   openInsertDocumentDialog,
 }: UseDocumentItemContextMenuProps) {
-  return useContextMenuItems([
-    {
-      label: doc.expanded ? 'Collapse all fields' : 'Expand all fields',
-      onAction: () => {
-        if (doc.expanded) {
-          doc.collapse();
-        } else {
-          doc.expand();
-        }
+  return useContextMenuItems(
+    () => [
+      {
+        label: doc.expanded ? 'Collapse all fields' : 'Expand all fields',
+        onAction: () => {
+          if (doc.expanded) {
+            doc.collapse();
+          } else {
+            doc.expand();
+          }
+        },
       },
-    },
-    ...(isEditable && !doc.editing
-      ? [
-          {
-            label: 'Edit document',
-            onAction: () => {
-              doc.startEditing();
+      ...(isEditable && !doc.editing
+        ? [
+            {
+              label: 'Edit document',
+              onAction: () => {
+                doc.startEditing();
+              },
             },
-          },
-        ]
-      : []),
-    {
-      label: 'Copy document',
-      onAction: () => {
-        copyToClipboard?.(doc);
+          ]
+        : []),
+      {
+        label: 'Copy document',
+        onAction: () => {
+          copyToClipboard?.(doc);
+        },
       },
-    },
-    ...(isEditable
-      ? [
-          {
-            label: 'Clone document...',
-            onAction: () => {
-              const clonedDoc = doc.generateObject({
-                excludeInternalFields: true,
-              });
-              openInsertDocumentDialog?.(clonedDoc, true);
+      ...(isEditable
+        ? [
+            {
+              label: 'Clone document...',
+              onAction: () => {
+                const clonedDoc = doc.generateObject({
+                  excludeInternalFields: true,
+                });
+                openInsertDocumentDialog?.(clonedDoc, true);
+              },
             },
-          },
-          {
-            label: 'Delete document',
-            onAction: () => {
-              doc.markForDeletion();
+            {
+              label: 'Delete document',
+              onAction: () => {
+                doc.markForDeletion();
+              },
             },
-          },
-        ]
-      : []),
-  ]);
+          ]
+        : []),
+    ],
+    [doc, isEditable, copyToClipboard, openInsertDocumentDialog]
+  );
 }
