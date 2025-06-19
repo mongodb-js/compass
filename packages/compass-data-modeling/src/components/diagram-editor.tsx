@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
+  applyInitialLayout,
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from '../store/diagram';
@@ -120,6 +121,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
+  onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
 }> = ({
   diagramLabel,
   step,
@@ -128,6 +130,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick,
   onCancelClick,
   onApplyClick,
+  onApplyInitialLayout,
 }) => {
   const isDarkMode = useDarkMode();
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
@@ -215,8 +218,13 @@ const DiagramEditor: React.FunctionComponent<{
           edges,
           'STAR'
         );
-        // TODO: save the new positions to the model
         setNodes(positionedNodes);
+        onApplyInitialLayout(
+          positionedNodes.reduce((obj, node) => {
+            obj[node.id] = [node.position.x, node.position.y];
+            return obj;
+          }, {} as Record<string, [number, number]>)
+        );
       } catch (err) {
         console.error('Error applying layout:', err);
       }
@@ -388,5 +396,6 @@ export default connect(
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
+    onApplyInitialLayout: applyInitialLayout,
   }
 )(DiagramEditor);

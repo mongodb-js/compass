@@ -32,6 +32,7 @@ export enum DiagramActionTypes {
   OPEN_DIAGRAM = 'data-modeling/diagram/OPEN_DIAGRAM',
   DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
+  APPLY_INITIAL_LAYOUT = 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
   APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
@@ -54,6 +55,11 @@ export type RenameDiagramAction = {
   type: DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
+};
+
+export type ApplyInitialLayoutAction = {
+  type: DiagramActionTypes.APPLY_INITIAL_LAYOUT;
+  positions: Record<string, [number, number]>;
 };
 
 export type ApplyEditAction = {
@@ -86,6 +92,7 @@ export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
   | RenameDiagramAction
+  | ApplyInitialLayoutAction
   | ApplyEditAction
   | ApplyEditFailedAction
   | UndoEditAction
@@ -150,6 +157,30 @@ export const diagramReducer: Reducer<DiagramState> = (
       ...state,
       name: action.name,
       updatedAt: new Date().toISOString(),
+    };
+  }
+  if (isAction(action, DiagramActionTypes.APPLY_INITIAL_LAYOUT)) {
+    const initialEdit = state.edits.current[0];
+    if (!initialEdit || initialEdit.type !== 'SetModel') {
+      throw new Error('No initial model edit found to apply layout to');
+    }
+    return {
+      ...state,
+      edits: {
+        ...state.edits,
+        current: [
+          {
+            ...initialEdit,
+            model: {
+              ...initialEdit.model,
+              collections: initialEdit.model.collections.map((collection) => ({
+                ...collection,
+                displayPosition: action.positions[collection.ns] || [-1, -1],
+              })),
+            },
+          },
+        ],
+      },
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
@@ -250,6 +281,18 @@ export function applyEdit(
     dispatch({
       type: DiagramActionTypes.APPLY_EDIT,
       edit,
+    });
+    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
+  };
+}
+
+export function applyInitialLayout(
+  positions: Record<string, [number, number]>
+): DataModelingThunkAction<void, ApplyInitialLayoutAction> {
+  return (dispatch, getState, { dataModelStorage }) => {
+    dispatch({
+      type: DiagramActionTypes.APPLY_INITIAL_LAYOUT,
+      positions,
     });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
