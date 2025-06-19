@@ -16,7 +16,7 @@ export type ContextMenuWrapperProps = {
   menu: ContextMenuState & { close: () => void };
 };
 
-export type ContextMenuContext = {
+export type ContextMenuContextType = {
   close(): void;
 };
 
