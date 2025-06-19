@@ -9,6 +9,7 @@ import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
 import type { Element } from 'hadron-document';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
+import { CompassComponentsProvider } from '@mongodb-js/compass-components';
 
 export type FullWidthCellRendererProps = Pick<
   CellEditorProps,
@@ -127,30 +128,32 @@ class FullWidthCellRenderer extends React.Component<
       // this is needed cause ag-grid renders this component outside
       // of the context chain
       <LeafyGreenProvider darkMode={this.props.darkMode}>
-        <DocumentList.DocumentEditActionsFooter
-          doc={this.doc}
-          editing={this.state.mode === 'editing'}
-          deleting={this.state.mode === 'deleting'}
-          onUpdate={(force) => {
-            this.props.api.stopEditing();
-            if (force) {
-              void this.props.replaceDocument(this.doc);
-            } else {
-              void this.props.updateDocument(this.doc);
-            }
-          }}
-          onDelete={() => {
-            this.props.api.stopEditing();
-            void this.props.removeDocument(this.doc);
-          }}
-          onCancel={() => {
-            if (this.state.mode === 'editing') {
-              this.handleCancelUpdate();
-            } else {
-              this.handleCancelRemove();
-            }
-          }}
-        />
+        <CompassComponentsProvider>
+          <DocumentList.DocumentEditActionsFooter
+            doc={this.doc}
+            editing={this.state.mode === 'editing'}
+            deleting={this.state.mode === 'deleting'}
+            onUpdate={(force: boolean) => {
+              this.props.api.stopEditing();
+              if (force) {
+                void this.props.replaceDocument(this.doc);
+              } else {
+                void this.props.updateDocument(this.doc);
+              }
+            }}
+            onDelete={() => {
+              this.props.api.stopEditing();
+              void this.props.removeDocument(this.doc);
+            }}
+            onCancel={() => {
+              if (this.state.mode === 'editing') {
+                this.handleCancelUpdate();
+              } else {
+                this.handleCancelRemove();
+              }
+            }}
+          />
+        </CompassComponentsProvider>
       </LeafyGreenProvider>
     );
   }

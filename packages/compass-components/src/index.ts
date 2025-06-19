@@ -97,6 +97,8 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
+export { useContextMenuItems } from './components/context-menu';
+
 export type {
   FileInputBackend,
   ItemAction,
@@ -217,3 +219,4 @@ export {
 export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
+export { useFieldContextMenu } from './hooks/use-element-context-menu';
