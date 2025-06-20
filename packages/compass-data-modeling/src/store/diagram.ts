@@ -377,6 +377,7 @@ export function getCurrentModel(
   description: MongoDBDataModelDescription
 ): StaticModel {
   // Get the last 'SetModel' edit.
+  console.log('DESCRIPTION', description);
   const reversedSetModelEditIndex = description.edits
     .slice()
     .reverse()

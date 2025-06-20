@@ -90,17 +90,21 @@ describe('Data Modeling store', function () {
       expect(initialDiagram.connectionId).to.equal(newDiagram.connectionId);
       expect(initialDiagram.edits).to.have.length(1);
       expect(initialDiagram.edits[0].type).to.equal('SetModel');
-      expect(initialDiagram.edits[0].model.collections[0]).to.deep.include({
+      const initialEdit = initialDiagram.edits[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
         jsonSchema: newDiagram.collections[0].schema,
         displayPosition: [-1, -1],
       });
-      expect(initialDiagram.edits[0].model.collections[1]).to.deep.include({
+      expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
         jsonSchema: newDiagram.collections[1].schema,
         displayPosition: [-1, -1],
       });
-      expect(initialDiagram.edits[0].model.relationships).to.deep.equal(
+      expect(initialEdit.model.relationships).to.deep.equal(
         newDiagram.relations
       );
 
@@ -116,17 +120,21 @@ describe('Data Modeling store', function () {
       expect(diagramWithLayout.connectionId).to.equal(newDiagram.connectionId);
       expect(diagramWithLayout.edits).to.have.length(1);
       expect(diagramWithLayout.edits[0].type).to.equal('SetModel');
-      expect(diagramWithLayout.edits[0].model.collections[0]).to.deep.include({
+      const initialEditWithPositions = diagramWithLayout.edits[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEditWithPositions.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
         jsonSchema: newDiagram.collections[0].schema,
         displayPosition: positions[newDiagram.collections[0].ns],
       });
-      expect(diagramWithLayout.edits[0].model.collections[1]).to.deep.include({
+      expect(initialEditWithPositions.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
         jsonSchema: newDiagram.collections[1].schema,
         displayPosition: positions[newDiagram.collections[1].ns],
       });
-      expect(diagramWithLayout.edits[0].model.relationships).to.deep.equal(
+      expect(initialEditWithPositions.model.relationships).to.deep.equal(
         newDiagram.relations
       );
     });
