@@ -28,7 +28,7 @@ Compass.
 | `CRUD.LoadMoreDocumentsStore` | Triggers when more documents are fetched via scrolling. |
 
 Components from this plugin can be interracted with using
-[hadron-app][hadron-app] and [hadron-app-registry][hadron-app-registry]. Here are
+[hadron-app][hadron-app] and [compass-app-registry][compass-app-registry]. Here are
 a few examples of working with `compass-crud`'s `Action` and `Roles`.
 
 Render an editable document in a React component.
@@ -89,7 +89,7 @@ CrudActions.insertDocument((doc) => {
 ### App Registry Events Emmitted
 
 Various actions within this plugin will emit events for other parts of the
-application can be listened to via [hadron-app-registry][hadron-app-registry].
+application can be listened to via [compass-app-registry][compass-app-registry].
 `Local` events are scoped to a `Tab`.
 `Global` events are scoped to the whole Compass application.
 
@@ -163,11 +163,11 @@ npm install -S @mongodb-js/compass-crud
 ## See Also
 
 - [compass][compass]
-- [hadron-app-registry][hadron-app-registry]
+- [compass-app-registry][compass-app-registry]
 - [hadron-app][hadron-app]
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
-[hadron-app]: https://github.com/mongodb-js/compass/packages/hadron-app
-[hadron-app-registry]: https://github.com/mongodb-js/compass/packages/hadron-app-registry
-[compass]: https://github.com/mongodb-js/compass/packages/compass
+[hadron-app]: https://github.com/mongodb-js/compass/tree/main/packages/hadron-app
+[compass-app-registry]: https://github.com/mongodb-js/compass/tree/main/packages/compass-app-registry
+[compass]: https://github.com/mongodb-js/compass/tree/main/packages/compass

@@ -71,6 +71,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.4.11",
     "@mongodb-js/compass-components": "^1.39.0",
     "@mongodb-js/compass-logging": "^1.7.2",
     "@mongodb-js/compass-telemetry": "^1.10.0",
@@ -80,7 +81,6 @@
     "@mongodb-js/devtools-connect": "^3.7.2",
     "@mongodb-js/devtools-proxy-support": "^0.4.4",
     "@mongodb-js/oidc-plugin": "^1.1.8",
-    "hadron-app-registry": "^9.4.11",
     "compass-preferences-model": "^2.41.0",
     "electron": "^36.4.0",
     "hadron-ipc": "^3.5.2",

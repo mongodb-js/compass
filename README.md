@@ -40,6 +40,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 ### Shared Libraries and Build Tools
 
 - [**@mongodb-js/atlas-service**](packages/atlas-service): Service to handle Atlas sign in and API requests
+- [**@mongodb-js/compass-app-registry**](packages/compass-app-registry): Compass App Registry
 - [**@mongodb-js/compass-components**](packages/compass-components): React Components used in Compass
 - [**@mongodb-js/compass-connection-import-export**](packages/compass-connection-import-export): UI for Compass connection import/export
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Manage your MongoDB connections and connect in Compass
@@ -67,7 +68,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
-- [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry
 - [**hadron-build**](packages/hadron-build): Tooling for Hadron apps like Compass
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
