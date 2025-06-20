@@ -1,4 +1,4 @@
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { CompassInstanceStorePlugin } from '../plugin';
 import sinon from 'sinon';
 import { expect } from 'chai';

@@ -2,7 +2,7 @@ import React from 'react';
 import Sinon from 'sinon';
 import {
   CompassIndexesPlugin as CompassIndexesSubtab,
-  CompassIndexesHadronPlugin,
+  CompassIndexesPluginProvider,
 } from './index';
 import {
   createDefaultConnectionInfo,
@@ -35,7 +35,7 @@ describe('CompassIndexesPlugin', function () {
   };
 
   const renderHelpers = createPluginTestHelpers(
-    CompassIndexesHadronPlugin.withMockServices({
+    CompassIndexesPluginProvider.withMockServices({
       dataService,
       atlasService,
       instance: {

@@ -8,7 +8,6 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { GlyphName } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
 import {
@@ -28,7 +27,8 @@ import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import { Tab } from './tab';
+import type { Tab } from './tab';
+import type { WorkspaceTabCoreProps } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
@@ -139,8 +139,13 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
   return [{ onKeyDown }];
 }
 
+type TabItem = {
+  id: string;
+  renderTab: (props: WorkspaceTabCoreProps) => ReturnType<typeof Tab>;
+};
+
 type SortableItemProps = {
-  tab: TabProps;
+  tab: TabItem;
   index: number;
   selectedTabIndex: number;
   activeId: UniqueIdentifier | null;
@@ -149,7 +154,7 @@ type SortableItemProps = {
 };
 
 type SortableListProps = {
-  tabs: TabProps[];
+  tabs: TabItem[];
   selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
@@ -164,18 +169,9 @@ type WorkspaceTabsProps = {
   onSelectPrevTab: () => void;
   onCloseTab: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
-  tabs: TabProps[];
+  tabs: TabItem[];
   selectedTabIndex: number;
 };
-
-export type TabProps = {
-  id: string;
-  type: string;
-  title: string;
-  tooltip?: [string, string][];
-  connectionId?: string;
-  iconGlyph: GlyphName | 'Logo' | 'Server';
-} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,
@@ -263,7 +259,7 @@ const SortableList = ({
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className={sortableItemContainerStyles}>
-          {tabs.map((tab: TabProps, index: number) => (
+          {tabs.map((tab: TabItem, index: number) => (
             <SortableItem
               key={tab.id}
               index={index}
@@ -281,15 +277,13 @@ const SortableList = ({
 };
 
 const SortableItem = ({
-  tab: tabProps,
+  tab: { id: tabId, renderTab },
   index,
   selectedTabIndex,
   activeId,
   onSelect,
   onClose,
 }: SortableItemProps) => {
-  const { id: tabId } = tabProps;
-
   const onTabSelected = useCallback(() => {
     onSelect(index);
   }, [onSelect, index]);
@@ -305,16 +299,13 @@ const SortableItem = ({
 
   const isDragging = useMemo(() => tabId === activeId, [tabId, activeId]);
 
-  return (
-    <Tab
-      {...tabProps}
-      isSelected={isSelected}
-      isDragging={isDragging}
-      tabContentId={tabId}
-      onSelect={onTabSelected}
-      onClose={onTabClosed}
-    />
-  );
+  return renderTab({
+    isSelected,
+    isDragging,
+    tabContentId: tabId,
+    onSelect: onTabSelected,
+    onClose: onTabClosed,
+  });
 };
 
 function WorkspaceTabs({

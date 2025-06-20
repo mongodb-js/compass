@@ -4,7 +4,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -14,11 +13,23 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+type DiagramInstance = {
+  getNodes: () => Array<{
+    id: string;
+  }>;
+};
+
 async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
-  await browser.waitForAnimations(Selectors.DataModelingDiagram);
-  return await browser
-    .$$(Selectors.DataModelingDiagramNode)
-    .map((element) => element.getAttribute('title'));
+  const nodes = await browser.execute(function (selector) {
+    const node = document.querySelector(selector);
+    if (!node) {
+      throw new Error(`Element with selector ${selector} not found`);
+    }
+    return (
+      node as Element & { _diagram: DiagramInstance }
+    )._diagram.getNodes();
+  }, Selectors.DataModelEditor);
+  return nodes.map((x) => x.id);
 }
 
 describe('Data Modeling tab', function () {
@@ -26,12 +37,10 @@ describe('Data Modeling tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'data modeling not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setFeature('enableDataModeling', true);
     await browser.setupDefaultConnections();
+    await browser.setFeature('enableDataModeling', true);
   });
 
   beforeEach(async function () {
@@ -107,6 +116,7 @@ describe('Data Modeling tab', function () {
       JSON.stringify(newModel)
     );
     await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    await browser.waitForAnimations(dataModelEditor);
 
     // Verify that the model is updated
     nodes = await getDiagramNodes(browser);
@@ -114,6 +124,7 @@ describe('Data Modeling tab', function () {
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
+    await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes).to.deep.equal([
@@ -124,6 +135,7 @@ describe('Data Modeling tab', function () {
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
+    await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(0);
 
