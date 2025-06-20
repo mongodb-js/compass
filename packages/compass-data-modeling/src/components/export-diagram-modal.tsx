@@ -82,7 +82,7 @@ const ExportDiagramModal = ({
             Export the data modal to JSON format.
             {nbsp}
             <Link
-              href="https://www.mongodb.com/docs/compass/current/data-modeling/export-diagram/"
+              href="https://www.mongodb.com/docs/manual/data-modeling//"
               target="_blank"
               rel="noopener noreferrer"
             >
