@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Button,
   css,
@@ -12,7 +12,6 @@ import {
   Radio,
   RadioGroup,
   spacing,
-  SpinLoader,
 } from '@mongodb-js/compass-components';
 import {
   closeExportModal,
@@ -22,6 +21,7 @@ import {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import type { StaticModel } from '../services/data-model-storage';
+import { exportToJson } from '../services/export-diagram';
 
 const nbsp = '\u00a0';
 
@@ -49,7 +49,7 @@ const footerStyles = css({
 type ExportDiagramModalProps = {
   isModalOpen: boolean;
   diagramLabel: string;
-  model: StaticModel;
+  model: StaticModel | null;
   onCloseClick: () => void;
 };
 
@@ -59,24 +59,17 @@ const ExportDiagramModal = ({
   model,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const [exportFormat, setExportFormat] = React.useState<'json'>('json');
-  const [isExporting, setIsExporting] = React.useState(false);
+  const [exportFormat, setExportFormat] = useState<'json' | null>(null);
 
   const onExport = useCallback(() => {
-    if (!exportFormat) {
+    if (!exportFormat || !model) {
       return;
     }
-    setIsExporting(true);
-    // TODO: export
-    console.log(
-      `Exporting diagram "${diagramLabel}" in ${exportFormat} format...`,
-      model
-    );
-    setIsExporting(false);
+    exportToJson(diagramLabel, model);
   }, [exportFormat, model, diagramLabel]);
 
   return (
-    <Modal open={isModalOpen} setOpen={() => {}}>
+    <Modal open={isModalOpen} setOpen={onCloseClick}>
       <ModalHeader
         title="Export data model"
         subtitle={
@@ -115,8 +108,6 @@ const ExportDiagramModal = ({
           variant="primary"
           onClick={() => void onExport()}
           data-testid="export-button"
-          isLoading={isExporting}
-          loadingIndicator={<SpinLoader />}
         >
           Export
         </Button>
@@ -135,13 +126,12 @@ const ExportDiagramModal = ({
 export default connect(
   (state: DataModelingState) => {
     const { diagram } = state;
-    if (!diagram) {
-      throw new Error('No exportable diagram found in state');
-    }
-    const model = selectCurrentModel(getCurrentDiagramFromState(state));
+    const model = diagram
+      ? selectCurrentModel(getCurrentDiagramFromState(state))
+      : null;
     return {
       model,
-      diagramLabel: diagram.name,
+      diagramLabel: diagram?.name ?? 'Schema Preview',
       isModalOpen: Boolean(diagram?.isExportModalOpen),
     };
   },
