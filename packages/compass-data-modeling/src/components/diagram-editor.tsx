@@ -39,7 +39,6 @@ import {
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
-import { initial } from 'lodash';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -227,7 +226,7 @@ const DiagramEditor: React.FunctionComponent<{
         const { nodes: positionedNodes } = await applyLayout(
           storedNodes,
           edges,
-          'STAR'
+          'LEFT_RIGHT'
         );
         setNodes(positionedNodes);
         onApplyInitialLayout(
