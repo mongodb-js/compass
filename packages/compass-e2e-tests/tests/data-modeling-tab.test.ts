@@ -88,14 +88,14 @@ describe('Data Modeling tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
     await browser.setupDefaultConnections();
     await browser.setFeature('enableDataModeling', true);
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);
     }
-  });
-
-  beforeEach(async function () {
     await createNumbersStringCollection('testCollection1');
     await createNumbersCollection('testCollection2');
     await browser.disconnectAll();
