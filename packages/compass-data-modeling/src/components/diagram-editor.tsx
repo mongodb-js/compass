@@ -225,6 +225,7 @@ const DiagramEditor: React.FunctionComponent<{
           }, {} as Record<string, [number, number]>)
         );
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Error applying layout:', err);
       }
     },
