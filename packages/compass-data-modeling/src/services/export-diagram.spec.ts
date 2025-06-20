@@ -5,7 +5,7 @@ import FlightModel from '../../test/fixtures/flights-model.json';
 describe('export-diagram', function () {
   context('json export', function () {
     it('should convert a model to JSON', function () {
-      const json = getExportJsonFromModel(FlightModel);
+      const json = getExportJsonFromModel(FlightModel as any);
 
       const expectedCollections = Object.fromEntries(
         FlightModel.collections

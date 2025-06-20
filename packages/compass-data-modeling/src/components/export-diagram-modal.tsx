@@ -70,7 +70,11 @@ const ExportDiagramModal = ({
   }, [exportFormat, onCloseClick, model, diagramLabel]);
 
   return (
-    <Modal open={isModalOpen} setOpen={onCloseClick}>
+    <Modal
+      open={isModalOpen}
+      setOpen={onCloseClick}
+      data-testid="export-diagram-modal"
+    >
       <ModalHeader
         title="Export data model"
         subtitle={
@@ -91,15 +95,14 @@ const ExportDiagramModal = ({
         <div className={exportFormatContainerStyles}>
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup
-            data-testid="export-json-format-options"
             className={radioGroupStyles}
             value={exportFormat}
             onChange={(e) => setExportFormat(e.target.value as 'json')}
           >
-            <Radio value="json">
+            <Radio value="json" aria-label="JSON">
               <Icon glyph="CurlyBraces" />
               {nbsp}
-              JSON Schema
+              JSON
             </Radio>
           </RadioGroup>
         </div>
