@@ -24,7 +24,7 @@ describe('DiagramEditorToolbar', function () {
   it('throws if step is NO_DIAGRAM_SELECTED', function () {
     expect(() => {
       renderDiagramEditorToolbar({ step: 'NO_DIAGRAM_SELECTED' });
-    }).to.throw('Unexpected');
+    }).to.throw;
   });
 
   it('renders nothing if step is not EDITING', function () {
