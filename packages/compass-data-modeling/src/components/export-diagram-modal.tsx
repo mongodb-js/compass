@@ -66,7 +66,8 @@ const ExportDiagramModal = ({
       return;
     }
     exportToJson(diagramLabel, model);
-  }, [exportFormat, model, diagramLabel]);
+    onCloseClick();
+  }, [exportFormat, onCloseClick, model, diagramLabel]);
 
   return (
     <Modal open={isModalOpen} setOpen={onCloseClick}>
