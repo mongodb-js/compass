@@ -1,8 +1,15 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
+  applyInitialLayout,
   getCurrentDiagramFromState,
   redoEdit,
   selectCurrentModel,
@@ -28,6 +35,7 @@ import {
   type NodeProps,
   type EdgeProps,
   useDiagram,
+  applyLayout,
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
@@ -119,6 +127,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
+  onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
 }> = ({
   diagramLabel,
   step,
@@ -131,10 +140,12 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick,
   onCancelClick,
   onApplyClick,
+  onApplyInitialLayout,
 }) => {
   const isDarkMode = useDarkMode();
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useDiagram();
+  const [nodes, setNodes] = useState<NodeProps[]>([]);
 
   const setDiagramContainerRef = useCallback(
     (ref: HTMLDivElement | null) => {
@@ -208,8 +219,31 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships]);
 
-  const nodes = useMemo(() => {
-    return (model?.collections ?? []).map(
+  const applyInitialLayout = useCallback(
+    async (storedNodes: NodeProps[]) => {
+      try {
+        const { nodes: positionedNodes } = await applyLayout(
+          storedNodes,
+          edges,
+          'LEFT_RIGHT'
+        );
+        setNodes(positionedNodes);
+        onApplyInitialLayout(
+          positionedNodes.reduce((obj, node) => {
+            obj[node.id] = [node.position.x, node.position.y];
+            return obj;
+          }, {} as Record<string, [number, number]>)
+        );
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Error applying layout:', err);
+      }
+    },
+    [setNodes]
+  );
+
+  useEffect(() => {
+    const storedNodes = (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
         type: 'collection',
@@ -234,12 +268,16 @@ const DiagramEditor: React.FunctionComponent<{
             };
           }
         ),
-        measured: {
-          width: 100,
-          height: 200,
-        },
       })
     );
+    const isInitialState = storedNodes.every(
+      (node) => node.position.x === -1 && node.position.y === -1
+    );
+    if (isInitialState) {
+      void applyInitialLayout(storedNodes);
+      return;
+    }
+    setNodes(storedNodes);
   }, [model?.collections]);
 
   let content;
@@ -396,5 +434,6 @@ export default connect(
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
+    onApplyInitialLayout: applyInitialLayout,
   }
 )(DiagramEditor);

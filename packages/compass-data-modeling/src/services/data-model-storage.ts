@@ -88,7 +88,13 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    */
   connectionId: z.string().nullable(),
 
-  edits: z.array(EditSchema).nonempty(),
+  // Ensure first item exists and is 'SetModel'
+  edits: z
+    .array(EditSchema)
+    .nonempty()
+    .refine((edits) => edits[0]?.type === 'SetModel', {
+      message: "First edit must be of type 'SetModel'",
+    }),
 
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
