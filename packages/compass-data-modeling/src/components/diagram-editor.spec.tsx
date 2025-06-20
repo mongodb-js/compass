@@ -1,3 +1,29 @@
+const mockDiagramming = {
+  // Keep original exports by spreading them (if needed)
+  ...require('@mongodb-js/diagramming'),
+
+  // Override Diagram import because it's causing esm/cjs interop issues
+  Diagram: (props) => (
+    <div data-testid="mock-diagram">
+      {Object.entries(props).map(([key, value]) => (
+        <div key={key} data-testid={`diagram-prop-${key}`}>
+          {JSON.stringify(value)}
+        </div>
+      ))}
+    </div>
+  ),
+  applyLayout: async (nodes) => {
+    return {
+      nodes: nodes.map((node, index) => ({
+        ...node,
+        position: { x: (index + 1) * 100, y: (index + 1) * 100 },
+      })),
+    };
+  },
+};
+(require.cache[require.resolve('@mongodb-js/diagramming')] as any).exports =
+  mockDiagramming;
+
 import React from 'react';
 import { expect } from 'chai';
 import {
@@ -9,7 +35,10 @@ import DiagramEditor from './diagram-editor';
 import { renderWithOpenedDiagramStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
 import { DataModelStorageServiceProvider } from '../provider';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import type {
+  Edit,
+  MongoDBDataModelDescription,
+} from '../services/data-model-storage';
 import { DiagramProvider } from '@mongodb-js/diagramming';
 
 const storageItems: MongoDBDataModelDescription[] = [
@@ -28,7 +57,14 @@ const storageItems: MongoDBDataModelDescription[] = [
             {
               ns: 'db1.collection1',
               indexes: [],
-              displayPosition: [1, 1],
+              displayPosition: [-1, -1],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+            {
+              ns: 'db1.collection2',
+              indexes: [],
+              displayPosition: [-1, -1],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },
@@ -61,7 +97,6 @@ const renderDiagramEditor = async ({
       return Promise.resolve(items.find((x) => x.id === id) ?? null);
     },
   };
-  console.log(DiagramProvider);
   const result = await renderWithOpenedDiagramStore(
     <DataModelStorageServiceProvider storage={mockDataModelStorage}>
       <DiagramProvider fitView>
@@ -86,12 +121,25 @@ describe.only('DiagramEditor', function () {
     store = result.store;
 
     // wait till the editor is loaded
-    // await waitFor(() => {
-    //   expect(screen.getByTestId('model-preview')).to.be.visible;
-    // });
+    await waitFor(() => {
+      expect(screen.getByTestId('model-preview')).to.be.visible;
+    });
   });
 
-  it('shows the list of diagrams', async function () {
-    // screen.debug()
+  it('applies the initial layout to unpositioned nodes', async function () {
+    const state = store.getState();
+
+    expect(state.diagram?.edits.current).to.have.lengthOf(1);
+    expect(state.diagram?.edits.current[0].type).to.equal('SetModel');
+    const initialEdit = state.diagram?.edits.current[0] as Extract<
+      Edit,
+      { type: 'SetModel' }
+    >;
+    expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal([
+      100, 100,
+    ]);
+    expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal([
+      200, 200,
+    ]);
   });
 });
