@@ -205,8 +205,7 @@ type AggregationEditedEvent = ConnectionScopedEvent<{
       | 'stage_renamed'
       | 'stage_added'
       | 'stage_deleted'
-      | 'stage_reordered'
-      | 'stage_added';
+      | 'stage_reordered';
 
     /**
      * The name of the stage edited.

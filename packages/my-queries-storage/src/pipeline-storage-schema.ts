@@ -26,9 +26,7 @@ type StoredLegacyPipelineStage = {
   stage: string;
 };
 
-function savedPipelineToText(
-  pipeline?: StoredLegacyPipelineStage[] | undefined
-): string {
+function savedPipelineToText(pipeline?: StoredLegacyPipelineStage[]): string {
   const stages =
     pipeline?.map(({ stageOperator, isEnabled, stage }) => {
       return stageToString(stageOperator, stage, !isEnabled);

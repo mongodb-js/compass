@@ -120,7 +120,7 @@ function WorkspaceContainer({
     children:
       | React.ReactNode
       | ((
-          scrollTriggerRef: (node?: Element | null | undefined) => void
+          scrollTriggerRef: (node?: Element | null) => void
         ) => React.ReactNode);
   }) {
   const darkMode = useDarkMode();
