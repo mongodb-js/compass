@@ -216,7 +216,7 @@ const DiagramEditor: React.FunctionComponent<{
         const { nodes: positionedNodes } = await applyLayout(
           storedNodes,
           edges,
-          'STAR'
+          'LEFT_RIGHT'
         );
         setNodes(positionedNodes);
         onApplyInitialLayout(
