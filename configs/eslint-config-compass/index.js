@@ -26,7 +26,6 @@ const extraTsRules = {
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
   '@typescript-eslint/unbound-method': 'warn',
-  '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
 };
 
 const tsRules = {

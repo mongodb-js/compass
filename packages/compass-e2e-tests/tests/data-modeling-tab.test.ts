@@ -4,7 +4,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -38,12 +37,10 @@ describe('Data Modeling tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'data modeling not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setFeature('enableDataModeling', true);
     await browser.setupDefaultConnections();
+    await browser.setFeature('enableDataModeling', true);
   });
 
   beforeEach(async function () {
