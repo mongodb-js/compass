@@ -26,11 +26,7 @@ const mockDiagramming = {
 
 import React from 'react';
 import { expect } from 'chai';
-import {
-  screen,
-  userEvent,
-  waitFor,
-} from '@mongodb-js/testing-library-compass';
+import { screen, waitFor } from '@mongodb-js/testing-library-compass';
 import DiagramEditor from './diagram-editor';
 import { renderWithOpenedDiagramStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
@@ -43,8 +39,41 @@ import { DiagramProvider } from '@mongodb-js/diagramming';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
-    id: '1',
+    id: 'existing-diagram-id',
     name: 'One',
+    createdAt: '2023-10-01T00:00:00.000Z',
+    updatedAt: '2023-10-03T00:00:00.000Z',
+    edits: [
+      {
+        id: 'edit-id-1',
+        timestamp: '2023-10-02T00:00:00.000Z',
+        type: 'SetModel',
+        model: {
+          collections: [
+            {
+              ns: 'db1.collection1',
+              indexes: [],
+              displayPosition: [50, 50],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+            {
+              ns: 'db1.collection2',
+              indexes: [],
+              displayPosition: [150, 150],
+              shardKey: {},
+              jsonSchema: { bsonType: 'object' },
+            },
+          ],
+          relationships: [],
+        },
+      },
+    ],
+    connectionId: null,
+  },
+  {
+    id: 'new-diagram-id',
+    name: 'Two',
     createdAt: '2023-10-01T00:00:00.000Z',
     updatedAt: '2023-10-03T00:00:00.000Z',
     edits: [
@@ -79,8 +108,10 @@ const storageItems: MongoDBDataModelDescription[] = [
 
 const renderDiagramEditor = async ({
   items = storageItems,
+  renderedItem = items[0],
 }: {
   items?: MongoDBDataModelDescription[];
+  renderedItem?: MongoDBDataModelDescription;
 } = {}) => {
   const mockDataModelStorage = {
     status: 'READY',
@@ -108,7 +139,7 @@ const renderDiagramEditor = async ({
         dataModelStorage: mockDataModelStorage,
       },
     },
-    items[0]
+    renderedItem
   );
   return result;
 };
@@ -116,30 +147,65 @@ const renderDiagramEditor = async ({
 describe.only('DiagramEditor', function () {
   let store: DataModelingStore;
 
-  beforeEach(async function () {
-    const result = await renderDiagramEditor();
-    store = result.store;
+  context('with initial diagram', function () {
+    beforeEach(async function () {
+      const result = await renderDiagramEditor({
+        renderedItem: storageItems[1],
+      });
+      store = result.store;
 
-    // wait till the editor is loaded
-    await waitFor(() => {
-      expect(screen.getByTestId('model-preview')).to.be.visible;
+      // wait till the editor is loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('model-preview')).to.be.visible;
+      });
+    });
+
+    it('applies the initial layout to unpositioned nodes', async function () {
+      const state = store.getState();
+
+      expect(state.diagram?.edits.current).to.have.lengthOf(1);
+      expect(state.diagram?.edits.current[0].type).to.equal('SetModel');
+      const initialEdit = state.diagram?.edits.current[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal([
+        100, 100,
+      ]);
+      expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal([
+        200, 200,
+      ]);
     });
   });
 
-  it('applies the initial layout to unpositioned nodes', async function () {
-    const state = store.getState();
+  context('with existing diagram', function () {
+    beforeEach(async function () {
+      const result = await renderDiagramEditor({
+        renderedItem: storageItems[0],
+      });
+      store = result.store;
 
-    expect(state.diagram?.edits.current).to.have.lengthOf(1);
-    expect(state.diagram?.edits.current[0].type).to.equal('SetModel');
-    const initialEdit = state.diagram?.edits.current[0] as Extract<
-      Edit,
-      { type: 'SetModel' }
-    >;
-    expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal([
-      100, 100,
-    ]);
-    expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal([
-      200, 200,
-    ]);
+      // wait till the editor is loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('model-preview')).to.be.visible;
+      });
+    });
+
+    it('does not change the position of the nodes', async function () {
+      const state = store.getState();
+
+      expect(state.diagram?.edits.current).to.have.lengthOf(1);
+      expect(state.diagram?.edits.current[0].type).to.equal('SetModel');
+      const initialEdit = state.diagram?.edits.current[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal(
+        storageItems[0].edits[0].model.collections[0].displayPosition
+      );
+      expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal(
+        storageItems[0].edits[0].model.collections[1].displayPosition
+      );
+    });
   });
 });
