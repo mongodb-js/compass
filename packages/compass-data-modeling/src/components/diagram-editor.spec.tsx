@@ -1,9 +1,10 @@
 const mockDiagramming = {
   // Keep original exports by spreading them (if needed)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   ...require('@mongodb-js/diagramming'),
 
   // Override Diagram import because it's causing esm/cjs interop issues
-  Diagram: (props) => (
+  Diagram: (props: any) => (
     <div data-testid="mock-diagram">
       {Object.entries(props).map(([key, value]) => (
         <div key={key} data-testid={`diagram-prop-${key}`}>
@@ -12,9 +13,9 @@ const mockDiagramming = {
       ))}
     </div>
   ),
-  applyLayout: async (nodes) => {
+  applyLayout: (nodes: any) => {
     return {
-      nodes: nodes.map((node, index) => ({
+      nodes: nodes.map((node: any, index: number) => ({
         ...node,
         position: { x: (index + 1) * 100, y: (index + 1) * 100 },
       })),
@@ -144,7 +145,7 @@ const renderDiagramEditor = async ({
   return result;
 };
 
-describe.only('DiagramEditor', function () {
+describe('DiagramEditor', function () {
   let store: DataModelingStore;
 
   context('with initial diagram', function () {
@@ -160,7 +161,7 @@ describe.only('DiagramEditor', function () {
       });
     });
 
-    it('applies the initial layout to unpositioned nodes', async function () {
+    it('applies the initial layout to unpositioned nodes', function () {
       const state = store.getState();
 
       expect(state.diagram?.edits.current).to.have.lengthOf(1);
@@ -191,7 +192,7 @@ describe.only('DiagramEditor', function () {
       });
     });
 
-    it('does not change the position of the nodes', async function () {
+    it('does not change the position of the nodes', function () {
       const state = store.getState();
 
       expect(state.diagram?.edits.current).to.have.lengthOf(1);
@@ -200,11 +201,15 @@ describe.only('DiagramEditor', function () {
         Edit,
         { type: 'SetModel' }
       >;
+      const storedEdit = storageItems[0].edits[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
       expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal(
-        storageItems[0].edits[0].model.collections[0].displayPosition
+        storedEdit.model.collections[0].displayPosition
       );
       expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal(
-        storageItems[0].edits[0].model.collections[1].displayPosition
+        storedEdit.model.collections[1].displayPosition
       );
     });
   });
