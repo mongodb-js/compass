@@ -100,8 +100,6 @@ export const MongoDBDataModelDescriptionSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 
-type SetModelEdit = Extract<Edit, { type: 'SetModel' }>;
-
 export type MongoDBDataModelDescription = z.output<
   typeof MongoDBDataModelDescriptionSchema
 >;
