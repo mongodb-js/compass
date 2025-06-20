@@ -211,7 +211,6 @@ const DiagramEditor: React.FunctionComponent<{
 
   const applyInitialLayout = useCallback(
     async (storedNodes: NodeProps[]) => {
-      console.log('INITIAL STATE: applying layout');
       try {
         const { nodes: positionedNodes } = await applyLayout(
           storedNodes,
