@@ -4,7 +4,7 @@ import type { DataModelingState } from '../store/reducer';
 import { redoEdit, showExportModal, undoEdit } from '../store/diagram';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
-const DiagramEditorToolbar: React.FunctionComponent<{
+export const DiagramEditorToolbar: React.FunctionComponent<{
   step: DataModelingState['step'];
   hasUndo: boolean;
   hasRedo: boolean;
@@ -19,7 +19,7 @@ const DiagramEditorToolbar: React.FunctionComponent<{
     return null;
   }
   return (
-    <>
+    <div data-testid="diagram-editor-toolbar">
       <IconButton aria-label="Undo" disabled={!hasUndo} onClick={onUndoClick}>
         <Icon glyph="Undo"></Icon>
       </IconButton>
@@ -29,7 +29,7 @@ const DiagramEditorToolbar: React.FunctionComponent<{
       <IconButton aria-label="Export" onClick={onExportClick}>
         <Icon glyph="Export"></Icon>
       </IconButton>
-    </>
+    </div>
   );
 };
 

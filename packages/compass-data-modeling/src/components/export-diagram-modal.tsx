@@ -74,7 +74,7 @@ const ExportDiagramModal = ({
         title="Export data model"
         subtitle={
           <div>
-            Export the data modal to JSON Schema format.
+            Export the data modal to JSON format.
             {nbsp}
             <Link
               href="https://www.mongodb.com/docs/compass/current/data-modeling/export-diagram/"

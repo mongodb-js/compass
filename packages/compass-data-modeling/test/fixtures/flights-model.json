@@ -1,0 +1,323 @@
+{
+  "collections": [
+    {
+      "ns": "flights.airlines",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "active",
+          "airline",
+          "alias",
+          "base",
+          "country",
+          "iata",
+          "icao",
+          "name"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "active": {
+            "bsonType": "string"
+          },
+          "airline": {
+            "bsonType": "int"
+          },
+          "alias": {
+            "bsonType": ["string", "int"]
+          },
+          "alliance": {
+            "bsonType": "string"
+          },
+          "base": {
+            "bsonType": "string"
+          },
+          "country": {
+            "bsonType": "string"
+          },
+          "iata": {
+            "bsonType": "string"
+          },
+          "icao": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [144.04516098441445, 226.78180342288712]
+    },
+    {
+      "ns": "flights.airports",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "Altitude",
+          "Country",
+          "IATA",
+          "ICAO",
+          "Latitude",
+          "Longitude",
+          "Name"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "int"
+          },
+          "Altitude": {
+            "bsonType": "int"
+          },
+          "City": {
+            "bsonType": "string"
+          },
+          "Country": {
+            "bsonType": "string"
+          },
+          "IATA": {
+            "bsonType": "string"
+          },
+          "ICAO": {
+            "bsonType": "string"
+          },
+          "Latitude": {
+            "bsonType": "double"
+          },
+          "Longitude": {
+            "bsonType": "double"
+          },
+          "Name": {
+            "bsonType": "string"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [157.74741328703078, 614.6105002761217]
+    },
+    {
+      "ns": "flights.airports_coordinates_for_schema",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "coordinates", "Country", "Name"],
+        "properties": {
+          "_id": {
+            "bsonType": "int"
+          },
+          "coordinates": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "double"
+            }
+          },
+          "Country": {
+            "bsonType": "string"
+          },
+          "Name": {
+            "bsonType": "string"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [611.3592580503537, 238.3680626820135]
+    },
+    {
+      "ns": "flights.countries",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "iso_code", "name"],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "dafif_code": {
+            "bsonType": "string"
+          },
+          "iso_code": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [156.9088146439409, 808.1350158017262]
+    },
+    {
+      "ns": "flights.planes",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": ["_id", "IATA", "ICAO", "name"],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "IATA": {
+            "bsonType": "string"
+          },
+          "ICAO": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [479.9432289278143, 650.1759375929954]
+    },
+    {
+      "ns": "flights.routes",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "airline",
+          "airline_id",
+          "destination_airport",
+          "destination_airport_id",
+          "equipment",
+          "source_airport",
+          "source_airport_id",
+          "stops"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "airline": {
+            "bsonType": "string"
+          },
+          "airline_id": {
+            "bsonType": "string"
+          },
+          "codeshare": {
+            "bsonType": "string"
+          },
+          "destination_airport": {
+            "bsonType": "string"
+          },
+          "destination_airport_id": {
+            "bsonType": "string"
+          },
+          "equipment": {
+            "bsonType": "string"
+          },
+          "source_airport": {
+            "bsonType": "string"
+          },
+          "source_airport_id": {
+            "bsonType": "string"
+          },
+          "stops": {
+            "bsonType": "int"
+          }
+        }
+      },
+      "indexes": [],
+      "displayPosition": [853.3477815091105, 168.4596944341812]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "6f776467-4c98-476b-9b71-1f8a724e6c2c",
+      "relationship": [
+        {
+          "ns": "flights.airlines",
+          "cardinality": 1,
+          "fields": ["country"]
+        },
+        {
+          "ns": "flights.countries",
+          "cardinality": 1,
+          "fields": ["name"]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "204b1fc0-601f-4d62-bba3-38fade71e049",
+      "relationship": [
+        {
+          "ns": "flights.countries",
+          "cardinality": 1,
+          "fields": ["name"]
+        },
+        {
+          "ns": "flights.airports",
+          "cardinality": 1,
+          "fields": ["Country"]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "b04ae9eb-aecf-4273-b38c-97c1b7569769",
+      "relationship": [
+        {
+          "ns": "flights.airlines",
+          "cardinality": 1,
+          "fields": ["iata", "icao"]
+        },
+        {
+          "ns": "flights.planes",
+          "cardinality": 1,
+          "fields": ["IATA", "ICAO"]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "1913d93f-6751-453c-abf1-5df7f37fe7eb",
+      "relationship": [
+        {
+          "ns": "flights.airports",
+          "cardinality": 1,
+          "fields": ["Name"]
+        },
+        {
+          "ns": "flights.airports_coordinates",
+          "cardinality": 1,
+          "fields": ["Name"]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "1913d93f-6751-453c-abf1-5df7f37fe7eb",
+      "relationship": [
+        {
+          "ns": "flights.airports",
+          "cardinality": 1,
+          "fields": ["Name"]
+        },
+        {
+          "ns": "flights.airports_coordinates",
+          "cardinality": 1,
+          "fields": ["Name"]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "1913d93f-6751-453c-abf1-5df7f37fe7eb",
+      "relationship": [
+        {
+          "ns": "flights.airports",
+          "cardinality": 1,
+          "fields": ["Name"]
+        },
+        {
+          "ns": "flights.airports_coordinates_for_schema",
+          "cardinality": 1,
+          "fields": ["Name"]
+        }
+      ],
+      "isInferred": false
+    }
+  ]
+}
