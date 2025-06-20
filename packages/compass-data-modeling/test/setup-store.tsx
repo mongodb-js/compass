@@ -218,7 +218,6 @@ export const renderWithOpenedDiagramStore = async (
   store.dispatch(openDiagram(diagram));
   await waitFor(() => {
     expect(store.getState().diagram?.edits.current).to.have.lengthOf(1);
-    console.log('HAS A DIAGRAM', store.getState().diagram?.edits.current[0]);
   });
   const renderResult = renderWithConnections(
     <Provider store={store}>{component}</Provider>,
