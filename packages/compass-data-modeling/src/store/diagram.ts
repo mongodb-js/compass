@@ -24,6 +24,7 @@ export type DiagramState =
         next: Edit[][];
       };
       editErrors?: string[];
+      isExportModalOpen?: boolean;
     })
   | null; // null when no diagram is currently open
 
@@ -35,6 +36,8 @@ export enum DiagramActionTypes {
   APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
+  EXPORT_MODAL_OPENED = 'data-modeling/diagram/EXPORT_MODAL_OPENED',
+  EXPORT_MODAL_CLOSED = 'data-modeling/diagram/EXPORT_MODAL_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -69,6 +72,14 @@ export type UndoEditAction = {
 
 export type RedoEditAction = {
   type: DiagramActionTypes.REDO_EDIT;
+};
+
+type ExportModalOpenedAction = {
+  type: DiagramActionTypes.EXPORT_MODAL_OPENED;
+};
+
+type ExportModalClosedAction = {
+  type: DiagramActionTypes.EXPORT_MODAL_CLOSED;
 };
 
 export type DiagramActions =
@@ -188,6 +199,18 @@ export const diagramReducer: Reducer<DiagramState> = (
         next: [...state.edits.next],
       },
       updatedAt: new Date().toISOString(),
+    };
+  }
+  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_OPENED)) {
+    return {
+      ...state,
+      isExportModalOpen: true,
+    };
+  }
+  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_CLOSED)) {
+    return {
+      ...state,
+      isExportModalOpen: false,
     };
   }
   return state;
@@ -356,6 +379,14 @@ export function getCurrentDiagramFromState(
   } = state.diagram;
 
   return { id, connectionId, name, edits, createdAt, updatedAt };
+}
+
+export function showExportModal(): ExportModalOpenedAction {
+  return { type: DiagramActionTypes.EXPORT_MODAL_OPENED };
+}
+
+export function closeExportModal(): ExportModalClosedAction {
+  return { type: DiagramActionTypes.EXPORT_MODAL_CLOSED };
 }
 
 export const selectCurrentModel = memoize(getCurrentModel);
