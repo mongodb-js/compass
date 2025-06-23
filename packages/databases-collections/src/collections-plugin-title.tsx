@@ -2,7 +2,6 @@ import React from 'react';
 import {
   useConnectionInfo,
   useConnectionsListRef,
-  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import {
   WorkspaceTab,
@@ -18,7 +17,6 @@ type PluginTitleProps = WorkspaceTabCoreProps &
 export function CollectionsPluginTitleComponent(props: PluginTitleProps) {
   const { id: connectionId } = useConnectionInfo();
   const { getConnectionById } = useConnectionsListRef();
-  const { getThemeOf } = useTabConnectionTheme();
 
   const connectionName = getConnectionById(connectionId)?.title || '';
   const database = props.namespace;
@@ -35,7 +33,6 @@ export function CollectionsPluginTitleComponent(props: PluginTitleProps) {
       ]}
       iconGlyph={props.isNonExistent ? 'EmptyDatabase' : 'Database'}
       data-namespace={props.namespace}
-      tabTheme={getThemeOf(connectionId)}
       isNonExistent={props.isNonExistent}
     />
   );
