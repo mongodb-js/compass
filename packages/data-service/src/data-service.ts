@@ -938,7 +938,7 @@ function op<T extends unknown[], K>(
   pickLogAttrs: (
     args: T,
     result?: K extends Promise<infer R> ? R : K
-  ) => unknown | undefined = maybePickNs
+  ) => unknown = maybePickNs
 ) {
   return function (
     target: (this: WithLogContext, ...args: T) => K,
@@ -1825,7 +1825,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async isListSearchIndexesSupported(ns: string): Promise<boolean> {
     try {
       await this.getSearchIndexes(ns);
-    } catch (err) {
+    } catch {
       return false;
     }
     return true;

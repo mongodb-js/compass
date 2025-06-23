@@ -5,6 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import type { GlyphName } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../../hooks/use-theme';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
@@ -12,6 +13,7 @@ import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
+import { useTabTheme } from './use-tab-theme';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -85,20 +87,6 @@ const tabStyles = css({
   },
 });
 
-export type TabTheme = {
-  '--workspace-tab-background-color': string;
-  '--workspace-tab-selected-background-color': string;
-  '--workspace-tab-top-border-color': string;
-  '--workspace-tab-selected-top-border-color': string;
-  '--workspace-tab-border-color': string;
-  '--workspace-tab-color': string;
-  '--workspace-tab-selected-color': string;
-  '&:focus-visible': {
-    '--workspace-tab-selected-color': string;
-    '--workspace-tab-border-color': string;
-  };
-};
-
 const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
   '--workspace-tab-selected-background-color': palette.white,
@@ -149,6 +137,10 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
+const nonExistentStyles = css({
+  color: palette.gray.base,
+});
+
 const tabIconStyles = css({
   color: 'currentColor',
   marginLeft: spacing[300],
@@ -185,40 +177,48 @@ const workspaceTabTooltipStyles = css({
   textWrap: 'wrap',
 });
 
-type TabProps = {
+// The plugins provide these essential props use to render the tab.
+// The workspace-tabs component provides the other parts of TabProps.
+export type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
-  title: string;
+  title: React.ReactNode;
+  isNonExistent?: boolean;
+  iconGlyph: GlyphName | 'Logo' | 'Server';
+  tooltip?: [string, string][];
+};
+
+export type WorkspaceTabCoreProps = {
   isSelected: boolean;
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: GlyphName | 'Logo' | 'Server';
   tabContentId: string;
-  tooltip?: [string, string][];
-  tabTheme?: Partial<TabTheme>;
 };
+
+type TabProps = WorkspaceTabCoreProps & WorkspaceTabPluginProps;
 
 function Tab({
   connectionName,
   type,
   title,
   tooltip,
+  isNonExistent,
   isSelected,
   isDragging,
   onSelect,
   onClose,
   tabContentId,
   iconGlyph,
-  tabTheme,
   className: tabClassName,
   ...props
-}: TabProps & React.HTMLProps<HTMLDivElement>) {
+}: TabProps & Omit<React.HTMLProps<HTMLDivElement>, 'title'>) {
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({
     id: tabContentId,
   });
+  const tabTheme = useTabTheme();
 
   const tabProps = mergeProps<HTMLDivElement>(
     defaultActionProps,
@@ -240,6 +240,8 @@ function Tab({
     cursor: 'grabbing !important',
   };
 
+  const tabId = useId();
+
   return (
     <Tooltip
       enabled={!!tooltip}
@@ -254,6 +256,7 @@ function Tab({
           className={cx(
             tabStyles,
             themeClass,
+            isNonExistent && nonExistentStyles,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
             isDragging && draggingTabStyles,
@@ -267,6 +270,7 @@ function Tab({
           data-testid="workspace-tab-button"
           data-connection-name={connectionName}
           data-type={type}
+          id={tabId}
           {...tabProps}
         >
           {iconGlyph === 'Logo' && (

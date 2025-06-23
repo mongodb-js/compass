@@ -187,7 +187,7 @@ export type ListDatabasesResult<DatabaseType> =
 
 export type CollectionInfoNameOnly = {
   name: string;
-  type?: 'collection' | 'view' | 'timeseries' | string;
+  type?: string;
 };
 
 export type CollectionInfo = CollectionInfoNameOnly & {

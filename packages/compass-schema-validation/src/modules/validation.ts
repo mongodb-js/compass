@@ -541,7 +541,7 @@ export const hasErrorAndLogValidationActionSupport = (
 ) => {
   try {
     return semver.gte(serverVersion, '8.1.0-rc.0');
-  } catch (err) {
+  } catch {
     return false;
   }
 };

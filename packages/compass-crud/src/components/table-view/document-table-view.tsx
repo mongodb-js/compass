@@ -187,7 +187,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     const clonedDoc = hadronDocument.generateObject({
       excludeInternalFields: true,
     });
-    this.props.openInsertDocumentDialog?.(clonedDoc, true);
+    void this.props.openInsertDocumentDialog?.(clonedDoc, true);
   };
 
   /**

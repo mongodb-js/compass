@@ -17,6 +17,7 @@ const editablePreferences: (keyof UserPreferences)[] = [
   'enableGenAISampleDocumentPassingOnAtlasProject',
   'enableGenAIFeaturesAtlasOrg',
   'enableGenAIFeaturesAtlasProject',
+  'enableDataModeling',
 ];
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {

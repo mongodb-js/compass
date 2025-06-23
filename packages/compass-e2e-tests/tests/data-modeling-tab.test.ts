@@ -4,7 +4,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -14,17 +13,34 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+type DiagramInstance = {
+  getNodes: () => Array<{
+    id: string;
+  }>;
+};
+
+async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+  const nodes = await browser.execute(function (selector) {
+    const node = document.querySelector(selector);
+    if (!node) {
+      throw new Error(`Element with selector ${selector} not found`);
+    }
+    return (
+      node as Element & { _diagram: DiagramInstance }
+    )._diagram.getNodes();
+  }, Selectors.DataModelEditor);
+  return nodes.map((x) => x.id);
+}
+
 describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'data modeling not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setFeature('enableDataModeling', true);
     await browser.setupDefaultConnections();
+    await browser.setFeature('enableDataModeling', true);
   });
 
   beforeEach(async function () {
@@ -80,13 +96,12 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    // Verify that the diagram is displayed and contains both collections
-    const text = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-
-    expect(text).to.include('"ns": "test.testCollection1"');
-    expect(text).to.include('"ns": "test.testCollection2"');
+    let nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes).to.deep.equal([
+      'test.testCollection1',
+      'test.testCollection2',
+    ]);
 
     // Apply change to the model
     const newModel = {
@@ -96,40 +111,33 @@ describe('Data Modeling tab', function () {
         relationships: [],
       },
     };
-    const newPreview = JSON.stringify(newModel.model, null, 2);
     await browser.setCodemirrorEditorValue(
       Selectors.DataModelApplyEditor,
       JSON.stringify(newModel)
     );
     await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    await browser.waitForAnimations(dataModelEditor);
 
     // Verify that the model is updated
-    const updatedText = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-    expect(updatedText).to.equal(newPreview);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
-    await browser.waitUntil(async () => {
-      const textAfterUndo = await browser.getCodemirrorEditorText(
-        Selectors.DataModelPreview
-      );
-      return (
-        textAfterUndo.includes('"ns": "test.testCollection1"') &&
-        textAfterUndo.includes('"ns": "test.testCollection2"')
-      );
-    });
+    await browser.waitForAnimations(dataModelEditor);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes).to.deep.equal([
+      'test.testCollection1',
+      'test.testCollection2',
+    ]);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
-    await browser.waitUntil(async () => {
-      const redoneText = await browser.getCodemirrorEditorText(
-        Selectors.DataModelPreview
-      );
-      return redoneText === newPreview;
-    });
+    await browser.waitForAnimations(dataModelEditor);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Open a new tab
     await browser.openNewTab();
@@ -139,10 +147,8 @@ describe('Data Modeling tab', function () {
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
     // Verify that the diagram has the latest changes
-    const savedText = await browser.getCodemirrorEditorText(
-      Selectors.DataModelPreview
-    );
-    expect(savedText).to.equal(newPreview);
+    nodes = await getDiagramNodes(browser);
+    expect(nodes).to.have.lengthOf(0);
 
     // Open a new tab
     await browser.openNewTab();

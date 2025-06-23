@@ -65,7 +65,6 @@ function CreateIndexForm({
   onRemoveFieldClick,
   onTabClick,
   showIndexesGuidanceVariant,
-  query,
 }: CreateIndexFormProps) {
   const { id: connectionId } = useConnectionInfo();
   const rollingIndexesFeatureEnabled = !!usePreference('enableRollingIndexes');
@@ -177,7 +176,6 @@ function CreateIndexForm({
           serverVersion={serverVersion}
           dbName={dbName}
           collectionName={collectionName}
-          initialQuery={query}
         />
       )}
 

@@ -112,9 +112,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
             <ExplainTreeStage
               detailsOpen={detailsOpen === key}
               onToggleDetailsClick={() => {
-                detailsOpen === key
-                  ? setDetailsOpen(null)
-                  : setDetailsOpen(key);
+                setDetailsOpen(detailsOpen === key ? null : key);
               }}
               {...node}
               totalExecTimeMS={root.curStageExecTimeMS}
