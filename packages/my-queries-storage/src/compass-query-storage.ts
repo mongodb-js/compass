@@ -3,8 +3,8 @@ import { UserData, type z } from '@mongodb-js/compass-user-data';
 import {
   RecentQuerySchema,
   FavoriteQuerySchema,
-  RecentQuery,
-  FavoriteQuery,
+  type RecentQuery,
+  type FavoriteQuery,
 } from './query-storage-schema';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
