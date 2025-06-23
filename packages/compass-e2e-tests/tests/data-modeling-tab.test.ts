@@ -58,8 +58,11 @@ async function setupDiagram(
   );
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
-  // TODO: Confirm all collections are selected by default (COMPASS-9309)
-  // Note: We'll need to change the UI, right now the labels are disconnected from the checkboxes
+  // Ensure that all the collections are selected by default
+  const text = await browser.$(Selectors.CreateDataModelModal).getText();
+  // 2 is based on the collections we create in beforeEach hook
+  expect(text).to.contain('2/2 total collections selected.');
+
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Wait for the diagram editor to load
