@@ -16,7 +16,7 @@ export interface QueryStorageBackend<TData> {
   loadAll(namespace?: string): Promise<TData[]>;
   updateAttributes(id: string, data: Partial<TData>): Promise<TData>;
   delete(id: string): Promise<boolean>;
-  saveQuery(data: any): Promise<void>;
+  saveQuery(data: Omit<TData, '_id' | '_lastExecuted'>): Promise<void>;
 }
 
 export abstract class CompassQueryStorage<
