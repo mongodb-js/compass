@@ -55,7 +55,7 @@
     "@mongodb-js/compass-telemetry": "^1.10.0",
     "@mongodb-js/compass-workspaces": "^0.42.0",
     "@mongodb-js/connection-info": "^0.15.2",
-    "@mongodb-js/mongodb-constants": "^0.11.0",
+    "@mongodb-js/mongodb-constants": "^0.12.0",
     "compass-preferences-model": "^2.41.0",
     "@mongodb-js/compass-app-registry": "^9.4.11",
     "mongodb-collection-model": "^5.29.2",
