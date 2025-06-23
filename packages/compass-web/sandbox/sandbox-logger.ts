@@ -1,5 +1,5 @@
 import createDebug from 'debug';
-import type { LogMessage } from '../src/logger-and-telemetry';
+import type { LogMessage } from '../src/logger';
 
 const logging: LogMessage[] = ((globalThis as any).logging = []);
 
