@@ -24,12 +24,12 @@ describe('DiagramEditorToolbar', function () {
   it('throws if step is NO_DIAGRAM_SELECTED', function () {
     expect(() => {
       renderDiagramEditorToolbar({ step: 'NO_DIAGRAM_SELECTED' });
-    }).to.throw;
+    }).to.throw();
   });
 
   it('renders nothing if step is not EDITING', function () {
     renderDiagramEditorToolbar({ step: 'ANALYSIS_CANCELED' });
-    expect(() => screen.getByTestId('diagram-editor-toolbar')).to.throw;
+    expect(() => screen.getByTestId('diagram-editor-toolbar')).to.throw();
   });
 
   context('undo button', function () {
