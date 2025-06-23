@@ -128,12 +128,14 @@ describe('Data Modeling tab', function () {
 
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
 
-    let nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    browser.waitUntil(async () => {
+      let nodes = await getDiagramNodes(browser);
+      expect(nodes).to.have.lengthOf(2);
+      expect(nodes).to.deep.equal([
+        'test.testCollection1',
+        'test.testCollection2',
+      ]);
+    });
 
     // Apply change to the model
     const newModel = {
