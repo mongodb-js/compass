@@ -37,6 +37,7 @@ import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -132,6 +133,7 @@ const DiagramEditor: React.FunctionComponent<{
   onApplyClick,
   onApplyInitialLayout,
 }) => {
+  const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useDiagram();
@@ -217,7 +219,6 @@ const DiagramEditor: React.FunctionComponent<{
           edges,
           'LEFT_RIGHT'
         );
-        setNodes(positionedNodes);
         onApplyInitialLayout(
           positionedNodes.reduce((obj, node) => {
             obj[node.id] = [node.position.x, node.position.y];
@@ -225,11 +226,15 @@ const DiagramEditor: React.FunctionComponent<{
           }, {} as Record<string, [number, number]>)
         );
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('Error applying layout:', err);
+        log.error(
+          mongoLogId(1_001_000_001),
+          'DiagramEditor',
+          'Error applying layout:',
+          err
+        );
       }
     },
-    [setNodes]
+    [edges, log, mongoLogId, onApplyInitialLayout]
   );
 
   useEffect(() => {
@@ -268,7 +273,16 @@ const DiagramEditor: React.FunctionComponent<{
       return;
     }
     setNodes(storedNodes);
-  }, [model?.collections]);
+  }, [model?.collections, edges, diagram, applyInitialLayout]);
+
+  const nodesLoaded = useRef(false);
+  useEffect(() => {
+    // call fitView once the nodes are ready
+    if (!nodesLoaded.current && nodes.length > 0) {
+      void diagram.fitView();
+      nodesLoaded.current = true;
+    }
+  }, [nodesLoaded, nodes, diagram]);
 
   let content;
 
@@ -318,6 +332,10 @@ const DiagramEditor: React.FunctionComponent<{
             title={diagramLabel}
             edges={edges}
             nodes={nodes}
+            fitViewOptions={{
+              maxZoom: 1,
+              minZoom: 0.25,
+            }}
             onEdgeClick={(evt, edge) => {
               setApplyInput(
                 JSON.stringify(
