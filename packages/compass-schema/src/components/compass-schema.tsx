@@ -269,7 +269,7 @@ const InitialScreen: React.FunctionComponent<{
           variant="primary"
           size="small"
         >
-          Analyze Schema
+          Analyze schema
         </Button>
       }
       callToActionLink={

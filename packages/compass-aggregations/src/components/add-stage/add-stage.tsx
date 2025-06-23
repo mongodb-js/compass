@@ -42,7 +42,7 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
             variant="primary"
             leftGlyph={<Icon glyph="Plus"></Icon>}
           >
-            Add Stage
+            Add stage
           </Button>
 
           <div className={linkContainerStyles}>
