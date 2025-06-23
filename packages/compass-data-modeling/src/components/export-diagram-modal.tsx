@@ -29,16 +29,16 @@ const modelBodyStyles = css({
   paddingTop: spacing[600],
 });
 
-const exportFormatContainerStyles = css({
+const contentContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[300],
 });
 
-const radioGroupStyles = css({
+const radioItemStyles = css({
   display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[300],
+  alignItems: 'center',
+  gap: spacing[200],
 });
 
 const footerStyles = css({
@@ -92,18 +92,20 @@ const ExportDiagramModal = ({
         }
       />
       <ModalBody className={modelBodyStyles}>
-        <div className={exportFormatContainerStyles}>
+        <div className={contentContainerStyles}>
           <Label htmlFor="">Select file format:</Label>
-          <RadioGroup
-            className={radioGroupStyles}
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value as 'json')}
-          >
-            <Radio value="json" aria-label="JSON">
+          <RadioGroup className={contentContainerStyles} value={exportFormat}>
+            <div className={radioItemStyles}>
               <Icon glyph="CurlyBraces" />
-              {nbsp}
-              JSON
-            </Radio>
+              <Radio
+                checked={exportFormat === 'json'}
+                value="json"
+                aria-label="JSON"
+                onClick={() => setExportFormat('json')}
+              >
+                JSON
+              </Radio>
+            </div>
           </RadioGroup>
         </div>
       </ModalBody>
