@@ -11,6 +11,7 @@ import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
   applyInitialLayout,
+  moveCollection,
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from '../store/diagram';
@@ -153,6 +154,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
+  onMoveCollection: (ns: string, newPosition: [number, number]) => void;
 }> = ({
   diagramLabel,
   step,
@@ -162,6 +164,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyClick,
   onApplyInitialLayout,
+  onMoveCollection,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -357,6 +360,9 @@ const DiagramEditor: React.FunctionComponent<{
               maxZoom: 1,
               minZoom: 0.25,
             }}
+            onNodeDragStop={(evt, node) => {
+              onMoveCollection(node.id, [node.position.x, node.position.y]);
+            }}
             onEdgeClick={(evt, edge) => {
               setApplyInput(
                 JSON.stringify(
@@ -436,5 +442,6 @@ export default connect(
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
     onApplyInitialLayout: applyInitialLayout,
+    onMoveCollection: moveCollection,
   }
 )(DiagramEditor);

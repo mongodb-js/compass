@@ -260,6 +260,23 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   };
 }
 
+export function moveCollection(
+  ns: string,
+  newPosition: [number, number]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch) => {
+    const edit: Omit<
+      Extract<Edit, { type: 'MoveCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'MoveCollection',
+      ns,
+      newPosition,
+    };
+    dispatch(applyEdit(edit));
+  };
+}
+
 export function applyEdit(
   rawEdit: Omit<Edit, 'id' | 'timestamp'>
 ): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
@@ -365,6 +382,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         relationships: model.relationships.filter(
           (relationship) => relationship.id !== edit.relationshipId
         ),
+      };
+    }
+    case 'MoveCollection': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              displayPosition: edit.newPosition,
+            };
+          }
+          return collection;
+        }),
       };
     }
     default: {
