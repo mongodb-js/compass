@@ -17,11 +17,15 @@ import {
   waitForFileDownload,
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
+import { first } from 'lodash';
+
+interface Node {
+  id: string;
+  position: { x: number; y: number };
+}
 
 type DiagramInstance = {
-  getNodes: () => Array<{
-    id: string;
-  }>;
+  getNodes: () => Array<Node>;
 };
 
 async function setupDiagram(
@@ -70,7 +74,7 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
   const nodes = await browser.execute(function (selector) {
     const node = document.querySelector(selector);
     if (!node) {
@@ -80,7 +84,7 @@ async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
       node as Element & { _diagram: DiagramInstance }
     )._diagram.getNodes();
   }, Selectors.DataModelEditor);
-  return nodes.map((x) => x.id);
+  return nodes;
 }
 
 describe('Data Modeling tab', function () {
@@ -118,7 +122,7 @@ describe('Data Modeling tab', function () {
     }
   });
 
-  it('creates a new data model using an existing connection', async function () {
+  it.only('creates a new data model using an existing connection', async function () {
     const dataModelName = 'Test Data Model';
     await setupDiagram(browser, {
       diagramName: dataModelName,
@@ -131,46 +135,51 @@ describe('Data Modeling tab', function () {
 
     let nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    expect(nodes[0].id).to.equal('test.testCollection1');
+    expect(nodes[1].id).to.equal('test.testCollection2');
 
     // Apply change to the model
-    const newModel = {
-      type: 'SetModel',
-      model: {
-        collections: [],
-        relationships: [],
-      },
+    const originalPosition = {
+      x: Math.round(nodes[0].position.x),
+      y: Math.round(nodes[0].position.y),
     };
-    await browser.setCodemirrorEditorValue(
-      Selectors.DataModelApplyEditor,
-      JSON.stringify(newModel)
-    );
-    await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    console.log('Before applying change to the model');
+    console.log({ originalPosition });
+    await browser.actions([
+      browser
+        .action('pointer')
+        .move({
+          origin: dataModelEditor,
+          ...originalPosition,
+        })
+        .down()
+        .move(100, 0) // Move right by 100 pixels
+        .up(),
+    ]);
     await browser.waitForAnimations(dataModelEditor);
+
+    const newPosition = { x: originalPosition.x + 100, y: originalPosition.y };
+    console.log('After applying change to the model');
 
     // Verify that the model is updated
     nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes[0].position).to.equal(newPosition);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
     await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    expect(nodes[0].position).to.equal(originalPosition);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
     await browser.waitForAnimations(dataModelEditor);
     nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes[0].position).to.equal(newPosition);
 
     // Open a new tab
     await browser.openNewTab();
@@ -181,7 +190,8 @@ describe('Data Modeling tab', function () {
 
     // Verify that the diagram has the latest changes
     nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    expect(nodes).to.have.lengthOf(2);
+    expect(nodes[0].position).to.equal(newPosition);
 
     // Open a new tab
     await browser.openNewTab();

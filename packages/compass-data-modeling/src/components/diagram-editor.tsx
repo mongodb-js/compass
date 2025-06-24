@@ -152,17 +152,14 @@ const DiagramEditor: React.FunctionComponent<{
   editErrors?: string[];
   onRetryClick: () => void;
   onCancelClick: () => void;
-  onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
 }> = ({
   diagramLabel,
   step,
   model,
-  editErrors,
   onRetryClick,
   onCancelClick,
-  onApplyClick,
   onApplyInitialLayout,
   onMoveCollection,
 }) => {
@@ -377,42 +374,6 @@ const DiagramEditor: React.FunctionComponent<{
             }}
           />
         </div>
-        <div className={editorContainerStyles} data-testid="apply-editor">
-          <div className={editorContainerPlaceholderButtonStyles}>
-            <Button
-              onClick={applyPlaceholder('AddRelationship')}
-              data-testid="placeholder-addrelationship-button"
-            >
-              Add relationship
-            </Button>
-            <Button
-              onClick={applyPlaceholder('RemoveRelationship')}
-              data-testid="placeholder-removerelationship-button"
-            >
-              Remove relationship
-            </Button>
-          </div>
-          <div>
-            <CodemirrorMultilineEditor
-              language="json"
-              text={applyInput}
-              onChangeText={setApplyInput}
-              maxLines={10}
-            ></CodemirrorMultilineEditor>
-          </div>
-          <div className={editorContainerApplyContainerStyles}>
-            {editErrors && <ErrorSummary errors={editErrors} />}
-            <Button
-              onClick={() => {
-                onApplyClick(JSON.parse(applyInput));
-              }}
-              data-testid="apply-button"
-              disabled={!isEditValid}
-            >
-              Apply
-            </Button>
-          </div>
-        </div>
       </div>
     );
   }
@@ -440,7 +401,6 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
-    onApplyClick: applyEdit,
     onApplyInitialLayout: applyInitialLayout,
     onMoveCollection: moveCollection,
   }
