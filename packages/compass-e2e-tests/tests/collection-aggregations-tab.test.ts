@@ -200,6 +200,9 @@ describe('Collection aggregations tab', function () {
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
+    if (serverSatisfies('>=8.1.0')) {
+      expectedAggregations.push('$rankFusion');
+    }
 
     expectedAggregations.sort();
 
