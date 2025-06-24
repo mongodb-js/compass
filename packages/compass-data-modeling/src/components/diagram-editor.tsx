@@ -282,7 +282,7 @@ const DiagramEditor: React.FunctionComponent<{
   let content;
 
   if (step === 'NO_DIAGRAM_SELECTED') {
-    throw new Error('Unexpected');
+    return null;
   }
 
   if (step === 'ANALYZING') {

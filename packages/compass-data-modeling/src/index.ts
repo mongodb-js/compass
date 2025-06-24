@@ -11,25 +11,28 @@ import { dataModelStorageServiceLocator } from './provider';
 import { activateDataModelingStore } from './store';
 import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 
-export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
-  name: WorkspaceName,
-  provider: registerCompassPlugin(
-    {
-      name: 'DataModeling',
-      component: function DataModelingProvider({ children }) {
-        return React.createElement(React.Fragment, null, children);
-      },
-      activate: activateDataModelingStore,
+const CompassDataModelingPluginProvider = registerCompassPlugin(
+  {
+    name: 'DataModeling',
+    component: function DataModelingProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
     },
-    {
-      preferences: preferencesLocator,
-      connections: connectionsLocator,
-      instanceManager: mongoDBInstancesManagerLocator,
-      dataModelStorage: dataModelStorageServiceLocator,
-      track: telemetryLocator,
-      logger: createLoggerLocator('COMPASS-DATA-MODELING'),
-    }
-  ),
-  content: DataModelingComponent,
-  header: PluginTabTitleComponent,
-};
+    activate: activateDataModelingStore,
+  },
+  {
+    preferences: preferencesLocator,
+    connections: connectionsLocator,
+    instanceManager: mongoDBInstancesManagerLocator,
+    dataModelStorage: dataModelStorageServiceLocator,
+    track: telemetryLocator,
+    logger: createLoggerLocator('COMPASS-DATA-MODELING'),
+  }
+);
+
+export const CompassDataModelingPlugin: WorkspacePlugin<typeof WorkspaceName> =
+  {
+    name: WorkspaceName,
+    provider: CompassDataModelingPluginProvider,
+    content: DataModelingComponent,
+    header: PluginTabTitleComponent,
+  };

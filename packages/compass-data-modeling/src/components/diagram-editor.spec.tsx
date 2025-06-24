@@ -27,16 +27,20 @@ const mockDiagramming = {
 
 import React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  createPluginTestHelpers,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import DiagramEditor from './diagram-editor';
-import { renderWithOpenedDiagramStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
-import { DataModelStorageServiceProvider } from '../provider';
 import type {
   Edit,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
 import { DiagramProvider } from '@mongodb-js/diagramming';
+import { CompassDataModelingPlugin } from '..';
+import { openDiagram } from '../store/diagram';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
@@ -107,7 +111,7 @@ const storageItems: MongoDBDataModelDescription[] = [
   },
 ];
 
-const renderDiagramEditor = async ({
+const renderDiagramEditor = ({
   items = storageItems,
   renderedItem = items[0],
 }: {
@@ -129,20 +133,27 @@ const renderDiagramEditor = async ({
       return Promise.resolve(items.find((x) => x.id === id) ?? null);
     },
   };
-  const result = await renderWithOpenedDiagramStore(
-    <DataModelStorageServiceProvider storage={mockDataModelStorage}>
-      <DiagramProvider fitView>
-        <DiagramEditor />
-      </DiagramProvider>
-    </DataModelStorageServiceProvider>,
-    {
+
+  const { renderWithConnections } = createPluginTestHelpers(
+    CompassDataModelingPlugin.provider.withMockServices({
       services: {
         dataModelStorage: mockDataModelStorage,
       },
-    },
-    renderedItem
+    }),
+    {
+      namespace: 'foo.bar',
+    } as any
   );
-  return result;
+  const {
+    plugin: { store },
+  } = renderWithConnections(
+    <DiagramProvider fitView>
+      <DiagramEditor />
+    </DiagramProvider>
+  );
+  store.dispatch(openDiagram(renderedItem));
+
+  return { store };
 };
 
 describe('DiagramEditor', function () {
@@ -150,7 +161,7 @@ describe('DiagramEditor', function () {
 
   context('with initial diagram', function () {
     beforeEach(async function () {
-      const result = await renderDiagramEditor({
+      const result = renderDiagramEditor({
         renderedItem: storageItems[1],
       });
       store = result.store;
@@ -181,7 +192,7 @@ describe('DiagramEditor', function () {
 
   context('with existing diagram', function () {
     beforeEach(async function () {
-      const result = await renderDiagramEditor({
+      const result = renderDiagramEditor({
         renderedItem: storageItems[0],
       });
       store = result.store;

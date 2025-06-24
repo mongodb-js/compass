@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  renderWithConnections,
-  waitFor,
-} from '@mongodb-js/testing-library-compass';
+import { renderWithConnections } from '@mongodb-js/testing-library-compass';
 import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -12,9 +9,6 @@ import { activateDataModelingStore } from '../src/store';
 import type { DataModelingStoreServices } from '../src/store';
 import { noopDataModelStorageService } from '../src/provider';
 import { Provider } from 'react-redux';
-import { openDiagram } from '../src/store/diagram';
-import { expect } from 'chai';
-import type { MongoDBDataModelDescription } from '../src/services/data-model-storage';
 
 type ConnectionInfoWithMockData = ConnectionInfo & {
   databases: Array<{
@@ -197,28 +191,6 @@ export const renderWithStore = (
   } = {}
 ) => {
   const store = setupStore(services, connections);
-  const renderResult = renderWithConnections(
-    <Provider store={store}>{component}</Provider>,
-    { connections }
-  );
-  return { ...renderResult, store };
-};
-export const renderWithOpenedDiagramStore = async (
-  component: JSX.Element,
-  {
-    services = {},
-    connections = testConnections,
-  }: {
-    services?: Partial<DataModelingStoreServices>;
-    connections?: ConnectionInfoWithMockData[];
-  } = {},
-  diagram: MongoDBDataModelDescription
-) => {
-  const store = setupStore(services, connections);
-  store.dispatch(openDiagram(diagram));
-  await waitFor(() => {
-    expect(store.getState().diagram?.edits.current).to.have.lengthOf(1);
-  });
   const renderResult = renderWithConnections(
     <Provider store={store}>{component}</Provider>,
     { connections }
