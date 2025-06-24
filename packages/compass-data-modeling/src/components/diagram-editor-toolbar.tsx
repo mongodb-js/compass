@@ -12,7 +12,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onRedoClick: () => void;
   onExportClick: () => void;
 }> = ({ step, hasUndo, onUndoClick, hasRedo, onRedoClick, onExportClick }) => {
-  if (step === 'NO_DIAGRAM_SELECTED' || step !== 'EDITING') {
+  if (step !== 'EDITING') {
     return null;
   }
   return (
