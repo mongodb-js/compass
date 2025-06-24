@@ -45,7 +45,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-connection-import-export**](packages/compass-connection-import-export): UI for Compass connection import/export
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Manage your MongoDB connections and connect in Compass
 - [**@mongodb-js/compass-connections-navigation**](packages/compass-connections-navigation): Databases and collections sidebar navigation tree
-- [**@mongodb-js/compass-context-menu**](packages/compass-context-menu): undefined
+- [**@mongodb-js/compass-context-menu**](packages/compass-context-menu): Context menu hooks and provider for Compass
 - [**@mongodb-js/compass-data-modeling**](packages/compass-data-modeling): Data modeling diagram workspace and all related services
 - [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on codemirror editor, themes, and autocompleters
 - [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Generative AI aspects for Compass

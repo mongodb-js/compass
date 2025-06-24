@@ -1,5 +1,6 @@
 {
   "name": "@mongodb-js/compass-context-menu",
+  "description": "Context menu hooks and provider for Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
