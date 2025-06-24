@@ -4,27 +4,22 @@ import {
   LoggerProvider,
   useLogger,
 } from '@mongodb-js/compass-logging/provider';
-import type {
-  DebugFunction,
-  LogFunction,
-  TrackFunction,
-} from './logger-and-telemetry';
-import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
-import { renderHook, cleanup } from '@mongodb-js/testing-library-compass';
+import type { DebugFunction, LogFunction } from './logger';
+import { useCompassWebLogger } from './logger';
+import { renderHook } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 
-describe('useCompassWebLoggerAndTelemetry', function () {
-  function renderLoggerAndTelemetryHook({
+describe('useCompassWebLogger', function () {
+  function renderLoggerHook({
     onDebug,
     onLog,
   }: {
-    onTrack?: TrackFunction;
     onDebug?: DebugFunction;
     onLog?: LogFunction;
   } = {}) {
     const Wrapper: React.FunctionComponent = ({ children }) => {
-      const logger = useCompassWebLoggerAndTelemetry({
+      const logger = useCompassWebLogger({
         onDebug,
         onLog,
       });
@@ -39,20 +34,17 @@ describe('useCompassWebLoggerAndTelemetry', function () {
     );
   }
 
-  beforeEach(cleanup);
-
   it('should call callback props when logger is called', function () {
     const logs: any[] = [];
     const onLog = Sinon.stub().callsFake((entry) => logs.push(entry));
-    const onTrack = Sinon.stub();
     const onDebug = Sinon.stub();
 
     const {
-      result: { current: loggerAndTelemetry },
-    } = renderLoggerAndTelemetryHook({ onLog, onTrack, onDebug });
+      result: { current: logger },
+    } = renderLoggerHook({ onLog, onDebug });
 
-    loggerAndTelemetry.debug('foo bar');
-    loggerAndTelemetry.log.info(mongoLogId(123), 'Ctx', 'msg', { attr: 1 });
+    logger.debug('foo bar');
+    logger.log.info(mongoLogId(123), 'Ctx', 'msg', { attr: 1 });
 
     expect(onDebug).to.have.been.calledOnceWith('TEST', 'foo bar');
     expect(logs).to.deep.equal([
