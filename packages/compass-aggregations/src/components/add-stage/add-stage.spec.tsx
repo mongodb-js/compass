@@ -23,7 +23,7 @@ describe('AddStage', function () {
       renderAddStage({ variant: 'icon' });
       const button = screen.getByTestId('add-stage-icon-button');
       expect(() => {
-        within(button).getByText('Add Stage');
+        within(button).getByText('Add stage');
       }).to.throw;
     });
 
@@ -41,7 +41,7 @@ describe('AddStage', function () {
     it('renders text button', function () {
       renderAddStage({ variant: 'button' });
       const button = screen.getByTestId('add-stage');
-      expect(within(button).getByText('Add Stage')).to.exist;
+      expect(within(button).getByText('Add stage')).to.exist;
     });
 
     it('renders help link when stage is not last', function () {
