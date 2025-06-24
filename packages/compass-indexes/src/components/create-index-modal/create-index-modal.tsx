@@ -30,14 +30,12 @@ import {
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import CreateIndexModalHeader from './create-index-modal-header';
-import type { Document } from 'mongodb';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
   currentTab: Tab;
-  query: Document | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
@@ -52,7 +50,6 @@ function CreateIndexModal({
   onErrorBannerCloseClick,
   onCreateIndexClick,
   onCancelCreateIndexClick,
-  query,
   ...props
 }: CreateIndexModalProps) {
   const connectionInfoRef = useConnectionInfoRef();
@@ -67,7 +64,7 @@ function CreateIndexModal({
         });
       }
     },
-    [onCancelCreateIndexClick]
+    [onCancelCreateIndexClick, track]
   );
 
   useTrackOnChange(
@@ -117,7 +114,6 @@ function CreateIndexModal({
           namespace={namespace}
           showIndexesGuidanceVariant={showIndexesGuidanceVariant}
           currentTab={currentTab}
-          query={query}
         />
       </ModalBody>
 
@@ -127,7 +123,6 @@ function CreateIndexModal({
           onErrorBannerCloseClick={onErrorBannerCloseClick}
           onCreateIndexClick={onCreateIndexClick}
           onCancelCreateIndexClick={onCancelCreateIndexClick}
-          showIndexesGuidanceVariant={showIndexesGuidanceVariant}
         />
       </ModalFooter>
     </Modal>
@@ -135,7 +130,7 @@ function CreateIndexModal({
 }
 
 const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
-  const { fields, error, isVisible, currentTab, query } = createIndex;
+  const { fields, error, isVisible, currentTab } = createIndex;
   return {
     fields,
     error,
@@ -143,7 +138,6 @@ const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
     namespace,
     serverVersion,
     currentTab,
-    query,
   };
 };
 

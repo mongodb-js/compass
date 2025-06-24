@@ -2817,6 +2817,7 @@ type CreateIndexCodeEquivalentToggled = CommonEvent<{
   name: 'Code Equivalent Toggled';
   payload: {
     context: CreateIndexModalContext;
+    toggled: 'On' | 'Off';
   };
 }>;
 
@@ -2843,6 +2844,34 @@ type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
 
 type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
   name: 'Covered Queries Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexESRLearnMoreClicked = CommonEvent<{
+  name: 'ESR Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexInputIndexCopied = CommonEvent<{
+  name: 'Input Index Copied';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexIndexSuggestionsCopied = CommonEvent<{
+  name: 'Index Suggestions Copied';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
+  name: 'Index Strategies Documentation Clicked';
   payload: {
     context: CreateIndexModalContext;
   };
@@ -2981,6 +3010,7 @@ export type TelemetryEvent =
   | CreateIndexCodeEquivalentToggled
   | CreateIndexCoveredQueriesButtonClicked
   | CreateIndexCoveredQueriesLearnMoreClicked
+  | CreateIndexESRLearnMoreClicked
   | CreateIndexIndexTabClicked
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
@@ -2989,4 +3019,7 @@ export type TelemetryEvent =
   | CreateIndexProgrammingLanguageLinkClicked
   | CreateIndexQueryTabClicked
   | CreateIndexSuggestedIndexButtonClicked
+  | CreateIndexInputIndexCopied
+  | CreateIndexIndexSuggestionsCopied
+  | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent;

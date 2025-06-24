@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { webUtils, webFrame } from 'electron';
-import { globalAppRegistry } from 'hadron-app-registry';
+import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
@@ -120,7 +120,7 @@ class Application {
    */
   private enableDevelopmentDebug() {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('debug').enable('mon*,had*');
     }
   }

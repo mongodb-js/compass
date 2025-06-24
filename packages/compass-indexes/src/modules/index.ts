@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import type { Action, AnyAction } from 'redux';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';

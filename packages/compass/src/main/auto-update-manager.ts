@@ -765,7 +765,7 @@ class CompassAutoUpdateManager {
   private static currentActionAbortController: AbortController =
     new AbortController();
 
-  private static currentStateTransition: Promise<unknown | void> | undefined;
+  private static currentStateTransition: Promise<unknown> | undefined;
 
   static setState(newState: AutoUpdateManagerState, ...args: unknown[]) {
     // State update was aborted outside state transition loop. This indicates

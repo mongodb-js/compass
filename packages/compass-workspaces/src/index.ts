@@ -1,9 +1,8 @@
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
-import { registerHadronPlugin } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type {
   OpenWorkspaceOptions,
-  WorkspaceTab,
   CollectionTabInfo,
 } from './stores/workspaces';
 import workspacesReducer, {
@@ -222,7 +221,7 @@ export function activateWorkspacePlugin(
   };
 }
 
-const WorkspacesPlugin = registerHadronPlugin(
+const WorkspacesPlugin = registerCompassPlugin(
   {
     name: 'Workspaces',
     component: Workspaces,
@@ -238,7 +237,7 @@ const WorkspacesPlugin = registerHadronPlugin(
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export type { OpenWorkspaceOptions, WorkspaceTab, CollectionTabInfo };
+export type { OpenWorkspaceOptions, CollectionTabInfo };
 export type {
   WelcomeWorkspace,
   MyQueriesWorkspace,
@@ -250,7 +249,8 @@ export type {
   CollectionWorkspace,
   AnyWorkspace,
   Workspace,
-  WorkspacePluginProps,
-  WorkspaceComponent,
+  WorkspacePlugin,
+  WorkspaceTab,
   CollectionSubtab,
+  WorkspacePluginProps,
 } from './types';

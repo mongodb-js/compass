@@ -27,7 +27,7 @@ import type {
   ConnectionInfoRef,
   DataService as OriginalDataService,
 } from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';

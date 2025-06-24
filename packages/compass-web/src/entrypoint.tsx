@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
@@ -288,7 +288,7 @@ const CompassWeb = ({
 
   const telemetryOptions = useRef<TelemetryServiceOptions>({
     sendTrack: (event: string, properties: Record<string, any> | undefined) => {
-      onTrackRef.current && void onTrackRef.current(event, properties || {});
+      void onTrackRef.current?.(event, properties || {});
     },
     logger,
     preferences: preferencesAccess.current,

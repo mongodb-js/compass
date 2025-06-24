@@ -6,8 +6,8 @@ import {
   cx,
   useFocusRing,
   ParagraphSkeleton,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
 import React, { useMemo, useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import {
@@ -19,8 +19,10 @@ import type { RootState } from '../../modules';
 import { fetchIndexSuggestions } from '../../modules/create-index';
 import type {
   IndexSuggestionState,
+  QueryUpdatedProps,
   SuggestedIndexFetchedProps,
 } from '../../modules/create-index';
+import { queryUpdated } from '../../modules/create-index';
 import { connect } from 'react-redux';
 import { parseFilter } from 'mongodb-query-parser';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -62,7 +64,6 @@ const codeEditorContainerStyles = css({
 const codeEditorStyles = css({
   borderRadius: editorContainerRadius,
   '& .cm-editor': {
-    background: `${palette.white} !important`,
     borderRadius: editorContainerRadius,
   },
   '& .cm-content': {
@@ -71,12 +72,21 @@ const codeEditorStyles = css({
   },
 });
 
+const lightModeCodeEditorStyles = css({
+  '& .cm-editor': {
+    background: `${palette.white} !important`,
+  },
+});
+
 const indexSuggestionsLoaderStyles = css({
   marginBottom: spacing[600],
   padding: spacing[600],
+  borderRadius: editorContainerRadius,
+});
+
+const indexSuggestionsLoaderLightStyles = css({
   background: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
-  borderRadius: editorContainerRadius,
 });
 
 const insightStyles = css({
@@ -96,27 +106,27 @@ const QueryFlowSection = ({
   indexSuggestions,
   fetchingSuggestionsState,
   initialQuery,
+  query,
+  hasQueryChanges,
+  onQueryUpdated,
 }: {
   schemaFields: { name: string; description?: string }[];
   serverVersion: string;
   dbName: string;
   collectionName: string;
   onSuggestedIndexButtonClick: ({
-    dbName,
-    collectionName,
-    inputQuery,
+    query,
   }: SuggestedIndexFetchedProps) => Promise<void>;
   indexSuggestions: Record<string, number> | null;
   fetchingSuggestionsState: IndexSuggestionState;
-  initialQuery: Document | null;
+  initialQuery: string | null;
+  query: string;
+  hasQueryChanges: boolean;
+  onQueryUpdated: ({ query }: QueryUpdatedProps) => void;
 }) => {
   const track = useTelemetry();
-  const [inputQuery, setInputQuery] = React.useState(
-    initialQuery ? JSON.stringify(initialQuery, null, 2) : ''
-  );
-  const [hasNewChanges, setHasNewChanges] = React.useState(
-    initialQuery !== null
-  );
+  const darkMode = useDarkMode();
+
   const [isShowSuggestionsButtonDisabled, setIsShowSuggestionsButtonDisabled] =
     React.useState(true);
 
@@ -136,53 +146,53 @@ const QueryFlowSection = ({
     radius: editorContainerRadius,
   });
 
-  const handleSuggestedIndexButtonClick = useCallback(() => {
-    const sanitizedInputQuery = inputQuery.trim();
+  const generateSuggestedIndexes = useCallback(() => {
+    const sanitizedInputQuery = query.trim();
 
     void onSuggestedIndexButtonClick({
-      dbName,
-      collectionName,
-      inputQuery: sanitizedInputQuery,
+      query: sanitizedInputQuery,
     });
+  }, [query, onSuggestedIndexButtonClick]);
 
+  const handleSuggestedIndexButtonClick = () => {
+    generateSuggestedIndexes();
     track('Suggested Index Button Clicked', {
       context: 'Create Index Modal',
     });
+  };
 
-    setHasNewChanges(false);
-  }, [inputQuery, dbName, collectionName, onSuggestedIndexButtonClick]);
-
-  const handleQueryInputChange = useCallback((text: string) => {
-    setInputQuery(text);
-    setHasNewChanges(true);
-  }, []);
+  const handleQueryInputChange = useCallback(
+    (text: string) => {
+      onQueryUpdated({ query: text });
+    },
+    [onQueryUpdated]
+  );
 
   const isFetchingIndexSuggestions = fetchingSuggestionsState === 'fetching';
 
-  // Validate query upon typing
   useMemo(() => {
-    let _isShowSuggestionsButtonDisabled = !hasNewChanges;
+    let _isShowSuggestionsButtonDisabled = !hasQueryChanges;
     try {
-      parseFilter(inputQuery);
+      parseFilter(query);
 
-      if (!inputQuery.startsWith('{') || !inputQuery.endsWith('}')) {
+      if (!query.startsWith('{') || !query.endsWith('}')) {
         _isShowSuggestionsButtonDisabled = true;
       }
-    } catch (e) {
+    } catch {
       _isShowSuggestionsButtonDisabled = true;
     } finally {
       setIsShowSuggestionsButtonDisabled(_isShowSuggestionsButtonDisabled);
     }
-  }, [hasNewChanges, inputQuery]);
+  }, [hasQueryChanges, query]);
 
   return (
     <>
       {initialQuery && (
         <div className={insightStyles}>
           <InsightsChip />
-          <p>
+          <span>
             We prefilled the query input below based on your recently run query
-          </p>
+          </span>
         </div>
       )}
       <Body baseFontSize={16} weight="medium" className={headerStyles}>
@@ -201,11 +211,14 @@ const QueryFlowSection = ({
             showAnnotationsGutter={false}
             copyable={false}
             formattable={false}
-            text={inputQuery}
+            text={query}
             onChangeText={(text) => handleQueryInputChange(text)}
             placeholder="Type a query: { field: 'value' }"
             completer={completer}
-            className={codeEditorStyles}
+            className={cx(
+              codeEditorStyles,
+              !darkMode && lightModeCodeEditorStyles
+            )}
           />
         </div>
 
@@ -230,7 +243,10 @@ const QueryFlowSection = ({
       {isFetchingIndexSuggestions ? (
         <ParagraphSkeleton
           data-testid="query-flow-section-code-loader"
-          className={indexSuggestionsLoaderStyles}
+          className={cx(
+            indexSuggestionsLoaderStyles,
+            !darkMode && indexSuggestionsLoaderLightStyles
+          )}
         />
       ) : (
         indexSuggestions && (
@@ -241,6 +257,11 @@ const QueryFlowSection = ({
                 dbName={dbName}
                 collectionName={collectionName}
                 indexNameTypeMap={indexSuggestions}
+                onCopy={() => {
+                  track('Index Suggestions Copied', {
+                    context: 'Create Index Modal',
+                  });
+                }}
               />
             </div>
           </>
@@ -251,17 +272,27 @@ const QueryFlowSection = ({
 };
 
 const mapState = ({ createIndex }: RootState) => {
-  const { indexSuggestions, sampleDocs, fetchingSuggestionsState } =
-    createIndex;
+  const {
+    indexSuggestions,
+    sampleDocs,
+    fetchingSuggestionsState,
+    query,
+    initialQuery,
+    hasQueryChanges,
+  } = createIndex;
   return {
     indexSuggestions,
     sampleDocs,
     fetchingSuggestionsState,
+    query,
+    initialQuery,
+    hasQueryChanges,
   };
 };
 
 const mapDispatch = {
   onSuggestedIndexButtonClick: fetchIndexSuggestions,
+  onQueryUpdated: queryUpdated,
 };
 
 export default connect(mapState, mapDispatch)(QueryFlowSection);

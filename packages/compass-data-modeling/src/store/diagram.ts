@@ -118,7 +118,8 @@ export const diagramReducer: Reducer<DiagramState> = (
                 // TODO
                 indexes: [],
                 shardKey: undefined,
-                displayPosition: [0, 0],
+                // TODO: handle correct display position
+                displayPosition: [Math.random() * 1000, Math.random() * 1000],
               })),
               relationships: action.relations,
             },
@@ -273,7 +274,7 @@ export function renameDiagram(
       }
       dispatch({ type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName });
       void dataModelStorage.save({ ...diagram, name: newName });
-    } catch (err) {
+    } catch {
       // TODO log
     }
   };

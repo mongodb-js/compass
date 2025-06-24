@@ -25,6 +25,7 @@ describe('MDBCodeViewer', () => {
         dbName={dbName}
         collectionName={collectionName}
         indexNameTypeMap={indexNameTypeMap}
+        onCopy={() => {}}
       />
     );
   };
