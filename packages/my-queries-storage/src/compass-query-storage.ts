@@ -21,7 +21,7 @@ export interface QueryStorageBackend<TData> {
 
 export abstract class CompassQueryStorage<
   TSchema extends z.Schema,
-  TData = z.output<TSchema>
+  TData extends z.output<TSchema> = z.output<TSchema>
 > implements QueryStorageBackend<TData>
 {
   protected readonly userData: UserData<TSchema>;
