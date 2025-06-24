@@ -137,7 +137,7 @@ const DiagramEditor: React.FunctionComponent<{
   const isDarkMode = useDarkMode();
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useDiagram();
-  const [nodes, setNodes] = useState<NodeProps[]>([]);
+  const [areNodesReady, setAreNodesReady] = useState(false);
 
   const setDiagramContainerRef = useCallback(
     (ref: HTMLDivElement | null) => {
@@ -211,34 +211,31 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships]);
 
-  const applyInitialLayout = useCallback(
-    async (storedNodes: NodeProps[]) => {
-      try {
-        const { nodes: positionedNodes } = await applyLayout(
-          storedNodes,
-          edges,
-          'LEFT_RIGHT'
-        );
-        onApplyInitialLayout(
-          positionedNodes.reduce((obj, node) => {
-            obj[node.id] = [node.position.x, node.position.y];
-            return obj;
-          }, {} as Record<string, [number, number]>)
-        );
-      } catch (err) {
-        log.error(
-          mongoLogId(1_001_000_361),
-          'DiagramEditor',
-          'Error applying layout:',
-          err
-        );
-      }
-    },
-    [edges, log, mongoLogId, onApplyInitialLayout]
-  );
+  const applyInitialLayout = useCallback(async () => {
+    try {
+      const { nodes: positionedNodes } = await applyLayout(
+        nodes,
+        edges,
+        'LEFT_RIGHT'
+      );
+      onApplyInitialLayout(
+        positionedNodes.reduce((obj, node) => {
+          obj[node.id] = [node.position.x, node.position.y];
+          return obj;
+        }, {} as Record<string, [number, number]>)
+      );
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_361),
+        'DiagramEditor',
+        'Error applying layout:',
+        err
+      );
+    }
+  }, [edges, log, mongoLogId, onApplyInitialLayout]);
 
-  useEffect(() => {
-    const storedNodes = (model?.collections ?? []).map(
+  const nodes = useMemo<NodeProps[]>(() => {
+    return (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
         type: 'collection',
@@ -265,24 +262,22 @@ const DiagramEditor: React.FunctionComponent<{
         ),
       })
     );
-    const isInitialState = storedNodes.every(
+  }, [model?.collections]);
+
+  useEffect(() => {
+    if (nodes.length === 0) return;
+    const isInitialState = nodes.every(
       (node) => node.position.x === -1 && node.position.y === -1
     );
     if (isInitialState) {
-      void applyInitialLayout(storedNodes);
+      void applyInitialLayout();
       return;
     }
-    setNodes(storedNodes);
-  }, [model?.collections, edges, diagram, applyInitialLayout]);
-
-  const nodesLoaded = useRef(false);
-  useEffect(() => {
-    // call fitView once the nodes are ready
-    if (!nodesLoaded.current && nodes.length > 0) {
+    if (!areNodesReady) {
       void diagram.fitView();
-      nodesLoaded.current = true;
+      setAreNodesReady(true);
     }
-  }, [nodesLoaded, nodes, diagram]);
+  }, [areNodesReady, nodes, diagram, applyInitialLayout]);
 
   let content;
 
@@ -331,7 +326,7 @@ const DiagramEditor: React.FunctionComponent<{
             isDarkMode={isDarkMode}
             title={diagramLabel}
             edges={edges}
-            nodes={nodes}
+            nodes={areNodesReady ? nodes : []}
             fitViewOptions={{
               maxZoom: 1,
               minZoom: 0.25,
