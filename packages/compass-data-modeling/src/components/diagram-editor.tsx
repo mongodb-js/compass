@@ -227,7 +227,7 @@ const DiagramEditor: React.FunctionComponent<{
         );
       } catch (err) {
         log.error(
-          mongoLogId(1_001_000_001),
+          mongoLogId(1_001_000_361),
           'DiagramEditor',
           'Error applying layout:',
           err
