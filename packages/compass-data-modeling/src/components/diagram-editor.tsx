@@ -219,10 +219,12 @@ const DiagramEditor: React.FunctionComponent<{
         'LEFT_RIGHT'
       );
       onApplyInitialLayout(
-        positionedNodes.reduce((obj, node) => {
-          obj[node.id] = [node.position.x, node.position.y];
-          return obj;
-        }, {} as Record<string, [number, number]>)
+        Object.fromEntries(
+          positionedNodes.map((node) => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        )
       );
     } catch (err) {
       log.error(
