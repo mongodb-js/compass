@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { DataModelingState } from '../store/reducer';
 import {
-  applyEdit,
   applyInitialLayout,
   moveCollection,
   getCurrentDiagramFromState,
@@ -24,11 +23,8 @@ import {
   css,
   spacing,
   Button,
-  palette,
-  ErrorSummary,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import {
   Diagram,
@@ -37,8 +33,7 @@ import {
   useDiagram,
   applyLayout,
 } from '@mongodb-js/diagramming';
-import type { Edit, StaticModel } from '../services/data-model-storage';
-import { UUID } from 'bson';
+import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
@@ -120,31 +115,6 @@ const modelPreviewStyles = css({
   minHeight: 0,
 });
 
-const editorContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  boxShadow: `0 0 0 2px ${palette.gray.light2}`,
-});
-
-const editorContainerApplyContainerStyles = css({
-  padding: spacing[200],
-  justifyContent: 'flex-end',
-  gap: spacing[200],
-  display: 'flex',
-  width: '100%',
-  alignItems: 'center',
-});
-
-const editorContainerPlaceholderButtonStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
-  alignSelf: 'flex-start',
-  display: 'flex',
-  gap: spacing[200],
-  paddingTop: spacing[200],
-});
-
 const DiagramEditor: React.FunctionComponent<{
   diagramLabel: string;
   step: DataModelingState['step'];
@@ -179,54 +149,6 @@ const DiagramEditor: React.FunctionComponent<{
     },
     [diagram]
   );
-
-  const [applyInput, setApplyInput] = useState('{}');
-
-  const isEditValid = useMemo(() => {
-    try {
-      JSON.parse(applyInput);
-      return true;
-    } catch {
-      return false;
-    }
-  }, [applyInput]);
-
-  const applyPlaceholder =
-    (type: 'AddRelationship' | 'RemoveRelationship') => () => {
-      let placeholder = {};
-      switch (type) {
-        case 'AddRelationship':
-          placeholder = {
-            type: 'AddRelationship',
-            relationship: {
-              id: new UUID().toString(),
-              relationship: [
-                {
-                  ns: 'db.sourceCollection',
-                  cardinality: 1,
-                  fields: ['field1'],
-                },
-                {
-                  ns: 'db.targetCollection',
-                  cardinality: 1,
-                  fields: ['field2'],
-                },
-              ],
-              isInferred: false,
-            },
-          };
-          break;
-        case 'RemoveRelationship':
-          placeholder = {
-            type: 'RemoveRelationship',
-            relationshipId: new UUID().toString(),
-          };
-          break;
-        default:
-          throw new Error(`Unknown placeholder ${type}`);
-      }
-      setApplyInput(JSON.stringify(placeholder, null, 2));
-    };
 
   const edges = useMemo(() => {
     return (model?.relationships ?? []).map((relationship): EdgeProps => {
@@ -357,28 +279,8 @@ const DiagramEditor: React.FunctionComponent<{
               maxZoom: 1,
               minZoom: 0.25,
             }}
-            onSelectionChange={({ nodes }) => {
-              console.log('SELECTION CHANGE', nodes);
-            }}
-            onNodeDrag={(evt, node) => {
-              console.log('NODE DRAG', node);
-              // onMoveCollection(node.id, [node.position.x, node.position.y]);
-            }}
             onNodeDragStop={(evt, node) => {
-              console.log('NODE DRAG STOP', node);
               onMoveCollection(node.id, [node.position.x, node.position.y]);
-            }}
-            onEdgeClick={(evt, edge) => {
-              setApplyInput(
-                JSON.stringify(
-                  {
-                    type: 'RemoveRelationship',
-                    relationshipId: edge.id,
-                  },
-                  null,
-                  2
-                )
-              );
             }}
           />
         </div>
