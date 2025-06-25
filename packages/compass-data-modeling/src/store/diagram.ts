@@ -133,10 +133,10 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
+                displayPosition: [NaN, NaN],
                 // TODO
                 indexes: [],
                 shardKey: undefined,
-                displayPosition: [-1, -1],
               })),
               relationships: action.relations,
             },
@@ -175,7 +175,7 @@ export const diagramReducer: Reducer<DiagramState> = (
               ...initialEdit.model,
               collections: initialEdit.model.collections.map((collection) => ({
                 ...collection,
-                displayPosition: action.positions[collection.ns] || [-1, -1],
+                displayPosition: action.positions[collection.ns] || [NaN, NaN],
               })),
             },
           },

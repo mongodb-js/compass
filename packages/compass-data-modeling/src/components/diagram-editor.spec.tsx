@@ -91,14 +91,14 @@ const storageItems: MongoDBDataModelDescription[] = [
             {
               ns: 'db1.collection1',
               indexes: [],
-              displayPosition: [-1, -1],
+              displayPosition: [NaN, NaN],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
-              displayPosition: [-1, -1],
+              displayPosition: [NaN, NaN],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },

@@ -97,12 +97,12 @@ describe('Data Modeling store', function () {
       expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
         jsonSchema: newDiagram.collections[0].schema,
-        displayPosition: [-1, -1],
+        displayPosition: [NaN, NaN],
       });
       expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
         jsonSchema: newDiagram.collections[1].schema,
-        displayPosition: [-1, -1],
+        displayPosition: [NaN, NaN],
       });
       expect(initialEdit.model.relationships).to.deep.equal(
         newDiagram.relations
