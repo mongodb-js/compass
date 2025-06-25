@@ -4,11 +4,6 @@ import { PassThrough } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { useRef } from 'react';
 
-export type TrackFunction = (
-  event: string,
-  properties: Record<string, any>
-) => void;
-
 export type LogMessage = {
   id: number;
   t: { $date: string };
@@ -53,7 +48,7 @@ function createCompassWebDebugger(
   );
 }
 
-export class CompassWebLoggerAndTelemetry implements Logger {
+export class CompassWebLogger implements Logger {
   log: Logger['log'];
 
   debug: Debugger;
@@ -81,19 +76,19 @@ export class CompassWebLoggerAndTelemetry implements Logger {
   mongoLogId = mongoLogId;
 
   createLogger = (component: string): Logger => {
-    return new CompassWebLoggerAndTelemetry(component, this.callbackRef);
+    return new CompassWebLogger(component, this.callbackRef);
   };
 }
 
-export function useCompassWebLoggerAndTelemetry(callbacks: {
+export function useCompassWebLogger(callbacks: {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
-}): CompassWebLoggerAndTelemetry {
+}): CompassWebLogger {
   const callbackRef = useRef(callbacks);
   callbackRef.current = callbacks;
-  const loggerAndTelemetryRef = useRef<CompassWebLoggerAndTelemetry>();
+  const loggerAndTelemetryRef = useRef<CompassWebLogger>();
   if (!loggerAndTelemetryRef.current) {
-    loggerAndTelemetryRef.current = new CompassWebLoggerAndTelemetry(
+    loggerAndTelemetryRef.current = new CompassWebLogger(
       'COMPASS-WEB',
       callbackRef
     );

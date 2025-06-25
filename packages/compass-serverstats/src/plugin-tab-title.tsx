@@ -2,7 +2,6 @@ import React from 'react';
 import {
   useConnectionInfo,
   useConnectionsListRef,
-  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import {
   WorkspaceTab,
@@ -22,8 +21,6 @@ export function ServerStatsPluginTitleComponent(
   const { id: connectionId } = useConnectionInfo();
   const connectionName = getConnectionById(connectionId)?.title || '';
 
-  const { getThemeOf } = useTabConnectionTheme();
-
   return (
     <WorkspaceTab
       {...props}
@@ -32,7 +29,6 @@ export function ServerStatsPluginTitleComponent(
       title={`Performance: ${connectionName}`}
       tooltip={[['Performance', connectionName || '']]}
       iconGlyph="Gauge"
-      tabTheme={getThemeOf(connectionId)}
     />
   );
 }

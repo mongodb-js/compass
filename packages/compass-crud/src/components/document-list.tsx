@@ -447,7 +447,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
                         variant="primary"
                         size="small"
                       >
-                        Import Data
+                        Import data
                       </Button>
                     )
                   }

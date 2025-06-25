@@ -4,14 +4,10 @@ import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
   getCurrentDiagramFromState,
-  redoEdit,
   selectCurrentModel,
-  undoEdit,
 } from '../store/diagram';
 import {
   Banner,
-  Icon,
-  IconButton,
   CancelLoader,
   WorkspaceContainer,
   css,
@@ -31,6 +27,8 @@ import {
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
+import DiagramEditorToolbar from './diagram-editor-toolbar';
+import ExportDiagramModal from './export-diagram-modal';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -110,10 +108,6 @@ const editorContainerPlaceholderButtonStyles = css({
 const DiagramEditor: React.FunctionComponent<{
   diagramLabel: string;
   step: DataModelingState['step'];
-  hasUndo: boolean;
-  onUndoClick: () => void;
-  hasRedo: boolean;
-  onRedoClick: () => void;
   model: StaticModel | null;
   editErrors?: string[];
   onRetryClick: () => void;
@@ -122,10 +116,6 @@ const DiagramEditor: React.FunctionComponent<{
 }> = ({
   diagramLabel,
   step,
-  hasUndo,
-  onUndoClick,
-  hasRedo,
-  onRedoClick,
   model,
   editErrors,
   onRetryClick,
@@ -345,33 +335,9 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={() => {
-        if (step !== 'EDITING') {
-          return null;
-        }
-
-        return (
-          <>
-            <IconButton
-              aria-label="Undo"
-              disabled={!hasUndo}
-              onClick={onUndoClick}
-            >
-              <Icon glyph="Undo"></Icon>
-            </IconButton>
-            <IconButton
-              aria-label="Redo"
-              disabled={!hasRedo}
-              onClick={onRedoClick}
-            >
-              <Icon glyph="Redo"></Icon>
-            </IconButton>
-          </>
-        );
-      }}
-    >
+    <WorkspaceContainer toolbar={<DiagramEditorToolbar />}>
       {content}
+      <ExportDiagramModal />
     </WorkspaceContainer>
   );
 };
@@ -381,8 +347,6 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
-      hasRedo: (diagram?.edits.next.length ?? 0) > 0,
       model: diagram
         ? selectCurrentModel(getCurrentDiagramFromState(state))
         : null,
@@ -391,8 +355,6 @@ export default connect(
     };
   },
   {
-    onUndoClick: undoEdit,
-    onRedoClick: redoEdit,
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
