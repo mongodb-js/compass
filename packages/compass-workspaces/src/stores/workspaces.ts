@@ -843,6 +843,17 @@ export const openTabFromCurrent = (
   };
 };
 
+async function confirmClosingTabs() {
+  return await showConfirmation({
+    title: 'Are you sure you want to close the tab?',
+    description:
+      'The content of this tab has been modified. You will lose your changes if you close it.',
+    buttonText: 'Close tab',
+    variant: 'danger',
+    'data-testid': 'confirm-tab-close',
+  });
+}
+
 type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };
 
 export const closeTab = (
@@ -850,21 +861,10 @@ export const closeTab = (
 ): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
   return async (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
-    if (!canCloseTab(tab)) {
-      const confirmClose = await showConfirmation({
-        title: 'Are you sure you want to close the tab?',
-        description:
-          'The content of this tab has been modified. You will lose your changes if you close it.',
-        buttonText: 'Close tab',
-        variant: 'danger',
-        'data-testid': 'confirm-tab-close',
-      });
-      if (!confirmClose) {
-        return;
-      }
+    if (canCloseTab(tab) || (await confirmClosingTabs())) {
+      dispatch({ type: WorkspacesActions.CloseTab, atIndex });
+      cleanupLocalAppRegistryForTab(tab?.id);
     }
-    dispatch({ type: WorkspacesActions.CloseTab, atIndex });
-    cleanupLocalAppRegistryForTab(tab?.id);
   };
 };
 
