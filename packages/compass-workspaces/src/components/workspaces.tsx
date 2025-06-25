@@ -21,6 +21,7 @@ import {
   moveTab,
   openFallbackWorkspace,
   openTabFromCurrent,
+  duplicateTab,
   selectNextTab,
   selectPrevTab,
   selectTab,
@@ -76,6 +77,7 @@ type CompassWorkspacesProps = {
   onSelectPrevTab(): void;
   onMoveTab(from: number, to: number): void;
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
+  onDuplicateTab(at: number): void;
   onCloseTab(at: number): void;
   onCloseAllOtherTabs(at: number): void;
   onNamespaceNotFound(
@@ -95,6 +97,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onSelectPrevTab,
   onMoveTab,
   onCreateTab,
+  onDuplicateTab,
   onCloseTab,
   onCloseAllOtherTabs,
   onNamespaceNotFound,
@@ -205,6 +208,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onSelectPrevTab={onSelectPrevTab}
         onMoveTab={onMoveTab}
         onCreateNewTab={onCreateNewTab}
+        onDuplicateTab={onDuplicateTab}
         onCloseTab={onCloseTab}
         onCloseAllOtherTabs={onCloseAllOtherTabs}
         tabs={workspaceTabs}
@@ -238,6 +242,7 @@ export default connect(
     onSelectPrevTab: selectPrevTab,
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
+    onDuplicateTab: duplicateTab,
     onCloseTab: closeTab,
     onCloseAllOtherTabs: closeAllOtherTabs,
     onNamespaceNotFound: openFallbackWorkspace,

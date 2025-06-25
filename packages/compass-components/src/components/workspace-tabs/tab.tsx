@@ -193,6 +193,7 @@ export type WorkspaceTabCoreProps = {
   isSelected: boolean;
   isDragging: boolean;
   onSelect: () => void;
+  onDuplicate: () => void;
   onClose: () => void;
   onCloseAllOthers: () => void;
   tabContentId: string;
@@ -209,6 +210,7 @@ function Tab({
   isSelected,
   isDragging,
   onSelect,
+  onDuplicate,
   onClose,
   onCloseAllOthers,
   tabContentId,
@@ -238,8 +240,11 @@ function Tab({
   }, [tabTheme, darkMode]);
 
   const contextMenuRef = useContextMenuItems(
-    () => [{ label: 'Close all other tabs', onAction: onCloseAllOthers }],
-    [onCloseAllOthers]
+    () => [
+      { label: 'Close all other tabs', onAction: onCloseAllOthers },
+      { label: 'Duplicate', onAction: onDuplicate },
+    ],
+    [onCloseAllOthers, onDuplicate]
   );
 
   const mergedRef = useMergeRefs([setNodeRef, contextMenuRef]);

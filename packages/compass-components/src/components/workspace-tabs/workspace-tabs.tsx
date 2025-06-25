@@ -150,6 +150,7 @@ type SortableItemProps = {
   selectedTabIndex: number;
   activeId: UniqueIdentifier | null;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
   onCloseAllOthers: (tabIndex: number) => void;
 };
@@ -159,6 +160,7 @@ type SortableListProps = {
   selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
   onCloseAllOthers: (tabIndex: number) => void;
 };
@@ -169,6 +171,7 @@ type WorkspaceTabsProps = {
   onSelectTab: (tabIndex: number) => void;
   onSelectNextTab: () => void;
   onSelectPrevTab: () => void;
+  onDuplicateTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
   onCloseAllOtherTabs: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
@@ -212,6 +215,7 @@ const SortableList = ({
   onMove,
   onSelect,
   selectedTabIndex,
+  onDuplicate,
   onClose,
   onCloseAllOthers,
 }: SortableListProps) => {
@@ -270,6 +274,7 @@ const SortableList = ({
               tab={tab}
               activeId={activeId}
               onSelect={onSelect}
+              onDuplicate={onDuplicate}
               onClose={onClose}
               onCloseAllOthers={onCloseAllOthers}
               selectedTabIndex={selectedTabIndex}
@@ -287,12 +292,17 @@ const SortableItem = ({
   selectedTabIndex,
   activeId,
   onSelect,
+  onDuplicate,
   onClose,
   onCloseAllOthers,
 }: SortableItemProps) => {
   const onTabSelected = useCallback(() => {
     onSelect(index);
   }, [onSelect, index]);
+
+  const onTabDuplicated = useCallback(() => {
+    onDuplicate(index);
+  }, [onDuplicate, index]);
 
   const onTabClosed = useCallback(() => {
     onClose(index);
@@ -314,6 +324,7 @@ const SortableItem = ({
     isDragging,
     tabContentId: tabId,
     onSelect: onTabSelected,
+    onDuplicate: onTabDuplicated,
     onClose: onTabClosed,
     onCloseAllOthers: onAllOthersTabsClosed,
   });
@@ -322,6 +333,7 @@ const SortableItem = ({
 function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
+  onDuplicateTab,
   onCloseTab,
   onCloseAllOtherTabs,
   onMoveTab,
@@ -420,6 +432,7 @@ function WorkspaceTabs({
             tabs={tabs}
             onMove={onMoveTab}
             onSelect={onSelectTab}
+            onDuplicate={onDuplicateTab}
             onClose={onCloseTab}
             onCloseAllOthers={onCloseAllOtherTabs}
             selectedTabIndex={selectedTabIndex}

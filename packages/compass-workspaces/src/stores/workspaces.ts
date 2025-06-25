@@ -55,6 +55,7 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
+  DuplicateTab = 'compass-workspaces/DuplicateTab',
   CloseTab = 'compass-workspaces/CloseTab',
   CloseAllOtherTabs = 'compass-workspaces/CloseAllOtherTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
@@ -397,6 +398,20 @@ const reducer: Reducer<WorkspacesState, Action> = (
     return {
       ...state,
       tabs: newTabs,
+      activeTabId: newTab.id,
+    };
+  }
+
+  if (isAction<DuplicateTabAction>(action, WorkspacesActions.DuplicateTab)) {
+    const tabsBefore = state.tabs.slice(0, action.atIndex);
+    const targetTab = state.tabs[action.atIndex];
+    const tabsAfter = state.tabs.slice(action.atIndex + 1);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...tabProps } = targetTab;
+    const newTab = getInitialTabState(tabProps);
+    return {
+      ...state,
+      tabs: [...tabsBefore, targetTab, newTab, ...tabsAfter],
       activeTabId: newTab.id,
     };
   }
@@ -855,6 +870,18 @@ export const openTabFromCurrent = (
   return {
     type: WorkspacesActions.OpenTabFromCurrentActive,
     defaultTab: defaultTab ?? { type: 'My Queries' },
+  };
+};
+
+type DuplicateTabAction = {
+  type: WorkspacesActions.DuplicateTab;
+  atIndex: number;
+};
+
+export const duplicateTab = (atIndex: number): DuplicateTabAction => {
+  return {
+    type: WorkspacesActions.DuplicateTab,
+    atIndex,
   };
 };
 
