@@ -357,7 +357,15 @@ const DiagramEditor: React.FunctionComponent<{
               maxZoom: 1,
               minZoom: 0.25,
             }}
+            onSelectionChange={({ nodes }) => {
+              console.log('SELECTION CHANGE', nodes);
+            }}
+            onNodeDrag={(evt, node) => {
+              console.log('NODE DRAG', node);
+              // onMoveCollection(node.id, [node.position.x, node.position.y]);
+            }}
             onNodeDragStop={(evt, node) => {
+              console.log('NODE DRAG STOP', node);
               onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
             onEdgeClick={(evt, edge) => {
