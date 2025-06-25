@@ -1,30 +1,3 @@
-const mockDiagramming = {
-  // Keep original exports by spreading them (if needed)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  ...require('@mongodb-js/diagramming'),
-
-  // Override Diagram import because it's causing esm/cjs interop issues
-  Diagram: (props: any) => (
-    <div data-testid="mock-diagram">
-      {Object.entries(props).map(([key, value]) => (
-        <div key={key} data-testid={`diagram-prop-${key}`}>
-          {JSON.stringify(value)}
-        </div>
-      ))}
-    </div>
-  ),
-  applyLayout: (nodes: any) => {
-    return {
-      nodes: nodes.map((node: any, index: number) => ({
-        ...node,
-        position: { x: (index + 1) * 100, y: (index + 1) * 100 },
-      })),
-    };
-  },
-};
-(require.cache[require.resolve('@mongodb-js/diagramming')] as any).exports =
-  mockDiagramming;
-
 import React from 'react';
 import { expect } from 'chai';
 import {
@@ -38,6 +11,8 @@ import type {
   Edit,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
+import diagramming from '@mongodb-js/diagramming';
+import sinon from 'sinon';
 import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
@@ -111,6 +86,27 @@ const storageItems: MongoDBDataModelDescription[] = [
   },
 ];
 
+const mockDiagramming = {
+  // Override Diagram import because it's causing esm/cjs interop issues
+  Diagram: (props: any) => (
+    <div data-testid="mock-diagram">
+      {Object.entries(props).map(([key, value]) => (
+        <div key={key} data-testid={`diagram-prop-${key}`}>
+          {JSON.stringify(value)}
+        </div>
+      ))}
+    </div>
+  ),
+  applyLayout: (nodes: any) => {
+    return {
+      nodes: nodes.map((node: any, index: number) => ({
+        ...node,
+        position: { x: (index + 1) * 100, y: (index + 1) * 100 },
+      })),
+    };
+  },
+};
+
 const renderDiagramEditor = ({
   items = storageItems,
   renderedItem = items[0],
@@ -158,6 +154,14 @@ const renderDiagramEditor = ({
 
 describe('DiagramEditor', function () {
   let store: DataModelingStore;
+
+  before(function () {
+    // We need to tub the Diagram import because it has problems with ESM/CJS interop
+    sinon.stub(diagramming, 'Diagram').callsFake(mockDiagramming.Diagram);
+    sinon
+      .stub(diagramming, 'applyLayout')
+      .callsFake(mockDiagramming.applyLayout as any);
+  });
 
   context('with initial diagram', function () {
     beforeEach(async function () {
