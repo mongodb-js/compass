@@ -39,7 +39,7 @@ import type {
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
 import { DiagramProvider } from '@mongodb-js/diagramming';
-import { CompassDataModelingPlugin } from '..';
+import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
 
 const storageItems: MongoDBDataModelDescription[] = [
@@ -135,7 +135,7 @@ const renderDiagramEditor = ({
   };
 
   const { renderWithConnections } = createPluginTestHelpers(
-    CompassDataModelingPlugin.provider.withMockServices({
+    DataModelingWorkspaceTab.provider.withMockServices({
       services: {
         dataModelStorage: mockDataModelStorage,
       },

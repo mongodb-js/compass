@@ -29,10 +29,9 @@ const CompassDataModelingPluginProvider = registerCompassPlugin(
   }
 );
 
-export const CompassDataModelingPlugin: WorkspacePlugin<typeof WorkspaceName> =
-  {
-    name: WorkspaceName,
-    provider: CompassDataModelingPluginProvider,
-    content: DataModelingComponent,
-    header: PluginTabTitleComponent,
-  };
+export const DataModelingWorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
+  name: WorkspaceName,
+  provider: CompassDataModelingPluginProvider,
+  content: DataModelingComponent,
+  header: PluginTabTitleComponent,
+};

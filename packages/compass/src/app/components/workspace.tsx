@@ -39,7 +39,7 @@ import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-la
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
-import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
+import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 
 export default function Workspace({
   appName,
@@ -81,7 +81,7 @@ export default function Workspace({
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,
         CollectionWorkspace,
-        DataModelingWorkspace,
+        DataModelingWorkspaceTab,
       ]}
     >
       <CollectionTabsProvider
