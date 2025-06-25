@@ -151,6 +151,7 @@ type SortableItemProps = {
   activeId: UniqueIdentifier | null;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type SortableListProps = {
@@ -159,6 +160,7 @@ type SortableListProps = {
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type WorkspaceTabsProps = {
@@ -168,6 +170,7 @@ type WorkspaceTabsProps = {
   onSelectNextTab: () => void;
   onSelectPrevTab: () => void;
   onCloseTab: (tabIndex: number) => void;
+  onCloseAllOtherTabs: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabItem[];
   selectedTabIndex: number;
@@ -210,6 +213,7 @@ const SortableList = ({
   onSelect,
   selectedTabIndex,
   onClose,
+  onCloseAllOthers,
 }: SortableListProps) => {
   const items = tabs.map((tab) => tab.id);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -267,6 +271,7 @@ const SortableList = ({
               activeId={activeId}
               onSelect={onSelect}
               onClose={onClose}
+              onCloseAllOthers={onCloseAllOthers}
               selectedTabIndex={selectedTabIndex}
             />
           ))}
@@ -283,6 +288,7 @@ const SortableItem = ({
   activeId,
   onSelect,
   onClose,
+  onCloseAllOthers,
 }: SortableItemProps) => {
   const onTabSelected = useCallback(() => {
     onSelect(index);
@@ -291,6 +297,10 @@ const SortableItem = ({
   const onTabClosed = useCallback(() => {
     onClose(index);
   }, [onClose, index]);
+
+  const onAllOthersTabsClosed = useCallback(() => {
+    onCloseAllOthers(index);
+  }, [onCloseAllOthers, index]);
 
   const isSelected = useMemo(
     () => selectedTabIndex === index,
@@ -305,6 +315,7 @@ const SortableItem = ({
     tabContentId: tabId,
     onSelect: onTabSelected,
     onClose: onTabClosed,
+    onCloseAllOthers: onAllOthersTabsClosed,
   });
 };
 
@@ -312,6 +323,7 @@ function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
   onCloseTab,
+  onCloseAllOtherTabs,
   onMoveTab,
   onSelectTab,
   onSelectNextTab,
@@ -409,6 +421,7 @@ function WorkspaceTabs({
             onMove={onMoveTab}
             onSelect={onSelectTab}
             onClose={onCloseTab}
+            onCloseAllOthers={onCloseAllOtherTabs}
             selectedTabIndex={selectedTabIndex}
           />
         </div>

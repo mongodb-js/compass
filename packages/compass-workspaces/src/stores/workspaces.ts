@@ -56,6 +56,7 @@ export enum WorkspacesActions {
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
   CloseTab = 'compass-workspaces/CloseTab',
+  CloseAllOtherTabs = 'compass-workspaces/CloseAllOtherTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
@@ -466,6 +467,20 @@ const reducer: Reducer<WorkspacesState, Action> = (
   }
 
   if (
+    isAction<CloseAllOtherTabsAction>(
+      action,
+      WorkspacesActions.CloseAllOtherTabs
+    )
+  ) {
+    return _bulkTabsClose({
+      state,
+      isToBeClosed: (_tab, index) => {
+        return index !== action.atIndex;
+      },
+    });
+  }
+
+  if (
     isAction<CollectionRemovedAction>(
       action,
       WorkspacesActions.CollectionRemoved
@@ -865,6 +880,27 @@ export const closeTab = (
       dispatch({ type: WorkspacesActions.CloseTab, atIndex });
       cleanupLocalAppRegistryForTab(tab?.id);
     }
+  };
+};
+
+type CloseAllOtherTabsAction = {
+  type: WorkspacesActions.CloseAllOtherTabs;
+  atIndex: number;
+};
+
+export const closeAllOtherTabs = (
+  atIndex: number
+): WorkspacesThunkAction<Promise<void>, CloseAllOtherTabsAction> => {
+  return async (dispatch, getState) => {
+    const { tabs } = getState();
+    const otherTabs = tabs.filter((_, index) => index !== atIndex);
+    for (const tab of otherTabs) {
+      if (!canCloseTab(tab) && !(await confirmClosingTabs())) {
+        return; // Abort the action
+      }
+    }
+    dispatch({ type: WorkspacesActions.CloseAllOtherTabs, atIndex });
+    cleanupLocalAppRegistryForTab(tabs[atIndex].id);
   };
 };
 

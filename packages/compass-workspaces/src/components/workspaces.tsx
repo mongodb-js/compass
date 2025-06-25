@@ -16,6 +16,7 @@ import type {
 } from '../stores/workspaces';
 import {
   closeTab,
+  closeAllOtherTabs,
   getActiveTab,
   moveTab,
   openFallbackWorkspace,
@@ -76,6 +77,7 @@ type CompassWorkspacesProps = {
   onMoveTab(from: number, to: number): void;
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
+  onCloseAllOtherTabs(at: number): void;
   onNamespaceNotFound(
     tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
@@ -94,6 +96,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onMoveTab,
   onCreateTab,
   onCloseTab,
+  onCloseAllOtherTabs,
   onNamespaceNotFound,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
@@ -203,6 +206,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         onMoveTab={onMoveTab}
         onCreateNewTab={onCreateNewTab}
         onCloseTab={onCloseTab}
+        onCloseAllOtherTabs={onCloseAllOtherTabs}
         tabs={workspaceTabs}
         selectedTabIndex={activeTabIndex}
       ></WorkspaceTabs>
@@ -235,6 +239,7 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
+    onCloseAllOtherTabs: closeAllOtherTabs,
     onNamespaceNotFound: openFallbackWorkspace,
   }
 )(CompassWorkspaces);
