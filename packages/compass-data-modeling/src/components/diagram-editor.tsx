@@ -268,7 +268,7 @@ const DiagramEditor: React.FunctionComponent<{
 
   useEffect(() => {
     if (nodes.length === 0) return;
-    const isInitialState = nodes.every(
+    const isInitialState = nodes.some(
       (node) => isNaN(node.position.x) || isNaN(node.position.y)
     );
     if (isInitialState) {
