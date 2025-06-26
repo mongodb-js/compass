@@ -27,7 +27,9 @@ export const StaticModelSchema = z.object({
       }),
       indexes: z.array(z.record(z.unknown())),
       shardKey: z.record(z.unknown()).optional(),
-      displayPosition: z.tuple([z.number(), z.number()]),
+      displayPosition: z
+        .tuple([z.number(), z.number()])
+        .or(z.tuple([z.nan(), z.nan()])),
     })
   ),
   relationships: z.array(RelationshipSchema),
