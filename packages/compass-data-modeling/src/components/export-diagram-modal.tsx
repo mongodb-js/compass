@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Button,
   css,
@@ -12,6 +12,7 @@ import {
   Radio,
   RadioGroup,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import {
   closeExportModal,
@@ -21,7 +22,8 @@ import {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import type { StaticModel } from '../services/data-model-storage';
-import { exportToJson } from '../services/export-diagram';
+import { exportToJson, exportToPng } from '../services/export-diagram';
+import { getNodesBounds, useDiagram } from '@mongodb-js/diagramming';
 
 const nbsp = '\u00a0';
 
@@ -59,15 +61,25 @@ const ExportDiagramModal = ({
   model,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const [exportFormat, setExportFormat] = useState<'json' | null>(null);
+  const [exportFormat, setExportFormat] = useState<'png' | 'json' | null>(null);
+  const diagram = useDiagram();
+  const [isExporting, setIsExporting] = useState(false);
+  const exportDiagramContainerRef = useRef<HTMLDivElement>(null);
+  const bounds = useMemo(() => getNodesBounds(diagram.getNodes()), [diagram]);
 
-  const onExport = useCallback(() => {
+  const onExport = useCallback(async () => {
     if (!exportFormat || !model) {
       return;
     }
-    exportToJson(diagramLabel, model);
+    setIsExporting(true);
+    if (exportFormat === 'json') {
+      exportToJson(diagramLabel, model);
+    } else if (exportFormat === 'png') {
+      await exportToPng(diagramLabel, exportDiagramContainerRef, diagram);
+    }
     onCloseClick();
-  }, [exportFormat, onCloseClick, model, diagramLabel]);
+    setIsExporting(false);
+  }, [exportFormat, onCloseClick, model, diagram, diagramLabel]);
 
   return (
     <Modal
@@ -96,6 +108,17 @@ const ExportDiagramModal = ({
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
+              <Icon glyph="Diagram2" />
+              <Radio
+                checked={exportFormat === 'png'}
+                value="png"
+                aria-label="PNG"
+                onClick={() => setExportFormat('png')}
+              >
+                PNG
+              </Radio>
+            </div>
+            <div className={radioItemStyles}>
               <Icon glyph="CurlyBraces" />
               <Radio
                 checked={exportFormat === 'json'}
@@ -108,12 +131,26 @@ const ExportDiagramModal = ({
             </div>
           </RadioGroup>
         </div>
+        {/* Container where we render export diagram when exporting png */}
+        <div
+          style={{
+            width: bounds.width,
+            height: bounds.height,
+            // Fixed at bottom right corner
+            position: 'fixed',
+            top: '100vh',
+            left: '100vw',
+          }}
+          ref={exportDiagramContainerRef}
+        />
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
           variant="primary"
           onClick={() => void onExport()}
           data-testid="export-button"
+          disabled={isExporting}
+          loadingIndicator={<SpinLoader />}
         >
           Export
         </Button>

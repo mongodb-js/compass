@@ -63,6 +63,7 @@
     "@mongodb-js/compass-telemetry": "^1.10.0",
     "@mongodb-js/compass-user-data": "^0.7.2",
     "@mongodb-js/compass-workspaces": "^0.42.0",
+    "html-to-image": "1.11.11",
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.41.0",
     "@mongodb-js/compass-app-registry": "^9.4.11",
