@@ -164,8 +164,8 @@ export function getExportJsonFromModel({
     collections: Object.fromEntries(
       collections.map((collection) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { displayPosition, indexes, ...restOfTheCollection } = collection;
-        return [collection.ns, restOfTheCollection];
+        const { ns, jsonSchema, ...ignoredProps } = collection;
+        return [ns, { ns, jsonSchema }];
       })
     ),
     relationships,

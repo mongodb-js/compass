@@ -10,7 +10,7 @@ describe('export-diagram', function () {
       const expectedCollections = Object.fromEntries(
         FlightModel.collections
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ displayPosition, indexes, ...rest }) => [rest.ns, rest])
+          .map(({ ns, jsonSchema, ...rest }) => [ns, { ns, jsonSchema }])
       );
       expect(json.collections).to.deep.equal(expectedCollections);
 

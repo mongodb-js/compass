@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jun 24 2025.
+This document was automatically generated on Wed Jun 25 2025.
 
 ## List of dependencies
 
@@ -233,7 +233,7 @@ This document was automatically generated on Tue Jun 24 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#973c8b48940a6eb3f2fe702af80b9e510d52527ce66a3fe9651a5b10de418622)**                                           | 36.4.0       | MIT                                 |
+| **[electron](#e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854)**                                           | 36.5.0       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
@@ -371,7 +371,7 @@ This document was automatically generated on Tue Jun 24 2025.
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2        | Apache-2.0                          |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                         | 0.6.3        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
-| **[node-abi](#2a254598cb9eac9343b038a01d43e10aa87e6d08f645e1dd17344564572749f0)**                                           | 4.9.0        | MIT                                 |
+| **[node-abi](#177fe1b83e6b7fb2123605af91a4ad7c786f4c737f8608307ede4bc3fda53dd6)**                                           | 4.10.0       | MIT                                 |
 | **[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**                                     | 6.1.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
@@ -18783,9 +18783,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="973c8b48940a6eb3f2fe702af80b9e510d52527ce66a3fe9651a5b10de418622"></a>
+<a id="e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 36.4.0)
+### [electron](https://www.npmjs.com/package/electron) (version 36.5.0)
 
 License tags: MIT
 
@@ -25469,9 +25469,9 @@ License files:
 
 License tags: MIT
 
-<a id="2a254598cb9eac9343b038a01d43e10aa87e6d08f645e1dd17344564572749f0"></a>
+<a id="177fe1b83e6b7fb2123605af91a4ad7c786f4c737f8608307ede4bc3fda53dd6"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.9.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.10.0)
 
 License tags: MIT
 
