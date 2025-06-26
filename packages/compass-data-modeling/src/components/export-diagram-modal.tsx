@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Button,
   css,
@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import type { StaticModel } from '../services/data-model-storage';
 import { exportToJson, exportToPng } from '../services/export-diagram';
-import { getNodesBounds, useDiagram } from '@mongodb-js/diagramming';
+import { useDiagram } from '@mongodb-js/diagramming';
 
 const nbsp = '\u00a0';
 
@@ -64,8 +64,6 @@ const ExportDiagramModal = ({
   const [exportFormat, setExportFormat] = useState<'png' | 'json' | null>(null);
   const diagram = useDiagram();
   const [isExporting, setIsExporting] = useState(false);
-  const exportDiagramContainerRef = useRef<HTMLDivElement>(null);
-  const bounds = useMemo(() => getNodesBounds(diagram.getNodes()), [diagram]);
 
   const onExport = useCallback(async () => {
     if (!exportFormat || !model) {
@@ -75,7 +73,7 @@ const ExportDiagramModal = ({
     if (exportFormat === 'json') {
       exportToJson(diagramLabel, model);
     } else if (exportFormat === 'png') {
-      await exportToPng(diagramLabel, exportDiagramContainerRef, diagram);
+      await exportToPng(diagramLabel, diagram);
     }
     onCloseClick();
     setIsExporting(false);
@@ -131,18 +129,6 @@ const ExportDiagramModal = ({
             </div>
           </RadioGroup>
         </div>
-        {/* Container where we render export diagram when exporting png */}
-        <div
-          style={{
-            width: bounds.width,
-            height: bounds.height,
-            // Fixed at bottom right corner
-            position: 'fixed',
-            top: '100vh',
-            left: '100vw',
-          }}
-          ref={exportDiagramContainerRef}
-        />
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button

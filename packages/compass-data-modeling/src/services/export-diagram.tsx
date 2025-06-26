@@ -60,25 +60,25 @@ function moveSvgDefsToViewportElement(
       'path[marker-end], path[marker-start]'
     );
     if (pathsWithMarkers.length !== 0) {
-      const clonedDef = markerDef.cloneNode(true) as SVGMarkerElement;
+      const clonedDef = markerDef.cloneNode(true);
       svg.insertBefore(clonedDef, svg.firstChild);
     }
   });
   markerDef.remove();
 }
 
-export async function exportToPng(
-  fileName: string,
-  containerRef: React.RefObject<HTMLDivElement>,
-  diagram: DiagramInstance
-) {
-  const container = containerRef.current;
-  if (!container) {
-    throw new Error('Container reference is not set');
-  }
+export async function exportToPng(fileName: string, diagram: DiagramInstance) {
+  const container = document.createElement('div');
+  container.setAttribute('data-testid', 'export-diagram-container');
+  // Push it out of the viewport
+  container.style.position = 'fixed';
+  container.style.top = '100vh';
+  container.style.left = '100vw';
+  document.body.appendChild(container);
+
   const dataUri = await getExportPngDataUri(container, diagram);
   downloadFile(dataUri, fileName, () => {
-    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
   });
 }
 
