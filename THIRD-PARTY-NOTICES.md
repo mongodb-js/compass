@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Jun 25 2025.
+This document was automatically generated on Thu Jun 26 2025.
 
 ## List of dependencies
 
@@ -371,7 +371,7 @@ This document was automatically generated on Wed Jun 25 2025.
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2        | Apache-2.0                          |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                         | 0.6.3        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
-| **[node-abi](#177fe1b83e6b7fb2123605af91a4ad7c786f4c737f8608307ede4bc3fda53dd6)**                                           | 4.10.0       | MIT                                 |
+| **[node-abi](#e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4)**                                           | 4.11.0       | MIT                                 |
 | **[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**                                     | 6.1.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
@@ -25469,9 +25469,9 @@ License files:
 
 License tags: MIT
 
-<a id="177fe1b83e6b7fb2123605af91a4ad7c786f4c737f8608307ede4bc3fda53dd6"></a>
+<a id="e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.10.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.11.0)
 
 License tags: MIT
 
