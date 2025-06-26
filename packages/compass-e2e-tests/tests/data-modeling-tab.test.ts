@@ -17,6 +17,10 @@ import {
   waitForFileDownload,
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
+import { recognize } from 'tesseract.js';
+import path from 'path';
+import os from 'os';
+import fs from 'fs/promises';
 
 type DiagramInstance = {
   getNodes: () => Array<{
@@ -87,10 +91,16 @@ describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let exportFileName: string;
+  let tmpdir: string;
 
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    tmpdir = path.join(
+      os.tmpdir(),
+      `compass-data-modeling-${Date.now().toString(32)}`
+    );
+    await fs.mkdir(tmpdir, { recursive: true });
   });
 
   beforeEach(async function () {
@@ -99,13 +109,14 @@ describe('Data Modeling tab', function () {
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);
     }
-    await createNumbersStringCollection('testCollection1');
-    await createNumbersCollection('testCollection2');
+    await createNumbersStringCollection('testCollection-one');
+    await createNumbersCollection('testCollection-two');
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
 
   after(async function () {
+    await fs.rmdir(tmpdir, { recursive: true });
     if (compass) {
       await cleanup(compass);
     }
@@ -131,8 +142,8 @@ describe('Data Modeling tab', function () {
     let nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
+      'test.testCollection-one',
+      'test.testCollection-two',
     ]);
 
     // Apply change to the model
@@ -160,8 +171,8 @@ describe('Data Modeling tab', function () {
     nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
+      'test.testCollection-one',
+      'test.testCollection-two',
     ]);
 
     // Redo the change
@@ -197,7 +208,7 @@ describe('Data Modeling tab', function () {
   });
 
   it('exports the data model to JSON', async function () {
-    const dataModelName = 'Test Export Model';
+    const dataModelName = 'Test Export Model - JSON';
     exportFileName = `${dataModelName}.json`;
     await setupDiagram(browser, {
       diagramName: dataModelName,
@@ -224,8 +235,8 @@ describe('Data Modeling tab', function () {
     // Within beforeEach hook, we create these two collections
     expect(model).to.deep.equal({
       collections: {
-        'test.testCollection1': {
-          ns: 'test.testCollection1',
+        'test.testCollection-one': {
+          ns: 'test.testCollection-one',
           jsonSchema: {
             bsonType: 'object',
             required: ['_id', 'i', 'iString', 'j'],
@@ -245,8 +256,8 @@ describe('Data Modeling tab', function () {
             },
           },
         },
-        'test.testCollection2': {
-          ns: 'test.testCollection2',
+        'test.testCollection-two': {
+          ns: 'test.testCollection-two',
           jsonSchema: {
             bsonType: 'object',
             required: ['_id', 'i', 'j'],
@@ -266,5 +277,40 @@ describe('Data Modeling tab', function () {
       },
       relationships: [],
     });
+  });
+
+  it('exports the data model to PNG', async function () {
+    const dataModelName = 'Test Export Model - PNG';
+    exportFileName = `${dataModelName}.png`;
+    await setupDiagram(browser, {
+      diagramName: dataModelName,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      databaseName: 'test',
+    });
+
+    await browser.clickVisible(Selectors.DataModelExportButton);
+    const exportModal = browser.$(Selectors.DataModelExportModal);
+    await exportModal.waitForDisplayed();
+
+    await browser.clickParent(Selectors.DataModelExportPngOption);
+    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+    const { fileExists, filePath } = await waitForFileDownload(
+      exportFileName,
+      browser
+    );
+    expect(fileExists).to.be.true;
+
+    const { data } = await recognize(filePath, 'eng', {
+      cachePath: tmpdir,
+    });
+
+    expect(data.text).to.include('test.testCollection-one');
+    expect(data.text).to.include('test.testCollection-two');
+
+    expect(data.text).to.include('_id objectId');
+    expect(data.text).to.include('i int');
+    expect(data.text).to.include('j int');
+    expect(data.text).to.include('iString string');
   });
 });
