@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   css,
@@ -13,6 +13,7 @@ import {
   RadioGroup,
   spacing,
   SpinLoader,
+  useToast,
 } from '@mongodb-js/compass-components';
 import {
   closeExportModal,
@@ -24,6 +25,7 @@ import type { DataModelingState } from '../store/reducer';
 import type { StaticModel } from '../services/data-model-storage';
 import { exportToJson, exportToPng } from '../services/export-diagram';
 import { useDiagram } from '@mongodb-js/diagramming';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 const nbsp = '\u00a0';
 
@@ -64,25 +66,68 @@ const ExportDiagramModal = ({
   const [exportFormat, setExportFormat] = useState<'png' | 'json' | null>(null);
   const diagram = useDiagram();
   const [isExporting, setIsExporting] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const toast = useToast();
+  useEffect(() => {
+    const cleanup = () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+    const abortController = new AbortController();
+    if (isModalOpen) {
+      abortControllerRef.current = abortController;
+    } else {
+      cleanup();
+    }
+    return cleanup;
+  }, [isModalOpen]);
+
+  const onClose = useCallback(() => {
+    setExportFormat(null);
+    setIsExporting(false);
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    onCloseClick();
+  }, [onCloseClick]);
 
   const onExport = useCallback(async () => {
-    if (!exportFormat || !model) {
-      return;
+    try {
+      if (!exportFormat || !model) {
+        return;
+      }
+      setIsExporting(true);
+      if (exportFormat === 'json') {
+        exportToJson(diagramLabel, model);
+      } else if (exportFormat === 'png') {
+        await exportToPng(
+          diagramLabel,
+          diagram,
+          abortControllerRef.current?.signal
+        );
+      }
+    } catch (error) {
+      if (isCancelError(error)) {
+        return;
+      }
+      toast.pushToast({
+        id: 'export-diagram-error',
+        variant: 'warning',
+        title: 'Export failed',
+        description: `An error occurred while exporting the diagram: ${
+          (error as Error).message
+        }`,
+      });
+    } finally {
+      onClose();
     }
-    setIsExporting(true);
-    if (exportFormat === 'json') {
-      exportToJson(diagramLabel, model);
-    } else if (exportFormat === 'png') {
-      await exportToPng(diagramLabel, diagram);
-    }
-    onCloseClick();
-    setIsExporting(false);
-  }, [exportFormat, onCloseClick, model, diagram, diagramLabel]);
+  }, [exportFormat, onClose, model, diagram, diagramLabel, toast]);
 
   return (
     <Modal
       open={isModalOpen}
-      setOpen={onCloseClick}
+      setOpen={onClose}
       data-testid="export-diagram-modal"
     >
       <ModalHeader
@@ -140,11 +185,7 @@ const ExportDiagramModal = ({
         >
           Export
         </Button>
-        <Button
-          variant="default"
-          onClick={onCloseClick}
-          data-testid="cancel-button"
-        >
+        <Button variant="default" onClick={onClose} data-testid="cancel-button">
           Cancel
         </Button>
       </ModalFooter>

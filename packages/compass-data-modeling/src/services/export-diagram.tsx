@@ -16,6 +16,7 @@ import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import { rafraf, spacing } from '@mongodb-js/compass-components';
+import { raceWithAbort } from '@mongodb-js/compass-utils';
 
 // TODO: Export these methods (and type) from the diagramming package
 type DiagramInstance = ReturnType<typeof useDiagram>;
@@ -67,7 +68,11 @@ function moveSvgDefsToViewportElement(
   markerDef.remove();
 }
 
-export async function exportToPng(fileName: string, diagram: DiagramInstance) {
+export async function exportToPng(
+  fileName: string,
+  diagram: DiagramInstance,
+  signal?: AbortSignal
+) {
   const container = document.createElement('div');
   container.setAttribute('data-testid', 'export-diagram-container');
   // Push it out of the viewport
@@ -76,7 +81,10 @@ export async function exportToPng(fileName: string, diagram: DiagramInstance) {
   container.style.left = '100vw';
   document.body.appendChild(container);
 
-  const dataUri = await getExportPngDataUri(container, diagram);
+  const dataUri = await raceWithAbort(
+    getExportPngDataUri(container, diagram),
+    signal ?? new AbortController().signal
+  );
   downloadFile(dataUri, fileName, () => {
     container.remove();
   });
@@ -110,7 +118,7 @@ export function getExportPngDataUri(
             '.react-flow__viewport'
           );
           if (!viewportElement) {
-            throw new Error('Diagram element not found');
+            return reject(new Error('Diagram element not found'));
           }
 
           const bounds = getNodesBounds(nodes);
