@@ -264,12 +264,15 @@ export function moveCollection(
   ns: string,
   newPosition: [number, number]
 ): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({
-      type: 'MoveCollection',
-      ns,
-      newPosition,
-    })
+  const edit: Omit<
+    Extract<Edit, { type: 'MoveCollection' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'MoveCollection',
+    ns,
+    newPosition,
   };
+  return applyEdit(edit);
 }
 
 export function applyEdit(
