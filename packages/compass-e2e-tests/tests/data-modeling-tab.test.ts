@@ -127,6 +127,7 @@ describe('Data Modeling tab', function () {
     });
 
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
+    await dataModelEditor.waitForDisplayed();
 
     let nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
