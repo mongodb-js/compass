@@ -51,7 +51,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^36.5.0",
-    "electron-to-chromium": "^1.5.173",
+    "electron-to-chromium": "^1.5.174",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
     "hadron-build": "^25.8.2",
