@@ -41,6 +41,7 @@ import { UUID } from 'bson';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -143,6 +144,33 @@ const editorContainerPlaceholderButtonStyles = css({
   gap: spacing[200],
   paddingTop: spacing[200],
 });
+
+const getFieldsFromSchema = (
+  jsonSchema: MongoDBJSONSchema,
+  depth = 0
+): NodeProps['fields'] => {
+  let fields = [] as NodeProps['fields'];
+  if (jsonSchema.anyOf) {
+    for (const variant of jsonSchema.anyOf) {
+      fields = [...fields, ...getFieldsFromSchema(variant, depth + 1)];
+    }
+  }
+  if (!jsonSchema.properties) return [];
+  for (const [name, field] of Object.entries(jsonSchema.properties)) {
+    const type = getFieldTypeDisplay(field);
+    fields.push({
+      name,
+      type,
+      depth: depth,
+      glyphs: type === 'objectId' ? ['key'] : [],
+    });
+    if (field.properties) {
+      fields = [...fields, ...getFieldsFromSchema(field, depth + 1)];
+    }
+  }
+
+  return fields;
+};
 
 const DiagramEditor: React.FunctionComponent<{
   diagramLabel: string;
@@ -276,16 +304,7 @@ const DiagramEditor: React.FunctionComponent<{
           y: coll.displayPosition[1],
         },
         title: coll.ns,
-        fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
-          ([name, field]) => {
-            const type = getFieldTypeDisplay(field);
-            return {
-              name,
-              type,
-              glyphs: type === 'objectId' ? ['key'] : [],
-            };
-          }
-        ),
+        fields: getFieldsFromSchema(coll.jsonSchema),
       })
     );
   }, [model?.collections]);
