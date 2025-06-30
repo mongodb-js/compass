@@ -31,15 +31,18 @@ export function ContextMenuProvider({
     itemGroups: [],
     position: { x: 0, y: 0 },
   });
-  const close = useCallback(() => setMenu({ ...menu, isOpen: false }), [menu]);
+  const close = useCallback(
+    () => setMenu((prev) => ({ ...prev, isOpen: false })),
+    [setMenu]
+  );
 
   const handleClosingEvent = useCallback(
     (event: Event) => {
       if (!event.defaultPrevented) {
-        setMenu({ ...menu, isOpen: false });
+        close();
       }
     },
-    [menu]
+    [close]
   );
 
   useEffect(() => {
