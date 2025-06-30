@@ -927,7 +927,7 @@ export const closeAllOtherTabs = (
       }
     }
     dispatch({ type: WorkspacesActions.CloseAllOtherTabs, atIndex });
-    cleanupLocalAppRegistryForTab(tabs[atIndex].id);
+    cleanupRemovedTabs(tabs, getState().tabs);
   };
 };
 
