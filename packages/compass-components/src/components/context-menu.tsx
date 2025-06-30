@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { Menu, MenuItem, MenuSeparator } from './leafygreen';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Menu, MenuItem, MenuSeparator, useEventListener } from './leafygreen';
 import type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
 import { useContextMenu } from '@mongodb-js/compass-context-menu';
 import { ContextMenuProvider as ContextMenuProviderBase } from '@mongodb-js/compass-context-menu';
@@ -21,6 +21,9 @@ export function ContextMenuProvider({
 }
 
 export function ContextMenu({ menu }: ContextMenuWrapperProps) {
+  const menuRef = useRef(null);
+  const anchorRef = useRef(null);
+
   const position = menu.position;
   const itemGroups = menu.itemGroups;
 
@@ -31,17 +34,20 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
   }, [menu.isOpen]);
 
   return (
-    <div
-      data-testid="context-menu"
-      style={{
-        position: 'absolute',
-        pointerEvents: 'all',
-        left: position.x,
-        top: position.y,
-      }}
-    >
+    <>
+      <div
+        data-testid="context-menu-anchor"
+        ref={anchorRef}
+        style={{
+          position: 'absolute',
+          left: position.x,
+          top: position.y,
+        }}
+      />
       <Menu
-        renderMode="inline"
+        data-testid="context-menu"
+        refEl={anchorRef}
+        ref={menuRef}
         open={menu.isOpen}
         setOpen={menu.close}
         justify="start"
@@ -83,7 +89,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
           }
         )}
       </Menu>
-    </div>
+    </>
   );
 }
 
