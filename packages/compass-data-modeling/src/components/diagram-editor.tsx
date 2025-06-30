@@ -88,7 +88,7 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
 
 function getFieldTypeDisplay(field: MongoDBJSONSchema) {
   if (field.bsonType === undefined) {
-    return 'Unknown';
+    return 'unknown';
   }
 
   if (typeof field.bsonType === 'string') {
