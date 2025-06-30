@@ -895,23 +895,32 @@ export const closeTab = (
   };
 };
 
-type CloseAllOtherTabsAction = {
-  type: WorkspacesActions.CloseAllOtherTabs;
-  atIndex: number;
-};
-
 export const closeAllOtherTabs = (
   atIndex: number
-): WorkspacesThunkAction<Promise<void>, CloseAllOtherTabsAction> => {
+): WorkspacesThunkAction<Promise<void>, CloseTabsAction | SelectTabAction> => {
   return async (dispatch, getState) => {
     const { tabs } = getState();
-    const otherTabs = tabs.filter((_, index) => index !== atIndex);
-    for (const tab of otherTabs) {
-      if (!canCloseTab(tab) && !(await confirmClosingTabs())) {
-        return; // Abort the action
-      }
-    }
-    dispatch({ type: WorkspacesActions.CloseAllOtherTabs, atIndex });
+    const tabsToClose = await tabs.reduce(
+      async (prev: Promise<WorkspaceTab[]>, tab, tabIndex) => {
+        const tabsToClose = await prev;
+        if (tabIndex === atIndex) {
+          return tabsToClose; // Skip the tab which is not being closed
+        }
+        if (!canCloseTab(tab)) {
+          // Select the closing tab - to show the confirmation dialog in context
+          dispatch({ type: WorkspacesActions.SelectTab, atIndex: tabIndex });
+          if (!(await confirmClosingTab())) {
+            return tabsToClose; // Skip this tab
+          }
+        }
+        return [...tabsToClose, tab];
+      },
+      Promise.resolve([])
+    );
+    dispatch({
+      type: WorkspacesActions.CloseTabs,
+      tabIds: tabsToClose.map((tab) => tab.id),
+    });
     cleanupRemovedTabs(tabs, getState().tabs);
   };
 };

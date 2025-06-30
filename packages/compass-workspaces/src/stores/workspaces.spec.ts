@@ -527,13 +527,13 @@ describe('tabs behavior', function () {
   });
 
   describe('closeAllOtherTabs', function () {
-    it('should close all other tabs by index', function () {
+    it('should close all other tabs by index', async function () {
       const store = configureStore();
       openTabs(store);
       const stateBefore = store.getState();
       expect(stateBefore.tabs.length).to.be.greaterThan(1);
 
-      store.dispatch(closeAllOtherTabs(1));
+      await store.dispatch(closeAllOtherTabs(1));
       const state = store.getState();
       expect(state.tabs.length).to.equal(1);
       expect(state).to.have.property('activeTabId', stateBefore.tabs[1].id);
