@@ -56,8 +56,7 @@ export enum WorkspacesActions {
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
   DuplicateTab = 'compass-workspaces/DuplicateTab',
-  CloseTab = 'compass-workspaces/CloseTab',
-  CloseAllOtherTabs = 'compass-workspaces/CloseAllOtherTabs',
+  CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
@@ -472,25 +471,11 @@ const reducer: Reducer<WorkspacesState, Action> = (
     };
   }
 
-  if (isAction<CloseTabAction>(action, WorkspacesActions.CloseTab)) {
+  if (isAction<CloseTabsAction>(action, WorkspacesActions.CloseTabs)) {
     return _bulkTabsClose({
       state,
-      isToBeClosed: (_tab, index) => {
-        return index === action.atIndex;
-      },
-    });
-  }
-
-  if (
-    isAction<CloseAllOtherTabsAction>(
-      action,
-      WorkspacesActions.CloseAllOtherTabs
-    )
-  ) {
-    return _bulkTabsClose({
-      state,
-      isToBeClosed: (_tab, index) => {
-        return index !== action.atIndex;
+      isToBeClosed: (tab) => {
+        return action.tabIds.includes(tab.id);
       },
     });
   }
@@ -885,7 +870,7 @@ export const duplicateTab = (atIndex: number): DuplicateTabAction => {
   };
 };
 
-async function confirmClosingTabs() {
+async function confirmClosingTab() {
   return await showConfirmation({
     title: 'Are you sure you want to close the tab?',
     description:
@@ -896,15 +881,15 @@ async function confirmClosingTabs() {
   });
 }
 
-type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };
+type CloseTabsAction = { type: WorkspacesActions.CloseTabs; tabIds: string[] };
 
 export const closeTab = (
   atIndex: number
-): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
+): WorkspacesThunkAction<Promise<void>, CloseTabsAction> => {
   return async (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
-    if (canCloseTab(tab) || (await confirmClosingTabs())) {
-      dispatch({ type: WorkspacesActions.CloseTab, atIndex });
+    if (canCloseTab(tab) || (await confirmClosingTab())) {
+      dispatch({ type: WorkspacesActions.CloseTabs, tabIds: [tab.id] });
       cleanupLocalAppRegistryForTab(tab?.id);
     }
   };
