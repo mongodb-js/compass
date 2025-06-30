@@ -282,10 +282,6 @@ const DiagramEditor: React.FunctionComponent<{
               minZoom: 0.25,
             }}
             onNodeDragStop={(evt, node) => {
-              console.log('Node drag stopped:', node.id, [
-                node.position.x,
-                node.position.y,
-              ]);
               onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
           />
