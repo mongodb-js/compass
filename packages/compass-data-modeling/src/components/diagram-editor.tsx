@@ -95,10 +95,7 @@ function getFieldTypeDisplay(field: MongoDBJSONSchema) {
     return field.bsonType;
   }
 
-  const typesString = field.bsonType.reduce(
-    (acc, curr) => (acc ? `${acc}, ${curr}` : curr),
-    ''
-  );
+  const typesString = field.bsonType.join(', ');
 
   // We show `mixed` with a tooltip when multiple bsonTypes were found.
   return (
