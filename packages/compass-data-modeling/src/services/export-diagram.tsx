@@ -4,48 +4,15 @@ import {
   getViewportForBounds,
   DiagramProvider,
   Diagram,
+  mapEdgeToDiagramEdge,
+  mapNodeToDiagramNode,
 } from '@mongodb-js/diagramming';
-import type {
-  useDiagram,
-  NodeProps,
-  NodeType,
-  EdgeProps,
-  Marker,
-} from '@mongodb-js/diagramming';
+import type { DiagramInstance } from '@mongodb-js/diagramming';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import { rafraf, spacing } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
-
-// TODO: Export these methods (and type) from the diagramming package
-type DiagramInstance = ReturnType<typeof useDiagram>;
-function mapNodeToDiagramNode(
-  node: ReturnType<DiagramInstance['getNodes']>[number]
-): NodeProps {
-  const { data, type, ...restOfNode } = node;
-  return {
-    ...restOfNode,
-    ...(data as any), // TODO: Type data (or expose these methods from the diagramming package)
-    type: type as NodeType,
-  };
-}
-function mapEdgeToDiagramEdge(
-  edge: ReturnType<DiagramInstance['getEdges']>[number]
-): EdgeProps {
-  const { markerStart, markerEnd, ...restOfEdge } = edge;
-
-  // The diagramming package only allows string based markers
-  if (typeof markerStart !== 'string' || typeof markerEnd !== 'string') {
-    throw new Error('Unexpected edge with non-string markers');
-  }
-
-  return {
-    ...restOfEdge,
-    markerEnd: markerEnd.replace('end-', '') as Marker,
-    markerStart: markerStart.replace('start-', '') as Marker,
-  };
-}
 
 function moveSvgDefsToViewportElement(
   container: Element,
