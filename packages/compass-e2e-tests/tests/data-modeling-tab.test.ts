@@ -147,16 +147,13 @@ describe('Data Modeling tab', function () {
     const startPosition = await testCollection1.getLocation();
     const nodeSize = await testCollection1.getSize();
 
-    // This should move the node 20px to the right but it just moves it "somewhere else"
-    // That's the best I could do
     await browser
       .action('pointer')
       .move({
-        x: Math.round(startPosition.x) + nodeSize.width / 2,
-        y: Math.round(startPosition.y) + nodeSize.height / 2,
+        x: Math.round(startPosition.x + nodeSize.width / 2),
+        y: Math.round(startPosition.y + nodeSize.height / 2),
       })
       .down({ button: 0 }) // Left mouse button
-      .pause(1000)
       .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
       .pause(1000)
       .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
