@@ -99,7 +99,7 @@ function getFieldTypeDisplay(field: MongoDBJSONSchema) {
 
   // We show `mixed` with a tooltip when multiple bsonTypes were found.
   return (
-    <Tooltip justify="end" spacing={5} trigger={<div>mixed</div>}>
+    <Tooltip justify="end" spacing={5} trigger={<div>(mixed)</div>}>
       <Body className={mixedTypeTooltipContentStyles}>
         Multiple types found in sample: {typesString}
       </Body>
