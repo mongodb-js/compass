@@ -887,10 +887,11 @@ export const closeTab = (
   atIndex: number
 ): WorkspacesThunkAction<Promise<void>, CloseTabsAction> => {
   return async (dispatch, getState) => {
-    const tab = getState().tabs[atIndex];
+    const { tabs } = getState();
+    const tab = tabs[atIndex];
     if (canCloseTab(tab) || (await confirmClosingTab())) {
       dispatch({ type: WorkspacesActions.CloseTabs, tabIds: [tab.id] });
-      cleanupLocalAppRegistryForTab(tab?.id);
+      cleanupRemovedTabs(tabs, getState().tabs);
     }
   };
 };
