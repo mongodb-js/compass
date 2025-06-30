@@ -163,31 +163,6 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships]);
 
-  const applyInitialLayout = useCallback(async () => {
-    try {
-      const { nodes: positionedNodes } = await applyLayout(
-        nodes,
-        edges,
-        'LEFT_RIGHT'
-      );
-      onApplyInitialLayout(
-        Object.fromEntries(
-          positionedNodes.map((node) => [
-            node.id,
-            [node.position.x, node.position.y],
-          ])
-        )
-      );
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_361),
-        'DiagramEditor',
-        'Error applying layout:',
-        err
-      );
-    }
-  }, [edges, log, mongoLogId, onApplyInitialLayout]);
-
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
       (coll): NodeProps => ({
@@ -212,6 +187,31 @@ const DiagramEditor: React.FunctionComponent<{
     );
   }, [model?.collections]);
 
+  const applyInitialLayout = useCallback(async () => {
+    try {
+      const { nodes: positionedNodes } = await applyLayout(
+        nodes,
+        edges,
+        'LEFT_RIGHT'
+      );
+      onApplyInitialLayout(
+        Object.fromEntries(
+          positionedNodes.map((node) => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        )
+      );
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_361),
+        'DiagramEditor',
+        'Error applying layout:',
+        err
+      );
+    }
+  }, [edges, log, nodes, mongoLogId, onApplyInitialLayout]);
+
   useEffect(() => {
     if (nodes.length === 0) return;
     const isInitialState = nodes.some(
@@ -222,8 +222,10 @@ const DiagramEditor: React.FunctionComponent<{
       return;
     }
     if (!areNodesReady) {
-      void diagram.fitView();
       setAreNodesReady(true);
+      setTimeout(() => {
+        void diagram.fitView();
+      });
     }
   }, [areNodesReady, nodes, diagram, applyInitialLayout]);
 
@@ -280,6 +282,10 @@ const DiagramEditor: React.FunctionComponent<{
               minZoom: 0.25,
             }}
             onNodeDragStop={(evt, node) => {
+              console.log('Node drag stopped:', node.id, [
+                node.position.x,
+                node.position.y,
+              ]);
               onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
           />

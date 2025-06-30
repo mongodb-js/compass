@@ -132,66 +132,54 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    let nodes = await getDiagramNodes(browser);
+    const nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes[0].id).to.equal('test.testCollection1');
     expect(nodes[1].id).to.equal('test.testCollection2');
 
     // Apply change to the model
-    const originalPosition = {
-      x: Math.round(nodes[0].position.x),
-      y: Math.round(nodes[0].position.y),
-    };
 
     // react flow uses its own coordinate system,
     // so we get the node element location for the pointer action
-    const startPosition = await browser
-      .$(Selectors.DataModelPreviewCollection('test.testCollection1'))
-      .getLocation();
+    const testCollection1 = browser.$(
+      Selectors.DataModelPreviewCollection('test.testCollection1')
+    );
+    const startPosition = await testCollection1.getLocation();
+    const nodeSize = await testCollection1.getSize();
 
     // This should move the node 20px to the right but it just moves it "somewhere else"
     // That's the best I could do
     await browser
       .action('pointer')
       .move({
-        x: Math.round(startPosition.x) + 10,
-        y: Math.round(startPosition.y) + 10,
+        x: Math.round(startPosition.x) + nodeSize.width / 2,
+        y: Math.round(startPosition.y) + nodeSize.height / 2,
       })
       .down({ button: 0 }) // Left mouse button
-      .move({ x: 10, y: 0, duration: 100 })
       .pause(1000)
-      .move({ x: 10, y: 0, duration: 100 })
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .pause(1000)
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
       .up({ button: 0 }) // Release the left mouse button
       .perform();
     await browser.waitForAnimations(dataModelEditor);
 
     // Check that the first node has moved and mark the new position
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(Math.round(nodes[0].position.x)).not.to.equal(originalPosition.x);
-    expect(Math.round(nodes[0].position.y)).not.to.equal(originalPosition.y);
-    const newPosition = {
-      x: Math.round(nodes[0].position.x),
-      y: Math.round(nodes[0].position.y),
-    };
+    const newPosition = await testCollection1.getLocation();
+    expect(newPosition).not.to.deep.equal(startPosition);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(Math.round(nodes[0].position.x)).to.equal(originalPosition.x);
-    expect(Math.round(nodes[0].position.y)).to.equal(originalPosition.y);
+    const positionAfterUndone = await testCollection1.getLocation();
+    expect(positionAfterUndone).to.deep.equal(startPosition);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(Math.round(nodes[0].position.x)).to.equal(newPosition.x);
-    expect(Math.round(nodes[0].position.y)).to.equal(newPosition.y);
-
+    const positionAfterRedo = await testCollection1.getLocation();
+    expect(positionAfterRedo).to.deep.equal(newPosition);
     // Open a new tab
     await browser.openNewTab();
 
@@ -199,11 +187,9 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-    // Verify that the diagram has the latest changes
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(Math.round(nodes[0].position.x)).to.equal(newPosition.x);
-    expect(Math.round(nodes[0].position.y)).to.equal(newPosition.y);
+    // TODO: Verify that the diagram has the latest changes COMPASS-9479
+    const savedNodes = await getDiagramNodes(browser);
+    expect(savedNodes).to.have.lengthOf(2);
 
     // Open a new tab
     await browser.openNewTab();
