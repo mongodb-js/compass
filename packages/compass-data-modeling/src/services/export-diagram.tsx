@@ -40,35 +40,45 @@ export async function exportToPng(
   diagram: DiagramInstance,
   signal?: AbortSignal
 ) {
-  const container = document.createElement('div');
-  container.setAttribute('data-testid', 'export-diagram-container');
-  // Push it out of the viewport
-  container.style.position = 'fixed';
-  container.style.top = '100vh';
-  container.style.left = '100vw';
-  document.body.appendChild(container);
-
   const dataUri = await raceWithAbort(
-    getExportPngDataUri(container, diagram),
+    getExportPngDataUri(diagram),
     signal ?? new AbortController().signal
   );
-  downloadFile(dataUri, fileName, () => {
-    container.remove();
-  });
+  downloadFile(dataUri, fileName);
 }
 
-export function getExportPngDataUri(
-  container: HTMLDivElement,
-  diagram: DiagramInstance
-): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
+  return new Promise<string>((resolve, _reject) => {
     const nodes = diagram.getNodes();
     const edges = diagram.getEdges();
+    const bounds = getNodesBounds(nodes);
+
+    const container = document.createElement('div');
+    container.setAttribute('data-testid', 'export-diagram-container');
+    // Push it out of the viewport
+    container.style.position = 'fixed';
+    container.style.top = '100vh';
+    container.style.left = '100vw';
+    container.style.width = `${bounds.width}px`;
+    container.style.height = `${bounds.height}px`;
+    document.body.appendChild(container);
+
+    const diagramEdges = edges.map(mapEdgeToDiagramEdge);
+    const diagramNodes = nodes.map(mapNodeToDiagramNode).map((node) => ({
+      ...node,
+      selected: false, // Dont show selected state (blue border)
+    }));
+
+    const reject = (error: Error) => {
+      document.body.removeChild(container);
+      _reject(error);
+    };
+
     ReactDOM.render(
       <DiagramProvider>
         <Diagram
-          edges={edges.map(mapEdgeToDiagramEdge)}
-          nodes={nodes.map(mapNodeToDiagramNode)}
+          edges={diagramEdges}
+          nodes={diagramNodes}
           onlyRenderVisibleElements={false}
         />
       </DiagramProvider>,
@@ -88,7 +98,6 @@ export function getExportPngDataUri(
             return reject(new Error('Diagram element not found'));
           }
 
-          const bounds = getNodesBounds(nodes);
           const transform = getViewportForBounds(
             bounds,
             bounds.width,
@@ -97,6 +106,7 @@ export function getExportPngDataUri(
             2, // Maximum zoom
             `${spacing[400]}px` // 16px padding
           );
+
           // Moving svg defs to the viewport element
           moveSvgDefsToViewportElement(container, viewportElement);
           rafraf(() => {
@@ -147,13 +157,13 @@ export function getExportJsonFromModel({
   };
 }
 
-function downloadFile(uri: string, fileName: string, cleanup: () => void) {
+function downloadFile(uri: string, fileName: string, cleanup?: () => void) {
   const link = document.createElement('a');
   link.download = fileName;
   link.href = uri;
   link.click();
   setTimeout(() => {
     link.remove();
-    cleanup();
+    cleanup?.();
   }, 0);
 }
