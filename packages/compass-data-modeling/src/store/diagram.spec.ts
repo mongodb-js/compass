@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
   applyEdit,
+  applyInitialLayout,
   getCurrentDiagramFromState,
   openDiagram,
   redoEdit,
@@ -55,6 +56,8 @@ const loadedDiagram: MongoDBDataModelDescription = {
   id: 'diagram-id',
   name: 'diagram-name',
   connectionId: 'connection-id',
+  createdAt: '2023-10-01T00:00:00.000Z',
+  updatedAt: '2023-10-05T00:00:00.000Z',
   edits: [{ type: 'SetModel', model } as Edit],
 };
 
@@ -65,17 +68,91 @@ describe('Data Modeling store', function () {
     store = setupStore();
   });
 
-  it('openDiagram', function () {
-    store.dispatch(openDiagram(loadedDiagram));
+  describe('New Diagram', function () {
+    it('handles analysis finished + initial positions', function () {
+      // ANALYSIS FINISHED
+      const newDiagram = {
+        name: 'New Diagram',
+        connectionId: 'connection-id',
+        collections: [
+          { ns: 'collection1', schema: model.collections[0].jsonSchema },
+          { ns: 'collection2', schema: model.collections[1].jsonSchema },
+        ],
+        relations: model.relationships,
+      };
+      store.dispatch({
+        type: 'data-modeling/analysis-stats/ANALYSIS_FINISHED',
+        ...newDiagram,
+      });
 
-    const diagram = getCurrentDiagramFromState(store.getState());
-    expect(diagram.id).to.equal(loadedDiagram.id);
-    expect(diagram.name).to.equal(loadedDiagram.name);
-    expect(diagram.connectionId).to.equal(loadedDiagram.connectionId);
-    expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+      const initialDiagram = getCurrentDiagramFromState(store.getState());
+      expect(initialDiagram.name).to.equal(newDiagram.name);
+      expect(initialDiagram.connectionId).to.equal(newDiagram.connectionId);
+      expect(initialDiagram.edits).to.have.length(1);
+      expect(initialDiagram.edits[0].type).to.equal('SetModel');
+      const initialEdit = initialDiagram.edits[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEdit.model.collections[0]).to.deep.include({
+        ns: newDiagram.collections[0].ns,
+        jsonSchema: newDiagram.collections[0].schema,
+        displayPosition: [NaN, NaN],
+      });
+      expect(initialEdit.model.collections[1]).to.deep.include({
+        ns: newDiagram.collections[1].ns,
+        jsonSchema: newDiagram.collections[1].schema,
+        displayPosition: [NaN, NaN],
+      });
+      expect(initialEdit.model.relationships).to.deep.equal(
+        newDiagram.relations
+      );
+
+      // INITIAL LAYOUT
+      const positions: Record<string, [number, number]> = {
+        [newDiagram.collections[0].ns]: [10, 10],
+        [newDiagram.collections[1].ns]: [50, 50],
+      };
+      store.dispatch(applyInitialLayout(positions));
+
+      const diagramWithLayout = getCurrentDiagramFromState(store.getState());
+      expect(diagramWithLayout.name).to.equal(newDiagram.name);
+      expect(diagramWithLayout.connectionId).to.equal(newDiagram.connectionId);
+      expect(diagramWithLayout.edits).to.have.length(1);
+      expect(diagramWithLayout.edits[0].type).to.equal('SetModel');
+      const initialEditWithPositions = diagramWithLayout.edits[0] as Extract<
+        Edit,
+        { type: 'SetModel' }
+      >;
+      expect(initialEditWithPositions.model.collections[0]).to.deep.include({
+        ns: newDiagram.collections[0].ns,
+        jsonSchema: newDiagram.collections[0].schema,
+        displayPosition: positions[newDiagram.collections[0].ns],
+      });
+      expect(initialEditWithPositions.model.collections[1]).to.deep.include({
+        ns: newDiagram.collections[1].ns,
+        jsonSchema: newDiagram.collections[1].schema,
+        displayPosition: positions[newDiagram.collections[1].ns],
+      });
+      expect(initialEditWithPositions.model.relationships).to.deep.equal(
+        newDiagram.relations
+      );
+    });
   });
 
-  describe('applyEdit', function () {
+  describe('Existing Diagram', function () {
+    it('openDiagram', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      const diagram = getCurrentDiagramFromState(store.getState());
+      expect(diagram.id).to.equal(loadedDiagram.id);
+      expect(diagram.name).to.equal(loadedDiagram.name);
+      expect(diagram.connectionId).to.equal(loadedDiagram.connectionId);
+      expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+  });
+
+  describe('Editing', function () {
     it('should apply a valid SetModel edit', function () {
       store.dispatch(openDiagram(loadedDiagram));
 

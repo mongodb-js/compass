@@ -12,14 +12,19 @@ import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 
+function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
+  return Array.isArray(arr) && arr.length > 0;
+}
+
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
         prev: Edit[][];
-        current: Edit[];
+        current: [Edit, ...Edit[]];
         next: Edit[][];
       };
       editErrors?: string[];
+      isExportModalOpen?: boolean;
     })
   | null; // null when no diagram is currently open
 
@@ -27,10 +32,13 @@ export enum DiagramActionTypes {
   OPEN_DIAGRAM = 'data-modeling/diagram/OPEN_DIAGRAM',
   DELETE_DIAGRAM = 'data-modeling/diagram/DELETE_DIAGRAM',
   RENAME_DIAGRAM = 'data-modeling/diagram/RENAME_DIAGRAM',
+  APPLY_INITIAL_LAYOUT = 'data-modeling/diagram/APPLY_INITIAL_LAYOUT',
   APPLY_EDIT = 'data-modeling/diagram/APPLY_EDIT',
   APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
+  EXPORT_MODAL_OPENED = 'data-modeling/diagram/EXPORT_MODAL_OPENED',
+  EXPORT_MODAL_CLOSED = 'data-modeling/diagram/EXPORT_MODAL_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -47,6 +55,11 @@ export type RenameDiagramAction = {
   type: DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
+};
+
+export type ApplyInitialLayoutAction = {
+  type: DiagramActionTypes.APPLY_INITIAL_LAYOUT;
+  positions: Record<string, [number, number]>;
 };
 
 export type ApplyEditAction = {
@@ -67,10 +80,19 @@ export type RedoEditAction = {
   type: DiagramActionTypes.REDO_EDIT;
 };
 
+type ExportModalOpenedAction = {
+  type: DiagramActionTypes.EXPORT_MODAL_OPENED;
+};
+
+type ExportModalClosedAction = {
+  type: DiagramActionTypes.EXPORT_MODAL_CLOSED;
+};
+
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
   | RenameDiagramAction
+  | ApplyInitialLayoutAction
   | ApplyEditAction
   | ApplyEditFailedAction
   | UndoEditAction
@@ -84,9 +106,7 @@ export const diagramReducer: Reducer<DiagramState> = (
 ) => {
   if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
     return {
-      id: action.diagram.id,
-      connectionId: action.diagram.connectionId,
-      name: action.diagram.name,
+      ...action.diagram,
       edits: {
         prev: [],
         current: action.diagram.edits,
@@ -100,6 +120,8 @@ export const diagramReducer: Reducer<DiagramState> = (
       id: new UUID().toString(),
       name: action.name,
       connectionId: action.connectionId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       edits: {
         prev: [],
         current: [
@@ -111,10 +133,10 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
+                displayPosition: [NaN, NaN],
                 // TODO
                 indexes: [],
                 shardKey: undefined,
-                displayPosition: [0, 0],
               })),
               relationships: action.relations,
             },
@@ -134,6 +156,31 @@ export const diagramReducer: Reducer<DiagramState> = (
     return {
       ...state,
       name: action.name,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  if (isAction(action, DiagramActionTypes.APPLY_INITIAL_LAYOUT)) {
+    const initialEdit = state.edits.current[0];
+    if (!initialEdit || initialEdit.type !== 'SetModel') {
+      throw new Error('No initial model edit found to apply layout to');
+    }
+    return {
+      ...state,
+      edits: {
+        ...state.edits,
+        current: [
+          {
+            ...initialEdit,
+            model: {
+              ...initialEdit.model,
+              collections: initialEdit.model.collections.map((collection) => ({
+                ...collection,
+                displayPosition: action.positions[collection.ns] || [NaN, NaN],
+              })),
+            },
+          },
+        ],
+      },
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
@@ -145,6 +192,7 @@ export const diagramReducer: Reducer<DiagramState> = (
         next: [],
       },
       editErrors: undefined,
+      updatedAt: new Date().toISOString(),
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
@@ -154,8 +202,8 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.UNDO_EDIT)) {
-    const newCurrent = state.edits.prev.pop();
-    if (!newCurrent) {
+    const newCurrent = state.edits.prev.pop() || [];
+    if (!isNonEmptyArray(newCurrent)) {
       return state;
     }
     return {
@@ -165,11 +213,12 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: newCurrent,
         next: [...state.edits.next, state.edits.current],
       },
+      updatedAt: new Date().toISOString(),
     };
   }
   if (isAction(action, DiagramActionTypes.REDO_EDIT)) {
-    const newCurrent = state.edits.next.pop();
-    if (!newCurrent) {
+    const newCurrent = state.edits.next.pop() || [];
+    if (!isNonEmptyArray(newCurrent)) {
       return state;
     }
     return {
@@ -179,6 +228,19 @@ export const diagramReducer: Reducer<DiagramState> = (
         current: newCurrent,
         next: [...state.edits.next],
       },
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_OPENED)) {
+    return {
+      ...state,
+      isExportModalOpen: true,
+    };
+  }
+  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_CLOSED)) {
+    return {
+      ...state,
+      isExportModalOpen: false,
     };
   }
   return state;
@@ -219,6 +281,18 @@ export function applyEdit(
     dispatch({
       type: DiagramActionTypes.APPLY_EDIT,
       edit,
+    });
+    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
+  };
+}
+
+export function applyInitialLayout(
+  positions: Record<string, [number, number]>
+): DataModelingThunkAction<void, ApplyInitialLayoutAction> {
+  return (dispatch, getState, { dataModelStorage }) => {
+    dispatch({
+      type: DiagramActionTypes.APPLY_INITIAL_LAYOUT,
+      positions,
     });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
@@ -265,7 +339,7 @@ export function renameDiagram(
       }
       dispatch({ type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName });
       void dataModelStorage.save({ ...diagram, name: newName });
-    } catch (err) {
+    } catch {
       // TODO log
     }
   };
@@ -341,10 +415,20 @@ export function getCurrentDiagramFromState(
     id,
     connectionId,
     name,
+    createdAt,
+    updatedAt,
     edits: { current: edits },
   } = state.diagram;
 
-  return { id, connectionId, name, edits };
+  return { id, connectionId, name, edits, createdAt, updatedAt };
+}
+
+export function showExportModal(): ExportModalOpenedAction {
+  return { type: DiagramActionTypes.EXPORT_MODAL_OPENED };
+}
+
+export function closeExportModal(): ExportModalClosedAction {
+  return { type: DiagramActionTypes.EXPORT_MODAL_CLOSED };
 }
 
 export const selectCurrentModel = memoize(getCurrentModel);

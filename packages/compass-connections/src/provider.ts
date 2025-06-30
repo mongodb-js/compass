@@ -1,4 +1,4 @@
-import { createServiceLocator } from 'hadron-app-registry';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
 import type { DataService } from 'mongodb-data-service';
 import { getDataServiceForConnection } from './stores/connections-store-redux';
@@ -51,7 +51,7 @@ export {
   connectionInfoRefLocator,
 } from './connection-info-provider';
 
-export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
+export { ConnectionThemeProvider } from './hooks/connection-tab-theme-provider';
 
 export {
   useConnectionActions,

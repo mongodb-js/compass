@@ -205,8 +205,7 @@ type AggregationEditedEvent = ConnectionScopedEvent<{
       | 'stage_renamed'
       | 'stage_added'
       | 'stage_deleted'
-      | 'stage_reordered'
-      | 'stage_added';
+      | 'stage_reordered';
 
     /**
      * The name of the stage edited.
@@ -1525,6 +1524,61 @@ type AiResponseGeneratedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the AI Opt-In Modal is shown to the user.
+ *
+ * @category Gen AI
+ */
+type AiOptInModalShownEvent = CommonEvent<{
+  name: 'AI Opt In Modal Shown';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Opt-In Modal is dismissed by the user.
+ *
+ * @category Gen AI
+ */
+type AiOptInModalDismissedEvent = CommonEvent<{
+  name: 'AI Opt In Modal Dismissed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Sign-In Modal is shown to the user.
+ *
+ * @category Gen AI
+ */
+type AiSignInModalShownEvent = CommonEvent<{
+  name: 'AI Sign In Modal Shown';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the AI Sign-In Modal is dismissed by the user.
+ *
+ * @category Gen AI
+ */
+type AiSignInModalDismissedEvent = CommonEvent<{
+  name: 'AI Sign In Modal Dismissed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a user clicks the Generate Query / Aggregation entry point.
+ *
+ * @category Gen AI
+ */
+type AiGenerateQueryClickedEvent = CommonEvent<{
+  name: 'AI Generate Query Clicked';
+  payload: {
+    /**
+     * The type of query being generated.
+     */
+    type: 'aggregation' | 'query';
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a pipeline generation.
  *
  * @category Gen AI
@@ -2694,6 +2748,134 @@ type CreateIndexButtonClickedEvent = CommonEvent<{
   };
 }>;
 
+type CreateIndexErrorParsingQueryEvent = CommonEvent<{
+  name: 'Error parsing query';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
+  name: 'Error generating covered queries';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type UUIDEncounteredEvent = CommonEvent<{
+  name: 'UUID Encountered';
+  payload: {
+    subtype: 3 | 4;
+    count: number;
+  };
+}>;
+
+type CreateIndexNewFieldAdded = CommonEvent<{
+  name: 'New Index Field Added';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexOptionsClicked = CommonEvent<{
+  name: 'Options Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCoveredQueriesButtonClicked = CommonEvent<{
+  name: 'Covered Queries Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexSuggestedIndexButtonClicked = CommonEvent<{
+  name: 'Suggested Index Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexIndexTabClicked = CommonEvent<{
+  name: 'Start with an Index Tab Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexQueryTabClicked = CommonEvent<{
+  name: 'Start with a Query Tab Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCodeEquivalentToggled = CommonEvent<{
+  name: 'Code Equivalent Toggled';
+  payload: {
+    context: CreateIndexModalContext;
+    toggled: 'On' | 'Off';
+  };
+}>;
+
+type CreateIndexModalClosed = CommonEvent<{
+  name: 'Create Index Modal Closed';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexModalCancelled = CommonEvent<{
+  name: 'Cancel Button Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
+  name: 'View Programming Language Syntax Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
+  name: 'Covered Queries Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexESRLearnMoreClicked = CommonEvent<{
+  name: 'ESR Learn More Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexInputIndexCopied = CommonEvent<{
+  name: 'Input Index Copied';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexIndexSuggestionsCopied = CommonEvent<{
+  name: 'Index Suggestions Copied';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
+type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
+  name: 'Index Strategies Documentation Clicked';
+  payload: {
+    context: CreateIndexModalContext;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2710,6 +2892,11 @@ export type TelemetryEvent =
   | AggregationTimedOutEvent
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
+  | AiOptInModalShownEvent
+  | AiOptInModalDismissedEvent
+  | AiSignInModalShownEvent
+  | AiSignInModalDismissedEvent
+  | AiGenerateQueryClickedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
   | AiResponseFailedEvent
@@ -2816,4 +3003,22 @@ export type TelemetryEvent =
   | CumulativeLayoutShiftEvent
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
-  | CreateIndexButtonClickedEvent;
+  | CreateIndexButtonClickedEvent
+  | CreateIndexErrorParsingQueryEvent
+  | CreateIndexErrorGettingCoveredQueriesEvent
+  | CreateIndexCodeEquivalentToggled
+  | CreateIndexCoveredQueriesButtonClicked
+  | CreateIndexCoveredQueriesLearnMoreClicked
+  | CreateIndexESRLearnMoreClicked
+  | CreateIndexIndexTabClicked
+  | CreateIndexModalCancelled
+  | CreateIndexModalClosed
+  | CreateIndexNewFieldAdded
+  | CreateIndexOptionsClicked
+  | CreateIndexProgrammingLanguageLinkClicked
+  | CreateIndexQueryTabClicked
+  | CreateIndexSuggestedIndexButtonClicked
+  | CreateIndexInputIndexCopied
+  | CreateIndexIndexSuggestionsCopied
+  | CreateIndexStrategiesDocumentationClicked
+  | UUIDEncounteredEvent;

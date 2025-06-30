@@ -41,8 +41,8 @@ import type { UpdatePreview } from 'mongodb-data-service';
 import type { GridStore, TableHeaderType } from './grid-store';
 import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
-import type AppRegistry from 'hadron-app-registry';
-import type { ActivateHelpers } from 'hadron-app-registry';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import {
@@ -89,15 +89,15 @@ export type CrudActions = {
       rowIndex: number;
     }
   ): void;
-  updateDocument(doc: Document): void;
-  removeDocument(doc: Document): void;
-  replaceDocument(doc: Document): void;
-  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): void;
+  updateDocument(doc: Document): Promise<void>;
+  removeDocument(doc: Document): Promise<void>;
+  replaceDocument(doc: Document): Promise<void>;
+  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
   copyToClipboard(doc: Document): void; //XXX
   openBulkDeleteDialog(): void;
-  runBulkUpdate(): void;
+  runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
-  runBulkDelete(): void;
+  runBulkDelete(): Promise<void>;
   openDeleteQueryExportToLanguageDialog(): void;
   saveUpdateQuery(name: string): Promise<void>;
 };
@@ -112,11 +112,13 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 
 export const fetchDocuments: (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion: string,
   isDataLake: boolean,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
+  track: TrackFunction,
   serverVersion,
   isDataLake,
   ns,
@@ -145,17 +147,31 @@ export const fetchDocuments: (
   };
 
   try {
-    return (
+    let uuidSubtype3Count = 0;
+    let uuidSubtype4Count = 0;
+    const docs = (
       await dataService.find(ns, filter, modifiedOptions, executionOptions)
     ).map((doc) => {
       const { __doc, __size, ...rest } = doc;
+      let hadronDoc: HadronDocument;
       if (__doc && __size && Object.keys(rest).length === 0) {
-        const hadronDoc = new HadronDocument(__doc);
+        hadronDoc = new HadronDocument(__doc);
         hadronDoc.size = Number(__size);
-        return hadronDoc;
+      } else {
+        hadronDoc = new HadronDocument(doc);
       }
-      return new HadronDocument(doc);
+      const { subtype3Count, subtype4Count } = hadronDoc.findUUIDs();
+      uuidSubtype3Count += subtype3Count;
+      uuidSubtype4Count += subtype4Count;
+      return hadronDoc;
     });
+    if (uuidSubtype3Count > 0) {
+      track('UUID Encountered', { subtype: 3, count: uuidSubtype3Count });
+    }
+    if (uuidSubtype4Count > 0) {
+      track('UUID Encountered', { subtype: 4, count: uuidSubtype4Count });
+    }
+    return docs;
   } catch (err) {
     // We are handling all the cases where the size calculating projection might
     // not work, but just in case we run into some other environment or use-case
@@ -896,6 +912,7 @@ class CrudStoreImpl
     try {
       documents = await fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
@@ -1199,7 +1216,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -1733,6 +1750,7 @@ class CrudStoreImpl
       ),
       fetchDocuments(
         this.dataService,
+        this.track,
         this.state.version,
         this.state.isDataLake,
         ns,
@@ -1834,7 +1852,7 @@ class CrudStoreImpl
 
   openCreateIndexModal() {
     this.localAppRegistry.emit('open-create-index-modal', {
-      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')),
+      query: EJSON.serialize(this.queryBar.getLastAppliedQuery('crud')?.filter),
     });
   }
 
@@ -1960,7 +1978,7 @@ class CrudStoreImpl
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
-    } catch (err) {
+    } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
       // probably OK - the button will soon appear disabled to the user anyway.
@@ -2175,7 +2193,7 @@ export async function findAndModifyWithFLEFallback(
         { promoteValues: false }
       );
       return [undefined, docs[0]] as ErrorOrResult;
-    } catch (e) {
+    } catch {
       /* fallthrough */
     }
   }

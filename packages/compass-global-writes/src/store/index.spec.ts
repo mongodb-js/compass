@@ -225,7 +225,7 @@ describe('GlobalWritesStore Store', function () {
 
   afterEach(() => {
     sinon.restore();
-    clock && clock.restore();
+    clock?.restore();
   });
 
   it('sets the initial state', function () {

@@ -1,20 +1,21 @@
 import React, { useContext, useRef } from 'react';
-import type { AnyWorkspace, WorkspaceComponent } from '../';
+import type { AnyWorkspace } from '../';
+import type { WorkspacePlugin } from '../types';
 
-export type AnyWorkspaceComponent =
-  | WorkspaceComponent<'Welcome'>
-  | WorkspaceComponent<'My Queries'>
-  | WorkspaceComponent<'Data Modeling'>
-  | WorkspaceComponent<'Shell'>
-  | WorkspaceComponent<'Performance'>
-  | WorkspaceComponent<'Databases'>
-  | WorkspaceComponent<'Collections'>
-  | WorkspaceComponent<'Collection'>;
+export type AnyWorkspacePlugin =
+  | WorkspacePlugin<'Welcome'>
+  | WorkspacePlugin<'My Queries'>
+  | WorkspacePlugin<'Data Modeling'>
+  | WorkspacePlugin<'Shell'>
+  | WorkspacePlugin<'Performance'>
+  | WorkspacePlugin<'Databases'>
+  | WorkspacePlugin<'Collections'>
+  | WorkspacePlugin<'Collection'>;
 
-const WorkspacesContext = React.createContext<AnyWorkspaceComponent[]>([]);
+const WorkspacesContext = React.createContext<AnyWorkspacePlugin[]>([]);
 
 export const WorkspacesProvider: React.FunctionComponent<{
-  value: AnyWorkspaceComponent[];
+  value: AnyWorkspacePlugin[];
 }> = ({ value, children }) => {
   const valueRef = useRef(value);
   return (
@@ -30,6 +31,9 @@ export const useWorkspacePlugins = () => {
     hasWorkspacePlugin: <T extends AnyWorkspace['type']>(name: T) => {
       return workspaces.some((ws) => ws.name === name);
     },
+    getWorkspacePlugins: (): AnyWorkspacePlugin[] => {
+      return workspaces;
+    },
     getWorkspacePluginByName: <T extends AnyWorkspace['type']>(name: T) => {
       const plugin = workspaces.find((ws) => ws.name === name);
       if (!plugin) {
@@ -37,7 +41,7 @@ export const useWorkspacePlugins = () => {
           `Component for workspace "${name}" is missing in context. Did you forget to set up WorkspacesProvider?`
         );
       }
-      return plugin.component as unknown as WorkspaceComponent<T>['component'];
+      return plugin as unknown as WorkspacePlugin<T>;
     },
   });
   return workspacePlugins.current;

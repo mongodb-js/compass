@@ -11,10 +11,20 @@ import {
   fontFamilies,
   InfoSprinkle,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useState, useCallback } from 'react';
-import type { Field } from '../../modules/create-index';
+import {
+  errorEncountered,
+  fetchCoveredQueries,
+  type Field,
+} from '../../modules/create-index';
 import MDBCodeViewer from './mdb-code-viewer';
+import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
+import { connect } from 'react-redux';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../../modules';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -33,6 +43,10 @@ const indexFieldsCalloutStyles = css({
   marginBottom: spacing[600],
 });
 
+const indexFieldsCalloutDarkStyles = css({
+  border: `1px solid ${palette.gray.base}`,
+});
+
 const codeEquivalentToggleLabelStyles = css({
   marginRight: spacing[100],
   fontWeight: 'normal',
@@ -43,13 +57,20 @@ const coveredQueriesHeaderContainerStyles = css({
 });
 
 const coveredQueriesCalloutStyles = css({
-  border: `1px solid ${palette.gray.light2}`,
-  background: palette.gray.light3,
   borderRadius: '12px',
   padding: spacing[600],
   marginBottom: spacing[600],
 });
 
+const lightModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  background: palette.gray.light3,
+});
+
+const darkModeCoveredQueriesCalloutStyles = css({
+  border: `1px solid ${palette.gray.dark2}`,
+  background: palette.black,
+});
 const buttonContainerStyles = css({
   display: 'flex',
   justifyContent: 'right',
@@ -72,16 +93,32 @@ const coveredQueriesHeaderStyles = css({
   marginRight: spacing[200],
 });
 
+const coveredQueriesLinkStyles = css({
+  marginTop: spacing[200],
+});
+
+const optimalQueriesStyles = css({
+  marginTop: spacing[400],
+});
+
 export type IndexFlowSectionProps = {
   fields: Field[];
   createIndexFieldsComponent: JSX.Element | null;
   dbName: string;
   collectionName: string;
+  onErrorEncountered: (error: string) => void;
+  onCoveredQueriesFetched: () => void;
+  coveredQueriesArr: Array<Record<string, number>> | null;
+  hasIndexFieldChanges: boolean;
 };
 
-const generateCoveredQueries = (
-  coveredQueriesArr: Array<Record<string, number>>
+export const generateCoveredQueries = (
+  coveredQueriesArr: Array<Record<string, number>> | null,
+  track: TrackFunction
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const rows = [];
   for (let i = 0; i < coveredQueriesArr.length; i++) {
     const currentRow = Object.assign({}, ...coveredQueriesArr.slice(0, i + 1));
@@ -92,12 +129,24 @@ const generateCoveredQueries = (
     );
   }
 
+  if (rows.length === 0) {
+    // TODO: remove this in CLOUDP-320224
+    track('Error generating covered queries', {
+      context: 'Create Index Modal',
+    });
+    throw new Error(
+      'Error generating covered query examples. Please try again later.'
+    );
+  }
   return <>{rows}</>;
 };
 
-const generateOptimalQueries = (
-  coveredQueriesArr: Array<Record<string, number>>
+export const generateOptimalQueries = (
+  coveredQueriesArr: Array<Record<string, number>> | null
 ) => {
+  if (!coveredQueriesArr) {
+    return;
+  }
   const numOfFields = coveredQueriesArr.length;
 
   // Do not show for 1 field or less
@@ -116,7 +165,7 @@ const generateOptimalQueries = (
 
     return (
       <>
-        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}}`}
+        {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}`}
         <br />
         {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
       </>
@@ -124,23 +173,33 @@ const generateOptimalQueries = (
   }
 
   // If there are more than two fields, we want to show a longer optimal query with gt and sort
-  // i.e. {a:1, b:2, c:{gt:3}}.sort({d:1})
+  // i.e. {a:1, b:2, d:{gt:3}}.sort({c:1})
+
+  const secondToLastField = coveredQueriesArr[numOfFields - 2];
+  const secondToLastFieldKey = Object.keys(secondToLastField)[0];
+
   const optimalQueries = coveredQueriesArr
-    .slice(0, -1)
-    .reduce<Record<string, unknown>>((acc, obj, index) => {
+    .slice(0, -2)
+    .reduce<Record<string, unknown>>((acc, obj) => {
       const key = Object.keys(obj)[0];
       const value = obj[key];
 
-      if (index === numOfFields - 2) {
-        acc[key] = { $gt: value };
-      } else {
-        acc[key] = value;
-      }
+      acc[key] = value;
 
       return acc;
     }, {});
 
-  return JSON.stringify(optimalQueries) + `.sort(${lastFieldKey}: 1})`;
+  // Put last field in range and second to last field in sort
+  optimalQueries[lastFieldKey] = { $gt: coveredQueriesArr.length - 1 };
+  return (
+    JSON.stringify(optimalQueries) + `.sort({"${secondToLastFieldKey}": 1})`
+  );
+};
+
+export const generateCoveredQueriesArr = (fields: Field[]) => {
+  return fields.map((field, index) => {
+    return { [field.name]: index + 1 };
+  });
 };
 
 const IndexFlowSection = ({
@@ -148,20 +207,24 @@ const IndexFlowSection = ({
   fields,
   dbName,
   collectionName,
+  onErrorEncountered,
+  onCoveredQueriesFetched,
+  coveredQueriesArr,
+  hasIndexFieldChanges,
 }: IndexFlowSectionProps) => {
+  const darkMode = useDarkMode();
   const [isCodeEquivalentToggleChecked, setIsCodeEquivalentToggleChecked] =
     useState(false);
-
-  const areAllFieldsFilledIn = fields.every((field) => {
-    return field.name && field.type;
-  });
 
   const hasUnsupportedQueryTypes = fields.some((field) => {
     return field.type === '2dsphere' || field.type === 'text';
   });
+  const track = useTelemetry();
 
   const isCoveredQueriesButtonDisabled =
-    !areAllFieldsFilledIn || hasUnsupportedQueryTypes;
+    !areAllFieldsFilledIn(fields) ||
+    hasUnsupportedQueryTypes ||
+    !hasIndexFieldChanges;
 
   const indexNameTypeMap = fields.reduce<Record<string, string>>(
     (accumulator, currentValue) => {
@@ -173,30 +236,21 @@ const IndexFlowSection = ({
     {}
   );
 
-  const [coveredQueriesObj, setCoveredQueriesObj] = useState<{
-    coveredQueries: JSX.Element;
-    optimalQueries: string | JSX.Element;
-    showCoveredQueries: boolean;
-  }>({
-    coveredQueries: <></>,
-    optimalQueries: '',
-    showCoveredQueries: false,
-  });
-
   const onCoveredQueriesButtonClick = useCallback(() => {
-    const coveredQueriesArr = fields.map((field, index) => {
-      return { [field.name]: index + 1 };
+    track('Covered Queries Button Clicked', {
+      context: 'Create Index Modal',
     });
 
-    setCoveredQueriesObj({
-      coveredQueries: generateCoveredQueries(coveredQueriesArr),
-      optimalQueries: generateOptimalQueries(coveredQueriesArr),
-      showCoveredQueries: true,
-    });
-  }, [fields]);
+    try {
+      onCoveredQueriesFetched();
+    } catch (e) {
+      onErrorEncountered(e instanceof Error ? e.message : String(e));
+    }
+  }, [onCoveredQueriesFetched, onErrorEncountered, track]);
 
-  const { coveredQueries, optimalQueries, showCoveredQueries } =
-    coveredQueriesObj;
+  const coveredQueries = generateCoveredQueries(coveredQueriesArr, track);
+  const optimalQueries = generateOptimalQueries(coveredQueriesArr);
+  const showCoveredQueries = coveredQueriesArr !== null;
 
   return (
     <div>
@@ -218,18 +272,34 @@ const IndexFlowSection = ({
             size="xsmall"
             id="code-equivalent-toggle"
             aria-label="Toggle Code Equivalent"
-            onChange={(value) => setIsCodeEquivalentToggleChecked(value)}
+            onChange={(value) => {
+              setIsCodeEquivalentToggleChecked(value);
+              track('Code Equivalent Toggled', {
+                context: 'Create Index Modal',
+                toggled: value === true ? 'On' : 'Off',
+              });
+            }}
             checked={isCodeEquivalentToggleChecked}
-            disabled={!areAllFieldsFilledIn}
+            disabled={!areAllFieldsFilledIn(fields)}
           />
         </div>
       </div>
-      <div className={indexFieldsCalloutStyles}>
+      <div
+        className={cx(
+          indexFieldsCalloutStyles,
+          darkMode && indexFieldsCalloutDarkStyles
+        )}
+      >
         {isCodeEquivalentToggleChecked ? (
           <MDBCodeViewer
             dbName={dbName}
             collectionName={collectionName}
             indexNameTypeMap={indexNameTypeMap}
+            onCopy={() => {
+              track('Input Index Copied', {
+                context: 'Create Index Modal',
+              });
+            }}
           />
         ) : (
           createIndexFieldsComponent
@@ -279,34 +349,63 @@ const IndexFlowSection = ({
             </InfoSprinkle>
           </div>
 
-          <div className={coveredQueriesCalloutStyles}>
+          <div
+            className={cx(
+              coveredQueriesCalloutStyles,
+              darkMode
+                ? darkModeCoveredQueriesCalloutStyles
+                : lightModeCoveredQueriesCalloutStyles
+            )}
+          >
             {/* Covered Queries */}
-            <Body
-              className={codeStyles}
-              data-testid="index-flow-section-covered-queries-examples"
-            >
-              {coveredQueries}
-            </Body>
+
+            <div>
+              <Body
+                className={codeStyles}
+                data-testid="index-flow-section-covered-queries-examples"
+              >
+                {coveredQueries}
+              </Body>
+              <div className={coveredQueriesLinkStyles}>
+                <Link
+                  href="https://www.mongodb.com/docs/manual/core/query-optimization/"
+                  onClick={() => {
+                    track('Covered Queries Learn More Clicked', {
+                      context: 'Create Index Modal',
+                    });
+                  }}
+                >
+                  Learn about covered queries
+                </Link>
+              </div>
+            </div>
 
             {!!optimalQueries && (
-              <>
-                <p>
-                  <span className={underlineStyles}>
-                    Follow the Equality, Sort, Range (ESR) Rule. This index is
-                    optimal for queries that have this pattern:
-                  </span>
-                  {/* Optimal queries */}
-                  <Body
-                    className={codeStyles}
-                    data-testid="index-flow-section-optimal-queries-examples"
+              <div className={optimalQueriesStyles}>
+                <span className={underlineStyles}>
+                  Follow the Equality, Sort, Range (ESR) Rule. This index is
+                  great for queries that have this pattern:
+                </span>
+                {/* Optimal queries */}
+                <Body
+                  className={codeStyles}
+                  data-testid="index-flow-section-optimal-queries-examples"
+                >
+                  {optimalQueries}
+                </Body>
+                <div className={coveredQueriesLinkStyles}>
+                  <Link
+                    href="https://www.mongodb.com/docs/manual/tutorial/equality-sort-range-guideline/"
+                    onClick={() => {
+                      track('ESR Learn More Clicked', {
+                        context: 'Create Index Modal',
+                      });
+                    }}
                   >
-                    {optimalQueries}
-                  </Body>
-                </p>
-                <Link href="https://www.mongodb.com/docs/manual/core/query-optimization/">
-                  Learn More
-                </Link>
-              </>
+                    Learn about ESR
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </>
@@ -315,4 +414,17 @@ const IndexFlowSection = ({
   );
 };
 
-export default IndexFlowSection;
+const mapState = ({ createIndex }: RootState) => {
+  const { coveredQueriesArr, hasIndexFieldChanges } = createIndex;
+  return {
+    coveredQueriesArr,
+    hasIndexFieldChanges,
+  };
+};
+
+const mapDispatch = {
+  onErrorEncountered: errorEncountered,
+  onCoveredQueriesFetched: fetchCoveredQueries,
+};
+
+export default connect(mapState, mapDispatch)(IndexFlowSection);

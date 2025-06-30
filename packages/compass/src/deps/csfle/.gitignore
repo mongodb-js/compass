@@ -1,3 +1,4 @@
 # This folder only contains files downloaded via scripts/download-csfle
 *
 !.*
+._*

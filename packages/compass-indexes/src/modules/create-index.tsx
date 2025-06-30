@@ -1,5 +1,4 @@
 import type { Document } from 'mongodb';
-import type { Document as BsonDocument } from 'bson';
 import { EJSON, ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
@@ -11,6 +10,7 @@ import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import * as mql from 'mongodb-mql-engines';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import toNS from 'mongodb-ns';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -31,8 +31,13 @@ export enum ActionTypes {
 
   TabUpdated = 'compass-indexes/create-index/tab-updated',
 
+  // Query Flow
   SuggestedIndexesRequested = 'compass-indexes/create-index/suggested-indexes-requested',
   SuggestedIndexesFetched = 'compass-indexes/create-index/suggested-indexes-fetched',
+  QueryUpdatedAction = 'compass-indexes/create-index/clear-has-query-changes',
+
+  // Index Flow
+  CoveredQueriesFetched = 'compass-indexes/create-index/covered-queries-fetched',
 }
 
 // fields
@@ -77,7 +82,7 @@ type ErrorClearedAction = {
 
 export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
-  query?: BsonDocument;
+  initialQuery?: Document;
 };
 
 type CreateIndexClosedAction = {
@@ -307,9 +312,6 @@ export type State = {
   // state of the index suggestions
   fetchingSuggestionsState: IndexSuggestionState;
 
-  // error specific to fetching index suggestions
-  fetchingSuggestionsError: string | null;
-
   // index suggestions in a format such as {fieldName: 1}
   indexSuggestions: Record<string, number> | null;
 
@@ -317,7 +319,19 @@ export type State = {
   sampleDocs: Array<Document> | null;
 
   // base query to be used for query flow index creation
-  query: BsonDocument | null;
+  query: string;
+
+  // the initial query that user had prefilled from the insights nudge in the documents tab
+  initialQuery: string;
+
+  // to determine whether there has been new query changes since user last pressed the button
+  hasQueryChanges: boolean;
+
+  // covered queries array for the index flow to keep track of what the user last sees after pressing the covered queries button
+  coveredQueriesArr: Array<Record<string, number>> | null;
+
+  // to determine whether there has been new index field changes since user last pressed the button
+  hasIndexFieldChanges: boolean;
 };
 
 export const INITIAL_STATE: State = {
@@ -327,11 +341,18 @@ export const INITIAL_STATE: State = {
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
   currentTab: 'IndexFlow',
+
+  // Query flow
   fetchingSuggestionsState: 'initial',
-  fetchingSuggestionsError: null,
   indexSuggestions: null,
   sampleDocs: null,
-  query: null,
+  query: '',
+  initialQuery: '',
+  hasQueryChanges: false,
+
+  // Index flow
+  coveredQueriesArr: null,
+  hasIndexFieldChanges: false,
 };
 
 function getInitialState(): State {
@@ -343,16 +364,33 @@ function getInitialState(): State {
 
 //-------
 
-export const createIndexOpened = (query?: BsonDocument) => ({
-  type: ActionTypes.CreateIndexOpened,
-  query,
-});
+export const createIndexOpened = (
+  initialQuery?: Document
+): IndexesThunkAction<
+  Promise<void>,
+  SuggestedIndexFetchedAction | CreateIndexOpenedAction
+> => {
+  return async (dispatch) => {
+    dispatch({
+      type: ActionTypes.CreateIndexOpened,
+      initialQuery,
+    });
+
+    if (initialQuery) {
+      await dispatch(
+        fetchIndexSuggestions({
+          query: JSON.stringify(initialQuery, null, 2) || '',
+        })
+      );
+    }
+  };
+};
 
 export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
 });
 
-const errorEncountered = (error: string): ErrorEncounteredAction => ({
+export const errorEncountered = (error: string): ErrorEncounteredAction => ({
   type: ActionTypes.ErrorEncountered,
   error,
 });
@@ -373,73 +411,86 @@ export type SuggestedIndexFetchedAction = {
   type: ActionTypes.SuggestedIndexesFetched;
   sampleDocs: Array<Document>;
   indexSuggestions: { [key: string]: number } | null;
-  fetchingSuggestionsError: string | null;
+  error: string | null;
   indexSuggestionsState: IndexSuggestionState;
 };
 
 export type SuggestedIndexFetchedProps = {
-  dbName: string;
-  collectionName: string;
-  inputQuery: string;
+  query: string;
+};
+
+export type CoveredQueriesFetchedAction = {
+  type: ActionTypes.CoveredQueriesFetched;
+};
+
+export type QueryUpdatedProps = {
+  query: string;
+};
+
+export type QueryUpdatedAction = {
+  type: ActionTypes.QueryUpdatedAction;
+  query: string;
 };
 
 export const fetchIndexSuggestions = ({
-  dbName,
-  collectionName,
-  inputQuery,
-}: {
-  dbName: string;
-  collectionName: string;
-  inputQuery: string;
-}): IndexesThunkAction<
+  query,
+}: SuggestedIndexFetchedProps): IndexesThunkAction<
   Promise<void>,
   SuggestedIndexFetchedAction | SuggestedIndexesRequestedAction
 > => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, track }) => {
     dispatch({
       type: ActionTypes.SuggestedIndexesRequested,
     });
-    const namespace = `${dbName}.${collectionName}`;
 
+    const namespace = getState().namespace;
     // Get sample documents from state if it's already there, otherwise fetch it
     let sampleDocuments: Array<Document> | null =
       getState().createIndex.sampleDocs || null;
-
     // If it's null, that means it has not been fetched before
     if (sampleDocuments === null) {
       try {
         sampleDocuments =
           (await dataService.sample(namespace, { size: 50 })) || [];
-      } catch (e) {
+      } catch {
         // Swallow the error because mql package still will work fine with empty sampleDocuments
         sampleDocuments = [];
       }
     }
 
+    const throwError = (e?: unknown) => {
+      dispatch({
+        type: ActionTypes.SuggestedIndexesFetched,
+        sampleDocs: sampleDocuments || [],
+        indexSuggestions: null,
+        error:
+          e instanceof Error
+            ? 'Error parsing query. Please follow query structure. ' + e.message
+            : 'Error parsing query. Please follow query structure.',
+        indexSuggestionsState: 'error',
+      });
+    };
+
     // Analyze namespace and fetch suggestions
     try {
+      const { database, collection } = toNS(getState().namespace);
       const analyzedNamespace = mql.analyzeNamespace(
-        { database: dbName, collection: collectionName },
+        { database, collection },
         sampleDocuments
       );
 
-      const query = mql.parseQuery(
-        _parseShellBSON(inputQuery, { mode: ParseMode.Loose }),
+      const parsedQuery = mql.parseQuery(
+        _parseShellBSON(query, { mode: ParseMode.Loose }),
         analyzedNamespace
       );
-      const results = await mql.suggestIndex([query]);
-      const indexSuggestions = results?.index || null;
+      const results = await mql.suggestIndex([parsedQuery]);
+      const indexSuggestions = results?.index;
 
-      // TODO in CLOUDP-311787: add info banner and update the current error banner to take in fetchingSuggestionsError as well
-      if (!indexSuggestions) {
-        dispatch({
-          type: ActionTypes.SuggestedIndexesFetched,
-          sampleDocs: sampleDocuments,
-          indexSuggestions,
-          fetchingSuggestionsError:
-            'No suggested index found. Please choose "Start with an Index" at the top to continue.',
-          indexSuggestionsState: 'error',
-        });
+      if (
+        !indexSuggestions ||
+        Object.keys(indexSuggestions as Record<string, unknown>).length === 0
+      ) {
+        throwError();
         return;
       }
 
@@ -447,23 +498,27 @@ export const fetchIndexSuggestions = ({
         type: ActionTypes.SuggestedIndexesFetched,
         sampleDocs: sampleDocuments,
         indexSuggestions,
-        fetchingSuggestionsError: null,
+        error: null,
         indexSuggestionsState: 'success',
       });
     } catch (e: unknown) {
-      dispatch({
-        type: ActionTypes.SuggestedIndexesFetched,
-        sampleDocs: sampleDocuments,
-        indexSuggestions: null,
-        fetchingSuggestionsError:
-          e instanceof Error
-            ? 'Error parsing query. Please follow query structure. ' + e.message
-            : 'Error parsing query. Please follow query structure.',
-        indexSuggestionsState: 'error',
-      });
+      // TODO: remove this in CLOUDP-320224
+      track('Error parsing query', { context: 'Create Index Modal' });
+      throwError(e);
     }
   };
 };
+
+export const fetchCoveredQueries = (): CoveredQueriesFetchedAction => ({
+  type: ActionTypes.CoveredQueriesFetched,
+});
+
+export const queryUpdated = ({
+  query,
+}: QueryUpdatedProps): QueryUpdatedAction => ({
+  type: ActionTypes.QueryUpdatedAction,
+  query,
+});
 
 function isEmptyValue(value: unknown) {
   if (value === '') {
@@ -496,6 +551,8 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   return (dispatch, getState, { track, preferences }) => {
     // @experiment Early Journey Indexes Guidance & Awareness  | Jira Epic: CLOUDP-239367
     const currentTab = getState().createIndex.currentTab;
+    const isQueryFlow = currentTab === 'QueryFlow';
+    const indexSuggestions = getState().createIndex.indexSuggestions;
     const { enableIndexesGuidanceExp, showIndexesGuidanceVariant } =
       preferences.getPreferences();
 
@@ -509,26 +566,24 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
           : undefined,
     });
 
-    // Check for field errors.
-    if (
-      getState().createIndex.fields.some(
-        (field: Field) => field.name === '' || field.type === ''
-      )
-    ) {
-      dispatch(errorEncountered('You must select a field name and type'));
-      return;
-    }
-
     const formIndexOptions = getState().createIndex.options;
 
-    let spec: Record<string, IndexDirection>;
+    let spec: Record<string, IndexDirection> = {};
 
     try {
-      spec = Object.fromEntries(
-        getState().createIndex.fields.map((field) => {
-          return [field.name, fieldTypeToIndexDirection(field.type)];
-        })
-      );
+      if (isQueryFlow) {
+        // Gather from suggested index
+        if (indexSuggestions) {
+          spec = indexSuggestions;
+        }
+      } else {
+        // Gather from the index input fields
+        spec = Object.fromEntries(
+          getState().createIndex.fields.map((field) => {
+            return [field.name, fieldTypeToIndexDirection(field.type)];
+          })
+        );
+      }
     } catch (e) {
       dispatch(errorEncountered((e as any).message));
       return;
@@ -643,6 +698,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: [...state.fields, { name: '', type: '' }],
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -652,6 +709,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -665,6 +724,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -672,6 +733,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fields: action.fields,
+      hasIndexFieldChanges: true,
+      error: null,
     };
   }
 
@@ -709,11 +772,17 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<CreateIndexOpenedAction>(action, ActionTypes.CreateIndexOpened)
   ) {
+    const parsedInitialQuery = action.initialQuery
+      ? JSON.stringify(action.initialQuery, null, 2)
+      : '';
+
     return {
       ...getInitialState(),
       isVisible: true,
-      query: action.query ?? null,
-      currentTab: action.query ? 'QueryFlow' : 'IndexFlow',
+      // get it from the current query or initial query from insights nudge
+      query: state.query || parsedInitialQuery,
+      initialQuery: parsedInitialQuery,
+      currentTab: action.initialQuery ? 'QueryFlow' : 'IndexFlow',
     };
   }
 
@@ -737,6 +806,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      query: '',
     };
   }
 
@@ -768,7 +838,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: 'fetching',
-      fetchingSuggestionsError: null,
+      error: null,
       indexSuggestions: null,
     };
   }
@@ -782,9 +852,34 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       fetchingSuggestionsState: action.indexSuggestionsState,
-      fetchingSuggestionsError: action.fetchingSuggestionsError,
+      error: action.error,
       indexSuggestions: action.indexSuggestions,
       sampleDocs: action.sampleDocs,
+      hasQueryChanges: false,
+    };
+  }
+
+  if (
+    isAction<CoveredQueriesFetchedAction>(
+      action,
+      ActionTypes.CoveredQueriesFetched
+    )
+  ) {
+    return {
+      ...state,
+      coveredQueriesArr: state.fields.map((field, index) => {
+        return { [field.name]: index + 1 };
+      }),
+      hasIndexFieldChanges: false,
+    };
+  }
+
+  if (isAction<QueryUpdatedAction>(action, ActionTypes.QueryUpdatedAction)) {
+    return {
+      ...state,
+      query: action.query,
+      hasQueryChanges: true,
+      error: null,
     };
   }
 

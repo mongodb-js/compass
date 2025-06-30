@@ -46,7 +46,10 @@ jobs:
         run: echo "[Evergreen Task](${{ github.event.inputs.evergreen_task_url }})" >> $GITHUB_STEP_SUMMARY
   test:
     name: ${{ matrix.package }} test ${{ matrix.test }} (${{ matrix.hadron-distribution }})
-    timeout-minutes: 30
+    # Windows specifically takes A TON of time to bootstrap itself before being
+    # able to run tests, so we're setting the timeout pretty high to account for
+    # that
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -174,7 +177,11 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     container: ${{ matrix.container }}
     env:
-      DEBUG: compass:smoketests:*
+      DEBUG: compass:smoketests:*,compass-e2e-tests:*
+      # Similar to total task timeout, setting these higher than the default
+      # value to account for very slow windows machines
+      COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
+      COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 360000 # 6min
     steps:
       - name: Checkout
         uses: actions/checkout@v2

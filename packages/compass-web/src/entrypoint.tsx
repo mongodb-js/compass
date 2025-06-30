@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
-} from 'hadron-app-registry';
+} from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
@@ -51,17 +51,18 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type {
-  TrackFunction,
-  LogFunction,
-  DebugFunction,
-} from './logger-and-telemetry';
-import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
+import type { LogFunction, DebugFunction } from './logger';
+import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { useCompassWebPreferences } from './preferences';
-import { WorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
+import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+
+export type TrackFunction = (
+  event: string,
+  properties: Record<string, any>
+) => void;
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -269,7 +270,7 @@ const CompassWeb = ({
   onFailToLoadConnections,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
-  const logger = useCompassWebLoggerAndTelemetry({
+  const logger = useCompassWebLogger({
     onLog,
     onDebug,
   });
@@ -285,10 +286,11 @@ const CompassWeb = ({
       : initialAutoconnectId ?? undefined;
 
   const onTrackRef = useRef(onTrack);
+  onTrackRef.current = onTrack;
 
   const telemetryOptions = useRef<TelemetryServiceOptions>({
     sendTrack: (event: string, properties: Record<string, any> | undefined) => {
-      onTrackRef.current && void onTrackRef.current(event, properties || {});
+      void onTrackRef.current?.(event, properties || {});
     },
     logger,
     preferences: preferencesAccess.current,

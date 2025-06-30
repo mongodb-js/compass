@@ -1,5 +1,7 @@
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
-import '../setup-hadron-distribution';
+import { setupHadronDistribution } from '../setup-hadron-distribution';
+setupHadronDistribution();
+// ------------------------------------------------------------
 
 import { app, dialog, crashReporter } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
@@ -114,13 +116,13 @@ async function main(): Promise<void> {
       process.stderr.write('Exiting due to uncaughtException:\n');
       // eslint-disable-next-line no-console
       console.error(err);
-      CompassApplication.runExitHandlers().finally(() => app.exit(1));
+      void CompassApplication.runExitHandlers().finally(() => app.exit(1));
     });
     process.on('unhandledRejection', (err) => {
       process.stderr.write('Exiting due to unhandledRejection:\n');
       // eslint-disable-next-line no-console
       console.error(err);
-      CompassApplication.runExitHandlers().finally(() => app.exit(1));
+      void CompassApplication.runExitHandlers().finally(() => app.exit(1));
     });
   }
 

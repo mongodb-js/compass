@@ -1471,7 +1471,11 @@ describe('Collection import', function () {
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
       // Wait for the in progress toast to appear.
-      await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
+      await browser.$(Selectors.ImportToastAbort).waitForDisplayed({
+        // This is defaulted to 100, which can cause a race condition as the import could succeed.
+        // So we make it quicker. This could still cause flakes, but it is less likely.
+        interval: 1,
+      });
 
       await browser.disconnectAll({ closeToasts: false });
 

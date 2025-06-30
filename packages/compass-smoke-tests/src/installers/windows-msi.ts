@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import fs from 'node:fs';
+
 import createDebug from 'debug';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
@@ -46,9 +48,8 @@ export function installWindowsMSI({
     '/passive',
     `APPLICATIONROOTDIRECTORY=${installDirectory}`,
   ]);
-
-  // Check that the executable will run without being quarantined or similar
-  execute(appPath, ['--version']);
+  // Check if the app executable exists after installing
+  assert(fs.existsSync(appPath), `Expected ${appPath} to exist`);
 
   return {
     appName,

@@ -1,18 +1,20 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   applyEdit,
+  applyInitialLayout,
   getCurrentDiagramFromState,
-  redoEdit,
   selectCurrentModel,
-  undoEdit,
 } from '../store/diagram';
 import {
   Banner,
-  Icon,
-  IconButton,
   CancelLoader,
   WorkspaceContainer,
   css,
@@ -20,10 +22,22 @@ import {
   Button,
   palette,
   ErrorSummary,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
+import {
+  Diagram,
+  type NodeProps,
+  type EdgeProps,
+  useDiagram,
+  applyLayout,
+} from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
+import DiagramEditorToolbar from './diagram-editor-toolbar';
+import ExportDiagramModal from './export-diagram-modal';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -83,13 +97,12 @@ const editorContainerStyles = css({
 });
 
 const editorContainerApplyContainerStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
+  padding: spacing[200],
   justifyContent: 'flex-end',
   gap: spacing[200],
   display: 'flex',
   width: '100%',
-  height: spacing[100],
+  alignItems: 'center',
 });
 
 const editorContainerPlaceholderButtonStyles = css({
@@ -102,29 +115,43 @@ const editorContainerPlaceholderButtonStyles = css({
 });
 
 const DiagramEditor: React.FunctionComponent<{
+  diagramLabel: string;
   step: DataModelingState['step'];
-  hasUndo: boolean;
-  onUndoClick: () => void;
-  hasRedo: boolean;
-  onRedoClick: () => void;
   model: StaticModel | null;
   editErrors?: string[];
   onRetryClick: () => void;
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
+  onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
 }> = ({
+  diagramLabel,
   step,
-  hasUndo,
-  onUndoClick,
-  hasRedo,
-  onRedoClick,
   model,
   editErrors,
   onRetryClick,
   onCancelClick,
   onApplyClick,
+  onApplyInitialLayout,
 }) => {
+  const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
+  const isDarkMode = useDarkMode();
+  const diagramContainerRef = useRef<HTMLDivElement | null>(null);
+  const diagram = useDiagram();
+  const [areNodesReady, setAreNodesReady] = useState(false);
+
+  const setDiagramContainerRef = useCallback(
+    (ref: HTMLDivElement | null) => {
+      if (ref) {
+        // For debugging purposes, we attach the diagram to the ref.
+        (ref as any)._diagram = diagram;
+      }
+      diagramContainerRef.current = ref;
+    },
+    [diagram]
+  );
+
   const [applyInput, setApplyInput] = useState('{}');
+
   const isEditValid = useMemo(() => {
     try {
       JSON.parse(applyInput);
@@ -166,19 +193,98 @@ const DiagramEditor: React.FunctionComponent<{
           };
           break;
         default:
-          throw new Error(`Unknown placeholder ${placeholder}`);
+          throw new Error(`Unknown placeholder ${type}`);
       }
       setApplyInput(JSON.stringify(placeholder, null, 2));
     };
 
-  const modelStr = useMemo(() => {
-    return JSON.stringify(model, null, 2);
-  }, [model]);
+  const edges = useMemo(() => {
+    return (model?.relationships ?? []).map((relationship): EdgeProps => {
+      const [source, target] = relationship.relationship;
+      return {
+        id: relationship.id,
+        source: source.ns,
+        target: target.ns,
+        markerStart: source.cardinality === 1 ? 'one' : 'many',
+        markerEnd: target.cardinality === 1 ? 'one' : 'many',
+      };
+    });
+  }, [model?.relationships]);
+
+  const applyInitialLayout = useCallback(async () => {
+    try {
+      const { nodes: positionedNodes } = await applyLayout(
+        nodes,
+        edges,
+        'LEFT_RIGHT'
+      );
+      onApplyInitialLayout(
+        Object.fromEntries(
+          positionedNodes.map((node) => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        )
+      );
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_361),
+        'DiagramEditor',
+        'Error applying layout:',
+        err
+      );
+    }
+  }, [edges, log, mongoLogId, onApplyInitialLayout]);
+
+  const nodes = useMemo<NodeProps[]>(() => {
+    return (model?.collections ?? []).map(
+      (coll): NodeProps => ({
+        id: coll.ns,
+        type: 'collection',
+        position: {
+          x: coll.displayPosition[0],
+          y: coll.displayPosition[1],
+        },
+        title: coll.ns,
+        fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
+          ([name, field]) => {
+            const type =
+              field.bsonType === undefined
+                ? 'Unknown'
+                : typeof field.bsonType === 'string'
+                ? field.bsonType
+                : // TODO: Show possible types of the field
+                  field.bsonType[0];
+            return {
+              name,
+              type,
+              glyphs: type === 'objectId' ? ['key'] : [],
+            };
+          }
+        ),
+      })
+    );
+  }, [model?.collections]);
+
+  useEffect(() => {
+    if (nodes.length === 0) return;
+    const isInitialState = nodes.some(
+      (node) => isNaN(node.position.x) || isNaN(node.position.y)
+    );
+    if (isInitialState) {
+      void applyInitialLayout();
+      return;
+    }
+    if (!areNodesReady) {
+      void diagram.fitView();
+      setAreNodesReady(true);
+    }
+  }, [areNodesReady, nodes, diagram, applyInitialLayout]);
 
   let content;
 
   if (step === 'NO_DIAGRAM_SELECTED') {
-    throw new Error('Unexpected');
+    return null;
   }
 
   if (step === 'ANALYZING') {
@@ -213,16 +319,33 @@ const DiagramEditor: React.FunctionComponent<{
   if (step === 'EDITING') {
     content = (
       <div
+        ref={setDiagramContainerRef}
         className={modelPreviewContainerStyles}
         data-testid="diagram-editor-container"
       >
         <div className={modelPreviewStyles} data-testid="model-preview">
-          <CodemirrorMultilineEditor
-            language="json"
-            text={modelStr}
-            readOnly
-            initialJSONFoldAll={false}
-          ></CodemirrorMultilineEditor>
+          <Diagram
+            isDarkMode={isDarkMode}
+            title={diagramLabel}
+            edges={edges}
+            nodes={areNodesReady ? nodes : []}
+            fitViewOptions={{
+              maxZoom: 1,
+              minZoom: 0.25,
+            }}
+            onEdgeClick={(evt, edge) => {
+              setApplyInput(
+                JSON.stringify(
+                  {
+                    type: 'RemoveRelationship',
+                    relationshipId: edge.id,
+                  },
+                  null,
+                  2
+                )
+              );
+            }}
+          />
         </div>
         <div className={editorContainerStyles} data-testid="apply-editor">
           <div className={editorContainerPlaceholderButtonStyles}>
@@ -265,33 +388,9 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer
-      toolbar={() => {
-        if (step !== 'EDITING') {
-          return null;
-        }
-
-        return (
-          <>
-            <IconButton
-              aria-label="Undo"
-              disabled={!hasUndo}
-              onClick={onUndoClick}
-            >
-              <Icon glyph="Undo"></Icon>
-            </IconButton>
-            <IconButton
-              aria-label="Redo"
-              disabled={!hasRedo}
-              onClick={onRedoClick}
-            >
-              <Icon glyph="Redo"></Icon>
-            </IconButton>
-          </>
-        );
-      }}
-    >
+    <WorkspaceContainer toolbar={<DiagramEditorToolbar />}>
       {content}
+      <ExportDiagramModal />
     </WorkspaceContainer>
   );
 };
@@ -301,19 +400,17 @@ export default connect(
     const { diagram, step } = state;
     return {
       step: step,
-      hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
-      hasRedo: (diagram?.edits.next.length ?? 0) > 0,
       model: diagram
         ? selectCurrentModel(getCurrentDiagramFromState(state))
         : null,
       editErrors: diagram?.editErrors,
+      diagramLabel: diagram?.name || 'Schema Preview',
     };
   },
   {
-    onUndoClick: undoEdit,
-    onRedoClick: redoEdit,
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
+    onApplyInitialLayout: applyInitialLayout,
   }
 )(DiagramEditor);

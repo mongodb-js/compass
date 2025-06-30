@@ -264,7 +264,7 @@ export function ValidationStates({
                     variant={ButtonVariant.PrimaryOutline}
                     size="small"
                   >
-                    Add Rule
+                    Add rule
                   </Button>
                 </div>
               }

@@ -106,7 +106,7 @@ const CollectionsList: React.FunctionComponent<{
           { name: 'name', label: 'Collection Name' },
           { name: 'document_count', label: 'Documents' },
           { name: 'avg_document_size', label: 'Avg. document size' },
-          { name: 'storage_size', label: 'Storage size' },
+          { name: 'calculated_storage_size', label: 'Storage size' },
           { name: 'index_count', label: 'Indexes' },
           { name: 'index_size', label: 'Total index size' },
         ]}
@@ -128,11 +128,8 @@ const CollectionsList: React.FunctionComponent<{
                   {
                     label: 'Storage size',
                     value:
-                      coll.storage_size !== undefined &&
-                      coll.free_storage_size !== undefined
-                        ? compactBytes(
-                            coll.storage_size - coll.free_storage_size
-                          )
+                      coll.calculated_storage_size !== undefined
+                        ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
                       coll.document_size !== undefined &&
@@ -145,11 +142,8 @@ const CollectionsList: React.FunctionComponent<{
                   {
                     label: 'Storage size',
                     value:
-                      coll.storage_size !== undefined &&
-                      coll.free_storage_size !== undefined
-                        ? compactBytes(
-                            coll.storage_size - coll.free_storage_size
-                          )
+                      coll.calculated_storage_size !== undefined
+                        ? compactBytes(coll.calculated_storage_size)
                         : 'N/A',
                     hint:
                       coll.document_size !== undefined &&

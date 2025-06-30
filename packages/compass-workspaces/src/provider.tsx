@@ -1,17 +1,13 @@
 import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
-import type {
-  OpenWorkspaceOptions,
-  TabOptions,
-  WorkspaceTab,
-} from './stores/workspaces';
+import type { OpenWorkspaceOptions, TabOptions } from './stores/workspaces';
 import {
   collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
-import { createServiceLocator } from 'hadron-app-registry';
-import type { CollectionSubtab } from './types';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
+import type { CollectionSubtab, WorkspaceTab } from './types';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 
@@ -249,7 +245,15 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openDataModelingWorkspace: () => {
         return void store.dispatch(
-          openWorkspaceAction({ type: 'Data Modeling' })
+          openWorkspaceAction(
+            { type: 'Data Modeling' },
+            {
+              // Data Modeling tab is a special case, we always want to open it
+              // in a new tab to make it easier for users to create / open new
+              // diagrams
+              newTab: true,
+            }
+          )
         );
       },
       openShellWorkspace(connectionId, options = {}) {

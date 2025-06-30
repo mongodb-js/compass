@@ -8,13 +8,17 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
+import { setupStore } from '../../../test/setup-store';
+import { Provider } from 'react-redux';
 
-import CreateIndexActions from '../create-index-actions';
+import CreateIndexActions from '.';
+import { ActionTypes } from '../../modules/create-index';
 
 describe('CreateIndexActions Component', function () {
-  let clearErrorSpy;
-  let onCreateIndexClickSpy;
-  let closeCreateIndexModalSpy;
+  let clearErrorSpy: any;
+  let onCreateIndexClickSpy: any;
+  let closeCreateIndexModalSpy: any;
+  const store = setupStore();
 
   beforeEach(function () {
     clearErrorSpy = sinon.spy();
@@ -28,15 +32,20 @@ describe('CreateIndexActions Component', function () {
     closeCreateIndexModalSpy = null;
   });
 
-  it('renders a cancel button', function () {
+  const renderComponent = (error?: string) => {
     render(
-      <CreateIndexActions
-        error={null}
-        onErrorBannerCloseClick={clearErrorSpy}
-        onCreateIndexClick={onCreateIndexClickSpy}
-        onCancelCreateIndexClick={closeCreateIndexModalSpy}
-      />
+      <Provider store={store}>
+        <CreateIndexActions
+          error={error || null}
+          onErrorBannerCloseClick={clearErrorSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
+        />
+      </Provider>
     );
+  };
+  it('renders a cancel button', function () {
+    renderComponent();
 
     const button = screen.getByTestId('create-index-actions-cancel-button');
     expect(button.textContent).to.be.equal('Cancel');
@@ -44,14 +53,7 @@ describe('CreateIndexActions Component', function () {
 
   context('onCancel', function () {
     it('calls the closeCreateIndexModal function', function () {
-      render(
-        <CreateIndexActions
-          error={null}
-          onErrorBannerCloseClick={clearErrorSpy}
-          onCreateIndexClick={onCreateIndexClickSpy}
-          onCancelCreateIndexClick={closeCreateIndexModalSpy}
-        />
-      );
+      renderComponent();
 
       const button = screen.getByTestId('create-index-actions-cancel-button');
       userEvent.click(button);
@@ -60,16 +62,24 @@ describe('CreateIndexActions Component', function () {
   });
 
   context('onConfirm', function () {
-    it('calls the onCreateIndexClick function', function () {
-      render(
-        <CreateIndexActions
-          error={null}
-          onErrorBannerCloseClick={clearErrorSpy}
-          onCreateIndexClick={onCreateIndexClickSpy}
-          onCancelCreateIndexClick={closeCreateIndexModalSpy}
-        />
+    it('will not call onCreateIndexClick function if fields are not valid and the button will be disabled', function () {
+      renderComponent();
+      const button = screen.getByTestId(
+        'create-index-actions-create-index-button'
       );
+      userEvent.click(button);
+      expect(button.ariaDisabled).to.equal('true');
+      expect(onCreateIndexClickSpy).not.to.have.been.calledOnce;
+    });
 
+    it('calls the onCreateIndexClick function', function () {
+      renderComponent();
+
+      // populate with valid fields first
+      store.dispatch({
+        type: ActionTypes.FieldsChanged,
+        fields: [{ name: 'a', type: '1' }],
+      });
       const button = screen.getByTestId(
         'create-index-actions-create-index-button'
       );
@@ -79,15 +89,7 @@ describe('CreateIndexActions Component', function () {
   });
 
   it('renders a create index button', function () {
-    render(
-      <CreateIndexActions
-        error={null}
-        onErrorBannerCloseClick={clearErrorSpy}
-        onCreateIndexClick={onCreateIndexClickSpy}
-        onCancelCreateIndexClick={closeCreateIndexModalSpy}
-      />
-    );
-
+    renderComponent();
     const button = screen.getByTestId(
       'create-index-actions-create-index-button'
     );
@@ -96,14 +98,7 @@ describe('CreateIndexActions Component', function () {
 
   context('with error', function () {
     it('renders error banner', function () {
-      render(
-        <CreateIndexActions
-          error={'Some error happened!'}
-          onErrorBannerCloseClick={clearErrorSpy}
-          onCreateIndexClick={onCreateIndexClickSpy}
-          onCancelCreateIndexClick={closeCreateIndexModalSpy}
-        />
-      );
+      renderComponent('Some error happened!');
 
       const errorBanner = screen.getByTestId(
         'create-index-actions-error-banner-wrapper'
@@ -112,14 +107,7 @@ describe('CreateIndexActions Component', function () {
     });
 
     it('closes error banner', function () {
-      render(
-        <CreateIndexActions
-          error={'Some error happened!'}
-          onErrorBannerCloseClick={clearErrorSpy}
-          onCreateIndexClick={onCreateIndexClickSpy}
-          onCancelCreateIndexClick={closeCreateIndexModalSpy}
-        />
-      );
+      renderComponent('Some error happened!');
 
       const errorBanner = screen.getByTestId(
         'create-index-actions-error-banner-wrapper'
@@ -133,14 +121,7 @@ describe('CreateIndexActions Component', function () {
 
   context('without error', function () {
     it('does not render error banner', function () {
-      render(
-        <CreateIndexActions
-          error={null}
-          onErrorBannerCloseClick={clearErrorSpy}
-          onCreateIndexClick={onCreateIndexClickSpy}
-          onCancelCreateIndexClick={closeCreateIndexModalSpy}
-        />
-      );
+      renderComponent();
 
       const errorBanner = screen.queryByTestId(
         'create-index-actions-error-banner-wrapper'

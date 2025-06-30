@@ -38,7 +38,14 @@ export {
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
-export { type TabTheme } from './components/workspace-tabs/tab';
+export {
+  Tab as WorkspaceTab,
+  type WorkspaceTabCoreProps,
+} from './components/workspace-tabs/tab';
+export {
+  TabThemeProvider,
+  useTabTheme,
+} from './components/workspace-tabs/use-tab-theme';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
@@ -167,7 +174,7 @@ export { mergeProps } from './utils/merge-props';
 export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
-export { useFormattedDate } from './hooks/use-formatted-date';
+export * from './hooks/use-formatted-date';
 export { fontFamilies } from '@leafygreen-ui/tokens';
 export { default as BSONValue } from './components/bson-value';
 export * as DocumentList from './components/document-list';
