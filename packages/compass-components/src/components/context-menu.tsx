@@ -42,6 +42,9 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
           position: 'absolute',
           left: position.x,
           top: position.y,
+          // This is to ensure the menu gets positioned correctly as the left and top updates
+          width: 1,
+          height: 1,
         }}
       />
       <Menu
