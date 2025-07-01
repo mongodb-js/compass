@@ -4,8 +4,10 @@ import {
   createPluginTestHelpers,
   screen,
   waitFor,
+  render,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
-import DiagramEditor from './diagram-editor';
+import DiagramEditor, { getFieldsFromSchema } from './diagram-editor';
 import type { DataModelingStore } from '../../test/setup-store';
 import type {
   Edit,
@@ -226,6 +228,184 @@ describe('DiagramEditor', function () {
       expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal(
         storedEdit.model.collections[1].displayPosition
       );
+    });
+  });
+});
+
+describe('getFieldsFromSchema', function () {
+  const validateMixedType = async (
+    type: React.ReactNode,
+    expectedTooltip: RegExp
+  ) => {
+    render(<>{type}</>);
+    const mixed = screen.getByText('(mixed)');
+    expect(mixed).to.be.visible;
+    userEvent.hover(mixed);
+    await waitFor(() => {
+      expect(screen.getByText(expectedTooltip)).to.be.visible;
+    });
+  };
+
+  describe('flat schema', function () {
+    it('return empty array for empty schema', function () {
+      const result = getFieldsFromSchema({});
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns fields for a simple schema', function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          name: { bsonType: 'string' },
+          age: { bsonType: 'int' },
+        },
+      });
+      expect(result).to.deep.equal([
+        { name: 'name', type: 'string', depth: 0, glyphs: [] },
+        { name: 'age', type: 'int', depth: 0, glyphs: [] },
+      ]);
+    });
+
+    it('returns mixed fields with tooltip on hover', async function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          age: { bsonType: ['int', 'string'] },
+        },
+      });
+      expect(result[0]).to.deep.include({ name: 'age', depth: 0, glyphs: [] });
+      await validateMixedType(result[0].type, /int, string/);
+    });
+  });
+
+  describe('nested schema', function () {
+    it('returns fields for a nested schema', function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          person: {
+            bsonType: 'object',
+            properties: {
+              name: { bsonType: 'string' },
+              address: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        { name: 'person', type: 'object', depth: 0, glyphs: [] },
+        { name: 'name', type: 'string', depth: 1, glyphs: [] },
+        { name: 'address', type: 'object', depth: 1, glyphs: [] },
+        { name: 'street', type: 'string', depth: 2, glyphs: [] },
+        { name: 'city', type: 'string', depth: 2, glyphs: [] },
+      ]);
+    });
+
+    it('returns [] for array', function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          tags: {
+            bsonType: 'array',
+            items: { bsonType: 'string' },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        { name: 'tags', type: '[]', depth: 0, glyphs: [] },
+      ]);
+    });
+
+    it('returns fields for an array of objects', function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          todos: {
+            bsonType: 'array',
+            items: {
+              bsonType: 'object',
+              properties: {
+                title: { bsonType: 'string' },
+                completed: { bsonType: 'boolean' },
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        { name: 'todos', type: '[]', depth: 0, glyphs: [] },
+        { name: 'title', type: 'string', depth: 1, glyphs: [] },
+        { name: 'completed', type: 'boolean', depth: 1, glyphs: [] },
+      ]);
+    });
+
+    it('returns fields for a mixed schema with objects', async function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          name: {
+            anyOf: [
+              { bsonType: 'string' },
+              {
+                bsonType: 'object',
+                properties: {
+                  first: { bsonType: 'string' },
+                  last: { bsonType: 'string' },
+                },
+              },
+            ],
+          },
+        },
+      });
+      expect(result).to.have.lengthOf(3);
+      expect(result[0]).to.deep.include({ name: 'name', depth: 0, glyphs: [] });
+      await validateMixedType(result[0].type, /string, object/);
+      expect(result[1]).to.deep.equal({
+        name: 'first',
+        type: 'string',
+        depth: 1,
+        glyphs: [],
+      });
+      expect(result[2]).to.deep.equal({
+        name: 'last',
+        type: 'string',
+        depth: 1,
+        glyphs: [],
+      });
+    });
+
+    it('returns fields for an array of mixed (including objects)', function () {
+      const result = getFieldsFromSchema({
+        bsonType: 'object',
+        properties: {
+          todos: {
+            bsonType: 'array',
+            items: {
+              anyOf: [
+                {
+                  bsonType: 'object',
+                  properties: {
+                    title: { bsonType: 'string' },
+                    completed: { bsonType: 'boolean' },
+                  },
+                },
+                { bsonType: 'string' },
+              ],
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal([
+        { name: 'todos', type: '[]', depth: 0, glyphs: [] },
+        { name: 'title', type: 'string', depth: 1, glyphs: [] },
+        { name: 'completed', type: 'boolean', depth: 1, glyphs: [] },
+      ]);
     });
   });
 });

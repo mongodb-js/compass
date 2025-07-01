@@ -122,7 +122,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
   );
 }
 
-const getFieldsFromSchema = (
+export const getFieldsFromSchema = (
   jsonSchema: MongoDBJSONSchema,
   depth = 0
 ): NodeProps['fields'] => {
