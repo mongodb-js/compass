@@ -58,7 +58,9 @@ describe('ContentWithFallback', function () {
       { container }
     );
 
-    expect(container).to.be.empty;
+    expect(container.children.length).to.equal(1);
+    const [anchorElement] = container.children;
+    expect(anchorElement.getAttribute('data-testid')).to.equal('context-menu');
   });
 
   it('should render fallback when the timeout passes', async function () {

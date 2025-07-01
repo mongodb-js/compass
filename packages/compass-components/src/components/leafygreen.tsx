@@ -72,7 +72,7 @@ import LeafyGreenTextInput from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
 export type { ToastProps } from '@leafygreen-ui/toast';
 export { ToastProvider, useToast } from '@leafygreen-ui/toast';
-export { usePrevious } from '@leafygreen-ui/hooks';
+export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import Tooltip from '@leafygreen-ui/tooltip';
 import {

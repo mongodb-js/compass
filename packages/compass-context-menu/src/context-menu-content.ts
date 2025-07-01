@@ -14,11 +14,11 @@ export function getContextMenuContent(
 
 export function appendContextMenuContent(
   event: EnhancedMouseEvent,
-  content: ContextMenuItemGroup
+  ...groups: ContextMenuItemGroup[]
 ) {
   // Initialize if not already patched
   if (!event[CONTEXT_MENUS_SYMBOL]) {
     event[CONTEXT_MENUS_SYMBOL] = [];
   }
-  event[CONTEXT_MENUS_SYMBOL].push(content);
+  event[CONTEXT_MENUS_SYMBOL].push(...groups);
 }
