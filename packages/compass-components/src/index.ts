@@ -57,6 +57,7 @@ export type {
   ItemSeparator,
   MenuAction,
 } from './components/actions/types';
+export { splitBySeparator } from './components/actions/utils';
 export type { GroupedItemAction } from './components/actions/item-action-group';
 
 export { ItemActionControls } from './components/actions/item-action-controls';
