@@ -23,8 +23,7 @@ export function ContextMenuProvider({
 export function ContextMenu({ menu }: ContextMenuWrapperProps) {
   const menuRef = useRef(null);
 
-  const position = menu.position;
-  const itemGroups = menu.itemGroups;
+  const { position, itemGroups } = menu;
 
   useEffect(() => {
     if (!menu.isOpen) {
@@ -50,42 +49,38 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         setOpen={menu.close}
         justify="start"
       >
-        {itemGroups.map(
-          (itemGroup: ContextMenuItemGroup, groupIndex: number) => {
-            return (
-              <div
-                key={`menu-group-${groupIndex}`}
-                data-testid={`menu-group-${groupIndex}`}
-              >
-                {itemGroup.items.map(
-                  (item: ContextMenuItem, itemIndex: number) => {
-                    return (
-                      <MenuItem
-                        key={`menu-group-${groupIndex}-item-${itemIndex}`}
-                        data-text={item.label}
-                        data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
-                        onClick={(evt: React.MouseEvent) => {
-                          item.onAction?.(evt);
-                          menu.close();
-                        }}
-                      >
-                        {item.label}
-                      </MenuItem>
-                    );
-                  }
-                )}
-                {groupIndex < itemGroups.length - 1 && (
-                  <div
-                    key={`menu-group-${groupIndex}-separator`}
-                    data-testid={`menu-group-${groupIndex}-separator`}
+        {itemGroups.map((items: ContextMenuItemGroup, groupIndex: number) => {
+          return (
+            <div
+              key={`menu-group-${groupIndex}`}
+              data-testid={`menu-group-${groupIndex}`}
+            >
+              {items.map((item: ContextMenuItem, itemIndex: number) => {
+                return (
+                  <MenuItem
+                    key={`menu-group-${groupIndex}-item-${itemIndex}`}
+                    data-text={item.label}
+                    data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
+                    onClick={(evt: React.MouseEvent) => {
+                      item.onAction?.(evt);
+                      menu.close();
+                    }}
                   >
-                    <MenuSeparator />
-                  </div>
-                )}
-              </div>
-            );
-          }
-        )}
+                    {item.label}
+                  </MenuItem>
+                );
+              })}
+              {groupIndex < itemGroups.length - 1 && (
+                <div
+                  key={`menu-group-${groupIndex}-separator`}
+                  data-testid={`menu-group-${groupIndex}-separator`}
+                >
+                  <MenuSeparator />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </Menu>
     </div>
   );
