@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
-
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
@@ -14,9 +13,11 @@ import {
 
 export type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
 
+// TODO: Remove these once https://jira.mongodb.org/browse/LG-5013 is resolved
+
 const menuStyles = css({
-  paddingTop: spacing[100],
-  paddingBottom: spacing[100],
+  paddingTop: spacing[150],
+  paddingBottom: spacing[150],
 });
 
 const itemStyles = css({
@@ -39,33 +40,39 @@ export function ContextMenuProvider({
 
 export function ContextMenu({ menu }: ContextMenuWrapperProps) {
   const menuRef = useRef(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   const { position, itemGroups } = menu;
 
-  useEffect(() => {
-    if (!menu.isOpen) {
-      menu.close();
-    }
-  }, [menu.isOpen]);
+  // TODO: Remove when https://jira.mongodb.org/browse/LG-5342 is resolved
+  if (anchorRef.current) {
+    anchorRef.current.style.left = `${position.x}px`;
+    anchorRef.current.style.top = `${position.y}px`;
+  }
 
   return (
-    <div
-      data-testid="context-menu"
-      style={{
-        position: 'absolute',
-        left: position.x,
-        top: position.y,
-        // This is to ensure the menu gets positioned correctly as the left and top updates
-        width: 1,
-        height: 1,
-      }}
-    >
+    <div data-testid="context-menu-container">
+      <div
+        data-testid="context-menu-anchor"
+        ref={anchorRef}
+        style={{
+          position: 'absolute',
+          left: position.x,
+          top: position.y,
+          // This is to ensure the menu gets positioned correctly as the left and top updates
+          width: 1,
+          height: 1,
+        }}
+      />
       <Menu
+        data-testid="context-menu"
+        refEl={anchorRef}
         ref={menuRef}
         open={menu.isOpen}
         setOpen={menu.close}
         justify="start"
         className={menuStyles}
+        maxHeight={Number.MAX_SAFE_INTEGER}
       >
         {itemGroups.map((items: ContextMenuItemGroup, groupIndex: number) => {
           return (
