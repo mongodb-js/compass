@@ -105,6 +105,7 @@ export {
   useContextMenuItems,
   useContextMenuGroups,
   type ContextMenuItem,
+  type ContextMenuItemGroup,
 } from './components/context-menu';
 
 export type {
