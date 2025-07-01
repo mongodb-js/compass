@@ -12,7 +12,7 @@ import type {
   Connection,
 } from './tree-data';
 import type {
-  ContextMenuItem,
+  ContextMenuItemGroup,
   ItemAction,
   ItemSeparator,
 } from '@mongodb-js/compass-components';
@@ -32,6 +32,7 @@ import {
   databaseItemActions,
   notConnectedConnectionItemActions,
 } from './item-actions';
+import { itemActionsToContextMenuGroups } from './context-menus';
 
 const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
@@ -223,10 +224,58 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const getContextMenuGroups = useCallback(
-    (item: SidebarTreeItem): ContextMenuItem[][] => {
-      return [[{ label: item.id, onAction() {} }]];
+    function getContextMenuGroups(
+      item: SidebarTreeItem
+    ): ContextMenuItemGroup[] {
+      switch (item.type) {
+        case 'placeholder':
+          return [];
+        case 'connection':
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            item.connectionStatus === 'connected'
+              ? connectedConnectionItemActions({
+                  hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+                  isShellEnabled: item.isShellEnabled,
+                  connectionInfo: item.connectionInfo,
+                  isPerformanceTabAvailable: item.isPerformanceTabAvailable,
+                  isPerformanceTabSupported: item.isPerformanceTabSupported,
+                })
+              : notConnectedConnectionItemActions({
+                  connectionInfo: item.connectionInfo,
+                  connectionStatus: item.connectionStatus,
+                })
+          );
+        case 'database':
+          return [
+            ...itemActionsToContextMenuGroups(
+              item,
+              onItemAction,
+              databaseItemActions({
+                hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+              })
+            ),
+            // Include menu items on the connection level
+            ...getContextMenuGroups(item.connectionItem),
+          ];
+        default:
+          return [
+            ...itemActionsToContextMenuGroups(
+              item,
+              onItemAction,
+              collectionItemActions({
+                hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+                type: item.type,
+                isRenameCollectionEnabled,
+              })
+            ),
+            // Include menu items on the database (and connection) level
+            ...getContextMenuGroups(item.databaseItem),
+          ];
+      }
     },
-    []
+    [onItemAction]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
