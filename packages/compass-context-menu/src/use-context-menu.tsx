@@ -36,10 +36,7 @@ export function useContextMenu<
        */
       registerItems(items: ContextMenuItem[]) {
         function listener(event: MouseEvent): void {
-          appendContextMenuContent(event, {
-            items,
-            originListener: listener,
-          });
+          appendContextMenuContent(event, items);
         }
 
         return (trigger: HTMLElement | null) => {

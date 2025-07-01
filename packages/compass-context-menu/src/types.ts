@@ -1,7 +1,4 @@
-export interface ContextMenuItemGroup {
-  items: ContextMenuItem[];
-  originListener: (event: MouseEvent) => void;
-}
+export type ContextMenuItemGroup = ContextMenuItem[];
 
 export type ContextMenuState = {
   isOpen: boolean;
