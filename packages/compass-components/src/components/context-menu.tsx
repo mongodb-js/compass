@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
 
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+
 import {
   ContextMenuProvider as ContextMenuProviderBase,
   useContextMenu,
@@ -10,6 +13,17 @@ import {
 } from '@mongodb-js/compass-context-menu';
 
 export type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
+
+const menuStyles = css({
+  paddingTop: spacing[100],
+  paddingBottom: spacing[100],
+});
+
+const itemStyles = css({
+  paddingTop: 0,
+  paddingBottom: 0,
+  fontSize: '.8em',
+});
 
 export function ContextMenuProvider({
   children,
@@ -51,6 +65,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         open={menu.isOpen}
         setOpen={menu.close}
         justify="start"
+        className={menuStyles}
       >
         {itemGroups.map((items: ContextMenuItemGroup, groupIndex: number) => {
           return (
@@ -64,6 +79,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
                     key={`menu-group-${groupIndex}-item-${itemIndex}`}
                     data-text={item.label}
                     data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
+                    className={itemStyles}
                     onClick={(evt: React.MouseEvent) => {
                       item.onAction?.(evt);
                       menu.close();
