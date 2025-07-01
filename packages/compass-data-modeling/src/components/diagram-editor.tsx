@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
@@ -15,7 +16,9 @@ import {
 } from '../store/diagram';
 import {
   Banner,
+  Body,
   CancelLoader,
+  Tooltip,
   WorkspaceContainer,
   css,
   spacing,
@@ -60,6 +63,12 @@ const bannerButtonStyles = css({
   marginLeft: 'auto',
 });
 
+const mixedTypeTooltipContentStyles = css({
+  overflowWrap: 'anywhere',
+  textWrap: 'wrap',
+  textAlign: 'left',
+});
+
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
@@ -76,6 +85,27 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
     </Banner>
   );
 };
+
+function getFieldTypeDisplay(field: MongoDBJSONSchema) {
+  if (field.bsonType === undefined) {
+    return 'unknown';
+  }
+
+  if (typeof field.bsonType === 'string') {
+    return field.bsonType;
+  }
+
+  const typesString = field.bsonType.join(', ');
+
+  // We show `mixed` with a tooltip when multiple bsonTypes were found.
+  return (
+    <Tooltip justify="end" spacing={5} trigger={<div>(mixed)</div>}>
+      <Body className={mixedTypeTooltipContentStyles}>
+        Multiple types found in sample: {typesString}
+      </Body>
+    </Tooltip>
+  );
+}
 
 const modelPreviewContainerStyles = css({
   display: 'grid',
@@ -248,13 +278,7 @@ const DiagramEditor: React.FunctionComponent<{
         title: coll.ns,
         fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
           ([name, field]) => {
-            const type =
-              field.bsonType === undefined
-                ? 'Unknown'
-                : typeof field.bsonType === 'string'
-                ? field.bsonType
-                : // TODO: Show possible types of the field
-                  field.bsonType[0];
+            const type = getFieldTypeDisplay(field);
             return {
               name,
               type,
