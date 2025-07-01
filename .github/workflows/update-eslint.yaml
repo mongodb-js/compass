@@ -37,11 +37,7 @@ jobs:
           npm install -g npm@10.2.4
 
       - name: Bump eslint
-        run: |
-          npm i --save --workspace @mongodb-js/eslint-config-compass \
-              eslint@8 \
-              @typescript-eslint/eslint-plugin@latest \
-              @typescript-eslint/parser@latest
+        run: npx compass-scripts update-dependencies preset-eslint
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
