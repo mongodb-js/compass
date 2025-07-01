@@ -1,14 +1,24 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { DataModelingState } from '../store/reducer';
 import {
   applyEdit,
+  applyInitialLayout,
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from '../store/diagram';
 import {
   Banner,
+  Body,
   CancelLoader,
+  Tooltip,
   WorkspaceContainer,
   css,
   spacing,
@@ -24,11 +34,13 @@ import {
   type NodeProps,
   type EdgeProps,
   useDiagram,
+  applyLayout,
 } from '@mongodb-js/diagramming';
 import type { Edit, StaticModel } from '../services/data-model-storage';
 import { UUID } from 'bson';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -51,6 +63,12 @@ const bannerButtonStyles = css({
   marginLeft: 'auto',
 });
 
+const mixedTypeTooltipContentStyles = css({
+  overflowWrap: 'anywhere',
+  textWrap: 'wrap',
+  textAlign: 'left',
+});
+
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
 }> = ({ children, onRetryClick }) => {
@@ -67,6 +85,27 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
     </Banner>
   );
 };
+
+function getFieldTypeDisplay(field: MongoDBJSONSchema) {
+  if (field.bsonType === undefined) {
+    return 'unknown';
+  }
+
+  if (typeof field.bsonType === 'string') {
+    return field.bsonType;
+  }
+
+  const typesString = field.bsonType.join(', ');
+
+  // We show `mixed` with a tooltip when multiple bsonTypes were found.
+  return (
+    <Tooltip justify="end" spacing={5} trigger={<div>(mixed)</div>}>
+      <Body className={mixedTypeTooltipContentStyles}>
+        Multiple types found in sample: {typesString}
+      </Body>
+    </Tooltip>
+  );
+}
 
 const modelPreviewContainerStyles = css({
   display: 'grid',
@@ -113,6 +152,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick: () => void;
   onCancelClick: () => void;
   onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
+  onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
 }> = ({
   diagramLabel,
   step,
@@ -121,10 +161,13 @@ const DiagramEditor: React.FunctionComponent<{
   onRetryClick,
   onCancelClick,
   onApplyClick,
+  onApplyInitialLayout,
 }) => {
+  const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useDiagram();
+  const [areNodesReady, setAreNodesReady] = useState(false);
 
   const setDiagramContainerRef = useCallback(
     (ref: HTMLDivElement | null) => {
@@ -198,7 +241,32 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships]);
 
-  const nodes = useMemo(() => {
+  const applyInitialLayout = useCallback(async () => {
+    try {
+      const { nodes: positionedNodes } = await applyLayout(
+        nodes,
+        edges,
+        'LEFT_RIGHT'
+      );
+      onApplyInitialLayout(
+        Object.fromEntries(
+          positionedNodes.map((node) => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        )
+      );
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_361),
+        'DiagramEditor',
+        'Error applying layout:',
+        err
+      );
+    }
+  }, [edges, log, mongoLogId, onApplyInitialLayout]);
+
+  const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
@@ -210,13 +278,7 @@ const DiagramEditor: React.FunctionComponent<{
         title: coll.ns,
         fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
           ([name, field]) => {
-            const type =
-              field.bsonType === undefined
-                ? 'Unknown'
-                : typeof field.bsonType === 'string'
-                ? field.bsonType
-                : // TODO: Show possible types of the field
-                  field.bsonType[0];
+            const type = getFieldTypeDisplay(field);
             return {
               name,
               type,
@@ -224,18 +286,29 @@ const DiagramEditor: React.FunctionComponent<{
             };
           }
         ),
-        measured: {
-          width: 100,
-          height: 200,
-        },
       })
     );
   }, [model?.collections]);
 
+  useEffect(() => {
+    if (nodes.length === 0) return;
+    const isInitialState = nodes.some(
+      (node) => isNaN(node.position.x) || isNaN(node.position.y)
+    );
+    if (isInitialState) {
+      void applyInitialLayout();
+      return;
+    }
+    if (!areNodesReady) {
+      void diagram.fitView();
+      setAreNodesReady(true);
+    }
+  }, [areNodesReady, nodes, diagram, applyInitialLayout]);
+
   let content;
 
   if (step === 'NO_DIAGRAM_SELECTED') {
-    throw new Error('Unexpected');
+    return null;
   }
 
   if (step === 'ANALYZING') {
@@ -279,7 +352,11 @@ const DiagramEditor: React.FunctionComponent<{
             isDarkMode={isDarkMode}
             title={diagramLabel}
             edges={edges}
-            nodes={nodes}
+            nodes={areNodesReady ? nodes : []}
+            fitViewOptions={{
+              maxZoom: 1,
+              minZoom: 0.25,
+            }}
             onEdgeClick={(evt, edge) => {
               setApplyInput(
                 JSON.stringify(
@@ -358,5 +435,6 @@ export default connect(
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
     onApplyClick: applyEdit,
+    onApplyInitialLayout: applyInitialLayout,
   }
 )(DiagramEditor);
