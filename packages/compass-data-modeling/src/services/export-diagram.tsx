@@ -4,8 +4,6 @@ import {
   getViewportForBounds,
   DiagramProvider,
   Diagram,
-  mapEdgeToDiagramEdge,
-  mapNodeToDiagramNode,
 } from '@mongodb-js/diagramming';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
 import type { StaticModel } from './data-model-storage';
@@ -49,9 +47,7 @@ export async function exportToPng(
 
 export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
   return new Promise<string>((resolve, _reject) => {
-    const nodes = diagram.getNodes();
-    const edges = diagram.getEdges();
-    const bounds = getNodesBounds(nodes);
+    const bounds = getNodesBounds(diagram.getNodes());
 
     const container = document.createElement('div');
     container.setAttribute('data-testid', 'export-diagram-container');
@@ -63,8 +59,8 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     container.style.height = `${bounds.height}px`;
     document.body.appendChild(container);
 
-    const diagramEdges = edges.map(mapEdgeToDiagramEdge);
-    const diagramNodes = nodes.map(mapNodeToDiagramNode).map((node) => ({
+    const edges = diagram.getEdges();
+    const nodes = diagram.getNodes().map((node) => ({
       ...node,
       selected: false, // Dont show selected state (blue border)
     }));
@@ -77,8 +73,8 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
     ReactDOM.render(
       <DiagramProvider>
         <Diagram
-          edges={diagramEdges}
-          nodes={diagramNodes}
+          edges={edges}
+          nodes={nodes}
           onlyRenderVisibleElements={false}
         />
       </DiagramProvider>,

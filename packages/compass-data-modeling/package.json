@@ -64,7 +64,7 @@
     "@mongodb-js/compass-user-data": "^0.7.2",
     "@mongodb-js/compass-workspaces": "^0.42.0",
     "html-to-image": "1.11.11",
-    "@mongodb-js/diagramming": "^1.0.3",
+    "@mongodb-js/diagramming": "^1.2.0",
     "bson": "^6.10.3",
     "compass-preferences-model": "^2.41.0",
     "lodash": "^4.17.21",
