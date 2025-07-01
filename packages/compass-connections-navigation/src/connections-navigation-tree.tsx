@@ -11,7 +11,11 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
-import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import type {
+  ContextMenuItem,
+  ItemAction,
+  ItemSeparator,
+} from '@mongodb-js/compass-components';
 import {
   VisuallyHidden,
   css,
@@ -218,6 +222,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     ]
   );
 
+  const getContextMenuGroups = useCallback(
+    (item: SidebarTreeItem): ContextMenuItem[][] => {
+      return [[{ label: item.id, onAction() {} }]];
+    },
+    []
+  );
+
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
@@ -242,6 +253,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onItemExpand={onItemExpand}
             getItemActions={getItemActionsAndConfig}
             getItemKey={(item) => item.id}
+            getContextMenuGroups={getContextMenuGroups}
             renderItem={({
               item,
               isActive,
@@ -249,6 +261,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               onItemAction,
               onItemExpand,
               getItemActions,
+              getContextMenuGroups,
             }) => {
               return (
                 <NavigationItem
@@ -258,6 +271,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   getItemActions={getItemActions}
                   onItemExpand={onItemExpand}
                   onItemAction={onItemAction}
+                  getContextMenuGroups={getContextMenuGroups}
                 />
               );
             }}
