@@ -6,9 +6,8 @@ import { MenuSeparator, Tooltip } from '../leafygreen';
 
 import { ItemActionButtonSize } from './constants';
 import type { ItemAction, ItemSeparator } from './types';
-import { isSeparatorMenuAction } from './item-action-menu';
 import { ItemActionButton } from './item-action-button';
-import { actionTestId } from './utils';
+import { actionTestId, isSeparatorMenuAction } from './utils';
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltipProps?: Parameters<typeof Tooltip>;
