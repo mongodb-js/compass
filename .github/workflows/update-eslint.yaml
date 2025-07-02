@@ -36,6 +36,10 @@ jobs:
         run: |
           npm install -g npm@10.2.4
 
+      - name: Install dependencies
+        run: |
+          npm ci
+
       - name: Bump eslint
         run: npx compass-scripts update-dependencies preset-eslint
 
