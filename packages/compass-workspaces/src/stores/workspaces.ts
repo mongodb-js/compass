@@ -472,12 +472,16 @@ const reducer: Reducer<WorkspacesState, Action> = (
   }
 
   if (isAction<CloseTabsAction>(action, WorkspacesActions.CloseTabs)) {
-    return _bulkTabsClose({
+    const newState = _bulkTabsClose({
       state,
       isToBeClosed: (tab) => {
         return action.tabIds.includes(tab.id);
       },
     });
+    // Add the updated active tab if needed
+    return action.activeTabId
+      ? { ...newState, activeTabId: action.activeTabId }
+      : newState;
   }
 
   if (
@@ -881,7 +885,11 @@ async function confirmClosingTab() {
   });
 }
 
-type CloseTabsAction = { type: WorkspacesActions.CloseTabs; tabIds: string[] };
+type CloseTabsAction = {
+  type: WorkspacesActions.CloseTabs;
+  tabIds: string[];
+  activeTabId?: string;
+};
 
 export const closeTab = (
   atIndex: number
@@ -901,26 +909,25 @@ export const closeAllOtherTabs = (
 ): WorkspacesThunkAction<Promise<void>, CloseTabsAction | SelectTabAction> => {
   return async (dispatch, getState) => {
     const { tabs } = getState();
-    const tabsToClose = await tabs.reduce(
-      async (prev: Promise<WorkspaceTab[]>, tab, tabIndex) => {
-        const tabsToClose = await prev;
-        if (tabIndex === atIndex) {
-          return tabsToClose; // Skip the tab which is not being closed
+    const remainingTab = tabs[atIndex];
+    const tabsToClose = [];
+    for (const [tabIndex, tab] of tabs.entries()) {
+      if (tabIndex === atIndex) {
+        continue; // Skip the tab which is not being closed
+      }
+      if (!canCloseTab(tab)) {
+        // Select the closing tab - to show the confirmation dialog in context
+        dispatch({ type: WorkspacesActions.SelectTab, atIndex: tabIndex });
+        if (!(await confirmClosingTab())) {
+          continue; // Skip this tab
         }
-        if (!canCloseTab(tab)) {
-          // Select the closing tab - to show the confirmation dialog in context
-          dispatch({ type: WorkspacesActions.SelectTab, atIndex: tabIndex });
-          if (!(await confirmClosingTab())) {
-            return tabsToClose; // Skip this tab
-          }
-        }
-        return [...tabsToClose, tab];
-      },
-      Promise.resolve([])
-    );
+      }
+      tabsToClose.push(tab);
+    }
     dispatch({
       type: WorkspacesActions.CloseTabs,
       tabIds: tabsToClose.map((tab) => tab.id),
+      activeTabId: remainingTab.id,
     });
     cleanupRemovedTabs(tabs, getState().tabs);
   };
