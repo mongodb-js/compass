@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { DataModelingState } from '../store/reducer';
 import {
-  applyEdit,
   applyInitialLayout,
+  moveCollection,
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from '../store/diagram';
@@ -23,11 +23,8 @@ import {
   css,
   spacing,
   Button,
-  palette,
-  ErrorSummary,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import {
   Diagram,
@@ -36,8 +33,7 @@ import {
   useDiagram,
   applyLayout,
 } from '@mongodb-js/diagramming';
-import type { Edit, StaticModel } from '../services/data-model-storage';
-import { UUID } from 'bson';
+import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
@@ -119,31 +115,6 @@ const modelPreviewStyles = css({
   minHeight: 0,
 });
 
-const editorContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  boxShadow: `0 0 0 2px ${palette.gray.light2}`,
-});
-
-const editorContainerApplyContainerStyles = css({
-  padding: spacing[200],
-  justifyContent: 'flex-end',
-  gap: spacing[200],
-  display: 'flex',
-  width: '100%',
-  alignItems: 'center',
-});
-
-const editorContainerPlaceholderButtonStyles = css({
-  paddingLeft: 8,
-  paddingRight: 8,
-  alignSelf: 'flex-start',
-  display: 'flex',
-  gap: spacing[200],
-  paddingTop: spacing[200],
-});
-
 const DiagramEditor: React.FunctionComponent<{
   diagramLabel: string;
   step: DataModelingState['step'];
@@ -151,17 +122,16 @@ const DiagramEditor: React.FunctionComponent<{
   editErrors?: string[];
   onRetryClick: () => void;
   onCancelClick: () => void;
-  onApplyClick: (edit: Omit<Edit, 'id' | 'timestamp'>) => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
+  onMoveCollection: (ns: string, newPosition: [number, number]) => void;
 }> = ({
   diagramLabel,
   step,
   model,
-  editErrors,
   onRetryClick,
   onCancelClick,
-  onApplyClick,
   onApplyInitialLayout,
+  onMoveCollection,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -180,54 +150,6 @@ const DiagramEditor: React.FunctionComponent<{
     [diagram]
   );
 
-  const [applyInput, setApplyInput] = useState('{}');
-
-  const isEditValid = useMemo(() => {
-    try {
-      JSON.parse(applyInput);
-      return true;
-    } catch {
-      return false;
-    }
-  }, [applyInput]);
-
-  const applyPlaceholder =
-    (type: 'AddRelationship' | 'RemoveRelationship') => () => {
-      let placeholder = {};
-      switch (type) {
-        case 'AddRelationship':
-          placeholder = {
-            type: 'AddRelationship',
-            relationship: {
-              id: new UUID().toString(),
-              relationship: [
-                {
-                  ns: 'db.sourceCollection',
-                  cardinality: 1,
-                  fields: ['field1'],
-                },
-                {
-                  ns: 'db.targetCollection',
-                  cardinality: 1,
-                  fields: ['field2'],
-                },
-              ],
-              isInferred: false,
-            },
-          };
-          break;
-        case 'RemoveRelationship':
-          placeholder = {
-            type: 'RemoveRelationship',
-            relationshipId: new UUID().toString(),
-          };
-          break;
-        default:
-          throw new Error(`Unknown placeholder ${type}`);
-      }
-      setApplyInput(JSON.stringify(placeholder, null, 2));
-    };
-
   const edges = useMemo(() => {
     return (model?.relationships ?? []).map((relationship): EdgeProps => {
       const [source, target] = relationship.relationship;
@@ -240,31 +162,6 @@ const DiagramEditor: React.FunctionComponent<{
       };
     });
   }, [model?.relationships]);
-
-  const applyInitialLayout = useCallback(async () => {
-    try {
-      const { nodes: positionedNodes } = await applyLayout(
-        nodes,
-        edges,
-        'LEFT_RIGHT'
-      );
-      onApplyInitialLayout(
-        Object.fromEntries(
-          positionedNodes.map((node) => [
-            node.id,
-            [node.position.x, node.position.y],
-          ])
-        )
-      );
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_361),
-        'DiagramEditor',
-        'Error applying layout:',
-        err
-      );
-    }
-  }, [edges, log, mongoLogId, onApplyInitialLayout]);
 
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
@@ -290,6 +187,31 @@ const DiagramEditor: React.FunctionComponent<{
     );
   }, [model?.collections]);
 
+  const applyInitialLayout = useCallback(async () => {
+    try {
+      const { nodes: positionedNodes } = await applyLayout(
+        nodes,
+        edges,
+        'LEFT_RIGHT'
+      );
+      onApplyInitialLayout(
+        Object.fromEntries(
+          positionedNodes.map((node) => [
+            node.id,
+            [node.position.x, node.position.y],
+          ])
+        )
+      );
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_361),
+        'DiagramEditor',
+        'Error applying layout:',
+        err
+      );
+    }
+  }, [edges, log, nodes, mongoLogId, onApplyInitialLayout]);
+
   useEffect(() => {
     if (nodes.length === 0) return;
     const isInitialState = nodes.some(
@@ -300,8 +222,10 @@ const DiagramEditor: React.FunctionComponent<{
       return;
     }
     if (!areNodesReady) {
-      void diagram.fitView();
       setAreNodesReady(true);
+      setTimeout(() => {
+        void diagram.fitView();
+      });
     }
   }, [areNodesReady, nodes, diagram, applyInitialLayout]);
 
@@ -357,55 +281,10 @@ const DiagramEditor: React.FunctionComponent<{
               maxZoom: 1,
               minZoom: 0.25,
             }}
-            onEdgeClick={(evt, edge) => {
-              setApplyInput(
-                JSON.stringify(
-                  {
-                    type: 'RemoveRelationship',
-                    relationshipId: edge.id,
-                  },
-                  null,
-                  2
-                )
-              );
+            onNodeDragStop={(evt, node) => {
+              onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
           />
-        </div>
-        <div className={editorContainerStyles} data-testid="apply-editor">
-          <div className={editorContainerPlaceholderButtonStyles}>
-            <Button
-              onClick={applyPlaceholder('AddRelationship')}
-              data-testid="placeholder-addrelationship-button"
-            >
-              Add relationship
-            </Button>
-            <Button
-              onClick={applyPlaceholder('RemoveRelationship')}
-              data-testid="placeholder-removerelationship-button"
-            >
-              Remove relationship
-            </Button>
-          </div>
-          <div>
-            <CodemirrorMultilineEditor
-              language="json"
-              text={applyInput}
-              onChangeText={setApplyInput}
-              maxLines={10}
-            ></CodemirrorMultilineEditor>
-          </div>
-          <div className={editorContainerApplyContainerStyles}>
-            {editErrors && <ErrorSummary errors={editErrors} />}
-            <Button
-              onClick={() => {
-                onApplyClick(JSON.parse(applyInput));
-              }}
-              data-testid="apply-button"
-              disabled={!isEditValid}
-            >
-              Apply
-            </Button>
-          </div>
         </div>
       </div>
     );
@@ -434,7 +313,7 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
-    onApplyClick: applyEdit,
     onApplyInitialLayout: applyInitialLayout,
+    onMoveCollection: moveCollection,
   }
 )(DiagramEditor);

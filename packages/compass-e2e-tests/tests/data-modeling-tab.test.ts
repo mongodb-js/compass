@@ -18,10 +18,13 @@ import {
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
 
+interface Node {
+  id: string;
+  position: { x: number; y: number };
+}
+
 type DiagramInstance = {
-  getNodes: () => Array<{
-    id: string;
-  }>;
+  getNodes: () => Array<Node>;
 };
 
 async function setupDiagram(
@@ -70,7 +73,7 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
   const nodes = await browser.execute(function (selector) {
     const node = document.querySelector(selector);
     if (!node) {
@@ -80,7 +83,7 @@ async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
       node as Element & { _diagram: DiagramInstance }
     )._diagram.getNodes();
   }, Selectors.DataModelEditor);
-  return nodes.map((x) => x.id);
+  return nodes;
 }
 
 describe('Data Modeling tab', function () {
@@ -129,49 +132,51 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    let nodes = await getDiagramNodes(browser);
+    const nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    expect(nodes[0].id).to.equal('test.testCollection1');
+    expect(nodes[1].id).to.equal('test.testCollection2');
 
     // Apply change to the model
-    const newModel = {
-      type: 'SetModel',
-      model: {
-        collections: [],
-        relationships: [],
-      },
-    };
-    await browser.setCodemirrorEditorValue(
-      Selectors.DataModelApplyEditor,
-      JSON.stringify(newModel)
+
+    // react flow uses its own coordinate system,
+    // so we get the node element location for the pointer action
+    const testCollection1 = browser.$(
+      Selectors.DataModelPreviewCollection('test.testCollection1')
     );
-    await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    const startPosition = await testCollection1.getLocation();
+    const nodeSize = await testCollection1.getSize();
+
+    await browser
+      .action('pointer')
+      .move({
+        x: Math.round(startPosition.x + nodeSize.width / 2),
+        y: Math.round(startPosition.y + nodeSize.height / 2),
+      })
+      .down({ button: 0 }) // Left mouse button
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .pause(1000)
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .up({ button: 0 }) // Release the left mouse button
+      .perform();
     await browser.waitForAnimations(dataModelEditor);
 
-    // Verify that the model is updated
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    // Check that the first node has moved and mark the new position
+    const newPosition = await testCollection1.getLocation();
+    expect(newPosition).not.to.deep.equal(startPosition);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    const positionAfterUndone = await testCollection1.getLocation();
+    expect(positionAfterUndone).to.deep.equal(startPosition);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
-
+    const positionAfterRedo = await testCollection1.getLocation();
+    expect(positionAfterRedo).to.deep.equal(newPosition);
     // Open a new tab
     await browser.openNewTab();
 
@@ -179,9 +184,9 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-    // Verify that the diagram has the latest changes
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    // TODO: Verify that the diagram has the latest changes COMPASS-9479
+    const savedNodes = await getDiagramNodes(browser);
+    expect(savedNodes).to.have.lengthOf(2);
 
     // Open a new tab
     await browser.openNewTab();
