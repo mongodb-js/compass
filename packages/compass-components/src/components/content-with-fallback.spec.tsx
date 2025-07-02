@@ -48,7 +48,7 @@ describe('ContentWithFallback', function () {
     expect(screen.getByText('I am ready!')).to.exist;
   });
 
-  it('should render nothing when content is not ready on the first render', function () {
+  it('should render only the context menu when content is not ready on the first render', function () {
     const container = document.createElement('div');
 
     render(
@@ -59,8 +59,10 @@ describe('ContentWithFallback', function () {
     );
 
     expect(container.children.length).to.equal(1);
-    const [anchorElement] = container.children;
-    expect(anchorElement.getAttribute('data-testid')).to.equal('context-menu');
+    const [contextMenuContainer] = container.children;
+    expect(contextMenuContainer.getAttribute('data-testid')).to.equal(
+      'context-menu-container'
+    );
   });
 
   it('should render fallback when the timeout passes', async function () {
