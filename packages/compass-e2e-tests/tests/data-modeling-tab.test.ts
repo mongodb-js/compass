@@ -153,7 +153,7 @@ describe('Data Modeling tab', function () {
     // react flow uses its own coordinate system,
     // so we get the node element location for the pointer action
     const testCollection1 = browser.$(
-      Selectors.DataModelPreviewCollection('test.testCollection1')
+      Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
     const startPosition = await testCollection1.getLocation();
     const nodeSize = await testCollection1.getSize();
@@ -311,15 +311,19 @@ describe('Data Modeling tab', function () {
       cachePath: tmpdir,
     });
 
-    expect(data.text).to.include('test.testCollection-one');
-    expect(data.text).to.include('test.testCollection-two');
+    // Remove all the extra spaces to make it easier to assert
+    // that the text contains the expected values.
+    const text = data.text.replace(/\s+/g, '');
 
-    expect(data.text).to.include('_id objectId');
-    expect(data.text).to.include('i int');
-    expect(data.text).to.include('j int');
+    expect(text).to.include('test.testCollection-one');
+    expect(text).to.include('test.testCollection-two');
+
+    expect(text).to.include('_idobjectId');
+    expect(text).to.include('iint');
+    expect(text).to.include('jint');
     // it does not correctly recognize `iString` and only returns `String`.
     // its already good enough to verify this for now and if it flakes
     // more, we may need to revisit this test.
-    expect(data.text).to.include('String string');
+    expect(text).to.include('Stringstring');
   });
 });
