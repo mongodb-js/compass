@@ -240,6 +240,7 @@ describe('getFieldsFromSchema', function () {
     render(<>{type}</>);
     const mixed = screen.getByText('(mixed)');
     expect(mixed).to.be.visible;
+    expect(screen.queryByText(expectedTooltip)).to.not.exist;
     userEvent.hover(mixed);
     await waitFor(() => {
       expect(screen.getByText(expectedTooltip)).to.be.visible;
