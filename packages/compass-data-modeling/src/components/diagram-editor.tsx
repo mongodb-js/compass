@@ -18,12 +18,12 @@ import {
   Banner,
   Body,
   CancelLoader,
-  Tooltip,
   WorkspaceContainer,
   css,
   spacing,
   Button,
   useDarkMode,
+  InlineDefinition,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import {
@@ -82,26 +82,89 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
   );
 };
 
-function getFieldTypeDisplay(field: MongoDBJSONSchema) {
-  if (field.bsonType === undefined) {
+function getBsonTypeName(bsonType: string) {
+  switch (bsonType) {
+    case 'array':
+      return '[]';
+    default:
+      return bsonType;
+  }
+}
+
+function getFieldTypeDisplay(bsonTypes: string[]) {
+  if (bsonTypes.length === 0) {
     return 'unknown';
   }
 
-  if (typeof field.bsonType === 'string') {
-    return field.bsonType;
+  if (bsonTypes.length === 1) {
+    return getBsonTypeName(bsonTypes[0]);
   }
 
-  const typesString = field.bsonType.join(', ');
+  const typesString = bsonTypes
+    .map((bsonType) => getBsonTypeName(bsonType))
+    .join(', ');
 
   // We show `mixed` with a tooltip when multiple bsonTypes were found.
   return (
-    <Tooltip justify="end" spacing={5} trigger={<div>(mixed)</div>}>
-      <Body className={mixedTypeTooltipContentStyles}>
-        Multiple types found in sample: {typesString}
-      </Body>
-    </Tooltip>
+    <InlineDefinition
+      definition={
+        <Body className={mixedTypeTooltipContentStyles}>
+          Multiple types found in sample: {typesString}
+        </Body>
+      }
+    >
+      <div>(mixed)</div>
+    </InlineDefinition>
   );
 }
+
+export const getFieldsFromSchema = (
+  jsonSchema: MongoDBJSONSchema,
+  depth = 0
+): NodeProps['fields'] => {
+  if (!jsonSchema || !jsonSchema.properties) {
+    return [];
+  }
+  let fields: NodeProps['fields'] = [];
+  for (const [name, field] of Object.entries(jsonSchema.properties)) {
+    // field has types, properties and (optional) children
+    // types are either direct, or from anyof
+    // children are either direct (properties), from anyOf, items or items.anyOf
+    const types: (string | string[])[] = [];
+    const children = [];
+    if (field.bsonType) types.push(field.bsonType);
+    if (field.properties) children.push(field);
+    if (field.items)
+      children.push((field.items as MongoDBJSONSchema).anyOf || field.items);
+    if (field.anyOf) {
+      for (const variant of field.anyOf) {
+        if (variant.bsonType) types.push(variant.bsonType);
+        if (variant.properties) {
+          children.push(variant);
+        }
+        if (variant.items) children.push(variant.items);
+      }
+    }
+
+    fields.push({
+      name,
+      type: getFieldTypeDisplay(types.flat()),
+      depth: depth,
+      glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
+    });
+
+    if (children.length > 0) {
+      fields = [
+        ...fields,
+        ...children
+          .flat()
+          .flatMap((child) => getFieldsFromSchema(child, depth + 1)),
+      ];
+    }
+  }
+
+  return fields;
+};
 
 const modelPreviewContainerStyles = css({
   display: 'grid',
@@ -173,16 +236,7 @@ const DiagramEditor: React.FunctionComponent<{
           y: coll.displayPosition[1],
         },
         title: coll.ns,
-        fields: Object.entries(coll.jsonSchema.properties ?? {}).map(
-          ([name, field]) => {
-            const type = getFieldTypeDisplay(field);
-            return {
-              name,
-              type,
-              glyphs: type === 'objectId' ? ['key'] : [],
-            };
-          }
-        ),
+        fields: getFieldsFromSchema(coll.jsonSchema),
       })
     );
   }, [model?.collections]);
