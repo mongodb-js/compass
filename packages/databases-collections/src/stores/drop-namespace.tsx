@@ -59,7 +59,7 @@ export function activatePlugin(
     );
     const confirmed = await showConfirmation({
       variant: 'danger',
-      title: `Drop ${namespaceLabel}`,
+      title: `Drop ${namespaceLabel}?`,
       description: `Are you sure you want to drop ${namespaceLabel.toLocaleLowerCase()} "${ns}"?`,
       requiredInputText: isCollection ? collection : database,
       buttonText: `Drop ${namespaceLabel}`,
