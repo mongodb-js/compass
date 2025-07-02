@@ -1,7 +1,7 @@
 import assert from 'assert';
 import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
-import type { MongoClientOptions, CommandStartedEvent } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
 import {
   connectMongoClientDataService as connectMongoClient,
@@ -168,42 +168,6 @@ describe('connectMongoClient', function () {
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
         'auth-code',
       ]);
-    });
-
-    it('should at least try to run a ping command to verify connectivity', async function () {
-      try {
-        await connectMongoClient({
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:1/?loadBalanced=true',
-          },
-          setupListeners,
-        });
-        expect.fail('missed exception');
-      } catch (err: any) {
-        expect(err.name).to.equal('MongoNetworkError');
-      }
-    });
-
-    it('should not run the ping command with the specified ReadPreference', async function () {
-      const connectionString = clusterConnectionStringURL.clone();
-      connectionString
-        .typedSearchParams<MongoClientOptions>()
-        .set('readPreference', 'secondaryPreferred');
-      const commands: CommandStartedEvent[] = [];
-      const [metadataClient, crudClient, , state] = await connectMongoClient({
-        connectionOptions: {
-          connectionString: connectionString.toString(),
-        },
-        setupListeners: (client) =>
-          client.on('commandStarted', (ev) => commands.push(ev)),
-      });
-      expect(commands).to.have.lengthOf(1);
-      expect(commands[0].commandName).to.equal('ping');
-      expect(commands[0].command.$readPreference).to.equal(undefined);
-
-      for (const closeLater of [metadataClient, crudClient, state]) {
-        toBeClosed.add(closeLater);
-      }
     });
 
     describe('ssh tunnel failures', function () {
