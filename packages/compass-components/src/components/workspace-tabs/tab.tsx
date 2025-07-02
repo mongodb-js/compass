@@ -7,13 +7,14 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../../hooks/use-theme';
-import { Icon, IconButton } from '../leafygreen';
+import { Icon, IconButton, useMergeRefs } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
 import { useTabTheme } from './use-tab-theme';
+import { useContextMenuItems } from '../context-menu';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -192,7 +193,9 @@ export type WorkspaceTabCoreProps = {
   isSelected: boolean;
   isDragging: boolean;
   onSelect: () => void;
+  onDuplicate: () => void;
   onClose: () => void;
+  onCloseAllOthers: () => void;
   tabContentId: string;
 };
 
@@ -207,7 +210,9 @@ function Tab({
   isSelected,
   isDragging,
   onSelect,
+  onDuplicate,
   onClose,
+  onCloseAllOthers,
   tabContentId,
   iconGlyph,
   className: tabClassName,
@@ -234,6 +239,16 @@ function Tab({
     return css(tabTheme);
   }, [tabTheme, darkMode]);
 
+  const contextMenuRef = useContextMenuItems(
+    () => [
+      { label: 'Close all other tabs', onAction: onCloseAllOthers },
+      { label: 'Duplicate', onAction: onDuplicate },
+    ],
+    [onCloseAllOthers, onDuplicate]
+  );
+
+  const mergedRef = useMergeRefs([setNodeRef, contextMenuRef]);
+
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -251,7 +266,7 @@ function Tab({
       justify="start"
       trigger={
         <div
-          ref={setNodeRef}
+          ref={mergedRef}
           style={style}
           className={cx(
             tabStyles,

@@ -26,6 +26,7 @@ export type FeatureFlags = {
   enableDataModeling: boolean;
   enableIndexesGuidanceExp: boolean;
   showIndexesGuidanceVariant: boolean;
+  enableContextMenus: boolean;
 };
 
 export const featureFlags: Required<{
@@ -138,6 +139,13 @@ export const featureFlags: Required<{
     description: {
       short:
         'Used to check if user is in the Indexes Guidance Experiment Variant',
+    },
+  },
+
+  enableContextMenus: {
+    stage: 'development',
+    description: {
+      short: 'Enable context (right-click) menus',
     },
   },
 };

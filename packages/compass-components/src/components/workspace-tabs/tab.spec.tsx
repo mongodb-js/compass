@@ -13,10 +13,14 @@ import { Tab } from './tab';
 describe('Tab', function () {
   let onCloseSpy: sinon.SinonSpy;
   let onSelectSpy: sinon.SinonSpy;
+  let onDuplicateSpy: sinon.SinonSpy;
+  let onCloseAllOthersSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onCloseSpy = sinon.spy();
     onSelectSpy = sinon.spy();
+    onDuplicateSpy = sinon.spy();
+    onCloseAllOthersSpy = sinon.spy();
   });
 
   afterEach(cleanup);
@@ -28,6 +32,8 @@ describe('Tab', function () {
           type="Databases"
           onClose={onCloseSpy}
           onSelect={onSelectSpy}
+          onDuplicate={onDuplicateSpy}
+          onCloseAllOthers={onCloseAllOthersSpy}
           title="docs"
           isSelected
           isDragging={false}
@@ -73,6 +79,8 @@ describe('Tab', function () {
           type="Databases"
           onClose={onCloseSpy}
           onSelect={onSelectSpy}
+          onDuplicate={onDuplicateSpy}
+          onCloseAllOthers={onCloseAllOthersSpy}
           title="docs"
           isSelected={false}
           isDragging={false}
@@ -96,6 +104,50 @@ describe('Tab', function () {
       expect(
         getComputedStyle(await screen.findByLabelText('Close Tab')).display
       ).to.not.equal('none');
+    });
+  });
+
+  describe('when right-clicking', function () {
+    beforeEach(function () {
+      render(
+        <Tab
+          type="Databases"
+          onClose={onCloseSpy}
+          onSelect={onSelectSpy}
+          onDuplicate={onDuplicateSpy}
+          onCloseAllOthers={onCloseAllOthersSpy}
+          title="docs"
+          isSelected={false}
+          isDragging={false}
+          tabContentId="1"
+          tooltip={[['Connection', 'ABC']]}
+          iconGlyph="Folder"
+        />
+      );
+    });
+
+    describe('clicking menu items', function () {
+      it('should propagate clicks on "Duplicate"', async function () {
+        const tab = await screen.findByText('docs');
+        userEvent.click(tab, { button: 2 });
+        expect(screen.getByTestId('context-menu')).to.be.visible;
+
+        const menuItem = await screen.findByText('Duplicate');
+        menuItem.click();
+        expect(onDuplicateSpy.callCount).to.equal(1);
+        expect(onCloseAllOthersSpy.callCount).to.equal(0);
+      });
+
+      it('should propagate clicks on "Close all other tabs"', async function () {
+        const tab = await screen.findByText('docs');
+        userEvent.click(tab, { button: 2 });
+        expect(screen.getByTestId('context-menu')).to.be.visible;
+
+        const menuItem = await screen.findByText('Close all other tabs');
+        menuItem.click();
+        expect(onDuplicateSpy.callCount).to.equal(0);
+        expect(onCloseAllOthersSpy.callCount).to.equal(1);
+      });
     });
   });
 });

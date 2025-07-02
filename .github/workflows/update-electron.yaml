@@ -40,7 +40,7 @@ jobs:
         run: npm ci
 
       - name: Bump packages
-        run: node scripts/update-electron.js
+        run: npx compass-scripts update-dependencies preset-electron
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5

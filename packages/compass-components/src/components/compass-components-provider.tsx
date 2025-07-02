@@ -6,6 +6,7 @@ import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
 import { StackedComponentProvider } from '../hooks/use-stacked-component';
+import { ContextMenuProvider } from './context-menu';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -33,6 +34,11 @@ type CompassComponentsProviderProps = {
    * zIndex for the stacked elements (modal, toast, popover)
    */
   stackedElementsZIndex?: number;
+
+  /**
+   * Set to disable context menus in the application.
+   */
+  disableContextMenus?: boolean;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
@@ -99,6 +105,7 @@ export const CompassComponentsProvider = ({
   utmMedium,
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
+  disableContextMenus,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -135,15 +142,17 @@ export const CompassComponentsProvider = ({
           >
             <SignalHooksProvider {...signalHooksProviderProps}>
               <ConfirmationModalArea>
-                <ToastArea>
-                  {typeof children === 'function'
-                    ? children({
-                        darkMode,
-                        portalContainerRef: setPortalContainer,
-                        scrollContainerRef: setScrollContainer,
-                      })
-                    : children}
-                </ToastArea>
+                <ContextMenuProvider disabled={disableContextMenus}>
+                  <ToastArea>
+                    {typeof children === 'function'
+                      ? children({
+                          darkMode,
+                          portalContainerRef: setPortalContainer,
+                          scrollContainerRef: setScrollContainer,
+                        })
+                      : children}
+                  </ToastArea>
+                </ContextMenuProvider>
               </ConfirmationModalArea>
             </SignalHooksProvider>
           </GuideCueProvider>
