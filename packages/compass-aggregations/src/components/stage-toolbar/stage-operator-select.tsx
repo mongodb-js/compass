@@ -18,7 +18,6 @@ import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 
 const inputWidth = spacing[1400] * 3;
-const inputHeight = spacing[600] - 2; // match other xs controls
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 10;
 // left position of options popover wrt input. this aligns it with the start of input
@@ -26,14 +25,6 @@ const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
 const comboboxStyles = css({
   width: inputWidth,
-  '& [role="combobox"]': {
-    padding: 0,
-    paddingLeft: spacing[100],
-    height: inputHeight,
-    '& > div': {
-      minHeight: inputHeight,
-    },
-  },
   '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
@@ -74,7 +65,7 @@ export const StageOperatorSelect = ({
       disabled={isDisabled}
       aria-label="Select a stage operator"
       onChange={onStageOperatorSelected}
-      size="default"
+      size="xsmall"
       clearable={false}
       data-testid="stage-operator-combobox"
       className={comboboxStyles}

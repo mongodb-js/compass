@@ -53,9 +53,9 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
     return ipc;
   }
 
-  loadAll(
-    options?: { signal?: AbortSignal | undefined } | undefined
-  ): Promise<ConnectionInfo[]> {
+  loadAll(options?: {
+    signal?: AbortSignal | undefined;
+  }): Promise<ConnectionInfo[]> {
     return this.ipc.loadAll(options);
   }
 
@@ -86,9 +86,9 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
     return await this.ipc.getAutoConnectInfo(autoConnectPreferences);
   }
 
-  getLegacyConnections(
-    options?: { signal?: AbortSignal | undefined } | undefined
-  ): Promise<{ name: string }[]> {
+  getLegacyConnections(options?: {
+    signal?: AbortSignal | undefined;
+  }): Promise<{ name: string }[]> {
     return this.ipc.getLegacyConnections(options);
   }
 
@@ -100,14 +100,10 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
     return this.ipc.deserializeConnections(args);
   }
 
-  exportConnections(
-    args?:
-      | {
-          options?: ExportConnectionOptions | undefined;
-          signal?: AbortSignal | undefined;
-        }
-      | undefined
-  ): Promise<string> {
+  exportConnections(args?: {
+    options?: ExportConnectionOptions | undefined;
+    signal?: AbortSignal | undefined;
+  }): Promise<string> {
     return this.ipc.exportConnections(args);
   }
 

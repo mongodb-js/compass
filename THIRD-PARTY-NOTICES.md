@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Jun 22 2025.
+This document was automatically generated on Tue Jul 01 2025.
 
 ## List of dependencies
 
@@ -63,7 +63,7 @@ This document was automatically generated on Sun Jun 22 2025.
 | **[@babel/traverse](#cbf060c0be202d0c980a972f5d555221bd01e3010bb774e5a2e5671e4ebbc78a)**                                    | 7.27.1       | MIT                                 |
 | **[@babel/types](#9021b399ca3cefdefb2e38ca064c3f445f1976553f8c3aa6ae92a051f1644a9f)**                                       | 7.27.1       | MIT                                 |
 | **[@codemirror/autocomplete](#62d2362c07f0c11664969b60d0d7c3e081905838b8994675aaf0e6c67baf358d)**                           | 6.17.0       | MIT                                 |
-| **[@codemirror/commands](#e12a76404dd2d66430f2dff53a430449896e9b5c2558779497b855ba2ab9326a)**                               | 6.1.2        | MIT                                 |
+| **[@codemirror/commands](#2f61f8e56ba96e99b4f9ceacf0af3ddae5edec5e935a2a5f9af4546e36c9767e)**                               | 6.8.1        | MIT                                 |
 | **[@codemirror/lang-javascript](#d5fb6a843784efdc3ec06ae43bdf3ca13ec93a6bce802995a47cf7bddafc9628)**                        | 6.1.2        | MIT                                 |
 | **[@codemirror/lang-json](#8681100c5ce2bab822c877bc288cac59b84b13ff17735c301d4e1c7fa5924720)**                              | 6.0.1        | MIT                                 |
 | **[@codemirror/language](#5528845a8e28aec6e48cb76145e25db0921b87499dc07ab852cdeca48b9f87a6)**                               | 6.3.2        | MIT                                 |
@@ -233,7 +233,7 @@ This document was automatically generated on Sun Jun 22 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#973c8b48940a6eb3f2fe702af80b9e510d52527ce66a3fe9651a5b10de418622)**                                           | 36.4.0       | MIT                                 |
+| **[electron](#e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854)**                                           | 36.5.0       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
@@ -371,7 +371,7 @@ This document was automatically generated on Sun Jun 22 2025.
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2        | Apache-2.0                          |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                         | 0.6.3        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
-| **[node-abi](#2a254598cb9eac9343b038a01d43e10aa87e6d08f645e1dd17344564572749f0)**                                           | 4.9.0        | MIT                                 |
+| **[node-abi](#e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4)**                                           | 4.11.0       | MIT                                 |
 | **[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**                                     | 6.1.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
@@ -443,6 +443,7 @@ This document was automatically generated on Sun Jun 22 2025.
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
 | **[semver](#2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b)**                                             | 7.6.3        | ISC                                 |
+| **[semver](#9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0)**                                             | 7.7.2        | ISC                                 |
 | **[send](#412cd4c4a8e6aaa433d5e67852c05a1e307fd4eb9dc362bdc30fa099313c24cb)**                                               | 0.19.0       | MIT                                 |
 | **[serve-static](#9a2d04a479ef9c6e990f1fb614478dea4368c040af707296400ff7f9bb68d30b)**                                       | 1.16.2       | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                     | 1.2.0        | ISC                                 |
@@ -5966,9 +5967,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="e12a76404dd2d66430f2dff53a430449896e9b5c2558779497b855ba2ab9326a"></a>
+<a id="2f61f8e56ba96e99b4f9ceacf0af3ddae5edec5e935a2a5f9af4546e36c9767e"></a>
 
-### [@codemirror/commands](https://www.npmjs.com/package/@codemirror/commands) (version 6.1.2)
+### [@codemirror/commands](https://www.npmjs.com/package/@codemirror/commands) (version 6.8.1)
 
 License tags: MIT
 
@@ -5978,7 +5979,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -18782,9 +18783,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="973c8b48940a6eb3f2fe702af80b9e510d52527ce66a3fe9651a5b10de418622"></a>
+<a id="e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 36.4.0)
+### [electron](https://www.npmjs.com/package/electron) (version 36.5.0)
 
 License tags: MIT
 
@@ -25468,9 +25469,9 @@ License files:
 
 License tags: MIT
 
-<a id="2a254598cb9eac9343b038a01d43e10aa87e6d08f645e1dd17344564572749f0"></a>
+<a id="e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.9.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.11.0)
 
 License tags: MIT
 
@@ -33886,6 +33887,32 @@ License files:
 <a id="2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b"></a>
 
 ### [semver](https://www.npmjs.com/package/semver) (version 7.6.3)
+
+License tags: ISC
+
+License files:
+
+- LICENSE:
+
+      The ISC License
+
+      Copyright (c) Isaac Z. Schlueter and Contributors
+
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+<a id="9820574a08f66349702b3a538cfb93136780250f98497b337bc415b68c8748d0"></a>
+
+### [semver](https://www.npmjs.com/package/semver) (version 7.7.2)
 
 License tags: ISC
 
