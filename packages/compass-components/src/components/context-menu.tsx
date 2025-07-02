@@ -13,11 +13,13 @@ export type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
 
 export function ContextMenuProvider({
   children,
+  disabled,
 }: {
   children: React.ReactNode;
+  disabled?: boolean;
 }) {
   return (
-    <ContextMenuProviderBase menuWrapper={ContextMenu}>
+    <ContextMenuProviderBase disabled={disabled} menuWrapper={ContextMenu}>
       {children}
     </ContextMenuProviderBase>
   );
