@@ -11,12 +11,13 @@ import { actionTestId } from './utils';
 import { ActionGlyph } from './action-glyph';
 import { isSeparatorMenuAction, type MenuAction } from './item-action-menu';
 
-const hiddenOnNarrowStyles = css({
-  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
-    {
-      display: 'none',
-    },
-});
+const getHiddenOnNarrowStyles = (narrowBreakpoint: string) =>
+  css({
+    [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < ${narrowBreakpoint})`]:
+      {
+        display: 'none',
+      },
+  });
 
 export type DropdownMenuButtonProps<Action extends string> = {
   actions: MenuAction<Action>[];
@@ -29,6 +30,7 @@ export type DropdownMenuButtonProps<Action extends string> = {
   buttonText: string;
   buttonProps: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
   hideOnNarrow?: boolean;
+  narrowBreakpoint?: string;
 };
 
 export function DropdownMenuButton<Action extends string>({
@@ -42,6 +44,7 @@ export function DropdownMenuButton<Action extends string>({
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
   hideOnNarrow = true,
+  narrowBreakpoint = '900px',
 }: DropdownMenuButtonProps<Action>) {
   // This ref is used by the Menu component to calculate the height and position
   // of the menu.
@@ -97,7 +100,13 @@ export function DropdownMenuButton<Action extends string>({
             {...buttonProps}
           >
             {buttonText && (
-              <span className={hideOnNarrow ? hiddenOnNarrowStyles : undefined}>
+              <span
+                className={
+                  hideOnNarrow
+                    ? getHiddenOnNarrowStyles(narrowBreakpoint)
+                    : undefined
+                }
+              >
                 {buttonText}
               </span>
             )}
