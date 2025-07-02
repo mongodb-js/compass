@@ -12,10 +12,8 @@ const {
 
 const UPDATE_CONFIGS = require('./update-dependencies-config');
 
-async function hoistSharedDependencies(newVersions) {
+async function hoistSharedDependencies(root, newVersions) {
   try {
-    const root = await findMonorepoRoot();
-
     await withProgress('Cleaning up existing node_modules', async () => {
       await runInDir("npx lerna exec 'rm -Rf node_modules'", root);
       await runInDir('rm -Rf node_modules', root);
@@ -71,6 +69,55 @@ async function getVersion(depSpec) {
   return [name, version.trim()];
 }
 
+function updateDependencies(packageJson, newVersions) {
+  for (const depType of [
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+  ]) {
+    if (packageJson[depType]) {
+      for (const packageName of Object.keys(packageJson[depType])) {
+        if (packageJson[depType][packageName] && newVersions[packageName]) {
+          packageJson[depType][packageName] = `^${newVersions[packageName]}`;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * example overrides config:
+ *
+ * {
+ *   "overrides": {
+ *     "@npm/foo": "1.0.0",
+ *     "@npm/bar": {
+ *       ".": "1.0.0",
+ *       "@npm/buz": "1.0.0"
+ *     },
+ *     "@npm/a": {
+ *       "@npm/b": {
+ *         "@npm/c": "1.0.0"
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ * https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides
+ */
+function updateOverrides(overrides, newVersions, parent) {
+  for (const name of Object.keys(overrides ?? {})) {
+    if (typeof overrides[name] === 'string' && newVersions[name]) {
+      overrides[name] = `^${newVersions[name]}`;
+    } else if (name === '.' && parent && newVersions[parent]) {
+      overrides[name] = `^${newVersions[name]}`;
+    } else if (typeof overrides[name] === 'object') {
+      updateOverrides(overrides[name], newVersions, name);
+    }
+  }
+}
+
 async function main() {
   let dependencies;
 
@@ -124,29 +171,17 @@ async function main() {
   const newVersionsObj = Object.fromEntries(newVersions);
   let hasChanged;
 
+  const monorepoRoot = await findMonorepoRoot();
+  const workspaces = [monorepoRoot].concat(
+    await Array.fromAsync(listAllPackages(), (workspace) => workspace.location)
+  );
+
   await withProgress('Updating package.json in workspaces', async () => {
-    for await (const props of listAllPackages()) {
-      await updatePackageJson(props.location, (packageJson) => {
+    for (const workspacePath of workspaces) {
+      await updatePackageJson(workspacePath, (packageJson) => {
         const origPackageJson = cloneDeep(packageJson);
-        for (const depType of [
-          'dependencies',
-          'devDependencies',
-          'peerDependencies',
-          'optionalDependencies',
-        ]) {
-          if (packageJson[depType]) {
-            for (const packageName of Object.keys(packageJson[depType])) {
-              if (
-                packageJson[depType][packageName] &&
-                newVersionsObj[packageName]
-              ) {
-                packageJson[depType][
-                  packageName
-                ] = `^${newVersionsObj[packageName]}`;
-              }
-            }
-          }
-        }
+        updateDependencies(packageJson, newVersionsObj);
+        updateOverrides(packageJson.overrides, newVersionsObj);
         hasChanged = hasChanged || !isEqual(origPackageJson, packageJson);
         return packageJson;
       });
@@ -159,7 +194,7 @@ async function main() {
     return;
   }
 
-  await hoistSharedDependencies(newVersions);
+  await hoistSharedDependencies(monorepoRoot, newVersions);
 
   console.log();
   console.log('Successfully updated dependencies');
