@@ -25,7 +25,8 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
 
   await browser.selectConnectionMenuItem(
     connectionName,
-    Selectors.RefreshDatabasesItem
+    Selectors.RefreshDatabasesItem,
+    false
   );
 }
 
