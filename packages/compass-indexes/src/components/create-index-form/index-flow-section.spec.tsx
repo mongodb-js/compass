@@ -223,7 +223,7 @@ describe('IndexFlowSection', () => {
         `{"field1":1,"field2":{"$gt":2}}`
       );
       expect(optimalQueriesExamples).to.contain.text(
-        `{"field1":1}.sort({"field2":2})`
+        `{"field1":1}.sort({"field2":1})`
       );
     });
   });

@@ -158,7 +158,7 @@ export const generateOptimalQueries = (
   const lastFieldKey = Object.keys(lastField)[0];
 
   // If there are only two fields, we want to show two examples
-  // i.e. {a:1, b: {$gt:2}} and {a:1}.sort({b: 2})
+  // i.e. {a:1, b: {$gt:2}} and {a:1}.sort({b: 1})
   if (numOfFields === 2) {
     const firstField = coveredQueriesArr[0];
     const firstFieldKey = Object.keys(firstField)[0];
@@ -167,7 +167,7 @@ export const generateOptimalQueries = (
       <>
         {`{"${firstFieldKey}":1,"${lastFieldKey}":{"$gt":2}}`}
         <br />
-        {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":2})`}
+        {`{"${firstFieldKey}":1}.sort({"${lastFieldKey}":1})`}
       </>
     );
   }
