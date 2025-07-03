@@ -2,6 +2,7 @@ import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import { MongoDBInstance } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import type {
+  ConnectionInfo,
   ConnectionsService,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
@@ -13,6 +14,8 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';
 import type { PreferencesAccess } from 'compass-preferences-model';
+
+type InstanceDetails = Awaited<ReturnType<DataService['instance']>>;
 
 function serversArray(
   serversMap: NonNullable<
@@ -305,55 +308,68 @@ export function createInstancesStore(
     instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
   });
 
-  on(connections, 'connected', function (instanceConnectionId: string) {
-    const dataService =
-      connections.getDataServiceForConnection(instanceConnectionId);
-    const connectionString = dataService.getConnectionString();
-    const firstHost = connectionString.hosts[0] || '';
-    const [hostname, port] = firstHost.split(':');
+  on(
+    connections,
+    'connected',
+    function (
+      instanceConnectionId: string,
+      _connectionInfo: ConnectionInfo,
+      instanceInfo: InstanceDetails
+    ) {
+      const dataService =
+        connections.getDataServiceForConnection(instanceConnectionId);
+      const connectionString = dataService.getConnectionString();
+      const firstHost = connectionString.hosts[0] || '';
+      const [hostname, port] = firstHost.split(':');
 
-    const initialInstanceProps: Partial<MongoDBInstanceProps> = {
-      _id: firstHost,
-      hostname: hostname,
-      port: port ? +port : undefined,
-      topologyDescription: getTopologyDescription(
-        dataService.getLastSeenTopology()
-      ),
-      preferences,
-    };
-    const instance = instancesManager.createMongoDBInstanceForConnection(
-      instanceConnectionId,
-      initialInstanceProps as MongoDBInstanceProps
-    );
+      const initialInstanceProps: Partial<MongoDBInstanceProps> = {
+        _id: firstHost,
+        hostname: hostname,
+        port: port ? +port : undefined,
+        topologyDescription: getTopologyDescription(
+          dataService.getLastSeenTopology()
+        ),
+        preferences,
+      };
+      const instance = instancesManager.createMongoDBInstanceForConnection(
+        instanceConnectionId,
+        initialInstanceProps as MongoDBInstanceProps
+      );
+      instance.set({
+        status: 'ready',
+        statusError: null,
+        ...(instanceInfo as Partial<MongoDBInstanceProps>),
+      });
 
-    addCleanup(() => {
-      instance.removeAllListeners();
-    });
+      addCleanup(() => {
+        instance.removeAllListeners();
+      });
 
-    void refreshInstance(
-      {
-        fetchDatabases: true,
-        fetchDbStats: true,
-      },
-      {
-        connectionId: instanceConnectionId,
-      }
-    );
+      void refreshInstance(
+        {
+          fetchDatabases: true,
+          fetchDbStats: true,
+        },
+        {
+          connectionId: instanceConnectionId,
+        }
+      );
 
-    on(
-      dataService,
-      'topologyDescriptionChanged',
-      ({
-        newDescription,
-      }: {
-        newDescription: ReturnType<DataService['getLastSeenTopology']>;
-      }) => {
-        instance.set({
-          topologyDescription: getTopologyDescription(newDescription),
-        });
-      }
-    );
-  });
+      on(
+        dataService,
+        'topologyDescriptionChanged',
+        ({
+          newDescription,
+        }: {
+          newDescription: ReturnType<DataService['getLastSeenTopology']>;
+        }) => {
+          instance.set({
+            topologyDescription: getTopologyDescription(newDescription),
+          });
+        }
+      );
+    }
+  );
 
   on(
     globalAppRegistry,
