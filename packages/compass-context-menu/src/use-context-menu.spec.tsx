@@ -263,5 +263,28 @@ describe('useContextMenu', function () {
         expect(() => screen.getByTestId('test-menu')).to.throw;
       });
     });
+
+    describe('menu closing behavior', function () {
+      for (const event of ['scroll', 'resize', 'click']) {
+        it(`closes menu on window ${event} event`, function () {
+          render(
+            <ContextMenuProvider menuWrapper={TestMenu}>
+              <TestComponent />
+            </ContextMenuProvider>
+          );
+
+          const trigger = screen.getByTestId('test-trigger');
+          userEvent.click(trigger, { button: 2 });
+
+          // Verify menu is open
+          expect(screen.getByTestId('menu-item-Test Item')).to.exist;
+
+          window.dispatchEvent(new Event(event));
+
+          // Verify menu is closed
+          expect(() => screen.getByTestId('test-menu')).to.throw;
+        });
+      }
+    });
   });
 });
