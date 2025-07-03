@@ -3,6 +3,7 @@ import type HadronDocument from 'hadron-document';
 import { KeylineCard } from '@mongodb-js/compass-components';
 import Document, { type DocumentProps } from './document';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
+import { useMergeRefs } from '@mongodb-js/compass-components';
 
 export type DocumentListViewItemProps = {
   doc: HadronDocument;
@@ -40,8 +41,10 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
     openInsertDocumentDialog,
   });
 
+  const mergedRef = useMergeRefs([docRef, contextMenuRef]);
+
   return (
-    <KeylineCard ref={mergeRefs(docRef, contextMenuRef)}>
+    <KeylineCard ref={mergedRef}>
       {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
       <Document
         doc={doc}
