@@ -2876,6 +2876,13 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
   };
 }>;
 
+type DataModelingDiagramCreated = CommonEvent<{
+  name: 'Data Modeling Diagram Created';
+  payload: {
+    num_collections: number;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -2926,6 +2933,7 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCreated
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
