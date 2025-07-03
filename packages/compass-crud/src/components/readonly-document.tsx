@@ -29,6 +29,7 @@ export type ReadonlyDocumentProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   showInsights?: boolean;
+  onAddToQuery?: (field: string, value: any) => void;
 };
 
 type ReadonlyDocumentState = {
@@ -183,6 +184,7 @@ class ReadonlyDocument extends React.Component<
     doc: PropTypes.object.isRequired,
     openInsertDocumentDialog: PropTypes.func,
     showInsights: PropTypes.bool,
+    onAddToQuery: PropTypes.func,
   };
 }
 

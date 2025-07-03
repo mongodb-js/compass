@@ -428,6 +428,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
+  onAddToQuery: (field: string, value: any) => void;
 }> = ({
   value: element,
   editable,
@@ -436,9 +437,11 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
+  onAddToQuery,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
+
   const {
     id,
     key,
@@ -462,6 +465,12 @@ export const HadronElement: React.FunctionComponent<{
   const fieldContextMenuRef = useContextMenuItems(
     () => [
       {
+        label: 'Add to query',
+        onAction: () => {
+          onAddToQuery(key.value, element.generateObject());
+        },
+      },
+      {
         label: 'Copy field & value',
         onAction: () => {
           void navigator.clipboard.writeText(
@@ -480,7 +489,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.originalValue, value.value, type.value]
+    [element, key.value, value.value, type.value, onAddToQuery]
   );
 
   const toggleExpanded = () => {
@@ -770,6 +779,7 @@ export const HadronElement: React.FunctionComponent<{
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
+                onAddToQuery={onAddToQuery}
               ></HadronElement>
             );
           })}

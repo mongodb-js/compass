@@ -34,6 +34,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
+          onAddToQuery={() => {}}
         />
       );
 
@@ -59,6 +60,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
+          onAddToQuery={() => {}}
         />
       );
 
@@ -82,6 +84,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
+          onAddToQuery={() => {}}
         />
       );
 
@@ -107,6 +110,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
+          onAddToQuery={() => {}}
         />
       );
 
@@ -116,6 +120,34 @@ describe('HadronElement', function () {
 
       // Check that the menu item doesn't exist
       expect(screen.queryByText('Open URL in browser')).to.not.exist;
+    });
+
+    it('calls the correct parameters when "Add to query" is clicked', function () {
+      const onAddToQuerySpy = sinon.spy();
+
+      render(
+        <HadronElement
+          value={element}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+          onAddToQuery={onAddToQuerySpy}
+        />
+      );
+
+      // Open context menu and click the add to query option
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+      userEvent.click(screen.getByText('Add to query'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      // Verify that onAddToQuery was called with the field name and element's generated object
+      expect(onAddToQuerySpy).to.have.been.calledWith(
+        'field',
+        element.generateObject()
+      );
     });
   });
 });
