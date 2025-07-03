@@ -103,7 +103,7 @@ export function exportDiagram(
   Promise<void>,
   ExportStartedAction | ExportCompletedAction
 > {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { track }) => {
     const {
       exportDiagram: { exportFormat, isExporting },
       diagram,
@@ -129,6 +129,9 @@ export function exportDiagram(
           cancelExportAbortController.signal
         );
       }
+      track('Data Modeling Diagram Exported', {
+        format: exportFormat,
+      });
     } catch (error) {
       if (!isCancelError(error)) {
         openToast('export-diagram-error', {
@@ -148,8 +151,14 @@ export function exportDiagram(
   };
 }
 
-export function showExportModal(): ModalOpenedAction {
-  return { type: ExportDiagramActionTypes.MODAL_OPENED };
+export function showExportModal(): DataModelingThunkAction<
+  void,
+  ModalOpenedAction
+> {
+  return (dispatch, getState, { track }) => {
+    track('Screen', { name: 'export_diagram_modal' }, undefined);
+    return dispatch({ type: ExportDiagramActionTypes.MODAL_OPENED });
+  };
 }
 
 export function closeExportModal(): DataModelingThunkAction<
