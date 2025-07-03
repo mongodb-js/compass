@@ -569,7 +569,6 @@ export const HadronElement: React.FunctionComponent<{
         data-field={key.value}
         data-id={element.uuid}
         {...elementProps}
-        ref={fieldContextMenuRef}
       >
         {editable && (
           <div className={elementActions}>
