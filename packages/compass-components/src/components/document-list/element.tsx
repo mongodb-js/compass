@@ -15,7 +15,6 @@ import {
   ElementEvents,
   ElementEditor,
   DEFAULT_VISIBLE_ELEMENTS,
-  objectToIdiomaticEJSON,
 } from 'hadron-document';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
