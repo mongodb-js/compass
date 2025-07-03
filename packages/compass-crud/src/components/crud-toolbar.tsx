@@ -201,21 +201,19 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
   );
-  const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
 
   const contextMenuRef = useContextMenuItems(
     () => [
       {
-        label: allDocumentsExpanded
-          ? 'Collapse all documents'
-          : 'Expand all documents',
+        label: 'Expand all documents',
         onAction: () => {
-          if (allDocumentsExpanded) {
-            onCollapseAllClicked();
-          } else {
-            onExpandAllClicked();
-          }
-          setAllDocumentsExpanded(!allDocumentsExpanded);
+          onExpandAllClicked();
+        },
+      },
+      {
+        label: 'Collapse all documents',
+        onAction: () => {
+          onCollapseAllClicked();
         },
       },
       ...(isImportExportEnabled
@@ -278,7 +276,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       },
     ],
     [
-      allDocumentsExpanded,
       isImportExportEnabled,
       readonly,
       isWritable,

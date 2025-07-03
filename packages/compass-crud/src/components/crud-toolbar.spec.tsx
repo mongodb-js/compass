@@ -560,36 +560,20 @@ describe('CrudToolbar Component', function () {
       expect(onExpandAllClicked).to.have.been.calledOnce;
     });
 
-    it('should show collapse all documents if all documents were previously expanded', function () {
-      renderCrudToolbar();
+    it('should call onCollapseAllClicked when "Collapse all documents" is clicked', function () {
+      const onCollapseAllClicked = sinon.spy();
+      renderCrudToolbar({ onCollapseAllClicked });
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const toolbar = screen.getByTestId('query-bar').closest('div')!;
-      userEvent.click(toolbar, { button: 2 });
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
 
       const contextMenu = screen.getByTestId('context-menu');
-
-      // No Collapse all documents should be shown
-      expect(within(contextMenu).queryByText('Collapse all documents')).to.not
-        .exist;
-
-      // Click expand all documents
-      const expandMenuItem = within(contextMenu).getByText(
-        'Expand all documents'
-      );
-      userEvent.click(expandMenuItem);
-
-      // Right click again to open the context menu
-      userEvent.click(toolbar, { button: 2 });
-
-      // Now it should show collapse all documents
       const collapseMenuItem = within(contextMenu).getByText(
         'Collapse all documents'
       );
       userEvent.click(collapseMenuItem);
 
-      expect(within(contextMenu).getByText('Collapse all documents')).to.be
-        .visible;
+      expect(onCollapseAllClicked).to.have.been.called;
     });
 
     it('should call insertDataHandler with "import-file" when "Import JSON or CSV file" is clicked', function () {
