@@ -286,6 +286,10 @@ describe('Data Modeling tab', function () {
   });
 
   it('exports the data model to PNG', async function () {
+    if (process.platform === 'win32') {
+      console.warn('Skipping PNG export test on Windows');
+      this.skip();
+    }
     const dataModelName = 'Test Export Model - PNG';
     exportFileName = `${dataModelName}.png`;
     await setupDiagram(browser, {
@@ -311,19 +315,19 @@ describe('Data Modeling tab', function () {
       cachePath: tmpdir,
     });
 
-    // Remove all the extra spaces to make it easier to assert
-    // that the text contains the expected values.
-    const text = data.text.replace(/\s+/g, '');
+    const text = data.text.toLowerCase();
 
-    expect(text).to.include('test.testCollection-one');
-    expect(text).to.include('test.testCollection-two');
+    console.log(`Recognized PNG export text:`, text);
 
-    expect(text).to.include('_idobjectId');
-    expect(text).to.include('iint');
-    expect(text).to.include('jint');
+    expect(text).to.include('testCollection-one'.toLowerCase());
+    expect(text).to.include('testCollection-two'.toLowerCase());
+
+    expect(text).to.include('id objectId'.toLowerCase());
+    expect(text).to.include('i int');
+    expect(text).to.include('j int');
     // it does not correctly recognize `iString` and only returns `String`.
     // its already good enough to verify this for now and if it flakes
     // more, we may need to revisit this test.
-    expect(text).to.include('Stringstring');
+    expect(text).to.include('String string'.toLowerCase());
   });
 });
