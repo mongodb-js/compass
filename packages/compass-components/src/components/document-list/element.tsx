@@ -465,9 +465,9 @@ export const HadronElement: React.FunctionComponent<{
       {
         label: 'Copy field & value',
         onAction: () => {
-          const generated = element.generateObject();
-          const fieldStr = `${key.value}: ${objectToIdiomaticEJSON(generated)}`;
-          void navigator.clipboard.writeText(fieldStr);
+          void navigator.clipboard.writeText(
+            `${key.value}: ${element.toEJSON()}`
+          );
         },
       },
       ...(type.value === 'String' && isValidUrl(value.value)
@@ -481,7 +481,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [key.value, value.originalValue, value.value, type.value]
+    [element, key.value, value.originalValue, value.value, type.value]
   );
 
   const toggleExpanded = () => {
