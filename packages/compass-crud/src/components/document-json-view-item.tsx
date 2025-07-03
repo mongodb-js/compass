@@ -4,7 +4,7 @@ import { css, KeylineCard } from '@mongodb-js/compass-components';
 
 import JSONEditor, { type JSONEditorProps } from './json-editor';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
-import { mergeRefs } from '@react-aria/utils';
+import { useMergeRefs } from '@mongodb-js/compass-components';
 
 const keylineCardStyles = css({
   overflow: 'hidden',
@@ -49,11 +49,10 @@ const DocumentJsonViewItem: React.FC<DocumentJsonViewItemProps> = ({
     openInsertDocumentDialog,
   });
 
+  const mergedRef = useMergeRefs([docRef, contextMenuRef]);
+
   return (
-    <KeylineCard
-      className={keylineCardStyles}
-      ref={mergeRefs(docRef, contextMenuRef)}
-    >
+    <KeylineCard className={keylineCardStyles} ref={mergedRef}>
       {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
       <JSONEditor
         doc={doc}

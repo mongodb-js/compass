@@ -30,6 +30,7 @@ describe('useDocumentItemContextMenu', function () {
   let collapseStub: sinon.SinonStub;
   let expandStub: sinon.SinonStub;
   let startEditingStub: sinon.SinonStub;
+  let finishEditingStub: sinon.SinonStub;
   let markForDeletionStub: sinon.SinonStub;
   let generateObjectStub: sinon.SinonStub;
 
@@ -47,6 +48,7 @@ describe('useDocumentItemContextMenu', function () {
     collapseStub = sinon.stub(doc, 'collapse');
     expandStub = sinon.stub(doc, 'expand');
     startEditingStub = sinon.stub(doc, 'startEditing');
+    finishEditingStub = sinon.stub(doc, 'finishEditing');
     markForDeletionStub = sinon.stub(doc, 'markForDeletion');
     generateObjectStub = sinon.stub(doc, 'generateObject').returns({
       _id: 1,
@@ -84,7 +86,7 @@ describe('useDocumentItemContextMenu', function () {
       expect(screen.getByText('Delete document')).to.exist;
     });
 
-    it('hides edit document when document is editing', function () {
+    it('shows "Stop editing" when document is editing', function () {
       doc.expanded = false;
       doc.editing = true;
 
@@ -100,7 +102,8 @@ describe('useDocumentItemContextMenu', function () {
       // Right-click to open context menu
       userEvent.click(screen.getByTestId('test-container'), { button: 2 });
 
-      // Should hide edit document when editing
+      // Should show "Stop editing" when editing
+      expect(screen.getByText('Stop editing')).to.exist;
       expect(screen.queryByText('Edit document')).to.not.exist;
       // But show other operations
       expect(screen.getByText('Expand all fields')).to.exist;
@@ -162,6 +165,60 @@ describe('useDocumentItemContextMenu', function () {
     });
   });
 
+  describe('edit document functionality', function () {
+    it('starts editing when "Edit document" is clicked', function () {
+      doc.editing = false;
+      render(
+        <TestComponent
+          doc={doc}
+          isEditable={true}
+          copyToClipboard={copyToClipboardStub}
+          openInsertDocumentDialog={openInsertDocumentDialogStub}
+        />
+      );
+
+      // Right-click to open context menu
+      userEvent.click(screen.getByTestId('test-container'), { button: 2 });
+
+      // Should show "Edit document" when not editing
+      expect(screen.getByText('Edit document')).to.exist;
+      expect(screen.queryByText('Stop editing')).to.not.exist;
+
+      // Click edit
+      userEvent.click(screen.getByText('Edit document'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(startEditingStub).to.have.been.calledOnce;
+    });
+
+    it('stops editing when "Stop editing" is clicked', function () {
+      doc.editing = true;
+      render(
+        <TestComponent
+          doc={doc}
+          isEditable={true}
+          copyToClipboard={copyToClipboardStub}
+          openInsertDocumentDialog={openInsertDocumentDialogStub}
+        />
+      );
+
+      // Right-click to open context menu
+      userEvent.click(screen.getByTestId('test-container'), { button: 2 });
+
+      // Should show "Stop editing" when editing
+      expect(screen.getByText('Stop editing')).to.exist;
+      expect(screen.queryByText('Edit document')).to.not.exist;
+
+      // Click stop editing
+      userEvent.click(screen.getByText('Stop editing'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(finishEditingStub).to.have.been.calledOnce;
+    });
+  });
+
   describe('functionality', function () {
     beforeEach(function () {
       render(
@@ -184,20 +241,6 @@ describe('useDocumentItemContextMenu', function () {
       userEvent.click(screen.getByText('Expand all fields'));
 
       expect(expandStub).to.have.been.calledOnce;
-    });
-
-    it('starts editing when edit is clicked', function () {
-      doc.editing = false;
-
-      // Right-click to open context menu
-      userEvent.click(screen.getByTestId('test-container'), { button: 2 });
-
-      // Click edit
-      userEvent.click(screen.getByText('Edit document'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-
-      expect(startEditingStub).to.have.been.calledOnce;
     });
 
     it('calls copyToClipboard when copy is clicked', function () {

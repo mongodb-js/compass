@@ -27,12 +27,16 @@ export function useDocumentItemContextMenu({
           }
         },
       },
-      ...(isEditable && !isEditing
+      ...(isEditable
         ? [
             {
-              label: 'Edit document',
+              label: isEditing ? 'Stop editing' : 'Edit document',
               onAction: () => {
-                doc.startEditing();
+                if (isEditing) {
+                  doc.finishEditing();
+                } else {
+                  doc.startEditing();
+                }
               },
             },
           ]
