@@ -33,7 +33,7 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const ref = useDocumentItemContextMenu({
+  const contextMenuRef = useDocumentItemContextMenu({
     doc,
     isEditable,
     copyToClipboard,
@@ -41,22 +41,20 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
   });
 
   return (
-    <div ref={ref}>
-      <KeylineCard ref={docRef}>
-        {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-        <Document
-          doc={doc}
-          key={doc.uuid}
-          editable={isEditable}
-          isTimeSeries={isTimeSeries}
-          copyToClipboard={copyToClipboard}
-          removeDocument={removeDocument}
-          replaceDocument={replaceDocument}
-          updateDocument={updateDocument}
-          openInsertDocumentDialog={openInsertDocumentDialog}
-        />
-      </KeylineCard>
-    </div>
+    <KeylineCard ref={mergeRefs(docRef, contextMenuRef)}>
+      {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
+      <Document
+        doc={doc}
+        key={doc.uuid}
+        editable={isEditable}
+        isTimeSeries={isTimeSeries}
+        copyToClipboard={copyToClipboard}
+        removeDocument={removeDocument}
+        replaceDocument={replaceDocument}
+        updateDocument={updateDocument}
+        openInsertDocumentDialog={openInsertDocumentDialog}
+      />
+    </KeylineCard>
   );
 };
 

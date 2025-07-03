@@ -4,6 +4,7 @@ import { css, KeylineCard } from '@mongodb-js/compass-components';
 
 import JSONEditor, { type JSONEditorProps } from './json-editor';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
+import { mergeRefs } from '@react-aria/utils';
 
 const keylineCardStyles = css({
   overflow: 'hidden',
@@ -41,7 +42,7 @@ const DocumentJsonViewItem: React.FC<DocumentJsonViewItemProps> = ({
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const ref = useDocumentItemContextMenu({
+  const contextMenuRef = useDocumentItemContextMenu({
     doc,
     isEditable,
     copyToClipboard,
@@ -49,23 +50,24 @@ const DocumentJsonViewItem: React.FC<DocumentJsonViewItemProps> = ({
   });
 
   return (
-    <div ref={ref}>
-      <KeylineCard className={keylineCardStyles} ref={docRef}>
-        {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-        <JSONEditor
-          doc={doc}
-          key={doc.uuid}
-          namespace={namespace}
-          editable={isEditable}
-          isTimeSeries={isTimeSeries}
-          copyToClipboard={copyToClipboard}
-          removeDocument={removeDocument}
-          replaceDocument={replaceDocument}
-          updateDocument={updateDocument}
-          openInsertDocumentDialog={openInsertDocumentDialog}
-        />
-      </KeylineCard>
-    </div>
+    <KeylineCard
+      className={keylineCardStyles}
+      ref={mergeRefs(docRef, contextMenuRef)}
+    >
+      {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
+      <JSONEditor
+        doc={doc}
+        key={doc.uuid}
+        namespace={namespace}
+        editable={isEditable}
+        isTimeSeries={isTimeSeries}
+        copyToClipboard={copyToClipboard}
+        removeDocument={removeDocument}
+        replaceDocument={replaceDocument}
+        updateDocument={updateDocument}
+        openInsertDocumentDialog={openInsertDocumentDialog}
+      />
+    </KeylineCard>
   );
 };
 
