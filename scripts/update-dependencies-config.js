@@ -16,6 +16,7 @@ module.exports = {
     '@typescript-eslint/eslint-plugin',
     '@typescript-eslint/parser',
     'eslint@8', // TODO: update to flat config, switch to eslint 9, remove the fixed version
+    'eslint-plugin-chai-friendly',
     'eslint-plugin-jsx-a11y',
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
