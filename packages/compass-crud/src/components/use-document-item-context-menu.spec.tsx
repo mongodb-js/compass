@@ -6,15 +6,9 @@ import HadronDocument from 'hadron-document';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
 
 // Test component that uses the hook
-const TestComponent: React.FC<{
-  doc: HadronDocument;
-  isEditable: boolean;
-  copyToClipboard?: (doc: HadronDocument) => void;
-  openInsertDocumentDialog?: (
-    doc: Record<string, unknown>,
-    cloned: boolean
-  ) => void;
-}> = ({ doc, isEditable, copyToClipboard, openInsertDocumentDialog }) => {
+const TestComponent: React.FC<
+  Parameters<typeof useDocumentItemContextMenu>[0]
+> = ({ doc, isEditable, copyToClipboard, openInsertDocumentDialog }) => {
   const ref = useDocumentItemContextMenu({
     doc,
     isEditable,
