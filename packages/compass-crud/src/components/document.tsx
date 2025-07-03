@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import type { EditableDocumentProps } from './editable-document';
@@ -6,6 +6,7 @@ import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
+import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;
@@ -32,6 +33,20 @@ const Document = (props: DocumentProps) => {
     return new HadronDocument(_doc as any);
   }, [_doc]);
 
+  const changeQuery = useChangeQueryBarQuery();
+
+  const onAddToQuery = useCallback(
+    (field: string, value: any) => {
+      if (changeQuery) {
+        changeQuery('setValue', {
+          field,
+          value,
+        });
+      }
+    },
+    [changeQuery]
+  );
+
   if (editable && isTimeSeries) {
     return (
       <ReadonlyDocument
@@ -40,15 +55,24 @@ const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
+        onAddToQuery={onAddToQuery}
       />
     );
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} />;
+    return (
+      <EditableDocument {...props} doc={doc} onAddToQuery={onAddToQuery} />
+    );
   }
 
-  return <ReadonlyDocument doc={doc} copyToClipboard={copyToClipboard} />;
+  return (
+    <ReadonlyDocument
+      doc={doc}
+      copyToClipboard={copyToClipboard}
+      onAddToQuery={onAddToQuery}
+    />
+  );
 };
 
 Document.propTypes = {
