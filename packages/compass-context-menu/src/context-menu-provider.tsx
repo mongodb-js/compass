@@ -76,10 +76,14 @@ export function ContextMenuProvider({
 
     document.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
+    window.addEventListener('scroll', handleClosingEvent, { capture: true });
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
+      window.removeEventListener('scroll', handleClosingEvent, {
+        capture: true,
+      });
     };
   }, [disabled, handleClosingEvent, parentContext]);
 
