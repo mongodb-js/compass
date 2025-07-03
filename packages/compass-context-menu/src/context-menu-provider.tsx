@@ -6,18 +6,23 @@ import React, {
   createContext,
   useContext,
 } from 'react';
+
 import type { ContextMenuContextType, ContextMenuState } from './types';
-import type { EnhancedMouseEvent } from './context-menu-content';
-import { getContextMenuContent } from './context-menu-content';
+import {
+  getContextMenuContent,
+  type EnhancedMouseEvent,
+} from './context-menu-content';
 
 export const ContextMenuContext = createContext<ContextMenuContextType | null>(
   null
 );
 
 export function ContextMenuProvider({
+  disabled = false,
   children,
   menuWrapper,
 }: {
+  disabled?: boolean;
   children: React.ReactNode;
   menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
@@ -31,20 +36,23 @@ export function ContextMenuProvider({
     itemGroups: [],
     position: { x: 0, y: 0 },
   });
-  const close = useCallback(() => setMenu({ ...menu, isOpen: false }), [menu]);
+  const close = useCallback(
+    () => setMenu((prev) => ({ ...prev, isOpen: false })),
+    [setMenu]
+  );
 
   const handleClosingEvent = useCallback(
     (event: Event) => {
       if (!event.defaultPrevented) {
-        setMenu({ ...menu, isOpen: false });
+        close();
       }
     },
-    [menu]
+    [close]
   );
 
   useEffect(() => {
     // Don't set up event listeners if we have a parent context
-    if (parentContext) return;
+    if (parentContext || disabled) return;
 
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
@@ -73,7 +81,7 @@ export function ContextMenuProvider({
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
     };
-  }, [handleClosingEvent, parentContext]);
+  }, [disabled, handleClosingEvent, parentContext]);
 
   const value = useMemo(
     () => ({

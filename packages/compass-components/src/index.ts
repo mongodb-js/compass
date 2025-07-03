@@ -40,9 +40,12 @@ import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
 export {
   Tab as WorkspaceTab,
-  type TabTheme,
   type WorkspaceTabCoreProps,
 } from './components/workspace-tabs/tab';
+export {
+  TabThemeProvider,
+  useTabTheme,
+} from './components/workspace-tabs/use-tab-theme';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
@@ -97,7 +100,11 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
-export { useContextMenuItems } from './components/context-menu';
+export {
+  useContextMenuItems,
+  useContextMenuGroups,
+  type ContextMenuItem,
+} from './components/context-menu';
 
 export type {
   FileInputBackend,
@@ -219,4 +226,3 @@ export {
 export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
-export { useFieldContextMenu } from './hooks/use-element-context-menu';

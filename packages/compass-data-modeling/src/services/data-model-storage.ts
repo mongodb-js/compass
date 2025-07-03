@@ -27,7 +27,9 @@ export const StaticModelSchema = z.object({
       }),
       indexes: z.array(z.record(z.unknown())),
       shardKey: z.record(z.unknown()).optional(),
-      displayPosition: z.tuple([z.number(), z.number()]),
+      displayPosition: z
+        .tuple([z.number(), z.number()])
+        .or(z.tuple([z.nan(), z.nan()])),
     })
   ),
   relationships: z.array(RelationshipSchema),
@@ -52,6 +54,11 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('RemoveRelationship'),
     relationshipId: z.string().uuid(),
+  }),
+  z.object({
+    type: z.literal('MoveCollection'),
+    ns: z.string(),
+    newPosition: z.tuple([z.number(), z.number()]),
   }),
 ]);
 
@@ -88,7 +95,13 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    */
   connectionId: z.string().nullable(),
 
-  edits: z.array(EditSchema).nonempty(),
+  // Ensure first item exists and is 'SetModel'
+  edits: z
+    .array(EditSchema)
+    .nonempty()
+    .refine((edits) => edits[0]?.type === 'SetModel', {
+      message: "First edit must be of type 'SetModel'",
+    }),
 
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

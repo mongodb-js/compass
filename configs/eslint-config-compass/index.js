@@ -26,8 +26,6 @@ const extraTsRules = {
   '@typescript-eslint/no-explicit-any': 'warn',
   '@typescript-eslint/no-base-to-string': 'warn',
   '@typescript-eslint/unbound-method': 'warn',
-  '@typescript-eslint/no-duplicate-type-constituents': 'warn',
-  '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
 };
 
 const tsRules = {
@@ -46,7 +44,8 @@ const tsxRules = {
   'react-hooks/exhaustive-deps': [
     'warn',
     {
-      additionalHooks: '(useTrackOnChange|useContextMenuItems)',
+      additionalHooks:
+        '(useTrackOnChange|useContextMenuItems|useContextMenuGroups)',
     },
   ],
 };

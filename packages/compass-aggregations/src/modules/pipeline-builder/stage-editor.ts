@@ -171,7 +171,6 @@ export type StageEditorAction =
   | ChangeStageValueAction
   | ChangeStageOperatorAction
   | ChangeStageCollapsedAction
-  | ChangeStageOperatorAction
   | ChangeStageDisabledAction
   | StageAddAction
   | StageRemoveAction

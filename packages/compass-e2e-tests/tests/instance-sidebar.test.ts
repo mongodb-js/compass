@@ -240,7 +240,8 @@ describe('Instance sidebar', function () {
 
     await browser.selectConnectionMenuItem(
       DEFAULT_CONNECTION_NAME_1,
-      Selectors.RefreshDatabasesItem
+      Selectors.RefreshDatabasesItem,
+      false
     );
 
     // wait for the new collection we added via the driver to appear.

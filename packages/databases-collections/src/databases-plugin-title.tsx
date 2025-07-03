@@ -6,7 +6,6 @@ import {
 import {
   useConnectionInfo,
   useConnectionsListRef,
-  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
 
@@ -18,7 +17,6 @@ type PluginTitleProps = WorkspaceTabCoreProps &
 export function DatabasesPluginTitleComponent(props: PluginTitleProps) {
   const { id: connectionId } = useConnectionInfo();
   const { getConnectionById } = useConnectionsListRef();
-  const { getThemeOf } = useTabConnectionTheme();
 
   const connectionName = getConnectionById(connectionId)?.title || '';
   return (
@@ -29,7 +27,6 @@ export function DatabasesPluginTitleComponent(props: PluginTitleProps) {
       title={connectionName}
       tooltip={[['Connection', connectionName || '']]}
       iconGlyph="Server"
-      tabTheme={getThemeOf(connectionId)}
     />
   );
 }

@@ -15,7 +15,6 @@ import {
   ElementEvents,
   ElementEditor,
   DEFAULT_VISIBLE_ELEMENTS,
-  objectToIdiomaticEJSON,
 } from 'hadron-document';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -29,7 +28,6 @@ import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
-import { useFieldContextMenu } from '../../hooks/use-element-context-menu';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -449,12 +447,6 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
-  // Add context menu hook for the field
-  const fieldContextMenuRef = useFieldContextMenu({
-    element,
-    fieldName: key.value,
-  });
-
   const toggleExpanded = () => {
     if (expanded) {
       collapse();
@@ -501,7 +493,6 @@ export const HadronElement: React.FunctionComponent<{
     : elementInvalidLightMode;
 
   const elementProps = {
-    ref: fieldContextMenuRef,
     className: cx(
       hadronElement,
       darkMode ? hadronElementDarkMode : hadronElementLightMode,
@@ -540,7 +531,6 @@ export const HadronElement: React.FunctionComponent<{
         data-field={key.value}
         data-id={element.uuid}
         {...elementProps}
-        ref={fieldContextMenuRef}
       >
         {editable && (
           <div className={elementActions}>

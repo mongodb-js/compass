@@ -5,7 +5,7 @@ import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
 
 import DocumentListView from './document-list-view';
-import { CompassComponentsProvider } from '@mongodb-js/compass-components';
+import { ContextMenuProvider } from '@mongodb-js/compass-components';
 
 describe('<DocumentListView />', function () {
   describe('#render', function () {
@@ -20,7 +20,7 @@ describe('<DocumentListView />', function () {
             isEditable={false}
             isTimeSeries={false}
           />,
-          { wrappingComponent: CompassComponentsProvider }
+          { wrappingComponent: ContextMenuProvider }
         );
       });
 

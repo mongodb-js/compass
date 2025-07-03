@@ -46,7 +46,7 @@ describe('useContextMenuItems', function () {
 
     // Should only find one context menu (from the parent provider)
     expect(
-      container.querySelectorAll('[data-testid="context-menu"]')
+      container.querySelectorAll('[data-testid="context-menu-container"]')
     ).to.have.length(1);
     // Should still render the trigger
     expect(screen.getByTestId(menuTestTriggerId)).to.exist;

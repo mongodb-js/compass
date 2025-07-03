@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from './leafygreen';
+import { Link, Body } from './leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 
 const toastBodyFlexStyles = css({
@@ -34,7 +34,7 @@ export function ToastBody({
 }) {
   return (
     <div className={toastBodyFlexStyles}>
-      <p className={toastBodyTextStyles}>{statusMessage}</p>
+      <Body className={toastBodyTextStyles}>{statusMessage}</Body>
       {!!actionHandler && (
         <Link
           as="button"

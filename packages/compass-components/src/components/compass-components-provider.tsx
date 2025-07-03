@@ -34,6 +34,11 @@ type CompassComponentsProviderProps = {
    * zIndex for the stacked elements (modal, toast, popover)
    */
   stackedElementsZIndex?: number;
+
+  /**
+   * Set to disable context menus in the application.
+   */
+  disableContextMenus?: boolean;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
@@ -100,6 +105,7 @@ export const CompassComponentsProvider = ({
   utmMedium,
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
+  disableContextMenus,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -136,7 +142,7 @@ export const CompassComponentsProvider = ({
           >
             <SignalHooksProvider {...signalHooksProviderProps}>
               <ConfirmationModalArea>
-                <ContextMenuProvider>
+                <ContextMenuProvider disabled={disableContextMenus}>
                   <ToastArea>
                     {typeof children === 'function'
                       ? children({

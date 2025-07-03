@@ -258,7 +258,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         // go to My Queries
@@ -389,7 +390,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -449,7 +451,8 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -495,11 +498,13 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
@@ -557,11 +562,13 @@ describe('My Queries tab', function () {
 
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_1,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
         await browser.selectConnectionMenuItem(
           DEFAULT_CONNECTION_NAME_2,
-          Selectors.RefreshDatabasesItem
+          Selectors.RefreshDatabasesItem,
+          false
         );
 
         await browser.navigateToMyQueries();
