@@ -221,9 +221,9 @@ export const OPTIONS = {
     label: 'Build in rolling process',
     description: (
       <>
-        Building indexes in a rolling fashion can minimize the performance
-        impact of index builds. We only recommend using rolling index builds
-        when regular index builds do not meet your needs.{' '}
+        Building an index in a rolling fashion reduces the resiliency of your
+        cluster and increases index build times. We only recommend using rolling
+        index builds when regular index builds do not meet your needs.{' '}
         <Link href="https://www.mongodb.com/docs/manual/core/rolling-index-builds/">
           Learn More
         </Link>
