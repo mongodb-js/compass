@@ -465,9 +465,8 @@ export const HadronElement: React.FunctionComponent<{
       {
         label: 'Copy field & value',
         onAction: () => {
-          const fieldStr = `${key.value}: ${objectToIdiomaticEJSON(
-            value.originalValue
-          )}`;
+          const generated = element.generateObject();
+          const fieldStr = `${key.value}: ${objectToIdiomaticEJSON(generated)}`;
           void navigator.clipboard.writeText(fieldStr);
         },
       },
