@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
   Button,
   css,
@@ -13,19 +13,17 @@ import {
   RadioGroup,
   spacing,
   SpinLoader,
-  openToast,
 } from '@mongodb-js/compass-components';
+import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
   closeExportModal,
-  selectCurrentModel,
-  getCurrentDiagramFromState,
-} from '../store/diagram';
+  exportDiagram,
+  selectFormat,
+} from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import type { StaticModel } from '../services/data-model-storage';
-import { exportToJson, exportToPng } from '../services/export-diagram';
 import { useDiagram } from '@mongodb-js/diagramming';
-import { isCancelError } from '@mongodb-js/compass-utils';
+import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const nbsp = '\u00a0';
 
@@ -52,79 +50,27 @@ const footerStyles = css({
 
 type ExportDiagramModalProps = {
   isModalOpen: boolean;
-  diagramLabel: string;
-  model: StaticModel | null;
+  isExporting: boolean;
+  exportFormat?: ExportDiagramFormat;
+  onExportDiagram: (diagramInstance: DiagramInstance) => void;
+  onSelectFormat: (format: ExportDiagramFormat) => void;
   onCloseClick: () => void;
 };
 
 const ExportDiagramModal = ({
   isModalOpen,
-  diagramLabel,
-  model,
+  isExporting,
+  exportFormat,
+  onExportDiagram,
+  onSelectFormat,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const [exportFormat, setExportFormat] = useState<'png' | 'json' | null>(null);
   const diagram = useDiagram();
-  const [isExporting, setIsExporting] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  useEffect(() => {
-    const cleanup = () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-    };
-    const abortController = new AbortController();
-    if (isModalOpen) {
-      abortControllerRef.current = abortController;
-    } else {
-      cleanup();
-    }
-    return cleanup;
-  }, [isModalOpen]);
-
-  const onClose = useCallback(() => {
-    setIsExporting(false);
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
-    onCloseClick();
-  }, [onCloseClick]);
-
-  const onExport = useCallback(async () => {
-    try {
-      if (!exportFormat || !model) {
-        return;
-      }
-      setIsExporting(true);
-      if (exportFormat === 'json') {
-        exportToJson(diagramLabel, model);
-      } else if (exportFormat === 'png') {
-        await exportToPng(
-          diagramLabel,
-          diagram,
-          abortControllerRef.current?.signal
-        );
-      }
-    } catch (error) {
-      if (isCancelError(error)) {
-        return;
-      }
-      openToast('export-diagram-error', {
-        variant: 'warning',
-        title: 'Export failed',
-        description: `An error occurred while exporting the diagram: ${
-          (error as Error).message
-        }`,
-      });
-    } finally {
-      onClose();
-    }
-  }, [exportFormat, onClose, model, diagram, diagramLabel]);
 
   return (
     <Modal
       open={isModalOpen}
-      setOpen={onClose}
+      setOpen={onCloseClick}
       data-testid="export-diagram-modal"
     >
       <ModalHeader
@@ -153,7 +99,7 @@ const ExportDiagramModal = ({
                 checked={exportFormat === 'png'}
                 value="png"
                 aria-label="PNG"
-                onClick={() => setExportFormat('png')}
+                onClick={() => onSelectFormat('png')}
               >
                 PNG
               </Radio>
@@ -164,7 +110,7 @@ const ExportDiagramModal = ({
                 checked={exportFormat === 'json'}
                 value="json"
                 aria-label="JSON"
-                onClick={() => setExportFormat('json')}
+                onClick={() => onSelectFormat('json')}
               >
                 JSON
               </Radio>
@@ -175,15 +121,19 @@ const ExportDiagramModal = ({
       <ModalFooter className={footerStyles}>
         <Button
           variant="primary"
-          onClick={() => void onExport()}
+          onClick={() => onExportDiagram(diagram)}
           data-testid="export-button"
-          disabled={!exportFormat || !model}
+          disabled={!exportFormat}
           loadingIndicator={<SpinLoader />}
           isLoading={isExporting}
         >
           Export
         </Button>
-        <Button variant="default" onClick={onClose} data-testid="cancel-button">
+        <Button
+          variant="default"
+          onClick={onCloseClick}
+          data-testid="cancel-button"
+        >
           Cancel
         </Button>
       </ModalFooter>
@@ -193,17 +143,18 @@ const ExportDiagramModal = ({
 
 export default connect(
   (state: DataModelingState) => {
-    const { diagram } = state;
-    const model = diagram
-      ? selectCurrentModel(getCurrentDiagramFromState(state))
-      : null;
+    const {
+      exportDiagram: { isExporting, isModalOpen, exportFormat },
+    } = state;
     return {
-      model,
-      diagramLabel: diagram?.name ?? 'Schema Preview',
-      isModalOpen: Boolean(diagram?.isExportModalOpen),
+      isModalOpen,
+      isExporting,
+      exportFormat,
     };
   },
   {
     onCloseClick: closeExportModal,
+    onSelectFormat: selectFormat,
+    onExportDiagram: exportDiagram,
   }
 )(ExportDiagramModal);
