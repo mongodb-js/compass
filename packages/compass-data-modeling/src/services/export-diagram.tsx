@@ -118,7 +118,10 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
               },
             })
               .then(resolve)
-              .catch(reject);
+              .catch(reject)
+              .finally(() => {
+                document.body.removeChild(container);
+              });
           });
         });
       }

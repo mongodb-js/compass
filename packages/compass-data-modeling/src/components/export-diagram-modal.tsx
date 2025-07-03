@@ -13,7 +13,7 @@ import {
   RadioGroup,
   spacing,
   SpinLoader,
-  useToast,
+  openToast,
 } from '@mongodb-js/compass-components';
 import {
   closeExportModal,
@@ -67,7 +67,6 @@ const ExportDiagramModal = ({
   const diagram = useDiagram();
   const [isExporting, setIsExporting] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const toast = useToast();
   useEffect(() => {
     const cleanup = () => {
       if (abortControllerRef.current) {
@@ -85,7 +84,6 @@ const ExportDiagramModal = ({
   }, [isModalOpen]);
 
   const onClose = useCallback(() => {
-    setExportFormat(null);
     setIsExporting(false);
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
@@ -111,8 +109,7 @@ const ExportDiagramModal = ({
       if (isCancelError(error)) {
         return;
       }
-      toast.pushToast({
-        id: 'export-diagram-error',
+      openToast('export-diagram-error', {
         variant: 'warning',
         title: 'Export failed',
         description: `An error occurred while exporting the diagram: ${
@@ -122,7 +119,7 @@ const ExportDiagramModal = ({
     } finally {
       onClose();
     }
-  }, [exportFormat, onClose, model, diagram, diagramLabel, toast]);
+  }, [exportFormat, onClose, model, diagram, diagramLabel]);
 
   return (
     <Modal
@@ -180,8 +177,9 @@ const ExportDiagramModal = ({
           variant="primary"
           onClick={() => void onExport()}
           data-testid="export-button"
-          disabled={isExporting}
+          disabled={!exportFormat || !model}
           loadingIndicator={<SpinLoader />}
+          isLoading={isExporting}
         >
           Export
         </Button>
