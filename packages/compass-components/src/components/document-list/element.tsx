@@ -420,6 +420,29 @@ const isValidUrl = (str: string): boolean => {
   }
 };
 
+/**
+ * Helper function to get the nested key path of an element, skips array keys
+ * Meant for keypaths used in query conditions from a selected element
+ */
+export const getNestedKeyPath = (element: HadronElementType): string => {
+  let keyPath = '';
+  let currentElement: HadronElementType | HadronDocumentType | null = element;
+  while (
+    currentElement &&
+    'parent' in currentElement &&
+    currentElement.parent
+  ) {
+    if (currentElement.parent.currentType !== 'Array') {
+      keyPath =
+        keyPath === ''
+          ? currentElement.currentKey.toString()
+          : currentElement.currentKey.toString() + '.' + keyPath;
+    }
+    currentElement = currentElement.parent;
+  }
+  return keyPath;
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -428,6 +451,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
+  onAddToQuery?: (field: string, value: unknown) => void;
 }> = ({
   value: element,
   editable,
@@ -436,9 +460,11 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
+  onAddToQuery,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
+
   const {
     id,
     key,
@@ -461,6 +487,19 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
+      ...(onAddToQuery
+        ? [
+            {
+              label: 'Add to query',
+              onAction: () => {
+                onAddToQuery(
+                  getNestedKeyPath(element),
+                  element.generateObject()
+                );
+              },
+            },
+          ]
+        : []),
       {
         label: 'Copy field & value',
         onAction: () => {
@@ -480,7 +519,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.originalValue, value.value, type.value]
+    [element, key.value, value.value, type.value, onAddToQuery]
   );
 
   const toggleExpanded = () => {
@@ -770,6 +809,7 @@ export const HadronElement: React.FunctionComponent<{
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
+                onAddToQuery={onAddToQuery}
               ></HadronElement>
             );
           })}
