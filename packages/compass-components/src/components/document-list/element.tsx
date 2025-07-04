@@ -424,7 +424,7 @@ const isValidUrl = (str: string): boolean => {
  * Helper function to get the nested key path of an element, skips array keys
  * Meant for keypaths used in query conditions from a selected element
  */
-const getNestedKeyPath = (element: HadronElementType): string => {
+export const getNestedKeyPath = (element: HadronElementType): string => {
   let keyPath = '';
   let currentElement: HadronElementType | HadronDocumentType | null = element;
   while (
