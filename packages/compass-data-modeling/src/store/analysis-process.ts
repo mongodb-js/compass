@@ -204,6 +204,11 @@ export function startAnalysis(
         collections,
         relations: [],
       });
+
+      services.track('Data Modeling Diagram Created', {
+        num_collections: collections.length,
+      });
+
       void services.dataModelStorage.save(
         getCurrentDiagramFromState(getState())
       );
