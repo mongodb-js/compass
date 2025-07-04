@@ -86,7 +86,7 @@ const HadronDocument: React.FunctionComponent<{
   editing?: boolean;
   onEditStart?: () => void;
   extraGutterWidth?: number;
-  onAddToQuery?: (field: string, value: any) => void;
+  onAddToQuery?: (field: string, value: unknown) => void;
 }> = ({
   value: document,
   editable = false,
