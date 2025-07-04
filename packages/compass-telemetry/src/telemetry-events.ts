@@ -2886,6 +2886,7 @@ type DataModelingDiagramCreated = CommonEvent<{
   name: 'Data Modeling Diagram Created';
   payload: {
     num_collections: number;
+  };
 }>;
 
 /**
