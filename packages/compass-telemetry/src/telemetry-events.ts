@@ -2708,7 +2708,8 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'save_pipeline_modal'
       | 'shell_info_modal'
       | 'update_search_index_modal'
-      | 'end_of_life_mongodb_modal';
+      | 'end_of_life_mongodb_modal'
+      | 'export_diagram_modal';
   };
 }>;
 
@@ -2876,6 +2877,18 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when user exports data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramExported = CommonEvent<{
+  name: 'Data Modeling Diagram Exported';
+  payload: {
+    format: 'png' | 'json';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3021,4 +3034,5 @@ export type TelemetryEvent =
   | CreateIndexInputIndexCopied
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
-  | UUIDEncounteredEvent;
+  | UUIDEncounteredEvent
+  | DataModelingDiagramExported;
