@@ -428,7 +428,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
-  onAddToQuery: (field: string, value: any) => void;
+  onAddToQuery?: (field: string, value: unknown) => void;
 }> = ({
   value: element,
   editable,
@@ -464,12 +464,16 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      {
-        label: 'Add to query',
-        onAction: () => {
-          onAddToQuery(key.value, element.generateObject());
-        },
-      },
+      ...(onAddToQuery
+        ? [
+            {
+              label: 'Add to query',
+              onAction: () => {
+                onAddToQuery(key.value, element.generateObject());
+              },
+            },
+          ]
+        : []),
       {
         label: 'Copy field & value',
         onAction: () => {

@@ -29,7 +29,7 @@ export type ReadonlyDocumentProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   showInsights?: boolean;
-  onAddToQuery?: (field: string, value: any) => void;
+  onAddToQuery?: (field: string, value: unknown) => void;
 };
 
 type ReadonlyDocumentState = {

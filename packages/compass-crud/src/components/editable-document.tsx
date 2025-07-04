@@ -21,7 +21,7 @@ export type EditableDocumentProps = {
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
-  onAddToQuery?: (field: string, value: any) => void;
+  onAddToQuery?: (field: string, value: unknown) => void;
 };
 
 type EditableDocumentState = {
