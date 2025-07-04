@@ -7,6 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const tooltipContainerStyles = css({
   display: 'flex',
@@ -55,6 +56,7 @@ function AddDataMenuButton({
         leftGlyph: <Icon glyph="PlusWithCircle" />,
         disabled: isDisabled,
       }}
+      narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
     ></DropdownMenuButton>
   );
 }
