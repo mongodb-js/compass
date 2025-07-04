@@ -122,6 +122,22 @@ describe('HadronElement', function () {
       expect(screen.queryByText('Open URL in browser')).to.not.exist;
     });
 
+    it('does not show "Add to query" when onAddToQuery is not provided', function () {
+      render(
+        <HadronElement
+          value={element}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+
+      expect(screen.queryByText('Add to query')).to.not.exist;
+    });
+
     it('calls the correct parameters when "Add to query" is clicked', function () {
       const onAddToQuerySpy = sinon.spy();
 
