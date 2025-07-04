@@ -46,7 +46,7 @@ export async function exportToPng(
 }
 
 export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
-  return new Promise<string>((resolve, _reject) => {
+  return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
 
     const container = document.createElement('div');
@@ -65,11 +65,6 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
       selected: false, // Dont show selected state (blue border)
     }));
 
-    const reject = (error: Error) => {
-      document.body.removeChild(container);
-      _reject(error);
-    };
-
     ReactDOM.render(
       <DiagramProvider>
         <Diagram
@@ -80,6 +75,9 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
       </DiagramProvider>,
       container,
       () => {
+        // We skip some frames here to ensure that the DOM has fully rendered and React has
+        // committed all updates before we try to query for viewport element. Without this,
+        // the element may not exist yet or may not have the correct styles etc.
         rafraf(() => {
           // For export we are selecting react-flow__viewport element,
           // which contains the export canvas. It excludes diagram
@@ -91,6 +89,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
             '.react-flow__viewport'
           );
           if (!viewportElement) {
+            document.body.removeChild(container);
             return reject(new Error('Diagram element not found'));
           }
 
