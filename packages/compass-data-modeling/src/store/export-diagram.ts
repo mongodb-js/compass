@@ -56,8 +56,6 @@ const INITIAL_STATE = {
   isExporting: false,
 };
 
-let cancelExportAbortController: AbortController | null = null;
-
 export const exportDiagramReducer: Reducer<ExportDiagramState> = (
   state = INITIAL_STATE,
   action
@@ -103,7 +101,7 @@ export function exportDiagram(
   Promise<void>,
   ExportStartedAction | ExportCompletedAction
 > {
-  return async (dispatch, getState, { track }) => {
+  return async (dispatch, getState, { track, cancelExportControllerRef }) => {
     const {
       exportDiagram: { exportFormat, isExporting },
       diagram,
@@ -117,7 +115,8 @@ export function exportDiagram(
         type: ExportDiagramActionTypes.EXPORT_STARTED,
       });
 
-      cancelExportAbortController = new AbortController();
+      const cancelController = (cancelExportControllerRef.current =
+        new AbortController());
 
       const model = selectCurrentModel(getCurrentDiagramFromState(getState()));
       if (exportFormat === 'json') {
@@ -126,7 +125,7 @@ export function exportDiagram(
         await exportToPng(
           diagram.name,
           diagramInstance,
-          cancelExportAbortController.signal
+          cancelController.signal
         );
       }
       track('Data Modeling Diagram Exported', {
@@ -143,7 +142,7 @@ export function exportDiagram(
         });
       }
     } finally {
-      cancelExportAbortController = null;
+      cancelExportControllerRef.current = null;
       dispatch({
         type: ExportDiagramActionTypes.EXPORT_COMPLETED,
       });
@@ -155,7 +154,7 @@ export function showExportModal(): DataModelingThunkAction<
   void,
   ModalOpenedAction
 > {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, _getState, { track }) => {
     track('Screen', { name: 'export_diagram_modal' }, undefined);
     return dispatch({ type: ExportDiagramActionTypes.MODAL_OPENED });
   };
@@ -165,8 +164,8 @@ export function closeExportModal(): DataModelingThunkAction<
   void,
   ModalClosedAction
 > {
-  return (dispatch) => {
-    cancelExportAbortController?.abort();
+  return (dispatch, _getState, { cancelExportControllerRef }) => {
+    cancelExportControllerRef.current?.abort();
     dispatch({ type: ExportDiagramActionTypes.MODAL_CLOSED });
   };
 }

@@ -44,7 +44,8 @@ export type DataModelingActionTypes =
 export type DataModelingState = ReturnType<typeof reducer>;
 
 export type DataModelingExtraArgs = DataModelingStoreServices & {
-  cancelControllerRef: { current: AbortController | null };
+  cancelAnalysisControllerRef: { current: AbortController | null };
+  cancelExportControllerRef: { current: AbortController | null };
 };
 
 export type DataModelingThunkAction<R, A extends AnyAction> = ThunkAction<

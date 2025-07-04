@@ -75,6 +75,9 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
       </DiagramProvider>,
       container,
       () => {
+        // We skip some frames here to ensure that the DOM has fully rendered and React has
+        // committed all updates before we try to query for viewport element. Without this,
+        // the element may not exist yet or may not have the correct styles etc.
         rafraf(() => {
           // For export we are selecting react-flow__viewport element,
           // which contains the export canvas. It excludes diagram
