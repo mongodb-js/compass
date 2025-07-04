@@ -197,7 +197,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     (track: TrackFunction) => {
       if (isModalOpen) {
         const connectionInfo = connectionInfoRef.current;
-        track('Screen', { name: `${mode}_search_index_modal` }, connectionInfo);
+        track(
+          'Screen',
+          { name: `${mode}_search_index_modal` as const },
+          connectionInfo
+        );
         if (mode === 'create') {
           track(
             'Index Create Opened',
