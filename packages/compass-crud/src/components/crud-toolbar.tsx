@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   Body,
