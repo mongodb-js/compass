@@ -30,19 +30,17 @@ const Document = (props: DocumentProps) => {
     if (typeof _doc?.isRoot === 'function' && _doc?.isRoot()) {
       return _doc as HadronDocument;
     }
-    return new HadronDocument(_doc as any);
+    return new HadronDocument(_doc as unknown);
   }, [_doc]);
 
   const changeQuery = useChangeQueryBarQuery();
 
-  const onAddToQuery = useCallback(
-    (field: string, value: any) => {
-      if (changeQuery) {
-        changeQuery('setValue', {
-          field,
-          value,
-        });
-      }
+  const handleAddToQuery = useCallback(
+    (field: string, value: unknown) => {
+      changeQuery('setValue', {
+        field,
+        value,
+      });
     },
     [changeQuery]
   );
@@ -55,14 +53,14 @@ const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
-        onAddToQuery={onAddToQuery}
+        onAddToQuery={handleAddToQuery}
       />
     );
   }
 
   if (editable) {
     return (
-      <EditableDocument {...props} doc={doc} onAddToQuery={onAddToQuery} />
+      <EditableDocument {...props} doc={doc} onAddToQuery={handleAddToQuery} />
     );
   }
 
@@ -70,7 +68,7 @@ const Document = (props: DocumentProps) => {
     <ReadonlyDocument
       doc={doc}
       copyToClipboard={copyToClipboard}
-      onAddToQuery={onAddToQuery}
+      onAddToQuery={handleAddToQuery}
     />
   );
 };
