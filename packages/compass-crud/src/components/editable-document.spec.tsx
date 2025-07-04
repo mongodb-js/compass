@@ -1,6 +1,5 @@
 import React from 'react';
-import Reflux from 'reflux';
-import { mount } from 'enzyme';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -8,39 +7,35 @@ import sinon from 'sinon';
 import EditableDocument from './editable-document';
 
 describe('<EditableDocument />', function () {
-  describe('#render', function () {
-    let wrapper;
+  describe('render', function () {
     const doc = { a: 1, b: 2, c: null };
-    const action = Reflux.createAction();
 
-    before(function () {
-      wrapper = mount(
+    beforeEach(function () {
+      render(
         <EditableDocument
           doc={new HadronDocument(doc)}
-          removeDocument={sinon.spy(action)}
-          replaceDocument={sinon.spy(action)}
-          updateDocument={sinon.spy(action)}
-          copyToClipboard={sinon.spy(action)}
-          openInsertDocumentDialog={sinon.spy(action)}
+          removeDocument={sinon.spy()}
+          replaceDocument={sinon.spy()}
+          updateDocument={sinon.spy()}
+          copyToClipboard={sinon.spy()}
+          openInsertDocumentDialog={sinon.spy()}
         />
       );
     });
 
     it('renders the list div', function () {
-      const component = wrapper.find('[data-testid="editable-document"]');
-      (expect(component) as any).to.be.present();
+      const component = screen.getByTestId('editable-document');
+      expect(component).to.exist;
     });
 
     it('renders the base element list', function () {
-      const component = wrapper.find(
-        '[data-testid="editable-document-elements"]'
-      );
-      (expect(component) as any).to.be.present();
+      const component = screen.getByTestId('editable-document-elements');
+      expect(component).to.exist;
     });
 
     it('renders an editable element for each document element', function () {
-      const component = wrapper.find('[data-testid="hadron-document-element"]');
-      expect(component).to.have.lengthOf(3);
+      const components = screen.getAllByTestId('hadron-document-element');
+      expect(components).to.have.lengthOf(3);
     });
   });
 });

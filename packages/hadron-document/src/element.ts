@@ -11,8 +11,13 @@ import Events from './element-events';
 import type Document from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { Binary, ObjectId } from 'bson';
-import type { BSONArray, BSONObject, BSONValue } from './utils';
-import { getDefaultValueForType } from './utils';
+import type {
+  BSONArray,
+  BSONObject,
+  BSONValue,
+  HadronEJSONOptions,
+} from './utils';
+import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
 import { DocumentEvents, ElementEvents } from '.';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
@@ -290,6 +295,22 @@ export class Element extends EventEmitter {
     }
 
     return this.value;
+  }
+
+  /**
+   * Generate the Extended JSON string representation of this element.
+   *
+   * @returns The Extended JSON string.
+   */
+  toEJSON(
+    source: 'original' | 'current' = 'current',
+    options: HadronEJSONOptions = {}
+  ): string {
+    const generated =
+      source === 'original'
+        ? this.generateOriginalObject()
+        : this.generateObject();
+    return objectToIdiomaticEJSON(generated, options);
   }
 
   /**

@@ -23,6 +23,7 @@ import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -234,6 +235,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                 size: 'xsmall',
                 leftGlyph: <Icon glyph="Export" />,
               }}
+              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
             />
           )}
           {!readonly && (

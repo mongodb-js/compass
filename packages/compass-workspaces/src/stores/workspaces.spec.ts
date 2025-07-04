@@ -59,6 +59,8 @@ describe('tabs behavior', function () {
     collectionSubtabSelected,
     openFallbackWorkspace: openFallbackTab,
     getActiveTab,
+    duplicateTab,
+    closeAllOtherTabs,
   } = workspacesSlice;
 
   describe('openWorkspace', function () {
@@ -501,6 +503,41 @@ describe('tabs behavior', function () {
         'Databases'
       );
       expect(getActiveTab(store.getState())).to.not.have.property('namespace');
+    });
+  });
+
+  describe('duplicateTab', function () {
+    it('should duplicate tab by index', function () {
+      const store = configureStore();
+      openTabs(store);
+      const tabCountBefore = store.getState().tabs.length;
+
+      store.dispatch(duplicateTab(1));
+      const state = store.getState();
+      expect(state)
+        .to.have.property('tabs')
+        .have.lengthOf(tabCountBefore + 1);
+      const { id: existingTabId, ...existingTabState } = state.tabs[1];
+      const { id: newTabId, ...newTabState } = state.tabs[2];
+      // We expect their ids to differ
+      expect(existingTabId).to.not.equal(newTabId);
+      // but other properties should be the same
+      expect(existingTabState).to.deep.equal(newTabState);
+    });
+  });
+
+  describe('closeAllOtherTabs', function () {
+    it('should close all other tabs by index', async function () {
+      const store = configureStore();
+      openTabs(store);
+      const stateBefore = store.getState();
+      expect(stateBefore.tabs.length).to.be.greaterThan(1);
+
+      await store.dispatch(closeAllOtherTabs(1));
+      const state = store.getState();
+      expect(state.tabs.length).to.equal(1);
+      expect(state).to.have.property('activeTabId', stateBefore.tabs[1].id);
+      expect(state.tabs[0]).deep.equal(stateBefore.tabs[1]);
     });
   });
 });

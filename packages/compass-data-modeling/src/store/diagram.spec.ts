@@ -4,6 +4,7 @@ import {
   applyEdit,
   applyInitialLayout,
   getCurrentDiagramFromState,
+  getCurrentModel,
   openDiagram,
   redoEdit,
   undoEdit,
@@ -201,6 +202,7 @@ describe('Data Modeling store', function () {
         ],
         isInferred: false,
       };
+
       store.dispatch(
         applyEdit({
           type: 'AddRelationship',
@@ -217,6 +219,9 @@ describe('Data Modeling store', function () {
         type: 'AddRelationship',
         relationship: newRelationship,
       });
+
+      const currentModel = getCurrentModel(diagram);
+      expect(currentModel.relationships).to.have.length(2);
     });
 
     it('should not apply invalid AddRelationship edit', function () {
@@ -236,6 +241,48 @@ describe('Data Modeling store', function () {
       expect(editErrors && editErrors[0]).to.equal(
         "'relationship,relationship' is required"
       );
+      const diagram = getCurrentDiagramFromState(store.getState());
+      expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+
+    it('should apply a valid MoveCollection edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      const edit: Omit<
+        Extract<Edit, { type: 'MoveCollection' }>,
+        'id' | 'timestamp'
+      > = {
+        type: 'MoveCollection',
+        ns: model.collections[0].ns,
+        newPosition: [100, 100],
+      };
+      store.dispatch(applyEdit(edit));
+
+      const state = store.getState();
+      const diagram = getCurrentDiagramFromState(state);
+      expect(state.diagram?.editErrors).to.be.undefined;
+      expect(diagram.edits).to.have.length(2);
+      expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
+      expect(diagram.edits[1]).to.deep.include(edit);
+
+      const currentModel = getCurrentModel(diagram);
+      expect(currentModel.collections[0].displayPosition).to.deep.equal([
+        100, 100,
+      ]);
+    });
+
+    it('should not apply invalid MoveCollection edit', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      const edit = {
+        type: 'MoveCollection',
+        ns: 'nonexistent.collection',
+      } as unknown as Edit;
+      store.dispatch(applyEdit(edit));
+
+      const editErrors = store.getState().diagram?.editErrors;
+      expect(editErrors).to.have.length(1);
+      expect(editErrors && editErrors[0]).to.equal("'newPosition' is required");
       const diagram = getCurrentDiagramFromState(store.getState());
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
     });

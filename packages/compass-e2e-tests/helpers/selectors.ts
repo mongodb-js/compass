@@ -1442,12 +1442,15 @@ export const CreateDataModelCollectionCheckbox = (
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
+export const DataModelPreviewCollection = (collectionId: string) =>
+  `${DataModelPreview} [data-nodeid="${collectionId}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
 export const DataModelRedoButton = 'button[aria-label="Redo"]';
 export const DataModelExportButton = 'button[aria-label="Export"]';
 export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
+export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
 export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
 export const DataModelExportModalConfirmButton =
   '[data-testid="export-button"]';
