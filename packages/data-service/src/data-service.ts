@@ -310,6 +310,8 @@ export interface DataService {
 
   /**
    * Get the current instance details.
+   *
+   * @deprecated avoid using `instance` directly and use `InstanceModel` instead
    */
   instance(): Promise<InstanceDetails>;
 
@@ -340,6 +342,9 @@ export interface DataService {
 
   /**
    * List all collections for a database.
+   *
+   * @deprecated avoid using `listCollections` directly and use
+   * `CollectionModel` instead
    */
   listCollections(
     databaseName: string,
@@ -448,6 +453,9 @@ export interface DataService {
 
   /**
    * List all databases on the currently connected instance.
+   *
+   * @deprecated avoid using `listDatabases` directly and use `DatabaseModel`
+   * instead
    */
   listDatabases(options?: {
     nameOnly?: true;
