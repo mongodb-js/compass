@@ -30,7 +30,7 @@ const Document = (props: DocumentProps) => {
     if (typeof _doc?.isRoot === 'function' && _doc?.isRoot()) {
       return _doc as HadronDocument;
     }
-    return new HadronDocument(_doc as unknown);
+    return new HadronDocument(_doc as Record<string, unknown>);
   }, [_doc]);
 
   const changeQuery = useChangeQueryBarQuery();
