@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { createInstance } from '../../test/helpers';
-import { spy, stub, type SinonSpy, type SinonStub } from 'sinon';
+import { spy, stub, type SinonSpy } from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { setupInstance } from './instance';
 import type { RootState } from '.';
@@ -33,16 +33,13 @@ describe('sidebar instance', function () {
   } as any;
   let instancesManager: MongoDBInstancesManager;
   let logger: Logger;
-  let listMongoDBInstancesStub: SinonStub;
 
   beforeEach(async function () {
     const preferences = await createSandboxFromDefaultPreferences();
     instance = createInstance(undefined, undefined, preferences);
     instanceOnSpy = spy();
     instance.on = instanceOnSpy;
-    instancesManager = {
-      listMongoDBInstances: listMongoDBInstancesStub,
-    } as any;
+    instancesManager = {} as any;
     logger = {
       log: { warn() {} },
       mongoLogId() {},

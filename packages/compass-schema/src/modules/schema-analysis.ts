@@ -10,9 +10,9 @@ import type {
   PrimitiveSchemaType,
   SchemaParseOptions,
 } from 'mongodb-schema';
-import type { DataService } from '../stores/store';
-import type { Logger } from '@mongodb-js/compass-logging';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 export const DISTINCT_FIELDS_ABORT_THRESHOLD = 1000;
 
@@ -31,7 +31,7 @@ function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
 }
 
 export const analyzeSchema = async (
-  dataService: DataService,
+  dataService: Pick<DataService, 'sampleCursor'>,
   abortSignal: AbortSignal,
   ns: string,
   query:

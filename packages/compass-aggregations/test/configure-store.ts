@@ -3,6 +3,7 @@ import type {
   ConfigureStoreOptions,
 } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
+import type { RenderPluginWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
@@ -86,7 +87,9 @@ export default function configureStore(
 export function renderWithStore(
   ui: React.ReactElement,
   ...args: Parameters<typeof configureStore>
-) {
+): Promise<
+  RenderPluginWithConnectionsResult<typeof CompassAggregationsPlugin.provider>
+> {
   ui = args[2]?.pipelineStorage
     ? React.createElement(PipelineStorageProvider, {
         value: args[2].pipelineStorage,

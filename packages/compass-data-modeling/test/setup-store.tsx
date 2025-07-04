@@ -1,4 +1,5 @@
 import React from 'react';
+import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import { renderWithConnections } from '@mongodb-js/testing-library-compass';
 import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
@@ -180,6 +181,7 @@ export const setupStore = (
     createActivateHelpers()
   ).store;
 };
+
 export const renderWithStore = (
   component: JSX.Element,
   {
@@ -189,7 +191,8 @@ export const renderWithStore = (
     services?: Partial<DataModelingStoreServices>;
     connections?: ConnectionInfoWithMockData[];
   } = {}
-) => {
+): RenderWithConnectionsResult & { store: DataModelingStore } => {
+  // TODO: use createPluginTestHelpers instead of most of the code in this file
   const store = setupStore(services, connections);
   const renderResult = renderWithConnections(
     <Provider store={store}>{component}</Provider>,

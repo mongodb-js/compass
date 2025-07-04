@@ -40,7 +40,7 @@
     "debug": "^4.3.4",
     "hadron-build": "^25.8.3",
     "lodash": "^4.17.21",
-    "typescript": "^5.0.4",
+    "typescript": "^5.8.3",
     "yargs": "^17.7.2"
   }
 }

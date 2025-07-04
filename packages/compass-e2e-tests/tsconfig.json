@@ -2,7 +2,8 @@
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
     "noEmit": true,
-    "moduleResolution": "node10"
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   },
   "include": ["helpers", "installers", "tests", "*.ts"]
 }

@@ -39,3 +39,5 @@ export function createSandboxFromDefaultPreferences(): Promise<PreferencesAccess
   return defaultPreferencesInstance.createSandbox();
 }
 export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
+export type * from './feature-flags';
+export type * from './preferences-schema';

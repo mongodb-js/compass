@@ -8,8 +8,9 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 const { log, mongoLogId } = createLogger('COMPASS-MAIN');
 
 type ProtocolsList = { name: string; schemes: string[] }[];
+
 async function appProtocolsConfig(): Promise<ProtocolsList> {
-  return (await import('../../package.json')).config.hadron.protocols;
+  return (await import('../../package.json')).default.config.hadron.protocols;
 }
 
 const commandArgv = process.defaultApp
