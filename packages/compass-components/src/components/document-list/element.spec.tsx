@@ -3,7 +3,7 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import { HadronElement } from './element';
+import { HadronElement, getNestedKeyPath } from './element';
 import type { Element } from 'hadron-document';
 
 describe('HadronElement', function () {
@@ -164,6 +164,144 @@ describe('HadronElement', function () {
         'field',
         element.generateObject()
       );
+    });
+  });
+
+  describe('getNestedKeyPath', function () {
+    it('returns the field name for a top-level field', function () {
+      const doc = new HadronDocument({ field: 'value' });
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const element = doc.elements.at(0)!;
+
+      const result = getNestedKeyPath(element);
+
+      expect(result).to.equal('field');
+    });
+
+    it('returns dot notation path for nested object fields', function () {
+      const doc = new HadronDocument({
+        user: {
+          profile: {
+            name: 'John',
+          },
+        },
+      });
+      const nameElement = doc.get('user')!.get('profile')!.get('name')!;
+
+      const result = getNestedKeyPath(nameElement);
+
+      expect(result).to.equal('user.profile.name');
+    });
+
+    it('skips array indices in the path', function () {
+      const doc = new HadronDocument({
+        items: [{ name: 'item1' }, { name: 'item2' }],
+      });
+      const nameElement = doc.get('items')!.elements!.at(0)!.get('name')!;
+
+      const result = getNestedKeyPath(nameElement);
+
+      expect(result).to.equal('items.name');
+    });
+
+    it('handles mixed nesting with arrays and objects', function () {
+      const doc = new HadronDocument({
+        orders: [
+          {
+            items: [{ product: { name: 'Widget' } }],
+          },
+        ],
+      });
+      const nameElement = doc
+        .get('orders')!
+        .elements!.at(0)!
+        .get('items')!
+        .elements!.at(0)!
+        .get('product')!
+        .get('name')!;
+
+      const result = getNestedKeyPath(nameElement);
+
+      expect(result).to.equal('orders.items.product.name');
+    });
+
+    it('handles array elements at the top level', function () {
+      const doc = new HadronDocument({
+        items: [{ name: 'item1' }, { name: 'item2' }],
+      });
+      const nameElement = doc.elements.get('items')!.at(0)!.get('name')!;
+
+      const result = getNestedKeyPath(nameElement);
+
+      expect(result).to.equal('items.name');
+    });
+
+    it('handles deeply nested objects', function () {
+      const doc = new HadronDocument({
+        level1: {
+          level2: {
+            level3: {
+              level4: {
+                value: 'deep',
+              },
+            },
+          },
+        },
+      });
+      const valueElement = doc
+        .get('level1')!
+        .get('level2')!
+        .get('level3')!
+        .get('level4')!
+        .get('value')!;
+
+      const result = getNestedKeyPath(valueElement);
+
+      expect(result).to.equal('level1.level2.level3.level4.value');
+    });
+
+    it('handles field names with special characters', function () {
+      const doc = new HadronDocument({
+        'field-with-dashes': {
+          field_with_underscores: {
+            'field.with.dots': 'value',
+          },
+        },
+      });
+      const dotsElement = doc
+        .get('field-with-dashes')!
+        .get('field_with_underscores')!
+        .get('field.with.dots')!;
+
+      const result = getNestedKeyPath(dotsElement);
+
+      expect(result).to.equal(
+        'field-with-dashes.field_with_underscores.field.with.dots'
+      );
+    });
+
+    it('handles numeric field names', function () {
+      const doc = new HadronDocument({
+        123: {
+          456: 'value',
+        },
+      });
+      const numericElement = doc.get('123')!.get('456')!;
+
+      const result = getNestedKeyPath(numericElement);
+
+      expect(numericElement.value).to.equal('value');
+      expect(result).to.equal('123.456');
+    });
+
+    it('handles empty object elements', function () {
+      const doc = new HadronDocument({ emptyObj: {} });
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const emptyObjElement = doc.elements.at(0)!;
+
+      const result = getNestedKeyPath(emptyObjElement);
+
+      expect(result).to.equal('emptyObj');
     });
   });
 });
