@@ -46,7 +46,7 @@ export async function exportToPng(
 }
 
 export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
-  return new Promise<string>((resolve, _reject) => {
+  return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
 
     const container = document.createElement('div');
@@ -64,11 +64,6 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
       ...node,
       selected: false, // Dont show selected state (blue border)
     }));
-
-    const reject = (error: Error) => {
-      document.body.removeChild(container);
-      _reject(error);
-    };
 
     ReactDOM.render(
       <DiagramProvider>
@@ -91,6 +86,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
             '.react-flow__viewport'
           );
           if (!viewportElement) {
+            document.body.removeChild(container);
             return reject(new Error('Diagram element not found'));
           }
 
