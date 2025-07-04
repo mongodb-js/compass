@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import EditableDocument from './editable-document';
-import { CompassComponentsProvider } from '@mongodb-js/compass-components';
 
 describe('<EditableDocument />', function () {
   describe('render', function () {
