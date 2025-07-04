@@ -74,18 +74,48 @@ export { usePrevious, useMergeRefs } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
 import Tooltip from '@leafygreen-ui/tooltip';
 import {
-  H1,
-  H2,
-  H3,
-  Subtitle,
-  Body,
+  H1 as LGH1,
+  H2 as LGH2,
+  H3 as LGH3,
+  Subtitle as LGSubtitle,
+  Body as LGBody,
   InlineCode,
   InlineKeyCode,
   Disclaimer,
-  Overline,
-  Label,
-  Description,
+  Overline as LGOverline,
+  Label as LGLabel,
+  Description as LGDescription,
 } from '@leafygreen-ui/typography';
+
+function createPolymorphicWrapper<T extends React.ElementType = any>(
+  Component: React.ComponentType<any>,
+  displayName?: string
+) {
+  const WrappedComponent = React.forwardRef((props: any, ref: any) => {
+    return React.createElement(Component, { ...props, ref }) as JSX.Element;
+  });
+
+  WrappedComponent.displayName = displayName;
+
+  return WrappedComponent as typeof Component;
+}
+// @ts-expect-error sorry, LG needs to fix it's types
+const H1 = createPolymorphicWrapper(LGH1, 'H1');
+// @ts-expect-error sorry, LG needs to fix it's types
+const H2 = createPolymorphicWrapper(LGH2, 'H2');
+// @ts-expect-error sorry, LG needs to fix it's types
+const H3 = createPolymorphicWrapper(LGH3, 'H3');
+// @ts-expect-error sorry, LG needs to fix it's types
+const Subtitle = createPolymorphicWrapper(LGSubtitle, 'Subtitle');
+// @ts-expect-error sorry, LG needs to fix it's types
+const Body = createPolymorphicWrapper(LGBody, 'Body');
+// @ts-expect-error sorry, LG needs to fix it's types
+const Overline = createPolymorphicWrapper(LGOverline, 'Overline');
+// @ts-expect-error sorry, LG needs to fix it's types
+const Label = createPolymorphicWrapper(LGLabel, 'Label');
+// @ts-expect-error sorry, LG needs to fix it's types
+const Description = createPolymorphicWrapper(LGDescription, 'Description');
+
 import {
   Combobox,
   ComboboxOption,

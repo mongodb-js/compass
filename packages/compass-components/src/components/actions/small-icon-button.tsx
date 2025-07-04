@@ -48,8 +48,7 @@ export const SmallIconButton = forwardRef<
 ) {
   return (
     <IconButton
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error leafygreen confuses TS a lot here
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comments
       ref={ref}
       className={cx(buttonSizeStyle[size], className)}
       aria-label={label}

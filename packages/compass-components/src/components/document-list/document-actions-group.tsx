@@ -83,7 +83,8 @@ function ActionButton({
   tooltipText,
   tooltipEnabled,
   ...props
-}: Partial<React.ComponentProps<typeof Button>> & {
+}: // @ts-expect-error - LG Polymorphic wrapper confuses TS 5
+Partial<React.ComponentProps<typeof Button>> & {
   tooltipText: string;
   tooltipEnabled: boolean;
 }) {

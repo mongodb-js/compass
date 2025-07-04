@@ -202,8 +202,8 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
               <IconButton
                 className={cx(closeButtonStyles, closeButtonClassName)}
                 data-testid="interactive-popover-close-button"
-                onClick={(evt) => {
-                  evt.stopPropagation();
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
                   onClose();
                 }}
                 aria-label="Close"
