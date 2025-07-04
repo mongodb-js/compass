@@ -139,11 +139,13 @@ describe('HadronElement', function () {
     });
 
     it('calls the correct parameters when "Add to query" is clicked', function () {
+      const nestedDoc = new HadronDocument({ user: { name: 'John' } });
+      const nestedElement = nestedDoc.get('user')!.get('name')!;
       const onAddToQuerySpy = sinon.spy();
 
       render(
         <HadronElement
-          value={element}
+          value={nestedElement}
           editable={true}
           editingEnabled={true}
           lineNumberSize={1}
@@ -159,10 +161,10 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      // Verify that onAddToQuery was called with the field name and element's generated object
+      // Verify that onAddToQuery was called with the nested field path and element's generated object
       expect(onAddToQuerySpy).to.have.been.calledWith(
-        'field',
-        element.generateObject()
+        'user.name',
+        nestedElement.generateObject()
       );
     });
   });
