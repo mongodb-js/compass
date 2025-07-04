@@ -420,6 +420,29 @@ const isValidUrl = (str: string): boolean => {
   }
 };
 
+/**
+ * Helper function to get the nested key path of an element, skips array keys
+ * Meant for keypaths used in query conditions from a selected element
+ */
+const getNestedKeyPath = (element: HadronElementType): string => {
+  let keyPath = '';
+  let currentElement: HadronElementType | HadronDocumentType | null = element;
+  while (
+    currentElement &&
+    'parent' in currentElement &&
+    currentElement.parent
+  ) {
+    if (currentElement.parent.currentType !== 'Array') {
+      keyPath =
+        keyPath === ''
+          ? currentElement.currentKey.toString()
+          : currentElement.currentKey.toString() + '.' + keyPath;
+    }
+    currentElement = currentElement.parent;
+  }
+  return keyPath;
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -469,7 +492,10 @@ export const HadronElement: React.FunctionComponent<{
             {
               label: 'Add to query',
               onAction: () => {
-                onAddToQuery(key.value, element.generateObject());
+                onAddToQuery(
+                  getNestedKeyPath(element),
+                  element.generateObject()
+                );
               },
             },
           ]
