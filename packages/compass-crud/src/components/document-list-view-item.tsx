@@ -3,6 +3,7 @@ import type HadronDocument from 'hadron-document';
 import { KeylineCard } from '@mongodb-js/compass-components';
 import Document, { type DocumentProps } from './document';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
+import { useMergeRefs } from '@mongodb-js/compass-components';
 
 export type DocumentListViewItemProps = {
   doc: HadronDocument;
@@ -33,30 +34,30 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const ref = useDocumentItemContextMenu({
+  const contextMenuRef = useDocumentItemContextMenu({
     doc,
     isEditable,
     copyToClipboard,
     openInsertDocumentDialog,
   });
 
+  const mergedRef = useMergeRefs([docRef, contextMenuRef]);
+
   return (
-    <div ref={ref}>
-      <KeylineCard ref={docRef}>
-        {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-        <Document
-          doc={doc}
-          key={doc.uuid}
-          editable={isEditable}
-          isTimeSeries={isTimeSeries}
-          copyToClipboard={copyToClipboard}
-          removeDocument={removeDocument}
-          replaceDocument={replaceDocument}
-          updateDocument={updateDocument}
-          openInsertDocumentDialog={openInsertDocumentDialog}
-        />
-      </KeylineCard>
-    </div>
+    <KeylineCard ref={mergedRef}>
+      {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
+      <Document
+        doc={doc}
+        key={doc.uuid}
+        editable={isEditable}
+        isTimeSeries={isTimeSeries}
+        copyToClipboard={copyToClipboard}
+        removeDocument={removeDocument}
+        replaceDocument={replaceDocument}
+        updateDocument={updateDocument}
+        openInsertDocumentDialog={openInsertDocumentDialog}
+      />
+    </KeylineCard>
   );
 };
 

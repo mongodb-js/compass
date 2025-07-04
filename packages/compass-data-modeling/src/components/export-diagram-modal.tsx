@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   css,
@@ -12,6 +12,8 @@ import {
   Radio,
   RadioGroup,
   spacing,
+  SpinLoader,
+  openToast,
 } from '@mongodb-js/compass-components';
 import {
   closeExportModal,
@@ -21,7 +23,9 @@ import {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import type { StaticModel } from '../services/data-model-storage';
-import { exportToJson } from '../services/export-diagram';
+import { exportToJson, exportToPng } from '../services/export-diagram';
+import { useDiagram } from '@mongodb-js/diagramming';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 const nbsp = '\u00a0';
 
@@ -59,20 +63,68 @@ const ExportDiagramModal = ({
   model,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const [exportFormat, setExportFormat] = useState<'json' | null>(null);
-
-  const onExport = useCallback(() => {
-    if (!exportFormat || !model) {
-      return;
+  const [exportFormat, setExportFormat] = useState<'png' | 'json' | null>(null);
+  const diagram = useDiagram();
+  const [isExporting, setIsExporting] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    const cleanup = () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+    const abortController = new AbortController();
+    if (isModalOpen) {
+      abortControllerRef.current = abortController;
+    } else {
+      cleanup();
     }
-    exportToJson(diagramLabel, model);
+    return cleanup;
+  }, [isModalOpen]);
+
+  const onClose = useCallback(() => {
+    setIsExporting(false);
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
     onCloseClick();
-  }, [exportFormat, onCloseClick, model, diagramLabel]);
+  }, [onCloseClick]);
+
+  const onExport = useCallback(async () => {
+    try {
+      if (!exportFormat || !model) {
+        return;
+      }
+      setIsExporting(true);
+      if (exportFormat === 'json') {
+        exportToJson(diagramLabel, model);
+      } else if (exportFormat === 'png') {
+        await exportToPng(
+          diagramLabel,
+          diagram,
+          abortControllerRef.current?.signal
+        );
+      }
+    } catch (error) {
+      if (isCancelError(error)) {
+        return;
+      }
+      openToast('export-diagram-error', {
+        variant: 'warning',
+        title: 'Export failed',
+        description: `An error occurred while exporting the diagram: ${
+          (error as Error).message
+        }`,
+      });
+    } finally {
+      onClose();
+    }
+  }, [exportFormat, onClose, model, diagram, diagramLabel]);
 
   return (
     <Modal
       open={isModalOpen}
-      setOpen={onCloseClick}
+      setOpen={onClose}
       data-testid="export-diagram-modal"
     >
       <ModalHeader
@@ -96,6 +148,17 @@ const ExportDiagramModal = ({
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
+              <Icon glyph="Diagram2" />
+              <Radio
+                checked={exportFormat === 'png'}
+                value="png"
+                aria-label="PNG"
+                onClick={() => setExportFormat('png')}
+              >
+                PNG
+              </Radio>
+            </div>
+            <div className={radioItemStyles}>
               <Icon glyph="CurlyBraces" />
               <Radio
                 checked={exportFormat === 'json'}
@@ -114,14 +177,13 @@ const ExportDiagramModal = ({
           variant="primary"
           onClick={() => void onExport()}
           data-testid="export-button"
+          disabled={!exportFormat || !model}
+          loadingIndicator={<SpinLoader />}
+          isLoading={isExporting}
         >
           Export
         </Button>
-        <Button
-          variant="default"
-          onClick={onCloseClick}
-          data-testid="cancel-button"
-        >
+        <Button variant="default" onClick={onClose} data-testid="cancel-button">
           Cancel
         </Button>
       </ModalFooter>

@@ -6,6 +6,7 @@ import {
   WorkspaceContainer,
   css,
 } from '@mongodb-js/compass-components';
+import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 type DeleteMenuButtonProps = {
   isWritable: boolean;
@@ -13,7 +14,7 @@ type DeleteMenuButtonProps = {
 };
 
 const hiddenOnNarrowStyles = css({
-  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < ${DOCUMENT_NARROW_ICON_BREAKPOINT})`]:
     {
       display: 'none',
     },
