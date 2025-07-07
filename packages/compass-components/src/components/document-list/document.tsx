@@ -87,6 +87,7 @@ const HadronDocument: React.FunctionComponent<{
   onEditStart?: () => void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
+  isInQuery?: (field: string, value: unknown) => boolean;
 }> = ({
   value: document,
   editable = false,
@@ -94,6 +95,7 @@ const HadronDocument: React.FunctionComponent<{
   onEditStart,
   extraGutterWidth,
   onAddToQuery,
+  isInQuery,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -159,6 +161,7 @@ const HadronDocument: React.FunctionComponent<{
                 }}
                 extraGutterWidth={extraGutterWidth}
                 onAddToQuery={onAddToQuery}
+                isInQuery={isInQuery}
               ></HadronElement>
             );
           })}

@@ -6,7 +6,11 @@ import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
-import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
+import { hasDistinctValue } from 'mongodb-query-util';
+import {
+  useChangeQueryBarQuery,
+  useQueryBarQuery,
+} from '@mongodb-js/compass-query-bar';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;
@@ -34,15 +38,24 @@ const Document = (props: DocumentProps) => {
   }, [_doc]);
 
   const changeQuery = useChangeQueryBarQuery();
+  const queryBarQuery = useQueryBarQuery();
 
   const handleAddToQuery = useCallback(
     (field: string, value: unknown) => {
-      changeQuery('setValue', {
+      changeQuery('toggleDistinctValue', {
         field,
         value,
       });
     },
     [changeQuery]
+  );
+
+  const isInQuery = useCallback(
+    (field: string, value: unknown) => {
+      const filter = queryBarQuery.filter?.[field];
+      return hasDistinctValue(filter, value);
+    },
+    [queryBarQuery]
   );
 
   if (editable && isTimeSeries) {
@@ -54,13 +67,19 @@ const Document = (props: DocumentProps) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
         onAddToQuery={handleAddToQuery}
+        isInQuery={isInQuery}
       />
     );
   }
 
   if (editable) {
     return (
-      <EditableDocument {...props} doc={doc} onAddToQuery={handleAddToQuery} />
+      <EditableDocument
+        {...props}
+        doc={doc}
+        onAddToQuery={handleAddToQuery}
+        isInQuery={isInQuery}
+      />
     );
   }
 
@@ -69,6 +88,7 @@ const Document = (props: DocumentProps) => {
       doc={doc}
       copyToClipboard={copyToClipboard}
       onAddToQuery={handleAddToQuery}
+      isInQuery={isInQuery}
     />
   );
 };

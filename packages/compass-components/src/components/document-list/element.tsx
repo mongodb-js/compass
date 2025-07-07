@@ -10,6 +10,7 @@ import type {
   default as HadronDocumentType,
   Element as HadronElementType,
   Editor as EditorType,
+  BSONValue as BSONValueType,
 } from 'hadron-document';
 import {
   ElementEvents,
@@ -424,7 +425,9 @@ const isValidUrl = (str: string): boolean => {
  * Helper function to get the nested key path of an element, skips array keys
  * Meant for keypaths used in query conditions from a selected element
  */
-export const getNestedKeyPath = (element: HadronElementType): string => {
+export const getNestedKeyPathForElement = (
+  element: HadronElementType
+): string => {
   let keyPath = '';
   let currentElement: HadronElementType | HadronDocumentType | null = element;
   while (
@@ -443,6 +446,18 @@ export const getNestedKeyPath = (element: HadronElementType): string => {
   return keyPath;
 };
 
+export const getQueryFilterForElement = (
+  element: HadronElementType
+): BSONValueType => {
+  let filter: BSONValueType = {};
+  if (element.parent?.currentType === 'Array') {
+    filter = { $in: [element.generateObject()] };
+  } else {
+    filter = element.generateObject();
+  }
+  return filter;
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -452,6 +467,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
+  isInQuery?: (field: string, value: unknown) => boolean;
 }> = ({
   value: element,
   editable,
@@ -461,6 +477,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement,
   extraGutterWidth = 0,
   onAddToQuery,
+  isInQuery,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -487,13 +504,18 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(onAddToQuery
+      ...(onAddToQuery && isInQuery
         ? [
             {
-              label: 'Add to query',
+              label: isInQuery(
+                getNestedKeyPathForElement(element),
+                element.generateObject()
+              )
+                ? 'Remove from query'
+                : 'Add to query',
               onAction: () => {
                 onAddToQuery(
-                  getNestedKeyPath(element),
+                  getNestedKeyPathForElement(element),
                   element.generateObject()
                 );
               },
@@ -519,7 +541,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.value, type.value, onAddToQuery]
+    [element, key.value, value.value, type.value, onAddToQuery, isInQuery]
   );
 
   const toggleExpanded = () => {
@@ -810,6 +832,7 @@ export const HadronElement: React.FunctionComponent<{
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
                 onAddToQuery={onAddToQuery}
+                isInQuery={isInQuery}
               ></HadronElement>
             );
           })}
