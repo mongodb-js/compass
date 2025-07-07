@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { redoEdit, showExportModal, undoEdit } from '../store/diagram';
+import { redoEdit, undoEdit } from '../store/diagram';
+import { showExportModal } from '../store/export-diagram';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
 export const DiagramEditorToolbar: React.FunctionComponent<{

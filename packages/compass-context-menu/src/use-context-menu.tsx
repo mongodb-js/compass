@@ -8,12 +8,12 @@ export type ContextMenuMethods<T extends ContextMenuItem> = {
   /**
    * Close the context menu.
    */
-  close: () => void;
+  close(): void;
   /**
    * Register the menu items for the context menu.
    * @returns a callback ref to be passed onto the element responsible for triggering the menu.
    */
-  registerItems: (items: T[]) => RefCallback<HTMLElement>;
+  registerItems(...groups: T[][]): RefCallback<HTMLElement>;
 };
 
 export function useContextMenu<
@@ -34,12 +34,9 @@ export function useContextMenu<
       /**
        * @returns a callback ref, passed onto the element responsible for triggering the menu.
        */
-      registerItems(items: ContextMenuItem[]) {
+      registerItems(...groups: ContextMenuItem[][]) {
         function listener(event: MouseEvent): void {
-          appendContextMenuContent(event, {
-            items,
-            originListener: listener,
-          });
+          appendContextMenuContent(event, ...groups);
         }
 
         return (trigger: HTMLElement | null) => {

@@ -240,6 +240,25 @@ describe('Multiple Connections Sidebar Component', function () {
         ).to.equal('Search clusters');
       });
     });
+
+    it('should have context-menu with expected actions', function () {
+      doRender(undefined, []);
+      const header = screen.getByTestId('connections-header');
+      userEvent.click(header, { button: 2 });
+      const menu = screen.getByTestId('context-menu');
+      expect(within(menu).getByTestId('menu-group-0-item-0')).to.have.text(
+        'Collapse all connections'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-1')).to.have.text(
+        'Add new connection'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-2')).to.have.text(
+        'Import connections'
+      );
+      expect(within(menu).getByTestId('menu-group-0-item-3')).to.have.text(
+        'Export connections'
+      );
+    });
   });
 
   describe('connections list', function () {

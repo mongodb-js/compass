@@ -6,18 +6,23 @@ import React, {
   createContext,
   useContext,
 } from 'react';
+
 import type { ContextMenuContextType, ContextMenuState } from './types';
-import type { EnhancedMouseEvent } from './context-menu-content';
-import { getContextMenuContent } from './context-menu-content';
+import {
+  getContextMenuContent,
+  type EnhancedMouseEvent,
+} from './context-menu-content';
 
 export const ContextMenuContext = createContext<ContextMenuContextType | null>(
   null
 );
 
 export function ContextMenuProvider({
+  disabled = false,
   children,
-  menuWrapper,
+  menuWrapper: Wrapper,
 }: {
+  disabled?: boolean;
   children: React.ReactNode;
   menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
@@ -26,30 +31,29 @@ export function ContextMenuProvider({
   // Check if there's already a parent context menu provider
   const parentContext = useContext(ContextMenuContext);
 
-  // Prevent accidental nested providers
-  if (parentContext) {
-    throw new Error(
-      'Duplicated ContextMenuProvider found. Please remove the nested provider.'
-    );
-  }
-
   const [menu, setMenu] = useState<ContextMenuState>({
     isOpen: false,
     itemGroups: [],
     position: { x: 0, y: 0 },
   });
-  const close = useCallback(() => setMenu({ ...menu, isOpen: false }), [menu]);
+  const close = useCallback(
+    () => setMenu((prev) => ({ ...prev, isOpen: false })),
+    [setMenu]
+  );
 
   const handleClosingEvent = useCallback(
     (event: Event) => {
       if (!event.defaultPrevented) {
-        setMenu({ ...menu, isOpen: false });
+        close();
       }
     },
-    [menu]
+    [close]
   );
 
   useEffect(() => {
+    // Don't set up event listeners if we have a parent context
+    if (parentContext || disabled) return;
+
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
 
@@ -72,12 +76,16 @@ export function ContextMenuProvider({
 
     document.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
+    window.addEventListener('scroll', handleClosingEvent, { capture: true });
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
+      window.removeEventListener('scroll', handleClosingEvent, {
+        capture: true,
+      });
     };
-  }, [handleClosingEvent]);
+  }, [disabled, handleClosingEvent, parentContext]);
 
   const value = useMemo(
     () => ({
@@ -86,7 +94,10 @@ export function ContextMenuProvider({
     [close]
   );
 
-  const Wrapper = menuWrapper ?? React.Fragment;
+  // If we have a parent context, just render children without the wrapper
+  if (parentContext) {
+    return <>{children}</>;
+  }
 
   return (
     <ContextMenuContext.Provider value={value}>

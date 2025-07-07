@@ -55,7 +55,8 @@ export enum WorkspacesActions {
   SelectNextTab = 'compass-workspaces/SelectNextTab',
   MoveTab = 'compass-workspaces/MoveTab',
   OpenTabFromCurrentActive = 'compass-workspaces/OpenTabFromCurrentActive',
-  CloseTab = 'compass-workspaces/CloseTab',
+  DuplicateTab = 'compass-workspaces/DuplicateTab',
+  CloseTabs = 'compass-workspaces/CloseTabs',
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
@@ -400,6 +401,20 @@ const reducer: Reducer<WorkspacesState, Action> = (
     };
   }
 
+  if (isAction<DuplicateTabAction>(action, WorkspacesActions.DuplicateTab)) {
+    const tabsBefore = state.tabs.slice(0, action.atIndex);
+    const targetTab = state.tabs[action.atIndex];
+    const tabsAfter = state.tabs.slice(action.atIndex + 1);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...tabProps } = targetTab;
+    const newTab = getInitialTabState(tabProps);
+    return {
+      ...state,
+      tabs: [...tabsBefore, targetTab, newTab, ...tabsAfter],
+      activeTabId: newTab.id,
+    };
+  }
+
   if (isAction<SelectTabAction>(action, WorkspacesActions.SelectTab)) {
     if (state.tabs[action.atIndex]?.id === state.activeTabId) {
       return state;
@@ -456,13 +471,17 @@ const reducer: Reducer<WorkspacesState, Action> = (
     };
   }
 
-  if (isAction<CloseTabAction>(action, WorkspacesActions.CloseTab)) {
-    return _bulkTabsClose({
+  if (isAction<CloseTabsAction>(action, WorkspacesActions.CloseTabs)) {
+    const newState = _bulkTabsClose({
       state,
-      isToBeClosed: (_tab, index) => {
-        return index === action.atIndex;
+      isToBeClosed: (tab) => {
+        return action.tabIds.includes(tab.id);
       },
     });
+    // Add the updated active tab if needed
+    return action.activeTabId
+      ? { ...newState, activeTabId: action.activeTabId }
+      : newState;
   }
 
   if (
@@ -843,28 +862,74 @@ export const openTabFromCurrent = (
   };
 };
 
-type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };
+type DuplicateTabAction = {
+  type: WorkspacesActions.DuplicateTab;
+  atIndex: number;
+};
+
+export const duplicateTab = (atIndex: number): DuplicateTabAction => {
+  return {
+    type: WorkspacesActions.DuplicateTab,
+    atIndex,
+  };
+};
+
+async function confirmClosingTab() {
+  return await showConfirmation({
+    title: 'Are you sure you want to close the tab?',
+    description:
+      'The content of this tab has been modified. You will lose your changes if you close it.',
+    buttonText: 'Close tab',
+    variant: 'danger',
+    'data-testid': 'confirm-tab-close',
+  });
+}
+
+type CloseTabsAction = {
+  type: WorkspacesActions.CloseTabs;
+  tabIds: string[];
+  activeTabId?: string;
+};
 
 export const closeTab = (
   atIndex: number
-): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
+): WorkspacesThunkAction<Promise<void>, CloseTabsAction> => {
   return async (dispatch, getState) => {
-    const tab = getState().tabs[atIndex];
-    if (!canCloseTab(tab)) {
-      const confirmClose = await showConfirmation({
-        title: 'Are you sure you want to close the tab?',
-        description:
-          'The content of this tab has been modified. You will lose your changes if you close it.',
-        buttonText: 'Close tab',
-        variant: 'danger',
-        'data-testid': 'confirm-tab-close',
-      });
-      if (!confirmClose) {
-        return;
-      }
+    const { tabs } = getState();
+    const tab = tabs[atIndex];
+    if (canCloseTab(tab) || (await confirmClosingTab())) {
+      dispatch({ type: WorkspacesActions.CloseTabs, tabIds: [tab.id] });
+      cleanupRemovedTabs(tabs, getState().tabs);
     }
-    dispatch({ type: WorkspacesActions.CloseTab, atIndex });
-    cleanupLocalAppRegistryForTab(tab?.id);
+  };
+};
+
+export const closeAllOtherTabs = (
+  atIndex: number
+): WorkspacesThunkAction<Promise<void>, CloseTabsAction | SelectTabAction> => {
+  return async (dispatch, getState) => {
+    const { tabs } = getState();
+    const remainingTab = tabs[atIndex];
+    const tabsToClose = [];
+    for (const [tabIndex, tab] of tabs.entries()) {
+      if (tabIndex === atIndex) {
+        continue; // Skip the tab which is not being closed
+      }
+      if (!canCloseTab(tab)) {
+        // Select the closing tab - to show the confirmation dialog in context
+        dispatch({ type: WorkspacesActions.SelectTab, atIndex: tabIndex });
+        if (!(await confirmClosingTab())) {
+          continue; // Skip this tab
+        }
+      }
+      tabsToClose.push(tab);
+    }
+    dispatch({
+      type: WorkspacesActions.CloseTabs,
+      tabIds: tabsToClose.map((tab) => tab.id),
+      activeTabId: remainingTab.id,
+    });
+    cleanupRemovedTabs(tabs, getState().tabs);
   };
 };
 

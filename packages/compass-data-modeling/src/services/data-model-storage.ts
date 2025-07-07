@@ -55,6 +55,11 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     type: z.literal('RemoveRelationship'),
     relationshipId: z.string().uuid(),
   }),
+  z.object({
+    type: z.literal('MoveCollection'),
+    ns: z.string(),
+    newPosition: z.tuple([z.number(), z.number()]),
+  }),
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);

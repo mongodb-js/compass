@@ -33,6 +33,7 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 resetGlobalCSS();
 
@@ -169,6 +170,7 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
+  const disableContextMenus = !usePreference('enableContextMenus');
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {
@@ -204,6 +206,7 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
+      disableContextMenus={disableContextMenus}
     >
       {({ darkMode, portalContainerRef }) => {
         return (

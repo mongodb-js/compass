@@ -15,28 +15,37 @@ import { diagramReducer } from './diagram';
 import type { ThunkAction } from 'redux-thunk';
 import { stepReducer } from './step';
 import type { DataModelingStoreServices } from '.';
+import type {
+  ExportDiagramActionTypes,
+  ExportDiagramActions,
+} from './export-diagram';
+import { exportDiagramReducer } from './export-diagram';
 
 const reducer = combineReducers({
   step: stepReducer,
   generateDiagramWizard: generateDiagramWizardReducer,
   analysisProgress: analysisProcessReducer,
   diagram: diagramReducer,
+  exportDiagram: exportDiagramReducer,
 });
 
 export type DataModelingActions =
   | GenerateDiagramWizardActions
   | AnalysisProgressActions
-  | DiagramActions;
+  | DiagramActions
+  | ExportDiagramActions;
 
 export type DataModelingActionTypes =
   | GenerateDiagramWizardActionTypes
   | AnalysisProcessActionTypes
-  | DiagramActionTypes;
+  | DiagramActionTypes
+  | ExportDiagramActionTypes;
 
 export type DataModelingState = ReturnType<typeof reducer>;
 
 export type DataModelingExtraArgs = DataModelingStoreServices & {
-  cancelControllerRef: { current: AbortController | null };
+  cancelAnalysisControllerRef: { current: AbortController | null };
+  cancelExportControllerRef: { current: AbortController | null };
 };
 
 export type DataModelingThunkAction<R, A extends AnyAction> = ThunkAction<
