@@ -2,7 +2,6 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
-import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -1243,6 +1242,7 @@ class CrudStoreImpl
     } catch (err: any) {
       openBulkUpdateFailureToast({
         affectedDocuments: this.state.bulkUpdate.affected,
+        error: err,
       });
 
       this.logger.log.error(
@@ -1899,6 +1899,7 @@ class CrudStoreImpl
   bulkDeleteFailed(ex: Error) {
     openBulkDeleteFailureToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      error: ex,
     });
 
     this.logger.log.error(

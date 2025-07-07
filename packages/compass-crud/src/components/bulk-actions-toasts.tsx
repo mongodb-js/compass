@@ -4,6 +4,7 @@ import {
   closeToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
+import { MongoNetworkError } from 'mongodb';
 
 type BulkDeleteSuccessToastProps = {
   affectedDocuments?: number;
@@ -74,28 +75,35 @@ export function openBulkDeleteProgressToast({
 
 type BulkDeleteFailureToastProps = {
   affectedDocuments?: number;
+  error: any;
 };
+
+const isNetworkError = (error: any) => error instanceof MongoNetworkError;
 
 export function openBulkDeleteFailureToast({
   affectedDocuments,
+  error,
 }: BulkDeleteFailureToastProps): void {
-  let text;
-  switch (affectedDocuments) {
-    case undefined:
-      text = 'The delete operation failed.';
-      break;
-    case 1:
-      text = `${affectedDocuments} document could not been deleted.`;
-      break;
-    default:
-      text = `${affectedDocuments} documents could not been deleted.`;
-  }
+  let title: string;
+  if (isNetworkError(error)) {
+    title = 'Delete operation - status unknown.';
+  } else
+    switch (affectedDocuments) {
+      case undefined:
+        title = 'The delete operation failed.';
+        break;
+      case 1:
+        title = `${affectedDocuments} document could not been deleted.`;
+        break;
+      default:
+        title = `${affectedDocuments} documents could not been deleted.`;
+    }
 
   openToast('bulk-delete-toast', {
-    title: '',
+    title,
     variant: 'warning',
     dismissible: true,
-    description: <ToastBody statusMessage={text} />,
+    description: <ToastBody statusMessage={error.message} />,
   });
 }
 
@@ -168,27 +176,32 @@ export function openBulkUpdateProgressToast({
 
 type BulkUpdateFailureToastProps = {
   affectedDocuments?: number;
+  error: any;
 };
 
 export function openBulkUpdateFailureToast({
   affectedDocuments,
+  error,
 }: BulkUpdateFailureToastProps): void {
-  let text;
-  switch (affectedDocuments) {
-    case undefined:
-      text = 'The update operation failed.';
-      break;
-    case 1:
-      text = `${affectedDocuments} document could not been updated.`;
-      break;
-    default:
-      text = `${affectedDocuments} documents could not been updated.`;
-  }
+  let title: string;
+  if (isNetworkError(error)) {
+    title = 'Update operation - status unknown.';
+  } else
+    switch (affectedDocuments) {
+      case undefined:
+        title = 'The update operation failed.';
+        break;
+      case 1:
+        title = `${affectedDocuments} document could not been updated.`;
+        break;
+      default:
+        title = `${affectedDocuments} documents could not been updated.`;
+    }
 
   openToast('bulk-update-toast', {
-    title: '',
+    title,
     variant: 'warning',
     dismissible: true,
-    description: <ToastBody statusMessage={text} />,
+    description: <ToastBody statusMessage={error.message} />,
   });
 }
