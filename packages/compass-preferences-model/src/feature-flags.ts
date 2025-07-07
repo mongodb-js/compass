@@ -82,7 +82,7 @@ export const featureFlags: Required<{
   },
 
   showDisabledConnections: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short:
         'Show clusters that are not in a "connectable" state in Atlas Cloud',
