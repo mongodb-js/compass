@@ -16,10 +16,12 @@ module.exports = {
     '@typescript-eslint/eslint-plugin',
     '@typescript-eslint/parser',
     'eslint@8', // TODO: update to flat config, switch to eslint 9, remove the fixed version
+    'eslint-plugin-chai-friendly',
     'eslint-plugin-jsx-a11y',
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
   ],
+  typescript: ['typescript', 'ts-node'],
   // TODO(COMPASS-9443): Update update-* github actions to handle all groups as
   // a matrix inside one action instead of having separate action for every
   // group and add more groups following the ones in _dependabot

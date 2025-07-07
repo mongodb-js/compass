@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
-import type { ToastProps } from '../components/leafygreen';
+import type { ToastProps } from '@leafygreen-ui/toast';
 import {
   ToastProvider,
   useToast as useLeafygreenToast,
-} from '../components/leafygreen';
+} from '@leafygreen-ui/toast';
 import { useStackedComponent } from './use-stacked-component';
 import { css } from '..';
 
@@ -150,7 +150,7 @@ export const openToast = toastState.openToast.bind(toastState);
  */
 export const closeToast = toastState.closeToast.bind(toastState);
 
-const _ToastArea: React.FunctionComponent = ({ children }) => {
+const ToastStateHandler: React.FunctionComponent = ({ children }) => {
   // NB: the way leafygreen implements this hook leads to anything specifying
   // toast methods in hooks dependencies to constantly update potentially
   // causing infinite loops of toasts. To work around that we are storing toast
@@ -207,7 +207,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
   return (
     <ToastAreaMountedContext.Provider value={true}>
       <ToastProvider portalClassName={stackedElemStyles}>
-        <_ToastArea>{children}</_ToastArea>
+        <ToastStateHandler>{children}</ToastStateHandler>
       </ToastProvider>
     </ToastAreaMountedContext.Provider>
   );

@@ -20,7 +20,7 @@ export const ContextMenuContext = createContext<ContextMenuContextType | null>(
 export function ContextMenuProvider({
   disabled = false,
   children,
-  menuWrapper,
+  menuWrapper: Wrapper,
 }: {
   disabled?: boolean;
   children: React.ReactNode;
@@ -76,10 +76,14 @@ export function ContextMenuProvider({
 
     document.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
+    window.addEventListener('scroll', handleClosingEvent, { capture: true });
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
+      window.removeEventListener('scroll', handleClosingEvent, {
+        capture: true,
+      });
     };
   }, [disabled, handleClosingEvent, parentContext]);
 
@@ -94,8 +98,6 @@ export function ContextMenuProvider({
   if (parentContext) {
     return <>{children}</>;
   }
-
-  const Wrapper = menuWrapper ?? React.Fragment;
 
   return (
     <ContextMenuContext.Provider value={value}>

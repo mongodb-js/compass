@@ -2,7 +2,6 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
-  fireEvent,
   render,
   screen,
   cleanup,
@@ -128,7 +127,7 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(getPageSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+    userEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
     expect(getPageSpy.calledOnce).to.be.true;
     expect(getPageSpy.firstCall.args[0]).to.equal(1);
@@ -141,7 +140,7 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(getPageSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
+    userEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
 
     expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.have.attribute(
       'aria-disabled',
@@ -164,7 +163,7 @@ describe('CrudToolbar Component', function () {
         end: 50,
       });
       expect(getPageSpy.called).to.be.false;
-      fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+      userEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
       expect(
         screen.getByTestId('docs-toolbar-next-page-btn')
@@ -184,7 +183,7 @@ describe('CrudToolbar Component', function () {
         end: 25,
       });
       expect(getPageSpy.called).to.be.false;
-      fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+      userEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
       expect(
         screen.getByTestId('docs-toolbar-next-page-btn')
@@ -209,7 +208,7 @@ describe('CrudToolbar Component', function () {
     );
 
     expect(getPageSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
+    userEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
 
     expect(getPageSpy.calledOnce).to.be.true;
     expect(getPageSpy.firstCall.args[0]).to.equal(0);
@@ -226,7 +225,7 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(getPageSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+    userEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
     expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
       'aria-disabled',
@@ -248,7 +247,7 @@ describe('CrudToolbar Component', function () {
     expect(nextButton).to.have.attribute('aria-disabled', 'false');
 
     expect(getPageSpy.called).to.be.false;
-    fireEvent.click(nextButton);
+    userEvent.click(nextButton);
 
     expect(getPageSpy.calledOnce).to.be.true;
     expect(getPageSpy.firstCall.args[0]).to.equal(3);
@@ -295,8 +294,8 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(exportSpy.called).to.be.false;
-    fireEvent.click(screen.getByText('Export Data'));
-    fireEvent.click(screen.getByText('Export the full collection'));
+    userEvent.click(screen.getByText('Export Data'));
+    userEvent.click(screen.getByText('Export the full collection'));
 
     expect(exportSpy.calledOnce).to.be.true;
     expect(exportSpy.firstCall.args[0]).to.be.true;
@@ -525,6 +524,264 @@ describe('CrudToolbar Component', function () {
       );
       userEvent.click(screen.getByText('75'));
       expect(stub).to.be.calledWithExactly(75);
+    });
+  });
+
+  describe('context menu', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({ enableImportExport: true });
+    });
+
+    it('should open context menu on right click', function () {
+      renderCrudToolbar();
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      expect(within(contextMenu).getByText('Expand all documents')).to.be
+        .visible;
+      expect(within(contextMenu).getByText('Refresh')).to.be.visible;
+    });
+
+    it('should call onExpandAllClicked when "Expand all documents" is clicked', function () {
+      const onExpandAllClicked = sinon.spy();
+      renderCrudToolbar({ onExpandAllClicked });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const expandMenuItem = within(contextMenu).getByText(
+        'Expand all documents'
+      );
+      userEvent.click(expandMenuItem);
+
+      expect(onExpandAllClicked).to.have.been.calledOnce;
+    });
+
+    it('should call onCollapseAllClicked when "Collapse all documents" is clicked', function () {
+      const onCollapseAllClicked = sinon.spy();
+      renderCrudToolbar({ onCollapseAllClicked });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const collapseMenuItem = within(contextMenu).getByText(
+        'Collapse all documents'
+      );
+      userEvent.click(collapseMenuItem);
+
+      expect(onCollapseAllClicked).to.have.been.called;
+    });
+
+    it('should call insertDataHandler with "import-file" when "Import JSON or CSV file" is clicked', function () {
+      const insertDataHandler = sinon.spy();
+      renderCrudToolbar({ insertDataHandler });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const importMenuItem = within(contextMenu).getByText(
+        'Import JSON or CSV file'
+      );
+      userEvent.click(importMenuItem);
+
+      expect(insertDataHandler).to.have.been.calledOnceWithExactly(
+        'import-file'
+      );
+    });
+
+    it('should call insertDataHandler with "insert-document" when "Insert document..." is clicked', function () {
+      const insertDataHandler = sinon.spy();
+      renderCrudToolbar({ insertDataHandler });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const insertMenuItem =
+        within(contextMenu).getByText('Insert document...');
+      userEvent.click(insertMenuItem);
+
+      expect(insertDataHandler).to.have.been.calledOnceWithExactly(
+        'insert-document'
+      );
+    });
+
+    it('should call openExportFileDialog with false when "Export query results..." is clicked', function () {
+      const openExportFileDialog = sinon.spy();
+      renderCrudToolbar({ openExportFileDialog });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const exportQueryMenuItem = within(contextMenu).getByText(
+        'Export query results...'
+      );
+      userEvent.click(exportQueryMenuItem);
+
+      expect(openExportFileDialog).to.have.been.calledOnceWithExactly(false);
+    });
+
+    it('should call openExportFileDialog with true when "Export full collection..." is clicked', function () {
+      const openExportFileDialog = sinon.spy();
+      renderCrudToolbar({ openExportFileDialog });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const exportCollectionMenuItem = within(contextMenu).getByText(
+        'Export full collection...'
+      );
+      userEvent.click(exportCollectionMenuItem);
+
+      expect(openExportFileDialog).to.have.been.calledOnceWithExactly(true);
+    });
+
+    it('should call onUpdateButtonClicked when "Bulk update" is clicked', function () {
+      const onUpdateButtonClicked = sinon.spy();
+      renderCrudToolbar({ onUpdateButtonClicked });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const updateMenuItem = within(contextMenu).getByText('Bulk update');
+      userEvent.click(updateMenuItem);
+
+      expect(onUpdateButtonClicked).to.have.been.calledOnce;
+    });
+
+    it('should call onDeleteButtonClicked when "Bulk delete" is clicked', function () {
+      const onDeleteButtonClicked = sinon.spy();
+      renderCrudToolbar({ onDeleteButtonClicked });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const deleteMenuItem = within(contextMenu).getByText('Bulk delete');
+      userEvent.click(deleteMenuItem);
+
+      expect(onDeleteButtonClicked).to.have.been.calledOnce;
+    });
+
+    it('should call refreshDocuments when "Refresh" is clicked', function () {
+      const refreshDocuments = sinon.spy();
+      renderCrudToolbar({ refreshDocuments });
+
+      const toolbar = screen.getByTestId('query-bar').closest('div');
+      userEvent.click(toolbar!, { button: 2 });
+
+      const contextMenu = screen.getByTestId('context-menu');
+      const refreshMenuItem = within(contextMenu).getByText('Refresh');
+      userEvent.click(refreshMenuItem);
+
+      expect(refreshDocuments).to.have.been.calledOnce;
+    });
+
+    describe('conditional menu items', function () {
+      it('should not show import/export items when enableImportExport is false', async function () {
+        await preferences.savePreferences({ enableImportExport: false });
+        renderCrudToolbar();
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Import JSON or CSV file')).to
+          .not.exist;
+        expect(within(contextMenu).queryByText('Export query results...')).to
+          .not.exist;
+        expect(within(contextMenu).queryByText('Export full collection...')).to
+          .not.exist;
+      });
+
+      it('should not show insert document item when readonly is true', function () {
+        renderCrudToolbar({ readonly: true });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Insert document...')).to.not
+          .exist;
+      });
+
+      it('should not show bulk operations when readonly is true', function () {
+        renderCrudToolbar({ readonly: true });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
+        expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
+      });
+
+      it('should not show bulk operations when isWritable is false', function () {
+        renderCrudToolbar({ isWritable: false });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
+        expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
+      });
+
+      it('should not show bulk operations when query has skip', function () {
+        renderCrudToolbar({ querySkip: 10 });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
+      });
+
+      it('should not show bulk operations when query has limit', function () {
+        renderCrudToolbar({ queryLimit: 10 });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
+        expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
+      });
+
+      it('should show all applicable items when conditions are met', function () {
+        renderCrudToolbar({
+          readonly: false,
+          isWritable: true,
+          querySkip: 0,
+          queryLimit: 0,
+        });
+
+        const toolbar = screen.getByTestId('query-bar').closest('div');
+        userEvent.click(toolbar!, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(within(contextMenu).getByText('Expand all documents')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Import JSON or CSV file')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Insert document...')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Export query results...')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Export full collection...')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Bulk update')).to.be.visible;
+        expect(within(contextMenu).getByText('Bulk delete')).to.be.visible;
+        expect(within(contextMenu).getByText('Refresh')).to.be.visible;
+      });
     });
   });
 });

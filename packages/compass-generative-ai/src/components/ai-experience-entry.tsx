@@ -135,7 +135,7 @@ function createAIPlaceholderHTMLPlaceholder({
   darkMode?: boolean;
   placeholderText: string;
   track: TrackFunction;
-}): HTMLElement {
+}): () => HTMLElement {
   const containerEl = document.createElement('div');
 
   const placeholderTextEl = document.createTextNode(`${placeholderText} or `);
@@ -171,7 +171,9 @@ ${getAIEntrySVGString()}`;
 
   containerEl.appendChild(aiButtonEl);
 
-  return containerEl;
+  // Return a function to prevent codemirror from cloning the DOM node (this
+  // doesn't transfer event listeners)
+  return () => containerEl;
 }
 
 export { AIExperienceEntry, createAIPlaceholderHTMLPlaceholder };

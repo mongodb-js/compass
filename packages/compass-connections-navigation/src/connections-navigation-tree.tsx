@@ -114,7 +114,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getCollapseAfterForConnectedItem = useCallback(
     (actions: NavigationItemActions) => {
-      const [firstAction, secondAction] = actions;
+      const [, secondAction, thirdAction] = actions;
 
       const actionCanBeShownInline = (
         action: NavigationItemActions[number]
@@ -123,7 +123,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return false;
         }
 
-        return ['create-database', 'open-shell'].includes(
+        return ['refresh-databases', 'create-database', 'open-shell'].includes(
           (action as ItemAction<Actions>).action
         );
       };
@@ -131,23 +131,24 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       // this is the normal case for a connection that is writable and when we
       // also have shell enabled
       if (
-        actionCanBeShownInline(firstAction) &&
-        actionCanBeShownInline(secondAction)
+        actionCanBeShownInline(secondAction) &&
+        actionCanBeShownInline(thirdAction)
       ) {
-        return 2;
+        return 3;
       }
 
       // this will happen when the either the connection is not writable or the
       // preference is readonly, or shell is not enabled in which case we either
       // do not show create-database action or open-shell action
       if (
-        actionCanBeShownInline(firstAction) ||
-        actionCanBeShownInline(secondAction)
+        actionCanBeShownInline(secondAction) ||
+        actionCanBeShownInline(thirdAction)
       ) {
-        return 1;
+        return 2;
       }
 
-      return 0;
+      // Always display the refresh action (firstAction).
+      return 1;
     },
     []
   );
