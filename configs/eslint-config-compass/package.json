@@ -14,7 +14,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@babel/core": "^7.21.4",
+    "@babel/core": "^7.24.3",
     "@babel/eslint-parser": "^7.14.3",
     "@mongodb-js/eslint-config-devtools": "^0.9.9",
     "@mongodb-js/eslint-plugin-compass": "^1.2.10",
