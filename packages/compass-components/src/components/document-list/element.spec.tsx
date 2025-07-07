@@ -3,7 +3,7 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import { HadronElement, getNestedKeyPath } from './element';
+import { HadronElement, getNestedKeyPathForElement } from './element';
 import type { Element } from 'hadron-document';
 
 describe('HadronElement', function () {
@@ -26,6 +26,82 @@ describe('HadronElement', function () {
       clipboardWriteTextStub.restore();
     });
 
+    it('can add to query and then remove from query', function () {
+      const nestedDoc = new HadronDocument({ user: { name: 'John' } });
+      const nestedElement = nestedDoc.get('user')!.get('name')!;
+
+      // Mock queryBar controller
+      const mockQueryBar = {
+        isInQuery: sinon.stub(),
+        toggleQueryFilter: sinon.spy(),
+      };
+
+      // Initially not in query
+      mockQueryBar.isInQuery.returns(false);
+
+      const { rerender } = render(
+        <HadronElement
+          value={nestedElement}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+          queryBar={mockQueryBar}
+        />
+      );
+
+      // Open context menu - should show "Add to query"
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+
+      expect(screen.getByText('Add to query')).to.exist;
+      expect(screen.queryByText('Remove from query')).to.not.exist;
+
+      // Click "Add to query"
+      userEvent.click(screen.getByText('Add to query'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      // Verify toggleQueryFilter was called with correct parameters
+      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledWith(
+        'user.name',
+        nestedElement.generateObject()
+      );
+
+      // Now simulate that the field is in query
+      mockQueryBar.isInQuery.returns(true);
+
+      // Re-render with updated queryBar state
+      rerender(
+        <HadronElement
+          value={nestedElement}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+          queryBar={mockQueryBar}
+        />
+      );
+
+      // Open context menu again - should now show "Remove from query"
+      userEvent.click(elementNode, { button: 2 });
+
+      expect(screen.getByText('Remove from query')).to.exist;
+      expect(screen.queryByText('Add to query')).to.not.exist;
+
+      // Click "Remove from query"
+      userEvent.click(screen.getByText('Remove from query'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      // Verify toggleQueryFilter was called again
+      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledTwice;
+      expect(mockQueryBar.toggleQueryFilter.secondCall).to.have.been.calledWith(
+        'user.name',
+        nestedElement.generateObject()
+      );
+    });
+
     it('copies field and value when "Copy field & value" is clicked', function () {
       render(
         <HadronElement
@@ -34,7 +110,6 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={() => {}}
         />
       );
 
@@ -60,7 +135,6 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={() => {}}
         />
       );
 
@@ -84,7 +158,6 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={() => {}}
         />
       );
 
@@ -110,7 +183,6 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={() => {}}
         />
       );
 
@@ -122,7 +194,7 @@ describe('HadronElement', function () {
       expect(screen.queryByText('Open URL in browser')).to.not.exist;
     });
 
-    it('does not show "Add to query" when onAddToQuery is not provided', function () {
+    it('does not show "Add to query" when queryBar is not provided', function () {
       render(
         <HadronElement
           value={element}
@@ -141,7 +213,10 @@ describe('HadronElement', function () {
     it('calls the correct parameters when "Add to query" is clicked', function () {
       const nestedDoc = new HadronDocument({ user: { name: 'John' } });
       const nestedElement = nestedDoc.get('user')!.get('name')!;
-      const onAddToQuerySpy = sinon.spy();
+      const mockQueryBar = {
+        isInQuery: sinon.stub().returns(false),
+        toggleQueryFilter: sinon.spy(),
+      };
 
       render(
         <HadronElement
@@ -150,7 +225,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={onAddToQuerySpy}
+          queryBar={mockQueryBar}
         />
       );
 
@@ -161,21 +236,21 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      // Verify that onAddToQuery was called with the nested field path and element's generated object
-      expect(onAddToQuerySpy).to.have.been.calledWith(
+      // Verify that toggleQueryFilter was called with the nested field path and element's generated object
+      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
     });
   });
 
-  describe('getNestedKeyPath', function () {
+  describe('getNestedKeyPathForElement', function () {
     it('returns the field name for a top-level field', function () {
       const doc = new HadronDocument({ field: 'value' });
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const element = doc.elements.at(0)!;
 
-      const result = getNestedKeyPath(element);
+      const result = getNestedKeyPathForElement(element);
 
       expect(result).to.equal('field');
     });
@@ -190,7 +265,7 @@ describe('HadronElement', function () {
       });
       const nameElement = doc.get('user')!.get('profile')!.get('name')!;
 
-      const result = getNestedKeyPath(nameElement);
+      const result = getNestedKeyPathForElement(nameElement);
 
       expect(result).to.equal('user.profile.name');
     });
@@ -201,7 +276,7 @@ describe('HadronElement', function () {
       });
       const nameElement = doc.get('items')!.elements!.at(0)!.get('name')!;
 
-      const result = getNestedKeyPath(nameElement);
+      const result = getNestedKeyPathForElement(nameElement);
 
       expect(result).to.equal('items.name');
     });
@@ -222,7 +297,7 @@ describe('HadronElement', function () {
         .get('product')!
         .get('name')!;
 
-      const result = getNestedKeyPath(nameElement);
+      const result = getNestedKeyPathForElement(nameElement);
 
       expect(result).to.equal('orders.items.product.name');
     });
@@ -233,7 +308,7 @@ describe('HadronElement', function () {
       });
       const nameElement = doc.elements.get('items')!.at(0)!.get('name')!;
 
-      const result = getNestedKeyPath(nameElement);
+      const result = getNestedKeyPathForElement(nameElement);
 
       expect(result).to.equal('items.name');
     });
@@ -257,7 +332,7 @@ describe('HadronElement', function () {
         .get('level4')!
         .get('value')!;
 
-      const result = getNestedKeyPath(valueElement);
+      const result = getNestedKeyPathForElement(valueElement);
 
       expect(result).to.equal('level1.level2.level3.level4.value');
     });
@@ -275,7 +350,7 @@ describe('HadronElement', function () {
         .get('field_with_underscores')!
         .get('field.with.dots')!;
 
-      const result = getNestedKeyPath(dotsElement);
+      const result = getNestedKeyPathForElement(dotsElement);
 
       expect(result).to.equal(
         'field-with-dashes.field_with_underscores.field.with.dots'
@@ -290,7 +365,7 @@ describe('HadronElement', function () {
       });
       const numericElement = doc.get('123')!.get('456')!;
 
-      const result = getNestedKeyPath(numericElement);
+      const result = getNestedKeyPathForElement(numericElement);
 
       expect(numericElement.value).to.equal('value');
       expect(result).to.equal('123.456');
@@ -301,7 +376,7 @@ describe('HadronElement', function () {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const emptyObjElement = doc.elements.at(0)!;
 
-      const result = getNestedKeyPath(emptyObjElement);
+      const result = getNestedKeyPathForElement(emptyObjElement);
 
       expect(result).to.equal('emptyObj');
     });
