@@ -17,6 +17,7 @@ import {
 } from './bulk-actions-toasts';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { MongoNetworkError } from 'mongodb';
 
 function renderToastPortal() {
   return render(<ToastArea></ToastArea>);
@@ -84,6 +85,15 @@ describe('Bulk Action Toasts', function () {
           affected: 2,
           error: new Error('Another failure'),
           expected: ['2 documents could not been deleted.', 'Another failure'],
+        },
+        {
+          modal: openBulkDeleteFailureToast,
+          affected: 2,
+          error: new MongoNetworkError('Connection lost'),
+          expected: [
+            'Delete operation - network error occurred.',
+            'Connection lost',
+          ],
         },
       ];
 
@@ -186,6 +196,16 @@ describe('Bulk Action Toasts', function () {
           affected: 2,
           error: new Error('Update failed'),
           expected: ['2 documents could not been updated.', 'Update failed'],
+        },
+
+        {
+          modal: openBulkUpdateFailureToast,
+          affected: 2,
+          error: new MongoNetworkError('Connection lost'),
+          expected: [
+            'Update operation - network error occurred.',
+            'Connection lost',
+          ],
         },
       ];
 

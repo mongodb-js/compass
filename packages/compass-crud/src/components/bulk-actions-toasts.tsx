@@ -86,7 +86,7 @@ export function openBulkDeleteFailureToast({
 }: BulkDeleteFailureToastProps): void {
   let title: string;
   if (isNetworkError(error)) {
-    title = 'Delete operation - status unknown.';
+    title = 'Delete operation - network error occurred.';
   } else
     switch (affectedDocuments) {
       case undefined:
@@ -185,7 +185,7 @@ export function openBulkUpdateFailureToast({
 }: BulkUpdateFailureToastProps): void {
   let title: string;
   if (isNetworkError(error)) {
-    title = 'Update operation - status unknown.';
+    title = 'Update operation - network error occurred.';
   } else
     switch (affectedDocuments) {
       case undefined:
