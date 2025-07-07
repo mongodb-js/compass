@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import type { EditableDocumentProps } from './editable-document';
@@ -11,7 +11,6 @@ import {
   useChangeQueryBarQuery,
   useQueryBarQuery,
 } from '@mongodb-js/compass-query-bar';
-import type { QueryBarController } from '@mongodb-js/compass-components';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;
@@ -20,7 +19,7 @@ export type DocumentProps = {
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
 
-export const Document = (props: DocumentProps) => {
+const Document = (props: DocumentProps) => {
   const {
     editable,
     isTimeSeries,
@@ -38,23 +37,26 @@ export const Document = (props: DocumentProps) => {
     return new HadronDocument(_doc as Record<string, unknown>);
   }, [_doc]);
 
-  const queryBarChangeQuery = useChangeQueryBarQuery();
+  const changeQuery = useChangeQueryBarQuery();
   const queryBarQuery = useQueryBarQuery();
 
-  const queryBar = useMemo<QueryBarController>(() => {
-    return {
-      isInQuery: (field: string, value: unknown) => {
-        const filter = queryBarQuery.filter?.[field];
-        return hasDistinctValue(filter, value);
-      },
-      toggleQueryFilter: (field: string, value: unknown) => {
-        queryBarChangeQuery('toggleDistinctValue', {
-          field,
-          value,
-        });
-      },
-    };
-  }, [queryBarChangeQuery, queryBarQuery]);
+  const handleAddToQuery = useCallback(
+    (field: string, value: unknown) => {
+      changeQuery('toggleDistinctValue', {
+        field,
+        value,
+      });
+    },
+    [changeQuery]
+  );
+
+  const isInQuery = useCallback(
+    (field: string, value: unknown) => {
+      const filter = queryBarQuery.filter?.[field];
+      return hasDistinctValue(filter, value);
+    },
+    [queryBarQuery]
+  );
 
   if (editable && isTimeSeries) {
     return (
@@ -64,20 +66,29 @@ export const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
-        queryBar={queryBar}
+        onAddToQuery={handleAddToQuery}
+        isInQuery={isInQuery}
       />
     );
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} queryBar={queryBar} />;
+    return (
+      <EditableDocument
+        {...props}
+        doc={doc}
+        onAddToQuery={handleAddToQuery}
+        isInQuery={isInQuery}
+      />
+    );
   }
 
   return (
     <ReadonlyDocument
       doc={doc}
       copyToClipboard={copyToClipboard}
-      queryBar={queryBar}
+      onAddToQuery={handleAddToQuery}
+      isInQuery={isInQuery}
     />
   );
 };

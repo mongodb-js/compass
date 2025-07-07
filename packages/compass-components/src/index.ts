@@ -183,10 +183,7 @@ export { useSortControls, useSortedItems } from './hooks/use-sort';
 export * from './hooks/use-formatted-date';
 export { fontFamilies } from '@leafygreen-ui/tokens';
 export { default as BSONValue } from './components/bson-value';
-export {
-  DocumentList,
-  type QueryBarController,
-} from './components/document-list';
+export * as DocumentList from './components/document-list';
 export { KeylineCard } from './components/keyline-card';
 export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';

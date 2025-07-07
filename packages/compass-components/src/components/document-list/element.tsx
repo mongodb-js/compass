@@ -458,11 +458,6 @@ export const getQueryFilterForElement = (
   return filter;
 };
 
-export type QueryBarController = {
-  isInQuery: (field: string, value: unknown) => boolean;
-  toggleQueryFilter: (field: string, value: unknown) => void;
-};
-
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -471,7 +466,8 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
-  queryBar?: QueryBarController;
+  onAddToQuery?: (field: string, value: unknown) => void;
+  isInQuery?: (field: string, value: unknown) => boolean;
 }> = ({
   value: element,
   editable,
@@ -480,7 +476,8 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
-  queryBar,
+  onAddToQuery,
+  isInQuery,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -509,7 +506,7 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(isInQuery && toggleQueryFilter
+      ...(onAddToQuery && isInQuery
         ? [
             {
               label: isInQuery(
@@ -519,7 +516,7 @@ export const HadronElement: React.FunctionComponent<{
                 ? 'Remove from query'
                 : 'Add to query',
               onAction: () => {
-                toggleQueryFilter(
+                onAddToQuery(
                   getNestedKeyPathForElement(element),
                   element.generateObject()
                 );
@@ -546,7 +543,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.value, type.value, isInQuery, toggleQueryFilter]
+    [element, key.value, value.value, type.value, onAddToQuery, isInQuery]
   );
 
   const toggleExpanded = () => {
@@ -836,7 +833,8 @@ export const HadronElement: React.FunctionComponent<{
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
-                queryBar={queryBar}
+                onAddToQuery={onAddToQuery}
+                isInQuery={isInQuery}
               ></HadronElement>
             );
           })}

@@ -2,11 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-import {
-  type QueryBarController,
-  css,
-  DocumentList,
-} from '@mongodb-js/compass-components';
+import { DocumentList, css } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
@@ -25,7 +21,8 @@ export type EditableDocumentProps = {
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
-  queryBar?: QueryBarController;
+  onAddToQuery?: (field: string, value: unknown) => void;
+  isInQuery?: (field: string, value: unknown) => boolean;
 };
 
 type EditableDocumentState = {
@@ -255,7 +252,8 @@ class EditableDocument extends React.Component<
         editable
         editing={this.state.editing}
         onEditStart={this.handleStartEditing.bind(this)}
-        queryBar={this.props.queryBar}
+        onAddToQuery={this.props.onAddToQuery}
+        isInQuery={this.props.isInQuery}
       />
     );
   }
@@ -321,7 +319,8 @@ class EditableDocument extends React.Component<
     openInsertDocumentDialog: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     showInsights: PropTypes.bool,
-    queryBar: PropTypes.object,
+    onAddToQuery: PropTypes.func,
+    isInQuery: PropTypes.func,
   };
 }
 

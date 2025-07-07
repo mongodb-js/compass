@@ -11,11 +11,7 @@ import {
 } from 'hadron-document';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import {
-  calculateShowMoreToggleOffset,
-  HadronElement,
-  type QueryBarController,
-} from './element';
+import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
@@ -90,14 +86,16 @@ const HadronDocument: React.FunctionComponent<{
   editing?: boolean;
   onEditStart?: () => void;
   extraGutterWidth?: number;
-  queryBar?: QueryBarController;
+  onAddToQuery?: (field: string, value: unknown) => void;
+  isInQuery?: (field: string, value: unknown) => boolean;
 }> = ({
   value: document,
   editable = false,
   editing = false,
   onEditStart,
   extraGutterWidth,
-  queryBar,
+  onAddToQuery,
+  isInQuery,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -162,7 +160,8 @@ const HadronDocument: React.FunctionComponent<{
                   });
                 }}
                 extraGutterWidth={extraGutterWidth}
-                queryBar={queryBar}
+                onAddToQuery={onAddToQuery}
+                isInQuery={isInQuery}
               ></HadronElement>
             );
           })}
