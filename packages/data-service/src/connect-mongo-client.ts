@@ -112,9 +112,7 @@ export function prepareOIDCOptions({
   if (connectionOptions.oidc?.shareProxyWithConnection) {
     options.applyProxyToOIDC = true;
   } else {
-    options.oidc.customHttpOptions = {
-      agent: createAgent(proxyOptions),
-    };
+    options.applyProxyToOIDC = proxyOptions;
   }
 
   options.oidc.signal = signal;

@@ -1097,7 +1097,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       'options.oidc.notifyDeviceFlow',
       'options.oidc.signal',
       'options.oidc.allowedFlows',
-      'options.oidc.customHttpOptions.agent'
+      'options.oidc.customFetch',
+      'options.oidc.customHttpOptions'
     );
   }
 
