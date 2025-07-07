@@ -66,6 +66,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.4.14",
     "@mongodb-js/compass-app-stores": "^7.50.0",
     "@mongodb-js/compass-collection": "^4.63.0",
     "@mongodb-js/compass-components": "^1.42.0",
@@ -78,12 +79,11 @@
     "@mongodb-js/compass-telemetry": "^1.10.3",
     "@mongodb-js/compass-workspaces": "^0.45.0",
     "@mongodb-js/mongodb-constants": "^0.12.1",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "compass-preferences-model": "^2.44.0",
-    "@mongodb-js/compass-app-registry": "^9.4.14",
     "javascript-stringify": "^2.0.1",
     "lodash": "^4.17.21",
-    "mongodb": "^6.16.0",
+    "mongodb": "^6.17.0",
     "mongodb-ns": "^2.4.2",
     "mongodb-query-parser": "^4.3.0",
     "react": "^17.0.2",
