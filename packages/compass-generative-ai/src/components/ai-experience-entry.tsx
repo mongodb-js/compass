@@ -171,6 +171,16 @@ ${getAIEntrySVGString()}`;
 
   containerEl.appendChild(aiButtonEl);
 
+  // Workarond for https://github.com/codemirror/dev/issues/1519: codemirror
+  // will try to `cloneNode` the placeholder (for somewhat good reasons) which
+  // doesn't carry over the events we attach. There's no way to opt-out of this
+  // behavior, so we're just overriding cloneNode function to stop this from
+  // happening. This is covered by tests, so in case it stops working, we will
+  // know
+  containerEl.cloneNode = () => {
+    return containerEl;
+  };
+
   return containerEl;
 }
 
