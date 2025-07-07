@@ -504,20 +504,22 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
+  const { isInQuery, toggleQueryFilter } = queryBar || {};
+
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(queryBar
+      ...(isInQuery && toggleQueryFilter
         ? [
             {
-              label: queryBar.isInQuery(
+              label: isInQuery(
                 getNestedKeyPathForElement(element),
                 element.generateObject()
               )
                 ? 'Remove from query'
                 : 'Add to query',
               onAction: () => {
-                queryBar.toggleQueryFilter(
+                toggleQueryFilter(
                   getNestedKeyPathForElement(element),
                   element.generateObject()
                 );
@@ -544,7 +546,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.value, type.value, queryBar]
+    [element, key.value, value.value, type.value, isInQuery, toggleQueryFilter]
   );
 
   const toggleExpanded = () => {

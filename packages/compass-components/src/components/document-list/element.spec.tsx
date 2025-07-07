@@ -3,7 +3,11 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import { HadronElement, getNestedKeyPathForElement } from './element';
+import {
+  HadronElement,
+  type QueryBarController,
+  getNestedKeyPathForElement,
+} from './element';
 import type { Element } from 'hadron-document';
 
 describe('HadronElement', function () {
@@ -32,12 +36,9 @@ describe('HadronElement', function () {
 
       // Mock queryBar controller
       const mockQueryBar = {
-        isInQuery: sinon.stub(),
+        isInQuery: sinon.stub().returns(false),
         toggleQueryFilter: sinon.spy(),
       };
-
-      // Initially not in query
-      mockQueryBar.isInQuery.returns(false);
 
       const { rerender } = render(
         <HadronElement
@@ -46,7 +47,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          queryBar={mockQueryBar}
+          queryBar={mockQueryBar as unknown as QueryBarController}
         />
       );
 
@@ -57,12 +58,10 @@ describe('HadronElement', function () {
       expect(screen.getByText('Add to query')).to.exist;
       expect(screen.queryByText('Remove from query')).to.not.exist;
 
-      // Click "Add to query"
       userEvent.click(screen.getByText('Add to query'), undefined, {
         skipPointerEventsCheck: true,
       });
 
-      // Verify toggleQueryFilter was called with correct parameters
       expect(mockQueryBar.toggleQueryFilter).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
@@ -79,7 +78,10 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          queryBar={mockQueryBar}
+          queryBar={{
+            ...mockQueryBar,
+            isInQuery: sinon.stub().returns(true),
+          }}
         />
       );
 
@@ -89,12 +91,10 @@ describe('HadronElement', function () {
       expect(screen.getByText('Remove from query')).to.exist;
       expect(screen.queryByText('Add to query')).to.not.exist;
 
-      // Click "Remove from query"
       userEvent.click(screen.getByText('Remove from query'), undefined, {
         skipPointerEventsCheck: true,
       });
 
-      // Verify toggleQueryFilter was called again
       expect(mockQueryBar.toggleQueryFilter).to.have.been.calledTwice;
       expect(mockQueryBar.toggleQueryFilter.secondCall).to.have.been.calledWith(
         'user.name',
