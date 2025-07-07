@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
+import {
+  type QueryBarController,
+  css,
+  spacing,
+  DocumentList,
+} from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
@@ -29,8 +34,7 @@ export type ReadonlyDocumentProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   showInsights?: boolean;
-  onAddToQuery?: (field: string, value: unknown) => void;
-  isInQuery?: (field: string, value: unknown) => boolean;
+  queryBar?: QueryBarController;
 };
 
 type ReadonlyDocumentState = {
@@ -139,8 +143,7 @@ class ReadonlyDocument extends React.Component<
           value={this.props.doc}
           // Provide extra whitespace for the expand button
           extraGutterWidth={spacing[900]}
-          onAddToQuery={this.props.onAddToQuery}
-          isInQuery={this.props.isInQuery}
+          queryBar={this.props.queryBar}
         />
       </>
     );
