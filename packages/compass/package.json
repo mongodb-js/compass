@@ -274,7 +274,7 @@
     "semver": "^7.6.2",
     "sinon": "^8.1.1",
     "source-code-pro": "^2.38.0",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "web-vitals": "^2.1.2",
     "winreg-ts": "^1.0.4"
   },

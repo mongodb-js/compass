@@ -1,6 +1,7 @@
 import type {
   PreferencesAccess,
   UserConfigurablePreferences,
+  PreferenceStateInformation,
 } from 'compass-preferences-model';
 import { pick } from '../utils/pick';
 
@@ -35,7 +36,11 @@ export class PreferencesSandbox {
     await this.sandbox.savePreferences({ [field]: value });
   }
 
-  async getSandboxState() {
+  async getSandboxState(): Promise<{
+    userPreferences: UserConfigurablePreferences;
+    preferenceStates: PreferenceStateInformation;
+    updatedFields: (keyof UserConfigurablePreferences)[];
+  }> {
     const [userPreferences, preferenceStates] = await Promise.all([
       this.sandbox.getConfigurableUserPreferences(),
       this.sandbox.getPreferenceStates(),

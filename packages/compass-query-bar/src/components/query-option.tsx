@@ -87,7 +87,7 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryBarProperty, value: string) => void;
-  placeholder?: string | HTMLElement;
+  placeholder?: string | (() => HTMLElement);
   onApply?(): void;
   disabled?: boolean;
 };
