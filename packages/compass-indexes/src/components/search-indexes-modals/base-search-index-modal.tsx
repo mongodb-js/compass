@@ -199,7 +199,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         const connectionInfo = connectionInfoRef.current;
         track(
           'Screen',
-          { name: `${mode}_search_index_modal` as const },
+          {
+            name:
+              mode === 'create'
+                ? 'create_search_index_modal'
+                : 'update_search_index_modal',
+          },
           connectionInfo
         );
         if (mode === 'create') {

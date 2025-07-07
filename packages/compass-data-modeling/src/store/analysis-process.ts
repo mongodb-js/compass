@@ -144,7 +144,7 @@ export function startAnalysis(
     const namespaces = collections.map((collName) => {
       return `${database}.${collName}`;
     });
-    const cancelController = (services.cancelControllerRef.current =
+    const cancelController = (services.cancelAnalysisControllerRef.current =
       new AbortController());
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
@@ -204,6 +204,11 @@ export function startAnalysis(
         collections,
         relations: [],
       });
+
+      services.track('Data Modeling Diagram Created', {
+        num_collections: collections.length,
+      });
+
       void services.dataModelStorage.save(
         getCurrentDiagramFromState(getState())
       );
@@ -223,7 +228,7 @@ export function startAnalysis(
         });
       }
     } finally {
-      services.cancelControllerRef.current = null;
+      services.cancelAnalysisControllerRef.current = null;
     }
   };
 }
@@ -250,8 +255,8 @@ export function retryAnalysis(): DataModelingThunkAction<void, never> {
 }
 
 export function cancelAnalysis(): DataModelingThunkAction<void, never> {
-  return (_dispatch, _getState, { cancelControllerRef }) => {
-    cancelControllerRef.current?.abort();
-    cancelControllerRef.current = null;
+  return (_dispatch, _getState, { cancelAnalysisControllerRef }) => {
+    cancelAnalysisControllerRef.current?.abort();
+    cancelAnalysisControllerRef.current = null;
   };
 }

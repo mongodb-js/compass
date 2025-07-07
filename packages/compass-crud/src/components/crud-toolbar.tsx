@@ -13,6 +13,7 @@ import {
   Select,
   Option,
   SignalPopover,
+  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -201,8 +202,97 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
   );
+
+  const contextMenuRef = useContextMenuItems(
+    () => [
+      {
+        label: 'Expand all documents',
+        onAction: () => {
+          onExpandAllClicked();
+        },
+      },
+      {
+        label: 'Collapse all documents',
+        onAction: () => {
+          onCollapseAllClicked();
+        },
+      },
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Import JSON or CSV file',
+              onAction: () => {
+                insertDataHandler('import-file');
+              },
+            },
+          ]
+        : []),
+      ...(!readonly
+        ? [
+            {
+              label: 'Insert document...',
+              onAction: () => {
+                insertDataHandler('insert-document');
+              },
+            },
+          ]
+        : []),
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Export query results...',
+              onAction: () => {
+                openExportFileDialog(false);
+              },
+            },
+            {
+              label: 'Export full collection...',
+              onAction: () => {
+                openExportFileDialog(true);
+              },
+            },
+          ]
+        : []),
+      ...(!readonly && isWritable && !shouldDisableBulkOp
+        ? [
+            {
+              label: 'Bulk update',
+              onAction: () => {
+                onUpdateButtonClicked();
+              },
+            },
+            {
+              label: 'Bulk delete',
+              onAction: () => {
+                onDeleteButtonClicked();
+              },
+            },
+          ]
+        : []),
+      {
+        label: 'Refresh',
+        onAction: () => {
+          onClickRefreshDocuments();
+        },
+      },
+    ],
+    [
+      isImportExportEnabled,
+      readonly,
+      isWritable,
+      shouldDisableBulkOp,
+      onCollapseAllClicked,
+      onExpandAllClicked,
+      insertDataHandler,
+      openExportFileDialog,
+      onUpdateButtonClicked,
+      onDeleteButtonClicked,
+      onClickRefreshDocuments,
+    ]
+  );
+
   return (
-    <div className={crudToolbarStyles}>
+    <div className={crudToolbarStyles} ref={contextMenuRef}>
       <div className={crudQueryBarStyles}>
         <QueryBar
           source="crud"

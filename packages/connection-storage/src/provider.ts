@@ -34,3 +34,8 @@ export const connectionStorageLocator = createServiceLocator(
   useConnectionStorageContext,
   'connectionStorageLocator'
 );
+
+export {
+  type ExportConnectionOptions,
+  type ImportConnectionOptions,
+} from './import-export-connection';

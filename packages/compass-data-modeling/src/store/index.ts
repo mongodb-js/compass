@@ -6,6 +6,7 @@ import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/pro
 import type { DataModelStorageService } from '../provider';
 import { applyMiddleware, createStore } from 'redux';
 import reducer from './reducer';
+import type { DataModelingExtraArgs } from './reducer';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
@@ -25,11 +26,16 @@ export function activateDataModelingStore(
   services: DataModelingStoreServices,
   { cleanup }: ActivateHelpers
 ) {
-  const cancelControllerRef = { current: null };
+  const cancelAnalysisControllerRef = { current: null };
+  const cancelExportControllerRef = { current: null };
   const store = createStore(
     reducer,
     applyMiddleware(
-      thunk.withExtraArgument({ ...services, cancelControllerRef })
+      thunk.withExtraArgument<DataModelingExtraArgs>({
+        ...services,
+        cancelAnalysisControllerRef,
+        cancelExportControllerRef,
+      })
     )
   );
   return { store, deactivate: cleanup };

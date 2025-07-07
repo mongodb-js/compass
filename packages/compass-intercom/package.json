@@ -62,7 +62,7 @@
     "gen-esm-wrapper": "^1.1.0",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "compass-preferences-model": "^2.43.0",
