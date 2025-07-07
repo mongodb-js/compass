@@ -8,7 +8,6 @@ import type {
 import {
   createSocks5Tunnel,
   hookLogger as hookProxyLogger,
-  createAgent,
 } from '@mongodb-js/devtools-proxy-support';
 import type {
   DevtoolsProxyOptions,
