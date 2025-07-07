@@ -62,14 +62,14 @@ This document was automatically generated on Mon Jul 07 2025.
 | **[@babel/template](#3107e6f72c0a3922c944ef03103cb682de367d0233153b4858d9116b3ef6f72b)**                                    | 7.27.2       | MIT                                 |
 | **[@babel/traverse](#cbf060c0be202d0c980a972f5d555221bd01e3010bb774e5a2e5671e4ebbc78a)**                                    | 7.27.1       | MIT                                 |
 | **[@babel/types](#9021b399ca3cefdefb2e38ca064c3f445f1976553f8c3aa6ae92a051f1644a9f)**                                       | 7.27.1       | MIT                                 |
-| **[@codemirror/autocomplete](#62d2362c07f0c11664969b60d0d7c3e081905838b8994675aaf0e6c67baf358d)**                           | 6.17.0       | MIT                                 |
+| **[@codemirror/autocomplete](#04c5b19453a17337ac1fa61fdf8135c478a0bf0418cd65c67d20a948d9a84a96)**                           | 6.18.6       | MIT                                 |
 | **[@codemirror/commands](#2f61f8e56ba96e99b4f9ceacf0af3ddae5edec5e935a2a5f9af4546e36c9767e)**                               | 6.8.1        | MIT                                 |
-| **[@codemirror/lang-javascript](#d5fb6a843784efdc3ec06ae43bdf3ca13ec93a6bce802995a47cf7bddafc9628)**                        | 6.1.2        | MIT                                 |
-| **[@codemirror/lang-json](#8681100c5ce2bab822c877bc288cac59b84b13ff17735c301d4e1c7fa5924720)**                              | 6.0.1        | MIT                                 |
-| **[@codemirror/language](#5528845a8e28aec6e48cb76145e25db0921b87499dc07ab852cdeca48b9f87a6)**                               | 6.3.2        | MIT                                 |
-| **[@codemirror/lint](#9b9400c17e0d1474348d87ba1131d9609c3598ea4d575380f81fd746b02ec796)**                                   | 6.1.1        | MIT                                 |
-| **[@codemirror/state](#7db8880200a14064e03a5e8dd0483aa16511fc8a0c4e09353d51816771f8b63d)**                                  | 6.4.1        | MIT                                 |
-| **[@codemirror/view](#f6bea8a649eb633e0e66739e6d3bee4d37893904778e421d126f1e5ae250c9fb)**                                   | 6.28.4       | MIT                                 |
+| **[@codemirror/lang-javascript](#c993e60d32ea01022c60d139ab9e37bda1f9b92d1bb4bd13dec23962895308fe)**                        | 6.2.4        | MIT                                 |
+| **[@codemirror/lang-json](#873e837cb8453860aaf0c2da45420730e767734221ea5b9ebc7f1c759ce19073)**                              | 6.0.2        | MIT                                 |
+| **[@codemirror/language](#1de5c1e8f8b69a838756e1446f9f0f66ae2b345d443a9be8b26a5ad910af8c21)**                               | 6.11.2       | MIT                                 |
+| **[@codemirror/lint](#dd55b9bcaee9d5e5d8a65608aac88c1b5be9b7548cc512d638fcc9ae110d3d96)**                                   | 6.8.5        | MIT                                 |
+| **[@codemirror/state](#27f685aebb1baf031acfbc485d9894c0db3015eb9fb5b3f6f0dec784cd299662)**                                  | 6.5.2        | MIT                                 |
+| **[@codemirror/view](#77ff86de754b5579e09429f5ce4fe1086afa3e97d166b6c0ef516020e3040980)**                                   | 6.38.0       | MIT                                 |
 | **[@dnd-kit/accessibility](#bf712d0ed1df4df5829a9e9695c42e816564346a70cab60f6eaf9c141f8b510d)**                             | 3.0.1        | MIT                                 |
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
@@ -98,11 +98,12 @@ This document was automatically generated on Mon Jul 07 2025.
 | **[@jridgewell/sourcemap-codec](#7b2141e6a44d38d8458ddcb163c26ab65d5782f6c25465b1954182593dd0c2c4)**                        | 1.5.0        | MIT                                 |
 | **[@jridgewell/trace-mapping](#73923b51cccefe7db1ead00c09a18978443a238d51a858a7a0c86868a9a4ea3f)**                          | 0.3.25       | MIT                                 |
 | **[@lezer/common](#4bf054ecf9e3b46b5959ff484326d62af9e9d7698317b1e8a5f11a5ebf66534a)**                                      | 1.2.1        | MIT                                 |
-| **[@lezer/highlight](#30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6)**                                   | 1.2.0        | MIT                                 |
+| **[@lezer/highlight](#e20ff3cb6e3558d3c5a2390b5d0fa814f817dbcdccd604205cf20190df4ed9ca)**                                   | 1.2.1        | MIT                                 |
 | **[@lezer/javascript](#6f8d761b240b610d6ad180799f8b36219b20649cbce80bd3cb7e669082e92ef3)**                                  | 1.3.2        | MIT                                 |
 | **[@lezer/json](#7869bdb7c09e2ae1e28909eb504f475477cc5ed0750dc8ccee42886961975253)**                                        | 1.0.0        | MIT                                 |
 | **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1        | MIT                                 |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
+| **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2        | MIT                                 |
 | **[@nicolo-ribaudo/semver-v6](#0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd)**                          | 6.3.3        | ISC                                 |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1        | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0        | Apache-2.0                          |
@@ -203,7 +204,7 @@ This document was automatically generated on Mon Jul 07 2025.
 | **[cookie](#6fffbd43d8f0d9a659c21e31a0935f0a1226c9990be593a9649dcd61e4db1204)**                                             | 0.7.1        | MIT                                 |
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3       | MIT                                 |
 | **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9        | MIT                                 |
-| **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**                                              | 1.0.5        | MIT                                 |
+| **[crelt](#806aff03b8ffaac07d96530102f540d10d005fc2cedb14e55e25e1bbd78a12a8)**                                              | 1.0.6        | MIT                                 |
 | **[cross-fetch](#a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7)**                                        | 3.2.0        | MIT                                 |
 | **[cross-spawn](#50cb51119b3e7a0445ea15e1e026e95d2137df62a2bd344230886c9dcc0a7e64)**                                        | 7.0.6        | MIT                                 |
 | **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**                                         | 4.3.0        | MIT                                 |
@@ -499,7 +500,7 @@ This document was automatically generated on Mon Jul 07 2025.
 | **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**                                       | 0.6.0        | Apache-2.0                          |
 | **[tweetnacl](#496caef692284d7a5d6acd31283b785ebca47d82b2d85c9af7ea1913bb4b49a8)**                                          | 0.14.5       | Unlicense                           |
 | **[type-is](#12dbb9fcc3a6de5bbd595659bff8b688d45fff57a2014441e4fe6779f5eeb7e2)**                                            | 1.6.18       | MIT                                 |
-| **[typescript](#5f7b2ee6da2f1d8025016d8ff14ad3add4ab99c5c48a8f8af13dc498031c8097)**                                         | 5.0.4        | Apache-2.0                          |
+| **[typescript](#6cb25bc9ba0f21035f44b6adb3efea5debe28ff4ea5b63543f704bf2b8d6ebaa)**                                         | 5.8.3        | Apache-2.0                          |
 | **[universalify](#c381098afc5e144dfbd23d044afa2bf9bcf3dcadb7eb397d379f6cfd0ed47001)**                                       | 2.0.0        | MIT                                 |
 | **[unpipe](#3a555405bd00c7e7e52b07a5600248bdaa683db613d7c286e425511cee8ed14a)**                                             | 1.0.0        | MIT                                 |
 | **[untildify](#511cd56aa5943fd465da93776449b0a7249438206b5c5bfc22cc6d7e55ab0029)**                                          | 4.0.0        | MIT                                 |
@@ -5936,9 +5937,9 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="62d2362c07f0c11664969b60d0d7c3e081905838b8994675aaf0e6c67baf358d"></a>
+<a id="04c5b19453a17337ac1fa61fdf8135c478a0bf0418cd65c67d20a948d9a84a96"></a>
 
-### [@codemirror/autocomplete](https://www.npmjs.com/package/@codemirror/autocomplete) (version 6.17.0)
+### [@codemirror/autocomplete](https://www.npmjs.com/package/@codemirror/autocomplete) (version 6.18.6)
 
 License tags: MIT
 
@@ -6000,105 +6001,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="d5fb6a843784efdc3ec06ae43bdf3ca13ec93a6bce802995a47cf7bddafc9628"></a>
+<a id="c993e60d32ea01022c60d139ab9e37bda1f9b92d1bb4bd13dec23962895308fe"></a>
 
-### [@codemirror/lang-javascript](https://www.npmjs.com/package/@codemirror/lang-javascript) (version 6.1.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-<a id="8681100c5ce2bab822c877bc288cac59b84b13ff17735c301d4e1c7fa5924720"></a>
-
-### [@codemirror/lang-json](https://www.npmjs.com/package/@codemirror/lang-json) (version 6.0.1)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-<a id="5528845a8e28aec6e48cb76145e25db0921b87499dc07ab852cdeca48b9f87a6"></a>
-
-### [@codemirror/language](https://www.npmjs.com/package/@codemirror/language) (version 6.3.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-<a id="9b9400c17e0d1474348d87ba1131d9609c3598ea4d575380f81fd746b02ec796"></a>
-
-### [@codemirror/lint](https://www.npmjs.com/package/@codemirror/lint) (version 6.1.1)
+### [@codemirror/lang-javascript](https://www.npmjs.com/package/@codemirror/lang-javascript) (version 6.2.4)
 
 License tags: MIT
 
@@ -6128,9 +6033,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="7db8880200a14064e03a5e8dd0483aa16511fc8a0c4e09353d51816771f8b63d"></a>
+<a id="873e837cb8453860aaf0c2da45420730e767734221ea5b9ebc7f1c759ce19073"></a>
 
-### [@codemirror/state](https://www.npmjs.com/package/@codemirror/state) (version 6.4.1)
+### [@codemirror/lang-json](https://www.npmjs.com/package/@codemirror/lang-json) (version 6.0.2)
 
 License tags: MIT
 
@@ -6160,9 +6065,105 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="f6bea8a649eb633e0e66739e6d3bee4d37893904778e421d126f1e5ae250c9fb"></a>
+<a id="1de5c1e8f8b69a838756e1446f9f0f66ae2b345d443a9be8b26a5ad910af8c21"></a>
 
-### [@codemirror/view](https://www.npmjs.com/package/@codemirror/view) (version 6.28.4)
+### [@codemirror/language](https://www.npmjs.com/package/@codemirror/language) (version 6.11.2)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="dd55b9bcaee9d5e5d8a65608aac88c1b5be9b7548cc512d638fcc9ae110d3d96"></a>
+
+### [@codemirror/lint](https://www.npmjs.com/package/@codemirror/lint) (version 6.8.5)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="27f685aebb1baf031acfbc485d9894c0db3015eb9fb5b3f6f0dec784cd299662"></a>
+
+### [@codemirror/state](https://www.npmjs.com/package/@codemirror/state) (version 6.5.2)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="77ff86de754b5579e09429f5ce4fe1086afa3e97d166b6c0ef516020e3040980"></a>
+
+### [@codemirror/view](https://www.npmjs.com/package/@codemirror/view) (version 6.38.0)
 
 License tags: MIT
 
@@ -7072,9 +7073,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6"></a>
+<a id="e20ff3cb6e3558d3c5a2390b5d0fa814f817dbcdccd604205cf20190df4ed9ca"></a>
 
-### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.2.0)
+### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.2.1)
 
 License tags: MIT
 
@@ -7219,6 +7220,38 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243"></a>
+
+### [@marijn/find-cluster-break](https://www.npmjs.com/package/@marijn/find-cluster-break) (version 1.0.2)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (C) 2024 by Marijn Haverbeke <marijn@haverbeke.berlin>
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
 
 <a id="0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd"></a>
 
@@ -17603,9 +17636,9 @@ License files:
 
       IN THE SOFTWARE.
 
-<a id="9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9"></a>
+<a id="806aff03b8ffaac07d96530102f540d10d005fc2cedb14e55e25e1bbd78a12a8"></a>
 
-### [crelt](https://www.npmjs.com/package/crelt) (version 1.0.5)
+### [crelt](https://www.npmjs.com/package/crelt) (version 1.0.6)
 
 License tags: MIT
 
@@ -17613,7 +17646,7 @@ License files:
 
 - LICENSE:
 
-      Copyright (C) 2020 by Marijn Haverbeke <marijnh@gmail.com>
+      Copyright (C) 2020 by Marijn Haverbeke <marijn@haverbeke.berlin>
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -36014,9 +36047,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="5f7b2ee6da2f1d8025016d8ff14ad3add4ab99c5c48a8f8af13dc498031c8097"></a>
+<a id="6cb25bc9ba0f21035f44b6adb3efea5debe28ff4ea5b63543f704bf2b8d6ebaa"></a>
 
-### [typescript](https://www.npmjs.com/package/typescript) (version 5.0.4)
+### [typescript](https://www.npmjs.com/package/typescript) (version 5.8.3)
 
 License tags: Apache-2.0
 
