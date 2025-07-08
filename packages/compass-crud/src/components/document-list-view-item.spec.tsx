@@ -1,32 +1,12 @@
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import QueryBarPlugin from '@mongodb-js/compass-query-bar';
-import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { DocumentListViewItem } from './document-list-view-item';
-
-const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
-  dataService: {
-    sample() {
-      return Promise.resolve([]);
-    },
-    getConnectionString() {
-      return { hosts: [] } as any;
-    },
-  },
-  instance: { on() {}, removeListener() {} } as any,
-  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-  recentQueryStorageAccess: compassRecentQueryStorageAccess,
-  atlasAiService: {} as any,
-});
 
 describe('DocumentListViewItem', function () {
   let doc: HadronDocument;
@@ -37,22 +17,19 @@ describe('DocumentListViewItem', function () {
   function renderDocumentListViewItem(
     props?: Partial<React.ComponentProps<typeof DocumentListViewItem>>
   ) {
-    const queryBarProps = {};
-
-    return render(
-      <PreferencesProvider value={preferences}>
-        <MockQueryBarPlugin {...(queryBarProps as any)}>
-          <DocumentListViewItem
-            doc={doc}
-            docRef={null}
-            docIndex={0}
-            isEditable={true}
-            copyToClipboard={copyToClipboardStub}
-            openInsertDocumentDialog={openInsertDocumentDialogStub}
-            {...props}
-          />
-        </MockQueryBarPlugin>
-      </PreferencesProvider>
+    return renderWithQueryBar(
+      <DocumentListViewItem
+        doc={doc}
+        docRef={null}
+        docIndex={0}
+        isEditable={true}
+        copyToClipboard={copyToClipboardStub}
+        openInsertDocumentDialog={openInsertDocumentDialogStub}
+        {...props}
+      />,
+      {
+        preferences,
+      }
     );
   }
 
