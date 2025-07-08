@@ -4,6 +4,7 @@ import {
   closeToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
+import { MongoNetworkError } from 'mongodb';
 
 type BulkDeleteSuccessToastProps = {
   affectedDocuments?: number;
@@ -72,32 +73,47 @@ export function openBulkDeleteProgressToast({
   });
 }
 
-type BulkDeleteFailureToastProps = {
+type BulkOperationFailureToastProps = {
   affectedDocuments?: number;
+  error: Error;
+  type: 'delete' | 'update';
 };
 
-export function openBulkDeleteFailureToast({
+const isNetworkError = (error: Error) => error instanceof MongoNetworkError;
+
+export function openBulkOperationFailureToast({
   affectedDocuments,
-}: BulkDeleteFailureToastProps): void {
-  let text;
-  switch (affectedDocuments) {
-    case undefined:
-      text = 'The delete operation failed.';
-      break;
-    case 1:
-      text = `${affectedDocuments} document could not been deleted.`;
-      break;
-    default:
-      text = `${affectedDocuments} documents could not been deleted.`;
+  error,
+  type,
+}: BulkOperationFailureToastProps): void {
+  let title: string;
+  if (isNetworkError(error)) {
+    title = `${
+      type === 'delete' ? 'Delete' : 'Update'
+    } operation - network error occurred.`;
+  } else if (affectedDocuments === undefined) {
+    title = `The ${type} operation failed.`;
+  } else if (affectedDocuments === 1) {
+    title = `${affectedDocuments} document could not be ${
+      type === 'delete' ? 'deleted' : 'updated'
+    }.`;
+  } else {
+    title = `${affectedDocuments} documents could not be ${
+      type === 'delete' ? 'deleted' : 'updated'
+    }.`;
   }
 
-  openToast('bulk-delete-toast', {
-    title: '',
+  openToast(`bulk-${type}-toast`, {
+    title,
     variant: 'warning',
     dismissible: true,
-    description: <ToastBody statusMessage={text} />,
+    description: <ToastBody statusMessage={error.message} />,
   });
 }
+
+export const openBulkDeleteFailureToast = (
+  props: Omit<BulkOperationFailureToastProps, 'type'>
+): void => openBulkOperationFailureToast({ ...props, type: 'delete' });
 
 type BulkUpdateSuccessToastProps = {
   affectedDocuments?: number;
@@ -166,29 +182,6 @@ export function openBulkUpdateProgressToast({
   });
 }
 
-type BulkUpdateFailureToastProps = {
-  affectedDocuments?: number;
-};
-
-export function openBulkUpdateFailureToast({
-  affectedDocuments,
-}: BulkUpdateFailureToastProps): void {
-  let text;
-  switch (affectedDocuments) {
-    case undefined:
-      text = 'The update operation failed.';
-      break;
-    case 1:
-      text = `${affectedDocuments} document could not been updated.`;
-      break;
-    default:
-      text = `${affectedDocuments} documents could not been updated.`;
-  }
-
-  openToast('bulk-update-toast', {
-    title: '',
-    variant: 'warning',
-    dismissible: true,
-    description: <ToastBody statusMessage={text} />,
-  });
-}
+export const openBulkUpdateFailureToast = (
+  props: Omit<BulkOperationFailureToastProps, 'type'>
+): void => openBulkOperationFailureToast({ ...props, type: 'update' });
