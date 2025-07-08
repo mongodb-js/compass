@@ -514,7 +514,7 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(onAddToQuery && query !== undefined
+      ...(onAddToQuery
         ? [
             {
               label: isFieldInQuery(
@@ -551,15 +551,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [
-      element,
-      key.value,
-      value.value,
-      type.value,
-      onAddToQuery,
-      query,
-      isFieldInQuery,
-    ]
+    [element, key.value, value.value, type.value, onAddToQuery, isFieldInQuery]
   );
 
   const toggleExpanded = () => {
