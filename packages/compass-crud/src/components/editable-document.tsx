@@ -4,6 +4,7 @@ import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model/provider';
+import type { Query } from '@mongodb-js/compass-query-bar';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
@@ -22,7 +23,7 @@ export type EditableDocumentProps = {
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
   onAddToQuery?: (field: string, value: unknown) => void;
-  isInQuery?: (field: string, value: unknown) => boolean;
+  query?: Query;
 };
 
 type EditableDocumentState = {
@@ -253,7 +254,7 @@ class EditableDocument extends React.Component<
         editing={this.state.editing}
         onEditStart={this.handleStartEditing.bind(this)}
         onAddToQuery={this.props.onAddToQuery}
-        isInQuery={this.props.isInQuery}
+        query={this.props.query}
       />
     );
   }
@@ -269,7 +270,7 @@ class EditableDocument extends React.Component<
         doc={this.props.doc}
         editing={this.state.editing}
         deleting={this.state.deleting}
-        onUpdate={(force) => {
+        onUpdate={(force: boolean) => {
           if (force) {
             void this.props.replaceDocument?.(this.props.doc);
           } else {
@@ -320,7 +321,7 @@ class EditableDocument extends React.Component<
     copyToClipboard: PropTypes.func.isRequired,
     showInsights: PropTypes.bool,
     onAddToQuery: PropTypes.func,
-    isInQuery: PropTypes.func,
+    query: PropTypes.object,
   };
 }
 

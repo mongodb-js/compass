@@ -3,11 +3,7 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import {
-  HadronElement,
-  type QueryBarController,
-  getNestedKeyPathForElement,
-} from './element';
+import { HadronElement, getNestedKeyPathForElement } from './element';
 import type { Element } from 'hadron-document';
 
 describe('HadronElement', function () {
@@ -34,12 +30,10 @@ describe('HadronElement', function () {
       const nestedDoc = new HadronDocument({ user: { name: 'John' } });
       const nestedElement = nestedDoc.get('user')!.get('name')!;
 
-      // Mock queryBar controller
-      const mockQueryBar = {
-        isInQuery: sinon.stub().returns(false),
-        toggleQueryFilter: sinon.spy(),
-      };
+      // Mock onAddToQuery callback
+      const mockOnAddToQuery = sinon.spy();
 
+      // Start with empty query
       const { rerender } = render(
         <HadronElement
           value={nestedElement}
@@ -47,7 +41,8 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          queryBar={mockQueryBar as unknown as QueryBarController}
+          onAddToQuery={mockOnAddToQuery}
+          query={{ filter: {} }}
         />
       );
 
@@ -62,15 +57,19 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledWith(
+      expect(mockOnAddToQuery).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
 
       // Now simulate that the field is in query
-      mockQueryBar.isInQuery.returns(true);
+      const queryWithField = {
+        filter: {
+          'user.name': nestedElement.generateObject(),
+        },
+      };
 
-      // Re-render with updated queryBar state
+      // Re-render with updated query state
       rerender(
         <HadronElement
           value={nestedElement}
@@ -78,10 +77,8 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          queryBar={{
-            ...mockQueryBar,
-            isInQuery: sinon.stub().returns(true),
-          }}
+          onAddToQuery={mockOnAddToQuery}
+          query={queryWithField}
         />
       );
 
@@ -95,8 +92,8 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledTwice;
-      expect(mockQueryBar.toggleQueryFilter.secondCall).to.have.been.calledWith(
+      expect(mockOnAddToQuery).to.have.been.calledTwice;
+      expect(mockOnAddToQuery.secondCall).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
@@ -194,7 +191,7 @@ describe('HadronElement', function () {
       expect(screen.queryByText('Open URL in browser')).to.not.exist;
     });
 
-    it('does not show "Add to query" when queryBar is not provided', function () {
+    it('does not show "Add to query" when onAddToQuery is not provided', function () {
       render(
         <HadronElement
           value={element}
@@ -213,10 +210,7 @@ describe('HadronElement', function () {
     it('calls the correct parameters when "Add to query" is clicked', function () {
       const nestedDoc = new HadronDocument({ user: { name: 'John' } });
       const nestedElement = nestedDoc.get('user')!.get('name')!;
-      const mockQueryBar = {
-        isInQuery: sinon.stub().returns(false),
-        toggleQueryFilter: sinon.spy(),
-      };
+      const mockOnAddToQuery = sinon.spy();
 
       render(
         <HadronElement
@@ -225,7 +219,8 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          queryBar={mockQueryBar}
+          onAddToQuery={mockOnAddToQuery}
+          query={{ filter: {} }}
         />
       );
 
@@ -237,7 +232,7 @@ describe('HadronElement', function () {
       });
 
       // Verify that toggleQueryFilter was called with the nested field path and element's generated object
-      expect(mockQueryBar.toggleQueryFilter).to.have.been.calledWith(
+      expect(mockOnAddToQuery).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );

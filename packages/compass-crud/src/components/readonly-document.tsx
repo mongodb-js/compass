@@ -6,6 +6,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
+import type { Query } from '@mongodb-js/compass-query-bar';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -30,7 +31,7 @@ export type ReadonlyDocumentProps = {
   doc: Document;
   showInsights?: boolean;
   onAddToQuery?: (field: string, value: unknown) => void;
-  isInQuery?: (field: string, value: unknown) => boolean;
+  query?: Query;
 };
 
 type ReadonlyDocumentState = {
@@ -140,7 +141,7 @@ class ReadonlyDocument extends React.Component<
           // Provide extra whitespace for the expand button
           extraGutterWidth={spacing[900]}
           onAddToQuery={this.props.onAddToQuery}
-          isInQuery={this.props.isInQuery}
+          query={this.props.query}
         />
       </>
     );
@@ -188,7 +189,7 @@ class ReadonlyDocument extends React.Component<
     openInsertDocumentDialog: PropTypes.func,
     showInsights: PropTypes.bool,
     onAddToQuery: PropTypes.func,
-    isInQuery: PropTypes.func,
+    query: PropTypes.object,
   };
 }
 

@@ -30,6 +30,8 @@ import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { useContextMenuItems } from '../context-menu';
+import { hasDistinctValue } from 'mongodb-query-util';
+import type { Query } from '@mongodb-js/compass-query-bar';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -428,7 +430,7 @@ const isValidUrl = (str: string): boolean => {
 export const getNestedKeyPathForElement = (
   element: HadronElementType
 ): string => {
-  let keyPath = '';
+  const keyPath: string[] = [];
   let currentElement: HadronElementType | HadronDocumentType | null = element;
   while (
     currentElement &&
@@ -436,14 +438,11 @@ export const getNestedKeyPathForElement = (
     currentElement.parent
   ) {
     if (currentElement.parent.currentType !== 'Array') {
-      keyPath =
-        keyPath === ''
-          ? currentElement.currentKey.toString()
-          : currentElement.currentKey.toString() + '.' + keyPath;
+      keyPath.unshift(currentElement.currentKey.toString());
     }
     currentElement = currentElement.parent;
   }
-  return keyPath;
+  return keyPath.join('.');
 };
 
 export const getQueryFilterForElement = (
@@ -467,7 +466,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
-  isInQuery?: (field: string, value: unknown) => boolean;
+  query?: Query;
 }> = ({
   value: element,
   editable,
@@ -477,7 +476,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement,
   extraGutterWidth = 0,
   onAddToQuery,
-  isInQuery,
+  query,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -501,15 +500,24 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
-  const { isInQuery, toggleQueryFilter } = queryBar || {};
+  // Function to check if a field is in the query
+  const isFieldInQuery = useCallback(
+    (field: string, fieldValue: unknown): boolean => {
+      return hasDistinctValue(
+        query?.filter?.[field] as Record<string, unknown>,
+        fieldValue
+      );
+    },
+    [query]
+  );
 
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(onAddToQuery && isInQuery
+      ...(onAddToQuery && query !== undefined
         ? [
             {
-              label: isInQuery(
+              label: isFieldInQuery(
                 getNestedKeyPathForElement(element),
                 element.generateObject()
               )
@@ -543,7 +551,15 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.value, type.value, onAddToQuery, isInQuery]
+    [
+      element,
+      key.value,
+      value.value,
+      type.value,
+      onAddToQuery,
+      query,
+      isFieldInQuery,
+    ]
   );
 
   const toggleExpanded = () => {
@@ -834,7 +850,7 @@ export const HadronElement: React.FunctionComponent<{
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
                 onAddToQuery={onAddToQuery}
-                isInQuery={isInQuery}
+                query={query}
               ></HadronElement>
             );
           })}

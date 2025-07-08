@@ -6,7 +6,6 @@ import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
-import { hasDistinctValue } from 'mongodb-query-util';
 import {
   useChangeQueryBarQuery,
   useQueryBarQuery,
@@ -38,7 +37,7 @@ const Document = (props: DocumentProps) => {
   }, [_doc]);
 
   const changeQuery = useChangeQueryBarQuery();
-  const queryBarQuery = useQueryBarQuery();
+  const query = useQueryBarQuery();
 
   const handleAddToQuery = useCallback(
     (field: string, value: unknown) => {
@@ -50,14 +49,6 @@ const Document = (props: DocumentProps) => {
     [changeQuery]
   );
 
-  const isInQuery = useCallback(
-    (field: string, value: unknown) => {
-      const filter = queryBarQuery.filter?.[field];
-      return hasDistinctValue(filter, value);
-    },
-    [queryBarQuery]
-  );
-
   if (editable && isTimeSeries) {
     return (
       <ReadonlyDocument
@@ -67,7 +58,7 @@ const Document = (props: DocumentProps) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
         onAddToQuery={handleAddToQuery}
-        isInQuery={isInQuery}
+        query={query}
       />
     );
   }
@@ -78,7 +69,7 @@ const Document = (props: DocumentProps) => {
         {...props}
         doc={doc}
         onAddToQuery={handleAddToQuery}
-        isInQuery={isInQuery}
+        query={query}
       />
     );
   }
@@ -88,7 +79,7 @@ const Document = (props: DocumentProps) => {
       doc={doc}
       copyToClipboard={copyToClipboard}
       onAddToQuery={handleAddToQuery}
-      isInQuery={isInQuery}
+      query={query}
     />
   );
 };

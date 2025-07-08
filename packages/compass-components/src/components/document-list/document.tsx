@@ -15,6 +15,7 @@ import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
+import type { Query } from '@mongodb-js/compass-query-bar';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -87,7 +88,7 @@ const HadronDocument: React.FunctionComponent<{
   onEditStart?: () => void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
-  isInQuery?: (field: string, value: unknown) => boolean;
+  query?: Query;
 }> = ({
   value: document,
   editable = false,
@@ -95,7 +96,7 @@ const HadronDocument: React.FunctionComponent<{
   onEditStart,
   extraGutterWidth,
   onAddToQuery,
-  isInQuery,
+  query,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -161,7 +162,7 @@ const HadronDocument: React.FunctionComponent<{
                 }}
                 extraGutterWidth={extraGutterWidth}
                 onAddToQuery={onAddToQuery}
-                isInQuery={isInQuery}
+                query={query}
               ></HadronElement>
             );
           })}
