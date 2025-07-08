@@ -15,7 +15,10 @@ import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
-import type { Query } from '@mongodb-js/compass-query-bar';
+
+export type Query = {
+  filter?: Record<string, unknown>;
+};
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);

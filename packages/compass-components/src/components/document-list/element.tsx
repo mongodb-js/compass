@@ -31,7 +31,7 @@ import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { useContextMenuItems } from '../context-menu';
 import { hasDistinctValue } from 'mongodb-query-util';
-import type { Query } from '@mongodb-js/compass-query-bar';
+import type { Query } from './document';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
