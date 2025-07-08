@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react';
 import {
-  render,
+  renderWithConnections,
   screen,
   cleanup,
   within,
@@ -144,10 +144,13 @@ describe('ConnectionsNavigationTree', function () {
       enableRenameCollectionModal: true,
       ...preferencesOverrides,
     });
-    return render(
+    return renderWithConnections(
       <PreferencesProvider value={preferences}>
         <ConnectionsNavigationTree {...props} {...customProps} />
-      </PreferencesProvider>
+      </PreferencesProvider>,
+      {
+        connections: connections.map((x) => x.connectionInfo),
+      }
     );
   }
 
