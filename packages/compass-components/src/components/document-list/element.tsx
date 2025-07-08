@@ -500,15 +500,18 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
+  const queryFilter = query?.filter;
+
   // Function to check if a field is in the query
+  // TODO: COMPASS-9541 Improve the functionality when checking for nested objects.
   const isFieldInQuery = useCallback(
     (field: string, fieldValue: unknown): boolean => {
       return hasDistinctValue(
-        query?.filter?.[field] as Record<string, unknown>,
+        queryFilter?.[field] as Record<string, unknown>,
         fieldValue
       );
     },
-    [query]
+    [queryFilter]
   );
 
   // Add context menu hook for the field
@@ -733,7 +736,7 @@ export const HadronElement: React.FunctionComponent<{
               // double-clicked on a field and so auto focusing the input is
               // expected in this case
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'key'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'key'}
               editing={editingEnabled}
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'key');
@@ -772,7 +775,7 @@ export const HadronElement: React.FunctionComponent<{
               }}
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'value'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'value'}
               editing={editingEnabled}
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'value');
@@ -814,7 +817,7 @@ export const HadronElement: React.FunctionComponent<{
               type={type.value}
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
+              autoFocus={autoFocus?.id === id && autoFocus?.type === 'type'}
               onChange={(newType) => {
                 type.change(newType);
 
@@ -830,7 +833,7 @@ export const HadronElement: React.FunctionComponent<{
       </div>
       {expandable && expanded && (
         <>
-          {visibleChildren.map((el, idx) => {
+          {visibleChildren.map((el: HadronElementType, idx: React.Key) => {
             return (
               <HadronElement
                 key={idx}
