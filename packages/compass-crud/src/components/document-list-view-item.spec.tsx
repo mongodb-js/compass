@@ -3,14 +3,60 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import QueryBarPlugin from '@mongodb-js/compass-query-bar';
+import {
+  compassFavoriteQueryStorageAccess,
+  compassRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage';
 import { DocumentListViewItem } from './document-list-view-item';
+
+const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
+  dataService: {
+    sample() {
+      return Promise.resolve([]);
+    },
+    getConnectionString() {
+      return { hosts: [] } as any;
+    },
+  },
+  instance: { on() {}, removeListener() {} } as any,
+  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+  recentQueryStorageAccess: compassRecentQueryStorageAccess,
+  atlasAiService: {} as any,
+});
 
 describe('DocumentListViewItem', function () {
   let doc: HadronDocument;
   let copyToClipboardStub: sinon.SinonStub;
   let openInsertDocumentDialogStub: sinon.SinonStub;
+  let preferences: PreferencesAccess;
 
-  beforeEach(function () {
+  function renderDocumentListViewItem(
+    props?: Partial<React.ComponentProps<typeof DocumentListViewItem>>
+  ) {
+    const queryBarProps = {};
+
+    return render(
+      <PreferencesProvider value={preferences}>
+        <MockQueryBarPlugin {...(queryBarProps as any)}>
+          <DocumentListViewItem
+            doc={doc}
+            docRef={null}
+            docIndex={0}
+            isEditable={true}
+            copyToClipboard={copyToClipboardStub}
+            openInsertDocumentDialog={openInsertDocumentDialogStub}
+            {...props}
+          />
+        </MockQueryBarPlugin>
+      </PreferencesProvider>
+    );
+  }
+
+  beforeEach(async function () {
     doc = new HadronDocument({
       _id: 1,
       name: 'test',
@@ -20,6 +66,7 @@ describe('DocumentListViewItem', function () {
 
     copyToClipboardStub = sinon.stub();
     openInsertDocumentDialogStub = sinon.stub();
+    preferences = await createSandboxFromDefaultPreferences();
   });
 
   afterEach(function () {
@@ -27,16 +74,7 @@ describe('DocumentListViewItem', function () {
   });
 
   it('renders the document component', function () {
-    render(
-      <DocumentListViewItem
-        doc={doc}
-        docRef={null}
-        docIndex={0}
-        isEditable={true}
-        copyToClipboard={copyToClipboardStub}
-        openInsertDocumentDialog={openInsertDocumentDialogStub}
-      />
-    );
+    renderDocumentListViewItem();
 
     // Should render without error
     expect(document.querySelector('[data-testid="editable-document"]')).to
@@ -44,16 +82,7 @@ describe('DocumentListViewItem', function () {
   });
 
   it('renders context menu when right-clicked', function () {
-    const { container } = render(
-      <DocumentListViewItem
-        doc={doc}
-        docRef={null}
-        docIndex={0}
-        isEditable={true}
-        copyToClipboard={copyToClipboardStub}
-        openInsertDocumentDialog={openInsertDocumentDialogStub}
-      />
-    );
+    const { container } = renderDocumentListViewItem();
 
     const element = container.firstChild as HTMLElement;
 
@@ -69,17 +98,9 @@ describe('DocumentListViewItem', function () {
   it('renders scroll trigger when docIndex is 0', function () {
     const scrollTriggerRef = React.createRef<HTMLDivElement>();
 
-    render(
-      <DocumentListViewItem
-        doc={doc}
-        docRef={null}
-        docIndex={0}
-        isEditable={true}
-        scrollTriggerRef={scrollTriggerRef}
-        copyToClipboard={copyToClipboardStub}
-        openInsertDocumentDialog={openInsertDocumentDialogStub}
-      />
-    );
+    renderDocumentListViewItem({
+      scrollTriggerRef,
+    });
 
     expect(scrollTriggerRef.current).to.exist;
   });
@@ -87,17 +108,10 @@ describe('DocumentListViewItem', function () {
   it('does not render scroll trigger when docIndex is not 0', function () {
     const scrollTriggerRef = React.createRef<HTMLDivElement>();
 
-    render(
-      <DocumentListViewItem
-        doc={doc}
-        docRef={null}
-        docIndex={1}
-        isEditable={true}
-        scrollTriggerRef={scrollTriggerRef}
-        copyToClipboard={copyToClipboardStub}
-        openInsertDocumentDialog={openInsertDocumentDialogStub}
-      />
-    );
+    renderDocumentListViewItem({
+      docIndex: 1,
+      scrollTriggerRef,
+    });
 
     expect(scrollTriggerRef.current).to.be.null;
   });
