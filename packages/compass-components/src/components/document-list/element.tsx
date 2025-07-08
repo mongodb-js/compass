@@ -444,18 +444,6 @@ export const getNestedKeyPathForElement = (
   return keyPath.join('.');
 };
 
-export const getQueryFilterForElement = (
-  element: HadronElementType
-): BSONValueType => {
-  let filter: BSONValueType = {};
-  if (element.parent?.currentType === 'Array') {
-    filter = { $in: [element.generateObject()] };
-  } else {
-    filter = element.generateObject();
-  }
-  return filter;
-};
-
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
