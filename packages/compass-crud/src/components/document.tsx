@@ -57,7 +57,7 @@ const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
-        onAddToQuery={handleAddToQuery}
+        onUpdateQuery={handleAddToQuery}
         query={queryBarQuery.filter}
       />
     );
@@ -68,7 +68,7 @@ const Document = (props: DocumentProps) => {
       <EditableDocument
         {...props}
         doc={doc}
-        onAddToQuery={handleAddToQuery}
+        onUpdateQuery={handleAddToQuery}
         query={queryBarQuery.filter}
       />
     );
@@ -78,7 +78,7 @@ const Document = (props: DocumentProps) => {
     <ReadonlyDocument
       doc={doc}
       copyToClipboard={copyToClipboard}
-      onAddToQuery={handleAddToQuery}
+      onUpdateQuery={handleAddToQuery}
       query={queryBarQuery.filter}
     />
   );

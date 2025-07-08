@@ -464,7 +464,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
-  onAddToQuery?: (field: string, value: unknown) => void;
+  onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
 }> = ({
   value: element,
@@ -474,7 +474,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
   extraGutterWidth = 0,
-  onAddToQuery,
+  onUpdateQuery,
   query,
 }) => {
   const darkMode = useDarkMode();
@@ -514,7 +514,7 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(onAddToQuery
+      ...(onUpdateQuery
         ? [
             {
               label: isFieldInQuery(
@@ -524,7 +524,7 @@ export const HadronElement: React.FunctionComponent<{
                 ? 'Remove from query'
                 : 'Add to query',
               onAction: () => {
-                onAddToQuery(
+                onUpdateQuery(
                   getNestedKeyPathForElement(element),
                   element.generateObject()
                 );
@@ -551,7 +551,7 @@ export const HadronElement: React.FunctionComponent<{
           ]
         : []),
     ],
-    [element, key.value, value.value, type.value, onAddToQuery, isFieldInQuery]
+    [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
   );
 
   const toggleExpanded = () => {
@@ -841,7 +841,7 @@ export const HadronElement: React.FunctionComponent<{
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
                 extraGutterWidth={extraGutterWidth}
-                onAddToQuery={onAddToQuery}
+                onUpdateQuery={onUpdateQuery}
                 query={query}
               ></HadronElement>
             );

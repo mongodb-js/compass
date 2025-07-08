@@ -30,8 +30,8 @@ describe('HadronElement', function () {
       const nestedDoc = new HadronDocument({ user: { name: 'John' } });
       const nestedElement = nestedDoc.get('user')!.get('name')!;
 
-      // Mock onAddToQuery callback
-      const mockOnAddToQuery = sinon.spy();
+      // Mock onUpdateQuery callback
+      const mockonUpdateQuery = sinon.spy();
 
       // Start with empty query
       const { rerender } = render(
@@ -41,7 +41,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={mockOnAddToQuery}
+          onUpdateQuery={mockonUpdateQuery}
           query={{}}
         />
       );
@@ -57,7 +57,7 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(mockOnAddToQuery).to.have.been.calledWith(
+      expect(mockonUpdateQuery).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
@@ -75,7 +75,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={mockOnAddToQuery}
+          onUpdateQuery={mockonUpdateQuery}
           query={queryWithField}
         />
       );
@@ -90,8 +90,8 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(mockOnAddToQuery).to.have.been.calledTwice;
-      expect(mockOnAddToQuery.secondCall).to.have.been.calledWith(
+      expect(mockonUpdateQuery).to.have.been.calledTwice;
+      expect(mockonUpdateQuery.secondCall).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
@@ -189,7 +189,7 @@ describe('HadronElement', function () {
       expect(screen.queryByText('Open URL in browser')).to.not.exist;
     });
 
-    it('does not show "Add to query" when onAddToQuery is not provided', function () {
+    it('does not show "Add to query" when onUpdateQuery is not provided', function () {
       render(
         <HadronElement
           value={element}
@@ -208,7 +208,7 @@ describe('HadronElement', function () {
     it('calls the correct parameters when "Add to query" is clicked', function () {
       const nestedDoc = new HadronDocument({ user: { name: 'John' } });
       const nestedElement = nestedDoc.get('user')!.get('name')!;
-      const mockOnAddToQuery = sinon.spy();
+      const mockonUpdateQuery = sinon.spy();
 
       render(
         <HadronElement
@@ -217,7 +217,7 @@ describe('HadronElement', function () {
           editingEnabled={true}
           lineNumberSize={1}
           onAddElement={() => {}}
-          onAddToQuery={mockOnAddToQuery}
+          onUpdateQuery={mockonUpdateQuery}
           query={{}}
         />
       );
@@ -230,7 +230,7 @@ describe('HadronElement', function () {
       });
 
       // Verify that toggleQueryFilter was called with the nested field path and element's generated object
-      expect(mockOnAddToQuery).to.have.been.calledWith(
+      expect(mockonUpdateQuery).to.have.been.calledWith(
         'user.name',
         nestedElement.generateObject()
       );
