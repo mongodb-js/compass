@@ -68,6 +68,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { MongoServerError } from 'mongodb';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -1242,7 +1243,7 @@ class CrudStoreImpl
     } catch (err: any) {
       openBulkUpdateFailureToast({
         affectedDocuments: this.state.bulkUpdate.affected,
-        error: err,
+        error: err as Error,
       });
 
       this.logger.log.error(

@@ -75,16 +75,13 @@ describe('Bulk Action Toasts', function () {
           modal: openBulkDeleteFailureToast,
           affected: 1,
           error: new Error('Another test error'),
-          expected: [
-            '1 document could not been deleted.',
-            'Another test error',
-          ],
+          expected: ['1 document could not be deleted.', 'Another test error'],
         },
         {
           modal: openBulkDeleteFailureToast,
           affected: 2,
           error: new Error('Another failure'),
-          expected: ['2 documents could not been deleted.', 'Another failure'],
+          expected: ['2 documents could not be deleted.', 'Another failure'],
         },
         {
           modal: openBulkDeleteFailureToast,
@@ -101,7 +98,7 @@ describe('Bulk Action Toasts', function () {
         it(`${useCase.modal.name} shows the text '${useCase.expected}' when affected document/s is/are '${useCase.affected}'`, async function () {
           useCase.modal({
             affectedDocuments: useCase.affected,
-            error: useCase.error,
+            error: useCase.error as Error,
             onRefresh: () => {},
           });
 
@@ -189,13 +186,13 @@ describe('Bulk Action Toasts', function () {
           modal: openBulkUpdateFailureToast,
           affected: 1,
           error: new Error('Could not update'),
-          expected: ['1 document could not been updated.', 'Could not update'],
+          expected: ['1 document could not be updated.', 'Could not update'],
         },
         {
           modal: openBulkUpdateFailureToast,
           affected: 2,
           error: new Error('Update failed'),
-          expected: ['2 documents could not been updated.', 'Update failed'],
+          expected: ['2 documents could not be updated.', 'Update failed'],
         },
 
         {
