@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import type { EditableDocumentProps } from './editable-document';
@@ -6,15 +6,13 @@ import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
-import {
-  useChangeQueryBarQuery,
-  useQueryBarQuery,
-} from '@mongodb-js/compass-query-bar';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;
   editable: boolean;
   isTimeSeries?: boolean;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: BSONObject;
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
 
@@ -25,6 +23,8 @@ const Document = (props: DocumentProps) => {
     copyToClipboard,
     openInsertDocumentDialog,
     doc: _doc,
+    onUpdateQuery,
+    query,
   } = props;
 
   const doc = useMemo(() => {
@@ -36,19 +36,6 @@ const Document = (props: DocumentProps) => {
     return new HadronDocument(_doc as Record<string, unknown>);
   }, [_doc]);
 
-  const changeQuery = useChangeQueryBarQuery();
-  const queryBarQuery = useQueryBarQuery();
-
-  const handleAddToQuery = useCallback(
-    (field: string, value: unknown) => {
-      changeQuery('toggleDistinctValue', {
-        field,
-        value,
-      });
-    },
-    [changeQuery]
-  );
-
   if (editable && isTimeSeries) {
     return (
       <ReadonlyDocument
@@ -57,8 +44,8 @@ const Document = (props: DocumentProps) => {
         openInsertDocumentDialog={(doc, cloned) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
-        onUpdateQuery={handleAddToQuery}
-        query={queryBarQuery.filter}
+        onUpdateQuery={onUpdateQuery}
+        query={query}
       />
     );
   }
@@ -68,8 +55,8 @@ const Document = (props: DocumentProps) => {
       <EditableDocument
         {...props}
         doc={doc}
-        onUpdateQuery={handleAddToQuery}
-        query={queryBarQuery.filter}
+        onUpdateQuery={onUpdateQuery}
+        query={query}
       />
     );
   }
@@ -78,8 +65,8 @@ const Document = (props: DocumentProps) => {
     <ReadonlyDocument
       doc={doc}
       copyToClipboard={copyToClipboard}
-      onUpdateQuery={handleAddToQuery}
-      query={queryBarQuery.filter}
+      onUpdateQuery={onUpdateQuery}
+      query={query}
     />
   );
 };
