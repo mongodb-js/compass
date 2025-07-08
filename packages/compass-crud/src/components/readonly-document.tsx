@@ -6,7 +6,6 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
-import type { Query } from '@mongodb-js/compass-query-bar';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -31,7 +30,7 @@ export type ReadonlyDocumentProps = {
   doc: Document;
   showInsights?: boolean;
   onAddToQuery?: (field: string, value: unknown) => void;
-  query?: Query;
+  query?: Record<string, unknown>;
 };
 
 type ReadonlyDocumentState = {

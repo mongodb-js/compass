@@ -16,10 +16,6 @@ import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
 
-export type Query = {
-  filter?: Record<string, unknown>;
-};
-
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
   const forceUpdate = useForceUpdate();
@@ -91,7 +87,7 @@ const HadronDocument: React.FunctionComponent<{
   onEditStart?: () => void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
-  query?: Query;
+  query?: Record<string, unknown>;
 }> = ({
   value: document,
   editable = false,

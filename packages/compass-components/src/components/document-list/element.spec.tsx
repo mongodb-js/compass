@@ -42,7 +42,7 @@ describe('HadronElement', function () {
           lineNumberSize={1}
           onAddElement={() => {}}
           onAddToQuery={mockOnAddToQuery}
-          query={{ filter: {} }}
+          query={{}}
         />
       );
 
@@ -64,9 +64,7 @@ describe('HadronElement', function () {
 
       // Now simulate that the field is in query
       const queryWithField = {
-        filter: {
-          'user.name': nestedElement.generateObject(),
-        },
+        'user.name': nestedElement.generateObject(),
       };
 
       // Re-render with updated query state
@@ -220,7 +218,7 @@ describe('HadronElement', function () {
           lineNumberSize={1}
           onAddElement={() => {}}
           onAddToQuery={mockOnAddToQuery}
-          query={{ filter: {} }}
+          query={{}}
         />
       );
 

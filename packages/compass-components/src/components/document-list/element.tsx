@@ -31,7 +31,6 @@ import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { useContextMenuItems } from '../context-menu';
 import { hasDistinctValue } from 'mongodb-query-util';
-import type { Query } from './document';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -466,7 +465,7 @@ export const HadronElement: React.FunctionComponent<{
   onAddElement(el: HadronElementType): void;
   extraGutterWidth?: number;
   onAddToQuery?: (field: string, value: unknown) => void;
-  query?: Query;
+  query?: Record<string, unknown>;
 }> = ({
   value: element,
   editable,
@@ -500,18 +499,16 @@ export const HadronElement: React.FunctionComponent<{
     collapse,
   } = useHadronElement(element);
 
-  const queryFilter = query?.filter;
-
   // Function to check if a field is in the query
   // TODO: COMPASS-9541 Improve the functionality when checking for nested objects.
   const isFieldInQuery = useCallback(
     (field: string, fieldValue: unknown): boolean => {
       return hasDistinctValue(
-        queryFilter?.[field] as Record<string, unknown>,
+        query?.[field] as Record<string, unknown>,
         fieldValue
       );
     },
-    [queryFilter]
+    [query]
   );
 
   // Add context menu hook for the field

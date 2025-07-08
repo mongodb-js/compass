@@ -37,7 +37,7 @@ const Document = (props: DocumentProps) => {
   }, [_doc]);
 
   const changeQuery = useChangeQueryBarQuery();
-  const query = useQueryBarQuery();
+  const queryBarQuery = useQueryBarQuery();
 
   const handleAddToQuery = useCallback(
     (field: string, value: unknown) => {
@@ -58,7 +58,7 @@ const Document = (props: DocumentProps) => {
           void openInsertDocumentDialog?.(doc, cloned);
         }}
         onAddToQuery={handleAddToQuery}
-        query={query}
+        query={queryBarQuery.filter}
       />
     );
   }
@@ -69,7 +69,7 @@ const Document = (props: DocumentProps) => {
         {...props}
         doc={doc}
         onAddToQuery={handleAddToQuery}
-        query={query}
+        query={queryBarQuery.filter}
       />
     );
   }
@@ -79,7 +79,7 @@ const Document = (props: DocumentProps) => {
       doc={doc}
       copyToClipboard={copyToClipboard}
       onAddToQuery={handleAddToQuery}
-      query={query}
+      query={queryBarQuery.filter}
     />
   );
 };
