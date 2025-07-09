@@ -246,6 +246,47 @@ export const collectionItemActions = ({
   return actions;
 };
 
+const connectionContextMenuActions = ({
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+}: {
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+}): NavigationItemActions => {
+  return stripNullActions([
+    isPerformanceTabAvailable
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: !isPerformanceTabSupported,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    isAtlas
+      ? null
+      : {
+          action: 'open-connection-info',
+          icon: 'InfoWithCircle',
+          label: 'Show connection info',
+        },
+    {
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
+    },
+    { separator: true },
+    {
+      action: 'connection-disconnect',
+      icon: 'Disconnect',
+      label: 'Disconnect',
+      variant: 'destructive',
+    },
+  ]);
+};
+
 export const databaseContextMenuActions = ({
   hasWriteActionsDisabled,
   isShellEnabled,
@@ -291,34 +332,11 @@ export const databaseContextMenuActions = ({
           label: 'Open MongoDB shell',
         }
       : null,
-    isPerformanceTabAvailable
-      ? {
-          action: 'connection-performance-metrics',
-          icon: 'Gauge',
-          label: 'View performance metrics',
-          isDisabled: !isPerformanceTabSupported,
-          disabledDescription: 'Not supported',
-        }
-      : null,
-    isAtlas
-      ? null
-      : {
-          action: 'open-connection-info',
-          icon: 'InfoWithCircle',
-          label: 'Show connection info',
-        },
-    {
-      action: 'refresh-databases',
-      label: 'Refresh databases',
-      icon: 'Refresh',
-    },
-    { separator: true },
-    {
-      action: 'connection-disconnect',
-      icon: 'Disconnect',
-      label: 'Disconnect',
-      variant: 'destructive',
-    },
+    ...connectionContextMenuActions({
+      isPerformanceTabAvailable,
+      isPerformanceTabSupported,
+      isAtlas,
+    }),
   ]);
 };
 
@@ -326,7 +344,6 @@ export const collectionContextMenuActions = ({
   hasWriteActionsDisabled,
   type,
   isRenameCollectionEnabled,
-  isShellEnabled,
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isAtlas,
@@ -348,11 +365,11 @@ export const collectionContextMenuActions = ({
     },
   ];
 
+  let writeActions: NavigationItemActions = [];
+
   if (!hasWriteActionsDisabled) {
     if (type === 'view') {
-      actions.push({ separator: true });
-      // For views: show Duplicate view, Modify view, Drop view
-      actions.push(
+      writeActions = [
         {
           action: 'duplicate-view',
           label: 'Duplicate view',
@@ -367,70 +384,40 @@ export const collectionContextMenuActions = ({
           action: 'drop-collection',
           label: 'Drop view',
           icon: 'Trash',
-        }
-      );
+        },
+      ];
     } else {
-      actions.push({ separator: true });
-      // For collections: show Rename collection, Drop collection
-      if (type !== 'timeseries' && isRenameCollectionEnabled) {
-        actions.push({
-          action: 'rename-collection',
-          label: 'Rename collection',
-          icon: 'Edit',
-        });
-      }
-      actions.push({
-        action: 'create-collection',
-        icon: 'Plus',
-        label: 'Create collection',
-      });
-      actions.push({
-        action: 'drop-collection',
-        label: 'Drop collection',
-        icon: 'Trash',
-      });
+      writeActions = stripNullActions([
+        type !== 'timeseries' && isRenameCollectionEnabled
+          ? {
+              action: 'rename-collection',
+              label: 'Rename collection',
+              icon: 'Edit',
+            }
+          : null,
+        {
+          action: 'create-collection',
+          icon: 'Plus',
+          label: 'Create collection',
+        },
+        {
+          action: 'drop-collection',
+          label: 'Drop collection',
+          icon: 'Trash',
+        },
+      ]);
     }
   }
 
-  // Add connection-level actions
-  const connectionActions = stripNullActions([
+  return [
+    ...actions,
     { separator: true },
-    isShellEnabled
-      ? {
-          action: 'open-shell',
-          icon: 'Shell',
-          label: 'Open MongoDB shell',
-        }
-      : null,
-    isPerformanceTabAvailable
-      ? {
-          action: 'connection-performance-metrics',
-          icon: 'Gauge',
-          label: 'View performance metrics',
-          isDisabled: !isPerformanceTabSupported,
-          disabledDescription: 'Not supported',
-        }
-      : null,
-    isAtlas
-      ? null
-      : {
-          action: 'open-connection-info',
-          icon: 'InfoWithCircle',
-          label: 'Show connection info',
-        },
-    {
-      action: 'refresh-databases',
-      label: 'Refresh collection',
-      icon: 'Refresh',
-    },
+    ...writeActions,
     { separator: true },
-    {
-      action: 'connection-disconnect',
-      icon: 'Disconnect',
-      label: 'Disconnect',
-      variant: 'destructive',
-    },
-  ]);
-
-  return [...actions, ...connectionActions];
+    ...connectionContextMenuActions({
+      isPerformanceTabAvailable,
+      isPerformanceTabSupported,
+      isAtlas,
+    }),
+  ];
 };
