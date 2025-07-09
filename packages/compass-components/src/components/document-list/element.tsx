@@ -10,7 +10,6 @@ import type {
   default as HadronDocumentType,
   Element as HadronElementType,
   Editor as EditorType,
-  BSONValue as BSONValueType,
 } from 'hadron-document';
 import {
   ElementEvents,
