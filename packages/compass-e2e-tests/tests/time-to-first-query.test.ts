@@ -54,6 +54,11 @@ describe('Time to first query', function () {
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
     // start compass inside the test so that the time is measured together
 
+    if (process.platform === 'win32') {
+      // this test is extremely flaky on Windows inside Github Actions (ie. the smoke tests)
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle(), { firstRun: false });
 
     const { browser } = compass;
