@@ -2,7 +2,6 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
-import type { MongoServerError } from 'mongodb';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -69,6 +68,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { MongoServerError } from 'mongodb';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -1243,6 +1243,7 @@ class CrudStoreImpl
     } catch (err: any) {
       openBulkUpdateFailureToast({
         affectedDocuments: this.state.bulkUpdate.affected,
+        error: err as Error,
       });
 
       this.logger.log.error(
@@ -1899,6 +1900,7 @@ class CrudStoreImpl
   bulkDeleteFailed(ex: Error) {
     openBulkDeleteFailureToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      error: ex,
     });
 
     this.logger.log.error(
