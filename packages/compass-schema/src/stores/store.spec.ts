@@ -162,12 +162,12 @@ describe('Schema Store', function () {
     });
 
     describe('geoLayers', function () {
-      it('geoLayerAdded, geoLayersEdited, geoLayersDeleted: calls the onChange callback', async function () {
+      it('geoLayerAdded, geoLayersEdited, geoLayersDeleted: calls the onChange callback', function () {
         const layer = new Circle([1, 2], {
           radius: 1000,
         });
         const onChangeSpy = sandbox.spy();
-        await store.dispatch(geoLayerAdded('coordinates', layer, onChangeSpy));
+        store.dispatch(geoLayerAdded('coordinates', layer, onChangeSpy));
         expect(onChangeSpy).to.have.been.calledOnceWith({
           coordinates: {
             $geoWithin: {
@@ -177,7 +177,7 @@ describe('Schema Store', function () {
         });
       });
 
-      it('geoLayersEdited: calls the onChange callback', async function () {
+      it('geoLayersEdited: calls the onChange callback', function () {
         const layersGroup = new LayerGroup();
         layersGroup.addLayer(
           new Polygon([
@@ -187,7 +187,7 @@ describe('Schema Store', function () {
           ])
         );
         const onChangeSpy = sandbox.spy();
-        await store.dispatch(
+        store.dispatch(
           geoLayersEdited('coordinates', layersGroup, onChangeSpy)
         );
         expect(onChangeSpy).to.have.been.calledOnceWith({
@@ -202,7 +202,7 @@ describe('Schema Store', function () {
         });
       });
 
-      it('geoLayersDeleted: calls the onChange callback', async function () {
+      it('geoLayersDeleted: calls the onChange callback', function () {
         const layersGroup = new LayerGroup();
         layersGroup.addLayer(
           new Polygon([
@@ -212,7 +212,7 @@ describe('Schema Store', function () {
           ])
         );
         const onChangeSpy = sandbox.spy();
-        await store.dispatch(geoLayersDeleted(layersGroup, onChangeSpy));
+        store.dispatch(geoLayersDeleted(layersGroup, onChangeSpy));
         expect(onChangeSpy).to.have.been.calledOnceWith({ $or: [] });
       });
     });
