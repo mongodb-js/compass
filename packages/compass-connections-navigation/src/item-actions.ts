@@ -206,6 +206,7 @@ export const collectionItemActions = ({
   }
 
   if (type === 'view') {
+    actions.push({ separator: true });
     actions.push(
       {
         action: 'drop-collection',
@@ -228,6 +229,7 @@ export const collectionItemActions = ({
   }
 
   if (type !== 'timeseries' && isRenameCollectionEnabled) {
+    actions.push({ separator: true });
     actions.push({
       action: 'rename-collection',
       label: 'Rename collection',
@@ -242,4 +244,193 @@ export const collectionItemActions = ({
   });
 
   return actions;
+};
+
+export const databaseContextMenuActions = ({
+  hasWriteActionsDisabled,
+  isShellEnabled,
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+}: {
+  hasWriteActionsDisabled: boolean;
+  isShellEnabled: boolean;
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+}): NavigationItemActions => {
+  return stripNullActions([
+    // Database-specific actions
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'create-collection',
+          icon: 'Plus',
+          label: 'Create collection',
+        },
+    { separator: true },
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'create-database',
+          icon: 'Plus',
+          label: 'Create database',
+        },
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'drop-database',
+          icon: 'Trash',
+          label: 'Drop database',
+        },
+    { separator: true },
+    isShellEnabled
+      ? {
+          action: 'open-shell',
+          icon: 'Shell',
+          label: 'Open MongoDB shell',
+        }
+      : null,
+    isPerformanceTabAvailable
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: !isPerformanceTabSupported,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    isAtlas
+      ? null
+      : {
+          action: 'open-connection-info',
+          icon: 'InfoWithCircle',
+          label: 'Show connection info',
+        },
+    {
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
+    },
+    { separator: true },
+    {
+      action: 'connection-disconnect',
+      icon: 'Disconnect',
+      label: 'Disconnect',
+      variant: 'destructive',
+    },
+  ]);
+};
+
+export const collectionContextMenuActions = ({
+  hasWriteActionsDisabled,
+  type,
+  isRenameCollectionEnabled,
+  isShellEnabled,
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+}: {
+  hasWriteActionsDisabled: boolean;
+  type: 'collection' | 'view' | 'timeseries';
+  isRenameCollectionEnabled: boolean;
+  isShellEnabled: boolean;
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+}): NavigationItemActions => {
+  const actions: NavigationItemActions = [
+    // Collection-specific actions
+    {
+      action: 'open-in-new-tab',
+      label: 'Open in new tab',
+      icon: 'OpenNewTab',
+    },
+  ];
+
+  if (!hasWriteActionsDisabled) {
+    if (type === 'view') {
+      actions.push({ separator: true });
+      // For views: show Duplicate view, Modify view, Drop view
+      actions.push(
+        {
+          action: 'duplicate-view',
+          label: 'Duplicate view',
+          icon: 'Copy',
+        },
+        {
+          action: 'modify-view',
+          label: 'Modify view',
+          icon: 'Edit',
+        },
+        {
+          action: 'drop-collection',
+          label: 'Drop view',
+          icon: 'Trash',
+        }
+      );
+    } else {
+      actions.push({ separator: true });
+      // For collections: show Rename collection, Drop collection
+      if (type !== 'timeseries' && isRenameCollectionEnabled) {
+        actions.push({
+          action: 'rename-collection',
+          label: 'Rename collection',
+          icon: 'Edit',
+        });
+      }
+      actions.push({
+        action: 'create-collection',
+        icon: 'Plus',
+        label: 'Create collection',
+      });
+      actions.push({
+        action: 'drop-collection',
+        label: 'Drop collection',
+        icon: 'Trash',
+      });
+    }
+  }
+
+  // Add connection-level actions
+  const connectionActions = stripNullActions([
+    { separator: true },
+    isShellEnabled
+      ? {
+          action: 'open-shell',
+          icon: 'Shell',
+          label: 'Open MongoDB shell',
+        }
+      : null,
+    isPerformanceTabAvailable
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: !isPerformanceTabSupported,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    isAtlas
+      ? null
+      : {
+          action: 'open-connection-info',
+          icon: 'InfoWithCircle',
+          label: 'Show connection info',
+        },
+    {
+      action: 'refresh-databases',
+      label: 'Refresh collection',
+      icon: 'Refresh',
+    },
+    { separator: true },
+    {
+      action: 'connection-disconnect',
+      icon: 'Disconnect',
+      label: 'Disconnect',
+      variant: 'destructive',
+    },
+  ]);
+
+  return [...actions, ...connectionActions];
 };

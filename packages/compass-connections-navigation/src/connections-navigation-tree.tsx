@@ -11,11 +11,8 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
-import type {
-  ContextMenuItemGroup,
-  ItemAction,
-  ItemSeparator,
-} from '@mongodb-js/compass-components';
+import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
 import {
   VisuallyHidden,
   css,
@@ -28,8 +25,10 @@ import { usePreference } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
+  collectionContextMenuActions,
   connectedConnectionItemActions,
   databaseItemActions,
+  databaseContextMenuActions,
   notConnectedConnectionItemActions,
 } from './item-actions';
 import { itemActionsToContextMenuGroups } from './context-menus';
@@ -248,35 +247,51 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   connectionStatus: item.connectionStatus,
                 })
           );
-        case 'database':
-          return [
-            ...itemActionsToContextMenuGroups(
-              item,
-              onItemAction,
-              databaseItemActions({
-                hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-              })
-            ),
-            // Include menu items on the connection level
-            ...getContextMenuGroups(item.connectionItem),
-          ];
-        default:
-          return [
-            ...itemActionsToContextMenuGroups(
-              item,
-              onItemAction,
-              collectionItemActions({
-                hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-                type: item.type,
-                isRenameCollectionEnabled,
-              })
-            ),
-            // Include menu items on the database (and connection) level
-            ...getContextMenuGroups(item.databaseItem),
-          ];
+        case 'database': {
+          const {
+            isPerformanceTabAvailable,
+            isPerformanceTabSupported,
+            isShellEnabled,
+            hasWriteActionsDisabled,
+            connectionInfo,
+          } = item.connectionItem;
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            databaseContextMenuActions({
+              hasWriteActionsDisabled,
+              isShellEnabled,
+              isPerformanceTabAvailable,
+              isPerformanceTabSupported,
+              isAtlas: !!connectionInfo.atlasMetadata,
+            })
+          );
+        }
+        default: {
+          const {
+            isPerformanceTabAvailable,
+            isPerformanceTabSupported,
+            isShellEnabled,
+            hasWriteActionsDisabled,
+            connectionInfo,
+          } = item.databaseItem.connectionItem;
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            collectionContextMenuActions({
+              hasWriteActionsDisabled,
+              type: item.type,
+              isRenameCollectionEnabled,
+              isShellEnabled,
+              isPerformanceTabAvailable,
+              isPerformanceTabSupported,
+              isAtlas: !!connectionInfo.atlasMetadata,
+            })
+          );
+        }
       }
     },
-    [onItemAction]
+    [onItemAction, isRenameCollectionEnabled]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
