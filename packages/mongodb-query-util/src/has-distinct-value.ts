@@ -1,4 +1,4 @@
-import { isPlainObject, some, isEqualWith } from 'lodash';
+import { isPlainObject, some, isEqualWith, has } from 'lodash';
 import { bsonEqual } from './bson-equal';
 
 /**
@@ -18,9 +18,9 @@ export const hasDistinctValue = (
   }
   // field is object, could be a $in clause or a primitive value
   if (isPlainObject(field)) {
-    if ('$in' in field && Array.isArray(field.$in)) {
+    if (has(field, '$in')) {
       // check if $in array contains the value
-      const inArray = field.$in;
+      const inArray = field.$in as object;
       return some(inArray, (other) => {
         return isEqualWith(value, other, bsonEqual);
       });
