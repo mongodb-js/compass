@@ -77,7 +77,7 @@ const ExportDiagramModal = ({
         title="Export data model"
         subtitle={
           <div>
-            Export the data modal to JSON format.
+            Export your data model as either an image or JSON file.
             {nbsp}
             <Link
               href="https://www.mongodb.com/docs/manual/data-modeling//"
@@ -100,6 +100,7 @@ const ExportDiagramModal = ({
                 value="png"
                 aria-label="PNG"
                 onClick={() => onSelectFormat('png')}
+                size="small"
               >
                 PNG
               </Radio>
@@ -111,6 +112,7 @@ const ExportDiagramModal = ({
                 value="json"
                 aria-label="JSON"
                 onClick={() => onSelectFormat('json')}
+                size="small"
               >
                 JSON
               </Radio>
