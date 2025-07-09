@@ -55,7 +55,8 @@ describe('Time to first query', function () {
     // start compass inside the test so that the time is measured together
 
     if (process.platform === 'win32') {
-      // this test is extremely flaky on Windows inside Github Actions (ie. the smoke tests)
+      // TODO(COMPASS-9554) This test is extremely flaky on Windows inside
+      // Github Actions (ie. the smoke tests)
       this.skip();
     }
 
