@@ -781,6 +781,8 @@ export async function startBrowser(
           'browser.download.folderList': 2,
           'browser.download.manager.showWhenStarting': false,
           'browser.helperApps.neverAsk.saveToDisk': '*/*',
+          // Hide the download (progress) panel
+          'browser.download.alwaysOpenPanel': false,
         },
       },
     },

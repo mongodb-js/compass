@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, Jul 2, 2025
+Generated on Tue, Jul 8, 2025
 
 ## Table of Contents
 
@@ -72,6 +72,11 @@ Generated on Wed, Jul 2, 2025
 - [Connection Imported](#event--ConnectionImportedEvent)
 - [Connection Removed](#event--ConnectionRemovedEvent)
 - [New Connection](#event--NewConnectionEvent)
+
+### Data Modeling
+
+- [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
+- [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
 
 ### Database / Collection List
 
@@ -977,6 +982,30 @@ This event is fired when user successfully connects to a new server/cluster.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+## Data Modeling
+
+<a name="event--DataModelingDiagramCreated"></a>
+
+### Data Modeling Diagram Created
+
+This event is fired when a new data modeling diagram is created
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramExported"></a>
+
+### Data Modeling Diagram Exported
+
+This event is fired when user exports data modeling diagram.
+
+**Properties**:
+
+- **format** (required): `"json" | "png"`
+- **is_compass_web** (optional): `true | undefined`
+
 ## Database / Collection List
 
 <a name="event--CollectionCreatedEvent"></a>
@@ -1829,7 +1858,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | "export_diagram_modal" | undefined`
   - The name of the screen that was activated.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`

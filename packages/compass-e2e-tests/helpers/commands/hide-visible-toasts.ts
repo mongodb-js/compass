@@ -27,8 +27,9 @@ export async function hideAllVisibleToasts(
 
   const toasts = browser.$(Selectors.LGToastContainer).$$('div');
   for (const _toast of toasts) {
-    // if they all went away at some point, just stop
-    if (!(await isToastContainerVisible(browser))) {
+    // if they all went away at some point
+    // or if that toast is not visible anymore just stop
+    if (!(await isToastContainerVisible(browser)) || !_toast) {
       return;
     }
 

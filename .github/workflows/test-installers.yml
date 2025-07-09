@@ -112,6 +112,7 @@ jobs:
             hadron-platform: linux
             distro-id: rhel80
             post-checkout-command: |
+              dnf clean all && dnf update -y --refresh
               dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
               # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
               dnf config-manager --set-enabled devel

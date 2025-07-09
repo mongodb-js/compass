@@ -87,6 +87,12 @@ async function main(): Promise<void> {
     trackingProps: { context: 'CLI' },
   };
 
+  // @ts-expect-error typescript is correctly highlighting that this esm import
+  // is missing a path, but we're passing this through bundler, so that's kinda
+  // expected. In theory we should switch tsconfing to moduleResolution: bundler
+  // to fix this, on practice switching to anything that prefers esm over cjs
+  // causes a lot of code to stop compiling because types are not being resolved
+  // correctly, so we're just ignoring this error for now
   const { CompassApplication } = await import('./application');
 
   const doImportExport =

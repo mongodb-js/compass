@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import {
   Button,
   css,
@@ -12,16 +12,18 @@ import {
   Radio,
   RadioGroup,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
+import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
   closeExportModal,
-  selectCurrentModel,
-  getCurrentDiagramFromState,
-} from '../store/diagram';
+  exportDiagram,
+  selectFormat,
+} from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import type { StaticModel } from '../services/data-model-storage';
-import { exportToJson } from '../services/export-diagram';
+import { useDiagram } from '@mongodb-js/diagramming';
+import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const nbsp = '\u00a0';
 
@@ -48,26 +50,22 @@ const footerStyles = css({
 
 type ExportDiagramModalProps = {
   isModalOpen: boolean;
-  diagramLabel: string;
-  model: StaticModel | null;
+  isExporting: boolean;
+  exportFormat?: ExportDiagramFormat;
+  onExportDiagram: (diagramInstance: DiagramInstance) => void;
+  onSelectFormat: (format: ExportDiagramFormat) => void;
   onCloseClick: () => void;
 };
 
 const ExportDiagramModal = ({
   isModalOpen,
-  diagramLabel,
-  model,
+  isExporting,
+  exportFormat,
+  onExportDiagram,
+  onSelectFormat,
   onCloseClick,
 }: ExportDiagramModalProps) => {
-  const [exportFormat, setExportFormat] = useState<'json' | null>(null);
-
-  const onExport = useCallback(() => {
-    if (!exportFormat || !model) {
-      return;
-    }
-    exportToJson(diagramLabel, model);
-    onCloseClick();
-  }, [exportFormat, onCloseClick, model, diagramLabel]);
+  const diagram = useDiagram();
 
   return (
     <Modal
@@ -96,12 +94,23 @@ const ExportDiagramModal = ({
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
+              <Icon glyph="Diagram2" />
+              <Radio
+                checked={exportFormat === 'png'}
+                value="png"
+                aria-label="PNG"
+                onClick={() => onSelectFormat('png')}
+              >
+                PNG
+              </Radio>
+            </div>
+            <div className={radioItemStyles}>
               <Icon glyph="CurlyBraces" />
               <Radio
                 checked={exportFormat === 'json'}
                 value="json"
                 aria-label="JSON"
-                onClick={() => setExportFormat('json')}
+                onClick={() => onSelectFormat('json')}
               >
                 JSON
               </Radio>
@@ -112,8 +121,11 @@ const ExportDiagramModal = ({
       <ModalFooter className={footerStyles}>
         <Button
           variant="primary"
-          onClick={() => void onExport()}
+          onClick={() => onExportDiagram(diagram)}
           data-testid="export-button"
+          disabled={!exportFormat}
+          loadingIndicator={<SpinLoader />}
+          isLoading={isExporting}
         >
           Export
         </Button>
@@ -131,17 +143,18 @@ const ExportDiagramModal = ({
 
 export default connect(
   (state: DataModelingState) => {
-    const { diagram } = state;
-    const model = diagram
-      ? selectCurrentModel(getCurrentDiagramFromState(state))
-      : null;
+    const {
+      exportDiagram: { isExporting, isModalOpen, exportFormat },
+    } = state;
     return {
-      model,
-      diagramLabel: diagram?.name ?? 'Schema Preview',
-      isModalOpen: Boolean(diagram?.isExportModalOpen),
+      isModalOpen,
+      isExporting,
+      exportFormat,
     };
   },
   {
     onCloseClick: closeExportModal,
+    onSelectFormat: selectFormat,
+    onExportDiagram: exportDiagram,
   }
 )(ExportDiagramModal);

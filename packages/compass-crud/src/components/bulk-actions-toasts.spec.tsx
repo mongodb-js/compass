@@ -17,6 +17,7 @@ import {
 } from './bulk-actions-toasts';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { MongoNetworkError } from 'mongodb';
 
 function renderToastPortal() {
   return render(<ToastArea></ToastArea>);
@@ -67,17 +68,29 @@ describe('Bulk Action Toasts', function () {
         {
           modal: openBulkDeleteFailureToast,
           affected: undefined,
-          expected: 'The delete operation failed.',
+          error: new Error('Test error'),
+          expected: ['The delete operation failed.', 'Test error'],
         },
         {
           modal: openBulkDeleteFailureToast,
           affected: 1,
-          expected: '1 document could not been deleted.',
+          error: new Error('Another test error'),
+          expected: ['1 document could not be deleted.', 'Another test error'],
         },
         {
           modal: openBulkDeleteFailureToast,
           affected: 2,
-          expected: '2 documents could not been deleted.',
+          error: new Error('Another failure'),
+          expected: ['2 documents could not be deleted.', 'Another failure'],
+        },
+        {
+          modal: openBulkDeleteFailureToast,
+          affected: 2,
+          error: new MongoNetworkError('Connection lost'),
+          expected: [
+            'Delete operation - network error occurred.',
+            'Connection lost',
+          ],
         },
       ];
 
@@ -85,12 +98,18 @@ describe('Bulk Action Toasts', function () {
         it(`${useCase.modal.name} shows the text '${useCase.expected}' when affected document/s is/are '${useCase.affected}'`, async function () {
           useCase.modal({
             affectedDocuments: useCase.affected,
+            error: useCase.error as Error,
             onRefresh: () => {},
           });
 
           await waitFor(async function () {
-            const node = await screen.findByText(useCase.expected);
-            expect(node).to.exist;
+            if (!Array.isArray(useCase.expected)) {
+              expect(await screen.findByText(useCase.expected)).to.exist;
+            } else {
+              for (const expectedText of useCase.expected) {
+                expect(await screen.findByText(expectedText)).to.exist;
+              }
+            }
           });
         });
       }
@@ -160,17 +179,30 @@ describe('Bulk Action Toasts', function () {
         {
           modal: openBulkUpdateFailureToast,
           affected: undefined,
-          expected: 'The update operation failed.',
+          error: new Error('Test error'),
+          expected: ['The update operation failed.', 'Test error'],
         },
         {
           modal: openBulkUpdateFailureToast,
           affected: 1,
-          expected: '1 document could not been updated.',
+          error: new Error('Could not update'),
+          expected: ['1 document could not be updated.', 'Could not update'],
         },
         {
           modal: openBulkUpdateFailureToast,
           affected: 2,
-          expected: '2 documents could not been updated.',
+          error: new Error('Update failed'),
+          expected: ['2 documents could not be updated.', 'Update failed'],
+        },
+
+        {
+          modal: openBulkUpdateFailureToast,
+          affected: 2,
+          error: new MongoNetworkError('Connection lost'),
+          expected: [
+            'Update operation - network error occurred.',
+            'Connection lost',
+          ],
         },
       ];
 
@@ -178,12 +210,18 @@ describe('Bulk Action Toasts', function () {
         it(`${useCase.modal.name} shows the text '${useCase.expected}' when ${useCase.affected} document/s affected`, async function () {
           useCase.modal({
             affectedDocuments: useCase.affected,
+            error: useCase.error,
             onRefresh: () => {},
           });
 
           await waitFor(async function () {
-            const node = await screen.findByText(useCase.expected);
-            expect(node).to.exist;
+            if (!Array.isArray(useCase.expected)) {
+              expect(await screen.findByText(useCase.expected)).to.exist;
+            } else {
+              for (const expectedText of useCase.expected) {
+                expect(await screen.findByText(expectedText)).to.exist;
+              }
+            }
           });
         });
       }

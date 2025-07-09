@@ -220,6 +220,13 @@ async function onAppReady() {
       'electron-devtools-installer'
     );
     try {
+      // @ts-expect-error typescript is right and default export from
+      // electron-devtools-installer is not a function, but because we're
+      // passing this code through the bundler it all works fine. In theory we
+      // should switch tsconfing to moduleResolution: bundler to fix this, on
+      // practice switching to anything that prefers esm over cjs causes a lot
+      // of code to stop compiling because types are not being resolved
+      // correctly, so we're just ignoring this error for now
       await installDevtools(REACT_DEVELOPER_TOOLS);
     } catch {
       // noop

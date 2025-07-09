@@ -28,6 +28,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
+import { useContextMenuItems } from '../context-menu';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -409,6 +410,16 @@ export const calculateShowMoreToggleOffset = ({
   return spacerWidth + editableOffset + expandIconSize;
 };
 
+// Helper function to check if a string is a URL
+const isValidUrl = (str: string): boolean => {
+  try {
+    const url = new URL(str);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -446,6 +457,31 @@ export const HadronElement: React.FunctionComponent<{
     expand,
     collapse,
   } = useHadronElement(element);
+
+  // Add context menu hook for the field
+  const fieldContextMenuRef = useContextMenuItems(
+    () => [
+      {
+        label: 'Copy field & value',
+        onAction: () => {
+          void navigator.clipboard.writeText(
+            `${key.value}: ${element.toEJSON()}`
+          );
+        },
+      },
+      ...(type.value === 'String' && isValidUrl(value.value)
+        ? [
+            {
+              label: 'Open URL in browser',
+              onAction: () => {
+                window.open(value.value, '_blank', 'noopener');
+              },
+            },
+          ]
+        : []),
+    ],
+    [element, key.value, value.originalValue, value.value, type.value]
+  );
 
   const toggleExpanded = () => {
     if (expanded) {
@@ -493,6 +529,7 @@ export const HadronElement: React.FunctionComponent<{
     : elementInvalidLightMode;
 
   const elementProps = {
+    ref: fieldContextMenuRef,
     className: cx(
       hadronElement,
       darkMode ? hadronElementDarkMode : hadronElementLightMode,

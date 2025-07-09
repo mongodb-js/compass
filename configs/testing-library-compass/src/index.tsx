@@ -283,7 +283,9 @@ function createWrapper(
   const wrapperState = {
     globalAppRegistry: new AppRegistry(),
     localAppRegistry: new AppRegistry(),
-    preferences: new InMemoryPreferencesAccess(options.preferences),
+    preferences: new InMemoryPreferencesAccess(
+      options.preferences
+    ) as PreferencesAccess,
     track: Sinon.stub(),
     logger: createNoopLogger(),
     connectionStorage:
@@ -584,6 +586,12 @@ function createPluginWrapper<
   }
   return { ref, Wrapper: ComponentWithProvider };
 }
+
+export type RenderPluginWithConnectionsResult<
+  T extends CompassPluginComponent<any, any, any>
+> = RenderWithConnectionsResult & {
+  plugin: ReturnType<T['useActivate']>;
+};
 
 function createPluginTestHelpers<
   Props,

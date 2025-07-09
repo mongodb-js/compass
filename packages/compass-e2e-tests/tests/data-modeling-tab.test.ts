@@ -17,11 +17,18 @@ import {
   waitForFileDownload,
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
+import { recognize } from 'tesseract.js';
+import path from 'path';
+import os from 'os';
+import fs from 'fs/promises';
+
+interface Node {
+  id: string;
+  position: { x: number; y: number };
+}
 
 type DiagramInstance = {
-  getNodes: () => Array<{
-    id: string;
-  }>;
+  getNodes: () => Array<Node>;
 };
 
 async function setupDiagram(
@@ -70,7 +77,7 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
+async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
   const nodes = await browser.execute(function (selector) {
     const node = document.querySelector(selector);
     if (!node) {
@@ -80,17 +87,23 @@ async function getDiagramNodes(browser: CompassBrowser): Promise<string[]> {
       node as Element & { _diagram: DiagramInstance }
     )._diagram.getNodes();
   }, Selectors.DataModelEditor);
-  return nodes.map((x) => x.id);
+  return nodes;
 }
 
 describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let exportFileName: string;
+  let tmpdir: string;
 
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    tmpdir = path.join(
+      os.tmpdir(),
+      `compass-data-modeling-${Date.now().toString(32)}`
+    );
+    await fs.mkdir(tmpdir, { recursive: true });
   });
 
   beforeEach(async function () {
@@ -99,13 +112,14 @@ describe('Data Modeling tab', function () {
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);
     }
-    await createNumbersStringCollection('testCollection1');
-    await createNumbersCollection('testCollection2');
+    await createNumbersStringCollection('testCollection-one');
+    await createNumbersCollection('testCollection-two');
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
 
   after(async function () {
+    await fs.rmdir(tmpdir, { recursive: true });
     if (compass) {
       await cleanup(compass);
     }
@@ -129,49 +143,51 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    let nodes = await getDiagramNodes(browser);
+    const nodes = await getDiagramNodes(browser);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    expect(nodes[0].id).to.equal('test.testCollection-one');
+    expect(nodes[1].id).to.equal('test.testCollection-two');
 
     // Apply change to the model
-    const newModel = {
-      type: 'SetModel',
-      model: {
-        collections: [],
-        relationships: [],
-      },
-    };
-    await browser.setCodemirrorEditorValue(
-      Selectors.DataModelApplyEditor,
-      JSON.stringify(newModel)
+
+    // react flow uses its own coordinate system,
+    // so we get the node element location for the pointer action
+    const testCollection1 = browser.$(
+      Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
-    await browser.clickVisible(Selectors.DataModelEditorApplyButton);
+    const startPosition = await testCollection1.getLocation();
+    const nodeSize = await testCollection1.getSize();
+
+    await browser
+      .action('pointer')
+      .move({
+        x: Math.round(startPosition.x + nodeSize.width / 2),
+        y: Math.round(startPosition.y + nodeSize.height / 2),
+      })
+      .down({ button: 0 }) // Left mouse button
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .pause(1000)
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .up({ button: 0 }) // Release the left mouse button
+      .perform();
     await browser.waitForAnimations(dataModelEditor);
 
-    // Verify that the model is updated
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    // Check that the first node has moved and mark the new position
+    const newPosition = await testCollection1.getLocation();
+    expect(newPosition).not.to.deep.equal(startPosition);
 
     // Undo the change
     await browser.clickVisible(Selectors.DataModelUndoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(2);
-    expect(nodes).to.deep.equal([
-      'test.testCollection1',
-      'test.testCollection2',
-    ]);
+    const positionAfterUndone = await testCollection1.getLocation();
+    expect(positionAfterUndone).to.deep.equal(startPosition);
 
     // Redo the change
     await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
     await browser.clickVisible(Selectors.DataModelRedoButton);
     await browser.waitForAnimations(dataModelEditor);
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
-
+    const positionAfterRedo = await testCollection1.getLocation();
+    expect(positionAfterRedo).to.deep.equal(newPosition);
     // Open a new tab
     await browser.openNewTab();
 
@@ -179,9 +195,9 @@ describe('Data Modeling tab', function () {
     await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-    // Verify that the diagram has the latest changes
-    nodes = await getDiagramNodes(browser);
-    expect(nodes).to.have.lengthOf(0);
+    // TODO: Verify that the diagram has the latest changes COMPASS-9479
+    const savedNodes = await getDiagramNodes(browser);
+    expect(savedNodes).to.have.lengthOf(2);
 
     // Open a new tab
     await browser.openNewTab();
@@ -198,7 +214,7 @@ describe('Data Modeling tab', function () {
   });
 
   it('exports the data model to JSON', async function () {
-    const dataModelName = 'Test Export Model';
+    const dataModelName = 'Test Export Model - JSON';
     exportFileName = `${dataModelName}.json`;
     await setupDiagram(browser, {
       diagramName: dataModelName,
@@ -225,8 +241,8 @@ describe('Data Modeling tab', function () {
     // Within beforeEach hook, we create these two collections
     expect(model).to.deep.equal({
       collections: {
-        'test.testCollection1': {
-          ns: 'test.testCollection1',
+        'test.testCollection-one': {
+          ns: 'test.testCollection-one',
           jsonSchema: {
             bsonType: 'object',
             required: ['_id', 'i', 'iString', 'j'],
@@ -246,8 +262,8 @@ describe('Data Modeling tab', function () {
             },
           },
         },
-        'test.testCollection2': {
-          ns: 'test.testCollection2',
+        'test.testCollection-two': {
+          ns: 'test.testCollection-two',
           jsonSchema: {
             bsonType: 'object',
             required: ['_id', 'i', 'j'],
@@ -267,5 +283,51 @@ describe('Data Modeling tab', function () {
       },
       relationships: [],
     });
+  });
+
+  it('exports the data model to PNG', async function () {
+    if (process.platform === 'win32') {
+      console.warn('Skipping PNG export test on Windows');
+      this.skip();
+    }
+    const dataModelName = 'Test Export Model - PNG';
+    exportFileName = `${dataModelName}.png`;
+    await setupDiagram(browser, {
+      diagramName: dataModelName,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      databaseName: 'test',
+    });
+
+    await browser.clickVisible(Selectors.DataModelExportButton);
+    const exportModal = browser.$(Selectors.DataModelExportModal);
+    await exportModal.waitForDisplayed();
+
+    await browser.clickParent(Selectors.DataModelExportPngOption);
+    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+    const { fileExists, filePath } = await waitForFileDownload(
+      exportFileName,
+      browser
+    );
+    expect(fileExists).to.be.true;
+
+    const { data } = await recognize(filePath, 'eng', {
+      cachePath: tmpdir,
+    });
+
+    const text = data.text.toLowerCase();
+
+    console.log(`Recognized PNG export text:`, text);
+
+    expect(text).to.include('testCollection-one'.toLowerCase());
+    expect(text).to.include('testCollection-two'.toLowerCase());
+
+    expect(text).to.include('id objectId'.toLowerCase());
+    expect(text).to.include('i int');
+    expect(text).to.include('j int');
+    // it does not correctly recognize `iString` and only returns `String`.
+    // its already good enough to verify this for now and if it flakes
+    // more, we may need to revisit this test.
+    expect(text).to.include('String string'.toLowerCase());
   });
 });
