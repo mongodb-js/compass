@@ -144,15 +144,14 @@ class CompassTelemetry {
     this.telemetryAtlasUserId = telemetryAtlasUserId;
     this.telemetryDeviceId = await getDeviceId({
       getMachineId: () => getMachineId({ raw: true }),
-      isNodeMachineId: false,
-      onError: (err) =>
+      onError: (type, err) =>
         log.error(
           mongoLogId(1_001_000_352),
           'Telemetry',
           'Failed to get device ID',
-          { err: err.message }
+          { err: err.message, type }
         ),
-    }).value;
+    });
 
     try {
       this.osInfo = await getOsInfo();

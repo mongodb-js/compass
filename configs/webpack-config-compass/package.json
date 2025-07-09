@@ -52,7 +52,7 @@
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "depcheck": "^1.4.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@babel/core": "^7.21.4",

@@ -2878,6 +2878,18 @@ type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a new data modeling diagram is created
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreated = CommonEvent<{
+  name: 'Data Modeling Diagram Created';
+  payload: {
+    num_collections: number;
+  };
+}>;
+
+/**
  * This event is fired when user exports data modeling diagram.
  *
  * @category Data Modeling
@@ -2939,6 +2951,7 @@ export type TelemetryEvent =
   | ConnectionRemovedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DataModelingDiagramCreated
   | DeleteExportedEvent
   | DeleteExportOpenedEvent
   | DetailViewHideOperationDetailsEvent
