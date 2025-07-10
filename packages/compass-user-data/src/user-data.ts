@@ -72,7 +72,6 @@ export abstract class IUserData<T extends z.Schema> {
   protected readonly validator: T;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
-  protected static readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
@@ -102,14 +101,15 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
   private readonly subdir: string;
   private readonly basePath?: string;
   private readonly getFileName: GetFileName;
+  protected readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
     {
       subdir,
       basePath,
-      serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
-      deserialize = JSON.parse,
+      serialize,
+      deserialize,
       getFileName = (id) => `${id}.json`,
     }: FileUserDataOptions<z.input<T>>
   ) {
@@ -157,7 +157,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
     let handle: fs.FileHandle | undefined = undefined;
     let release: (() => void) | undefined = undefined;
     try {
-      release = await IUserData.semaphore.waitForRelease();
+      release = await this.semaphore.waitForRelease();
       handle = await fs.open(absolutePath, 'r');
       [stats, data] = await Promise.all([
         handle.stat(),
