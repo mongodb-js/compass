@@ -29,6 +29,8 @@ export type ReadonlyDocumentProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   showInsights?: boolean;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: Record<string, unknown>;
 };
 
 type ReadonlyDocumentState = {
@@ -137,6 +139,8 @@ class ReadonlyDocument extends React.Component<
           value={this.props.doc}
           // Provide extra whitespace for the expand button
           extraGutterWidth={spacing[900]}
+          onUpdateQuery={this.props.onUpdateQuery}
+          query={this.props.query}
         />
       </>
     );
@@ -183,6 +187,8 @@ class ReadonlyDocument extends React.Component<
     doc: PropTypes.object.isRequired,
     openInsertDocumentDialog: PropTypes.func,
     showInsights: PropTypes.bool,
+    onUpdateQuery: PropTypes.func,
+    query: PropTypes.object,
   };
 }
 

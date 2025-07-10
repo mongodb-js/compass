@@ -9,10 +9,14 @@ import Element, {
 } from './element';
 import ElementEditor from './editor';
 import type { Editor } from './editor';
-import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
+import {
+  getDefaultValueForType,
+  objectToIdiomaticEJSON,
+  type BSONValue,
+} from './utils';
 
 export default Document;
-export type { Editor };
+export type { Editor, BSONValue };
 export {
   Document,
   DocumentEvents,

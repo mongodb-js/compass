@@ -1,4 +1,4 @@
-import { isPlainObject, some, has, isEqualWith } from 'lodash';
+import { isPlainObject, some, isEqualWith, has } from 'lodash';
 import { bsonEqual } from './bson-equal';
 
 /**
@@ -9,8 +9,8 @@ import { bsonEqual } from './bson-equal';
  * @return {Boolean}      whether or not value is included in field
  */
 export const hasDistinctValue = (
-  field: { $in: any } | undefined,
-  value?: any
+  field: Record<string, unknown> | undefined,
+  value?: unknown
 ) => {
   // field not present, add primitive value
   if (field === undefined) {
@@ -20,7 +20,7 @@ export const hasDistinctValue = (
   if (isPlainObject(field)) {
     if (has(field, '$in')) {
       // check if $in array contains the value
-      const inArray = field.$in;
+      const inArray = field.$in as object;
       return some(inArray, (other) => {
         return isEqualWith(value, other, bsonEqual);
       });

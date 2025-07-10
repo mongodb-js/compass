@@ -10,12 +10,12 @@ describe('DiagramCard', () => {
       id: 'test-diagram',
       connectionId: 'test-connection',
       name: 'Test Diagram',
-      createdAt: '2023-10-01T00:00:00.000Z',
-      updatedAt: '2023-10-03T00:00:00.000Z',
+      createdAt: '2021-10-01T00:00:00.000Z',
+      updatedAt: '2023-10-03T00:00:00.000',
       edits: [
         {
           id: 'edit-id',
-          timestamp: '2023-10-01T00:00:00.000Z',
+          timestamp: '2022-10-01T00:00:00.000Z',
           type: 'SetModel',
           model: {
             collections: [

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import type HadronDocument from 'hadron-document';
 import { KeylineCard } from '@mongodb-js/compass-components';
 import Document, { type DocumentProps } from './document';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';
 import { useMergeRefs } from '@mongodb-js/compass-components';
+import {
+  useChangeQueryBarQuery,
+  useQueryBarQuery,
+} from '@mongodb-js/compass-query-bar';
 
 export type DocumentListViewItemProps = {
   doc: HadronDocument;
@@ -41,6 +45,19 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
     openInsertDocumentDialog,
   });
 
+  const changeQuery = useChangeQueryBarQuery();
+  const queryBarQuery = useQueryBarQuery();
+
+  const handleAddToQuery = useCallback(
+    (field: string, value: unknown) => {
+      changeQuery('toggleDistinctValue', {
+        field,
+        value,
+      });
+    },
+    [changeQuery]
+  );
+
   const mergedRef = useMergeRefs([docRef, contextMenuRef]);
 
   return (
@@ -49,6 +66,8 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
       <Document
         doc={doc}
         key={doc.uuid}
+        query={queryBarQuery.filter}
+        onUpdateQuery={handleAddToQuery}
         editable={isEditable}
         isTimeSeries={isTimeSeries}
         copyToClipboard={copyToClipboard}

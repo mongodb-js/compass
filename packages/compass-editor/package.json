@@ -73,7 +73,7 @@
     "@codemirror/view": "^6.38.0",
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.41.0",
-    "@mongodb-js/mongodb-constants": "^0.12.0",
+    "@mongodb-js/mongodb-constants": "^0.12.1",
     "mongodb-query-parser": "^4.3.0",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
