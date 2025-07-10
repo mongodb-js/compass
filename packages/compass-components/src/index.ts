@@ -226,3 +226,4 @@ export {
 export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
+export { useForceUpdate } from './hooks/use-force-update';
