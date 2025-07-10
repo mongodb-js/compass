@@ -263,7 +263,7 @@ describe('Atlas Login', function () {
       await errorToast.waitForDisplayed();
 
       expect(await errorToast.getText()).to.match(
-        /Sign in failed\n+Auth failed/
+        /Sign in failed\n+unexpected HTTP response status code.+Auth failed/
       );
     });
   });
