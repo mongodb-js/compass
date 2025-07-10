@@ -285,7 +285,7 @@ describe('Data Modeling tab', function () {
     });
   });
 
-  it.only('exports the data model to PNG', async function () {
+  it('exports the data model to PNG', async function () {
     if (process.platform === 'win32') {
       console.warn('Skipping PNG export test on Windows');
       this.skip();
