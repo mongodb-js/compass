@@ -30,6 +30,7 @@ import {
   databaseItemActions,
   databaseContextMenuActions,
   notConnectedConnectionItemActions,
+  connectionContextMenuActions,
 } from './item-actions';
 import { itemActionsToContextMenuGroups } from './context-menus';
 
@@ -235,12 +236,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             item,
             onItemAction,
             item.connectionStatus === 'connected'
-              ? connectedConnectionItemActions({
+              ? connectionContextMenuActions({
                   hasWriteActionsDisabled: item.hasWriteActionsDisabled,
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
                   isPerformanceTabAvailable: item.isPerformanceTabAvailable,
                   isPerformanceTabSupported: item.isPerformanceTabSupported,
+                  isAtlas: !!item.connectionInfo.atlasMetadata,
                 })
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
