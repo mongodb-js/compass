@@ -49,11 +49,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-connections": "^1.63.0",
     "@mongodb-js/compass-components": "^1.41.0",
-    "@mongodb-js/connection-info": "^0.15.4",
-    "@mongodb-js/connection-form": "^1.55.0",
+    "@mongodb-js/compass-connections": "^1.63.0",
+    "@mongodb-js/compass-context-menu": "^0.1.1",
     "@mongodb-js/compass-workspaces": "^0.44.0",
+    "@mongodb-js/connection-form": "^1.55.0",
+    "@mongodb-js/connection-info": "^0.15.4",
     "compass-preferences-model": "^2.43.0",
     "mongodb-build-info": "^1.7.2",
     "react": "^17.0.2",

@@ -358,10 +358,10 @@ describe('Multiple Connections Sidebar Component', function () {
           const favAction = screen.getByText('Unfavorite');
           expect(favAction).to.be.visible;
 
-          const duplicateAction = screen.getByText('Duplicate');
+          const duplicateAction = screen.getByText('Duplicate connection');
           expect(duplicateAction).to.be.visible;
 
-          const removeAction = screen.getByText('Remove');
+          const removeAction = screen.getByText('Remove connection');
           expect(removeAction).to.be.visible;
         });
 
@@ -389,10 +389,10 @@ describe('Multiple Connections Sidebar Component', function () {
           const favAction = screen.getByText('Favorite');
           expect(favAction).to.be.visible;
 
-          const duplicateAction = screen.getByText('Duplicate');
+          const duplicateAction = screen.getByText('Duplicate connection');
           expect(duplicateAction).to.be.visible;
 
-          const removeAction = screen.getByText('Remove');
+          const removeAction = screen.getByText('Remove connection');
           expect(removeAction).to.be.visible;
         });
       });
@@ -438,8 +438,8 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Copy connection string')).to.be.visible;
           // because it is already a favorite
           expect(screen.getByText('Unfavorite')).to.be.visible;
-          expect(screen.getByText('Duplicate')).to.be.visible;
-          expect(screen.getByText('Remove')).to.be.visible;
+          expect(screen.getByText('Duplicate connection')).to.be.visible;
+          expect(screen.getByText('Remove connection')).to.be.visible;
         });
 
         it('should render the only connected connections when toggled', async () => {
@@ -511,7 +511,11 @@ describe('Multiple Connections Sidebar Component', function () {
 
             expect(workspace.openShellWorkspace).to.have.been.calledWith(
               savedFavoriteConnection.id,
-              { newTab: true }
+              {
+                newTab: true,
+                initialEvaluate: undefined,
+                initialInput: undefined,
+              }
             );
 
             await waitFor(() => {
@@ -652,7 +656,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Duplicate'));
+            userEvent.click(screen.getByText('Duplicate connection'));
 
             // We see the connect button in the form modal
             expect(screen.getByTestId('connect-button')).to.be.visible;
@@ -675,7 +679,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Remove'));
+            userEvent.click(screen.getByText('Remove connection'));
 
             await waitFor(() => {
               expect(
