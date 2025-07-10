@@ -2,14 +2,15 @@ import React from 'react';
 import { expect } from 'chai';
 import HadronDocument from 'hadron-document';
 import {
-  render,
   screen,
-  cleanup,
   within,
   act,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { renderWithQueryBar } from '../../test/render-with-query-bar';
 
 import VirtualizedDocumentListView from './virtualized-document-list-view';
 
@@ -36,12 +37,17 @@ const getDocs = () => [
 ];
 
 describe('VirtualizedDocumentListView', function () {
-  afterEach(function () {
-    cleanup();
+  let preferences: PreferencesAccess;
+
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
   });
 
   it('renders the list of provided BSON objects', function () {
-    render(<VirtualizedDocumentListView docs={getDocs()} isEditable={false} />);
+    renderWithQueryBar(
+      <VirtualizedDocumentListView docs={getDocs()} isEditable={false} />,
+      { preferences }
+    );
 
     expect(screen.getByTitle('1')).to.be.visible;
     expect(screen.getByTitle('Doc1')).to.be.visible;
@@ -50,11 +56,12 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('renders the list of provided HadronDocuments', function () {
-    render(
+    renderWithQueryBar(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={false}
-      />
+      />,
+      { preferences }
     );
 
     expect(screen.getByTitle('1')).to.be.visible;
@@ -64,22 +71,24 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('renders a readonly list when isEditable is false', function () {
-    render(
+    renderWithQueryBar(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={false}
-      />
+      />,
+      { preferences }
     );
 
     expect(screen.getAllByTestId('readonly-document')).to.have.lengthOf(2);
   });
 
   it('renders an editable list when isEditable is true', function () {
-    render(
+    renderWithQueryBar(
       <VirtualizedDocumentListView
         docs={getDocs().map((doc) => new HadronDocument(doc))}
         isEditable={true}
-      />
+      />,
+      { preferences }
     );
 
     expect(screen.getAllByTestId('editable-document')).to.have.lengthOf(2);
@@ -91,14 +100,16 @@ describe('VirtualizedDocumentListView', function () {
       (_, idx) => new HadronDocument(createBigDocument(idx))
     );
     const listRef: VirtualListRef = React.createRef();
-    render(
+
+    renderWithQueryBar(
       <VirtualizedDocumentListView
         docs={bigDocuments}
         isEditable={true}
         listRef={listRef}
         __TEST_OVERSCAN_COUNT={0}
         __TEST_LIST_HEIGHT={178}
-      />
+      />,
+      { preferences }
     );
 
     const firstDocument = bigDocuments[0];
@@ -152,12 +163,13 @@ describe('VirtualizedDocumentListView', function () {
   });
 
   it('discards the state of document when the underlying document changes', function () {
-    const { rerender } = render(
+    const { rerender } = renderWithQueryBar(
       <VirtualizedDocumentListView
         docs={[new HadronDocument(createBigDocument(1))]}
         isEditable={true}
         __TEST_LIST_HEIGHT={178}
-      />
+      />,
+      { preferences }
     );
 
     let [documentElement] = screen.getAllByTestId('editable-document');

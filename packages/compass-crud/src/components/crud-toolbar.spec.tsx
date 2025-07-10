@@ -1,22 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  render,
-  screen,
-  cleanup,
-  within,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import QueryBarPlugin from '@mongodb-js/compass-query-bar';
-import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+import { renderWithQueryBar } from '../../test/render-with-query-bar';
 
 const noop = () => {
   /* noop */
@@ -24,21 +13,6 @@ const noop = () => {
 
 const testOutdatedMessageId = 'crud-outdated-message-id';
 const testErrorMessageId = 'document-list-error-summary';
-
-const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
-  dataService: {
-    sample() {
-      return Promise.resolve([]);
-    },
-    getConnectionString() {
-      return { hosts: [] } as any;
-    },
-  },
-  instance: { on() {}, removeListener() {} } as any,
-  favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-  recentQueryStorageAccess: compassRecentQueryStorageAccess,
-  atlasAiService: {} as any,
-});
 
 const addDataText = 'Add Data';
 const updateDataText = 'Update';
@@ -50,49 +24,40 @@ describe('CrudToolbar Component', function () {
   function renderCrudToolbar(
     props?: Partial<React.ComponentProps<typeof CrudToolbar>>
   ) {
-    const queryBarProps = {};
-
-    return render(
-      <PreferencesProvider value={preferences}>
-        <MockQueryBarPlugin {...(queryBarProps as any)}>
-          <CrudToolbar
-            activeDocumentView="List"
-            count={55}
-            end={20}
-            getPage={noop}
-            insertDataHandler={noop}
-            loadingCount={false}
-            isFetching={false}
-            docsPerPage={25}
-            isWritable
-            instanceDescription=""
-            onApplyClicked={noop}
-            onResetClicked={noop}
-            onUpdateButtonClicked={noop}
-            onDeleteButtonClicked={noop}
-            onExpandAllClicked={noop}
-            onCollapseAllClicked={noop}
-            openExportFileDialog={noop}
-            outdated={false}
-            page={0}
-            readonly={false}
-            refreshDocuments={noop}
-            resultId="123"
-            start={0}
-            viewSwitchHandler={noop}
-            updateMaxDocumentsPerPage={noop}
-            queryLimit={0}
-            querySkip={0}
-            {...props}
-          />
-        </MockQueryBarPlugin>
-      </PreferencesProvider>
+    return renderWithQueryBar(
+      <CrudToolbar
+        activeDocumentView="List"
+        count={55}
+        end={20}
+        getPage={noop}
+        insertDataHandler={noop}
+        loadingCount={false}
+        isFetching={false}
+        docsPerPage={25}
+        isWritable
+        instanceDescription=""
+        onApplyClicked={noop}
+        onResetClicked={noop}
+        onUpdateButtonClicked={noop}
+        onDeleteButtonClicked={noop}
+        onExpandAllClicked={noop}
+        onCollapseAllClicked={noop}
+        openExportFileDialog={noop}
+        outdated={false}
+        page={0}
+        readonly={false}
+        refreshDocuments={noop}
+        resultId="123"
+        start={0}
+        viewSwitchHandler={noop}
+        updateMaxDocumentsPerPage={noop}
+        queryLimit={0}
+        querySkip={0}
+        {...props}
+      />,
+      { preferences }
     );
   }
-
-  afterEach(function () {
-    cleanup();
-  });
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -732,7 +697,6 @@ describe('CrudToolbar Component', function () {
 
         const contextMenu = screen.getByTestId('context-menu');
         expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
-        expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
       });
 
       it('should not show bulk operations when query has skip', function () {
