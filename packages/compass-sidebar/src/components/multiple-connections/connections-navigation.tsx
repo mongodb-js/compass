@@ -318,12 +318,20 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
       const getConnectionInfo = (item: SidebarItem) => {
-        if (item.type === 'connection') {
-          return item.connectionInfo;
+        switch (item.type) {
+          case 'connection':
+            return item.connectionInfo;
+          case 'database':
+            return item.connectionItem.connectionInfo;
+          case 'view':
+          case 'collection':
+          case 'timeseries':
+            return item.databaseItem.connectionItem.connectionInfo;
+          default:
+            throw new Error(
+              `Item type does not have connection info for action ${action}`
+            );
         }
-        throw new Error(
-          `Item type ${item.type} does not have connection info for action ${action}`
-        );
       };
 
       const getNamespace = (item: SidebarItem) => {
@@ -369,11 +377,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           track(
             'Open Shell',
             { entrypoint: 'sidebar' },
-            item.type === 'connection'
-              ? getConnectionInfo(item)
-              : {
-                  id: connectionId,
-                }
+            getConnectionInfo(item)
           );
           return;
         }
