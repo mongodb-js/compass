@@ -80,7 +80,7 @@
     "@mongodb-js/connection-info": "^0.15.4",
     "@mongodb-js/devtools-connect": "^3.9.0",
     "@mongodb-js/devtools-proxy-support": "^0.5.1",
-    "@mongodb-js/oidc-plugin": "^2.0.0",
+    "@mongodb-js/oidc-plugin": "^2.0.1",
     "compass-preferences-model": "^2.43.0",
     "electron": "^36.5.0",
     "hadron-ipc": "^3.5.3",
