@@ -11,12 +11,19 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { startAnalysis, stopAnalysis } from './schema-analysis-reducer';
+import {
+  geoLayerAdded,
+  geoLayersDeleted,
+  geoLayersEdited,
+  startAnalysis,
+  stopAnalysis,
+} from './schema-analysis-reducer';
 import Sinon from 'sinon';
 import {
   changeExportSchemaFormat,
   openExportSchema,
 } from './schema-export-reducer';
+import { Circle, LayerGroup, Polygon } from 'leaflet';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();
@@ -152,6 +159,62 @@ describe('Schema Store', function () {
       store.dispatch(stopAnalysis());
       await analysisPromise;
       expect(store.getState().schemaAnalysis.analysisState).to.equal('initial');
+    });
+
+    describe('geoLayers', function () {
+      it('geoLayerAdded, geoLayersEdited, geoLayersDeleted: calls the onChange callback', function () {
+        const layer = new Circle([1, 2], {
+          radius: 1000,
+        });
+        const onChangeSpy = sandbox.spy();
+        store.dispatch(geoLayerAdded('coordinates', layer, onChangeSpy));
+        expect(onChangeSpy).to.have.been.calledOnceWith({
+          coordinates: {
+            $geoWithin: {
+              $centerSphere: Sinon.match.array,
+            },
+          },
+        });
+      });
+
+      it('geoLayersEdited: calls the onChange callback', function () {
+        const layersGroup = new LayerGroup();
+        layersGroup.addLayer(
+          new Polygon([
+            [1, 2],
+            [3, 4],
+            [5, 6],
+          ])
+        );
+        const onChangeSpy = sandbox.spy();
+        store.dispatch(
+          geoLayersEdited('coordinates', layersGroup, onChangeSpy)
+        );
+        expect(onChangeSpy).to.have.been.calledOnceWith({
+          coordinates: {
+            $geoWithin: {
+              $geometry: {
+                type: 'Polygon',
+                coordinates: Sinon.match.array,
+              },
+            },
+          },
+        });
+      });
+
+      it('geoLayersDeleted: calls the onChange callback', function () {
+        const layersGroup = new LayerGroup();
+        layersGroup.addLayer(
+          new Polygon([
+            [1, 2],
+            [3, 4],
+            [5, 6],
+          ])
+        );
+        const onChangeSpy = sandbox.spy();
+        store.dispatch(geoLayersDeleted(layersGroup, onChangeSpy));
+        expect(onChangeSpy).to.have.been.calledOnceWith({ $or: [] });
+      });
     });
 
     describe('schema export', function () {
