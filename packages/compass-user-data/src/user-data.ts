@@ -453,4 +453,15 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       throw error;
     }
   }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    await this.write(id, {
+      ...((await this.readOne(id)) ?? {}),
+      ...data,
+    });
+    return await this.readOne(id);
+  }
 }
