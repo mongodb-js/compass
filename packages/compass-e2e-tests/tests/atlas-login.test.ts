@@ -251,7 +251,7 @@ describe('Atlas Login', function () {
       expect(numberOfOIDCAuthRequests).to.eq(2);
     });
 
-    it.only('should show toast with error if sign in failed', async function () {
+    it('should show toast with error if sign in failed', async function () {
       getTokenPayload = () => {
         return Promise.reject(new Error('Auth failed'));
       };
@@ -263,7 +263,7 @@ describe('Atlas Login', function () {
       await errorToast.waitForDisplayed();
 
       expect(await errorToast.getText()).to.match(
-        /Sign in failed\n+unexpected HTTP response status code/
+        /Sign in failed\n+Auth failed/
       );
     });
   });
