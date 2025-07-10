@@ -24,7 +24,7 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import type {
   ConnectionStorage,
   AutoConnectPreferences,
@@ -86,7 +86,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .passthrough();
 
 class CompassMainConnectionStorage implements ConnectionStorage {
-  private readonly userData: UserData<typeof ConnectionSchema>;
+  private readonly userData: FileUserData<typeof ConnectionSchema>;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
@@ -95,7 +95,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     private readonly ipcMain: ConnectionStorageIPCMain,
     basePath?: string
   ) {
-    this.userData = new UserData(ConnectionSchema, {
+    this.userData = new FileUserData(ConnectionSchema, {
       subdir: 'Connections',
       basePath,
     });

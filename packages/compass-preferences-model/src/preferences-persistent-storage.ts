@@ -1,4 +1,4 @@
-import { type z, UserData } from '@mongodb-js/compass-user-data';
+import { type z, FileUserData } from '@mongodb-js/compass-user-data';
 import {
   getDefaultsForStoredPreferences,
   getPreferencesValidator,
@@ -20,12 +20,12 @@ export type PreferencesSafeStorage = {
 export class PersistentStorage implements PreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
-  private readonly userData: UserData<StoredPreferencesValidator>;
+  private readonly userData: FileUserData<StoredPreferencesValidator>;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
   private safeStorage?: PreferencesSafeStorage;
 
   constructor(basePath?: string, safeStorage?: PreferencesSafeStorage) {
-    this.userData = new UserData(getPreferencesValidator(), {
+    this.userData = new FileUserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
     });
