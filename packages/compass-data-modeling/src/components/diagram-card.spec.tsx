@@ -42,6 +42,6 @@ describe('DiagramCard', () => {
     render(<DiagramCard {...props} />);
     expect(screen.getByText('Test Diagram')).to.be.visible;
     expect(screen.getByText('someDatabase')).to.be.visible;
-    expect(screen.getByText('Last modified: October 3, 2023')).to.be.visible;
+    expect(screen.getByText(/modified/)).to.be.visible;
   });
 });

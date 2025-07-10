@@ -1,12 +1,12 @@
 import { getAppName } from '@mongodb-js/compass-utils';
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { FileUserData, z } from '@mongodb-js/compass-user-data';
 
 export class HistoryStorage {
   fileName = 'shell-history';
   userData;
 
   constructor(basePath?: string) {
-    this.userData = new UserData(z.string().array(), {
+    this.userData = new FileUserData(z.string().array(), {
       // Todo: https://jira.mongodb.org/browse/COMPASS-7080
       subdir: getAppName() ?? '',
       basePath,

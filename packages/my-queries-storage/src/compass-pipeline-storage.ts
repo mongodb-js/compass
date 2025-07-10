@@ -1,13 +1,13 @@
 import type { Stats } from '@mongodb-js/compass-user-data';
-import { UserData } from '@mongodb-js/compass-user-data';
+import { FileUserData } from '@mongodb-js/compass-user-data';
 import { PipelineSchema } from './pipeline-storage-schema';
 import type { SavedPipeline } from './pipeline-storage-schema';
 import type { PipelineStorage } from './pipeline-storage';
 
 export class CompassPipelineStorage implements PipelineStorage {
-  private readonly userData: UserData<typeof PipelineSchema>;
+  private readonly userData: FileUserData<typeof PipelineSchema>;
   constructor(basePath?: string) {
-    this.userData = new UserData(PipelineSchema, {
+    this.userData = new FileUserData(PipelineSchema, {
       subdir: 'SavedPipelines',
       basePath,
     });
