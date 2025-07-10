@@ -57,14 +57,14 @@ export const commonConnectionItemActions = ({
       ? null
       : {
           action: 'duplicate-connection',
-          label: 'Duplicate',
+          label: 'Duplicate connection',
           icon: 'Clone',
         },
     isAtlas
       ? null
       : {
           action: 'remove-connection',
-          label: 'Remove',
+          label: 'Remove connection',
           icon: 'Trash',
           variant: 'destructive',
         },
@@ -246,16 +246,35 @@ export const collectionItemActions = ({
   return actions;
 };
 
-const connectionContextMenuActions = ({
+export const connectionContextMenuActions = ({
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isAtlas,
+  isShellEnabled,
+  hasWriteActionsDisabled,
+  connectionInfo,
 }: {
   isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
   isAtlas: boolean;
+  isShellEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
+  connectionInfo?: ConnectionInfo;
 }): NavigationItemActions => {
   return stripNullActions([
+    ...(hasWriteActionsDisabled || !connectionInfo
+      ? []
+      : [
+          ...commonConnectionItemActions({ connectionInfo }),
+          { separator: true } as NavigationItemAction,
+        ]),
+    isShellEnabled
+      ? {
+          action: 'open-shell',
+          icon: 'Shell',
+          label: 'Open MongoDB shell',
+        }
+      : null,
     isPerformanceTabAvailable
       ? {
           action: 'connection-performance-metrics',
@@ -325,17 +344,14 @@ export const databaseContextMenuActions = ({
           label: 'Drop database',
         },
     { separator: true },
-    isShellEnabled
-      ? {
-          action: 'open-shell',
-          icon: 'Shell',
-          label: 'Open MongoDB shell',
-        }
-      : null,
+
     ...connectionContextMenuActions({
+      isShellEnabled,
       isPerformanceTabAvailable,
       isPerformanceTabSupported,
       isAtlas,
+      hasWriteActionsDisabled,
+      connectionInfo: undefined,
     }),
   ]);
 };
@@ -347,6 +363,7 @@ export const collectionContextMenuActions = ({
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isAtlas,
+  isShellEnabled,
 }: {
   hasWriteActionsDisabled: boolean;
   type: 'collection' | 'view' | 'timeseries';
@@ -370,6 +387,7 @@ export const collectionContextMenuActions = ({
   if (!hasWriteActionsDisabled) {
     if (type === 'view') {
       writeActions = [
+        { separator: true },
         {
           action: 'duplicate-view',
           label: 'Duplicate view',
@@ -388,6 +406,7 @@ export const collectionContextMenuActions = ({
       ];
     } else {
       writeActions = stripNullActions([
+        { separator: true },
         type !== 'timeseries' && isRenameCollectionEnabled
           ? {
               action: 'rename-collection',
@@ -411,13 +430,15 @@ export const collectionContextMenuActions = ({
 
   return [
     ...actions,
-    { separator: true },
     ...writeActions,
     { separator: true },
     ...connectionContextMenuActions({
+      isShellEnabled,
       isPerformanceTabAvailable,
       isPerformanceTabSupported,
       isAtlas,
+      hasWriteActionsDisabled,
+      connectionInfo: undefined,
     }),
   ];
 };

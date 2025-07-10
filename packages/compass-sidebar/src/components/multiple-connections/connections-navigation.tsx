@@ -60,6 +60,7 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { wrapField } from '@mongodb-js/mongodb-constants';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -347,8 +348,24 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'create-database':
           _onNamespaceAction(connectionId, '', action);
           return;
-        case 'open-shell':
-          openShellWorkspace(connectionId, { newTab: true });
+        case 'open-shell': {
+          let initialEvaluate: string | undefined = undefined;
+          let initialInput: string | undefined = undefined;
+
+          if (item.type === 'database') {
+            initialEvaluate = `use ${item.dbName};`;
+          }
+
+          if (item.type === 'collection') {
+            initialEvaluate = `use ${item.databaseItem.dbName};`;
+            initialInput = `db[${wrapField(item.name, true)}].find()`;
+          }
+
+          openShellWorkspace(connectionId, {
+            newTab: true,
+            initialEvaluate,
+            initialInput,
+          });
           track(
             'Open Shell',
             { entrypoint: 'sidebar' },
@@ -359,6 +376,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
                 }
           );
           return;
+        }
         case 'connection-performance-metrics':
           openPerformanceWorkspace(connectionId);
           return;
