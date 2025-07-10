@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
+import toNS from 'mongodb-ns';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -235,7 +236,7 @@ const DiagramEditor: React.FunctionComponent<{
           x: coll.displayPosition[0],
           y: coll.displayPosition[1],
         },
-        title: coll.ns,
+        title: toNS(coll.ns).collection,
         fields: getFieldsFromSchema(coll.jsonSchema),
       })
     );
