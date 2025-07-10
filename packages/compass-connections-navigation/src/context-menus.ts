@@ -16,7 +16,7 @@ export function itemActionsToContextMenuGroups(
     actions.map(({ label, action }) => ({
       label,
       onAction() {
-        onItemAction(item, action);
+        onItemAction({ ...item, entrypoint: 'context-menu' }, action);
       },
     }))
   );

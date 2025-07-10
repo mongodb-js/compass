@@ -377,7 +377,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           });
           track(
             'Open Shell',
-            { entrypoint: 'sidebar' },
+            { entrypoint: item.entrypoint ?? 'sidebar' },
             getConnectionInfo(item)
           );
           return;
