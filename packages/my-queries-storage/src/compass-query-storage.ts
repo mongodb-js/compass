@@ -46,7 +46,10 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     return await this.userData.delete(id);
   }
 
-  async updateAttributes(id: string, data: Partial<z.input<TSchema>>) {
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<TSchema>>
+  ): Promise<z.output<TSchema>> {
     return await this.userData.updateAttributes(id, data);
   }
 
