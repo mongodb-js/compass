@@ -386,7 +386,7 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(copyAction).to.be.visible;
 
           // Favorite because the connection is not yet a favorite
-          const favAction = screen.getByText('Favorite');
+          const favAction = screen.getByText('Favorite connection');
           expect(favAction).to.be.visible;
 
           const duplicateAction = screen.getByText('Duplicate connection');
