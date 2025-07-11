@@ -412,7 +412,7 @@ describe('ConnectionsNavigationTree', function () {
       expect(screen.getByText('View performance metrics')).to.be.visible;
       expect(screen.getByText('Show connection info')).to.be.visible;
       expect(screen.getByText('Copy connection string')).to.be.visible;
-      expect(screen.getByText('Unfavorite')).to.be.visible;
+      expect(screen.getByText('Unfavorite connection')).to.be.visible;
       expect(screen.getByText('Disconnect')).to.be.visible;
     });
 
@@ -587,7 +587,7 @@ describe('ConnectionsNavigationTree', function () {
         expect(screen.getByText('View performance metrics')).to.be.visible;
         expect(screen.getByText('Show connection info')).to.be.visible;
         expect(screen.getByText('Copy connection string')).to.be.visible;
-        expect(screen.getByText('Unfavorite')).to.be.visible;
+        expect(screen.getByText('Unfavorite connection')).to.be.visible;
         expect(screen.getByText('Disconnect')).to.be.visible;
       });
 
@@ -983,7 +983,7 @@ describe('ConnectionsNavigationTree', function () {
         await assertContextMenuItems(connectionElement, [
           'Edit connection',
           'Copy connection string',
-          'Unfavorite',
+          'Unfavorite connection',
           'Duplicate connection',
           'Remove connection',
           { separator: true },

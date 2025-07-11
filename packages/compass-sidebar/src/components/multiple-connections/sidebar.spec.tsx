@@ -355,7 +355,7 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(copyAction).to.be.visible;
 
           // Unfavorite because the connection is already a favorite
-          const favAction = screen.getByText('Unfavorite');
+          const favAction = screen.getByText('Unfavorite connection');
           expect(favAction).to.be.visible;
 
           const duplicateAction = screen.getByText('Duplicate connection');
@@ -437,7 +437,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
           expect(screen.getByText('Copy connection string')).to.be.visible;
           // because it is already a favorite
-          expect(screen.getByText('Unfavorite')).to.be.visible;
+          expect(screen.getByText('Unfavorite connection')).to.be.visible;
           expect(screen.getByText('Duplicate connection')).to.be.visible;
           expect(screen.getByText('Remove connection')).to.be.visible;
         });
@@ -635,7 +635,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Show actions')
             );
 
-            userEvent.click(screen.getByText('Unfavorite'));
+            userEvent.click(screen.getByText('Unfavorite connection'));
 
             await waitFor(() => {
               expect(
