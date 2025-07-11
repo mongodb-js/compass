@@ -16,6 +16,7 @@ import type {
   ConnectionAttempt,
   ConnectionOptions,
   DataService,
+  InstanceDetails,
 } from 'mongodb-data-service';
 import { createConnectionAttempt } from 'mongodb-data-service';
 import { UUID } from 'bson';
@@ -43,7 +44,8 @@ import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/pro
 export type ConnectionsEventMap = {
   connected: (
     connectionId: ConnectionId,
-    connectionInfo: ConnectionInfo
+    connectionInfo: ConnectionInfo,
+    instanceInfo: InstanceDetails
   ) => void;
   disconnected: (
     connectionId: ConnectionId,
@@ -1658,6 +1660,14 @@ const connectWithOptions = (
           return;
         }
 
+        // We're trying to optimise the initial Compass loading times here: to
+        // make sure that the driver connection pool doesn't immediately get
+        // overwhelmed with requests, we fetch instance info only once and then
+        // pass it down to telemetry and instance model. This is a relatively
+        // expensive dataService operation so we're trying to keep the usage
+        // very limited
+        const instanceInfo = await dataService.instance();
+
         let showedNonRetryableErrorToast = false;
         // Listen for non-retry-able errors on failed server heartbeats.
         // These can happen on compass web when:
@@ -1766,7 +1776,7 @@ const connectWithOptions = (
               { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas },
               [extraInfo, resolvedHostname],
             ] = await Promise.all([
-              dataService.instance(),
+              instanceInfo,
               getExtraConnectionData(connectionInfo),
             ]);
 
@@ -1811,7 +1821,8 @@ const connectWithOptions = (
         connectionsEventEmitter.emit(
           'connected',
           connectionInfo.id,
-          connectionInfo
+          connectionInfo,
+          instanceInfo
         );
 
         dispatch({
@@ -1819,8 +1830,7 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
-        const { networkTraffic, showEndOfLifeConnectionModal } =
-          preferences.getPreferences();
+        const { showEndOfLifeConnectionModal } = preferences.getPreferences();
 
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
@@ -1828,27 +1838,12 @@ const connectWithOptions = (
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
         } else if (showEndOfLifeConnectionModal) {
-          void dataService
-            .instance()
-            .then(async (instance) => {
-              const { version } = instance.build;
-              const latestEndOfLifeServerVersion =
-                await getLatestEndOfLifeServerVersion(networkTraffic);
-              if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
-                dispatch(
-                  showEndOfLifeMongoDBWarningModal(
-                    connectionInfo.id,
-                    instance.build.version
-                  )
-                );
-              }
-            })
-            .catch((err) => {
-              debug(
-                'failed to get instance details to determine if the server version is end-of-life',
-                err
-              );
-            });
+          void dispatch(
+            showEndOfLifeMongoDBWarningModal(
+              connectionInfo.id,
+              instanceInfo.build.version
+            )
+          );
         }
       } catch (err) {
         dispatch(connectionAttemptError(connectionInfo, err));
@@ -2176,11 +2171,31 @@ export const showNonGenuineMongoDBWarningModal = (
 export const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
-): ConnectionsThunkAction<void> => {
-  return (_dispatch, getState, { track }) => {
-    const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
-    track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
-    void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
+): ConnectionsThunkAction<Promise<void>> => {
+  return async (
+    _dispatch,
+    getState,
+    { track, logger: { debug }, preferences }
+  ) => {
+    try {
+      const latestEndOfLifeServerVersion =
+        await getLatestEndOfLifeServerVersion(
+          preferences.getPreferences().networkTraffic
+        );
+      if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
+        const connectionInfo = getCurrentConnectionInfo(
+          getState(),
+          connectionId
+        );
+        track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
+        void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
+      }
+    } catch (err) {
+      debug(
+        'failed to get instance details to determine if the server version is end-of-life',
+        err
+      );
+    }
   };
 };
 
