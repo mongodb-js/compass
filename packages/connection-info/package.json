@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "mongodb": "^6.16.0",
+    "mongodb": "^6.17.0",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.28.5"
   },
@@ -64,7 +64,7 @@
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "gen-esm-wrapper": "^1.1.0",

@@ -71,10 +71,10 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.4.14",
     "@mongodb-js/compass-editor": "^0.44.0",
     "@mongodb-js/compass-user-data": "^0.7.5",
-    "bson": "^6.10.3",
-    "@mongodb-js/compass-app-registry": "^9.4.14",
+    "bson": "^6.10.4",
     "react": "^17.0.2"
   }
 }

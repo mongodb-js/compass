@@ -47,7 +47,7 @@
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "@mongodb-js/testing-library-compass": "^1.3.4",
     "@mongodb-js/tsconfig-compass": "^1.2.9",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "enzyme": "^3.11.0",
@@ -58,6 +58,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.4.14",
     "@mongodb-js/compass-app-stores": "^7.50.0",
     "@mongodb-js/compass-components": "^1.42.0",
     "@mongodb-js/compass-connections": "^1.64.0",
@@ -68,7 +69,6 @@
     "@mongodb-js/databases-collections-list": "^1.61.0",
     "@mongodb-js/my-queries-storage": "^0.31.0",
     "compass-preferences-model": "^2.44.0",
-    "@mongodb-js/compass-app-registry": "^9.4.14",
     "lodash": "^4.17.21",
     "mongodb-collection-model": "^5.29.5",
     "mongodb-database-model": "^2.29.5",
@@ -80,7 +80,7 @@
     "react-redux": "^8.1.3",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "semver": "^7.6.2"
+    "semver": "^7.6.3"
   },
   "is_compass_plugin": true
 }

@@ -61,7 +61,7 @@
     "@mongosh/browser-repl": "^3.16.4",
     "@mongosh/logging": "^3.9.2",
     "@mongosh/node-runtime-worker-thread": "^3.3.18",
-    "bson": "^6.10.3",
+    "bson": "^6.10.4",
     "compass-preferences-model": "^2.44.0",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
