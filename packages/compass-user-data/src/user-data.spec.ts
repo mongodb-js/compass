@@ -3,7 +3,7 @@ import { Stats } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import { UserData, type UserDataOptions } from './user-data';
+import { FileUserData, type FileUserDataOptions } from './user-data';
 import { z, type ZodError } from 'zod';
 
 type ValidatorOptions = {
@@ -44,11 +44,11 @@ describe('user-data', function () {
 
   const getUserData = (
     userDataOpts: Partial<
-      UserDataOptions<z.input<ReturnType<typeof getTestSchema>>>
+      FileUserDataOptions<z.input<ReturnType<typeof getTestSchema>>>
     > = {},
     validatorOpts: ValidatorOptions = {}
   ) => {
-    return new UserData(getTestSchema(validatorOpts), {
+    return new FileUserData(getTestSchema(validatorOpts), {
       subdir,
       basePath: tmpDir,
       ...userDataOpts,

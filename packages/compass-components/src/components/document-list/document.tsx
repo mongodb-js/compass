@@ -86,12 +86,16 @@ const HadronDocument: React.FunctionComponent<{
   editing?: boolean;
   onEditStart?: () => void;
   extraGutterWidth?: number;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: Record<string, unknown>;
 }> = ({
   value: document,
   editable = false,
   editing = false,
   onEditStart,
   extraGutterWidth,
+  onUpdateQuery,
+  query,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -156,6 +160,8 @@ const HadronDocument: React.FunctionComponent<{
                   });
                 }}
                 extraGutterWidth={extraGutterWidth}
+                onUpdateQuery={onUpdateQuery}
+                query={query}
               ></HadronElement>
             );
           })}
