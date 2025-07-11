@@ -94,11 +94,14 @@ export const diagramReducer: Reducer<DiagramState> = (
   action
 ) => {
   if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
+    const current = action.diagram.edits;
+    const prev = current.map((_item, index, arr) => arr.slice(0, index + 1));
+    prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
       edits: {
-        prev: [],
-        current: action.diagram.edits,
+        prev,
+        current,
         next: [],
       },
     };
