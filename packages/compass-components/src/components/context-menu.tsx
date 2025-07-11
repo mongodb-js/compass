@@ -11,7 +11,10 @@ import {
   type ContextMenuWrapperProps,
 } from '@mongodb-js/compass-context-menu';
 
-export type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
+export type {
+  ContextMenuItem,
+  ContextMenuItemGroup,
+} from '@mongodb-js/compass-context-menu';
 
 // TODO: Remove these once https://jira.mongodb.org/browse/LG-5013 is resolved
 
