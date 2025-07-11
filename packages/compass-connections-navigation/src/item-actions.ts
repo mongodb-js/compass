@@ -49,8 +49,8 @@ export const commonConnectionItemActions = ({
           action: 'connection-toggle-favorite',
           label:
             connectionInfo.savedConnectionType === 'favorite'
-              ? 'Unfavorite'
-              : 'Favorite',
+              ? 'Unfavorite connection'
+              : 'Favorite connection',
           icon: 'Favorite',
         },
     isAtlas

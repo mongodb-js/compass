@@ -1013,7 +1013,7 @@ describe('ConnectionsNavigationTree', function () {
           'Connect',
           'Edit connection',
           'Copy connection string',
-          'Favorite',
+          'Favorite connection',
           'Duplicate connection',
           'Remove connection',
         ]);
