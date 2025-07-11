@@ -43,6 +43,7 @@ const connections: Connection[] = [
         collectionsStatus: 'initial',
         collectionsLength: 5,
         collections: [],
+        isNonExistent: false,
       },
       {
         _id: 'db_ready',
@@ -56,6 +57,7 @@ const connections: Connection[] = [
             type: 'collection',
             sourceName: '',
             pipeline: [],
+            isNonExistent: false,
           },
           {
             _id: 'db_ready.woof',
@@ -63,6 +65,7 @@ const connections: Connection[] = [
             type: 'timeseries',
             sourceName: '',
             pipeline: [],
+            isNonExistent: false,
           },
           {
             _id: 'db_ready.bwok',
@@ -70,8 +73,10 @@ const connections: Connection[] = [
             type: 'view',
             sourceName: '',
             pipeline: [],
+            isNonExistent: false,
           },
         ],
+        isNonExistent: false,
       },
     ],
     isReady: true,
@@ -407,7 +412,7 @@ describe('ConnectionsNavigationTree', function () {
       expect(screen.getByText('View performance metrics')).to.be.visible;
       expect(screen.getByText('Show connection info')).to.be.visible;
       expect(screen.getByText('Copy connection string')).to.be.visible;
-      expect(screen.getByText('Unfavorite')).to.be.visible;
+      expect(screen.getByText('Unfavorite connection')).to.be.visible;
       expect(screen.getByText('Disconnect')).to.be.visible;
     });
 
@@ -582,7 +587,7 @@ describe('ConnectionsNavigationTree', function () {
         expect(screen.getByText('View performance metrics')).to.be.visible;
         expect(screen.getByText('Show connection info')).to.be.visible;
         expect(screen.getByText('Copy connection string')).to.be.visible;
-        expect(screen.getByText('Unfavorite')).to.be.visible;
+        expect(screen.getByText('Unfavorite connection')).to.be.visible;
         expect(screen.getByText('Disconnect')).to.be.visible;
       });
 
@@ -763,7 +768,6 @@ describe('ConnectionsNavigationTree', function () {
             connections: [
               {
                 ...(connections[0] as ConnectedConnection),
-                isPerformanceTabSupported: true,
                 isPerformanceTabSupported: false,
               },
               { ...connections[1] },
@@ -931,6 +935,295 @@ describe('ConnectionsNavigationTree', function () {
         expect(item.connectionId).to.equal('connection_ready');
         expect(item.namespace).to.equal('db_ready.bwok');
         expect(action).to.equal('modify-view');
+      });
+    });
+  });
+
+  describe('context menu', function () {
+    const assertContextMenuItems = async (
+      element: HTMLElement,
+      items: (string | { separator: true })[]
+    ) => {
+      userEvent.click(element, { button: 2 });
+      await waitFor(() => {
+        expect(screen.getByTestId('context-menu')).to.be.visible;
+      });
+      let groupIndex = 0;
+      let itemIndex = 0;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (typeof item === 'object' && 'separator' in item) {
+          groupIndex++;
+          itemIndex = 0;
+          continue;
+        }
+        if (typeof item === 'string') {
+          expect(
+            screen.getByTestId(`menu-group-${groupIndex}-item-${itemIndex}`)
+          ).to.have.text(item);
+        }
+        itemIndex++;
+      }
+      // Expect no more items
+      expect(
+        screen.queryByTestId(`menu-group-${groupIndex}-item-${itemIndex + 1}`)
+      ).to.not.exist;
+      expect(screen.queryByTestId(`menu-group-${groupIndex + 1}-item-0`)).to.not
+        .exist;
+    };
+
+    describe('connection context menu', function () {
+      it('should show context menu for connected connection', async function () {
+        await renderConnectionsNavigationTree();
+
+        const connectionElement = within(
+          screen.getByTestId('connection_ready')
+        ).getByTestId('base-navigation-item');
+
+        await assertContextMenuItems(connectionElement, [
+          'Edit connection',
+          'Copy connection string',
+          'Unfavorite connection',
+          'Duplicate connection',
+          'Remove connection',
+          { separator: true },
+          'Open MongoDB shell',
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+
+      it('should show context menu for disconnected connection', async function () {
+        await renderConnectionsNavigationTree();
+
+        const connectionElement = within(
+          screen.getByTestId('connection_disconnected')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(connectionElement, { button: 2 });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('context-menu')).to.be.visible;
+        });
+
+        // Check for expected context menu items for disconnected connection
+        await assertContextMenuItems(connectionElement, [
+          'Connect',
+          'Edit connection',
+          'Copy connection string',
+          'Favorite connection',
+          'Duplicate connection',
+          'Remove connection',
+        ]);
+      });
+    });
+
+    describe('database context menu', function () {
+      it('should show context menu for database', async function () {
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: {} },
+        });
+
+        const databaseElement = within(
+          screen.getByTestId('connection_ready.db_initial')
+        ).getByTestId('base-navigation-item');
+
+        // Check for expected context menu items for database
+        await assertContextMenuItems(databaseElement, [
+          'Create collection',
+          { separator: true },
+          'Create database',
+          'Drop database',
+          { separator: true },
+          'Open MongoDB shell',
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+
+      it('should show limited context menu for database when read-only', async function () {
+        await renderConnectionsNavigationTree(
+          {
+            expanded: { connection_ready: {} },
+          },
+          {
+            readOnly: true,
+          }
+        );
+
+        const databaseElement = within(
+          screen.getByTestId('connection_ready.db_initial')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(databaseElement, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+
+        // Check that write actions are not present in read-only mode
+        expect(() => within(contextMenu).getByText('Create collection')).to
+          .throw;
+        expect(() => within(contextMenu).getByText('Create database')).to.throw;
+        expect(() => within(contextMenu).getByText('Drop database')).to.throw;
+
+        // Check that read-only actions are still present
+        expect(within(contextMenu).getByText('View performance metrics')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Show connection info')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Refresh databases')).to.be
+          .visible;
+        expect(within(contextMenu).getByText('Disconnect')).to.be.visible;
+      });
+    });
+
+    describe('collection context menu', function () {
+      it('should show context menu for collection', async function () {
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+        });
+
+        const collectionElement = within(
+          screen.getByTestId('connection_ready.db_ready.meow')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(collectionElement, { button: 2 });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('context-menu')).to.be.visible;
+        });
+
+        // Check for expected context menu items for collection
+        await assertContextMenuItems(collectionElement, [
+          'Open in new tab',
+          { separator: true },
+          'Rename collection',
+          'Create collection',
+          'Drop collection',
+          { separator: true },
+          'Open MongoDB shell',
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+
+      it('should show limited context menu for collection when read-only', async function () {
+        await renderConnectionsNavigationTree(
+          {
+            expanded: { connection_ready: { db_ready: true } },
+          },
+          {
+            readOnly: true,
+          }
+        );
+
+        const collectionElement = within(
+          screen.getByTestId('connection_ready.db_ready.meow')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(collectionElement, { button: 2 });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('context-menu')).to.be.visible;
+        });
+
+        await assertContextMenuItems(collectionElement, [
+          'Open in new tab',
+          { separator: true },
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+    });
+
+    describe('view context menu', function () {
+      it('should show context menu for view', async function () {
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+        });
+
+        const viewElement = within(
+          screen.getByTestId('connection_ready.db_ready.bwok')
+        ).getByTestId('base-navigation-item');
+
+        // Check for expected context menu items for view
+        await assertContextMenuItems(viewElement, [
+          'Open in new tab',
+          { separator: true },
+          'Duplicate view',
+          'Modify view',
+          'Drop view',
+          { separator: true },
+          'Open MongoDB shell',
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+
+        // Views should not have rename option
+        expect(() => screen.getByText('Rename collection')).to.throw;
+      });
+
+      it('should show limited context menu for view when read-only', async function () {
+        await renderConnectionsNavigationTree(
+          {
+            expanded: { connection_ready: { db_ready: true } },
+          },
+          {
+            readOnly: true,
+          }
+        );
+
+        const viewElement = within(
+          screen.getByTestId('connection_ready.db_ready.bwok')
+        ).getByTestId('base-navigation-item');
+
+        // Check that read-only actions are still present
+        await assertContextMenuItems(viewElement, [
+          'Open in new tab',
+          { separator: true },
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+    });
+
+    describe('context menu actions', function () {
+      it('should trigger onItemAction when context menu item is clicked', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onItemAction: spy,
+        });
+
+        const collectionElement = within(
+          screen.getByTestId('connection_ready.db_ready.meow')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(collectionElement, { button: 2 });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('context-menu')).to.be.visible;
+        });
+
+        userEvent.click(screen.getByText('Open in new tab'));
+
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.namespace).to.equal('db_ready.meow');
+        expect(action).to.equal('open-in-new-tab');
       });
     });
   });
