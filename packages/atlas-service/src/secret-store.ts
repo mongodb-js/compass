@@ -1,13 +1,13 @@
-import { UserData, z } from '@mongodb-js/compass-user-data';
+import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { safeStorage } from 'electron';
 
 const AtlasPluginStateSchema = z.string().optional();
 
 export class SecretStore {
-  private readonly userData: UserData<typeof AtlasPluginStateSchema>;
+  private readonly userData: FileUserData<typeof AtlasPluginStateSchema>;
   private readonly fileName = 'AtlasPluginState';
   constructor(basePath?: string) {
-    this.userData = new UserData(AtlasPluginStateSchema, {
+    this.userData = new FileUserData(AtlasPluginStateSchema, {
       subdir: 'AtlasState',
       basePath,
     });

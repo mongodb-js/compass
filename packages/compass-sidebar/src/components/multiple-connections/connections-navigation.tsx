@@ -27,9 +27,7 @@ import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
   Actions,
   SidebarConnectedConnection,
-  SidebarConnectedConnectionTreeItem,
   SidebarConnection,
-  SidebarNotConnectedConnectionTreeItem,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
@@ -63,6 +61,7 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { wrapField } from '@mongodb-js/mongodb-constants';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -317,105 +316,125 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       return actions;
     }, [supportsConnectionImportExport, enableCreatingNewConnections]);
 
-  const onConnectionItemAction = useCallback(
-    (
-      item:
-        | SidebarConnectedConnectionTreeItem
-        | SidebarNotConnectedConnectionTreeItem,
-      action: Actions
-    ) => {
+  const onItemAction = useCallback(
+    (item: SidebarItem, action: Actions) => {
+      const getConnectionInfo = (item: SidebarItem) => {
+        switch (item.type) {
+          case 'connection':
+            return item.connectionInfo;
+          case 'database':
+            return item.connectionItem.connectionInfo;
+          case 'view':
+          case 'collection':
+          case 'timeseries':
+            return item.databaseItem.connectionItem.connectionInfo;
+          default:
+            throw new Error(
+              `Item type does not have connection info for action ${action}`
+            );
+        }
+      };
+
+      const getNamespace = (item: SidebarItem) => {
+        if (item.type === 'connection') {
+          throw new Error(
+            `Item type ${item.type} does not have a namespace for action ${action}`
+          );
+        }
+        return item.type === 'database' ? item.dbName : item.namespace;
+      };
+
+      const connectionId =
+        item.type === 'connection' ? item.connectionInfo.id : item.connectionId;
+
       switch (action) {
         case 'select-connection':
-          openDatabasesWorkspace(item.connectionInfo.id);
+          openDatabasesWorkspace(connectionId);
           return;
         case 'refresh-databases':
-          _onRefreshDatabases(item.connectionInfo.id);
+          _onRefreshDatabases(connectionId);
           return;
         case 'create-database':
-          _onNamespaceAction(item.connectionInfo.id, '', action);
+          _onNamespaceAction(connectionId, '', action);
           return;
-        case 'open-shell':
-          openShellWorkspace(item.connectionInfo.id, { newTab: true });
-          track('Open Shell', { entrypoint: 'sidebar' }, item.connectionInfo);
+        case 'open-shell': {
+          let initialEvaluate: string | undefined = undefined;
+          let initialInput: string | undefined = undefined;
+
+          if (item.type === 'database') {
+            initialEvaluate = `use ${item.dbName};`;
+          }
+
+          if (item.type === 'collection') {
+            initialEvaluate = `use ${item.databaseItem.dbName};`;
+            initialInput = `db[${wrapField(item.name, true)}].find()`;
+          }
+
+          openShellWorkspace(connectionId, {
+            newTab: true,
+            initialEvaluate,
+            initialInput,
+          });
+          track(
+            'Open Shell',
+            { entrypoint: item.entrypoint ?? 'sidebar' },
+            getConnectionInfo(item)
+          );
           return;
+        }
         case 'connection-performance-metrics':
-          openPerformanceWorkspace(item.connectionInfo.id);
+          openPerformanceWorkspace(connectionId);
           return;
         case 'open-connection-info':
-          onOpenConnectionInfo(item.connectionInfo.id);
+          onOpenConnectionInfo(connectionId);
           return;
         case 'connection-disconnect':
-          onDisconnect(item.connectionInfo.id);
+          onDisconnect(connectionId);
           return;
         case 'connection-connect':
-          onConnect(item.connectionInfo);
+          onConnect(getConnectionInfo(item));
           return;
         case 'connection-connect-in-new-window':
-          onConnectInNewWindow(item.connectionInfo);
+          onConnectInNewWindow(getConnectionInfo(item));
           return;
         case 'edit-connection':
-          onEditConnection(item.connectionInfo);
+          onEditConnection(getConnectionInfo(item));
           return;
         case 'copy-connection-string':
-          onCopyConnectionString(item.connectionInfo);
+          onCopyConnectionString(getConnectionInfo(item));
           return;
         case 'connection-toggle-favorite':
-          onToggleFavoriteConnectionInfo(item.connectionInfo);
+          onToggleFavoriteConnectionInfo(getConnectionInfo(item));
           return;
         case 'duplicate-connection':
-          onDuplicateConnection(item.connectionInfo);
+          onDuplicateConnection(getConnectionInfo(item));
           return;
         case 'remove-connection':
-          onRemoveConnection(item.connectionInfo);
+          onRemoveConnection(getConnectionInfo(item));
           return;
         case 'open-csfle-modal':
-          onOpenCsfleModal(item.connectionInfo.id);
+          onOpenCsfleModal(connectionId);
           return;
         case 'open-non-genuine-mongodb-modal':
-          onOpenNonGenuineMongoDBModal(item.connectionInfo.id);
+          onOpenNonGenuineMongoDBModal(connectionId);
           return;
         case 'show-connect-via-modal':
-          onOpenConnectViaModal?.(item.connectionInfo.atlasMetadata);
+          onOpenConnectViaModal?.(getConnectionInfo(item).atlasMetadata);
           return;
-      }
-    },
-    [
-      openDatabasesWorkspace,
-      _onRefreshDatabases,
-      _onNamespaceAction,
-      openShellWorkspace,
-      track,
-      openPerformanceWorkspace,
-      onOpenConnectionInfo,
-      onDisconnect,
-      onConnect,
-      onConnectInNewWindow,
-      onEditConnection,
-      onCopyConnectionString,
-      onToggleFavoriteConnectionInfo,
-      onDuplicateConnection,
-      onRemoveConnection,
-      onOpenCsfleModal,
-      onOpenNonGenuineMongoDBModal,
-      onOpenConnectViaModal,
-    ]
-  );
-
-  const onNamespaceAction = useCallback(
-    (connectionId: string, ns: string, action: Actions) => {
-      switch (action) {
         case 'select-database':
-          openCollectionsWorkspace(connectionId, ns);
+          openCollectionsWorkspace(connectionId, getNamespace(item));
           return;
         case 'select-collection':
-          openCollectionWorkspace(connectionId, ns);
+          openCollectionWorkspace(connectionId, getNamespace(item));
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(connectionId, ns, { newTab: true });
+          openCollectionWorkspace(connectionId, getNamespace(item), {
+            newTab: true,
+          });
           return;
         case 'modify-view': {
           const coll = findCollection(
-            ns,
+            getNamespace(item),
             (connections.find(
               (conn): conn is SidebarConnectedConnection =>
                 conn.connectionStatus === ConnectionStatus.Connected &&
@@ -432,30 +451,34 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         }
         default:
-          _onNamespaceAction(connectionId, ns, action);
+          _onNamespaceAction(connectionId, getNamespace(item), action);
           return;
       }
     },
     [
+      openDatabasesWorkspace,
+      _onRefreshDatabases,
+      openShellWorkspace,
+      track,
+      openPerformanceWorkspace,
+      onOpenConnectionInfo,
+      onDisconnect,
+      onConnect,
+      onConnectInNewWindow,
+      onEditConnection,
+      onCopyConnectionString,
+      onToggleFavoriteConnectionInfo,
+      onDuplicateConnection,
+      onRemoveConnection,
+      onOpenCsfleModal,
+      onOpenNonGenuineMongoDBModal,
+      onOpenConnectViaModal,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
       _onNamespaceAction,
     ]
-  );
-
-  const onItemAction = useCallback(
-    (item: SidebarItem, action: Actions) => {
-      if (item.type === 'connection') {
-        onConnectionItemAction(item, action);
-      } else {
-        const namespace =
-          item.type === 'database' ? item.dbName : item.namespace;
-        onNamespaceAction(item.connectionId, namespace, action);
-      }
-    },
-    [onConnectionItemAction, onNamespaceAction]
   );
 
   const onItemExpand = useCallback(
@@ -485,7 +508,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [onCollapseAll, onNewConnection, openConnectionImportExportModal]
   );
 
-  const ref = useContextMenuItems(
+  const contextMenuRef = useContextMenuItems(
     () =>
       connectionListTitleActions.map(({ label, action }) => ({
         label,
@@ -526,10 +549,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   ) : undefined;
 
   return (
-    <div className={connectionsContainerStyles} ref={ref}>
+    <div className={connectionsContainerStyles}>
       <div
         className={connectionListHeaderStyles}
         data-testid="connections-header"
+        ref={contextMenuRef}
       >
         <Subtitle className={connectionListHeaderTitleStyles}>
           {isAtlasConnectionStorage ? 'Clusters' : 'Connections'}

@@ -49,22 +49,22 @@ export const commonConnectionItemActions = ({
           action: 'connection-toggle-favorite',
           label:
             connectionInfo.savedConnectionType === 'favorite'
-              ? 'Unfavorite'
-              : 'Favorite',
+              ? 'Unfavorite connection'
+              : 'Favorite connection',
           icon: 'Favorite',
         },
     isAtlas
       ? null
       : {
           action: 'duplicate-connection',
-          label: 'Duplicate',
+          label: 'Duplicate connection',
           icon: 'Clone',
         },
     isAtlas
       ? null
       : {
           action: 'remove-connection',
-          label: 'Remove',
+          label: 'Remove connection',
           icon: 'Trash',
           variant: 'destructive',
         },
@@ -206,6 +206,7 @@ export const collectionItemActions = ({
   }
 
   if (type === 'view') {
+    actions.push({ separator: true });
     actions.push(
       {
         action: 'drop-collection',
@@ -228,6 +229,7 @@ export const collectionItemActions = ({
   }
 
   if (type !== 'timeseries' && isRenameCollectionEnabled) {
+    actions.push({ separator: true });
     actions.push({
       action: 'rename-collection',
       label: 'Rename collection',
@@ -242,4 +244,201 @@ export const collectionItemActions = ({
   });
 
   return actions;
+};
+
+export const connectionContextMenuActions = ({
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+  isShellEnabled,
+  hasWriteActionsDisabled,
+  connectionInfo,
+}: {
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+  isShellEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
+  connectionInfo?: ConnectionInfo;
+}): NavigationItemActions => {
+  return stripNullActions([
+    ...(hasWriteActionsDisabled || !connectionInfo
+      ? []
+      : [
+          ...commonConnectionItemActions({ connectionInfo }),
+          { separator: true } as NavigationItemAction,
+        ]),
+    isShellEnabled
+      ? {
+          action: 'open-shell',
+          icon: 'Shell',
+          label: 'Open MongoDB shell',
+        }
+      : null,
+    isPerformanceTabAvailable
+      ? {
+          action: 'connection-performance-metrics',
+          icon: 'Gauge',
+          label: 'View performance metrics',
+          isDisabled: !isPerformanceTabSupported,
+          disabledDescription: 'Not supported',
+        }
+      : null,
+    isAtlas
+      ? null
+      : {
+          action: 'open-connection-info',
+          icon: 'InfoWithCircle',
+          label: 'Show connection info',
+        },
+    {
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
+    },
+    { separator: true },
+    {
+      action: 'connection-disconnect',
+      icon: 'Disconnect',
+      label: 'Disconnect',
+      variant: 'destructive',
+    },
+  ]);
+};
+
+export const databaseContextMenuActions = ({
+  hasWriteActionsDisabled,
+  isShellEnabled,
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+}: {
+  hasWriteActionsDisabled: boolean;
+  isShellEnabled: boolean;
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+}): NavigationItemActions => {
+  return stripNullActions([
+    // Database-specific actions
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'create-collection',
+          icon: 'Plus',
+          label: 'Create collection',
+        },
+    { separator: true },
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'create-database',
+          icon: 'Plus',
+          label: 'Create database',
+        },
+    hasWriteActionsDisabled
+      ? null
+      : {
+          action: 'drop-database',
+          icon: 'Trash',
+          label: 'Drop database',
+        },
+    { separator: true },
+
+    ...connectionContextMenuActions({
+      isShellEnabled,
+      isPerformanceTabAvailable,
+      isPerformanceTabSupported,
+      isAtlas,
+      hasWriteActionsDisabled,
+      connectionInfo: undefined,
+    }),
+  ]);
+};
+
+export const collectionContextMenuActions = ({
+  hasWriteActionsDisabled,
+  type,
+  isRenameCollectionEnabled,
+  isPerformanceTabAvailable,
+  isPerformanceTabSupported,
+  isAtlas,
+  isShellEnabled,
+}: {
+  hasWriteActionsDisabled: boolean;
+  type: 'collection' | 'view' | 'timeseries';
+  isRenameCollectionEnabled: boolean;
+  isShellEnabled: boolean;
+  isPerformanceTabAvailable: boolean;
+  isPerformanceTabSupported: boolean;
+  isAtlas: boolean;
+}): NavigationItemActions => {
+  const actions: NavigationItemActions = [
+    // Collection-specific actions
+    {
+      action: 'open-in-new-tab',
+      label: 'Open in new tab',
+      icon: 'OpenNewTab',
+    },
+  ];
+
+  let writeActions: NavigationItemActions = [];
+
+  if (!hasWriteActionsDisabled) {
+    if (type === 'view') {
+      writeActions = [
+        { separator: true },
+        {
+          action: 'duplicate-view',
+          label: 'Duplicate view',
+          icon: 'Copy',
+        },
+        {
+          action: 'modify-view',
+          label: 'Modify view',
+          icon: 'Edit',
+        },
+        {
+          action: 'drop-collection',
+          label: 'Drop view',
+          icon: 'Trash',
+        },
+      ];
+    } else {
+      writeActions = stripNullActions([
+        { separator: true },
+        type !== 'timeseries' && isRenameCollectionEnabled
+          ? {
+              action: 'rename-collection',
+              label: 'Rename collection',
+              icon: 'Edit',
+            }
+          : null,
+        {
+          action: 'create-collection',
+          icon: 'Plus',
+          label: 'Create collection',
+        },
+        {
+          action: 'drop-collection',
+          label: 'Drop collection',
+          icon: 'Trash',
+        },
+      ]);
+    }
+  }
+
+  return [
+    ...actions,
+    ...writeActions,
+    { separator: true },
+    ...connectionContextMenuActions({
+      isShellEnabled,
+      isPerformanceTabAvailable,
+      isPerformanceTabSupported,
+      isAtlas,
+      hasWriteActionsDisabled,
+      connectionInfo: undefined,
+    }),
+  ];
 };

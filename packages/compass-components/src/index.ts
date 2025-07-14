@@ -51,18 +51,19 @@ import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
 
-import type {
+export type {
   ItemAction,
   ItemComponentProps,
   ItemSeparator,
+  MenuAction,
 } from './components/actions/types';
-import type { GroupedItemAction } from './components/actions/item-action-group';
-import type { MenuAction } from './components/actions/item-action-menu';
+export { splitBySeparator } from './components/actions/utils';
+export type { GroupedItemAction } from './components/actions/item-action-group';
 
-import { ItemActionControls } from './components/actions/item-action-controls';
-import { ItemActionGroup } from './components/actions/item-action-group';
-import { ItemActionMenu } from './components/actions/item-action-menu';
-import { DropdownMenuButton } from './components/actions/dropdown-menu-button';
+export { ItemActionControls } from './components/actions/item-action-controls';
+export { ItemActionGroup } from './components/actions/item-action-group';
+export { ItemActionMenu } from './components/actions/item-action-menu';
+export { DropdownMenuButton } from './components/actions/dropdown-menu-button';
 
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
@@ -104,15 +105,11 @@ export {
   useContextMenuItems,
   useContextMenuGroups,
   type ContextMenuItem,
+  type ContextMenuItemGroup,
 } from './components/context-menu';
 
 export type {
   FileInputBackend,
-  ItemAction,
-  ItemComponentProps,
-  GroupedItemAction,
-  MenuAction,
-  ItemSeparator,
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
 };
@@ -131,10 +128,6 @@ export {
   ResizableSidebar,
   WarningSummary,
   WorkspaceTabs,
-  ItemActionControls,
-  ItemActionGroup,
-  ItemActionMenu,
-  DropdownMenuButton,
   defaultSidebarWidth,
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,

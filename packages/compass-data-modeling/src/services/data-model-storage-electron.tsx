@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserData } from '@mongodb-js/compass-user-data';
+import { FileUserData } from '@mongodb-js/compass-user-data';
 import type {
   DataModelStorage,
   MongoDBDataModelDescription,
@@ -8,9 +8,11 @@ import { MongoDBDataModelDescriptionSchema } from './data-model-storage';
 import { DataModelStorageServiceProvider } from '../provider';
 
 class DataModelStorageElectron implements DataModelStorage {
-  private readonly userData: UserData<typeof MongoDBDataModelDescriptionSchema>;
+  private readonly userData: FileUserData<
+    typeof MongoDBDataModelDescriptionSchema
+  >;
   constructor(basePath?: string) {
-    this.userData = new UserData(MongoDBDataModelDescriptionSchema, {
+    this.userData = new FileUserData(MongoDBDataModelDescriptionSchema, {
       subdir: 'DataModelDescriptions',
       basePath,
     });

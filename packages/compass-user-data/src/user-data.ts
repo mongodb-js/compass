@@ -12,12 +12,17 @@ type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
 type GetFileName = (id: string) => string;
 
-export type UserDataOptions<Input> = {
+export type FileUserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
   getFileName?: GetFileName;
+};
+
+export type AtlasUserDataOptions<Input> = {
+  serialize?: SerializeContent<Input>;
+  deserialize?: DeserializeContent;
 };
 
 type ReadOptions = {
@@ -63,28 +68,54 @@ export interface ReadAllWithStatsResult<T extends z.Schema> {
   errors: Error[];
 }
 
-export class UserData<T extends z.Schema> {
-  private readonly subdir: string;
-  private readonly basePath?: string;
-  private readonly serialize: SerializeContent<z.input<T>>;
-  private readonly deserialize: DeserializeContent;
-  private readonly getFileName: GetFileName;
-  private readonly semaphore = new Semaphore(100);
+export abstract class IUserData<T extends z.Schema> {
+  protected readonly validator: T;
+  protected readonly serialize: SerializeContent<z.input<T>>;
+  protected readonly deserialize: DeserializeContent;
 
   constructor(
-    private readonly validator: T,
+    validator: T,
+    {
+      serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
+      deserialize = JSON.parse,
+    }: {
+      serialize?: SerializeContent<z.input<T>>;
+      deserialize?: DeserializeContent;
+    } = {}
+  ) {
+    this.validator = validator;
+    this.serialize = serialize;
+    this.deserialize = deserialize;
+  }
+
+  abstract write(id: string, content: z.input<T>): Promise<boolean>;
+  abstract delete(id: string): Promise<boolean>;
+  abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
+  abstract updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>>;
+}
+
+export class FileUserData<T extends z.Schema> extends IUserData<T> {
+  private readonly subdir: string;
+  private readonly basePath?: string;
+  private readonly getFileName: GetFileName;
+  protected readonly semaphore = new Semaphore(100);
+
+  constructor(
+    validator: T,
     {
       subdir,
       basePath,
-      serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
-      deserialize = JSON.parse,
+      serialize,
+      deserialize,
       getFileName = (id) => `${id}.json`,
-    }: UserDataOptions<z.input<T>>
+    }: FileUserDataOptions<z.input<T>>
   ) {
+    super(validator, { serialize, deserialize });
     this.subdir = subdir;
     this.basePath = basePath;
-    this.deserialize = deserialize;
-    this.serialize = serialize;
     this.getFileName = getFileName;
   }
 
@@ -289,5 +320,16 @@ export class UserData<T extends z.Schema> {
     }
   ) {
     return (await this.readOneWithStats(id, options))?.[0];
+  }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    await this.write(id, {
+      ...((await this.readOne(id)) ?? {}),
+      ...data,
+    });
+    return await this.readOne(id);
   }
 }
