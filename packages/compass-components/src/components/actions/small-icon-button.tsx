@@ -48,13 +48,13 @@ export const SmallIconButton = forwardRef<
 ) {
   return (
     <IconButton
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comments
       ref={ref}
       className={cx(buttonSizeStyle[size], className)}
       aria-label={label}
       title={title}
       onClick={onClick}
       {...rest}
+      as={undefined} // HTMLButtonElement.as doesn't match the type
     >
       <span role="presentation" className={iconContainerStyle}>
         <ActionGlyph glyph={glyph} size={size} />

@@ -1,7 +1,7 @@
 import React, { useContext, forwardRef, useMemo } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
-import LGButton from '@leafygreen-ui/button';
-import LGIconButton from '@leafygreen-ui/icon-button';
+import LGButton, { type ButtonProps } from '@leafygreen-ui/button';
+import LGIconButton, { type IconButtonProps } from '@leafygreen-ui/icon-button';
 
 type RequiredURLSearchParamsContextValue = {
   utmSource?: string;
@@ -75,20 +75,20 @@ export const Link = (({ href, children, ...rest }: LeafygreenLinkProps) => {
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
   (
-    { href, children, ...rest }: React.ComponentProps<typeof LGButton>,
+    { children, ...props }: ButtonProps,
     ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
     const hrefWithParams = useMemo(() => {
-      if (href) {
-        return urlWithUtmParams(href, { utmSource, utmMedium });
+      if ('href' in props && props.href) {
+        return urlWithUtmParams(props.href, { utmSource, utmMedium });
       }
       return undefined;
-    }, [href, utmSource, utmMedium]);
+    }, [props, utmSource, utmMedium]);
 
     return (
-      <LGButton href={hrefWithParams} {...rest} ref={ref}>
+      <LGButton {...props} href={hrefWithParams} ref={ref}>
         {children}
       </LGButton>
     );
@@ -98,20 +98,20 @@ export const Button = forwardRef(
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
   (
-    { href, children, ...rest }: React.ComponentProps<typeof LGIconButton>,
+    { children, ...props }: IconButtonProps,
     ref: React.ForwardedRef<HTMLAnchorElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
     const hrefWithParams = useMemo(() => {
-      if (href) {
-        return urlWithUtmParams(href, { utmSource, utmMedium });
+      if ('href' in props && props.href) {
+        return urlWithUtmParams(props.href, { utmSource, utmMedium });
       }
       return undefined;
-    }, [href, utmSource, utmMedium]);
+    }, [props, utmSource, utmMedium]);
 
     return (
-      <LGIconButton href={hrefWithParams} {...rest} ref={ref}>
+      <LGIconButton href={hrefWithParams} {...props} ref={ref}>
         {children}
       </LGIconButton>
     );
