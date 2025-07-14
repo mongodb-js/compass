@@ -12,6 +12,22 @@ const {
 
 const UPDATE_CONFIGS = require('./update-dependencies-config');
 
+async function findLGDependencies() {
+  const compassComponentsPackageJson = path.join(
+    __dirname,
+    '../packages/compass-components/package.json'
+  );
+  const pkgJson = JSON.parse(
+    fs.readFileSync(compassComponentsPackageJson, 'utf8')
+  );
+
+  const leafygreenDeps = Object.keys(pkgJson.dependencies).filter((dep) =>
+    dep.startsWith('@leafygreen-ui/')
+  );
+
+  return leafygreenDeps;
+}
+
 async function hoistSharedDependencies(root, newVersions) {
   try {
     await withProgress('Cleaning up existing node_modules', async () => {
@@ -131,17 +147,22 @@ async function main() {
 
   if (args[0].startsWith('preset-')) {
     const presetName = args[0].replace('preset-', '');
-    dependencies = UPDATE_CONFIGS[args[0].replace('preset-', '')];
-    if (!dependencies) {
-      throw new Error(
-        `Can not find update config for preset "${presetName}". Available presets: ${Object.keys(
-          UPDATE_CONFIGS
-        ).join(', ')}`
-      );
+
+    if (presetName === 'leafygreen') {
+      dependencies = await findLGDependencies();
+    } else {
+      dependencies = UPDATE_CONFIGS[args[0].replace('preset-', '')];
+      if (!dependencies) {
+        throw new Error(
+          `Can not find update config for preset "${presetName}". Available presets: ${Object.keys(
+            UPDATE_CONFIGS
+          ).join(', ')}`
+        );
+      }
+      console.log();
+      console.log('Running update for preset "%s" ...', presetName);
+      console.log();
     }
-    console.log();
-    console.log('Running update for preset "%s" ...', presetName);
-    console.log();
   } else {
     dependencies = args;
   }
