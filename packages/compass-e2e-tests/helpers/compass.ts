@@ -475,7 +475,11 @@ function execFileIgnoreError(
 
 async function getChromiumVersionFromBinary(path: string) {
   const { stdout } = await execFileIgnoreError(path, ['--versions'], {});
-  return JSON.parse(stdout).chrome;
+  try {
+    return JSON.parse(stdout).chrome;
+  } catch {
+    return MONOREPO_ELECTRON_CHROMIUM_VERSION;
+  }
 }
 
 export async function runCompassOnce(args: string[], timeout = 30_000) {
