@@ -134,6 +134,7 @@ export type CliOnlyPreferences = {
   importConnections?: string;
   passphrase?: string;
   version?: boolean;
+  versions?: boolean;
   help?: boolean;
   showExampleConfig?: boolean;
   trustedConnectionString?: boolean;
@@ -1066,6 +1067,16 @@ const cliOnlyPreferencesProps: Required<{
     global: false,
     description: {
       short: 'Show Compass Version',
+    },
+    validator: z.boolean().optional(),
+    type: 'boolean',
+  },
+  versions: {
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Node, Electron, Chromium Versions',
     },
     validator: z.boolean().optional(),
     type: 'boolean',
