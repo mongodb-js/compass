@@ -39,6 +39,7 @@ import {
   getLatestEndOfLifeServerVersion,
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
+import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -2198,11 +2199,11 @@ export const showEndOfLifeMongoDBWarningModal = (
   };
 };
 
-type ImportConnectionsFn = Required<ConnectionStorage>['importConnections'];
-
-export const importConnections = (
-  ...args: Parameters<ImportConnectionsFn>
-): ConnectionsThunkAction<
+export const importConnections = (options: {
+  content: string;
+  options?: ImportConnectionOptions;
+  signal?: AbortSignal;
+}): ConnectionsThunkAction<
   Promise<void>,
   ConnectionsImportStartAction | ConnectionsImportFinishAction
 > => {
@@ -2212,7 +2213,7 @@ export const importConnections = (
     let error;
     try {
       if (connectionStorage.importConnections) {
-        await connectionStorage.importConnections(...args);
+        await connectionStorage.importConnections(options);
         connections = await connectionStorage.loadAll();
       }
     } catch (err) {

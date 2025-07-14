@@ -41,6 +41,7 @@ import {
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual } from 'lodash';
+import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
   infer S,
@@ -130,8 +131,12 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     showNonGenuineMongoDBWarningModal: (connectionId: ConnectionId) => {
       return dispatch(showNonGenuineMongoDBWarningModal(connectionId));
     },
-    importConnections: (...args: Parameters<typeof importConnections>) => {
-      return dispatch(importConnections(...args));
+    importConnections: (options: {
+      content: string;
+      options?: ImportConnectionOptions;
+      signal?: AbortSignal;
+    }) => {
+      return dispatch(importConnections(options));
     },
     refreshConnections: () => {
       return dispatch(refreshConnections());

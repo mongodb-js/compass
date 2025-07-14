@@ -20,7 +20,7 @@ import type {
   SidebarTreeItem,
 } from './tree-data';
 
-type NavigationBaseItemProps = {
+type NavigationBaseItemProps = React.PropsWithChildren<{
   item: SidebarTreeItem;
   name: string;
   isActive: boolean;
@@ -40,7 +40,7 @@ type NavigationBaseItemProps = {
     onAction: (action: Actions) => void;
   };
   toggleExpand: () => void;
-};
+}>;
 
 const menuStyles = css({
   width: '240px',
@@ -155,26 +155,33 @@ const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
   return null;
 };
 
-export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
-  item,
-  isActive,
-  actionProps,
-  name,
-  style,
-  icon,
-  dataAttributes,
-  isExpandVisible,
-  isExpandDisabled,
-  isExpanded,
-  isFocused,
-  hasDefaultAction,
-  toggleExpand,
-  children,
-}) => {
+export const NavigationBaseItem = React.forwardRef<
+  HTMLDivElement,
+  NavigationBaseItemProps
+>(function NavigationBaseItem(
+  {
+    item,
+    isActive,
+    actionProps,
+    name,
+    style,
+    icon,
+    dataAttributes,
+    isExpandVisible,
+    isExpandDisabled,
+    isExpanded,
+    isFocused,
+    hasDefaultAction,
+    toggleExpand,
+    children,
+  },
+  ref
+) {
   const [hoverProps, isHovered] = useHoverState();
 
   return (
     <div
+      ref={ref}
       data-testid="base-navigation-item"
       className={cx(itemContainerStyles, {
         [itemContainerWithActionStyles]: hasDefaultAction,
@@ -214,4 +221,4 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
       </div>
     </div>
   );
-};
+});

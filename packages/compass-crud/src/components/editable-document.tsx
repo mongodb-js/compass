@@ -21,6 +21,8 @@ export type EditableDocumentProps = {
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
+  onUpdateQuery?: (field: string, value: unknown) => void;
+  query?: Record<string, unknown>;
 };
 
 type EditableDocumentState = {
@@ -250,6 +252,8 @@ class EditableDocument extends React.Component<
         editable
         editing={this.state.editing}
         onEditStart={this.handleStartEditing.bind(this)}
+        onUpdateQuery={this.props.onUpdateQuery}
+        query={this.props.query}
       />
     );
   }
@@ -315,6 +319,8 @@ class EditableDocument extends React.Component<
     openInsertDocumentDialog: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
     showInsights: PropTypes.bool,
+    onUpdateQuery: PropTypes.func,
+    query: PropTypes.object,
   };
 }
 

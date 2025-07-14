@@ -37,13 +37,11 @@ function createFieldStoreService(
 /**
  * @internal exported for test purposes only
  */
-export function useFieldStoreService() {
+export function useFieldStoreService(): FieldStoreService {
   const dispatch = useDispatch();
   const connectionInfoRef = useConnectionInfoRef();
   return createFieldStoreService(dispatch, connectionInfoRef);
 }
 
-export const fieldStoreServiceLocator = createServiceLocator(
-  useFieldStoreService,
-  'fieldStoreServiceLocator'
-);
+export const fieldStoreServiceLocator: () => FieldStoreService =
+  createServiceLocator(useFieldStoreService, 'fieldStoreServiceLocator');
