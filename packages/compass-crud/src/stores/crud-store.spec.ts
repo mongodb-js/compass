@@ -4,8 +4,13 @@ import { connect } from 'mongodb-data-service';
 import AppRegistry, {
   createActivateHelpers,
 } from '@mongodb-js/compass-app-registry';
-import HadronDocument, { Element } from 'hadron-document';
+import HadronDocument, {
+  DocumentEvents,
+  Element,
+  type DocumentEventsType,
+} from 'hadron-document';
 import { MongoDBInstance } from 'mongodb-instance-model';
+import type { EventEmitter } from 'events';
 import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
@@ -108,6 +113,15 @@ function waitForStates(store, cbs, timeout = 2000) {
 
 function waitForState(store, cb, timeout?: number) {
   return waitForStates(store, [cb], timeout);
+}
+
+function onceDocumentEvent(
+  doc: HadronDocument,
+  event: DocumentEventsType
+): Promise<unknown[]> {
+  // The once function was not meant for strongly typed events, so we need to
+  // do some additional type casting.
+  return once(doc as unknown as EventEmitter, event as string);
 }
 
 const mockFieldStoreService = {
@@ -503,7 +517,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('remove-error', ({ message }) => {
+        hadronDoc.on(DocumentEvents.RemoveError, ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -547,11 +561,11 @@ describe('store', function () {
           done();
         }, store);
 
-        hadronDoc.on('update-blocked', () => {
+        hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
         });
 
-        hadronDoc.on('update-error', (errorMessage) => {
+        hadronDoc.on(DocumentEvents.UpdateError, (errorMessage) => {
           done(
             new Error(
               `Didn't expect update to error. Errored with message: ${errorMessage}`
@@ -586,11 +600,11 @@ describe('store', function () {
           setTimeout(() => done(), 100);
         }, store);
 
-        hadronDoc.on('update-blocked', () => {
+        hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
         });
 
-        hadronDoc.on('update-error', (errorMessage) => {
+        hadronDoc.on(DocumentEvents.UpdateError, (errorMessage) => {
           done(
             new Error(
               `Didn't expect update to error. Errored with message: ${errorMessage}`
@@ -613,7 +627,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', ({ message }) => {
+        hadronDoc.on(DocumentEvents.UpdateError, ({ message }) => {
           expect(message).to.equal(
             'Unable to update, no changes have been made.'
           );
@@ -636,7 +650,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', ({ message }) => {
+        hadronDoc.on(DocumentEvents.UpdateError, ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -655,7 +669,7 @@ describe('store', function () {
       });
 
       it('sets the update blocked for the document', function (done) {
-        hadronDoc.on('update-blocked', () => {
+        hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done();
         });
 
@@ -728,7 +742,7 @@ describe('store', function () {
         const invalidHadronDoc = new HadronDocument(doc);
         (invalidHadronDoc as any).getId = null;
 
-        invalidHadronDoc.on('update-error', ({ message }) => {
+        invalidHadronDoc.on(DocumentEvents.UpdateError, ({ message }) => {
           expect(message).to.equal(
             'An error occured when attempting to update the document: this.getId is not a function'
           );
@@ -765,7 +779,10 @@ describe('store', function () {
         });
 
         it('rejects the update and emits update-error', async function () {
-          const updateErrorEvent = once(hadronDoc, 'update-error');
+          const updateErrorEvent = onceDocumentEvent(
+            hadronDoc,
+            DocumentEvents.UpdateError
+          );
 
           await store.updateDocument(hadronDoc);
           expect((await updateErrorEvent)[0]).to.match(/Update blocked/);
@@ -998,7 +1015,7 @@ describe('store', function () {
       });
 
       it('sets the error for the document', function (done) {
-        hadronDoc.on('update-error', ({ message }) => {
+        hadronDoc.on(DocumentEvents.UpdateError, ({ message }) => {
           expect(message).to.equal('error happened');
           done();
         });
@@ -1085,7 +1102,10 @@ describe('store', function () {
         });
 
         it('rejects the update and emits update-error', async function () {
-          const updateErrorEvent = once(hadronDoc, 'update-error');
+          const updateErrorEvent = onceDocumentEvent(
+            hadronDoc,
+            DocumentEvents.UpdateError
+          );
 
           await store.replaceDocument(hadronDoc);
           expect((await updateErrorEvent)[0]).to.match(/Update blocked/);
