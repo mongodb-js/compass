@@ -229,7 +229,6 @@ export const SavedItemCard: React.FunctionComponent<
       <Subtitle
         as="div"
         className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
-        title={name}
       >
         {name}
       </Subtitle>

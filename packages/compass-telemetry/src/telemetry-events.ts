@@ -2709,7 +2709,8 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'shell_info_modal'
       | 'update_search_index_modal'
       | 'end_of_life_mongodb_modal'
-      | 'export_diagram_modal';
+      | 'export_diagram_modal'
+      | `${string}_search_index_modal`;
   };
 }>;
 

@@ -38,7 +38,8 @@ import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 import {
   SegmentedControl,
-  SegmentedControlOption,
+  SegmentedControlOption as LGSegmentedControlOption,
+  type SegmentedControlOptionProps,
 } from '@leafygreen-ui/segmented-control';
 import { Select, Option, OptionGroup } from '@leafygreen-ui/select';
 import {
@@ -85,36 +86,27 @@ import {
   Overline as LGOverline,
   Label as LGLabel,
   Description as LGDescription,
+  type LabelProps,
+  type H1Props,
+  type H2Props,
+  type H3Props,
+  type SubtitleProps,
+  type BodyProps,
+  type OverlineProps,
+  type DescriptionProps,
 } from '@leafygreen-ui/typography';
 
-function createPolymorphicWrapper<T extends React.ElementType = any>(
-  Component: React.ComponentType<any>,
-  displayName?: string
-) {
-  const WrappedComponent = React.forwardRef((props: any, ref: any) => {
-    return React.createElement(Component, { ...props, ref }) as JSX.Element;
-  });
-
-  WrappedComponent.displayName = displayName;
-
-  return WrappedComponent as typeof Component;
-}
-// @ts-expect-error sorry, LG needs to fix it's types
-const H1 = createPolymorphicWrapper(LGH1, 'H1');
-// @ts-expect-error sorry, LG needs to fix it's types
-const H2 = createPolymorphicWrapper(LGH2, 'H2');
-// @ts-expect-error sorry, LG needs to fix it's types
-const H3 = createPolymorphicWrapper(LGH3, 'H3');
-// @ts-expect-error sorry, LG needs to fix it's types
-const Subtitle = createPolymorphicWrapper(LGSubtitle, 'Subtitle');
-// @ts-expect-error sorry, LG needs to fix it's types
-const Body = createPolymorphicWrapper(LGBody, 'Body');
-// @ts-expect-error sorry, LG needs to fix it's types
-const Overline = createPolymorphicWrapper(LGOverline, 'Overline');
-// @ts-expect-error sorry, LG needs to fix it's types
-const Label = createPolymorphicWrapper(LGLabel, 'Label');
-// @ts-expect-error sorry, LG needs to fix it's types
-const Description = createPolymorphicWrapper(LGDescription, 'Description');
+// Workaround until https://jira.mongodb.org/browse/LG-5354 is resolved
+const H1 = LGH1 as React.FC<H1Props>;
+const H2 = LGH2 as React.FC<H2Props>;
+const H3 = LGH3 as React.FC<H3Props>;
+const Subtitle = LGSubtitle as React.FC<SubtitleProps>;
+const Body = LGBody as React.FC<BodyProps>;
+const Overline = LGOverline as React.FC<OverlineProps>;
+const Description = LGDescription as React.FC<DescriptionProps>;
+const Label = LGLabel as React.FC<LabelProps>;
+const SegmentedControlOption =
+  LGSegmentedControlOption as React.FC<SegmentedControlOptionProps>;
 
 import {
   Combobox,

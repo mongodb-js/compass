@@ -100,7 +100,6 @@ export function DiagramCard({
         <Subtitle
           as="div"
           className={cx(cardTitle, darkmode ? cardTitleDark : cardTitleLight)}
-          title={diagram.name}
         >
           {diagram.name}
         </Subtitle>
