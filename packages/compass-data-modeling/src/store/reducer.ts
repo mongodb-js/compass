@@ -20,6 +20,8 @@ import type {
   ExportDiagramActions,
 } from './export-diagram';
 import { exportDiagramReducer } from './export-diagram';
+import type { SidePanelActions, SidePanelActionTypes } from './side-panel';
+import { sidePanelReducer } from './side-panel';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -27,18 +29,21 @@ const reducer = combineReducers({
   analysisProgress: analysisProcessReducer,
   diagram: diagramReducer,
   exportDiagram: exportDiagramReducer,
+  sidePanel: sidePanelReducer,
 });
 
 export type DataModelingActions =
   | GenerateDiagramWizardActions
   | AnalysisProgressActions
   | DiagramActions
+  | SidePanelActions
   | ExportDiagramActions;
 
 export type DataModelingActionTypes =
   | GenerateDiagramWizardActionTypes
   | AnalysisProcessActionTypes
   | DiagramActionTypes
+  | SidePanelActionTypes
   | ExportDiagramActionTypes;
 
 export type DataModelingState = ReturnType<typeof reducer>;
