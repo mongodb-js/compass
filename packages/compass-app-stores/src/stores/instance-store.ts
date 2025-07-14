@@ -320,26 +320,36 @@ export function createInstancesStore(
         connections.getDataServiceForConnection(instanceConnectionId);
       const connectionString = dataService.getConnectionString();
       const firstHost = connectionString.hosts[0] || '';
-      const [hostname, port] = firstHost.split(':');
+      const [hostname, port] = (() => {
+        if (firstHost.startsWith('[')) {
+          return firstHost.slice(1).split(']'); // IPv6
+        }
+        return firstHost.split(':');
+      })();
 
       const initialInstanceProps: Partial<MongoDBInstanceProps> = {
+        // We pre-fetched instance info and so can right away construct it in a
+        // "ready" state
+        ...(instanceInfo as Partial<MongoDBInstanceProps>),
+        status: 'ready',
+        statusError: null,
+
+        // Required initial values that are not returned with instance info
         _id: firstHost,
         hostname: hostname,
         port: port ? +port : undefined,
         topologyDescription: getTopologyDescription(
           dataService.getLastSeenTopology()
         ),
+
+        // Service injection for preferences (currently only controls namespace
+        // stats fetching)
         preferences,
       };
       const instance = instancesManager.createMongoDBInstanceForConnection(
         instanceConnectionId,
         initialInstanceProps as MongoDBInstanceProps
       );
-      instance.set({
-        status: 'ready',
-        statusError: null,
-        ...(instanceInfo as Partial<MongoDBInstanceProps>),
-      });
 
       addCleanup(() => {
         instance.removeAllListeners();
