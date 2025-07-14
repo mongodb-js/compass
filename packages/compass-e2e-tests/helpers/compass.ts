@@ -43,8 +43,6 @@ import {
 import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
-// @ts-expect-error no types for this package
-import { electronToChromium } from 'electron-to-chromium';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -477,7 +475,7 @@ function execFileIgnoreError(
 
 async function getChromiumVersionFromBinary(path: string) {
   const { stdout } = await execFileIgnoreError(path, ['--versions'], {});
-  return electronToChromium(JSON.parse(stdout).electron);
+  return JSON.parse(stdout).chrome;
 }
 
 export async function runCompassOnce(args: string[], timeout = 30_000) {
