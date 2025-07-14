@@ -1772,13 +1772,17 @@ const connectWithOptions = (
         track(
           'New Connection',
           async () => {
-            const [
-              { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas },
-              [extraInfo, resolvedHostname],
-            ] = await Promise.all([
-              instanceInfo,
-              getExtraConnectionData(connectionInfo),
-            ]);
+            const {
+              dataLake,
+              genuineMongoDB,
+              host,
+              build,
+              isAtlas,
+              isLocalAtlas,
+            } = instanceInfo;
+            const [extraInfo, resolvedHostname] = await getExtraConnectionData(
+              connectionInfo
+            );
 
             const connections = getState().connections;
             // Counting all connections, we need to filter out any connections currently being created
