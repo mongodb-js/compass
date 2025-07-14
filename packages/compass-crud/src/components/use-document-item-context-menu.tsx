@@ -1,5 +1,5 @@
 import type HadronDocument from 'hadron-document';
-import { useContextMenuItems } from '@mongodb-js/compass-components';
+import { useContextMenuGroups } from '@mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';
 
@@ -15,57 +15,61 @@ export function useDocumentItemContextMenu({
   openInsertDocumentDialog,
 }: UseDocumentItemContextMenuProps) {
   const { expanded: isExpanded, editing: isEditing } = doc;
-  return useContextMenuItems(
+  return useContextMenuGroups(
     () => [
-      {
-        label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
-        onAction: () => {
-          if (isExpanded) {
-            doc.collapse();
-          } else {
-            doc.expand();
-          }
+      [
+        ...(isEditable
+          ? [
+              {
+                label: isEditing ? 'Cancel editing' : 'Edit document',
+                onAction: () => {
+                  if (isEditing) {
+                    doc.finishEditing();
+                  } else {
+                    doc.startEditing();
+                  }
+                },
+              },
+            ]
+          : []),
+      ],
+      [
+        {
+          label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
+          onAction: () => {
+            if (isExpanded) {
+              doc.collapse();
+            } else {
+              doc.expand();
+            }
+          },
         },
-      },
-      ...(isEditable
-        ? [
-            {
-              label: isEditing ? 'Stop editing' : 'Edit document',
-              onAction: () => {
-                if (isEditing) {
-                  doc.finishEditing();
-                } else {
-                  doc.startEditing();
-                }
-              },
-            },
-          ]
-        : []),
-      {
-        label: 'Copy document',
-        onAction: () => {
-          copyToClipboard?.(doc);
+        {
+          label: 'Copy document',
+          onAction: () => {
+            copyToClipboard?.(doc);
+          },
         },
-      },
-      ...(isEditable
-        ? [
-            {
-              label: 'Clone document...',
-              onAction: () => {
-                const clonedDoc = doc.generateObject({
-                  excludeInternalFields: true,
-                });
-                void openInsertDocumentDialog?.(clonedDoc, true);
+        ...(isEditable
+          ? [
+              {
+                label: 'Clone document...',
+                onAction: () => {
+                  const clonedDoc = doc.generateObject({
+                    excludeInternalFields: true,
+                  });
+                  void openInsertDocumentDialog?.(clonedDoc, true);
+                },
               },
-            },
-            {
-              label: 'Delete document',
-              onAction: () => {
-                doc.markForDeletion();
+              {
+                label: 'Delete document',
+                onAction: () => {
+                  doc.markForDeletion();
+                },
               },
-            },
-          ]
-        : []),
+            ]
+          : []),
+      ],
     ],
     [
       doc,

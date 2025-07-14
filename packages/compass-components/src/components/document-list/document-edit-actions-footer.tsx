@@ -166,6 +166,10 @@ function useHadronDocumentStatus(
       updateStatus('DeleteError', err, errorDetails);
     };
 
+    const onEditingFinished = () => {
+      updateStatus('Initial');
+    };
+
     doc.on(ElementEvents.Added, onUpdate);
     doc.on(ElementEvents.Edited, onUpdate);
     doc.on(ElementEvents.Removed, onUpdate);
@@ -179,6 +183,7 @@ function useHadronDocumentStatus(
     doc.on(DocumentEvents.RemoveStarted, onRemoveStart);
     doc.on(DocumentEvents.RemoveSuccess, onRemoveSuccess);
     doc.on(DocumentEvents.RemoveError, onRemoveError);
+    doc.on(DocumentEvents.EditingFinished, onEditingFinished);
 
     return () => {
       doc.on(ElementEvents.Added, onUpdate);
@@ -194,6 +199,7 @@ function useHadronDocumentStatus(
       doc.off(DocumentEvents.RemoveStarted, onRemoveStart);
       doc.off(DocumentEvents.RemoveSuccess, onRemoveSuccess);
       doc.off(DocumentEvents.RemoveError, onRemoveError);
+      doc.off(DocumentEvents.EditingFinished, onEditingFinished);
     };
   }, [doc, updateStatus]);
 
