@@ -217,6 +217,18 @@ function useHadronDocumentStatus(
   return { status, updateStatus, error };
 }
 
+const container = css({
+  display: 'flex',
+  paddingTop: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[200],
+  paddingLeft: spacing[400],
+  alignItems: 'center',
+  gap: spacing[200],
+  borderBottomLeftRadius: 'inherit',
+  borderBottomRightRadius: 'inherit',
+});
+
 const message = css({
   overflow: 'scroll',
 });
