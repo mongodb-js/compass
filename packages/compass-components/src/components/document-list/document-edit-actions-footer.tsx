@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type HadronDocument from 'hadron-document';
 import { DocumentEvents, ElementEvents } from 'hadron-document';
-import type { Element } from 'hadron-document/src/element';
+import type { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -186,7 +186,7 @@ function useHadronDocumentStatus(
     doc.on(DocumentEvents.EditingFinished, onEditingFinished);
 
     return () => {
-      doc.on(ElementEvents.Added, onUpdate);
+      doc.off(ElementEvents.Added, onUpdate);
       doc.off(ElementEvents.Edited, onUpdate);
       doc.off(ElementEvents.Removed, onUpdate);
       doc.off(ElementEvents.Reverted, onUpdate);
@@ -216,18 +216,6 @@ function useHadronDocumentStatus(
 
   return { status, updateStatus, error };
 }
-
-const container = css({
-  display: 'flex',
-  paddingTop: spacing[200],
-  paddingRight: spacing[200],
-  paddingBottom: spacing[200],
-  paddingLeft: spacing[400],
-  alignItems: 'center',
-  gap: spacing[200],
-  borderBottomLeftRadius: 'inherit',
-  borderBottomRightRadius: 'inherit',
-});
 
 const message = css({
   overflow: 'scroll',
