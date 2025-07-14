@@ -360,8 +360,8 @@ const EditActionsFooter: React.FunctionComponent<{
             data-testid="cancel-button"
             onClick={() => {
               doc.cancel();
-              updateStatus('Initial');
               onCancel?.();
+              updateStatus('Initial');
             }}
             disabled={isCancelDisabled(status)}
           >
