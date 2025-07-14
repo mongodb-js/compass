@@ -1830,15 +1830,19 @@ const connectWithOptions = (
           connectionId: connectionInfo.id,
         });
 
-        const { showEndOfLifeConnectionModal } = preferences.getPreferences();
-
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)
             .isGenuine === false
         ) {
           dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (showEndOfLifeConnectionModal) {
-          void dispatch(
+        } else if (
+          await shouldShowEndOfLifeWarning(
+            instanceInfo.build.version,
+            preferences,
+            debug
+          )
+        ) {
+          dispatch(
             showEndOfLifeMongoDBWarningModal(
               connectionInfo.id,
               instanceInfo.build.version
@@ -2168,34 +2172,38 @@ export const showNonGenuineMongoDBWarningModal = (
   };
 };
 
+async function shouldShowEndOfLifeWarning(
+  serverVersion: string,
+  preferences: PreferencesAccess,
+  debug: Logger['debug']
+) {
+  try {
+    const { showEndOfLifeConnectionModal, networkTraffic } =
+      preferences.getPreferences();
+    if (!showEndOfLifeConnectionModal) {
+      return;
+    }
+    const latestEndOfLifeServerVersion = await getLatestEndOfLifeServerVersion(
+      networkTraffic
+    );
+    return isEndOfLifeVersion(serverVersion, latestEndOfLifeServerVersion);
+  } catch (err) {
+    debug(
+      'failed to get instance details to determine if the server version is end-of-life',
+      err
+    );
+    return false;
+  }
+}
+
 export const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
-): ConnectionsThunkAction<Promise<void>> => {
-  return async (
-    _dispatch,
-    getState,
-    { track, logger: { debug }, preferences }
-  ) => {
-    try {
-      const latestEndOfLifeServerVersion =
-        await getLatestEndOfLifeServerVersion(
-          preferences.getPreferences().networkTraffic
-        );
-      if (isEndOfLifeVersion(version, latestEndOfLifeServerVersion)) {
-        const connectionInfo = getCurrentConnectionInfo(
-          getState(),
-          connectionId
-        );
-        track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
-        void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
-      }
-    } catch (err) {
-      debug(
-        'failed to get instance details to determine if the server version is end-of-life',
-        err
-      );
-    }
+): ConnectionsThunkAction<void> => {
+  return (_dispatch, getState, { track }) => {
+    const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
+    track('Screen', { name: 'end_of_life_mongodb_modal' }, connectionInfo);
+    void _showEndOfLifeMongoDBWarningModal(connectionInfo, version);
   };
 };
 
