@@ -465,3 +465,143 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     return await this.readOne(id);
   }
 }
+
+// TODO: update endpoints to reflect the merged api endpoints
+export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
+  private atlasService: AtlasService;
+  private readonly preferences = preferencesLocator();
+  // private readonly preferences = null;
+  private readonly connectionInfoRef = connectionInfoRefLocator();
+  // private readonly connectionInfoRef = null;
+  private readonly logger = createLogger('ATLAS-USER-STORAGE');
+  private readonly groupId =
+    this.connectionInfoRef?.current?.atlasMetadata?.projectId;
+  private readonly orgId =
+    this.connectionInfoRef?.current?.atlasMetadata?.orgId;
+  // should this BASE_URL be a parameter passed to the constructor?
+  // this might make future usage of this code easier, if we want to call a different endpoint
+  private readonly BASE_URL = 'cluster-connection.cloud-local.mongodb.com';
+  constructor(
+    validator: T,
+    { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
+  ) {
+    super(validator, { serialize, deserialize });
+    const authService = atlasAuthServiceLocator();
+    // const authService = null;
+    const options = {};
+
+    this.atlasService = new AtlasService(
+      authService,
+      this.preferences,
+      this.logger,
+      options
+    );
+    this.atlasService = null;
+  }
+
+  async write(id: string, content: z.input<T>): Promise<boolean> {
+    this.validator.parse(content);
+
+    // do not need to use id because content already contains the id
+    const response = await this.atlasService.authenticatedFetch(this.getUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        data: this.serialize(content),
+        createdAt: new Date(),
+        groupId: this.groupId,
+      }),
+    });
+    // TODO: fix this error handling, should fit current compass needs
+    if (!response.ok) {
+      throw new Error(
+        `Failed to post data: ${response.status} ${response.statusText}`
+      );
+    }
+    return true;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const response = await this.atlasService.authenticatedFetch(
+      this.getUrl() + `/${id}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to delete data: ${response.status} ${response.statusText}`
+      );
+    }
+    return true;
+  }
+
+  async readAll(): Promise<ReadAllResult<T>> {
+    try {
+      const response = await this.atlasService.authenticatedFetch(
+        this.getUrl(),
+        {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+          },
+        }
+      );
+      // TODO: fix this error handling, should fit current compass needs
+      if (!response.ok) {
+        throw new Error(
+          `Failed to get data: ${response.status} ${response.statusText}`
+        );
+      }
+      const json = await response.json();
+      const data = Array.isArray(json)
+        ? json.map((item) =>
+            this.validator.parse(this.deserialize(item.data as string))
+          )
+        : [];
+      return { data, errors: [] };
+    } catch (error) {
+      return { data: [], errors: [error as Error] };
+    }
+  }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    const response = await this.atlasService.authenticatedFetch(
+      this.getUrl() + `/${id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // TODO: not sure whether currently compass sometimes adds to data or always replaces it
+        // figure out if we should get all data, find specific query by id, then update using JS
+        body: this.serialize(data),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update data: ${response.status} ${response.statusText}`
+      );
+    }
+    const json = await response.json();
+    // TODO: fix this, currently endpoint does not return the updated data
+    // so we need to decide whether this is necessary
+    return this.validator.parse(json.data);
+  }
+
+  private getUrl() {
+    // if (endpoint.startsWith('/')) {
+    //   endpoint = endpoint.slice(1);
+    // }
+    // if (endpoint.endsWith('/')) {
+    //   endpoint = endpoint.slice(0, -1);
+    // }
+    return `${this.BASE_URL}/queries/favorites/${this.orgId}/${this.groupId}`;
+  }
+}
