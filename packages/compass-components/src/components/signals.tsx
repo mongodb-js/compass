@@ -160,6 +160,6 @@ export const PerformanceSignals = new Map(
   })
 ) as {
   get(
-    key: typeof SIGNALS[number]['id']
-  ): Pick<Signal, keyof typeof SIGNALS[number]>;
+    key: (typeof SIGNALS)[number]['id']
+  ): Pick<Signal, keyof (typeof SIGNALS)[number]>;
 };
