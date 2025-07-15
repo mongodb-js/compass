@@ -31,11 +31,6 @@ export type AtlasUserDataOptions<Input> = {
   deserialize?: DeserializeContent;
 };
 
-export type AtlasUserDataOptions<Input> = {
-  serialize?: SerializeContent<Input>;
-  deserialize?: DeserializeContent;
-};
-
 type ReadOptions = {
   ignoreErrors: boolean;
 };
@@ -389,46 +384,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     }
   }
 
-  async updateAttributes(
-    id: string,
-    data: Partial<z.input<T>>
-  ): Promise<boolean> {
-    try {
-      const prevData = await this.readOne(id);
-      const newData: z.input<T> = {
-        ...prevData,
-        ...data,
-      };
-
-      await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-        ),
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: this.serialize(newData),
-        }
-      );
-      return true;
-    } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_368),
-        'Atlas Backend',
-        'Error updating data',
-        {
-          url: await this.getResourceUrl(
-            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-          ),
-          error: (error as Error).message,
-        }
-      );
-      throw error;
-    }
-  }
-
   // TODO: change this depending on whether or not updateAttributes can provide all current data
   async readOne(id: string): Promise<z.output<T>> {
     const url = await this.getResourceUrl(
@@ -459,11 +414,43 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<T>>
-  ): Promise<z.output<T>> {
-    await this.write(id, {
-      ...((await this.readOne(id)) ?? {}),
-      ...data,
-    });
-    return await this.readOne(id);
+  ): Promise<boolean> {
+    try {
+      const prevData = await this.readOne(id);
+      const newData: z.input<T> = {
+        ...prevData,
+        ...data,
+      };
+
+      await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: this.serialize(newData),
+            createdAt: new Date(),
+          }),
+        }
+      );
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_368),
+        'Atlas Backend',
+        'Error updating data',
+        {
+          url: await this.getResourceUrl(
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          ),
+          error: (error as Error).message,
+        }
+      );
+      throw error;
+    }
   }
 }
