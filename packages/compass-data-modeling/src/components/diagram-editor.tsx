@@ -38,6 +38,7 @@ import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { openSidePanel } from '../store/side-panel';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -188,6 +189,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
+  onOpenSidePanel: () => void;
 }> = ({
   diagramLabel,
   step,
@@ -196,6 +198,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyInitialLayout,
   onMoveCollection,
+  onOpenSidePanel,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -332,6 +335,10 @@ const DiagramEditor: React.FunctionComponent<{
             title={diagramLabel}
             edges={edges}
             nodes={areNodesReady ? nodes : []}
+            onEdgeClick={() => {
+              // TODO: we have to open a side panel with edge details
+              onOpenSidePanel();
+            }}
             fitViewOptions={{
               maxZoom: 1,
               minZoom: 0.25,
@@ -370,5 +377,6 @@ export default connect(
     onCancelClick: cancelAnalysis,
     onApplyInitialLayout: applyInitialLayout,
     onMoveCollection: moveCollection,
+    onOpenSidePanel: openSidePanel,
   }
 )(DiagramEditor);
