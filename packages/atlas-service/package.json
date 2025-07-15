@@ -28,11 +28,13 @@
   ],
   "license": "SSPL",
   "exports": {
+    "./atlas-service": "./dist/atlas-service.js",
     "./main": "./main.js",
     "./renderer": "./renderer.js",
     "./provider": "./dist/provider.js"
   },
   "compass:exports": {
+    "./atlas-service": "./src/atlas-service.ts",
     "./main": "./src/main.ts",
     "./renderer": "./src/renderer.ts",
     "./provider": "./src/provider.tsx"

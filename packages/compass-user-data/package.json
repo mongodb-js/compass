@@ -51,6 +51,9 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.7.5",
     "@mongodb-js/compass-utils": "^0.9.4",
+    "@mongodb-js/atlas-service": "^0.49.0",
+    "@mongodb-js/compass-connections": "^0.31.0",
+    "compass-preferences-model": "^2.44.0",
     "write-file-atomic": "^5.0.1",
     "zod": "^3.25.17"
   },
