@@ -75,6 +75,7 @@ export type PipelineProps = Pick<
     limit?: number;
     maxTimeMS?: number | null;
     largeLimit?: number;
+    enableSearchActivationProgramP1: boolean;
   };
 class Pipeline extends PureComponent<
   PipelineProps,
@@ -106,6 +107,7 @@ class Pipeline extends PureComponent<
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
     showExplainButton: PropTypes.bool.isRequired,
+    enableSearchActivationProgramP1: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
