@@ -32,7 +32,7 @@ import {
   isTestingAtlasCloudExternal,
 } from './test-runner-context';
 import {
-  ELECTRON_CHROMIUM_VERSION,
+  MONOREPO_ELECTRON_CHROMIUM_VERSION,
   LOG_PATH,
   LOG_COVERAGE_PATH,
   COMPASS_DESKTOP_PATH,
@@ -473,6 +473,15 @@ function execFileIgnoreError(
   });
 }
 
+async function getChromiumVersionFromBinary(path: string) {
+  const { stdout } = await execFileIgnoreError(path, ['--versions'], {});
+  try {
+    return JSON.parse(stdout).chrome;
+  } catch {
+    return MONOREPO_ELECTRON_CHROMIUM_VERSION;
+  }
+}
+
 export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
@@ -654,7 +663,9 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: ELECTRON_CHROMIUM_VERSION,
+      browserVersion: testPackagedApp
+        ? await getChromiumVersionFromBinary(binary)
+        : MONOREPO_ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,

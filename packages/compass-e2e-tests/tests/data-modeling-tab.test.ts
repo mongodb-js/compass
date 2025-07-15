@@ -213,6 +213,54 @@ describe('Data Modeling tab', function () {
       .waitForDisplayed({ reverse: true });
   });
 
+  it('allows undo after opening a diagram', async function () {
+    const dataModelName = 'Test Data Model - Undo After Open';
+    await setupDiagram(browser, {
+      diagramName: dataModelName,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      databaseName: 'test',
+    });
+
+    const dataModelEditor = browser.$(Selectors.DataModelEditor);
+    await dataModelEditor.waitForDisplayed();
+
+    const testCollection1 = browser.$(
+      Selectors.DataModelPreviewCollection('test.testCollection-one')
+    );
+    const startPosition = await testCollection1.getLocation();
+    const nodeSize = await testCollection1.getSize();
+
+    await browser
+      .action('pointer')
+      .move({
+        x: Math.round(startPosition.x + nodeSize.width / 2),
+        y: Math.round(startPosition.y + nodeSize.height / 2),
+      })
+      .down({ button: 0 }) // Left mouse button
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .pause(1000)
+      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
+      .up({ button: 0 }) // Release the left mouse button
+      .perform();
+    await browser.waitForAnimations(dataModelEditor);
+
+    // Open the saved diagram in new tab
+    await browser.openNewTab();
+    await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
+    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+
+    // Ensure that undo button is enabled
+    await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, false);
+
+    // Undo the change
+    await browser.clickVisible(Selectors.DataModelUndoButton);
+    await browser.waitForAnimations(dataModelEditor);
+
+    // Ensure that undo button is now disabled and redo is enabled
+    await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, true);
+    await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
+  });
+
   it('exports the data model to JSON', async function () {
     const dataModelName = 'Test Export Model - JSON';
     exportFileName = `${dataModelName}.json`;
@@ -324,7 +372,8 @@ describe('Data Modeling tab', function () {
 
     expect(text).to.include('id objectId'.toLowerCase());
     expect(text).to.include('i int');
-    expect(text).to.include('j int');
+    // Disabled as it's not recognized correctly by tesseract.js at the moment.
+    // expect(text).to.include('j int');
     // it does not correctly recognize `iString` and only returns `String`.
     // its already good enough to verify this for now and if it flakes
     // more, we may need to revisit this test.

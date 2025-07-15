@@ -100,6 +100,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   colorCode?: string;
   isExpanded: boolean;
   connectionId: string;
+  connectionItem: ConnectedConnectionTreeItem;
   dbName: string;
   hasWriteActionsDisabled: boolean;
   isNonExistent: boolean;
@@ -111,6 +112,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   type: 'collection' | 'view' | 'timeseries';
   colorCode?: string;
   connectionId: string;
+  databaseItem: DatabaseTreeItem;
   namespace: string;
   hasWriteActionsDisabled: boolean;
   isNonExistent: boolean;
@@ -240,6 +242,7 @@ const connectedConnectionToItems = ({
     databases.flatMap((database, databaseIndex) => {
       return databaseToItems({
         connectionId: connectionInfo.id,
+        connectionItem: connectionTI,
         database,
         expandedItems: expandedItems[connectionInfo.id] || {},
         level: 2,
@@ -262,6 +265,7 @@ const databaseToItems = ({
     isNonExistent,
   },
   connectionId,
+  connectionItem,
   expandedItems = {},
   level,
   colorCode,
@@ -271,6 +275,7 @@ const databaseToItems = ({
 }: {
   database: Database;
   connectionId: string;
+  connectionItem: ConnectedConnectionTreeItem;
   expandedItems?: Record<string, boolean>;
   level: number;
   colorCode?: string;
@@ -289,6 +294,7 @@ const databaseToItems = ({
     isExpanded,
     colorCode,
     connectionId,
+    connectionItem,
     dbName: id,
     isExpandable: true,
     hasWriteActionsDisabled,
@@ -330,6 +336,7 @@ const databaseToItems = ({
         posInSet: collectionIndex + 1,
         colorCode,
         connectionId,
+        databaseItem: databaseTI,
         namespace: id,
         hasWriteActionsDisabled,
         isExpandable: false,

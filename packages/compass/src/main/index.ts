@@ -57,6 +57,10 @@ async function main(): Promise<void> {
     process.stdout.write(`${app.getName()} ${app.getVersion()}\n`);
     return app.exit(0);
   }
+  if (preferences.versions) {
+    process.stdout.write(`${JSON.stringify(process.versions)}\n`);
+    return app.exit(0);
+  }
 
   if (preferences.help) {
     process.stdout.write(getHelpText());

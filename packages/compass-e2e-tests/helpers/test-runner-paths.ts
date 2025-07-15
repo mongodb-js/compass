@@ -33,8 +33,10 @@ export const LOG_COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 export const COVERAGE_PATH = (process.env.COVERAGE = MONOREPO_ROOT_PATH);
 
 export const ELECTRON_PATH = electronPath;
-export const ELECTRON_VERSION = electronPackageJson.version;
-export const ELECTRON_CHROMIUM_VERSION = electronToChromium(ELECTRON_VERSION);
+export const MONOREPO_ELECTRON_VERSION = electronPackageJson.version;
+export const MONOREPO_ELECTRON_CHROMIUM_VERSION = electronToChromium(
+  MONOREPO_ELECTRON_VERSION
+);
 
 export const COMPASS_WEB_SANDBOX_RUNNER_PATH = path.resolve(
   path.dirname(require.resolve('@mongodb-js/compass-web/package.json')),

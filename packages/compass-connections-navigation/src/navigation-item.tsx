@@ -4,8 +4,10 @@ import {
   css,
   palette,
   ItemActionControls,
-  type ItemAction,
   useDarkMode,
+  useContextMenuGroups,
+  type ItemAction,
+  type ContextMenuItem,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -101,6 +103,7 @@ type NavigationItemProps = {
   };
   onItemAction: (item: SidebarActionableItem, action: Actions) => void;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
+  getContextMenuGroups(item: SidebarTreeItem): ContextMenuItem[][];
 };
 
 export function NavigationItem({
@@ -110,6 +113,7 @@ export function NavigationItem({
   onItemAction,
   onItemExpand,
   getItemActions,
+  getContextMenuGroups,
 }: NavigationItemProps) {
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
@@ -137,6 +141,12 @@ export function NavigationItem({
       }),
     };
   }, [getItemActions, item, onAction]);
+
+  const contextMenuTriggerRef: React.RefCallback<HTMLDivElement> =
+    useContextMenuGroups(
+      () => getContextMenuGroups(item),
+      [item, getContextMenuGroups]
+    );
 
   const itemDataProps = useMemo(() => {
     if (item.type === 'placeholder') {
@@ -212,6 +222,7 @@ export function NavigationItem({
         <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
+          ref={contextMenuTriggerRef}
           item={item}
           isActive={isActive}
           isFocused={isFocused}

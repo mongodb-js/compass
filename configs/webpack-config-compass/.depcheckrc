@@ -16,5 +16,3 @@ ignores:
   - 'babel-plugin-istanbul'
   # recursive
   - 'mongodb-compass'
-  # used as a resolve alias
-  - 'jose'

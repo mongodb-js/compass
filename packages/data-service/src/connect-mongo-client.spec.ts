@@ -71,12 +71,11 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
-          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: false,
+        applyProxyToOIDC: {},
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -120,11 +119,10 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
-          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: false,
+        applyProxyToOIDC: {},
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -157,12 +155,11 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
-          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: false,
+        applyProxyToOIDC: {},
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([

@@ -7,9 +7,9 @@ import { Button, Icon, Menu, MenuItem, MenuSeparator } from '../leafygreen';
 import { WorkspaceContainer } from '../workspace-container';
 
 import { ItemActionButtonSize } from './constants';
-import { actionTestId } from './utils';
 import { ActionGlyph } from './action-glyph';
-import { isSeparatorMenuAction, type MenuAction } from './item-action-menu';
+import { actionTestId, isSeparatorMenuAction } from './utils';
+import type { MenuAction } from './types';
 
 const getHiddenOnNarrowStyles = (narrowBreakpoint: string) =>
   css({

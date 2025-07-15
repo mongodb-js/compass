@@ -1,6 +1,10 @@
 import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
+import type {
+  AuthFlowType,
+  MongoDBOIDCPlugin,
+  MongoDBOIDCPluginOptions,
+} from '@mongodb-js/oidc-plugin';
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
@@ -153,9 +157,8 @@ export class CompassAuthService {
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
       serializedState,
-      customHttpOptions: {
-        agent: this.httpClient.agent,
-      },
+      customFetch: this.httpClient
+        .fetch as unknown as MongoDBOIDCPluginOptions['customFetch'],
     });
     oidcPluginHookLoggerToMongoLogWriter(
       this.oidcPluginLogger,
