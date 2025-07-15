@@ -6,7 +6,7 @@ import {
   Diagram,
 } from '@mongodb-js/diagramming';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
-import type { StaticModel } from './data-model-storage';
+import type { Edit, StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import { rafraf, spacing } from '@mongodb-js/compass-components';
@@ -153,6 +153,17 @@ export function getExportJsonFromModel({
     ),
     relationships,
   };
+}
+
+export function exportEdits(fileName: string, edits: Edit[]) {
+  const json = { name: fileName, edits };
+  const blob = new Blob([JSON.stringify(json, null, 2)], {
+    type: 'application/json',
+  });
+  const url = window.URL.createObjectURL(blob);
+  downloadFile(url, `${fileName}.compass`, () => {
+    window.URL.revokeObjectURL(url);
+  });
 }
 
 function downloadFile(uri: string, fileName: string, cleanup?: () => void) {
