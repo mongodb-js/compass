@@ -946,7 +946,7 @@ describe('ConnectionsNavigationTree', function () {
     ) => {
       userEvent.click(element, { button: 2 });
       await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).to.be.visible;
+        expect(screen.getByTestId('lg-menu')).to.be.visible;
       });
       let groupIndex = 0;
       let itemIndex = 0;
@@ -1005,7 +1005,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(connectionElement, { button: 2 });
 
         await waitFor(() => {
-          expect(screen.getByTestId('context-menu')).to.be.visible;
+          expect(screen.getByTestId('lg-menu')).to.be.visible;
         });
 
         // Check for expected context menu items for disconnected connection
@@ -1061,7 +1061,7 @@ describe('ConnectionsNavigationTree', function () {
         ).getByTestId('base-navigation-item');
         userEvent.click(databaseElement, { button: 2 });
 
-        const contextMenu = screen.getByTestId('context-menu');
+        const contextMenu = screen.getByTestId('lg-menu');
 
         // Check that write actions are not present in read-only mode
         expect(() => within(contextMenu).getByText('Create collection')).to
@@ -1092,7 +1092,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(collectionElement, { button: 2 });
 
         await waitFor(() => {
-          expect(screen.getByTestId('context-menu')).to.be.visible;
+          expect(screen.getByTestId('lg-menu')).to.be.visible;
         });
 
         // Check for expected context menu items for collection
@@ -1128,7 +1128,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(collectionElement, { button: 2 });
 
         await waitFor(() => {
-          expect(screen.getByTestId('context-menu')).to.be.visible;
+          expect(screen.getByTestId('lg-menu')).to.be.visible;
         });
 
         await assertContextMenuItems(collectionElement, [
@@ -1214,7 +1214,7 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(collectionElement, { button: 2 });
 
         await waitFor(() => {
-          expect(screen.getByTestId('context-menu')).to.be.visible;
+          expect(screen.getByTestId('lg-menu')).to.be.visible;
         });
 
         userEvent.click(screen.getByText('Open in new tab'));

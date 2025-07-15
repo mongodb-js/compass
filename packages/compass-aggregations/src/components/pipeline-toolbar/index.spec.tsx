@@ -115,7 +115,7 @@ describe('PipelineToolbar', function () {
       const settings = within(toolbar).getByTestId('pipeline-settings');
 
       userEvent.click(within(settings).getByTestId('save-menu-show-actions'));
-      const saveMenuContent = screen.getByTestId('save-menu');
+      const saveMenuContent = screen.getByTestId('lg-menu');
       expect(saveMenuContent.childNodes[0].textContent).to.equal('Save');
       expect(saveMenuContent.childNodes[1].textContent).to.equal('Save as');
       expect(saveMenuContent.childNodes[2].textContent).to.equal('Create view');

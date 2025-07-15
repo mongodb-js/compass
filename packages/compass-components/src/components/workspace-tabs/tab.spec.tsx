@@ -130,7 +130,7 @@ describe('Tab', function () {
       it('should propagate clicks on "Duplicate"', async function () {
         const tab = await screen.findByText('docs');
         userEvent.click(tab, { button: 2 });
-        expect(screen.getByTestId('context-menu')).to.be.visible;
+        expect(screen.getByTestId('lg-menu')).to.be.visible;
 
         const menuItem = await screen.findByText('Duplicate');
         menuItem.click();
@@ -141,7 +141,7 @@ describe('Tab', function () {
       it('should propagate clicks on "Close all other tabs"', async function () {
         const tab = await screen.findByText('docs');
         userEvent.click(tab, { button: 2 });
-        expect(screen.getByTestId('context-menu')).to.be.visible;
+        expect(screen.getByTestId('lg-menu')).to.be.visible;
 
         const menuItem = await screen.findByText('Close all other tabs');
         menuItem.click();

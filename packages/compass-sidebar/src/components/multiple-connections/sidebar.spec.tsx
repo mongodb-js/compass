@@ -245,7 +245,7 @@ describe('Multiple Connections Sidebar Component', function () {
       doRender(undefined, []);
       const header = screen.getByTestId('connections-header');
       userEvent.click(header, { button: 2 });
-      const menu = screen.getByTestId('context-menu');
+      const menu = screen.getByTestId('lg-menu');
       expect(within(menu).getByTestId('menu-group-0-item-0')).to.have.text(
         'Collapse all connections'
       );
