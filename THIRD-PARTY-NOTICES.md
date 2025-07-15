@@ -74,7 +74,7 @@ This document was automatically generated on Tue Jul 15 2025.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#1b60dc9421c1b6d8b9d0e622fa6b2ef72f605502fd87ad509ea160940395ab6d)**                                   | 2.1.2        | MIT                                 |
+| **[@electron/remote](#e1a1a269861d5ba15e33623c8591f7401601d2de8dc3db593381d9638ed0fb51)**                                   | 2.1.3        | MIT                                 |
 | **[@emotion/cache](#4948c42794e50ebd04d6ee63d624aaa67236cc0b6aca335d68e5d3a3e8d05f65)**                                     | 11.14.0      | MIT                                 |
 | **[@emotion/css](#0f0fe64169ea56b12722e0c13f21cf260cb4e2a9840c0b909e6871d870ba3129)**                                       | 11.11.2      | MIT                                 |
 | **[@emotion/hash](#eaf4af16eea09af2b8c9178dc6dbf7d8740d1dd12d5a917a5171a5418025a4aa)**                                      | 0.9.2        | MIT                                 |
@@ -228,7 +228,7 @@ This document was automatically generated on Tue Jul 15 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854)**                                           | 36.5.0       | MIT                                 |
+| **[electron](#50db33bd42c0f86b4b388266a973d54d6f0470454681f225e0060533b0faae38)**                                           | 37.2.1       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -352,7 +352,7 @@ This document was automatically generated on Tue Jul 15 2025.
 | **[native-machine-id](#906056a6d58d5df99105901c8c819d7534e7035561494eadf8ab0b48d4e0c418)**                                  | 0.1.2        | Apache-2.0                          |
 | **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**                                         | 1.0.0        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
-| **[node-abi](#e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4)**                                           | 4.11.0       | MIT                                 |
+| **[node-abi](#c58d24c26f43fff34cbe4889cb8ae55d5bf4b744eec2f95c5f3c7d4f06d1faf2)**                                           | 4.12.0       | MIT                                 |
 | **[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**                                     | 6.1.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
@@ -6285,9 +6285,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="1b60dc9421c1b6d8b9d0e622fa6b2ef72f605502fd87ad509ea160940395ab6d"></a>
+<a id="e1a1a269861d5ba15e33623c8591f7401601d2de8dc3db593381d9638ed0fb51"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.2)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.3)
 
 License tags: MIT
 
@@ -18618,9 +18618,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="e2edaab986f3384a0b5faa80767150f6e6baa4061488ca139e1d498bf6460854"></a>
+<a id="50db33bd42c0f86b4b388266a973d54d6f0470454681f225e0060533b0faae38"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 36.5.0)
+### [electron](https://www.npmjs.com/package/electron) (version 37.2.1)
 
 License tags: MIT
 
@@ -24589,9 +24589,9 @@ License files:
 
 License tags: MIT
 
-<a id="e1440fcdb9ead92daea9d7d7c6b08978fd1fba35bd0ca442edd4743461e0e8e4"></a>
+<a id="c58d24c26f43fff34cbe4889cb8ae55d5bf4b744eec2f95c5f3c7d4f06d1faf2"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.11.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 4.12.0)
 
 License tags: MIT
 
