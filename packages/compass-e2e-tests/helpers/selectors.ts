@@ -845,7 +845,7 @@ export const CreateNewPipelineButton =
 export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
 export const SavePipelineMenuButton = '[data-testid="save-menu-show-actions"]';
-export const SavePipelineMenuContent = '[data-testid="lg-menu"]';
+export const SavePipelineMenuContent = '[data-testid="lg-save-menu"]';
 export const SavePipelineCreateViewAction =
   '[data-testid="save-menu-createView-action"]';
 export const SavePipelineSaveAsAction =

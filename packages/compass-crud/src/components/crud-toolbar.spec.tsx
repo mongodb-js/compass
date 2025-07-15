@@ -503,7 +503,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       expect(within(contextMenu).getByText('Expand all documents')).to.be
         .visible;
       expect(within(contextMenu).getByText('Refresh')).to.be.visible;
@@ -516,7 +516,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const expandMenuItem = within(contextMenu).getByText(
         'Expand all documents'
       );
@@ -532,7 +532,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const collapseMenuItem = within(contextMenu).getByText(
         'Collapse all documents'
       );
@@ -548,7 +548,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const importMenuItem = within(contextMenu).getByText(
         'Import JSON or CSV file'
       );
@@ -566,7 +566,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const insertMenuItem =
         within(contextMenu).getByText('Insert document...');
       userEvent.click(insertMenuItem);
@@ -583,7 +583,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const exportQueryMenuItem = within(contextMenu).getByText(
         'Export query results...'
       );
@@ -599,7 +599,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const exportCollectionMenuItem = within(contextMenu).getByText(
         'Export full collection...'
       );
@@ -615,7 +615,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const updateMenuItem = within(contextMenu).getByText('Bulk update');
       userEvent.click(updateMenuItem);
 
@@ -629,7 +629,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const deleteMenuItem = within(contextMenu).getByText('Bulk delete');
       userEvent.click(deleteMenuItem);
 
@@ -643,7 +643,7 @@ describe('CrudToolbar Component', function () {
       const toolbar = screen.getByTestId('query-bar').closest('div');
       userEvent.click(toolbar!, { button: 2 });
 
-      const contextMenu = screen.getByTestId('lg-menu');
+      const contextMenu = screen.getByTestId('lg-context-menu');
       const refreshMenuItem = within(contextMenu).getByText('Refresh');
       userEvent.click(refreshMenuItem);
 
@@ -658,7 +658,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Import JSON or CSV file')).to
           .not.exist;
         expect(within(contextMenu).queryByText('Export query results...')).to
@@ -673,7 +673,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Insert document...')).to.not
           .exist;
       });
@@ -684,7 +684,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
         expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
       });
@@ -695,7 +695,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
       });
 
@@ -705,7 +705,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
       });
 
@@ -715,7 +715,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).queryByText('Bulk update')).to.not.exist;
         expect(within(contextMenu).queryByText('Bulk delete')).to.not.exist;
       });
@@ -731,7 +731,7 @@ describe('CrudToolbar Component', function () {
         const toolbar = screen.getByTestId('query-bar').closest('div');
         userEvent.click(toolbar!, { button: 2 });
 
-        const contextMenu = screen.getByTestId('lg-menu');
+        const contextMenu = screen.getByTestId('lg-context-menu');
         expect(within(contextMenu).getByText('Expand all documents')).to.be
           .visible;
         expect(within(contextMenu).getByText('Import JSON or CSV file')).to.be

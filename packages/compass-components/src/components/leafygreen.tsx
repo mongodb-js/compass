@@ -18,9 +18,22 @@ import {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
-import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+import {
+  Menu,
+  MenuSeparator,
+  MenuItem,
+  getLgIds as getLgIdsMenu,
+} from '@leafygreen-ui/menu';
 export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
+import {
+  Drawer,
+  DisplayMode as DrawerDisplayMode,
+  DrawerLayout,
+  DrawerStackProvider,
+  useDrawerStackContext,
+  useDrawerToolbarContext,
+} from '@leafygreen-ui/drawer';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
@@ -175,6 +188,7 @@ export {
   Menu,
   MenuItem,
   MenuSeparator,
+  getLgIdsMenu,
   Modal,
   ModalFooter,
   MarketingModal,
@@ -224,4 +238,10 @@ export {
   Combobox,
   ComboboxGroup,
   ComboboxOption,
+  Drawer,
+  DrawerDisplayMode,
+  DrawerLayout,
+  DrawerStackProvider,
+  useDrawerStackContext,
+  useDrawerToolbarContext,
 };

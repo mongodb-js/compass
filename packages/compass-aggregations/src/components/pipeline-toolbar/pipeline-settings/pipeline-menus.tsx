@@ -64,7 +64,7 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
 
   return (
     <DropdownMenuButton<SaveMenuActions>
-      data-testid="save-menu"
+      data-lgid="lg-save-menu"
       actions={menuActions}
       onAction={onAction}
       buttonText="Save"

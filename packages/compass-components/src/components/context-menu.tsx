@@ -70,7 +70,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         }}
       />
       <Menu
-        data-testid="context-menu"
+        data-lgid="lg-context-menu"
         refEl={anchorRef}
         ref={menuRef}
         open={menu.isOpen}
