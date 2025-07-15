@@ -5,6 +5,7 @@ import {
   css,
   Label,
   Code,
+  CodePanel,
   Checkbox,
   Banner,
   spacing,
@@ -240,13 +241,16 @@ const ExportToLanguageModal: React.FunctionComponent<
             className={codeStyles}
             id="export-to-language-input"
             data-testid="export-to-language-input"
-            languageOptions={shellLanguageOptions}
-            onChange={() => {
-              // There is only one language option and we don't allow to change
-              // the value
-            }}
             language="Shell"
-            copyable={true}
+            panel={
+              <CodePanel
+                languageOptions={shellLanguageOptions}
+                onChange={() => {
+                  // There is only one language option and we don't allow to change
+                  // the value
+                }}
+              />
+            }
           >
             {prettyInput}
           </Code>
@@ -266,13 +270,18 @@ const ExportToLanguageModal: React.FunctionComponent<
             className={codeStyles}
             id="export-to-language-output"
             data-testid="export-to-language-output"
-            languageOptions={languageOptions}
-            onChange={(option: LanguageOption) =>
-              setOutputLanguage(codeLanguageToOutputLanguage(option.language))
-            }
             language={outputLanguageToCodeLanguage(outputLanguage)}
-            copyable={true}
             onCopy={trackCopiedOutput}
+            panel={
+              <CodePanel
+                languageOptions={languageOptions}
+                onChange={(option: LanguageOption) =>
+                  setOutputLanguage(
+                    codeLanguageToOutputLanguage(option.language)
+                  )
+                }
+              />
+            }
           >
             {transpiledExpression || ''}
           </Code>

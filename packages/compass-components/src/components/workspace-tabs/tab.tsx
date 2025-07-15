@@ -335,7 +335,7 @@ function Tab({
 
           <IconButton
             className={cx(closeButtonStyles, 'workspace-tab-close-button')}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
               onClose();
             }}

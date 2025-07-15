@@ -233,9 +233,9 @@ const SignalCard: React.FunctionComponent<
                 <Icon glyph={primaryActionButtonIcon}></Icon>
               ) : undefined
             }
-            onClick={(evt) => {
+            onClick={(e: React.MouseEvent) => {
               hooks.onSignalPrimaryActionClick(id);
-              onPrimaryActionButtonClick?.(evt);
+              onPrimaryActionButtonClick?.(e);
             }}
           >
             {primaryActionButtonLabel}
@@ -295,7 +295,7 @@ const MultiSignalHeader: React.FunctionComponent<{
         data-testid="insight-signal-show-prev-button"
         aria-label="Show previous insight"
         title="Show previous insight"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.stopPropagation();
           onIndexChange(currentIndex - 1);
         }}
@@ -310,7 +310,7 @@ const MultiSignalHeader: React.FunctionComponent<{
         data-testid="insight-signal-show-next-button"
         aria-label="Show next insight"
         title="Show next insight"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.stopPropagation();
           onIndexChange(currentIndex + 1);
         }}

@@ -42,7 +42,7 @@ export default function WebWelcomeTab() {
           {numConnections === 0 && (
             <>
               <Button
-                as={Link}
+                as={'a'}
                 data-testid="add-new-atlas-cluster-button"
                 variant={ButtonVariant.Primary}
                 href={'#/clusters/starterTemplates'}

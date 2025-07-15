@@ -91,9 +91,9 @@ export function DropdownMenuButton<Action extends string>({
           <Button
             ref={menuTriggerRef}
             data-testid={dataTestId ? `${dataTestId}-show-actions` : undefined}
-            onClick={(evt) => {
-              evt.stopPropagation();
-              onClick?.(evt);
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.stopPropagation();
+              onClick?.(e);
             }}
             rightGlyph={<Icon glyph={'CaretDown'} />}
             title={buttonText}

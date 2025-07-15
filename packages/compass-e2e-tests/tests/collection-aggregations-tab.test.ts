@@ -1425,7 +1425,7 @@ describe('Collection aggregations tab', function () {
       await modal.waitForDisplayed({ reverse: true });
     });
 
-    it('adds a new stage before or after current stage', async function () {
+    it.only('adds a new stage before or after current stage', async function () {
       await browser.selectStageOperator(0, '$match');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),

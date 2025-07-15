@@ -1,4 +1,10 @@
-import { Code, Link, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Code,
+  CodePanel,
+  Link,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import React from 'react';
 
@@ -77,7 +83,7 @@ const MDBCodeViewer = ({
       <Code
         data-testid={dataTestId || 'mdb-code-viewer'}
         language="javascript"
-        onCopy={onCopy}
+        panel={<CodePanel onCopy={onCopy} />}
       >
         {GeneratedCode}
       </Code>

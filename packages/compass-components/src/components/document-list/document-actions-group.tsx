@@ -4,6 +4,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
+import type { ButtonProps } from '@leafygreen-ui/button';
 
 const actionsGroupContainer = css({
   position: 'absolute',
@@ -83,7 +84,7 @@ function ActionButton({
   tooltipText,
   tooltipEnabled,
   ...props
-}: Partial<React.ComponentProps<typeof Button>> & {
+}: Partial<ButtonProps> & {
   tooltipText: string;
   tooltipEnabled: boolean;
 }) {
