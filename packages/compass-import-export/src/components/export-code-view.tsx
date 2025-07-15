@@ -1,6 +1,12 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  CodePanel,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
@@ -78,7 +84,7 @@ function ExportCodeView({
         data-testid="export-collection-code-preview-wrapper"
         id={codeElementId}
         language="javascript"
-        copyable
+        panel={<CodePanel />}
       >
         {code}
       </Code>

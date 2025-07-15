@@ -73,12 +73,12 @@ function TabNavBar({
           className="test-tab-nav-bar-tabs"
           // https://jira.mongodb.org/browse/LG-4696 - i is a
           // React.Dispatch<React.SetStateAction<number>> type
-          setSelected={(i) => {
+          onValueChange={(i) => {
             if (typeof i === 'number') {
               return onTabClicked(i);
             }
           }}
-          selected={activeTabIndex}
+          value={activeTabIndex}
         >
           {tabs.map(({ name, title }, idx) => {
             return (

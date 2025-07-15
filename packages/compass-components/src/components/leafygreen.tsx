@@ -7,7 +7,7 @@ import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
-import Code, { Language } from '@leafygreen-ui/code';
+import Code, { Language, Panel as CodePanel } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -165,6 +165,7 @@ export {
   Checkbox,
   Chip,
   Code,
+  CodePanel,
   ConfirmationModal,
   ExpandedContent,
   HeaderCell,

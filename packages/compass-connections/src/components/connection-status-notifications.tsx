@@ -8,6 +8,7 @@ import {
   spacing,
   openToast,
   closeToast,
+  CodePanel,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -188,7 +189,7 @@ const openNotifyDeviceAuthModal = (
         <br></br>
         <Body>Enter the following code on that page:</Body>
         <Body as="div">
-          <Code language="none" copyable>
+          <Code language="none" panel={<CodePanel />}>
             {userCode}
           </Code>
         </Body>
