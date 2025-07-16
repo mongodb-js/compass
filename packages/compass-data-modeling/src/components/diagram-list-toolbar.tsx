@@ -27,16 +27,19 @@ const containerStyles = css({
 const titleStyles = css({
   gridArea: 'title',
 });
-const createDiagramContainerStyles = css({
+const diagramActionsStyles = css({
   gridArea: 'createDiagram',
   display: 'flex',
   justifyContent: 'flex-end',
+  gap: spacing[200],
 });
 const searchInputStyles = css({
   gridArea: 'searchInput',
 });
 const sortControlsStyles = css({
   gridArea: 'sortControls',
+  display: 'flex',
+  justifyContent: 'flex-end',
 });
 
 const toolbarTitleLightStyles = css({ color: palette.gray.dark1 });
@@ -61,7 +64,15 @@ export const DiagramListToolbar = () => {
       >
         Open an existing diagram:
       </Subtitle>
-      <div className={createDiagramContainerStyles}>
+      <div className={diagramActionsStyles}>
+        <Button
+          onClick={() => {}}
+          size="small"
+          data-testid="open-diagram-button"
+          leftGlyph={<Icon glyph="Import"></Icon>}
+        >
+          Open diagram
+        </Button>
         <Button
           onClick={onCreateDiagram}
           variant="primary"
