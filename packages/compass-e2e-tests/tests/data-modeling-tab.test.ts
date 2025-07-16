@@ -419,8 +419,12 @@ describe('Data Modeling tab', function () {
     const model = JSON.parse(content);
 
     expect(model.name).to.equal(dataModelName);
-    expect(model.edits).to.be.an('array').of.length(2);
-    expect(model.edits[0].type).to.equal('SetModel');
-    expect(model.edits[1].type).to.equal('MoveCollection');
+
+    const edits = JSON.parse(
+      Buffer.from(model.edits, 'base64').toString('utf-8')
+    );
+    expect(edits).to.be.an('array').of.length(2);
+    expect(edits[0].type).to.equal('SetModel');
+    expect(edits[1].type).to.equal('MoveCollection');
   });
 });

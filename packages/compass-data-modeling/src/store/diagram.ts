@@ -11,7 +11,7 @@ import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
-import { exportEdits } from '../services/export-diagram';
+import { downloadDiagram } from '../services/open-and-download-diagram';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -316,13 +316,13 @@ export function deleteDiagram(
   };
 }
 
-export function downloadDiagram(): DataModelingThunkAction<void, never> {
+export function saveDiagram(): DataModelingThunkAction<void, never> {
   return (_dispatch, getState) => {
     const { diagram } = getState();
     if (!diagram) {
       return;
     }
-    exportEdits(diagram.name, diagram.edits.current);
+    downloadDiagram(diagram.name, diagram.edits.current);
   };
 }
 

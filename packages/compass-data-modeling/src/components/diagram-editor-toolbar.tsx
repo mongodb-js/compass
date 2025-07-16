@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { downloadDiagram, redoEdit, undoEdit } from '../store/diagram';
+import { saveDiagram, redoEdit, undoEdit } from '../store/diagram';
 import { showExportModal } from '../store/export-diagram';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
@@ -56,6 +56,6 @@ export default connect(
     onUndoClick: undoEdit,
     onRedoClick: redoEdit,
     onExportClick: showExportModal,
-    onDownloadClick: downloadDiagram,
+    onDownloadClick: saveDiagram,
   }
 )(DiagramEditorToolbar);
