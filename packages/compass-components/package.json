@@ -50,6 +50,7 @@
     "@leafygreen-ui/icon-button": "16.0.2",
     "@leafygreen-ui/info-sprinkle": "^4.0.2",
     "@leafygreen-ui/leafygreen-provider": "^4.0.2",
+    "@leafygreen-ui/lib": "^15.2.0",
     "@leafygreen-ui/logo": "^10.0.2",
     "@leafygreen-ui/marketing-modal": "^5.0.2",
     "@leafygreen-ui/menu": "^29.0.5",

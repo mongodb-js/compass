@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { closeSidePanel } from '../store/side-panel';
@@ -10,6 +10,10 @@ import {
   spacing,
   palette,
   useDarkMode,
+  DrawerLayout,
+  DrawerDisplayMode,
+  useDrawerToolbarContext,
+  Drawer,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -33,20 +37,39 @@ type DiagramEditorSidePanelProps = {
   onClose: () => void;
 };
 
+const DRAWER_TOOLBAR_DATA: DrawerLayoutProps['toolbarData'] = [
+  {
+    id: 'Code',
+    label: 'Code',
+    content: <DrawerContent />,
+    title: 'Code Title',
+    glyph: 'Code',
+    onClick: () => {
+      console.log('Code clicked');
+    },
+  },
+];
+
 function DiagmramEditorSidePanel({
   isOpen,
   onClose,
 }: DiagramEditorSidePanelProps) {
   const isDarkMode = useDarkMode();
-  if (!isOpen) {
-    return null;
-  }
+  // const { openDrawer } = useDrawerToolbarContext();
+
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     console.log('OPENING SIDE PANEL');
+  //     openDrawer("DiagramEditorSidePanel");
+  //   }
+  // }, [isOpen, openDrawer]);
+
   return (
     <div className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}>
-      <Body>This feature is under development.</Body>
-      <Button onClick={onClose} variant="primary" size="small">
-        Close Side Panel
-      </Button>
+      <Drawer title="Diagram Editor" open={isOpen} onClose={onClose}>
+        <Body>Under development...</Body>
+        <Button onClick={onClose}>Close</Button>
+      </Drawer>
     </div>
   );
 }

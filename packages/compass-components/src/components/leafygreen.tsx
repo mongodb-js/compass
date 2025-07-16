@@ -134,6 +134,15 @@ const TextInput: typeof LeafyGreenTextInput = React.forwardRef(
 
 TextInput.displayName = 'TextInput';
 
+export {
+  Drawer,
+  DrawerLayout,
+  DisplayMode as DrawerDisplayMode,
+  DrawerStackProvider,
+  useDrawerStackContext,
+  useDrawerToolbarContext,
+} from './drawer';
+
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,
