@@ -62,10 +62,11 @@ const PACKAGE_BUILD_VARIANTS = [
 
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
-    name: 'test-packaged-app-ubuntu',
-    display_name: 'Ubuntu 20.04',
+    name: 'test-packaged-app-ubuntu-ttfq',
+    display_name: 'Ubuntu 20.04 (time-to-first-query)',
     run_on: 'ubuntu2004-large',
     depends_on: 'package-ubuntu',
+    time_to_first_query: true,
   },
   {
     name: 'test-packaged-app-windows',
@@ -74,23 +75,26 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-windows',
   },
   {
-    name: 'test-packaged-app-rhel',
-    display_name: 'RHEL 8.0',
+    name: 'test-packaged-app-rhel-ttfq',
+    display_name: 'RHEL 8.0 (time-to-first-query)',
     run_on: 'rhel80-large',
     depends_on: 'package-rhel',
+    time_to_first_query: true,
   },
   {
-    name: 'test-packaged-app-macos-11-arm',
-    display_name: 'MacOS arm64 11',
+    name: 'test-packaged-app-macos-11-arm-ttfq',
+    display_name: 'MacOS arm64 11 (time-to-first-query)',
     run_on: 'macos-11-arm64-gui',
-    depends_on: 'package-macos-arm'
+    depends_on: 'package-macos-arm',
+    time_to_first_query: true,
   },
   {
-    name: 'test-packaged-app-macos-11-x64',
-    display_name: 'MacOS x64 11',
+    name: 'test-packaged-app-macos-11-x64-ttfq',
+    display_name: 'MacOS x64 11 (time-to-first-query)',
     run_on: 'macos-11-gui',
     patchable: false,
-    depends_on: 'package-macos-x64'
+    depends_on: 'package-macos-x64',
+    time_to_first_query: true,
   },
   {
     name: 'test-packaged-app-macos-14-arm',
@@ -243,10 +247,10 @@ buildvariants:
       - name: package-compass
         variant: <%= buildVariant.depends_on %>
     tasks:
-    <% for (const group of E2E_TEST_GROUPS) { %>
-    <% if (['test-packaged-app-macos-11-arm', 'test-packaged-app-macos-11-x64'].includes(buildVariant.name)) { %>
-    - name: test-packaged-app-macos13-<%= group.number %>
+    <% if (buildVariant.time_to_first_query) { %>
+    - name: test-packaged-app-time-to-first-query
     <% } else { %>
+    <% for (const group of E2E_TEST_GROUPS) { %>
     - name: test-packaged-app-<%= group.number %>
     <% } %>
     <% } %>
@@ -507,8 +511,9 @@ tasks:
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+<% } %>
 
-  - name: test-packaged-app-macos13-<%= group.number %>
+  - name: test-packaged-app-time-to-first-query
     tags:
       - required-for-publish
       - run-on-pr
@@ -530,10 +535,8 @@ tasks:
         vars:
           mongodb_version: 8.0.5
           compass_distribution: compass
-          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
-          e2e_test_group: <%= group.number %>
+          e2e_test_filter: time-to-first-query
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-<% } %>
 
 <% for (const browser of BROWSERS) { %>
   <% for(const group of E2E_TEST_GROUPS) { %>
