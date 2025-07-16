@@ -39,8 +39,8 @@ const contentContainerStyles = css({
 
 const radioItemStyles = css({
   display: 'flex',
-  gap: spacing[200],
   alignItems: 'center',
+  gap: spacing[200],
 });
 
 const footerStyles = css({
