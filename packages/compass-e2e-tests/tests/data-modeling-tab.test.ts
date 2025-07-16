@@ -386,7 +386,7 @@ describe('Data Modeling tab', function () {
     expect(text).to.include('String string'.toLowerCase());
   });
 
-  it('exports the data model with edits and name', async function () {
+  it('downloads the data model', async function () {
     const dataModelName = 'Test Export Model - Save-Open';
     exportFileName = `${dataModelName}.compass`;
     await setupDiagram(browser, {
@@ -406,12 +406,8 @@ describe('Data Modeling tab', function () {
 
     await browser.waitForAnimations(dataModelEditor);
 
-    await browser.clickVisible(Selectors.DataModelExportButton);
-    const exportModal = browser.$(Selectors.DataModelExportModal);
-    await exportModal.waitForDisplayed();
-
-    await browser.clickParent(Selectors.DataModelExportSaveOption);
-    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+    await browser.clickVisible(Selectors.DataModelDownloadButton);
+    await browser.waitForAnimations(dataModelEditor);
 
     const { fileExists, filePath } = await waitForFileDownload(
       exportFileName,
