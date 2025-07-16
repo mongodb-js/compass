@@ -40,10 +40,7 @@ const contentContainerStyles = css({
 const radioItemStyles = css({
   display: 'flex',
   gap: spacing[200],
-});
-
-const radioItemIconStyles = css({
-  marginTop: spacing[50],
+  alignItems: 'center',
 });
 
 const footerStyles = css({
@@ -97,7 +94,7 @@ const ExportDiagramModal = ({
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
-              <Icon className={radioItemIconStyles} glyph="Diagram2" />
+              <Icon glyph="Diagram2" />
               <Radio
                 checked={exportFormat === 'png'}
                 value="png"
@@ -109,7 +106,7 @@ const ExportDiagramModal = ({
               </Radio>
             </div>
             <div className={radioItemStyles}>
-              <Icon className={radioItemIconStyles} glyph="CurlyBraces" />
+              <Icon glyph="CurlyBraces" />
               <Radio
                 checked={exportFormat === 'json'}
                 value="json"
@@ -118,20 +115,6 @@ const ExportDiagramModal = ({
                 size="small"
               >
                 JSON
-              </Radio>
-            </div>
-            {/* TODO: Label and description */}
-            <div className={radioItemStyles}>
-              <Icon className={radioItemIconStyles} glyph="Save" />
-              <Radio
-                checked={exportFormat === 'save'}
-                value="save"
-                aria-label="Save"
-                onClick={() => onSelectFormat('save')}
-                size="small"
-                description="Export the data model so that it can be imported back in Compass."
-              >
-                Save
               </Radio>
             </div>
           </RadioGroup>

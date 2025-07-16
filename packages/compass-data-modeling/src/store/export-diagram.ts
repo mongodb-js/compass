@@ -1,17 +1,13 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
-import {
-  exportEdits,
-  exportToJson,
-  exportToPng,
-} from '../services/export-diagram';
+import { exportToJson, exportToPng } from '../services/export-diagram';
 import { getCurrentDiagramFromState, selectCurrentModel } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
 
-export type ExportDiagramFormat = 'png' | 'json' | 'save';
+export type ExportDiagramFormat = 'png' | 'json';
 
 export type ExportDiagramState = {
   isModalOpen: boolean;
@@ -133,9 +129,6 @@ export function exportDiagram(
           diagramInstance,
           cancelController.signal
         );
-      } else if (exportFormat === 'save') {
-        const edits = diagram.edits.current;
-        exportEdits(diagram.name, edits);
       }
       track('Data Modeling Diagram Exported', {
         format: exportFormat,
