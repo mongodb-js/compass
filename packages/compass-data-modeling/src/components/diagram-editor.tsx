@@ -16,6 +16,7 @@ import {
   selectCurrentModel,
   selectCollection,
   selectRelationship,
+  selectBackground,
 } from '../store/diagram';
 import {
   Banner,
@@ -192,6 +193,7 @@ const DiagramEditor: React.FunctionComponent<{
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
+  onDiagramBackgroundClicked: () => void;
   selectedItem?: string | null;
 }> = ({
   diagramLabel,
@@ -203,6 +205,7 @@ const DiagramEditor: React.FunctionComponent<{
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
+  onDiagramBackgroundClicked,
   selectedItem,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
@@ -353,6 +356,7 @@ const DiagramEditor: React.FunctionComponent<{
               }
               onCollectionSelect(node.id);
             }}
+            onPaneClick={onDiagramBackgroundClicked}
             onEdgeClick={(_evt, edge) => {
               onRelationshipSelect(edge.id);
             }}
@@ -399,5 +403,6 @@ export default connect(
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
+    onDiagramBackgroundClicked: selectBackground,
   }
 )(DiagramEditor);

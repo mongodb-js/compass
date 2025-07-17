@@ -43,7 +43,7 @@ const CollectionDrawerContent: React.FunctionComponent<
       <ul>
         {relationships.map((r) => {
           return (
-            <li key={r.id}>
+            <li key={r.id} data-relationship-id={r.id}>
               {r.relationship[0].fields.join(', ')}&nbsp;-&gt;&nbsp;
               {r.relationship[1].fields.join(', ')}
               <Button

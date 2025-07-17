@@ -42,6 +42,7 @@ export enum DiagramActionTypes {
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
 
 export type OpenDiagramAction = {
@@ -93,6 +94,10 @@ export type RelationSelectedAction = {
   relationship: Relationship;
 };
 
+export type DiagramBackgroundSelectedAction = {
+  type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
+};
+
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
@@ -103,7 +108,8 @@ export type DiagramActions =
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
-  | RelationSelectedAction;
+  | RelationSelectedAction
+  | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
 
@@ -297,6 +303,12 @@ export const diagramReducer: Reducer<DiagramState> = (
     }
     return state;
   }
+  if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
+    return {
+      ...state,
+      selectedItems: null,
+    };
+  }
   return state;
 };
 
@@ -372,6 +384,33 @@ export function selectRelationship(
         relationship,
       });
     }
+  };
+}
+
+export function selectBackground(): DataModelingThunkAction<
+  Promise<void>,
+  DiagramBackgroundSelectedAction
+> {
+  return async (dispatch, getState) => {
+    const { sidePanel } = getState();
+
+    if (
+      sidePanel.viewType === 'relationship-editing' &&
+      sidePanel.relationshipFormState.modified
+    ) {
+      const allowSelect = await showConfirmation({
+        title: 'You have unsaved chages',
+        description:
+          'You are currently editing a relationship. Are you sure you want to stop editing?',
+      });
+      if (!allowSelect) {
+        return;
+      }
+    }
+
+    dispatch({
+      type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
+    });
   };
 }
 

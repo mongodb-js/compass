@@ -80,7 +80,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
   );
 
   return (
-    <>
+    <div data-relationship-id={relationshipId}>
       <H3>Edit Relationship</H3>
 
       <FormFieldContainer>
@@ -198,11 +198,11 @@ const RelationshipDrawerContent: React.FunctionComponent<
           Delete
         </Button>
         <Button disabled={!isValid} onClick={onSubmitFormClick}>
-          Submit
+          Save
         </Button>
         <Button onClick={onCancelEditClick}>Cancel</Button>
       </div>
-    </>
+    </div>
   );
 };
 

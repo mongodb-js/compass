@@ -252,7 +252,8 @@ export const sidePanelReducer: Reducer<SidePanelState> = (
   if (
     isAction(action, SidePanelActionTypes.EDIT_RELATIONSHIP_FORM_CANCELED) ||
     isAction(action, SidePanelActionTypes.EDIT_RELATIONSHIP_FORM_SUBMITTED) ||
-    isAction(action, DiagramActionTypes.COLLECTION_SELECTED)
+    isAction(action, DiagramActionTypes.COLLECTION_SELECTED) ||
+    isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)
   ) {
     return { viewType: null };
   }
