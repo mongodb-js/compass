@@ -136,7 +136,9 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, []);
 
   const onUpdate = useCallback(() => {
-    doc.apply(HadronDocument.FromEJSON(value || ''));
+    const newDoc = HadronDocument.FromEJSON(value || '');
+    newDoc.preserveTypes(doc);
+    doc.apply(newDoc);
     void replaceDocument?.(doc);
   }, [doc, replaceDocument, value]);
 

@@ -97,6 +97,20 @@ export class Document extends EventEmitter<
     }
   }
 
+  preserveTypes(other: Document): void {
+    const thisDoc = this.generateObject();
+
+    for (const key of Object.keys(thisDoc)) {
+      const thisElement = this.get(key);
+      const otherElement = other.get(key);
+      if (!thisElement || !otherElement) {
+        continue;
+      }
+
+      thisElement.preserveType(otherElement);
+    }
+  }
+
   /**
    * Generate the javascript object for this document.
    *

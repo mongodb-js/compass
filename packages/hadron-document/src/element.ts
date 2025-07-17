@@ -194,10 +194,44 @@ export class Element extends EventEmitter {
       this.currentValue = value;
       this.elements = undefined;
     } else {
+      // if they are both integer types and equal if made the previous type, don't update.
       this.currentValue = value;
     }
     this.setValid();
     this._bubbleUp(ElementEvents.Edited, this);
+  }
+
+  preserveType(otherElement: Element): void {
+    switch (this.currentType) {
+      case 'Object': {
+        if (!this.elements) {
+          return;
+        }
+        for (const child of this.elements) {
+          const otherChild = otherElement.get(child.currentKey);
+          if (!otherChild) {
+            continue;
+          }
+          child.preserveType(otherChild);
+        }
+        break;
+      }
+      case 'Int32': {
+        const otherType = otherElement.currentType;
+        if (otherType === 'Double') {
+          this.changeType('Double');
+        }
+        if (otherType === 'Int64') {
+          this.changeType('Int64');
+        }
+        break;
+      }
+      default:
+        // NOTE: Purposefully leaving Array elements alone because deciding
+        // whether to turn on Int32 into a Double or Int64 or not is complex and
+        // error-prone. Also leaving every other type alone.
+        break;
+    }
   }
 
   changeType(newType: TypeCastTypes): void {
