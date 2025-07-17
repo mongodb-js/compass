@@ -1,5 +1,5 @@
 import StandardEditor from './standard';
-import type Element from '../element';
+import type { Element } from '../element';
 
 /**
  * Undefined is always 'undefined'

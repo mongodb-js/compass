@@ -1,7 +1,7 @@
 /**
  * The event constant.
  */
-export default {
+export const ElementEvents = {
   Added: 'Element::Added',
   Edited: 'Element::Edited',
   Removed: 'Element::Removed',
@@ -13,3 +13,6 @@ export default {
   Collapsed: 'Element::Collapsed',
   VisibleElementsChanged: 'Element::VisibleElementsChanged',
 } as const;
+
+export type ElementEventsType =
+  typeof ElementEvents[keyof typeof ElementEvents];
