@@ -90,6 +90,35 @@ async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
   return nodes;
 }
 
+/**
+ * Moves a node to the specified coordinates and returns its original position.
+ */
+async function moveNode(
+  browser: CompassBrowser,
+  selector: string,
+  coordinates: { x: number; y: number }
+) {
+  const node = browser.$(selector);
+
+  const startPosition = await node.getLocation();
+  const nodeSize = await node.getSize();
+
+  await browser
+    .action('pointer')
+    .move({
+      x: Math.round(startPosition.x + nodeSize.width / 2),
+      y: Math.round(startPosition.y + nodeSize.height / 2),
+    })
+    .down({ button: 0 }) // Left mouse button
+    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .pause(1000)
+    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .up({ button: 0 }) // Release the left mouse button
+    .perform();
+  await browser.waitForAnimations(node);
+  return startPosition;
+}
+
 describe('Data Modeling tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -155,21 +184,11 @@ describe('Data Modeling tab', function () {
     const testCollection1 = browser.$(
       Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
-    const startPosition = await testCollection1.getLocation();
-    const nodeSize = await testCollection1.getSize();
-
-    await browser
-      .action('pointer')
-      .move({
-        x: Math.round(startPosition.x + nodeSize.width / 2),
-        y: Math.round(startPosition.y + nodeSize.height / 2),
-      })
-      .down({ button: 0 }) // Left mouse button
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .pause(1000)
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .up({ button: 0 }) // Release the left mouse button
-      .perform();
+    const startPosition = await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
+    );
     await browser.waitForAnimations(dataModelEditor);
 
     // Check that the first node has moved and mark the new position
@@ -224,24 +243,11 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    const testCollection1 = browser.$(
-      Selectors.DataModelPreviewCollection('test.testCollection-one')
+    await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
     );
-    const startPosition = await testCollection1.getLocation();
-    const nodeSize = await testCollection1.getSize();
-
-    await browser
-      .action('pointer')
-      .move({
-        x: Math.round(startPosition.x + nodeSize.width / 2),
-        y: Math.round(startPosition.y + nodeSize.height / 2),
-      })
-      .down({ button: 0 }) // Left mouse button
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .pause(1000)
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .up({ button: 0 }) // Release the left mouse button
-      .perform();
     await browser.waitForAnimations(dataModelEditor);
 
     // Open the saved diagram in new tab
@@ -378,5 +384,47 @@ describe('Data Modeling tab', function () {
     // its already good enough to verify this for now and if it flakes
     // more, we may need to revisit this test.
     expect(text).to.include('String string'.toLowerCase());
+  });
+
+  it('downloads the data model', async function () {
+    const dataModelName = 'Test Export Model - Save-Open';
+    exportFileName = `${dataModelName}.compass`;
+    await setupDiagram(browser, {
+      diagramName: dataModelName,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      databaseName: 'test',
+    });
+
+    const dataModelEditor = browser.$(Selectors.DataModelEditor);
+    await dataModelEditor.waitForDisplayed();
+
+    await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
+    );
+
+    await browser.waitForAnimations(dataModelEditor);
+
+    await browser.clickVisible(Selectors.DataModelDownloadButton);
+    await browser.waitForAnimations(dataModelEditor);
+
+    const { fileExists, filePath } = await waitForFileDownload(
+      exportFileName,
+      browser
+    );
+    expect(fileExists).to.be.true;
+
+    const content = readFileSync(filePath, 'utf-8');
+    const model = JSON.parse(content);
+
+    expect(model.name).to.equal(dataModelName);
+
+    const edits = JSON.parse(
+      Buffer.from(model.edits, 'base64').toString('utf-8')
+    );
+    expect(edits).to.be.an('array').of.length(2);
+    expect(edits[0].type).to.equal('SetModel');
+    expect(edits[1].type).to.equal('MoveCollection');
   });
 });

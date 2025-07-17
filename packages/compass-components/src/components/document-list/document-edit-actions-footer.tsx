@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type HadronDocument from 'hadron-document';
-import { Element } from 'hadron-document';
+import { DocumentEvents, ElementEvents } from 'hadron-document';
+import type { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -165,34 +166,40 @@ function useHadronDocumentStatus(
       updateStatus('DeleteError', err, errorDetails);
     };
 
-    doc.on(Element.Events.Added, onUpdate);
-    doc.on(Element.Events.Edited, onUpdate);
-    doc.on(Element.Events.Removed, onUpdate);
-    doc.on(Element.Events.Reverted, onUpdate);
-    doc.on(Element.Events.Invalid, onElementInvalid);
-    doc.on(Element.Events.Valid, onElementValid);
-    doc.on('update-start', onUpdateStart);
-    doc.on('update-blocked', onUpdateBlocked);
-    doc.on('update-success', onUpdateSuccess);
-    doc.on('update-error', onUpdateError);
-    doc.on('remove-start', onRemoveStart);
-    doc.on('remove-success', onRemoveSuccess);
-    doc.on('remove-error', onRemoveError);
+    const onEditingFinished = () => {
+      updateStatus('Initial');
+    };
+
+    doc.on(ElementEvents.Added, onUpdate);
+    doc.on(ElementEvents.Edited, onUpdate);
+    doc.on(ElementEvents.Removed, onUpdate);
+    doc.on(ElementEvents.Reverted, onUpdate);
+    doc.on(ElementEvents.Invalid, onElementInvalid);
+    doc.on(ElementEvents.Valid, onElementValid);
+    doc.on(DocumentEvents.UpdateStarted, onUpdateStart);
+    doc.on(DocumentEvents.UpdateBlocked, onUpdateBlocked);
+    doc.on(DocumentEvents.UpdateSuccess, onUpdateSuccess);
+    doc.on(DocumentEvents.UpdateError, onUpdateError);
+    doc.on(DocumentEvents.RemoveStarted, onRemoveStart);
+    doc.on(DocumentEvents.RemoveSuccess, onRemoveSuccess);
+    doc.on(DocumentEvents.RemoveError, onRemoveError);
+    doc.on(DocumentEvents.EditingFinished, onEditingFinished);
 
     return () => {
-      doc.on(Element.Events.Added, onUpdate);
-      doc.off(Element.Events.Edited, onUpdate);
-      doc.off(Element.Events.Removed, onUpdate);
-      doc.off(Element.Events.Reverted, onUpdate);
-      doc.off(Element.Events.Invalid, onElementInvalid);
-      doc.off(Element.Events.Valid, onElementValid);
-      doc.off('update-start', onUpdateStart);
-      doc.off('update-blocked', onUpdateBlocked);
-      doc.off('update-success', onUpdateSuccess);
-      doc.off('update-error', onUpdateError);
-      doc.off('remove-start', onRemoveStart);
-      doc.off('remove-success', onRemoveSuccess);
-      doc.off('remove-error', onRemoveError);
+      doc.off(ElementEvents.Added, onUpdate);
+      doc.off(ElementEvents.Edited, onUpdate);
+      doc.off(ElementEvents.Removed, onUpdate);
+      doc.off(ElementEvents.Reverted, onUpdate);
+      doc.off(ElementEvents.Invalid, onElementInvalid);
+      doc.off(ElementEvents.Valid, onElementValid);
+      doc.off(DocumentEvents.UpdateStarted, onUpdateStart);
+      doc.off(DocumentEvents.UpdateBlocked, onUpdateBlocked);
+      doc.off(DocumentEvents.UpdateSuccess, onUpdateSuccess);
+      doc.off(DocumentEvents.UpdateError, onUpdateError);
+      doc.off(DocumentEvents.RemoveStarted, onRemoveStart);
+      doc.off(DocumentEvents.RemoveSuccess, onRemoveSuccess);
+      doc.off(DocumentEvents.RemoveError, onRemoveError);
+      doc.off(DocumentEvents.EditingFinished, onEditingFinished);
     };
   }, [doc, updateStatus]);
 

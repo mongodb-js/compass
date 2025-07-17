@@ -8,7 +8,7 @@ import DateEditor from './date';
 import NullEditor from './null';
 import UndefinedEditor from './undefined';
 import ObjectIdEditor from './objectid';
-import type Element from '../element';
+import type { Element } from '../element';
 
 const init = (element: Element) => ({
   Standard: new StandardEditor(element),
@@ -23,7 +23,7 @@ const init = (element: Element) => ({
   ObjectId: new ObjectIdEditor(element),
 });
 
-export default Object.assign(init, {
+export const ElementEditor = Object.assign(init, {
   DateEditor,
   StandardEditor,
   StringEditor,
