@@ -130,6 +130,12 @@ export function activatePlugin(
 
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
   const recentQueryStorage = recentQueryStorageAccess?.getStorage();
+
+  const orgId = connectionInfoRef.current.atlasMetadata.orgId;
+  const groupId = connectionInfoRef.current.atlasMetadata.projectId;
+  favoriteQueryStorage.setOrgAndGroupId(orgId, groupId);
+  recentQueryStorage.setOrgAndGroupId(orgId, groupId);
+
   const store = configureStore(
     {
       namespace: namespace ?? '',

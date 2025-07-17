@@ -8,6 +8,7 @@ interface QueryStorage<T extends typeof RecentQuerySchema> {
   loadAll(namespace?: string): Promise<z.output<T>[]>;
   updateAttributes(id: string, data: Partial<z.input<T>>): Promise<boolean>;
   delete(id: string): Promise<boolean>;
+  setOrgAndGroupId(orgId: string, groupId: string): void;
 }
 
 export interface RecentQueryStorage
