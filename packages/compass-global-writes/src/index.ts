@@ -8,7 +8,6 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
-export { AtlasGlobalWritesService } from './services/atlas-global-writes-service';
 
 const CompassGlobalWritesPluginProvider = registerCompassPlugin(
   {

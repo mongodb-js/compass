@@ -1,8 +1,7 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "skipLibCheck": true
+    "outDir": "dist"
   },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]

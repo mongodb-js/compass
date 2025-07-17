@@ -53,6 +53,12 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     return await this.userData.updateAttributes(id, data);
   }
 
+  setOrgAndGroupId(orgId: string, groupId: string): void {
+    if (this.userData instanceof AtlasUserData) {
+      this.userData.setOrgAndGroupId(orgId, groupId);
+    }
+  }
+
   abstract saveQuery(data: Partial<z.input<TSchema>>): Promise<void>;
 }
 

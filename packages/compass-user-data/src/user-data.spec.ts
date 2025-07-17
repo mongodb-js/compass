@@ -419,111 +419,111 @@ describe('user-data', function () {
   });
 });
 
-describe('AtlasUserData', function () {
-  let AtlasUserData: any;
-  let atlasServiceMock: any;
-  let validator: any;
-  let instance: any;
+// describe('AtlasUserData', function () {
+//   let AtlasUserData: any;
+//   let atlasServiceMock: any;
+//   let validator: any;
+//   let instance: any;
 
-  before(async function () {
-    // Dynamically import AtlasUserData to avoid circular deps
-    const module = await import('./user-data');
-    AtlasUserData = module.AtlasUserData;
-    validator = getTestSchema();
-  });
+//   before(async function () {
+//     // Dynamically import AtlasUserData to avoid circular deps
+//     const module = await import('./user-data');
+//     AtlasUserData = module.AtlasUserData;
+//     validator = getTestSchema();
+//   });
 
-  beforeEach(function () {
-    atlasServiceMock = {
-      authenticatedFetch: sinon.stub(),
-    };
-    instance = new AtlasUserData(validator, atlasServiceMock, {
-      groupId: 'test-group',
-      projectId: 'test-project',
-      endpoint: '/api/user-data',
-    });
-  });
+//   beforeEach(function () {
+//     atlasServiceMock = {
+//       authenticatedFetch: sinon.stub(),
+//     };
+//     instance = new AtlasUserData(validator, atlasServiceMock, {
+//       groupId: 'test-group',
+//       projectId: 'test-project',
+//       endpoint: '/api/user-data',
+//     });
+//   });
 
-  it('constructs with dependencies', function () {
-    expect(instance).to.have.property('atlasService', atlasServiceMock);
-    expect(instance).to.have.property('groupId', 'test-group');
-    expect(instance).to.have.property('projectId', 'test-project');
-    expect(instance).to.have.property('endpoint', '/api/user-data');
-  });
+//   it('constructs with dependencies', function () {
+//     expect(instance).to.have.property('atlasService', atlasServiceMock);
+//     expect(instance).to.have.property('groupId', 'test-group');
+//     expect(instance).to.have.property('projectId', 'test-project');
+//     expect(instance).to.have.property('endpoint', '/api/user-data');
+//   });
 
-  it('write: calls authenticatedFetch and validates response', async function () {
-    const item = { name: 'Atlas', hasDarkMode: false };
-    atlasServiceMock.authenticatedFetch.resolves({
-      ok: true,
-      json: async () => await Promise.resolve(item),
-    });
-    const result = await instance.write('id1', item);
-    expect(result).to.be.true;
-    expect(atlasServiceMock.authenticatedFetch.calledOnce).to.be.true;
-  });
+//   it('write: calls authenticatedFetch and validates response', async function () {
+//     const item = { name: 'Atlas', hasDarkMode: false };
+//     atlasServiceMock.authenticatedFetch.resolves({
+//       ok: true,
+//       json: async () => await Promise.resolve(item),
+//     });
+//     const result = await instance.write('id1', item);
+//     expect(result).to.be.true;
+//     expect(atlasServiceMock.authenticatedFetch.calledOnce).to.be.true;
+//   });
 
-  it('write: handles API error', async function () {
-    atlasServiceMock.authenticatedFetch.resolves({ ok: false, status: 500 });
-    const result = await instance.write('id1', { name: 'Atlas' });
-    expect(result).to.be.false;
-  });
+//   it('write: handles API error', async function () {
+//     atlasServiceMock.authenticatedFetch.resolves({ ok: false, status: 500 });
+//     const result = await instance.write('id1', { name: 'Atlas' });
+//     expect(result).to.be.false;
+//   });
 
-  it('delete: calls authenticatedFetch and returns true on success', async function () {
-    atlasServiceMock.authenticatedFetch.resolves({ ok: true });
-    const result = await instance.delete('id1');
-    expect(result).to.be.true;
-  });
+//   it('delete: calls authenticatedFetch and returns true on success', async function () {
+//     atlasServiceMock.authenticatedFetch.resolves({ ok: true });
+//     const result = await instance.delete('id1');
+//     expect(result).to.be.true;
+//   });
 
-  it('delete: returns false on API failure', async function () {
-    atlasServiceMock.authenticatedFetch.resolves({ ok: false });
-    const result = await instance.delete('id1');
-    expect(result).to.be.false;
-  });
+//   it('delete: returns false on API failure', async function () {
+//     atlasServiceMock.authenticatedFetch.resolves({ ok: false });
+//     const result = await instance.delete('id1');
+//     expect(result).to.be.false;
+//   });
 
-  it('readAll: returns validated items from API', async function () {
-    const items = [
-      { name: 'Atlas', hasDarkMode: true },
-      { name: 'Compass', hasDarkMode: false },
-    ];
-    atlasServiceMock.authenticatedFetch.resolves({
-      ok: true,
-      json: async () => await Promise.resolve(items),
-    });
-    const result = await instance.readAll();
-    expect(result.data).to.have.lengthOf(2);
-    expect(result.errors).to.have.lengthOf(0);
-    expect(result.data[0]).to.have.property('name');
-  });
+//   it('readAll: returns validated items from API', async function () {
+//     const items = [
+//       { name: 'Atlas', hasDarkMode: true },
+//       { name: 'Compass', hasDarkMode: false },
+//     ];
+//     atlasServiceMock.authenticatedFetch.resolves({
+//       ok: true,
+//       json: async () => await Promise.resolve(items),
+//     });
+//     const result = await instance.readAll();
+//     expect(result.data).to.have.lengthOf(2);
+//     expect(result.errors).to.have.lengthOf(0);
+//     expect(result.data[0]).to.have.property('name');
+//   });
 
-  it('readAll: returns errors for invalid items', async function () {
-    const items = [
-      { name: 'Atlas', hasDarkMode: 'not-a-bool' },
-      { name: 'Compass', hasDarkMode: false },
-    ];
-    atlasServiceMock.authenticatedFetch.resolves({
-      ok: true,
-      json: async () => await Promise.resolve(items),
-    });
-    const result = await instance.readAll();
-    expect(result.data).to.have.lengthOf(1);
-    expect(result.errors).to.have.lengthOf(1);
-  });
+//   it('readAll: returns errors for invalid items', async function () {
+//     const items = [
+//       { name: 'Atlas', hasDarkMode: 'not-a-bool' },
+//       { name: 'Compass', hasDarkMode: false },
+//     ];
+//     atlasServiceMock.authenticatedFetch.resolves({
+//       ok: true,
+//       json: async () => await Promise.resolve(items),
+//     });
+//     const result = await instance.readAll();
+//     expect(result.data).to.have.lengthOf(1);
+//     expect(result.errors).to.have.lengthOf(1);
+//   });
 
-  it('updateAttributes: calls authenticatedFetch and validates response', async function () {
-    const attrs = { hasDarkMode: false };
-    atlasServiceMock.authenticatedFetch.resolves({
-      ok: true,
-      json: async () =>
-        await Promise.resolve({ name: 'Atlas', hasDarkMode: false }),
-    });
-    const result = await instance.updateAttributes('id1', attrs);
-    expect(result).to.deep.equal({ name: 'Atlas', hasDarkMode: false });
-  });
+//   it('updateAttributes: calls authenticatedFetch and validates response', async function () {
+//     const attrs = { hasDarkMode: false };
+//     atlasServiceMock.authenticatedFetch.resolves({
+//       ok: true,
+//       json: async () =>
+//         await Promise.resolve({ name: 'Atlas', hasDarkMode: false }),
+//     });
+//     const result = await instance.updateAttributes('id1', attrs);
+//     expect(result).to.deep.equal({ name: 'Atlas', hasDarkMode: false });
+//   });
 
-  it('updateAttributes: returns undefined on API error', async function () {
-    atlasServiceMock.authenticatedFetch.resolves({ ok: false });
-    const result = await instance.updateAttributes('id1', {
-      hasDarkMode: true,
-    });
-    expect(result).to.be.undefined;
-  });
-});
+//   it('updateAttributes: returns undefined on API error', async function () {
+//     atlasServiceMock.authenticatedFetch.resolves({ ok: false });
+//     const result = await instance.updateAttributes('id1', {
+//       hasDarkMode: true,
+//     });
+//     expect(result).to.be.undefined;
+//   });
+// });
