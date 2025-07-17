@@ -14,6 +14,8 @@ import {
   moveCollection,
   getCurrentDiagramFromState,
   selectCurrentModel,
+  selectCollection,
+  selectRelationship,
 } from '../store/diagram';
 import {
   Banner,
@@ -38,7 +40,6 @@ import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import { openSidePanel } from '../store/side-panel';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -189,7 +190,9 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
-  onOpenSidePanel: () => void;
+  onCollectionSelect: (namespace: string) => void;
+  onRelationshipSelect: (rId: string) => void;
+  selectedItem?: string | null;
 }> = ({
   diagramLabel,
   step,
@@ -198,7 +201,9 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyInitialLayout,
   onMoveCollection,
-  onOpenSidePanel,
+  onCollectionSelect,
+  onRelationshipSelect,
+  selectedItem,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -226,9 +231,10 @@ const DiagramEditor: React.FunctionComponent<{
         target: target.ns,
         markerStart: source.cardinality === 1 ? 'one' : 'many',
         markerEnd: target.cardinality === 1 ? 'one' : 'many',
+        selected: selectedItem === relationship.id,
       };
     });
-  }, [model?.relationships]);
+  }, [model?.relationships, selectedItem]);
 
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
@@ -241,9 +247,10 @@ const DiagramEditor: React.FunctionComponent<{
         },
         title: toNS(coll.ns).collection,
         fields: getFieldsFromSchema(coll.jsonSchema),
+        selected: selectedItem === coll.ns,
       })
     );
-  }, [model?.collections]);
+  }, [model?.collections, selectedItem]);
 
   const applyInitialLayout = useCallback(async () => {
     try {
@@ -335,9 +342,19 @@ const DiagramEditor: React.FunctionComponent<{
             title={diagramLabel}
             edges={edges}
             nodes={areNodesReady ? nodes : []}
-            onEdgeClick={() => {
-              // TODO: we have to open a side panel with edge details
-              onOpenSidePanel();
+            // With threshold too low clicking sometimes gets confused with
+            // dragging
+            // @ts-expect-error expose this prop from the component
+            nodeDragThreshold={3}
+            // @ts-expect-error expose this prop from the component
+            onNodeClick={(_evt, node) => {
+              if (node.type !== 'collection') {
+                return;
+              }
+              onCollectionSelect(node.id);
+            }}
+            onEdgeClick={(_evt, edge) => {
+              onRelationshipSelect(edge.id);
             }}
             fitViewOptions={{
               maxZoom: 1,
@@ -366,10 +383,13 @@ export default connect(
     return {
       step: step,
       model: diagram
-        ? selectCurrentModel(getCurrentDiagramFromState(state))
+        ? selectCurrentModel(getCurrentDiagramFromState(state).edits)
         : null,
       editErrors: diagram?.editErrors,
       diagramLabel: diagram?.name || 'Schema Preview',
+      selectedItem: state.diagram?.selectedItems
+        ? state.diagram.selectedItems.id
+        : null,
     };
   },
   {
@@ -377,6 +397,7 @@ export default connect(
     onCancelClick: cancelAnalysis,
     onApplyInitialLayout: applyInitialLayout,
     onMoveCollection: moveCollection,
-    onOpenSidePanel: openSidePanel,
+    onCollectionSelect: selectCollection,
+    onRelationshipSelect: selectRelationship,
   }
 )(DiagramEditor);

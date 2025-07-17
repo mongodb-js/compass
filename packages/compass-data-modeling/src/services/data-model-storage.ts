@@ -52,6 +52,10 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     relationship: RelationshipSchema,
   }),
   z.object({
+    type: z.literal('UpdateRelationship'),
+    relationship: RelationshipSchema,
+  }),
+  z.object({
     type: z.literal('RemoveRelationship'),
     relationshipId: z.string().uuid(),
   }),
@@ -65,6 +69,8 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
 
 export type Edit = z.output<typeof EditSchema>;
+
+export type EditAction = z.output<typeof EditSchemaVariants>;
 
 export const validateEdit = (
   edit: unknown

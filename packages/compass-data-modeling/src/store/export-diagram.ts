@@ -118,7 +118,9 @@ export function exportDiagram(
       const cancelController = (cancelExportControllerRef.current =
         new AbortController());
 
-      const model = selectCurrentModel(getCurrentDiagramFromState(getState()));
+      const model = selectCurrentModel(
+        getCurrentDiagramFromState(getState()).edits
+      );
       if (exportFormat === 'json') {
         exportToJson(diagram.name, model);
       } else if (exportFormat === 'png') {
