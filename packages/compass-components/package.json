@@ -43,6 +43,7 @@
     "@leafygreen-ui/code": "^16.0.2",
     "@leafygreen-ui/combobox": "^11.0.2",
     "@leafygreen-ui/confirmation-modal": "^6.0.2",
+    "@leafygreen-ui/descendants": "^2.1.0",
     "@leafygreen-ui/emotion": "^4.0.9",
     "@leafygreen-ui/guide-cue": "^7.0.2",
     "@leafygreen-ui/hooks": "^8.3.4",

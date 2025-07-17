@@ -1,7 +1,7 @@
 export * from './constants';
-export { Toolbar, toolbarClassName, type ToolbarProps } from './Toolbar';
+export { Toolbar, toolbarClassName, type ToolbarProps } from './toolbar';
 export {
   ToolbarIconButton,
   type ToolbarIconButtonProps,
-} from './ToolbarIconButton';
+} from './toolbar-icon-button';
 export { DEFAULT_LGID_ROOT, getLgIds, type GetLgIdsReturnType } from './utils';

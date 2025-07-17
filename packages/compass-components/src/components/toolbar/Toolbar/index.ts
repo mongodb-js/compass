@@ -1,3 +1,3 @@
-export { Toolbar } from './Toolbar';
-export { toolbarClassName } from './Toolbar.styles';
-export { type ToolbarProps } from './Toolbar.types';
+export { Toolbar } from './toolbar';
+export { toolbarClassName } from './toolbar.styles';
+export { type ToolbarProps } from './toolbar.types';

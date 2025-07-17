@@ -2,4 +2,4 @@ export {
   DEFAULT_LGID_ROOT,
   getLgIds,
   type GetLgIdsReturnType,
-} from './getLgIds';
+} from './get-lg-ids';

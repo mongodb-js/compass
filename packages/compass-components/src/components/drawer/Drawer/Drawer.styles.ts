@@ -1,5 +1,5 @@
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
-import { createUniqueClassName, Theme } from '@leafygreen-ui/lib';
+import { createUniqueClassName, type Theme } from '@leafygreen-ui/lib';
 import {
   addOverflowShadow,
   color,
@@ -10,8 +10,8 @@ import {
 
 import { PANEL_WIDTH } from '../constants';
 
-import { HEADER_HEIGHT, MOBILE_BREAKPOINT } from './Drawer.constants';
-import { DisplayMode } from './Drawer.types';
+import { HEADER_HEIGHT, MOBILE_BREAKPOINT } from './drawer.constants';
+import { DisplayMode } from './drawer.types';
 
 export const drawerTransitionDuration = transitionDuration.slower;
 

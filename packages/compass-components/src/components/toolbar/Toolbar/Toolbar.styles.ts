@@ -1,5 +1,5 @@
 import { css, cx } from '@leafygreen-ui/emotion';
-import { createUniqueClassName, Theme } from '@leafygreen-ui/lib';
+import { createUniqueClassName, type Theme } from '@leafygreen-ui/lib';
 import { color, focusRing } from '@leafygreen-ui/tokens';
 
 import { TOOLBAR_WIDTH } from '../constants';

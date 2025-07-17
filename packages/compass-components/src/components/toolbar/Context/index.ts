@@ -1,5 +1,5 @@
-export { ToolbarContextProvider, useToolbarContext } from './ToolbarContext';
+export { ToolbarContextProvider, useToolbarContext } from './toolbar-context';
 export {
   ToolbarDescendantsContext,
   useToolbarDescendantsContext,
-} from './ToolbarDescendantsContext';
+} from './toolbar-descendants-context';

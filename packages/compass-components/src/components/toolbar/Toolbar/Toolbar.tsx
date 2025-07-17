@@ -7,11 +7,11 @@ import {
 import { useDarkMode } from '@leafygreen-ui/leafygreen-provider';
 import { keyMap } from '@leafygreen-ui/lib';
 
-import { ToolbarContextProvider, ToolbarDescendantsContext } from '../Context';
+import { ToolbarContextProvider, ToolbarDescendantsContext } from '../context';
 import { DEFAULT_LGID_ROOT, getLgIds } from '../utils';
 
-import { getBaseStyles } from './Toolbar.styles';
-import { type ToolbarProps } from './Toolbar.types';
+import { getBaseStyles } from './toolbar.styles';
+import { type ToolbarProps } from './toolbar.types';
 
 export const Toolbar = React.forwardRef<HTMLDivElement, ToolbarProps>(
   (

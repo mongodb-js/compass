@@ -14,7 +14,7 @@ import { usePolymorphic } from '@leafygreen-ui/polymorphic';
 import { BaseFontSize } from '@leafygreen-ui/tokens';
 import { Body } from '@leafygreen-ui/typography';
 
-import { useDrawerStackContext } from '../DrawerStackContext';
+import { useDrawerStackContext } from '../drawer-stack-context';
 import { getLgIds } from '../utils';
 
 import {
@@ -25,8 +25,8 @@ import {
   getHeaderStyles,
   getInnerContainerStyles,
   innerChildrenContainerStyles,
-} from './Drawer.styles';
-import { DisplayMode, DrawerProps } from './Drawer.types';
+} from './drawer.styles';
+import { DisplayMode, type DrawerProps } from './drawer.types';
 import { Icon } from '../../leafygreen';
 
 export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(

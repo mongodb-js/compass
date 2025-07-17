@@ -1,6 +1,10 @@
-import React from 'react';
+import type React from 'react';
 
-import { DarkModeProps, HTMLElementProps, LgIdProps } from '@leafygreen-ui/lib';
+import type {
+  DarkModeProps,
+  HTMLElementProps,
+  LgIdProps,
+} from '@leafygreen-ui/lib';
 
 /**
  * Options to control how the drawer element is displayed

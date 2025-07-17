@@ -1,6 +1,6 @@
-import { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
-import { DarkModeProps, LgIdProps } from '@leafygreen-ui/lib';
+import type { DarkModeProps, LgIdProps } from '@leafygreen-ui/lib';
 export interface ToolbarProps
   extends ComponentPropsWithRef<'div'>,
     DarkModeProps,
