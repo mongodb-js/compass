@@ -44,5 +44,7 @@ export type DrawerLayoutPropsWithToolbar = Omit<
 } & BaseDrawerLayoutProps;
 
 export type DrawerLayoutProps =
-  | DrawerLayoutPropsWithToolbar
-  | DrawerLayoutPropsWithoutToolbar;
+  | ({
+      toolbarData: DrawerLayoutPropsWithToolbar['toolbarData'];
+    } & DrawerLayoutPropsWithToolbar)
+  | ({ toolbarData?: never } & DrawerLayoutPropsWithoutToolbar);

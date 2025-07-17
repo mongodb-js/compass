@@ -141,6 +141,7 @@ export {
   DrawerStackProvider,
   useDrawerStackContext,
   useDrawerToolbarContext,
+  type DrawerLayoutProps,
 } from './drawer';
 
 // 3. Export the leafygreen components.
