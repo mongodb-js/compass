@@ -21,6 +21,7 @@ import {
   SegmentedControlOption,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import semver from 'semver';
 
 import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
@@ -62,6 +63,7 @@ type IndexesToolbarProps = {
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
   onIndexViewChanged: (newView: IndexView) => void;
+  serverVersion: string;
   // connected:
   isReadonlyView: boolean;
   isWritable: boolean;
@@ -88,6 +90,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isSearchIndexesSupported,
   onRefreshIndexes,
   onIndexViewChanged,
+  serverVersion,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
@@ -188,16 +191,27 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </SegmentedControlOption>
                     }
                   >
-                    <p>
-                      Atlas Search index management in Compass is only available
-                      for Atlas local deployments and clusters running MongoDB
-                      6.0.7 or newer.
-                    </p>
-                    <p>
-                      For clusters running an earlier version of MongoDB, you
-                      can manage your Atlas Search indexes from the Atlas web
-                      Ul, with the CLI, or with the Administration API.
-                    </p>
+                    {semver.gte(serverVersion, '6.0.7') ? (
+                      <p>
+                        Unable to fetch search indexes. This can occur when your
+                        cluster does not support search indexes or the listing
+                        search indexes request failed.
+                      </p>
+                    ) : (
+                      <>
+                        <p>
+                          Atlas Search index management in Compass is only
+                          available for Atlas local deployments and clusters
+                          running MongoDB 6.0.7 or newer.
+                        </p>
+                        <p>
+                          For clusters running an earlier version of MongoDB,
+                          you can manage your Atlas Search indexes from the
+                          Atlas web Ul, with the CLI, or with the Administration
+                          API.
+                        </p>
+                      </>
+                    )}
                   </Tooltip>
                 )}
                 {isSearchIndexesSupported && (
