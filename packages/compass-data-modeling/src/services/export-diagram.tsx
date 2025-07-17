@@ -155,7 +155,11 @@ export function getExportJsonFromModel({
   };
 }
 
-function downloadFile(uri: string, fileName: string, cleanup?: () => void) {
+export function downloadFile(
+  uri: string,
+  fileName: string,
+  cleanup?: () => void
+) {
   const link = document.createElement('a');
   link.download = fileName;
   link.href = uri;
