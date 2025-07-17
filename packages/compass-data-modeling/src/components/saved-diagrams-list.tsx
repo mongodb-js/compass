@@ -18,6 +18,7 @@ import {
   deleteDiagram,
   getCurrentModel,
   openDiagram,
+  openDiagramFromFile,
   renameDiagram,
 } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
@@ -49,11 +50,15 @@ const rowStyles = css({
 
 export const DiagramListContext = React.createContext<{
   onSearchDiagrams: (search: string) => void;
+  onImportDiagram: (file: File) => void;
   onCreateDiagram: () => void;
   sortControls: React.ReactElement | null;
   searchTerm: string;
 }>({
   onSearchDiagrams: () => {
+    /** */
+  },
+  onImportDiagram: () => {
     /** */
   },
   onCreateDiagram: () => {
@@ -171,11 +176,13 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
   onDiagramRenameClick: (id: string) => void;
+  onImportDiagramClick: (file: File) => void;
 }> = ({
   onCreateDiagramClick,
   onOpenDiagramClick,
   onDiagramRenameClick,
   onDiagramDeleteClick,
+  onImportDiagramClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
   const decoratedItems = useMemo<
@@ -223,6 +230,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
         searchTerm: search,
         onCreateDiagram: onCreateDiagramClick,
         onSearchDiagrams: setSearch,
+        onImportDiagram: onImportDiagramClick,
       }}
     >
       <WorkspaceContainer>
@@ -262,4 +270,5 @@ export default connect(null, {
   onOpenDiagramClick: openDiagram,
   onDiagramDeleteClick: deleteDiagram,
   onDiagramRenameClick: renameDiagram,
+  onImportDiagramClick: openDiagramFromFile,
 })(SavedDiagramsList);

@@ -3,6 +3,7 @@ import {
   Button,
   css,
   cx,
+  FileSelector,
   Icon,
   palette,
   SearchInput,
@@ -51,6 +52,7 @@ export const DiagramListToolbar = () => {
     onCreateDiagram,
     sortControls,
     searchTerm,
+    onImportDiagram,
   } = useContext(DiagramListContext);
   const darkMode = useDarkMode();
 
@@ -65,14 +67,23 @@ export const DiagramListToolbar = () => {
         Open an existing diagram:
       </Subtitle>
       <div className={diagramActionsStyles}>
-        <Button
-          onClick={() => {}}
-          size="small"
-          data-testid="open-diagram-button"
-          leftGlyph={<Icon glyph="Import"></Icon>}
-        >
-          Open diagram
-        </Button>
+        <FileSelector
+          id="open-diagram-file-input"
+          dataTestId="open-diagram-file-input"
+          // accept=".compass"
+          multiple={false}
+          onSelect={(files) => {
+            if (files.length === 0) {
+              return;
+            }
+            onImportDiagram(files[0]);
+          }}
+          trigger={({ onClick }) => (
+            <Button size="small" variant="default" onClick={onClick}>
+              Open Diagram
+            </Button>
+          )}
+        />
         <Button
           onClick={onCreateDiagram}
           variant="primary"
