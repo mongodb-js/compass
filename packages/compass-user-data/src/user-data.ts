@@ -464,6 +464,19 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     });
     return await this.readOne(id);
   }
+
+  setOrgAndGroupId(orgId: string, groupId: string): void {
+    // sample log error
+    log.error(
+      mongoLogId(1_001_000_237), // not sure what this log id should be
+      'UserData',
+      'setOrgAndGroupId should not be called for FileUserData',
+      {
+        orgId,
+        groupId,
+      }
+    );
+  }
 }
 
 // TODO: update endpoints to reflect the merged api endpoints
@@ -471,8 +484,8 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
   // should this BASE_URL be a parameter passed to the constructor?
   // this might make future usage of this code easier, if we want to call a different endpoint
-  private readonly orgId;
-  private readonly groupId;
+  private orgId: string = '';
+  private groupId: string = '';
   private readonly BASE_URL = 'cluster-connection.cloud-local.mongodb.com';
   constructor(
     validator: T,
