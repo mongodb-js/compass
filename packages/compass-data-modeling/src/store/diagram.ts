@@ -24,7 +24,6 @@ export type DiagramState =
         next: Edit[][];
       };
       editErrors?: string[];
-      isExportModalOpen?: boolean;
     })
   | null; // null when no diagram is currently open
 
@@ -37,8 +36,6 @@ export enum DiagramActionTypes {
   APPLY_EDIT_FAILED = 'data-modeling/diagram/APPLY_EDIT_FAILED',
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
-  EXPORT_MODAL_OPENED = 'data-modeling/diagram/EXPORT_MODAL_OPENED',
-  EXPORT_MODAL_CLOSED = 'data-modeling/diagram/EXPORT_MODAL_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -80,14 +77,6 @@ export type RedoEditAction = {
   type: DiagramActionTypes.REDO_EDIT;
 };
 
-type ExportModalOpenedAction = {
-  type: DiagramActionTypes.EXPORT_MODAL_OPENED;
-};
-
-type ExportModalClosedAction = {
-  type: DiagramActionTypes.EXPORT_MODAL_CLOSED;
-};
-
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
@@ -105,11 +94,14 @@ export const diagramReducer: Reducer<DiagramState> = (
   action
 ) => {
   if (isAction(action, DiagramActionTypes.OPEN_DIAGRAM)) {
+    const current = action.diagram.edits;
+    const prev = current.map((_item, index, arr) => arr.slice(0, index + 1));
+    prev.shift(); // Remove the first item, which is initial SetModel and there's no previous edit for it.
     return {
       ...action.diagram,
       edits: {
-        prev: [],
-        current: action.diagram.edits,
+        prev,
+        current,
         next: [],
       },
     };
@@ -231,18 +223,6 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
-  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_OPENED)) {
-    return {
-      ...state,
-      isExportModalOpen: true,
-    };
-  }
-  if (isAction(action, DiagramActionTypes.EXPORT_MODAL_CLOSED)) {
-    return {
-      ...state,
-      isExportModalOpen: false,
-    };
-  }
   return state;
 };
 
@@ -258,6 +238,21 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
     dispatch({ type: DiagramActionTypes.REDO_EDIT });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
+}
+
+export function moveCollection(
+  ns: string,
+  newPosition: [number, number]
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  const edit: Omit<
+    Extract<Edit, { type: 'MoveCollection' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'MoveCollection',
+    ns,
+    newPosition,
+  };
+  return applyEdit(edit);
 }
 
 export function applyEdit(
@@ -367,6 +362,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         ),
       };
     }
+    case 'MoveCollection': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              displayPosition: edit.newPosition,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
     default: {
       return model;
     }
@@ -421,14 +430,6 @@ export function getCurrentDiagramFromState(
   } = state.diagram;
 
   return { id, connectionId, name, edits, createdAt, updatedAt };
-}
-
-export function showExportModal(): ExportModalOpenedAction {
-  return { type: DiagramActionTypes.EXPORT_MODAL_OPENED };
-}
-
-export function closeExportModal(): ExportModalClosedAction {
-  return { type: DiagramActionTypes.EXPORT_MODAL_CLOSED };
 }
 
 export const selectCurrentModel = memoize(getCurrentModel);

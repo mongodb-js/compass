@@ -14,6 +14,7 @@ export type VirtualTreeItem = {
   posInSet: number;
   isExpandable: boolean;
   isExpanded?: boolean;
+  entrypoint?: 'sidebar' | 'context-menu';
 };
 
 export type VirtualPlaceholderItem = {

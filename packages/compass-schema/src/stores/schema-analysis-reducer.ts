@@ -153,15 +153,16 @@ const getInitialState = (): SchemaAnalysisState => ({
 
 export const geoLayerAdded = (
   field: string,
-  layer: Layer
-): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  layer: Layer,
+  onAdded: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { geoLayersRef }) => {
     geoLayersRef.current = addLayer(
       field,
       layer as Circle | Polygon,
       geoLayersRef.current
     );
-    return generateGeoQuery(geoLayersRef.current);
+    onAdded(generateGeoQuery(geoLayersRef.current));
   };
 };
 
@@ -173,24 +174,30 @@ export const analysisErrorDismissed =
 
 export const geoLayersEdited = (
   field: string,
-  layers: LayerGroup
-): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  layers: LayerGroup,
+  onEdited: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { geoLayersRef }) => {
     layers.eachLayer((layer) => {
-      dispatch(geoLayerAdded(field, layer));
+      dispatch(
+        geoLayerAdded(field, layer, () => {
+          // noop, we will call `onEdited` when we're done with updates
+        })
+      );
     });
-    return generateGeoQuery(geoLayersRef.current);
+    onEdited(generateGeoQuery(geoLayersRef.current));
   };
 };
 
 export const geoLayersDeleted = (
-  layers: LayerGroup
-): SchemaThunkAction<ReturnType<typeof generateGeoQuery>> => {
+  layers: LayerGroup,
+  onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
+): SchemaThunkAction<void> => {
   return (dispatch, getState, { geoLayersRef }) => {
     layers.eachLayer((layer) => {
       delete geoLayersRef.current[(layer as any)._leaflet_id];
     });
-    return generateGeoQuery(geoLayersRef.current);
+    onDeleted(generateGeoQuery(geoLayersRef.current));
   };
 };
 

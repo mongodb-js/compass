@@ -83,11 +83,6 @@ const sharedResolveOptions = (
       // Additionally `ampersand-sync` brings into the bundle a number of other dependencies
       // that are outdated and having known vulnerabilities.
       'ampersand-sync': false,
-      // `jose` provides a browser export that uses webcrypto APIs and returns
-      // webcrypto objects to represent keys, but openid-client requires
-      // KeyObject instances from the Node.js crypto API (https://tinyurl.com/2rrtu2hy).
-      // Manually resolve `jose` to use the Node.js export here.
-      jose: require.resolve('jose'),
 
       // Leafygreen tries to include all the server-side emotion stuff in the
       // client bundle, this requires packaging a ton of otherwise unneccessary

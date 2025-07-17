@@ -12,6 +12,7 @@ describe('Aggregations [Component]', function () {
         showExportButton={true}
         showRunButton={true}
         showExplainButton={true}
+        enableSearchActivationProgramP1={false}
       />
     );
   });

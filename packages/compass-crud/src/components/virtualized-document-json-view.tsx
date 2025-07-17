@@ -2,19 +2,14 @@ import React, { useCallback } from 'react';
 import type HadronDocument from 'hadron-document';
 import {
   css,
-  KeylineCard,
   spacing,
   VirtualList,
   type VirtualListRef,
   type VirtualListItemRenderer,
 } from '@mongodb-js/compass-components';
 
-import JSONEditor, { type JSONEditorProps } from './json-editor';
-
-const keylineCardStyles = css({
-  overflow: 'hidden',
-  position: 'relative',
-});
+import type { JSONEditorProps } from './json-editor';
+import { DocumentJsonViewItem } from './document-json-view-item';
 
 const spacingStyles = css({
   padding: spacing[400],
@@ -75,23 +70,26 @@ const VirtualizedDocumentJsonView: React.FC<
   listRef,
 }) => {
   const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
-    (doc, docRef, docIndex) => {
+    (
+      doc: HadronDocument,
+      docRef: React.Ref<HTMLDivElement>,
+      docIndex: number
+    ) => {
       return (
-        <KeylineCard className={keylineCardStyles} ref={docRef}>
-          {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-          <JSONEditor
-            doc={doc}
-            key={doc.uuid}
-            namespace={namespace}
-            editable={isEditable}
-            isTimeSeries={isTimeSeries}
-            copyToClipboard={copyToClipboard}
-            removeDocument={removeDocument}
-            replaceDocument={replaceDocument}
-            updateDocument={updateDocument}
-            openInsertDocumentDialog={openInsertDocumentDialog}
-          />
-        </KeylineCard>
+        <DocumentJsonViewItem
+          doc={doc}
+          docRef={docRef}
+          docIndex={docIndex}
+          namespace={namespace}
+          isEditable={isEditable}
+          isTimeSeries={isTimeSeries}
+          scrollTriggerRef={scrollTriggerRef}
+          copyToClipboard={copyToClipboard}
+          removeDocument={removeDocument}
+          replaceDocument={replaceDocument}
+          updateDocument={updateDocument}
+          openInsertDocumentDialog={openInsertDocumentDialog}
+        />
       );
     },
     [

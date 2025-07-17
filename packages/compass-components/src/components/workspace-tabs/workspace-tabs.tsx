@@ -150,7 +150,9 @@ type SortableItemProps = {
   selectedTabIndex: number;
   activeId: UniqueIdentifier | null;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type SortableListProps = {
@@ -158,7 +160,9 @@ type SortableListProps = {
   selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
   onSelect: (tabIndex: number) => void;
+  onDuplicate: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
+  onCloseAllOthers: (tabIndex: number) => void;
 };
 
 type WorkspaceTabsProps = {
@@ -167,7 +171,9 @@ type WorkspaceTabsProps = {
   onSelectTab: (tabIndex: number) => void;
   onSelectNextTab: () => void;
   onSelectPrevTab: () => void;
+  onDuplicateTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
+  onCloseAllOtherTabs: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabItem[];
   selectedTabIndex: number;
@@ -209,7 +215,9 @@ const SortableList = ({
   onMove,
   onSelect,
   selectedTabIndex,
+  onDuplicate,
   onClose,
+  onCloseAllOthers,
 }: SortableListProps) => {
   const items = tabs.map((tab) => tab.id);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -266,7 +274,9 @@ const SortableList = ({
               tab={tab}
               activeId={activeId}
               onSelect={onSelect}
+              onDuplicate={onDuplicate}
               onClose={onClose}
+              onCloseAllOthers={onCloseAllOthers}
               selectedTabIndex={selectedTabIndex}
             />
           ))}
@@ -282,15 +292,25 @@ const SortableItem = ({
   selectedTabIndex,
   activeId,
   onSelect,
+  onDuplicate,
   onClose,
+  onCloseAllOthers,
 }: SortableItemProps) => {
   const onTabSelected = useCallback(() => {
     onSelect(index);
   }, [onSelect, index]);
 
+  const onTabDuplicated = useCallback(() => {
+    onDuplicate(index);
+  }, [onDuplicate, index]);
+
   const onTabClosed = useCallback(() => {
     onClose(index);
   }, [onClose, index]);
+
+  const onAllOthersTabsClosed = useCallback(() => {
+    onCloseAllOthers(index);
+  }, [onCloseAllOthers, index]);
 
   const isSelected = useMemo(
     () => selectedTabIndex === index,
@@ -304,14 +324,18 @@ const SortableItem = ({
     isDragging,
     tabContentId: tabId,
     onSelect: onTabSelected,
+    onDuplicate: onTabDuplicated,
     onClose: onTabClosed,
+    onCloseAllOthers: onAllOthersTabsClosed,
   });
 };
 
 function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
+  onDuplicateTab,
   onCloseTab,
+  onCloseAllOtherTabs,
   onMoveTab,
   onSelectTab,
   onSelectNextTab,
@@ -408,7 +432,9 @@ function WorkspaceTabs({
             tabs={tabs}
             onMove={onMoveTab}
             onSelect={onSelectTab}
+            onDuplicate={onDuplicateTab}
             onClose={onCloseTab}
+            onCloseAllOthers={onCloseAllOtherTabs}
             selectedTabIndex={selectedTabIndex}
           />
         </div>

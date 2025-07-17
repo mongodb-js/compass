@@ -101,7 +101,9 @@ const hideButtonStyles = css({
   display: 'none !important',
 });
 
-const _ConfirmationModalArea: React.FunctionComponent = ({ children }) => {
+const ConfirmationModalStateHandler: React.FunctionComponent = ({
+  children,
+}) => {
   const [confirmationProps, setConfirmationProps] = useState<
     Partial<ConfirmationProperties> & { open: boolean; confirmationId: number }
   >({
@@ -205,7 +207,7 @@ export const ConfirmationModalArea: React.FunctionComponent = ({
 
   return (
     <ConfirmationModalAreaMountedContext.Provider value={true}>
-      <_ConfirmationModalArea>{children}</_ConfirmationModalArea>
+      <ConfirmationModalStateHandler>{children}</ConfirmationModalStateHandler>
     </ConfirmationModalAreaMountedContext.Provider>
   );
 };

@@ -1,6 +1,6 @@
 'use strict';
-import type { Element } from './element';
-import { ElementList, Events as ElementEvents } from './element';
+import type { Element, ElementEventsType } from './element';
+import { ElementList } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
 import type {
@@ -11,22 +11,9 @@ import ObjectGenerator from './object-generator';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
-import { DocumentEvents } from '.';
 import type { Binary, MongoServerError } from 'mongodb';
-
-/**
- * The event constant.
- */
-export const Events = {
-  Cancel: 'Document::Cancel',
-  Expanded: 'Document::Expanded',
-  Collapsed: 'Document::Collapsed',
-  VisibleElementsChanged: 'Document::VisibleElementsChanged',
-  EditingStarted: 'Document::EditingStarted',
-  EditingFinished: 'Document::EditingFinished',
-  MarkedForDeletion: 'Document::MarkedForDeletion',
-  DeletionFinished: 'Document::DeletionFinished',
-};
+import { DocumentEvents, type DocumentEventsType } from './document-events';
+import { ElementEvents } from './element-events';
 
 /**
  * The id field.
@@ -38,7 +25,9 @@ export const DEFAULT_VISIBLE_ELEMENTS = 25;
 /**
  * Represents a document.
  */
-export class Document extends EventEmitter {
+export class Document extends EventEmitter<
+  DocumentEventsType | ElementEventsType
+> {
   uuid: string;
   doc: BSONObject;
   cloned: boolean;
@@ -64,7 +53,7 @@ export class Document extends EventEmitter {
     for (const element of Array.from(this.elements)) {
       element.cancel();
     }
-    this.emit(Events.Cancel);
+    this.emit(DocumentEvents.Cancel);
   }
 
   /**
@@ -277,7 +266,7 @@ export class Document extends EventEmitter {
   insertBeginning(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertBeginning(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -292,7 +281,7 @@ export class Document extends EventEmitter {
   insertEnd(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertEnd(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -312,7 +301,7 @@ export class Document extends EventEmitter {
   ): Element | undefined {
     const newElement = this.elements.insertAfter(element, key, value);
     newElement?._bubbleUp(ElementEvents.Added, newElement, this);
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -369,8 +358,8 @@ export class Document extends EventEmitter {
   /**
    * @deprecated Use DocumentEvents import instead
    */
-  static get Events(): typeof Events {
-    return Events;
+  static get Events(): typeof DocumentEvents {
+    return DocumentEvents;
   }
 
   /**
@@ -416,8 +405,8 @@ export class Document extends EventEmitter {
     for (const element of this.elements) {
       element.expand(true);
     }
-    this.emit(Events.Expanded);
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.Expanded);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
   }
 
   /**
@@ -428,8 +417,8 @@ export class Document extends EventEmitter {
     for (const element of this.elements) {
       element.collapse();
     }
-    this.emit(Events.Collapsed);
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.Collapsed);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
   }
 
   getVisibleElements() {
@@ -438,7 +427,7 @@ export class Document extends EventEmitter {
 
   setMaxVisibleElementsCount(newCount: number) {
     this.maxVisibleElementsCount = newCount;
-    this.emit(Events.VisibleElementsChanged, this);
+    this.emit(DocumentEvents.VisibleElementsChanged, this);
   }
 
   getTotalVisibleElementsCount() {
@@ -490,20 +479,24 @@ export class Document extends EventEmitter {
   }
 
   onUpdateStart() {
-    this.emit('update-start');
+    this.emit(DocumentEvents.UpdateStarted);
   }
 
   onUpdateSuccess(doc: Record<string, unknown>) {
-    this.emit('update-success', doc);
+    this.emit(DocumentEvents.UpdateSuccess, doc);
     this.finishEditing();
   }
 
   onUpdateBlocked() {
-    this.emit('update-blocked');
+    this.emit(DocumentEvents.UpdateBlocked);
   }
 
   onUpdateError(error: Error) {
-    this.emit('update-error', error, (error as MongoServerError).errInfo);
+    this.emit(
+      DocumentEvents.UpdateError,
+      error,
+      (error as MongoServerError).errInfo
+    );
   }
 
   markForDeletion() {
@@ -521,21 +514,23 @@ export class Document extends EventEmitter {
   }
 
   onRemoveStart() {
-    this.emit('remove-start');
+    this.emit(DocumentEvents.RemoveStarted);
   }
 
   onRemoveSuccess() {
-    this.emit('remove-success');
+    this.emit(DocumentEvents.RemoveSuccess);
     this.finishDeletion();
   }
 
   onRemoveError(error: Error) {
-    this.emit('remove-error', error, (error as MongoServerError).errInfo);
+    this.emit(
+      DocumentEvents.RemoveError,
+      error,
+      (error as MongoServerError).errInfo
+    );
   }
 
   setModifiedEJSONString(ejson: string | null) {
     this.modifiedEJSONString = ejson;
   }
 }
-
-export default Document;

@@ -22,7 +22,7 @@ type PluginTitleProps = {
 } & WorkspaceTabCoreProps &
   WorkspacePluginProps<typeof CollectionWorkspaceTitle>;
 
-function _PluginTitle({
+function PluginTitle({
   editViewName,
   isNonExistent,
   isReadonly,
@@ -84,4 +84,4 @@ export const CollectionPluginTitleComponent = connect(
     isReadonly: state.metadata?.isReadonly,
     sourceName: state.metadata?.sourceName,
   })
-)(_PluginTitle);
+)(PluginTitle);

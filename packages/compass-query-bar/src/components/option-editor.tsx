@@ -88,7 +88,7 @@ type OptionEditorProps = {
   onChange: (value: string) => void;
   onApply?(): void;
   onBlur?(): void;
-  placeholder?: string | HTMLElement;
+  placeholder?: string | (() => HTMLElement);
   serverVersion?: string;
   value?: string;
   ['data-testid']?: string;

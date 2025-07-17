@@ -13,6 +13,7 @@ import {
   Select,
   Option,
   SignalPopover,
+  useContextMenuItems,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -23,6 +24,7 @@ import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -200,8 +202,97 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     () => querySkip || queryLimit,
     [querySkip, queryLimit]
   );
+
+  const contextMenuRef = useContextMenuItems(
+    () => [
+      {
+        label: 'Expand all documents',
+        onAction: () => {
+          onExpandAllClicked();
+        },
+      },
+      {
+        label: 'Collapse all documents',
+        onAction: () => {
+          onCollapseAllClicked();
+        },
+      },
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Import JSON or CSV file',
+              onAction: () => {
+                insertDataHandler('import-file');
+              },
+            },
+          ]
+        : []),
+      ...(!readonly
+        ? [
+            {
+              label: 'Insert document...',
+              onAction: () => {
+                insertDataHandler('insert-document');
+              },
+            },
+          ]
+        : []),
+      ...(isImportExportEnabled
+        ? [
+            {
+              label: 'Export query results...',
+              onAction: () => {
+                openExportFileDialog(false);
+              },
+            },
+            {
+              label: 'Export full collection...',
+              onAction: () => {
+                openExportFileDialog(true);
+              },
+            },
+          ]
+        : []),
+      ...(!readonly && isWritable && !shouldDisableBulkOp
+        ? [
+            {
+              label: 'Bulk update',
+              onAction: () => {
+                onUpdateButtonClicked();
+              },
+            },
+            {
+              label: 'Bulk delete',
+              onAction: () => {
+                onDeleteButtonClicked();
+              },
+            },
+          ]
+        : []),
+      {
+        label: 'Refresh',
+        onAction: () => {
+          onClickRefreshDocuments();
+        },
+      },
+    ],
+    [
+      isImportExportEnabled,
+      readonly,
+      isWritable,
+      shouldDisableBulkOp,
+      onCollapseAllClicked,
+      onExpandAllClicked,
+      insertDataHandler,
+      openExportFileDialog,
+      onUpdateButtonClicked,
+      onDeleteButtonClicked,
+      onClickRefreshDocuments,
+    ]
+  );
+
   return (
-    <div className={crudToolbarStyles}>
+    <div className={crudToolbarStyles} ref={contextMenuRef}>
       <div className={crudQueryBarStyles}>
         <QueryBar
           source="crud"
@@ -234,6 +325,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                 size: 'xsmall',
                 leftGlyph: <Icon glyph="Export" />,
               }}
+              narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
             />
           )}
           {!readonly && (

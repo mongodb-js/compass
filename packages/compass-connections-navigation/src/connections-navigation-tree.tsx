@@ -12,6 +12,7 @@ import type {
   Connection,
 } from './tree-data';
 import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
 import {
   VisuallyHidden,
   css,
@@ -24,10 +25,14 @@ import { usePreference } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
+  collectionContextMenuActions,
   connectedConnectionItemActions,
   databaseItemActions,
+  databaseContextMenuActions,
   notConnectedConnectionItemActions,
+  connectionContextMenuActions,
 } from './item-actions';
+import { itemActionsToContextMenuGroups } from './context-menus';
 
 const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
@@ -114,7 +119,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getCollapseAfterForConnectedItem = useCallback(
     (actions: NavigationItemActions) => {
-      const [firstAction, secondAction] = actions;
+      const [, secondAction, thirdAction] = actions;
 
       const actionCanBeShownInline = (
         action: NavigationItemActions[number]
@@ -123,7 +128,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return false;
         }
 
-        return ['create-database', 'open-shell'].includes(
+        return ['refresh-databases', 'create-database', 'open-shell'].includes(
           (action as ItemAction<Actions>).action
         );
       };
@@ -131,23 +136,24 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       // this is the normal case for a connection that is writable and when we
       // also have shell enabled
       if (
-        actionCanBeShownInline(firstAction) &&
-        actionCanBeShownInline(secondAction)
+        actionCanBeShownInline(secondAction) &&
+        actionCanBeShownInline(thirdAction)
       ) {
-        return 2;
+        return 3;
       }
 
       // this will happen when the either the connection is not writable or the
       // preference is readonly, or shell is not enabled in which case we either
       // do not show create-database action or open-shell action
       if (
-        actionCanBeShownInline(firstAction) ||
-        actionCanBeShownInline(secondAction)
+        actionCanBeShownInline(secondAction) ||
+        actionCanBeShownInline(thirdAction)
       ) {
-        return 1;
+        return 2;
       }
 
-      return 0;
+      // Always display the refresh action (firstAction).
+      return 1;
     },
     []
   );
@@ -218,6 +224,78 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     ]
   );
 
+  const getContextMenuGroups = useCallback(
+    function getContextMenuGroups(
+      item: SidebarTreeItem
+    ): ContextMenuItemGroup[] {
+      switch (item.type) {
+        case 'placeholder':
+          return [];
+        case 'connection':
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            item.connectionStatus === 'connected'
+              ? connectionContextMenuActions({
+                  hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+                  isShellEnabled: item.isShellEnabled,
+                  connectionInfo: item.connectionInfo,
+                  isPerformanceTabAvailable: item.isPerformanceTabAvailable,
+                  isPerformanceTabSupported: item.isPerformanceTabSupported,
+                  isAtlas: !!item.connectionInfo.atlasMetadata,
+                })
+              : notConnectedConnectionItemActions({
+                  connectionInfo: item.connectionInfo,
+                  connectionStatus: item.connectionStatus,
+                })
+          );
+        case 'database': {
+          const {
+            isPerformanceTabAvailable,
+            isPerformanceTabSupported,
+            isShellEnabled,
+            hasWriteActionsDisabled,
+            connectionInfo,
+          } = item.connectionItem;
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            databaseContextMenuActions({
+              hasWriteActionsDisabled,
+              isShellEnabled,
+              isPerformanceTabAvailable,
+              isPerformanceTabSupported,
+              isAtlas: !!connectionInfo.atlasMetadata,
+            })
+          );
+        }
+        default: {
+          const {
+            isPerformanceTabAvailable,
+            isPerformanceTabSupported,
+            isShellEnabled,
+            hasWriteActionsDisabled,
+            connectionInfo,
+          } = item.databaseItem.connectionItem;
+          return itemActionsToContextMenuGroups(
+            item,
+            onItemAction,
+            collectionContextMenuActions({
+              hasWriteActionsDisabled,
+              type: item.type,
+              isRenameCollectionEnabled,
+              isShellEnabled,
+              isPerformanceTabAvailable,
+              isPerformanceTabSupported,
+              isAtlas: !!connectionInfo.atlasMetadata,
+            })
+          );
+        }
+      }
+    },
+    [onItemAction, isRenameCollectionEnabled]
+  );
+
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
@@ -242,6 +320,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onItemExpand={onItemExpand}
             getItemActions={getItemActionsAndConfig}
             getItemKey={(item) => item.id}
+            getContextMenuGroups={getContextMenuGroups}
             renderItem={({
               item,
               isActive,
@@ -249,6 +328,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               onItemAction,
               onItemExpand,
               getItemActions,
+              getContextMenuGroups,
             }) => {
               return (
                 <NavigationItem
@@ -258,6 +338,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   getItemActions={getItemActions}
                   onItemExpand={onItemExpand}
                   onItemAction={onItemAction}
+                  getContextMenuGroups={getContextMenuGroups}
                 />
               );
             }}
