@@ -14,6 +14,7 @@ import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
 import { SidePanelActionTypes } from './side-panel';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { downloadDiagram } from '../services/open-and-download-diagram';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -500,6 +501,16 @@ export function deleteDiagram(
     const isCurrent = getState().diagram?.id === id;
     dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, isCurrent });
     void dataModelStorage.delete(id);
+  };
+}
+
+export function saveDiagram(): DataModelingThunkAction<void, never> {
+  return (_dispatch, getState) => {
+    const { diagram } = getState();
+    if (!diagram) {
+      return;
+    }
+    downloadDiagram(diagram.name, diagram.edits.current);
   };
 }
 

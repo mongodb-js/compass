@@ -103,7 +103,7 @@ describe('useDocumentItemContextMenu', function () {
       userEvent.click(screen.getByTestId('test-container'), { button: 2 });
 
       // Should show "Stop editing" when editing
-      expect(screen.getByText('Stop editing')).to.exist;
+      expect(screen.getByText('Cancel editing')).to.exist;
       expect(screen.queryByText('Edit document')).to.not.exist;
       // But show other operations
       expect(screen.getByText('Expand all fields')).to.exist;
@@ -182,7 +182,7 @@ describe('useDocumentItemContextMenu', function () {
 
       // Should show "Edit document" when not editing
       expect(screen.getByText('Edit document')).to.exist;
-      expect(screen.queryByText('Stop editing')).to.not.exist;
+      expect(screen.queryByText('Cancel editing')).to.not.exist;
 
       // Click edit
       userEvent.click(screen.getByText('Edit document'), undefined, {
@@ -207,11 +207,11 @@ describe('useDocumentItemContextMenu', function () {
       userEvent.click(screen.getByTestId('test-container'), { button: 2 });
 
       // Should show "Stop editing" when editing
-      expect(screen.getByText('Stop editing')).to.exist;
+      expect(screen.getByText('Cancel editing')).to.exist;
       expect(screen.queryByText('Edit document')).to.not.exist;
 
       // Click stop editing
-      userEvent.click(screen.getByText('Stop editing'), undefined, {
+      userEvent.click(screen.getByText('Cancel editing'), undefined, {
         skipPointerEventsCheck: true,
       });
 
