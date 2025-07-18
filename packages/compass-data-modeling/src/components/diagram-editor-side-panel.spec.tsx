@@ -17,6 +17,7 @@ import {
   selectRelationship,
 } from '../store/diagram';
 import dataModel from '../../test/fixtures/data-model-with-relationships.json';
+import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 
 async function comboboxSelectItem(
   label: string,
@@ -36,7 +37,7 @@ async function comboboxSelectItem(
   });
 }
 
-describe.only('DiagramEditorSidePanel', function () {
+describe('DiagramEditorSidePanel', function () {
   function renderDrawer() {
     const { renderWithConnections } = createPluginTestHelpers(
       DataModelingWorkspaceTab.provider.withMockServices({})
@@ -44,7 +45,9 @@ describe.only('DiagramEditorSidePanel', function () {
     const result = renderWithConnections(
       <DiagramEditorSidePanel></DiagramEditorSidePanel>
     );
-    result.plugin.store.dispatch(openDiagram(dataModel));
+    result.plugin.store.dispatch(
+      openDiagram(dataModel as MongoDBDataModelDescription)
+    );
     return result;
   }
 
