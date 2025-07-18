@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { redoEdit, undoEdit } from '../store/diagram';
+import { saveDiagram, redoEdit, undoEdit } from '../store/diagram';
 import { showExportModal } from '../store/export-diagram';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
@@ -9,15 +9,27 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   step: DataModelingState['step'];
   hasUndo: boolean;
   hasRedo: boolean;
+  onDownloadClick: () => void;
   onUndoClick: () => void;
   onRedoClick: () => void;
   onExportClick: () => void;
-}> = ({ step, hasUndo, onUndoClick, hasRedo, onRedoClick, onExportClick }) => {
+}> = ({
+  step,
+  hasUndo,
+  onUndoClick,
+  hasRedo,
+  onRedoClick,
+  onExportClick,
+  onDownloadClick,
+}) => {
   if (step !== 'EDITING') {
     return null;
   }
   return (
     <div data-testid="diagram-editor-toolbar">
+      <IconButton aria-label="Download" onClick={onDownloadClick}>
+        <Icon glyph="Download"></Icon>
+      </IconButton>
       <IconButton aria-label="Undo" disabled={!hasUndo} onClick={onUndoClick}>
         <Icon glyph="Undo"></Icon>
       </IconButton>
@@ -44,5 +56,6 @@ export default connect(
     onUndoClick: undoEdit,
     onRedoClick: redoEdit,
     onExportClick: showExportModal,
+    onDownloadClick: saveDiagram,
   }
 )(DiagramEditorToolbar);

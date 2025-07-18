@@ -1,6 +1,6 @@
 import { fieldStringLen } from '../utils';
 import StandardEditor from './standard';
-import type Element from '../element';
+import type { Element } from '../element';
 
 /**
  * CRUD editor for int32 values.

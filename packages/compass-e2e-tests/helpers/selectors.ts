@@ -1446,6 +1446,7 @@ export const DataModelPreviewCollection = (collectionId: string) =>
   `${DataModelPreview} [data-nodeid="${collectionId}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
+export const DataModelDownloadButton = 'button[aria-label="Download"]';
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
 export const DataModelRedoButton = 'button[aria-label="Redo"]';
 export const DataModelExportButton = 'button[aria-label="Export"]';

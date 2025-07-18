@@ -1,7 +1,7 @@
 import TypeChecker from 'hadron-type-checker';
-import Events from '../element-events';
+import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
-import type Element from '../element';
+import type { Element } from '../element';
 import type { BSONValue } from '../utils';
 
 /**
@@ -40,7 +40,7 @@ export default class ObjectIdEditor extends StandardEditor {
       TypeChecker.cast(value, 'ObjectId');
       this.element.currentValue = value;
       this.element.setValid();
-      this.element._bubbleUp(Events.Edited, this.element);
+      this.element._bubbleUp(ElementEvents.Edited, this.element);
     } catch (e: any) {
       this.element.setInvalid(value, this.element.currentType, e.message);
     }

@@ -1,9 +1,9 @@
 import type { TypeCastTypes } from 'hadron-type-checker';
 import TypeChecker from 'hadron-type-checker';
-import Events from '../element-events';
+import { ElementEvents } from '../element-events';
 import type { BSONValue } from '../utils';
 import { fieldStringLen } from '../utils';
-import type Element from '../element';
+import type { Element } from '../element';
 
 /**
  * Regex to match an array or object string.
@@ -52,7 +52,7 @@ export default class StandardEditor {
   paste(value: string): void {
     if (ARRAY_OR_OBJECT.exec(value)) {
       this.edit(JSON.parse(value));
-      this.element._bubbleUp(Events.Converted, this.element);
+      this.element._bubbleUp(ElementEvents.Converted, this.element);
     } else {
       this.edit(value);
     }

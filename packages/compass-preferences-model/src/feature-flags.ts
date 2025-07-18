@@ -27,6 +27,7 @@ export type FeatureFlags = {
   enableIndexesGuidanceExp: boolean;
   showIndexesGuidanceVariant: boolean;
   enableContextMenus: boolean;
+  enableSearchActivationProgramP1: boolean;
 };
 
 export const featureFlags: Required<{
@@ -146,6 +147,16 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable context (right-click) menus',
+    },
+  },
+
+  /**
+   * Feature flag for CLOUDP-308952.
+   */
+  enableSearchActivationProgramP1: {
+    stage: 'development',
+    description: {
+      short: 'Enable interface to view and modify search indexes',
     },
   },
 };

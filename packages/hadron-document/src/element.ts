@@ -7,8 +7,8 @@ import ObjectGenerator from './object-generator';
 import TypeChecker from 'hadron-type-checker';
 import { UUID } from 'bson';
 import DateEditor from './editor/date';
-import Events from './element-events';
-import type Document from './document';
+import { ElementEvents, type ElementEventsType } from './element-events';
+import type { Document } from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { Binary, ObjectId } from 'bson';
 import type {
@@ -18,10 +18,11 @@ import type {
   HadronEJSONOptions,
 } from './utils';
 import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
-import { DocumentEvents, ElementEvents } from '.';
+import { DocumentEvents, type DocumentEventsType } from './document-events';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
-export { Events };
+
+export { ElementEvents, type ElementEventsType };
 
 /**
  * Id field constant.
@@ -193,10 +194,44 @@ export class Element extends EventEmitter {
       this.currentValue = value;
       this.elements = undefined;
     } else {
+      // if they are both integer types and equal if made the previous type, don't update.
       this.currentValue = value;
     }
     this.setValid();
-    this._bubbleUp(Events.Edited, this);
+    this._bubbleUp(ElementEvents.Edited, this);
+  }
+
+  preserveType(otherElement: Element): void {
+    switch (this.currentType) {
+      case 'Object': {
+        if (!this.elements) {
+          return;
+        }
+        for (const child of this.elements) {
+          const otherChild = otherElement.get(child.currentKey);
+          if (!otherChild) {
+            continue;
+          }
+          child.preserveType(otherChild);
+        }
+        break;
+      }
+      case 'Int32': {
+        const otherType = otherElement.currentType;
+        if (otherType === 'Double') {
+          this.changeType('Double');
+        }
+        if (otherType === 'Int64') {
+          this.changeType('Int64');
+        }
+        break;
+      }
+      default:
+        // NOTE: Purposefully leaving Array elements alone because deciding
+        // whether to turn on Int32 into a Double or Int64 or not is complex and
+        // error-prone. Also leaving every other type alone.
+        break;
+    }
   }
 
   changeType(newType: TypeCastTypes): void {
@@ -256,7 +291,7 @@ export class Element extends EventEmitter {
    */
   rename(key: string | number): void {
     this.currentKey = key;
-    this._bubbleUp(Events.Edited, this);
+    this._bubbleUp(ElementEvents.Edited, this);
   }
 
   /**
@@ -333,7 +368,7 @@ export class Element extends EventEmitter {
       throw new Error('Cannot insert values on non-array/non-object elements');
     }
     const newElement = this.elements.insertAfter(element, key, value);
-    newElement!._bubbleUp(Events.Added, newElement, this);
+    newElement!._bubbleUp(ElementEvents.Added, newElement, this);
     this.emitVisibleElementsChanged();
     return newElement!;
   }
@@ -351,7 +386,7 @@ export class Element extends EventEmitter {
       throw new Error('Cannot insert values on non-array/non-object elements');
     }
     const newElement = this.elements.insertEnd(key, value, true);
-    this._bubbleUp(Events.Added, newElement);
+    this._bubbleUp(ElementEvents.Added, newElement);
     this.emitVisibleElementsChanged();
     return newElement;
   }
@@ -416,7 +451,7 @@ export class Element extends EventEmitter {
   setValid(): void {
     this.currentTypeValid = true;
     this.invalidTypeMessage = undefined;
-    this._bubbleUp(Events.Valid, this);
+    this._bubbleUp(ElementEvents.Valid, this);
   }
 
   /**
@@ -431,7 +466,7 @@ export class Element extends EventEmitter {
     this.currentType = newType;
     this.currentTypeValid = false;
     this.invalidTypeMessage = message;
-    this._bubbleUp(Events.Invalid, this);
+    this._bubbleUp(ElementEvents.Invalid, this);
   }
 
   /**
@@ -728,7 +763,7 @@ export class Element extends EventEmitter {
     this.revert();
     this.removed = true;
     if (this.parent) {
-      this._bubbleUp(Events.Removed, this, this.parent);
+      this._bubbleUp(ElementEvents.Removed, this, this.parent);
       this.emitVisibleElementsChanged(this.parent);
     }
   }
@@ -739,7 +774,7 @@ export class Element extends EventEmitter {
   revert(): void {
     if (this.isAdded()) {
       this.parent?.elements?.remove(this);
-      this._bubbleUp(Events.Removed, this, this.parent);
+      this._bubbleUp(ElementEvents.Removed, this, this.parent);
       if (this.parent) {
         this.emitVisibleElementsChanged(this.parent);
       }
@@ -761,7 +796,7 @@ export class Element extends EventEmitter {
       this.removed = false;
     }
     this.setValid();
-    this._bubbleUp(Events.Reverted, this);
+    this._bubbleUp(ElementEvents.Reverted, this);
   }
 
   /**
@@ -808,12 +843,12 @@ export class Element extends EventEmitter {
    * @param evt - The event.
    * @paramdata - Optional.
    */
-  _bubbleUp(evt: typeof Events[keyof typeof Events], ...data: BSONArray): void {
+  _bubbleUp(evt: ElementEventsType, ...data: BSONArray): void {
     this.emit(evt, ...data);
     const element = this.parent;
     if (element) {
       if (element.isRoot()) {
-        element.emit(evt, ...data);
+        element.emit(evt as DocumentEventsType, ...data);
       } else {
         element._bubbleUp(evt, ...data);
       }
@@ -934,7 +969,7 @@ export class Element extends EventEmitter {
       targetElement.emit(DocumentEvents.VisibleElementsChanged, targetElement);
     } else if (targetElement.expanded) {
       targetElement._bubbleUp(
-        Events.VisibleElementsChanged,
+        ElementEvents.VisibleElementsChanged,
         targetElement,
         targetElement.getRoot()
       );
@@ -1171,5 +1206,3 @@ export class ElementList implements Iterable<Element> {
     yield* this.elements;
   }
 }
-
-export default Element;
