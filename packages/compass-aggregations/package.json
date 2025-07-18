@@ -72,7 +72,7 @@
     "@mongodb-js/compass-utils": "^0.9.5",
     "@mongodb-js/compass-workspaces": "^0.46.0",
     "@mongodb-js/explain-plan-helper": "^1.4.13",
-    "@mongodb-js/mongodb-constants": "^0.12.1",
+    "@mongodb-js/mongodb-constants": "^0.12.2",
     "@mongodb-js/my-queries-storage": "^0.32.0",
     "@mongodb-js/shell-bson-parser": "^1.2.0",
     "bson": "^6.10.4",
