@@ -804,7 +804,7 @@ describe('AtlasUserData', function () {
       );
     });
 
-    it('constructrs URL correctly for different types', async function () {
+    it('constructs URL correctly for different types', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
 
       const userData = getAtlasUserData({}, 'org123', 'group456', 'recent');
