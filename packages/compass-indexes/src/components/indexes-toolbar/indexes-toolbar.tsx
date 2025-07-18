@@ -54,6 +54,19 @@ const createIndexButtonContainerStyles = css({
   width: 'fit-content',
 });
 
+const MIN_SEARCH_INDEX_MANAGEMENT_SERVER_VERSION = '6.0.7';
+
+const serverSupportsSearchIndexManagement = (serverVersion: string) => {
+  try {
+    return semver.gte(
+      serverVersion,
+      MIN_SEARCH_INDEX_MANAGEMENT_SERVER_VERSION
+    );
+  } catch {
+    return true;
+  }
+};
+
 type IndexesToolbarProps = {
   namespace: string;
   indexView: IndexView;
@@ -191,7 +204,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </SegmentedControlOption>
                     }
                   >
-                    {semver.gte(serverVersion, '6.0.7') ? (
+                    {serverSupportsSearchIndexManagement(serverVersion) ? (
                       <p>
                         Unable to fetch search indexes. This can occur when your
                         cluster does not support search indexes or the listing
