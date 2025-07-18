@@ -44,6 +44,7 @@ describe('IndexesToolbar Component', function () {
           onCreateSearchIndexClick={() => {}}
           namespace=""
           showAtlasSearchLink={false}
+          serverVersion={'8.0.11'}
           {...props}
         />
       </PreferencesProvider>
