@@ -120,7 +120,7 @@ export function exportDiagram(
 
       if (exportFormat === 'json') {
         const model = selectCurrentModel(
-          getCurrentDiagramFromState(getState())
+          getCurrentDiagramFromState(getState()).edits
         );
         exportToJson(diagram.name, model);
       } else if (exportFormat === 'png') {

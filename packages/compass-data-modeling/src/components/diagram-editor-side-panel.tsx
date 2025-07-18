@@ -6,21 +6,15 @@ import {
   Button,
   css,
   cx,
-  Body,
-  spacing,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import CollectionDrawerContent from './collection-drawer-content';
+import RelationshipDrawerContent from './relationship-drawer-content';
 
 const containerStyles = css({
   width: '400px',
   height: '100%',
-
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: spacing[400],
   borderLeft: `1px solid ${palette.gray.light2}`,
 });
 
@@ -29,21 +23,35 @@ const darkModeContainerStyles = css({
 });
 
 type DiagramEditorSidePanelProps = {
-  isOpen: boolean;
+  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
   onClose: () => void;
 };
 
 function DiagmramEditorSidePanel({
-  isOpen,
+  selectedItems,
   onClose,
 }: DiagramEditorSidePanelProps) {
   const isDarkMode = useDarkMode();
-  if (!isOpen) {
+
+  if (!selectedItems) {
     return null;
   }
+
+  let content;
+
+  if (selectedItems.type === 'collection') {
+    content = (
+      <CollectionDrawerContent
+        namespace={selectedItems.id}
+      ></CollectionDrawerContent>
+    );
+  } else if (selectedItems.type === 'relationship') {
+    content = <RelationshipDrawerContent></RelationshipDrawerContent>;
+  }
+
   return (
     <div className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}>
-      <Body>This feature is under development.</Body>
+      {content}
       <Button onClick={onClose} variant="primary" size="small">
         Close Side Panel
       </Button>
@@ -53,9 +61,8 @@ function DiagmramEditorSidePanel({
 
 export default connect(
   (state: DataModelingState) => {
-    const { sidePanel } = state;
     return {
-      isOpen: sidePanel.isOpen,
+      selectedItems: state.diagram?.selectedItems ?? null,
     };
   },
   {
