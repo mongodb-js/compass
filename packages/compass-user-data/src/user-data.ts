@@ -464,28 +464,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     });
     return await this.readOne(id);
   }
-
-  setOrgAndGroupId(orgId: string, groupId: string): void {
-    // sample log error
-    log.error(
-      mongoLogId(1_001_000_237), // not sure what this log id should be
-      'UserData',
-      'setOrgAndGroupId should not be called for FileUserData',
-      {
-        orgId,
-        groupId,
-      }
-    );
-  }
 }
 
-// TODO: update endpoints to reflect the merged api endpoints
+// TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
-  // should this BASE_URL be a parameter passed to the constructor?
-  // this might make future usage of this code easier, if we want to call a different endpoint
   private orgId: string = '';
   private groupId: string = '';
+  private readonly type: string;
   private readonly BASE_URL = 'cluster-connection.cloud-local.mongodb.com';
   constructor(
     validator: T,
@@ -493,58 +479,86 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       url: RequestInfo | URL,
       options?: RequestInit
     ) => Promise<Response>,
+    orgId: string,
+    groupId: string,
+    type: string,
     { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
+    this.orgId = orgId;
+    this.groupId = groupId;
+    this.type = type;
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
-    this.validator.parse(content);
+    try {
+      this.validator.parse(content);
 
-    // do not need to use id because content already contains the id
-    const response = await this.authenticatedFetch(this.getUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: id,
-        data: this.serialize(content),
-        createdAt: new Date(),
-        groupId: this.groupId,
-      }),
-    });
-    // TODO: fix this error handling, should fit current compass needs
-    if (!response.ok) {
-      throw new Error(
-        `Failed to post data: ${response.status} ${response.statusText}`
+      const response = await this.authenticatedFetch(this.getUrl(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          data: this.serialize(content),
+          createdAt: new Date(),
+          groupId: this.groupId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to post data: ${response.status} ${response.statusText}`
+        );
+      }
+
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_362),
+        'Atlas Backend',
+        'Error writing data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
       );
+      return false;
     }
-    return true;
   }
 
   async delete(id: string): Promise<boolean> {
-    const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Failed to delete data: ${response.status} ${response.statusText}`
+    try {
+      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to delete data: ${response.status} ${response.statusText}`
+        );
+      }
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_363),
+        'Atlas Backend',
+        'Error deleting data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
       );
+      return false;
     }
-    return true;
   }
 
   async readAll(): Promise<ReadAllResult<T>> {
     try {
       const response = await this.authenticatedFetch(this.getUrl(), {
         method: 'GET',
-        headers: {
-          accept: 'application/json',
-        },
       });
-      // TODO: fix this error handling, should fit current compass needs
       if (!response.ok) {
         throw new Error(
           `Failed to get data: ${response.status} ${response.statusText}`
@@ -566,38 +580,35 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     id: string,
     data: Partial<z.input<T>>
   ): Promise<z.output<T>> {
-    const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // TODO: not sure whether currently compass sometimes adds to data or always replaces it
-      // figure out if we should get all data, find specific query by id, then update using JS
-      body: this.serialize(data),
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Failed to update data: ${response.status} ${response.statusText}`
+    try {
+      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: this.serialize(data),
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update data: ${response.status} ${response.statusText}`
+        );
+      }
+      return this.validator.parse(data);
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_364),
+        'Atlas Backend',
+        'Error updating data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
       );
+      throw new Error('Failed to update data');
     }
-    const json = await response.json();
-    // TODO: fix this, currently endpoint does not return the updated data
-    // so we need to decide whether this is necessary
-    return this.validator.parse(json.data);
-  }
-
-  setOrgAndGroupId(orgId: string, groupId: string): void {
-    this.orgId = orgId;
-    this.groupId = groupId;
   }
 
   private getUrl() {
-    // if (endpoint.startsWith('/')) {
-    //   endpoint = endpoint.slice(1);
-    // }
-    // if (endpoint.endsWith('/')) {
-    //   endpoint = endpoint.slice(0, -1);
-    // }
-    return `${this.BASE_URL}/queries/favorites/${this.orgId}/${this.groupId}`;
+    return `${this.BASE_URL}/${this.type}/${this.orgId}/${this.groupId}`;
   }
 }
