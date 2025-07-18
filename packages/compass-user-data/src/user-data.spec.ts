@@ -3,8 +3,13 @@ import { Stats } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import { FileUserData, type FileUserDataOptions } from './user-data';
+import {
+  FileUserData,
+  AtlasUserData,
+  type FileUserDataOptions,
+} from './user-data';
 import { z, type ZodError } from 'zod';
+import sinon from 'sinon';
 
 type ValidatorOptions = {
   allowUnknownProps?: boolean;
@@ -80,7 +85,6 @@ describe('user-data', function () {
       );
 
       const result = await getUserData().readAll();
-      // sort
       result.data.sort((first, second) =>
         first.name.localeCompare(second.name)
       );
@@ -278,7 +282,7 @@ describe('user-data', function () {
       });
     });
 
-    it('does not strip off unknown props that are unknow to validator when specified', async function () {
+    it('does not strip off unknown props that are unknown to validator when specified', async function () {
       await writeFileToStorage(
         'data.json',
         JSON.stringify({
@@ -415,6 +419,401 @@ describe('user-data', function () {
         ...defaultValues(),
         ...data,
       });
+    });
+  });
+});
+
+describe('AtlasUserData', function () {
+  let sandbox: sinon.SinonSandbox;
+  let authenticatedFetchStub: sinon.SinonStub;
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+    authenticatedFetchStub = sandbox.stub();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
+  const getAtlasUserData = (
+    validatorOpts: ValidatorOptions = {},
+    orgId = 'test-org',
+    groupId = 'test-group',
+    type = 'favorites'
+  ) => {
+    return new AtlasUserData(
+      getTestSchema(validatorOpts),
+      authenticatedFetchStub,
+      orgId,
+      groupId,
+      type,
+      {}
+    );
+  };
+
+  const mockResponse = (data: unknown, ok = true, status = 200) => {
+    return {
+      ok,
+      status,
+      statusText: status === 200 ? 'OK' : 'Error',
+      json: () => Promise.resolve(data),
+    };
+  };
+
+  context('AtlasUserData.write', function () {
+    it('writes data successfully', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData();
+      const result = await userData.write('test-id', { name: 'VSCode' });
+
+      expect(result).to.be.true;
+      expect(authenticatedFetchStub).to.have.been.calledOnce;
+
+      const [url, options] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/test-org/test-group'
+      );
+      expect(options.method).to.equal('POST');
+      expect(options.headers['Content-Type']).to.equal('application/json');
+
+      const body = JSON.parse(options.body as string);
+      expect(body.id).to.equal('test-id');
+      expect(body.groupId).to.equal('test-group');
+      expect(body.data).to.be.a('string');
+      expect(JSON.parse(body.data as string)).to.deep.equal({ name: 'VSCode' });
+      expect(body.createdAt).to.be.a('string');
+      expect(new Date(body.createdAt as string)).to.be.instanceOf(Date);
+    });
+
+    it('returns false when response is not ok', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}, false, 500));
+
+      const userData = getAtlasUserData();
+
+      const result = await userData.write('test-id', { name: 'VSCode' });
+      expect(result).to.be.false;
+    });
+
+    it('validator removes unknown props', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData();
+
+      const result = await userData.write('test-id', {
+        name: 'VSCode',
+        randomProp: 'should fail',
+      });
+
+      expect(result).to.be.true;
+    });
+
+    it('uses custom serializer when provided', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = new AtlasUserData(
+        getTestSchema(),
+        authenticatedFetchStub,
+        'test-org',
+        'test-group',
+        'favorites',
+        {
+          serialize: (data) => `custom:${JSON.stringify(data)}`,
+        }
+      );
+
+      await userData.write('test-id', { name: 'Custom' });
+
+      const [, options] = authenticatedFetchStub.firstCall.args;
+      const body = JSON.parse(options.body as string);
+      expect(body.data).to.equal('custom:{"name":"Custom"}');
+    });
+  });
+
+  context('AtlasUserData.delete', function () {
+    it('deletes data successfully', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData();
+      const result = await userData.delete('test-id');
+
+      expect(result).to.be.true;
+      expect(authenticatedFetchStub).to.have.been.calledOnce;
+
+      const [url, options] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/test-org/test-group/test-id'
+      );
+      expect(options.method).to.equal('DELETE');
+    });
+
+    it('returns false when response is not ok', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}, false, 404));
+
+      const userData = getAtlasUserData();
+
+      const result = await userData.delete('test-id');
+      expect(result).to.be.false;
+    });
+  });
+
+  context('AtlasUserData.readAll', function () {
+    it('reads all data successfully with defaults', async function () {
+      const responseData = [
+        { data: JSON.stringify({ name: 'VSCode' }) },
+        { data: JSON.stringify({ name: 'Mongosh' }) },
+      ];
+      authenticatedFetchStub.resolves(mockResponse(responseData));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(2);
+      expect(result.errors).to.have.lengthOf(0);
+
+      // Sort for consistent testing
+      result.data.sort((first, second) =>
+        first.name.localeCompare(second.name)
+      );
+
+      expect(result.data).to.deep.equal([
+        {
+          ...defaultValues(),
+          name: 'Mongosh',
+        },
+        {
+          ...defaultValues(),
+          name: 'VSCode',
+        },
+      ]);
+
+      expect(authenticatedFetchStub).to.have.been.calledOnce;
+      const [url, options] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/test-org/test-group'
+      );
+      expect(options.method).to.equal('GET');
+    });
+
+    it('handles empty response', async function () {
+      authenticatedFetchStub.resolves(mockResponse([]));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(0);
+      expect(result.errors).to.have.lengthOf(0);
+    });
+
+    it('handles non-array response', async function () {
+      authenticatedFetchStub.resolves(mockResponse({ notAnArray: true }));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(0);
+      expect(result.errors).to.have.lengthOf(0);
+    });
+
+    it('handles errors gracefully', async function () {
+      authenticatedFetchStub.rejects(new Error('Unknown error'));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(0);
+      expect(result.errors).to.have.lengthOf(1);
+      expect(result.errors[0].message).to.equal('Unknown error');
+    });
+
+    it('handles non-ok response gracefully', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}, false, 500));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(0);
+      expect(result.errors).to.have.lengthOf(1);
+      expect(result.errors[0].message).to.contain('Failed to get data: 500');
+    });
+
+    it('uses custom deserializer when provided', async function () {
+      const responseData = [{ data: 'custom:{"name":"Custom"}' }];
+      authenticatedFetchStub.resolves(mockResponse(responseData));
+
+      const userData = new AtlasUserData(
+        getTestSchema(),
+        authenticatedFetchStub,
+        'test-org',
+        'test-group',
+        'favorites',
+        {
+          deserialize: (data) => {
+            if (data.startsWith('custom:')) {
+              return JSON.parse(data.slice(7));
+            }
+            return JSON.parse(data);
+          },
+        }
+      );
+
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(1);
+      expect(result.data[0]).to.deep.equal({
+        ...defaultValues(),
+        name: 'Custom',
+      });
+      expect(result.errors).to.have.lengthOf(0);
+    });
+
+    it('strips unknown props by default', async function () {
+      const responseData = [
+        {
+          data: JSON.stringify({
+            name: 'VSCode',
+            unknownProp: 'should be stripped',
+          }),
+        },
+      ];
+      authenticatedFetchStub.resolves(mockResponse(responseData));
+
+      const userData = getAtlasUserData();
+      const result = await userData.readAll();
+
+      expect(result.data).to.have.lengthOf(1);
+      expect(result.data[0]).to.deep.equal({
+        ...defaultValues(),
+        name: 'VSCode',
+      });
+      expect(result.data[0]).to.not.have.property('unknownProp');
+      expect(result.errors).to.have.lengthOf(0);
+    });
+  });
+
+  context('AtlasUserData.updateAttributes', function () {
+    it('updates data successfully', async function () {
+      const putResponse = { name: 'Updated Name', hasDarkMode: false };
+      authenticatedFetchStub.resolves(mockResponse(putResponse));
+
+      const userData = getAtlasUserData();
+      const result = await userData.updateAttributes('test-id', {
+        name: 'Updated Name',
+        hasDarkMode: false,
+      });
+
+      expect(result).to.deep.equal({
+        ...defaultValues(),
+        name: 'Updated Name',
+        hasDarkMode: false,
+      });
+
+      expect(authenticatedFetchStub).to.have.been.calledOnce;
+      const [url, options] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/test-org/test-group/test-id'
+      );
+      expect(options.method).to.equal('PUT');
+      expect(options.headers['Content-Type']).to.equal('application/json');
+    });
+
+    it('throws error when response is not ok', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}, false, 400));
+
+      const userData = getAtlasUserData();
+
+      try {
+        await userData.updateAttributes('test-id', { name: 'Updated' });
+        expect.fail('Should have thrown error');
+      } catch (error) {
+        expect(error).to.be.instanceOf(Error);
+        expect((error as Error).message).to.contain('Failed to update data');
+      }
+    });
+
+    it('uses custom serializer for request body', async function () {
+      const putResponse = { name: 'Updated' };
+      authenticatedFetchStub.resolves(mockResponse(putResponse));
+
+      const userData = new AtlasUserData(
+        getTestSchema(),
+        authenticatedFetchStub,
+        'test-org',
+        'test-group',
+        'favorites',
+        {
+          serialize: (data) => `custom:${JSON.stringify(data)}`,
+        }
+      );
+
+      await userData.updateAttributes('test-id', { name: 'Updated' });
+
+      const [, options] = authenticatedFetchStub.firstCall.args;
+      expect(options.body as string).to.equal('custom:{"name":"Updated"}');
+    });
+  });
+
+  context('AtlasUserData urls', function () {
+    it('constructs URL correctly for write operation', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData({}, 'custom-org', 'custom-group');
+      await userData.write('test-id', { name: 'Test' });
+
+      const [url] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/custom-org/custom-group'
+      );
+    });
+
+    it('constructs URL correctly for delete operation', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData({}, 'org123', 'group456');
+      await userData.delete('item789');
+
+      const [url] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/org123/group456/item789'
+      );
+    });
+
+    it('constructs URL correctly for read operation', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData({}, 'org456', 'group123');
+      await userData.readAll();
+
+      const [url] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/org456/group123'
+      );
+    });
+
+    it('constructs URL correctly for update operation', async function () {
+      const putResponse = { data: { name: 'Updated' } };
+      authenticatedFetchStub.resolves(mockResponse(putResponse));
+
+      const userData = getAtlasUserData({}, 'org123', 'group456');
+      await userData.updateAttributes('item789', { name: 'Updated' });
+
+      const [url] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/favorites/org123/group456/item789'
+      );
+    });
+
+    it('constructs URL correctly for different types', async function () {
+      authenticatedFetchStub.resolves(mockResponse({}));
+
+      const userData = getAtlasUserData({}, 'org123', 'group456', 'recent');
+      await userData.write('item789', { name: 'Recent Item' });
+
+      const [url] = authenticatedFetchStub.firstCall.args;
+      expect(url).to.equal(
+        'cluster-connection.cloud-local.mongodb.com/recent/org123/group456'
+      );
     });
   });
 });

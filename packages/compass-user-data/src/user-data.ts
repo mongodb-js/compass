@@ -72,7 +72,6 @@ export abstract class IUserData<T extends z.Schema> {
   protected readonly validator: T;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
-
   constructor(
     validator: T,
     {
@@ -331,5 +330,152 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
       ...data,
     });
     return await this.readOne(id);
+  }
+}
+
+// TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
+export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
+  private readonly authenticatedFetch;
+  private orgId: string = '';
+  private groupId: string = '';
+  private readonly type: string;
+  private readonly BASE_URL = 'cluster-connection.cloud-local.mongodb.com';
+  constructor(
+    validator: T,
+    authenticatedFetch: (
+      url: RequestInfo | URL,
+      options?: RequestInit
+    ) => Promise<Response>,
+    orgId: string,
+    groupId: string,
+    type: string,
+    { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
+  ) {
+    super(validator, { serialize, deserialize });
+    this.authenticatedFetch = authenticatedFetch;
+    this.orgId = orgId;
+    this.groupId = groupId;
+    this.type = type;
+  }
+
+  async write(id: string, content: z.input<T>): Promise<boolean> {
+    try {
+      this.validator.parse(content);
+
+      const response = await this.authenticatedFetch(this.getUrl(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          data: this.serialize(content),
+          createdAt: new Date(),
+          groupId: this.groupId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to post data: ${response.status} ${response.statusText}`
+        );
+      }
+
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_362),
+        'Atlas Backend',
+        'Error writing data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
+      );
+      return false;
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to delete data: ${response.status} ${response.statusText}`
+        );
+      }
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_363),
+        'Atlas Backend',
+        'Error deleting data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
+      );
+      return false;
+    }
+  }
+
+  async readAll(): Promise<ReadAllResult<T>> {
+    try {
+      const response = await this.authenticatedFetch(this.getUrl(), {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to get data: ${response.status} ${response.statusText}`
+        );
+      }
+      const json = await response.json();
+      const data = Array.isArray(json)
+        ? json.map((item) =>
+            this.validator.parse(this.deserialize(item.data as string))
+          )
+        : [];
+      return { data, errors: [] };
+    } catch (error) {
+      return { data: [], errors: [error as Error] };
+    }
+  }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    try {
+      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: this.serialize(data),
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update data: ${response.status} ${response.statusText}`
+        );
+      }
+      return this.validator.parse(data);
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_364),
+        'Atlas Backend',
+        'Error updating data',
+        {
+          url: this.getUrl(),
+          error: (error as Error).message,
+        }
+      );
+      throw new Error('Failed to update data');
+    }
+  }
+
+  private getUrl() {
+    return `${this.BASE_URL}/${this.type}/${this.orgId}/${this.groupId}`;
   }
 }
