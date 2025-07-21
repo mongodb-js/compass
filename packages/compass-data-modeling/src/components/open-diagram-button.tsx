@@ -15,6 +15,7 @@ export const OpenDiagramButton = ({
   return (
     <FileSelector
       id="open-diagram-file-input"
+      data-testid="open-diagram-file-input"
       multiple={false}
       accept=".compass"
       onSelect={(files) => {
