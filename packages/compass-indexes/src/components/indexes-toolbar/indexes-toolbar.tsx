@@ -207,8 +207,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     {serverSupportsSearchIndexManagement(serverVersion) ? (
                       <p>
                         Unable to fetch search indexes. This can occur when your
-                        cluster does not support search indexes or the listing
-                        search indexes request failed.
+                        cluster does not support search indexes or the request
+                        to list search indexes failed.
                       </p>
                     ) : (
                       <>
