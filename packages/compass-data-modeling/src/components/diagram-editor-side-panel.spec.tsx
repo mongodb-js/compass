@@ -53,6 +53,7 @@ describe('DiagramEditorSidePanel', function () {
 
   it('should not render if no items are selected', function () {
     renderDrawer();
+    expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
   it('should render a collection context drawer when collection is clicked', async function () {
@@ -93,8 +94,6 @@ describe('DiagramEditorSidePanel', function () {
     await comboboxSelectItem('Foreign collection', 'countries');
     await comboboxSelectItem('Foreign field', 'iso_code');
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
-
     // We should be testing through rendered UI but as it's really hard to make
     // diagram rendering in tests property, we are just validating the final
     // model here
@@ -118,9 +117,5 @@ describe('DiagramEditorSidePanel', function () {
           cardinality: 1,
         },
       ]);
-
-    // After saving when starting from collection, we should end up back in the
-    // collection drawer that we started from
-    expect(screen.getByText('flights.countries')).to.be.visible;
   });
 });

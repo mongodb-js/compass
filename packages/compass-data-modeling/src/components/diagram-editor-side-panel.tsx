@@ -54,7 +54,10 @@ function DiagmramEditorSidePanel({
   }
 
   return (
-    <div className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}>
+    <div
+      className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}
+      data-testid="data-modeling-drawer"
+    >
       {content}
       <Button onClick={onClose} variant="primary" size="small">
         Close Side Panel
