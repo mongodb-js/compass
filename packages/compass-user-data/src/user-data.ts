@@ -457,12 +457,16 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<T>>
-  ): Promise<z.output<T>> {
-    await this.write(id, {
-      ...((await this.readOne(id)) ?? {}),
-      ...data,
-    });
-    return await this.readOne(id);
+  ): Promise<boolean> {
+    try {
+      await this.write(id, {
+        ...((await this.readOne(id)) ?? {}),
+        ...data,
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
@@ -594,7 +598,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<T>>
-  ): Promise<z.output<T>> {
+  ): Promise<boolean> {
     try {
       const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
         method: 'PUT',
@@ -608,7 +612,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           `Failed to update data: ${response.status} ${response.statusText}`
         );
       }
-      return this.validator.parse(data);
+      return true;
     } catch (error) {
       log.error(
         mongoLogId(1_001_000_365),
@@ -619,7 +623,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           error: (error as Error).message,
         }
       );
-      throw new Error('Failed to update data');
+      return false;
     }
   }
 
