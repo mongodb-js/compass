@@ -118,12 +118,15 @@ class AtlasCloudAuthenticator {
    * @returns {Promise<string[]>}
    */
   async #getCloudSessionCookies() {
-    const cloudHostCookies = await session.defaultSession.cookies.get({
-      domain: CLOUD_CONFIG_VARIANTS === 'local' ? 'localhost' : 'mongodb.com',
-    });
-    return cloudHostCookies.map((cookie) => {
-      return `${cookie.name}=${cookie.value}`;
-    });
+    const tld = CLOUD_CONFIG_VARIANTS === 'local' ? 'localhost' : 'mongodb.com';
+    const cloudHostCookies = (await session.defaultSession.cookies.get({}))
+      .filter((cookie) => {
+        return cookie.domain?.endsWith(tld) ?? true;
+      })
+      .map((cookie) => {
+        return `${cookie.name}=${cookie.value}`;
+      });
+    return cloudHostCookies;
   }
 
   /**
@@ -135,18 +138,10 @@ class AtlasCloudAuthenticator {
   }
 
   async #fetch(path, init) {
-    let csrfHeaders;
-    if (
-      init?.method &&
-      /^(GET|HEAD|OPTIONS|TRACE)$/i.test(init.method) === false
-    ) {
-      csrfHeaders = await this.#getCSRFHeaders();
-    }
     return electronFetch(`${CLOUD_ORIGIN}${path}`, {
       ...init,
       headers: {
         ...init?.headers,
-        ...csrfHeaders,
       },
     }).then(handleRes);
   }
@@ -157,17 +152,6 @@ class AtlasCloudAuthenticator {
    */
   #isAuthenticatedUrl(url) {
     return new URL(url, 'http://localhost').pathname.startsWith('/v2/');
-  }
-
-  async #getCSRFHeaders() {
-    const projectId = await this.getProjectId();
-    const { csrfToken, csrfTime } = await this.#fetch(
-      `/v2/${projectId}/params`
-    );
-    return {
-      ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
-      ...(csrfTime && { 'X-CSRF-Time': csrfTime }),
-    };
   }
 
   async getCloudHeaders(hostSubdomain = '') {
