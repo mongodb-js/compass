@@ -67,8 +67,7 @@ describe('open-and-download-diagram', function () {
           'should throw an error if content.version and content.type is not valid',
         file: makeFile(
           JSON.stringify({ version: 0, type: 'something' }),
-          'file.json',
-          'application/json'
+          'file.json'
         ),
         expected: 'Unsupported diagram file format',
       },
@@ -76,8 +75,7 @@ describe('open-and-download-diagram', function () {
         title: 'should throw if name or edits are missing',
         file: makeFile(
           JSON.stringify({ version: 1, type: 'Compass Data Modeling Diagram' }),
-          'file.json',
-          'application/json'
+          'file.json'
         ),
         expected: 'Diagram file is missing required fields',
       },
@@ -90,8 +88,7 @@ describe('open-and-download-diagram', function () {
             name: 'Test diagram',
             edits: [],
           }),
-          'file.json',
-          'application/json'
+          'file.json'
         ),
         expected: 'Diagram file is missing required fields',
       },
@@ -104,8 +101,7 @@ describe('open-and-download-diagram', function () {
             name: 'Test Diagram',
             edits: 'something',
           }),
-          'file.json',
-          'application/json'
+          'file.json'
         ),
         expected: 'Failed to parse diagram file',
       },
@@ -120,8 +116,7 @@ describe('open-and-download-diagram', function () {
               JSON.stringify([{ type: 'NonExistent' }])
             ).toString('base64'),
           }),
-          'file.json',
-          'application/json'
+          'file.json'
         ),
         expected: 'Failed to parse diagram file',
       },
@@ -132,7 +127,7 @@ describe('open-and-download-diagram', function () {
           await getDiagramContentsFromFile(file);
           expect.fail('Expected an error to be thrown');
         } catch (error) {
-          expect(error.message).to.contain(expected);
+          expect((error as Error).message).to.contain(expected);
         }
       });
     }
