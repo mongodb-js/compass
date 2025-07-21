@@ -620,7 +620,7 @@ function getFieldsForCurrentModel(
 
 export const selectFieldsForCurrentModel = memoize(getFieldsForCurrentModel);
 
-function getRelationshipForCurrentModel(
+export function getRelationshipForCurrentModel(
   edits: MongoDBDataModelDescription['edits'],
   relationshipId: string
 ) {
@@ -628,7 +628,3 @@ function getRelationshipForCurrentModel(
     (r) => r.id === relationshipId
   );
 }
-
-export const selectRelationshipForCurrentModel = memoize(
-  getRelationshipForCurrentModel
-);

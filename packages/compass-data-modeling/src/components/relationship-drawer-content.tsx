@@ -13,8 +13,8 @@ import {
 import {
   deleteRelationship,
   getCurrentDiagramFromState,
+  getRelationshipForCurrentModel,
   selectFieldsForCurrentModel,
-  selectRelationshipForCurrentModel,
   updateRelationship,
 } from '../store/diagram';
 import toNS from 'mongodb-ns';
@@ -288,7 +288,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
 export default connect(
   (state: DataModelingState, ownProps: { relationshipId: string }) => {
     const diagram = getCurrentDiagramFromState(state);
-    const relationship = selectRelationshipForCurrentModel(
+    const relationship = getRelationshipForCurrentModel(
       diagram.edits,
       ownProps.relationshipId
     );
