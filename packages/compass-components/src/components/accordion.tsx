@@ -51,6 +51,7 @@ interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   text: string | React.ReactNode;
   hintText?: string;
   open?: boolean;
+  isDefaultExpanded?: boolean;
   setOpen?: (newValue: boolean) => void;
 }
 function Accordion({
@@ -58,10 +59,11 @@ function Accordion({
   hintText,
   open: _open,
   setOpen: _setOpen,
+  isDefaultExpanded = false,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
-  const [localOpen, setLocalOpen] = useState(_open ?? false);
+  const [localOpen, setLocalOpen] = useState(_open ?? isDefaultExpanded);
   const setOpenRef = useRef(_setOpen);
   setOpenRef.current = _setOpen;
   const onOpenChange = useCallback(() => {
