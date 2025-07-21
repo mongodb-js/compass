@@ -49,7 +49,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<TSchema>>
-  ): Promise<z.output<TSchema>> {
+  ): Promise<boolean> {
     return await this.userData.updateAttributes(id, data);
   }
 
