@@ -15,6 +15,7 @@ export async function connectMongoClient(
   delete options.oidc;
   delete options.parentState;
   delete options.parentHandle;
+  options.__skipPingOnConnect = true;
   const client = new MongoClient(url, options);
   await client.connect();
   return {

@@ -76,7 +76,7 @@ function readablePlatformName(arch, platform, fileName = '') {
 
   switch (`${platform}-${arch}`) {
     case 'darwin-x64':
-      name = 'macOS 64-bit (10.15+)';
+      name = 'macOS x64 (Intel) (10.15+)';
       break;
     case 'darwin-arm64':
       name = 'macOS arm64 (M1) (11.0+)';

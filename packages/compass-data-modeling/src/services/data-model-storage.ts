@@ -2,9 +2,9 @@ import { z } from '@mongodb-js/compass-user-data';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 export const RelationshipSideSchema = z.object({
-  ns: z.string(),
+  ns: z.string().nullable(),
   cardinality: z.number(),
-  fields: z.array(z.string()),
+  fields: z.array(z.string()).nullable(),
 });
 
 export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
@@ -52,6 +52,10 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     relationship: RelationshipSchema,
   }),
   z.object({
+    type: z.literal('UpdateRelationship'),
+    relationship: RelationshipSchema,
+  }),
+  z.object({
     type: z.literal('RemoveRelationship'),
     relationshipId: z.string().uuid(),
   }),
@@ -75,6 +79,8 @@ export type Edit = z.output<typeof EditSchema>;
 export type SetModelEdit = z.output<typeof EditSchema> & {
   type: 'SetModel';
 };
+
+export type EditAction = z.output<typeof EditSchemaVariants>;
 
 export const validateEdit = (
   edit: unknown

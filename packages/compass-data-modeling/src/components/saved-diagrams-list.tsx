@@ -16,7 +16,7 @@ import {
 import { useDataModelSavedItems } from '../provider';
 import {
   deleteDiagram,
-  getCurrentModel,
+  selectCurrentModel,
   openDiagram,
   openDiagramFromFile,
   renameDiagram,
@@ -202,7 +202,9 @@ export const SavedDiagramsList: React.FunctionComponent<{
   >(() => {
     return items.map((item) => {
       const databases = new Set(
-        getCurrentModel(item).collections.map(({ ns }) => toNS(ns).database)
+        selectCurrentModel(item.edits).collections.map(
+          ({ ns }) => toNS(ns).database
+        )
       );
       return {
         ...item,
