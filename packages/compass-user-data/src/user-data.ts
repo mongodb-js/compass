@@ -422,25 +422,40 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async readAll(): Promise<ReadAllResult<T>> {
-    try {
-      const response = await this.authenticatedFetch(this.getUrl(), {
-        method: 'GET',
-      });
-      if (!response.ok) {
-        throw new Error(
+    const response = await this.authenticatedFetch(this.getUrl(), {
+      method: 'GET',
+    });
+    const result: ReadAllResult<T> = {
+      data: [],
+      errors: [],
+    };
+    if (!response.ok) {
+      log.error(
+        mongoLogId(1_001_000_364),
+        'Atlas Backend',
+        'Error reading data',
+        {
+          url: this.getUrl(),
+          error: `Status ${response.status} ${response.statusText}`,
+        }
+      );
+      result.errors.push(
+        new Error(
           `Failed to get data: ${response.status} ${response.statusText}`
-        );
-      }
-      const json = await response.json();
-      const data = Array.isArray(json)
-        ? json.map((item) =>
-            this.validator.parse(this.deserialize(item.data as string))
-          )
-        : [];
-      return { data, errors: [] };
-    } catch (error) {
-      return { data: [], errors: [error as Error] };
+        )
+      );
+      return result;
     }
+    const json = await response.json();
+    for (const item of json) {
+      try {
+        const parsedData = this.deserialize(item.data as string);
+        result.data.push(this.validator.parse(parsedData) as z.output<T>);
+      } catch (error) {
+        result.errors.push(error as Error);
+      }
+    }
+    return result;
   }
 
   async updateAttributes(
@@ -463,7 +478,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return this.validator.parse(data);
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_364),
+        mongoLogId(1_001_000_365),
         'Atlas Backend',
         'Error updating data',
         {
