@@ -303,16 +303,33 @@ expressProxy.use(
       return req;
     },
     userResHeaderDecorator(headers, _req, res) {
-      // Cloud backend will try to always set auth cookies on requests, but we
-      // can't really meaningfully store those in the browser (__secure- ones
-      // would be ignored anyways), so to avoid polluting storage, we just not
-      // allow the set-cookie header to propagate
-      delete headers['set-cookie'];
-
       if (isSignedOutRedirect(headers.location)) {
         res.statusCode = 403;
         return {};
       }
+
+      // When cloud session expires, cloud backend will send a new set of
+      // session cookies to make sure that "active" client stays signed in. As
+      // these proxy requests are not going through the electron fetch, we can
+      // end up in a situation where electron still keeps the old session
+      // cookies instead on new ones. When we receive set-cookie header in the
+      // proxy, we will copy the cookies to the electron session to make sure
+      // that both are in sync with electron storage that we use as source of
+      // truth for cookies when creating the fetch request
+      if (headers['set-cookie']) {
+        const parsedCookies = headers['set-cookie'].map((cookieStr) => {
+          const [cookie, ...options] = cookieStr.split(';').map((keyVal) => {
+            return keyVal.split('=');
+          });
+          const domain = options.find((opt) => {
+            return opt[0] === 'Domain';
+          });
+          return { name: cookie[0], value: cookie[1], domain: domain[1] };
+        });
+        session.defaultSession.cookies.set(parsedCookies);
+      }
+      delete headers['set-cookie'];
+
       return headers;
     },
   })
