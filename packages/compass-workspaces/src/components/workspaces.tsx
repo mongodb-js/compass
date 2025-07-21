@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  DrawerAnchor,
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
@@ -215,13 +216,16 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         selectedTabIndex={activeTabIndex}
       ></WorkspaceTabs>
 
-      <div className={workspacesContentStyles}>
-        {activeTab && workspaceTabContent ? (
-          workspaceTabContent
-        ) : (
-          <EmptyWorkspaceContent></EmptyWorkspaceContent>
-        )}
-      </div>
+      {/* TODO: not only this breaks layout in an unexpected way, it also causes a ton of ResizeObserver errors to pop up, seems like wrapping anything in leafygreen Drawer breaks our virtualized lisis completely */}
+      <DrawerAnchor>
+        <div className={workspacesContentStyles}>
+          {activeTab && workspaceTabContent ? (
+            workspaceTabContent
+          ) : (
+            <EmptyWorkspaceContent></EmptyWorkspaceContent>
+          )}
+        </div>
+      </DrawerAnchor>
     </div>
   );
 };
