@@ -3,7 +3,6 @@ import {
   Button,
   css,
   cx,
-  FileSelector,
   Icon,
   palette,
   SearchInput,
@@ -12,6 +11,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { DiagramListContext } from './saved-diagrams-list';
+import { OpenDiagramButton } from './open-diagram-button';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -67,22 +67,10 @@ export const DiagramListToolbar = () => {
         Open an existing diagram:
       </Subtitle>
       <div className={diagramActionsStyles}>
-        <FileSelector
-          id="open-diagram-file-input"
-          dataTestId="open-diagram-file-input"
-          // accept=".compass"
-          multiple={false}
-          onSelect={(files) => {
-            if (files.length === 0) {
-              return;
-            }
-            onImportDiagram(files[0]);
-          }}
-          trigger={({ onClick }) => (
-            <Button size="small" variant="default" onClick={onClick}>
-              Open Diagram
-            </Button>
-          )}
+        <OpenDiagramButton
+          leftGlyph={<Icon glyph="Import" />}
+          size="small"
+          onImportDiagram={onImportDiagram}
         />
         <Button
           onClick={onCreateDiagram}

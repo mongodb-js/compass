@@ -2,7 +2,6 @@ import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
 import {
-  EditSchema,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,
@@ -16,7 +15,11 @@ import {
   showConfirmation,
   showPrompt,
 } from '@mongodb-js/compass-components';
-import { downloadDiagram } from '../services/open-and-download-diagram';
+import {
+  downloadDiagram,
+  getDiagramContentsFromFile,
+  getDiagramName,
+} from '../services/open-and-download-diagram';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -358,56 +361,6 @@ export function renameDiagram(
   };
 }
 
-// TODO: Move to its service.
-async function getDiagramContentsFromFile(
-  file: File
-): Promise<{ name: string; edits: Edit[] }> {
-  const reader = new FileReader();
-  return new Promise((resolve, reject) => {
-    reader.onload = (event) => {
-      const content = event.target?.result;
-      if (typeof content !== 'string') {
-        return reject(new Error('Invalid file contents'));
-      }
-      try {
-        const parsedContent = JSON.parse(content);
-
-        if (
-          parsedContent.version !== 1 &&
-          parsedContent.type !== 'Compass Data Modeling Diagram'
-        ) {
-          return reject(new Error('Unsupported diagram file format'));
-        }
-
-        const edits = JSON.parse(
-          Buffer.from(parsedContent.edits, 'base64').toString('utf-8')
-        );
-        // Ensure that edits validate using EditSchema
-        const validEdits = EditSchema.array().parse(edits);
-        return resolve({ name: parsedContent.name, edits: validEdits });
-      } catch (error) {
-        reject(
-          new Error(`Failed to parse diagram file: ${(error as Error).message}`)
-        );
-      }
-    };
-    reader.onerror = (error) => {
-      reject(error.target?.error || new Error('File read error'));
-    };
-    reader.readAsText(file);
-  });
-}
-
-function getDiagramName(existingNames: string[], expectedName: string): string {
-  let name = expectedName;
-  let index = 1;
-  while (existingNames.includes(name)) {
-    name = `${expectedName} - ${index}`;
-    index += 1;
-  }
-  return name;
-}
-
 export function openDiagramFromFile(
   file: File
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
@@ -427,11 +380,8 @@ export function openDiagramFromFile(
         updatedAt: new Date().toISOString(),
         edits,
       };
-      const saved = await dataModelStorage.save(diagram);
-      if (!saved) {
-        throw new Error('Failed to save the diagram');
-      }
       dispatch(openDiagram(diagram));
+      void dataModelStorage.save(diagram);
     } catch (error) {
       openToast('data-modeling-file-read-error', {
         variant: 'warning',

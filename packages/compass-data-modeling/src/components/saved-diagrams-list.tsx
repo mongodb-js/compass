@@ -28,6 +28,7 @@ import FlexibilityIcon from './icons/flexibility';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 import toNS from 'mongodb-ns';
+import { OpenDiagramButton } from './open-diagram-button';
 
 const sortBy = [
   {
@@ -70,6 +71,11 @@ export const DiagramListContext = React.createContext<{
 
 const subTitleStyles = css({
   maxWidth: '750px',
+});
+
+const diagramActionsStyles = css({
+  display: 'flex',
+  gap: spacing[200],
 });
 
 const featuresListStyles = css({
@@ -137,7 +143,8 @@ const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
 
 const DiagramListEmptyContent: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
-}> = ({ onCreateDiagramClick }) => {
+  onImportDiagramClick: (file: File) => void;
+}> = ({ onCreateDiagramClick, onImportDiagramClick }) => {
   return (
     <WorkspaceContainer>
       <EmptyContent
@@ -158,13 +165,16 @@ const DiagramListEmptyContent: React.FunctionComponent<{
         }
         subTitleClassName={subTitleStyles}
         callToAction={
-          <Button
-            onClick={onCreateDiagramClick}
-            variant="primary"
-            data-testid="create-diagram-button"
-          >
-            Generate diagram
-          </Button>
+          <div className={diagramActionsStyles}>
+            <OpenDiagramButton onImportDiagram={onImportDiagramClick} />
+            <Button
+              onClick={onCreateDiagramClick}
+              variant="primary"
+              data-testid="create-diagram-button"
+            >
+              Generate diagram
+            </Button>
+          </div>
         }
       ></EmptyContent>
     </WorkspaceContainer>
@@ -219,7 +229,10 @@ export const SavedDiagramsList: React.FunctionComponent<{
   }
   if (items.length === 0) {
     return (
-      <DiagramListEmptyContent onCreateDiagramClick={onCreateDiagramClick} />
+      <DiagramListEmptyContent
+        onCreateDiagramClick={onCreateDiagramClick}
+        onImportDiagramClick={onImportDiagramClick}
+      />
     );
   }
 
