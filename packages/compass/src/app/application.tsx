@@ -5,7 +5,11 @@ import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
-import { openToast, ToastBody } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  closeToast,
+  ToastBody,
+} from '@mongodb-js/compass-components';
 import ensureError from 'ensure-error';
 
 import * as webvitals from 'web-vitals';
@@ -228,13 +232,17 @@ class Application {
   }
 
   private setupDownloadStatusListeners() {
+    const fileDownloadCompleteToastId = 'file-download-complete';
     ipcRenderer?.on('download-finished', (event, { path }) => {
-      openToast('file-download-complete', {
+      openToast(fileDownloadCompleteToastId, {
         title: 'Success',
         description: (
           <ToastBody
             statusMessage="File download complete"
-            actionHandler={() => ipcRenderer?.send('show-file', path)}
+            actionHandler={() => {
+              ipcRenderer?.send('show-file', path);
+              closeToast(fileDownloadCompleteToastId);
+            }}
             actionText="show file"
           />
         ),
