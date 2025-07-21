@@ -194,7 +194,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
-  selectedItem?: string | null;
+  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
 }> = ({
   diagramLabel,
   step,
@@ -206,7 +206,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect,
   onRelationshipSelect,
   onDiagramBackgroundClicked,
-  selectedItem,
+  selectedItems,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -234,10 +234,13 @@ const DiagramEditor: React.FunctionComponent<{
         target: target.ns ?? '',
         markerStart: source.cardinality === 1 ? 'one' : 'many',
         markerEnd: target.cardinality === 1 ? 'one' : 'many',
-        selected: selectedItem === relationship.id,
+        selected:
+          !!selectedItems &&
+          selectedItems.type === 'relationship' &&
+          selectedItems.id === relationship.id,
       };
     });
-  }, [model?.relationships, selectedItem]);
+  }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
@@ -250,10 +253,13 @@ const DiagramEditor: React.FunctionComponent<{
         },
         title: toNS(coll.ns).collection,
         fields: getFieldsFromSchema(coll.jsonSchema),
-        selected: selectedItem === coll.ns,
+        selected:
+          !!selectedItems &&
+          selectedItems.type === 'collection' &&
+          selectedItems.id === coll.ns,
       })
     );
-  }, [model?.collections, selectedItem]);
+  }, [model?.collections, selectedItems]);
 
   const applyInitialLayout = useCallback(async () => {
     try {
@@ -391,9 +397,7 @@ export default connect(
         : null,
       editErrors: diagram?.editErrors,
       diagramLabel: diagram?.name || 'Schema Preview',
-      selectedItem: state.diagram?.selectedItems
-        ? state.diagram.selectedItems.id
-        : null,
+      selectedItems: state.diagram?.selectedItems ?? null,
     };
   },
   {
