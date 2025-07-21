@@ -56,15 +56,15 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', async function () {
+  it('should render a collection context drawer when collection is clicked', function () {
     const result = renderDrawer();
-    await result.plugin.store.dispatch(selectCollection('flights.airlines'));
+    result.plugin.store.dispatch(selectCollection('flights.airlines'));
     expect(screen.getByText('flights.airlines')).to.be.visible;
   });
 
-  it('should render a relationship context drawer when relations is clicked', async function () {
+  it('should render a relationship context drawer when relations is clicked', function () {
     const result = renderDrawer();
-    await result.plugin.store.dispatch(
+    result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
     expect(screen.getByText('Edit Relationship')).to.be.visible;
@@ -72,12 +72,46 @@ describe('DiagramEditorSidePanel', function () {
       document.querySelector(
         '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
       )
-    ).to.exist;
+    ).to.be.visible;
+  });
+
+  it('should change the content of the drawer when selecting different items', function () {
+    const result = renderDrawer();
+
+    result.plugin.store.dispatch(selectCollection('flights.airlines'));
+    expect(screen.getByText('flights.airlines')).to.be.visible;
+
+    result.plugin.store.dispatch(
+      selectCollection('flights.airports_coordinates_for_schema')
+    );
+    expect(screen.getByText('flights.airports_coordinates_for_schema')).to.be
+      .visible;
+
+    result.plugin.store.dispatch(
+      selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
+    );
+    expect(
+      document.querySelector(
+        '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
+      )
+    ).to.be.visible;
+
+    result.plugin.store.dispatch(
+      selectRelationship('6f776467-4c98-476b-9b71-1f8a724e6c2c')
+    );
+    expect(
+      document.querySelector(
+        '[data-relationship-id="6f776467-4c98-476b-9b71-1f8a724e6c2c"]'
+      )
+    ).to.be.visible;
+
+    result.plugin.store.dispatch(selectCollection('flights.planes'));
+    expect(screen.getByText('flights.planes')).to.be.visible;
   });
 
   it('should open and edit relationship starting from collection', async function () {
     const result = renderDrawer();
-    await result.plugin.store.dispatch(selectCollection('flights.countries'));
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
 
     // Open relationshipt editing form
     const relationshipCard = document.querySelector<HTMLElement>(
