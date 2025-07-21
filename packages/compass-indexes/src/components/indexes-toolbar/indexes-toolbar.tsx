@@ -63,7 +63,7 @@ const serverSupportsSearchIndexManagement = (serverVersion: string) => {
       MIN_SEARCH_INDEX_MANAGEMENT_SERVER_VERSION
     );
   } catch {
-    return true;
+    return false;
   }
 };
 
