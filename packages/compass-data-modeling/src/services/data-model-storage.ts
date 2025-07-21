@@ -2,9 +2,9 @@ import { z } from '@mongodb-js/compass-user-data';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 export const RelationshipSideSchema = z.object({
-  ns: z.string(),
+  ns: z.string().nullable(),
   cardinality: z.number(),
-  fields: z.array(z.string()),
+  fields: z.array(z.string()).nullable(),
 });
 
 export type RelationshipSide = z.output<typeof RelationshipSideSchema>;

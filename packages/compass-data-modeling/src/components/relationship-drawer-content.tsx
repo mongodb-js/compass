@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -10,58 +10,117 @@ import {
   Select,
   Option,
 } from '@mongodb-js/compass-components';
-import type { RelationshipFormFields } from '../store/side-panel';
-import {
-  cancelRelationshipEditing,
-  changeRelationshipFormField,
-  submitRelationshipEdit,
-} from '../store/side-panel';
 import {
   deleteRelationship,
   getCurrentDiagramFromState,
   selectFieldsForCurrentModel,
+  selectRelationshipForCurrentModel,
+  updateRelationship,
 } from '../store/diagram';
 import toNS from 'mongodb-ns';
+import type { Relationship } from '../services/data-model-storage';
+import { cloneDeep } from 'lodash';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
+  relationship: Relationship;
+  fields: Record<string, string[][]>;
+  onRelationshipUpdate: (relationship: Relationship) => void;
+  onDeleteRelationshipClick: (rId: string) => void;
+};
+
+type RelationshipFormFields = {
   localCollection: string;
   localField: string;
   foreignCollection: string;
   foreignField: string;
-  cardinality: string;
-  fields: Record<string, string[]>;
-  onFormFieldChange: (field: RelationshipFormFields, value: string) => void;
-  onDeleteRelationsClick: (rId: string) => void;
-  onSubmitFormClick: () => void;
-  onCancelEditClick: () => void;
+  localCardinality: string;
+  foreignCardinality: string;
 };
 
-const CARDINALITY_OPTIONS = [
-  { label: 'One to one', value: 'one-to-one' },
-  { label: 'One to many', value: 'one-to-many' },
-  { label: 'Many to one', value: 'many-to-one' },
-  { label: 'Many to many', value: 'many-to-many' },
-];
+const FIELD_DIVIDER = '~~##$$##~~';
+
+function useRelationshipFormFields(
+  relationship: Relationship,
+  onRelationshipChange: (relationship: Relationship) => void
+): RelationshipFormFields & {
+  onFieldChange: (key: keyof RelationshipFormFields, value: string) => void;
+} {
+  const onRelationshipChangeRef = useRef(onRelationshipChange);
+  onRelationshipChangeRef.current = onRelationshipChange;
+  const [local, foreign] = relationship.relationship;
+  const localCollection = local.ns ?? '';
+  // Leafygreen select / combobox only supports string fields, so we stringify
+  // the value for the form, and then will convert it back on update
+  const localField = local.fields?.join(FIELD_DIVIDER) ?? '';
+  const localCardinality = String(local.cardinality);
+  const foreignCollection = foreign.ns ?? '';
+  const foreignField = foreign.fields?.join(FIELD_DIVIDER) ?? '';
+  const foreignCardinality = String(foreign.cardinality);
+  const onFieldChange = useCallback(
+    (key: keyof RelationshipFormFields, value: string) => {
+      const newRelationship = cloneDeep(relationship);
+      switch (key) {
+        case 'localCollection':
+          newRelationship.relationship[0].ns = value;
+          newRelationship.relationship[0].fields = null;
+          break;
+        case 'localField':
+          newRelationship.relationship[0].fields = value.split(FIELD_DIVIDER);
+          break;
+        case 'localCardinality':
+          newRelationship.relationship[0].cardinality = Number(value);
+          break;
+        case 'foreignCollection':
+          newRelationship.relationship[1].ns = value;
+          newRelationship.relationship[1].fields = null;
+          break;
+        case 'foreignField':
+          newRelationship.relationship[1].fields = value.split(FIELD_DIVIDER);
+          break;
+        case 'foreignCardinality':
+          newRelationship.relationship[1].cardinality = Number(value);
+          break;
+      }
+      onRelationshipChangeRef.current(newRelationship);
+    },
+    [relationship]
+  );
+  return {
+    localCollection,
+    localField,
+    localCardinality,
+    foreignCollection,
+    foreignField,
+    foreignCardinality,
+    onFieldChange,
+  };
+}
+
+const CARDINALITY_OPTIONS = [1, 10, 100, 1000];
 
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
 > = ({
   relationshipId,
-  localCollection,
-  localField,
-  foreignCollection,
-  foreignField,
-  cardinality,
+  relationship,
   fields,
-  onFormFieldChange,
-  onDeleteRelationsClick,
-  onSubmitFormClick,
-  onCancelEditClick,
+  onRelationshipUpdate,
+  onDeleteRelationshipClick,
 }) => {
   const collections = useMemo(() => {
     return Object.keys(fields);
   }, [fields]);
+
+  const {
+    localCollection,
+    localField,
+    localCardinality,
+    foreignCollection,
+    foreignField,
+    foreignCardinality,
+    onFieldChange,
+  } = useRelationshipFormFields(relationship, onRelationshipUpdate);
 
   const localFieldOptions = useMemo(() => {
     return fields[localCollection] ?? [];
@@ -70,14 +129,6 @@ const RelationshipDrawerContent: React.FunctionComponent<
   const foreignFieldOptions = useMemo(() => {
     return fields[foreignCollection] ?? [];
   }, [fields, foreignCollection]);
-
-  const isValid = Boolean(
-    localCollection &&
-      localField &&
-      foreignCollection &&
-      foreignField &&
-      cardinality
-  );
 
   return (
     <div data-relationship-id={relationshipId}>
@@ -89,7 +140,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
           value={localCollection}
           onChange={(val) => {
             if (val) {
-              onFormFieldChange('localCollection', val);
+              onFieldChange('localCollection', val);
             }
           }}
           multiselect={false}
@@ -114,14 +165,20 @@ const RelationshipDrawerContent: React.FunctionComponent<
           value={localField}
           onChange={(val) => {
             if (val) {
-              onFormFieldChange('localField', val);
+              onFieldChange('localField', val);
             }
           }}
           multiselect={false}
           clearable={false}
         >
           {localFieldOptions.map((field) => {
-            return <ComboboxOption key={field} value={field}></ComboboxOption>;
+            return (
+              <ComboboxOption
+                key={field.join('.')}
+                value={field.join(FIELD_DIVIDER)}
+                displayName={field.join('.')}
+              ></ComboboxOption>
+            );
           })}
         </Combobox>
       </FormFieldContainer>
@@ -132,7 +189,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
           value={foreignCollection}
           onChange={(val) => {
             if (val) {
-              onFormFieldChange('foreignCollection', val);
+              onFieldChange('foreignCollection', val);
             }
           }}
           multiselect={false}
@@ -157,71 +214,96 @@ const RelationshipDrawerContent: React.FunctionComponent<
           value={foreignField}
           onChange={(val) => {
             if (val) {
-              onFormFieldChange('foreignField', val);
+              onFieldChange('foreignField', val);
             }
           }}
           multiselect={false}
           clearable={false}
         >
           {foreignFieldOptions.map((field) => {
-            return <ComboboxOption key={field} value={field}></ComboboxOption>;
+            return (
+              <ComboboxOption
+                key={field.join('.')}
+                value={field.join(FIELD_DIVIDER)}
+                displayName={field.join('.')}
+              ></ComboboxOption>
+            );
           })}
         </Combobox>
       </FormFieldContainer>
 
       <FormFieldContainer>
         <Select
-          label="Cardinality"
-          value={cardinality}
+          label="Local cardinality"
+          value={localCardinality}
           onChange={(val) => {
             if (val) {
-              onFormFieldChange('cardinality', val);
+              onFieldChange('localCardinality', val);
             }
           }}
         >
           {CARDINALITY_OPTIONS.map((option) => {
             return (
-              <Option key={option.value} value={option.value}>
-                {option.label}
+              <Option key={option} value={String(option)}>
+                {option}
               </Option>
             );
           })}
         </Select>
       </FormFieldContainer>
 
-      <div>
+      <FormFieldContainer>
+        <Select
+          label="Foreign cardinality"
+          value={foreignCardinality}
+          onChange={(val) => {
+            if (val) {
+              onFieldChange('foreignCardinality', val);
+            }
+          }}
+        >
+          {CARDINALITY_OPTIONS.map((option) => {
+            return (
+              <Option key={option} value={String(option)}>
+                {option}
+              </Option>
+            );
+          })}
+        </Select>
+      </FormFieldContainer>
+
+      <FormFieldContainer>
         <Button
           onClick={() => {
-            onDeleteRelationsClick(relationshipId);
+            onDeleteRelationshipClick(relationshipId);
           }}
         >
           Delete
         </Button>
-        <Button disabled={!isValid} onClick={onSubmitFormClick}>
-          Save
-        </Button>
-        <Button onClick={onCancelEditClick}>Cancel</Button>
-      </div>
+      </FormFieldContainer>
     </div>
   );
 };
 
 export default connect(
-  (state: DataModelingState) => {
-    if (state.sidePanel.viewType !== 'relationship-editing') {
-      throw new Error('Unexpected state');
+  (state: DataModelingState, ownProps: { relationshipId: string }) => {
+    const diagram = getCurrentDiagramFromState(state);
+    const relationship = selectRelationshipForCurrentModel(
+      diagram.edits,
+      ownProps.relationshipId
+    );
+    if (!relationship) {
+      throw new Error(
+        `Can not find relationship with ${ownProps.relationshipId}`
+      );
     }
     return {
-      ...state.sidePanel.relationshipFormState,
-      fields: selectFieldsForCurrentModel(
-        getCurrentDiagramFromState(state).edits
-      ),
+      relationship,
+      fields: selectFieldsForCurrentModel(diagram.edits),
     };
   },
   {
-    onFormFieldChange: changeRelationshipFormField,
-    onDeleteRelationsClick: deleteRelationship,
-    onSubmitFormClick: submitRelationshipEdit,
-    onCancelEditClick: cancelRelationshipEditing,
+    onRelationshipUpdate: updateRelationship,
+    onDeleteRelationshipClick: deleteRelationship,
   }
 )(RelationshipDrawerContent);

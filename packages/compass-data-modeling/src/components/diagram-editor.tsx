@@ -230,8 +230,8 @@ const DiagramEditor: React.FunctionComponent<{
       const [source, target] = relationship.relationship;
       return {
         id: relationship.id,
-        source: source.ns,
-        target: target.ns,
+        source: source.ns ?? '',
+        target: target.ns ?? '',
         markerStart: source.cardinality === 1 ? 'one' : 'many',
         markerEnd: target.cardinality === 1 ? 'one' : 'many',
         selected: selectedItem === relationship.id,

@@ -12,7 +12,6 @@ import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
-import { SidePanelActionTypes } from './side-panel';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { downloadDiagram } from '../services/open-and-download-diagram';
 
@@ -44,6 +43,7 @@ export enum DiagramActionTypes {
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
+  DRAWER_CLOSED = 'data-modeling/diagram/DRAWER_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -92,11 +92,15 @@ export type CollectionSelectedAction = {
 
 export type RelationSelectedAction = {
   type: DiagramActionTypes.RELATIONSHIP_SELECTED;
-  relationship: Relationship;
+  relationshipId: string;
 };
 
 export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
+};
+
+export type DrawerClosedAction = {
+  type: DiagramActionTypes.DRAWER_CLOSED;
 };
 
 export type DiagramActions =
@@ -110,7 +114,8 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
-  | DiagramBackgroundSelectedAction;
+  | DiagramBackgroundSelectedAction
+  | DrawerClosedAction;
 
 const INITIAL_STATE: DiagramState = null;
 
@@ -271,40 +276,14 @@ export const diagramReducer: Reducer<DiagramState> = (
       ...state,
       selectedItems: {
         type: 'relationship',
-        id: action.relationship.id,
+        id: action.relationshipId,
       },
     };
   }
-  if (isAction(action, SidePanelActionTypes.EDIT_RELATIONSHIP_FORM_CANCELED)) {
-    if (state.selectedItems?.type === 'relationship') {
-      return {
-        ...state,
-        // Just unselect when canceling edit on relationship, this is basically
-        // the same as closing the drawer in this case
-        selectedItems: null,
-      };
-    }
-    return state;
-  }
-  if (isAction(action, SidePanelActionTypes.SIDE_PANEL_CLOSE_CLICKED)) {
-    return {
-      ...state,
-      selectedItems: null,
-    };
-  }
-  if (isAction(action, SidePanelActionTypes.EDIT_RELATIONSHIP_FORM_SUBMITTED)) {
-    if (
-      state.selectedItems?.type === 'relationship' &&
-      state.selectedItems.id === action.relationshipId
-    ) {
-      return {
-        ...state,
-        selectedItems: null,
-      };
-    }
-    return state;
-  }
-  if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
+  if (
+    isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED) ||
+    isAction(action, DiagramActionTypes.DRAWER_CLOSED)
+  ) {
     return {
       ...state,
       selectedItems: null,
@@ -313,104 +292,46 @@ export const diagramReducer: Reducer<DiagramState> = (
   return state;
 };
 
-export function selectCollection(
-  namespace: string
-): DataModelingThunkAction<Promise<void>, CollectionSelectedAction> {
-  return async (dispatch, getState) => {
-    const { diagram, sidePanel } = getState();
-
-    if (
-      diagram?.selectedItems?.type === 'collection' &&
-      diagram.selectedItems.id === namespace
-    ) {
-      return;
-    }
-
-    if (
-      sidePanel.viewType === 'relationship-editing' &&
-      sidePanel.relationshipFormState.modified
-    ) {
-      const allowSelect = await showConfirmation({
-        title: 'You have unsaved chages',
-        description:
-          'You are currently editing a relationship. Are you sure you want to select a different collection?',
-      });
-      if (!allowSelect) {
-        return;
-      }
-    }
-
-    dispatch({ type: DiagramActionTypes.COLLECTION_SELECTED, namespace });
-  };
+export function selectCollection(namespace: string): CollectionSelectedAction {
+  return { type: DiagramActionTypes.COLLECTION_SELECTED, namespace };
 }
 
 export function selectRelationship(
-  rId: string
-): DataModelingThunkAction<Promise<void>, RelationSelectedAction> {
-  return async (dispatch, getState) => {
-    const { diagram, sidePanel } = getState();
-
-    if (
-      diagram?.selectedItems?.type === 'relationship' &&
-      diagram.selectedItems.id === rId
-    ) {
-      return;
-    }
-
-    if (
-      sidePanel.viewType === 'relationship-editing' &&
-      sidePanel.relationshipFormState.modified
-    ) {
-      const allowSelect = await showConfirmation({
-        title: 'You have unsaved chages',
-        description:
-          'You are currently editing a relationship. Are you sure you want to select a different relationship?',
-      });
-      if (!allowSelect) {
-        return;
-      }
-    }
-
-    const model = selectCurrentModel(
-      getCurrentDiagramFromState(getState()).edits
-    );
-
-    const relationship = model.relationships.find((r) => {
-      return r.id === rId;
-    });
-
-    if (relationship) {
-      dispatch({
-        type: DiagramActionTypes.RELATIONSHIP_SELECTED,
-        relationship,
-      });
-    }
+  relationshipId: string
+): RelationSelectedAction {
+  return {
+    type: DiagramActionTypes.RELATIONSHIP_SELECTED,
+    relationshipId,
   };
 }
 
-export function selectBackground(): DataModelingThunkAction<
-  Promise<void>,
-  DiagramBackgroundSelectedAction
-> {
-  return async (dispatch, getState) => {
-    const { sidePanel } = getState();
+export function selectBackground(): DiagramBackgroundSelectedAction {
+  return {
+    type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
+  };
+}
 
-    if (
-      sidePanel.viewType === 'relationship-editing' &&
-      sidePanel.relationshipFormState.modified
-    ) {
-      const allowSelect = await showConfirmation({
-        title: 'You have unsaved chages',
-        description:
-          'You are currently editing a relationship. Are you sure you want to stop editing?',
-      });
-      if (!allowSelect) {
-        return;
-      }
-    }
-
+export function createNewRelationship(
+  namespace: string
+): DataModelingThunkAction<void, RelationSelectedAction> {
+  return (dispatch) => {
+    const relationshipId = new UUID().toString();
+    dispatch(
+      applyEdit({
+        type: 'AddRelationship',
+        relationship: {
+          id: relationshipId,
+          relationship: [
+            { ns: namespace, cardinality: 1, fields: null },
+            { ns: null, cardinality: 1, fields: null },
+          ],
+          isInferred: false,
+        },
+      })
+    );
     dispatch({
-      type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
+      type: DiagramActionTypes.RELATIONSHIP_SELECTED,
+      relationshipId,
     });
   };
 }
@@ -540,68 +461,20 @@ export function renameDiagram(
 }
 
 export function updateRelationship(
-  rId: string,
-  options: {
-    localCollection: string;
-    localField: string;
-    foreignCollection: string;
-    foreignField: string;
-    cardinality: string;
-  }
+  relationship: Relationship
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return (dispatch, getState) => {
-    const {
-      localCollection,
-      localField,
-      foreignCollection,
-      foreignField,
-      cardinality,
-    } = options;
-    const existingRelationship = selectCurrentModel(
-      getCurrentDiagramFromState(getState()).edits
-    ).relationships.find((r) => {
-      return r.id === rId;
-    });
-    const [localCardinality, foreignCardinality] = (() => {
-      switch (cardinality) {
-        case 'one-to-one':
-          return [1, 1];
-        case 'one-to-many':
-          return [1, 2];
-        case 'many-to-one':
-          return [2, 1];
-        case 'many-to-many':
-          return [2, 2];
-        default:
-          throw new Error('Unexpected cardinality');
-      }
-    })();
-    return dispatch(
-      applyEdit({
-        type: existingRelationship ? 'UpdateRelationship' : 'AddRelationship',
-        relationship: {
-          id: rId,
-          relationship: [
-            {
-              ns: localCollection,
-              cardinality: localCardinality,
-              fields: [localField],
-            },
-            {
-              ns: foreignCollection,
-              cardinality: foreignCardinality,
-              fields: [foreignField],
-            },
-          ],
-          isInferred: false,
-        },
-      })
-    );
-  };
+  return applyEdit({
+    type: 'UpdateRelationship',
+    relationship,
+  });
 }
 
 export function deleteRelationship(relationshipId: string) {
   return applyEdit({ type: 'RemoveRelationship', relationshipId });
+}
+
+export function closeDrawer(): DrawerClosedAction {
+  return { type: DiagramActionTypes.DRAWER_CLOSED };
 }
 
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
@@ -720,12 +593,12 @@ export const selectCurrentModel = memoize(getCurrentModel);
 
 function extractFields(
   parentSchema: MongoDBJSONSchema,
-  parentKey?: string,
-  fields: string[] = []
+  parentKey?: string[],
+  fields: string[][] = []
 ) {
   if ('properties' in parentSchema && parentSchema.properties) {
     for (const [key, value] of Object.entries(parentSchema.properties)) {
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
+      const fullKey = parentKey ? [...parentKey, key] : [key];
       fields.push(fullKey);
       extractFields(value, fullKey, fields);
     }
@@ -735,7 +608,7 @@ function extractFields(
 
 function getFieldsForCurrentModel(
   edits: MongoDBDataModelDescription['edits']
-): Record<string, string[]> {
+): Record<string, string[][]> {
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
@@ -746,3 +619,16 @@ function getFieldsForCurrentModel(
 }
 
 export const selectFieldsForCurrentModel = memoize(getFieldsForCurrentModel);
+
+function getRelationshipForCurrentModel(
+  edits: MongoDBDataModelDescription['edits'],
+  relationshipId: string
+) {
+  return selectCurrentModel(edits).relationships.find(
+    (r) => r.id === relationshipId
+  );
+}
+
+export const selectRelationshipForCurrentModel = memoize(
+  getRelationshipForCurrentModel
+);

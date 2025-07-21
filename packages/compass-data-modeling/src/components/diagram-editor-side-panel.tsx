@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { closeSidePanel } from '../store/side-panel';
 import {
   Button,
   css,
@@ -11,6 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
+import { closeDrawer } from '../store/diagram';
 
 const containerStyles = css({
   width: '400px',
@@ -46,7 +46,11 @@ function DiagmramEditorSidePanel({
       ></CollectionDrawerContent>
     );
   } else if (selectedItems.type === 'relationship') {
-    content = <RelationshipDrawerContent></RelationshipDrawerContent>;
+    content = (
+      <RelationshipDrawerContent
+        relationshipId={selectedItems.id}
+      ></RelationshipDrawerContent>
+    );
   }
 
   return (
@@ -66,6 +70,6 @@ export default connect(
     };
   },
   {
-    onClose: closeSidePanel,
+    onClose: closeDrawer,
   }
 )(DiagmramEditorSidePanel);

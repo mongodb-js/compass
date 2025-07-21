@@ -3,23 +3,20 @@ import { connect } from 'react-redux';
 import type { Relationship } from '../services/data-model-storage';
 import { Button, H3 } from '@mongodb-js/compass-components';
 import {
+  createNewRelationship,
   deleteRelationship,
   getCurrentDiagramFromState,
   selectCurrentModel,
+  selectRelationship,
 } from '../store/diagram';
 import type { DataModelingState } from '../store/reducer';
-import {
-  createNewRelationship,
-  startRelationshipEdit,
-} from '../store/side-panel';
-import RelationshipDrawerContent from './relationship-drawer-content';
 
 type CollectionDrawerContentProps = {
   namespace: string;
   relationships: Relationship[];
   shouldShowRelationshipEditingForm?: boolean;
   onCreateNewRelationshipClick: (namespace: string) => void;
-  onEditRelationshipClick: (relationship: Relationship) => void;
+  onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
 };
 
@@ -28,15 +25,10 @@ const CollectionDrawerContent: React.FunctionComponent<
 > = ({
   namespace,
   relationships,
-  shouldShowRelationshipEditingForm,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
 }) => {
-  if (shouldShowRelationshipEditingForm) {
-    return <RelationshipDrawerContent></RelationshipDrawerContent>;
-  }
-
   return (
     <>
       <H3>{namespace}</H3>
@@ -44,11 +36,11 @@ const CollectionDrawerContent: React.FunctionComponent<
         {relationships.map((r) => {
           return (
             <li key={r.id} data-relationship-id={r.id}>
-              {r.relationship[0].fields.join(', ')}&nbsp;-&gt;&nbsp;
-              {r.relationship[1].fields.join(', ')}
+              {r.relationship[0].fields?.join('.')}&nbsp;-&gt;&nbsp;
+              {r.relationship[1].fields?.join('.')}
               <Button
                 onClick={() => {
-                  onEditRelationshipClick(r);
+                  onEditRelationshipClick(r.id);
                 }}
               >
                 Edit
@@ -86,13 +78,11 @@ export default connect(
           local.ns === ownProps.namespace || foreign.ns === ownProps.namespace
         );
       }),
-      shouldShowRelationshipEditingForm:
-        state.sidePanel.viewType === 'relationship-editing',
     };
   },
   {
     onCreateNewRelationshipClick: createNewRelationship,
-    onEditRelationshipClick: startRelationshipEdit,
+    onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
   }
 )(CollectionDrawerContent);
