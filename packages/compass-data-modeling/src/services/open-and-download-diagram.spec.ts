@@ -118,7 +118,30 @@ describe('open-and-download-diagram', function () {
           }),
           'file.json'
         ),
-        expected: 'Failed to parse diagram file',
+        expected: 'Failed to parse diagram file: Invalid diagram data.',
+      },
+      {
+        title: 'should throw if first edit is not SetModel',
+        file: makeFile(
+          JSON.stringify({
+            version: 1,
+            type: 'Compass Data Modeling Diagram',
+            name: 'Test Diagram',
+            edits: Buffer.from(
+              JSON.stringify([
+                {
+                  type: 'MoveCollection',
+                  ns: 'test',
+                  newPosition: [0, 0],
+                  id: '123e4567-e89b-12d3-a456-426614174000',
+                  timestamp: new Date().toISOString(),
+                },
+              ])
+            ).toString('base64'),
+          }),
+          'file.json'
+        ),
+        expected: 'Failed to parse diagram file: Invalid diagram data.',
       },
     ];
     for (const { title, file, expected } of errorUsecases) {

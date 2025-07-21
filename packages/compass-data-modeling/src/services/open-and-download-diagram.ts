@@ -1,5 +1,7 @@
-import { EditSchema, type Edit } from './data-model-storage';
+import type { SetModelEdit } from './data-model-storage';
+import { EditListSchema, type Edit } from './data-model-storage';
 import { downloadFile } from './export-diagram';
+import { z } from '@mongodb-js/compass-user-data';
 
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Data Modeling Diagram';
@@ -28,7 +30,7 @@ export function getDownloadDiagramContent(name: string, edits: Edit[]) {
 
 export async function getDiagramContentsFromFile(
   file: File
-): Promise<{ name: string; edits: Edit[] }> {
+): Promise<{ name: string; edits: [SetModelEdit, ...Edit[]] }> {
   const reader = new FileReader();
   return new Promise((resolve, reject) => {
     reader.onload = (event) => {
@@ -55,13 +57,19 @@ export async function getDiagramContentsFromFile(
         const parsedEdits = JSON.parse(
           Buffer.from(edits, 'base64').toString('utf-8')
         );
-        // Ensure that edits validate using EditSchema
-        const validEdits = EditSchema.array().parse(parsedEdits);
-        return resolve({ name: parsedContent.name, edits: validEdits });
+        // Ensure that edits validate using EditListSchema (SetModel must be first)
+        const validEdits = EditListSchema.parse(parsedEdits);
+
+        return resolve({
+          name: parsedContent.name,
+          edits: [validEdits[0] as SetModelEdit, ...validEdits.slice(1)],
+        });
       } catch (error) {
-        reject(
-          new Error(`Failed to parse diagram file: ${(error as Error).message}`)
-        );
+        const message =
+          error instanceof z.ZodError
+            ? 'Failed to parse diagram file: Invalid diagram data.'
+            : `Failed to parse diagram file: ${(error as Error).message}`;
+        reject(new Error(message));
       }
     };
     reader.onerror = (error) => {
