@@ -417,6 +417,17 @@ describe('Logging and Telemetry integration', function () {
           )}`
         );
       });
+
+      it('only calls instance info for a connection once', function () {
+        expect(
+          logs.filter((v) => {
+            return (
+              v.c === 'COMPASS-DATA-SERVICE' &&
+              v.msg.startsWith('Running instance')
+            );
+          })
+        ).to.have.lengthOf(1);
+      });
     });
   });
 
