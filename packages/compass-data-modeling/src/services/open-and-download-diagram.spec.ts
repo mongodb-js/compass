@@ -64,9 +64,17 @@ describe('open-and-download-diagram', function () {
       },
       {
         title:
-          'should throw an error if content.version and content.type is not valid',
+          'should throw an error if content.version is not the current version',
         file: makeFile(
-          JSON.stringify({ version: 0, type: 'something' }),
+          JSON.stringify({ version: 0, type: 'Compass Data Modeling Diagram' }),
+          'file.json'
+        ),
+        expected: 'Unsupported diagram file format',
+      },
+      {
+        title: 'should throw an error if content.type is not the current type',
+        file: makeFile(
+          JSON.stringify({ version: 1, type: 'Compass Data Modeling' }),
           'file.json'
         ),
         expected: 'Unsupported diagram file format',

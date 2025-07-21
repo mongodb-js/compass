@@ -42,7 +42,7 @@ export async function getDiagramContentsFromFile(
         const parsedContent = JSON.parse(content);
 
         if (
-          parsedContent.version !== kCurrentVersion &&
+          parsedContent.version !== kCurrentVersion ||
           parsedContent.type !== kFileTypeDescription
         ) {
           return reject(new Error('Unsupported diagram file format'));
