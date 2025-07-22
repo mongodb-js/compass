@@ -1,16 +1,25 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
   Button,
   Combobox,
   FormFieldContainer,
-  H3,
   ComboboxOption,
   Select,
   Option,
   Accordion,
   TextInput,
+  spacing,
+  css,
+  Icon,
+  palette,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -40,6 +49,20 @@ type RelationshipFormFields = {
   foreignField: string;
   foreignCardinality: string;
 };
+
+const formFieldContainerStyles = css({
+  marginBottom: spacing[400],
+  marginTop: spacing[400],
+});
+
+const containerStyles = css({
+  padding: spacing[400],
+});
+
+const accordionTitleStyles = css({
+  fontSize: spacing[300],
+  color: palette.gray.dark1,
+});
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -119,6 +142,13 @@ const RelationshipDrawerContent: React.FunctionComponent<
     return Object.keys(fields);
   }, [fields]);
 
+  const [relationshipName, setRelationshipName] = useState<string>(
+    relationship.name || ''
+  );
+  useEffect(() => {
+    setRelationshipName(relationship.name || '');
+  }, [relationship.name]);
+
   const {
     localCollection,
     localField,
@@ -138,22 +168,47 @@ const RelationshipDrawerContent: React.FunctionComponent<
   }, [fields, foreignCollection]);
 
   return (
-    <div data-relationship-id={relationshipId}>
-      <Accordion text="RELATIONSHIP" isDefaultExpanded={true}>
-        <FormFieldContainer>
+    <div data-relationship-id={relationshipId} className={containerStyles}>
+      <Accordion
+        text="RELATIONSHIP"
+        isDefaultExpanded={true}
+        textClassName={accordionTitleStyles}
+      >
+        <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
             label="Name"
-            value={relationship.name}
+            sizeVariant="small"
+            value={relationshipName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setRelationshipName(e.target.value);
+            }}
             onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
               onFieldChange('name', e.target.value);
             }}
           />
         </FormFieldContainer>
+
+        <FormFieldContainer className={formFieldContainerStyles}>
+          <Button
+            variant="dangerOutline"
+            leftGlyph={<Icon glyph="Trash" />}
+            onClick={() => {
+              onDeleteRelationshipClick(relationshipId);
+            }}
+          >
+            Delete reference
+          </Button>
+        </FormFieldContainer>
       </Accordion>
 
-      <Accordion text="CONFIGURATION" isDefaultExpanded={true}>
-        <FormFieldContainer>
+      <Accordion
+        text="CONFIGURATION"
+        isDefaultExpanded={true}
+        textClassName={accordionTitleStyles}
+      >
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
+            size="small"
             label="Local collection"
             value={localCollection}
             onChange={(val) => {
@@ -177,8 +232,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
           </Combobox>
         </FormFieldContainer>
 
-        <FormFieldContainer>
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
+            size="small"
             label="Local field"
             value={localField}
             onChange={(val) => {
@@ -201,8 +257,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
           </Combobox>
         </FormFieldContainer>
 
-        <FormFieldContainer>
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
+            size="small"
             label="Foreign collection"
             value={foreignCollection}
             onChange={(val) => {
@@ -226,8 +283,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
           </Combobox>
         </FormFieldContainer>
 
-        <FormFieldContainer>
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
+            size="small"
             label="Foreign field"
             value={foreignField}
             onChange={(val) => {
@@ -250,8 +308,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
           </Combobox>
         </FormFieldContainer>
 
-        <FormFieldContainer>
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Select
+            size="small"
             label="Local cardinality"
             value={localCardinality}
             onChange={(val) => {
@@ -270,8 +329,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
           </Select>
         </FormFieldContainer>
 
-        <FormFieldContainer>
+        <FormFieldContainer className={formFieldContainerStyles}>
           <Select
+            size="small"
             label="Foreign cardinality"
             value={foreignCardinality}
             onChange={(val) => {
@@ -288,16 +348,6 @@ const RelationshipDrawerContent: React.FunctionComponent<
               );
             })}
           </Select>
-        </FormFieldContainer>
-
-        <FormFieldContainer>
-          <Button
-            onClick={() => {
-              onDeleteRelationshipClick(relationshipId);
-            }}
-          >
-            Delete
-          </Button>
         </FormFieldContainer>
       </Accordion>
     </div>

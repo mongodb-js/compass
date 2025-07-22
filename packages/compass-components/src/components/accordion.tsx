@@ -50,6 +50,7 @@ const buttonHintStyles = css({
 interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   text: string | React.ReactNode;
   hintText?: string;
+  textClassName?: string;
   open?: boolean;
   isDefaultExpanded?: boolean;
   setOpen?: (newValue: boolean) => void;
@@ -57,6 +58,7 @@ interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
 function Accordion({
   text,
   hintText,
+  textClassName,
   open: _open,
   setOpen: _setOpen,
   isDefaultExpanded = false,
@@ -82,7 +84,8 @@ function Accordion({
         {...props}
         className={cx(
           darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
-          buttonStyles
+          buttonStyles,
+          textClassName
         )}
         id={labelId}
         type="button"
