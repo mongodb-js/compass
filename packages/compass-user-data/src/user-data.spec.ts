@@ -440,7 +440,7 @@ describe('AtlasUserData', function () {
     validatorOpts: ValidatorOptions = {},
     orgId = 'test-org',
     groupId = 'test-group',
-    type = 'favorites'
+    type: 'favorites' | 'recents' | 'pipelines' = 'favorites'
   ) => {
     return new AtlasUserData(
       getTestSchema(validatorOpts),
@@ -613,7 +613,7 @@ describe('AtlasUserData', function () {
       const result = await userData.readAll();
 
       expect(result.data).to.have.lengthOf(0);
-      expect(result.errors).to.have.lengthOf(0);
+      expect(result.errors).to.have.lengthOf(1);
     });
 
     it('handles errors gracefully', async function () {
@@ -703,11 +703,7 @@ describe('AtlasUserData', function () {
         hasDarkMode: false,
       });
 
-      expect(result).to.deep.equal({
-        ...defaultValues(),
-        name: 'Updated Name',
-        hasDarkMode: false,
-      });
+      expect(result).equals(true);
 
       expect(authenticatedFetchStub).to.have.been.calledOnce;
       const [url, options] = authenticatedFetchStub.firstCall.args;
@@ -718,18 +714,15 @@ describe('AtlasUserData', function () {
       expect(options.headers['Content-Type']).to.equal('application/json');
     });
 
-    it('throws error when response is not ok', async function () {
+    it('returns false when response is not ok', async function () {
       authenticatedFetchStub.resolves(mockResponse({}, false, 400));
 
       const userData = getAtlasUserData();
 
-      try {
-        await userData.updateAttributes('test-id', { name: 'Updated' });
-        expect.fail('Should have thrown error');
-      } catch (error) {
-        expect(error).to.be.instanceOf(Error);
-        expect((error as Error).message).to.contain('Failed to update data');
-      }
+      const result = await userData.updateAttributes('test-id', {
+        name: 'Updated',
+      });
+      expect(result).equals(false);
     });
 
     it('uses custom serializer for request body', async function () {
@@ -807,12 +800,12 @@ describe('AtlasUserData', function () {
     it('constructs URL correctly for different types', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
 
-      const userData = getAtlasUserData({}, 'org123', 'group456', 'recent');
+      const userData = getAtlasUserData({}, 'org123', 'group456', 'recents');
       await userData.write('item789', { name: 'Recent Item' });
 
       const [url] = authenticatedFetchStub.firstCall.args;
       expect(url).to.equal(
-        'cluster-connection.cloud-local.mongodb.com/recent/org123/group456'
+        'cluster-connection.cloud-local.mongodb.com/recents/org123/group456'
       );
     });
   });
