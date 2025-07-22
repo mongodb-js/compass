@@ -827,11 +827,41 @@ class CompassAutoUpdateManager {
     this.setState(AutoUpdateManagerState.RestartDismissed);
   }
 
+  private static checkForMismatchedMacOSArch() {
+    const mismatchedOnArm =
+      isMismatchedArchDarwin() && getSystemArch() === 'arm64';
+
+    if (!mismatchedOnArm) {
+      return;
+    }
+
+    void dialog
+      .showMessageBox({
+        icon: COMPASS_ICON,
+        message: 'Mismatched architecture detected',
+        detail:
+          'You are currently using a build of Compass that is not optimized for Apple Silicon processors. This version might have significat performance issues when used. ' +
+          'Would you like to download the version of Compass optimized for Apple Silicon processors now?',
+        buttons: [
+          'Download Compass for Apple Silicon (Recommended)',
+          'Not now',
+        ],
+        cancelId: 1,
+      })
+      .then(({ response }) => {
+        if (response === 0) {
+          const url = `https://compass.mongodb.com/api/v2/download/latest/compass/${this.autoUpdateOptions.channel}/darwin-arm64`;
+          void dl.download(BrowserWindow.getAllWindows()[0], url);
+        }
+      });
+  }
+
   private static _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
   ): void {
     this.fetch = (url: string) => compassApp.httpClient.fetch(url);
+
     compassApp.addExitHandler(() => {
       this.stop();
       return Promise.resolve();
@@ -866,6 +896,8 @@ class CompassAutoUpdateManager {
       initialUpdateDelay: THIRTY_SECONDS,
       ...options,
     };
+
+    this.checkForMismatchedMacOSArch();
 
     // TODO(COMPASS-7232): If auto-updates are not supported, then there is
     // still a menu item to check for updates and then if it finds an update but
