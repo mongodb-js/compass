@@ -26,25 +26,42 @@ describe('open-and-download-diagram', function () {
     expect(decodedEdits).to.deep.equal(FlightDiagram.edits);
   });
 
-  it('should return the correct diagram name', function () {
-    const existingNames = ['Flights', 'Berlin Public Transport'];
+  context('getDiagramName', function () {
+    const usecases = [
+      {
+        existingNames: [],
+        name: 'Airbnb',
+        expectedName: 'Airbnb',
+        message: 'should return the expected name when it does not exist',
+      },
+      {
+        existingNames: ['Airbnb'],
+        name: 'Airbnb',
+        expectedName: 'Airbnb (1)',
+        message: 'should return the next expected name when it exists',
+      },
+      {
+        existingNames: ['Airbnb (1)'],
+        name: 'Airbnb (1)',
+        expectedName: 'Airbnb (2)',
+        message:
+          'should return the next expected name when name with (number) exists',
+      },
+      {
+        existingNames: ['Airbnb', 'Airbnb (1)', 'Airbnb (2)'],
+        name: 'Airbnb (1)',
+        expectedName: 'Airbnb (3)',
+        message:
+          'should return the next expected name when multiple versions exist',
+      },
+    ];
 
-    expect(
-      getDiagramName(existingNames, 'Airbnb'),
-      'should return the expected name when it does not exist'
-    ).to.equal('Airbnb');
-
-    expect(
-      getDiagramName(existingNames, 'Flights'),
-      'should return the next expected name when it exists'
-    ).to.equal('Flights (1)');
-
-    existingNames.push('Flights (1)');
-
-    expect(
-      getDiagramName(existingNames, 'Flights'),
-      'should return the next expected name when multiple versions exist'
-    ).to.equal('Flights (2)');
+    for (const { existingNames, name, expectedName, message } of usecases) {
+      it(message, function () {
+        const result = getDiagramName(existingNames, name);
+        expect(result).to.equal(expectedName);
+      });
+    }
   });
 
   context('getDiagramContentsFromFile', function () {

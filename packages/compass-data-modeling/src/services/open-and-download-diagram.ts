@@ -79,15 +79,28 @@ export async function getDiagramContentsFromFile(
   });
 }
 
+function getNameAndCount(expectedName: string): [string, number] {
+  const { groups = {} } =
+    expectedName.match(/^(?<name>.+?)(\s\((?<count>\d+)\))?$/) ?? {};
+  return [groups.name ?? expectedName, groups.count ? Number(groups.count) : 0];
+}
+
 export function getDiagramName(
   existingNames: string[],
   expectedName: string
 ): string {
-  let name = expectedName;
-  let index = 1;
-  while (existingNames.includes(name)) {
-    name = `${expectedName} (${index})`;
-    index += 1;
+  if (!existingNames.includes(expectedName)) {
+    return expectedName;
   }
-  return name;
+  const [initialName, initialCount] = getNameAndCount(expectedName);
+
+  const finalCount = existingNames.reduce((accumulatedCount, name) => {
+    const [baseName, count] = getNameAndCount(name);
+    if (baseName === initialName && count >= accumulatedCount) {
+      return count + 1;
+    }
+    return accumulatedCount;
+  }, initialCount + 1);
+
+  return `${initialName} (${finalCount})`;
 }
