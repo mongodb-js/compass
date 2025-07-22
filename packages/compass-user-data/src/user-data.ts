@@ -473,25 +473,30 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
+  private readonly getResourceUrl;
   private orgId: string = '';
-  private groupId: string = '';
-  private readonly type: 'recents' | 'favorites' | 'pipelines';
-  private readonly BASE_URL = 'cluster-connection.cloud-local.mongodb.com';
+  private projectId: string = '';
+  private readonly type:
+    | 'recentQueries'
+    | 'favoriteQueries'
+    | 'favoriteAggregations';
   constructor(
     validator: T,
+    type: 'recentQueries' | 'favoriteQueries' | 'favoriteAggregations',
+    orgId: string,
+    projectId: string,
+    getResourceUrl: (path?: string) => Promise<string>,
     authenticatedFetch: (
       url: RequestInfo | URL,
       options?: RequestInit
     ) => Promise<Response>,
-    orgId: string,
-    groupId: string,
-    type: 'recents' | 'favorites' | 'pipelines',
     { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
+    this.getResourceUrl = getResourceUrl;
     this.orgId = orgId;
-    this.groupId = groupId;
+    this.projectId = projectId;
     this.type = type;
   }
 
@@ -499,18 +504,23 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       this.validator.parse(content);
 
-      const response = await this.authenticatedFetch(this.getUrl(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: id,
-          data: this.serialize(content),
-          createdAt: new Date(),
-          groupId: this.groupId,
-        }),
-      });
+      const response = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.type}/${this.orgId}/${this.projectId}`
+        ),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: id,
+            data: this.serialize(content),
+            createdAt: new Date(),
+            projectId: this.projectId,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -525,7 +535,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error writing data',
         {
-          url: this.getUrl(),
+          url: await this.getResourceUrl(
+            `${this.type}/${this.orgId}/${this.projectId}`
+          ),
           error: (error as Error).message,
         }
       );
@@ -535,9 +547,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   async delete(id: string): Promise<boolean> {
     try {
-      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'DELETE',
+        }
+      );
       if (!response.ok) {
         throw new Error(
           `Failed to delete data: ${response.status} ${response.statusText}`
@@ -550,7 +567,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error deleting data',
         {
-          url: this.getUrl(),
+          url: await this.getResourceUrl(
+            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          ),
           error: (error as Error).message,
         }
       );
@@ -564,9 +583,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       errors: [],
     };
     try {
-      const response = await this.authenticatedFetch(this.getUrl(), {
-        method: 'GET',
-      });
+      const response = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.type}/${this.orgId}/${this.projectId}`
+        ),
+        {
+          method: 'GET',
+        }
+      );
       if (!response.ok) {
         throw new Error(
           `Failed to get data: ${response.status} ${response.statusText}`
@@ -593,13 +617,18 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     data: Partial<z.input<T>>
   ): Promise<boolean> {
     try {
-      const response = await this.authenticatedFetch(this.getUrl() + `/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: this.serialize(data),
-      });
+      const response = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: this.serialize(data),
+        }
+      );
       if (!response.ok) {
         throw new Error(
           `Failed to update data: ${response.status} ${response.statusText}`
@@ -612,15 +641,13 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error updating data',
         {
-          url: this.getUrl(),
+          url: await this.getResourceUrl(
+            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          ),
           error: (error as Error).message,
         }
       );
       return false;
     }
-  }
-
-  private getUrl() {
-    return `${this.BASE_URL}/${this.type}/${this.orgId}/${this.groupId}`;
   }
 }
