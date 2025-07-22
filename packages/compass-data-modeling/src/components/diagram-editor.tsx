@@ -124,6 +124,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
 
 export const getFieldsFromSchema = (
   jsonSchema: MongoDBJSONSchema,
+  highlightedFields: string[] = [],
   depth = 0
 ): NodeProps['fields'] => {
   if (!jsonSchema || !jsonSchema.properties) {
@@ -155,6 +156,11 @@ export const getFieldsFromSchema = (
       type: getFieldTypeDisplay(types.flat()),
       depth: depth,
       glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
+      variant:
+        highlightedFields.length &&
+        highlightedFields[highlightedFields.length - 1] === name
+          ? 'preview'
+          : undefined,
     });
 
     if (children.length > 0) {
@@ -162,7 +168,13 @@ export const getFieldsFromSchema = (
         ...fields,
         ...children
           .flat()
-          .flatMap((child) => getFieldsFromSchema(child, depth + 1)),
+          .flatMap((child) =>
+            getFieldsFromSchema(
+              child,
+              name === highlightedFields[0] ? highlightedFields.slice(1) : [],
+              depth + 1
+            )
+          ),
       ];
     }
   }
@@ -242,6 +254,27 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships, selectedItems]);
 
+  const selectedFields = useMemo<Record<string, string[]>>(() => {
+    if (!selectedItems) return {};
+    const { type, id } = selectedItems;
+    if (type === 'relationship') {
+      const relationship = model?.relationships.find((rel) => rel.id === id);
+      if (
+        !relationship ||
+        !relationship.relationship[0].ns ||
+        !relationship.relationship[1].ns ||
+        !relationship.relationship[0].fields ||
+        !relationship.relationship[1].fields
+      )
+        return {};
+      return {
+        [relationship.relationship[0].ns]: relationship.relationship[0].fields,
+        [relationship.relationship[1].ns]: relationship.relationship[1].fields,
+      };
+    }
+    return {};
+  }, [model?.relationships, selectedItems]);
+
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
       (coll): NodeProps => ({
@@ -252,14 +285,18 @@ const DiagramEditor: React.FunctionComponent<{
           y: coll.displayPosition[1],
         },
         title: toNS(coll.ns).collection,
-        fields: getFieldsFromSchema(coll.jsonSchema),
+        fields: getFieldsFromSchema(
+          coll.jsonSchema,
+          selectedFields[coll.ns],
+          0
+        ),
         selected:
           !!selectedItems &&
           selectedItems.type === 'collection' &&
           selectedItems.id === coll.ns,
       })
     );
-  }, [model?.collections, selectedItems]);
+  }, [model?.collections, selectedItems, selectedFields]);
 
   const applyInitialLayout = useCallback(async () => {
     try {
