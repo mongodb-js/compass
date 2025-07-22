@@ -34,24 +34,24 @@ export async function getDiagramContentsFromFile(
   const reader = new FileReader();
   return new Promise((resolve, reject) => {
     reader.onload = (event) => {
-      const content = event.target?.result;
-      if (typeof content !== 'string') {
-        return reject(new Error('Invalid file contents'));
-      }
       try {
+        const content = event.target?.result;
+        if (typeof content !== 'string') {
+          throw new Error('Invalid file contents');
+        }
         const parsedContent = JSON.parse(content);
 
         if (
           parsedContent.version !== kCurrentVersion ||
           parsedContent.type !== kFileTypeDescription
         ) {
-          return reject(new Error('Unsupported diagram file format'));
+          throw new Error('Unsupported diagram file format');
         }
 
         const { name, edits } = parsedContent;
 
         if (!name || !edits || typeof edits !== 'string') {
-          return reject(new Error('Diagram file is missing required fields'));
+          throw new Error('Diagram file is missing required fields');
         }
 
         const parsedEdits = JSON.parse(
