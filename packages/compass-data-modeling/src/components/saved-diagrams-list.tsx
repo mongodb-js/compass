@@ -28,7 +28,7 @@ import FlexibilityIcon from './icons/flexibility';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 import toNS from 'mongodb-ns';
-import { OpenDiagramButton } from './open-diagram-button';
+import { ImportDiagramButton } from './import-diagram-button';
 
 const sortBy = [
   {
@@ -166,7 +166,7 @@ const DiagramListEmptyContent: React.FunctionComponent<{
         subTitleClassName={subTitleStyles}
         callToAction={
           <div className={diagramActionsStyles}>
-            <OpenDiagramButton onImportDiagram={onImportDiagramClick} />
+            <ImportDiagramButton onImportDiagram={onImportDiagramClick} />
             <Button
               onClick={onCreateDiagramClick}
               variant="primary"

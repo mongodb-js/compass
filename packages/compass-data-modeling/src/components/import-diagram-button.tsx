@@ -1,21 +1,21 @@
 import React from 'react';
 import { Button, FileSelector } from '@mongodb-js/compass-components';
 
-type OpenDiagramButtonProps = Omit<
+type importDiagramButtonProps = Omit<
   React.ComponentProps<typeof Button>,
   'onClick'
 > & {
   onImportDiagram: (file: File) => void;
 };
 
-export const OpenDiagramButton = ({
+export const ImportDiagramButton = ({
   onImportDiagram,
   ...buttonProps
-}: OpenDiagramButtonProps) => {
+}: importDiagramButtonProps) => {
   return (
     <FileSelector
-      id="open-diagram-file-input"
-      data-testid="open-diagram-file-input"
+      id="import-diagram-file-input"
+      data-testid="import-diagram-file-input"
       multiple={false}
       accept=".compass"
       onSelect={(files) => {
@@ -26,7 +26,7 @@ export const OpenDiagramButton = ({
       }}
       trigger={({ onClick }) => (
         <Button {...buttonProps} onClick={onClick}>
-          Open Diagram
+          Import Diagram
         </Button>
       )}
     />

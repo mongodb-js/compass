@@ -1430,7 +1430,7 @@ export const AutoUpdateReleaseNotesLink =
 
 // Data Modeling
 export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
-export const OpenDataModelInput = '[data-testid="open-diagram-file-input"]';
+export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
 export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
 export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;

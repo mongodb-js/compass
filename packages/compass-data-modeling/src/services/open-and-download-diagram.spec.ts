@@ -50,7 +50,7 @@ describe('open-and-download-diagram', function () {
   context('getDiagramContentsFromFile', function () {
     const makeFile = (
       content: string,
-      fileName: string,
+      fileName: string = 'diagram.json',
       type: string = 'application/json'
     ) => {
       const blob = new Blob([content], { type });
@@ -66,24 +66,21 @@ describe('open-and-download-diagram', function () {
         title:
           'should throw an error if content.version is not the current version',
         file: makeFile(
-          JSON.stringify({ version: 0, type: 'Compass Data Modeling Diagram' }),
-          'file.json'
+          JSON.stringify({ version: 0, type: 'Compass Data Modeling Diagram' })
         ),
         expected: 'Unsupported diagram file format',
       },
       {
         title: 'should throw an error if content.type is not the current type',
         file: makeFile(
-          JSON.stringify({ version: 1, type: 'Compass Data Modeling' }),
-          'file.json'
+          JSON.stringify({ version: 1, type: 'Compass Data Modeling' })
         ),
         expected: 'Unsupported diagram file format',
       },
       {
         title: 'should throw if name or edits are missing',
         file: makeFile(
-          JSON.stringify({ version: 1, type: 'Compass Data Modeling Diagram' }),
-          'file.json'
+          JSON.stringify({ version: 1, type: 'Compass Data Modeling Diagram' })
         ),
         expected: 'Diagram file is missing required fields',
       },
@@ -95,8 +92,7 @@ describe('open-and-download-diagram', function () {
             type: 'Compass Data Modeling Diagram',
             name: 'Test diagram',
             edits: [],
-          }),
-          'file.json'
+          })
         ),
         expected: 'Diagram file is missing required fields',
       },
@@ -108,8 +104,7 @@ describe('open-and-download-diagram', function () {
             type: 'Compass Data Modeling Diagram',
             name: 'Test Diagram',
             edits: 'something',
-          }),
-          'file.json'
+          })
         ),
         expected: 'Failed to parse diagram file',
       },
@@ -123,8 +118,7 @@ describe('open-and-download-diagram', function () {
             edits: Buffer.from(
               JSON.stringify([{ type: 'NonExistent' }])
             ).toString('base64'),
-          }),
-          'file.json'
+          })
         ),
         expected: 'Failed to parse diagram file: Invalid diagram data.',
       },
@@ -146,8 +140,7 @@ describe('open-and-download-diagram', function () {
                 },
               ])
             ).toString('base64'),
-          }),
-          'file.json'
+          })
         ),
         expected: 'Failed to parse diagram file: Invalid diagram data.',
       },
@@ -172,9 +165,7 @@ describe('open-and-download-diagram', function () {
           edits: Buffer.from(JSON.stringify(FlightDiagram.edits)).toString(
             'base64'
           ),
-        }),
-        'diagram.json',
-        'application/json'
+        })
       );
 
       const { name, edits } = await getDiagramContentsFromFile(file);

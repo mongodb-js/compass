@@ -11,7 +11,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { DiagramListContext } from './saved-diagrams-list';
-import { OpenDiagramButton } from './open-diagram-button';
+import { ImportDiagramButton } from './import-diagram-button';
 
 const containerStyles = css({
   padding: spacing[400],
@@ -67,7 +67,7 @@ export const DiagramListToolbar = () => {
         Open an existing diagram:
       </Subtitle>
       <div className={diagramActionsStyles}>
-        <OpenDiagramButton
+        <ImportDiagramButton
           leftGlyph={<Icon glyph="Import" />}
           size="small"
           onImportDiagram={onImportDiagram}

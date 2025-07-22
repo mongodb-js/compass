@@ -76,9 +76,10 @@ export const EditListSchema = z
   });
 
 export type Edit = z.output<typeof EditSchema>;
-export type SetModelEdit = z.output<typeof EditSchema> & {
-  type: 'SetModel';
-};
+export type SetModelEdit = Extract<
+  z.output<typeof EditSchema>,
+  { type: 'SetModel' }
+>;
 
 export type EditAction = z.output<typeof EditSchemaVariants>;
 

@@ -431,7 +431,7 @@ describe('Data Modeling tab', function () {
     await browser.closeWorkspaceTabs();
     await browser.navigateToDataModeling();
 
-    await browser.selectFile(Selectors.OpenDataModelInput, filePath);
+    await browser.selectFile(Selectors.ImportDataModelInput, filePath);
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
     const savedNodes = await getDiagramNodes(browser);
 
