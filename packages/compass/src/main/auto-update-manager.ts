@@ -850,16 +850,28 @@ class CompassAutoUpdateManager {
       })
       .then(({ response }) => {
         if (response === 0) {
-          const url = `https://compass.mongodb.com/api/v2/download/latest/compass/${this.autoUpdateOptions.channel}/darwin-arm64`;
-          void dl.download(BrowserWindow.getAllWindows()[0], url);
+          return dl.download(
+            BrowserWindow.getAllWindows()[0],
+            `https://compass.mongodb.com/api/v2/download/${this.autoUpdateOptions.version}/compass/${this.autoUpdateOptions.channel}/darwin-arm64`
+          );
         }
+      })
+      .catch((err) => {
+        log.warn(
+          mongoLogId(1_001_000_362),
+          'AutoUpdateManager',
+          'Failed to download Compass for a mismatched macos arch',
+          { error: err.message }
+        );
       });
   }
 
-  private static _init(
+  private static async _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
+    await app.whenReady();
+
     this.fetch = (url: string) => compassApp.httpClient.fetch(url);
 
     compassApp.addExitHandler(() => {
@@ -993,13 +1005,13 @@ class CompassAutoUpdateManager {
     );
   }
 
-  static init(
+  static async init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
     if (!this.initCalled) {
       this.initCalled = true;
-      this._init(compassApp, options);
+      await this._init(compassApp, options);
     }
   }
 
