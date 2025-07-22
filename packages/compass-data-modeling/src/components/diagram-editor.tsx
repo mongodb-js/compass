@@ -14,6 +14,9 @@ import {
   moveCollection,
   getCurrentDiagramFromState,
   selectCurrentModel,
+  selectCollection,
+  selectRelationship,
+  selectBackground,
 } from '../store/diagram';
 import {
   Banner,
@@ -38,7 +41,6 @@ import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import { openSidePanel } from '../store/side-panel';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -189,7 +191,10 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
   onApplyInitialLayout: (positions: Record<string, [number, number]>) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
-  onOpenSidePanel: () => void;
+  onCollectionSelect: (namespace: string) => void;
+  onRelationshipSelect: (rId: string) => void;
+  onDiagramBackgroundClicked: () => void;
+  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
 }> = ({
   diagramLabel,
   step,
@@ -198,7 +203,10 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick,
   onApplyInitialLayout,
   onMoveCollection,
-  onOpenSidePanel,
+  onCollectionSelect,
+  onRelationshipSelect,
+  onDiagramBackgroundClicked,
+  selectedItems,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
   const isDarkMode = useDarkMode();
@@ -222,13 +230,17 @@ const DiagramEditor: React.FunctionComponent<{
       const [source, target] = relationship.relationship;
       return {
         id: relationship.id,
-        source: source.ns,
-        target: target.ns,
+        source: source.ns ?? '',
+        target: target.ns ?? '',
         markerStart: source.cardinality === 1 ? 'one' : 'many',
         markerEnd: target.cardinality === 1 ? 'one' : 'many',
+        selected:
+          !!selectedItems &&
+          selectedItems.type === 'relationship' &&
+          selectedItems.id === relationship.id,
       };
     });
-  }, [model?.relationships]);
+  }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
     return (model?.collections ?? []).map(
@@ -241,9 +253,13 @@ const DiagramEditor: React.FunctionComponent<{
         },
         title: toNS(coll.ns).collection,
         fields: getFieldsFromSchema(coll.jsonSchema),
+        selected:
+          !!selectedItems &&
+          selectedItems.type === 'collection' &&
+          selectedItems.id === coll.ns,
       })
     );
-  }, [model?.collections]);
+  }, [model?.collections, selectedItems]);
 
   const applyInitialLayout = useCallback(async () => {
     try {
@@ -335,9 +351,20 @@ const DiagramEditor: React.FunctionComponent<{
             title={diagramLabel}
             edges={edges}
             nodes={areNodesReady ? nodes : []}
-            onEdgeClick={() => {
-              // TODO: we have to open a side panel with edge details
-              onOpenSidePanel();
+            // With threshold too low clicking sometimes gets confused with
+            // dragging
+            // @ts-expect-error expose this prop from the component
+            nodeDragThreshold={3}
+            // @ts-expect-error expose this prop from the component
+            onNodeClick={(_evt, node) => {
+              if (node.type !== 'collection') {
+                return;
+              }
+              onCollectionSelect(node.id);
+            }}
+            onPaneClick={onDiagramBackgroundClicked}
+            onEdgeClick={(_evt, edge) => {
+              onRelationshipSelect(edge.id);
             }}
             fitViewOptions={{
               maxZoom: 1,
@@ -366,10 +393,11 @@ export default connect(
     return {
       step: step,
       model: diagram
-        ? selectCurrentModel(getCurrentDiagramFromState(state))
+        ? selectCurrentModel(getCurrentDiagramFromState(state).edits)
         : null,
       editErrors: diagram?.editErrors,
       diagramLabel: diagram?.name || 'Schema Preview',
+      selectedItems: state.diagram?.selectedItems ?? null,
     };
   },
   {
@@ -377,6 +405,8 @@ export default connect(
     onCancelClick: cancelAnalysis,
     onApplyInitialLayout: applyInitialLayout,
     onMoveCollection: moveCollection,
-    onOpenSidePanel: openSidePanel,
+    onCollectionSelect: selectCollection,
+    onRelationshipSelect: selectRelationship,
+    onDiagramBackgroundClicked: selectBackground,
   }
 )(DiagramEditor);

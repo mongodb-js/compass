@@ -6,11 +6,12 @@ import NewDiagramFormModal from './new-diagram-form';
 import type { DataModelingState } from '../store/reducer';
 import { DiagramProvider } from '@mongodb-js/diagramming';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
-type DataModelingPluginInitialProps = {
+
+type DataModelingProps = {
   showList: boolean;
 };
 
-const DataModeling: React.FunctionComponent<DataModelingPluginInitialProps> = ({
+const DataModeling: React.FunctionComponent<DataModelingProps> = ({
   showList,
 }) => {
   return (

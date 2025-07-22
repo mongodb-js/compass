@@ -220,7 +220,7 @@ describe('Data Modeling store', function () {
         relationship: newRelationship,
       });
 
-      const currentModel = getCurrentModel(diagram);
+      const currentModel = getCurrentModel(diagram.edits);
       expect(currentModel.relationships).to.have.length(2);
     });
 
@@ -265,7 +265,7 @@ describe('Data Modeling store', function () {
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
 
-      const currentModel = getCurrentModel(diagram);
+      const currentModel = getCurrentModel(diagram.edits);
       expect(currentModel.collections[0].displayPosition).to.deep.equal([
         100, 100,
       ]);
