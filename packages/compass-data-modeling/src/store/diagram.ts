@@ -322,8 +322,11 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 export function createNewRelationship(
   namespace: string
 ): DataModelingThunkAction<void, RelationSelectedAction> {
-  return (dispatch) => {
+  return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
+    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
+      getState()
+    );
     dispatch(
       applyEdit({
         type: 'AddRelationship',
@@ -340,6 +343,9 @@ export function createNewRelationship(
     dispatch({
       type: DiagramActionTypes.RELATIONSHIP_SELECTED,
       relationshipId,
+    });
+    track('Data Modeling Relationship Added', {
+      num_relationships: currentNumberOfRelationships + 1,
     });
   };
 }
@@ -510,8 +516,23 @@ export function updateRelationship(
   });
 }
 
-export function deleteRelationship(relationshipId: string) {
-  return applyEdit({ type: 'RemoveRelationship', relationshipId });
+export function deleteRelationship(
+  relationshipId: string
+): DataModelingThunkAction<void, RelationSelectedAction> {
+  return (dispatch, getState, { track }) => {
+    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
+      getState()
+    );
+    dispatch(
+      applyEdit({
+        type: 'RemoveRelationship',
+        relationshipId,
+      })
+    );
+    track('Data Modeling Relationship Deleted', {
+      num_relationships: currentNumberOfRelationships - 1,
+    });
+  };
 }
 
 export function closeDrawer(): DrawerClosedAction {
@@ -668,4 +689,9 @@ export function getRelationshipForCurrentModel(
   return selectCurrentModel(edits).relationships.find(
     (r) => r.id === relationshipId
   );
+}
+
+function getCurrentNumberOfRelationships(state: DataModelingState): number {
+  return selectCurrentModel(getCurrentDiagramFromState(state).edits)
+    .relationships.length;
 }
