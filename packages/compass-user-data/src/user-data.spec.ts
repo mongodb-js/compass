@@ -1,5 +1,4 @@
 import fs from 'fs/promises';
-import { Stats } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
