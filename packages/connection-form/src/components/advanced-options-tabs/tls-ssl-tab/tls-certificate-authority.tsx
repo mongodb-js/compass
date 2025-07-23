@@ -1,5 +1,8 @@
 import React from 'react';
-import { FormFieldContainer, FileInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  FilePickerDialog,
+} from '@mongodb-js/compass-components';
 
 function TLSCertificateAuthority({
   tlsCAFile,
@@ -15,7 +18,7 @@ function TLSCertificateAuthority({
   return (
     <>
       <FormFieldContainer>
-        <FileInput
+        <FilePickerDialog
           description={
             displayDatabaseConnectionUserHints ? 'Learn More' : undefined
           }

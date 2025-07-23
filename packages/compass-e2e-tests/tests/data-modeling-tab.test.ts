@@ -386,7 +386,7 @@ describe('Data Modeling tab', function () {
     expect(text).to.include('String string'.toLowerCase());
   });
 
-  it('downloads the data model', async function () {
+  it('downloads the data model and opens it', async function () {
     const dataModelName = 'Test Export Model - Save-Open';
     exportFileName = `${dataModelName}.compass`;
     await setupDiagram(browser, {
@@ -426,5 +426,30 @@ describe('Data Modeling tab', function () {
     expect(edits).to.be.an('array').of.length(2);
     expect(edits[0].type).to.equal('SetModel');
     expect(edits[1].type).to.equal('MoveCollection');
+
+    // Open the saved diagram
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToDataModeling();
+
+    await browser.selectFile(Selectors.ImportDataModelInput, filePath);
+    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+    const savedNodes = await getDiagramNodes(browser);
+
+    expect(savedNodes).to.have.lengthOf(2);
+    expect(savedNodes[0].id).to.equal('test.testCollection-one');
+    expect(savedNodes[1].id).to.equal('test.testCollection-two');
+
+    // Ensure that two diagrams exist (with correct incremental name)
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToDataModeling();
+
+    const cardsSelector = Selectors.DataModelsListItem();
+    await browser.waitForAnimations(cardsSelector);
+    const titles = await browser
+      .$$(cardsSelector)
+      .map((element) => element.getAttribute('data-diagram-name'));
+    expect(titles).to.include(dataModelName);
+    // The second one is the one we just opened
+    expect(titles).to.include(`${dataModelName} (1)`);
   });
 });
