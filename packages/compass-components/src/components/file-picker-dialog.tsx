@@ -311,7 +311,16 @@ export function createElectronFileInputBackend<ElectronWindow>(
   };
 }
 
-function FileInput({
+/**
+ * This component is not intended to work in a browser environment. It is designed
+ * to be used in environments like Electron where you have access to nodes fs module
+ * to read/write files.
+ *
+ * For browser environments, you should use the `FileSelector` component instead.
+ *
+ * @deprecated
+ */
+function FilePickerDialog({
   autoOpen = false,
   id,
   label,
@@ -553,4 +562,4 @@ function FileInput({
   );
 }
 
-export default FileInput;
+export default FilePickerDialog;
