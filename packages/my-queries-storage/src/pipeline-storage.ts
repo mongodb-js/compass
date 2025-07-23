@@ -5,7 +5,10 @@ export interface PipelineStorage {
   loadMany(
     predicate: (arg0: SavedPipeline) => boolean
   ): Promise<SavedPipeline[]>;
-  createOrUpdate(id: string, attributes: SavedPipeline): Promise<SavedPipeline>;
+  createOrUpdate(
+    id: string,
+    attributes: Omit<SavedPipeline, 'lastModified'>
+  ): Promise<SavedPipeline>;
   updateAttributes(
     id: string,
     attributes: Partial<SavedPipeline>
