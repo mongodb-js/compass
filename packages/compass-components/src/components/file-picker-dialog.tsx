@@ -316,7 +316,8 @@ export function createElectronFileInputBackend<ElectronWindow>(
  * to be used in environments like Electron where you have access to nodes fs module
  * to read/write files.
  *
- * For browser environments, you should use the `FileSelector` component instead.
+ * Always use `FileSelector` component, only use `FilePickerDialog` if you absolutely
+ * know what you're doing
  *
  * @deprecated
  */
