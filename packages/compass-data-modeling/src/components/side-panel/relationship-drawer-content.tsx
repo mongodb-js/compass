@@ -83,6 +83,7 @@ function useRelationshipFormFields(
   const foreignCollection = foreign.ns ?? '';
   const foreignField = foreign.fields?.join(FIELD_DIVIDER) ?? '';
   const foreignCardinality = String(foreign.cardinality);
+  const name = relationship.name ?? '';
   const onFieldChange = useCallback(
     (key: keyof RelationshipFormFields, value: string) => {
       const newRelationship = cloneDeep(relationship);

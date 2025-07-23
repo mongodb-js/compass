@@ -17,6 +17,7 @@ import {
   selectCollection,
   selectRelationship,
   selectBackground,
+  type DiagramState,
 } from '../store/diagram';
 import {
   Banner,
@@ -37,7 +38,7 @@ import {
   useDiagram,
   applyLayout,
 } from '@mongodb-js/diagramming';
-import type { StaticModel } from '../services/data-model-storage';
+import type { Relationship, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
@@ -136,7 +137,7 @@ export const getFieldsFromSchema = (
     // types are either direct, or from anyof
     // children are either direct (properties), from anyOf, items or items.anyOf
     const types: (string | string[])[] = [];
-    const children = [];
+    const children: (MongoDBJSONSchema | MongoDBJSONSchema[])[] = [];
     if (field.bsonType) types.push(field.bsonType);
     if (field.properties) children.push(field);
     if (field.items)
@@ -182,6 +183,27 @@ export const getFieldsFromSchema = (
   return fields;
 };
 
+const getSelectedFields = (
+  selectedItems: SelectedItems | null,
+  relationships?: Relationship[]
+) => {
+  if (!selectedItems || selectedItems.type !== 'relationship') return {};
+  const { id } = selectedItems;
+  const relationship = relationships?.find((rel) => rel.id === id);
+  if (
+    !relationship ||
+    !relationship.relationship[0].ns ||
+    !relationship.relationship[1].ns ||
+    !relationship.relationship[0].fields ||
+    !relationship.relationship[1].fields
+  )
+    return {};
+  return {
+    [relationship.relationship[0].ns]: relationship.relationship[0].fields,
+    [relationship.relationship[1].ns]: relationship.relationship[1].fields,
+  };
+};
+
 const modelPreviewContainerStyles = css({
   display: 'grid',
   gridTemplateColumns: '100%',
@@ -193,6 +215,8 @@ const modelPreviewContainerStyles = css({
 const modelPreviewStyles = css({
   minHeight: 0,
 });
+
+type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramEditor: React.FunctionComponent<{
   diagramLabel: string;
@@ -206,7 +230,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
-  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
+  selectedItems: SelectedItems | null;
 }> = ({
   diagramLabel,
   step,
@@ -254,28 +278,11 @@ const DiagramEditor: React.FunctionComponent<{
     });
   }, [model?.relationships, selectedItems]);
 
-  const selectedFields = useMemo<Record<string, string[]>>(() => {
-    if (!selectedItems) return {};
-    const { type, id } = selectedItems;
-    if (type === 'relationship') {
-      const relationship = model?.relationships.find((rel) => rel.id === id);
-      if (
-        !relationship ||
-        !relationship.relationship[0].ns ||
-        !relationship.relationship[1].ns ||
-        !relationship.relationship[0].fields ||
-        !relationship.relationship[1].fields
-      )
-        return {};
-      return {
-        [relationship.relationship[0].ns]: relationship.relationship[0].fields,
-        [relationship.relationship[1].ns]: relationship.relationship[1].fields,
-      };
-    }
-    return {};
-  }, [model?.relationships, selectedItems]);
-
   const nodes = useMemo<NodeProps[]>(() => {
+    const selectedFields = getSelectedFields(
+      selectedItems,
+      model?.relationships
+    );
     return (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
@@ -296,7 +303,7 @@ const DiagramEditor: React.FunctionComponent<{
           selectedItems.id === coll.ns,
       })
     );
-  }, [model?.collections, selectedItems, selectedFields]);
+  }, [model?.collections, model?.relationships, selectedItems]);
 
   const applyInitialLayout = useCallback(async () => {
     try {
