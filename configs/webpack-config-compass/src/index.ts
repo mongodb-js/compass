@@ -45,6 +45,9 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   /the request of a dependency is an expression/,
   // Optional, platform-specific dependencies (mostly from driver)
   /Module not found.+?(mongo_crypt_v1.(dll|so|dylib)|@mongodb-js\/zstd|aws-crt|gcp-metadata)/,
+  // Optional, comes from emotion trying to (safely) use react apis that we
+  // don't have in React 17
+  /export 'useInsertionEffect'/,
 ];
 
 const sharedResolveOptions = (

@@ -118,12 +118,15 @@ class AtlasCloudAuthenticator {
    * @returns {Promise<string[]>}
    */
   async #getCloudSessionCookies() {
-    const cloudHostCookies = await session.defaultSession.cookies.get({
-      domain: CLOUD_CONFIG_VARIANTS === 'local' ? 'localhost' : 'mongodb.com',
-    });
-    return cloudHostCookies.map((cookie) => {
-      return `${cookie.name}=${cookie.value}`;
-    });
+    const tld = CLOUD_CONFIG_VARIANTS === 'local' ? 'localhost' : 'mongodb.com';
+    const cloudHostCookies = (await session.defaultSession.cookies.get({}))
+      .filter((cookie) => {
+        return cookie.domain?.endsWith(tld) ?? true;
+      })
+      .map((cookie) => {
+        return `${cookie.name}=${cookie.value}`;
+      });
+    return cloudHostCookies;
   }
 
   /**
@@ -135,18 +138,10 @@ class AtlasCloudAuthenticator {
   }
 
   async #fetch(path, init) {
-    let csrfHeaders;
-    if (
-      init?.method &&
-      /^(GET|HEAD|OPTIONS|TRACE)$/i.test(init.method) === false
-    ) {
-      csrfHeaders = await this.#getCSRFHeaders();
-    }
     return electronFetch(`${CLOUD_ORIGIN}${path}`, {
       ...init,
       headers: {
         ...init?.headers,
-        ...csrfHeaders,
       },
     }).then(handleRes);
   }
@@ -157,17 +152,6 @@ class AtlasCloudAuthenticator {
    */
   #isAuthenticatedUrl(url) {
     return new URL(url, 'http://localhost').pathname.startsWith('/v2/');
-  }
-
-  async #getCSRFHeaders() {
-    const projectId = await this.getProjectId();
-    const { csrfToken, csrfTime } = await this.#fetch(
-      `/v2/${projectId}/params`
-    );
-    return {
-      ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
-      ...(csrfTime && { 'X-CSRF-Time': csrfTime }),
-    };
   }
 
   async getCloudHeaders(hostSubdomain = '') {
@@ -319,16 +303,33 @@ expressProxy.use(
       return req;
     },
     userResHeaderDecorator(headers, _req, res) {
-      // Cloud backend will try to always set auth cookies on requests, but we
-      // can't really meaningfully store those in the browser (__secure- ones
-      // would be ignored anyways), so to avoid polluting storage, we just not
-      // allow the set-cookie header to propagate
-      delete headers['set-cookie'];
-
       if (isSignedOutRedirect(headers.location)) {
         res.statusCode = 403;
         return {};
       }
+
+      // When cloud session expires, cloud backend will send a new set of
+      // session cookies to make sure that "active" client stays signed in. As
+      // these proxy requests are not going through the electron fetch, we can
+      // end up in a situation where electron still keeps the old session
+      // cookies instead on new ones. When we receive set-cookie header in the
+      // proxy, we will copy the cookies to the electron session to make sure
+      // that both are in sync with electron storage that we use as source of
+      // truth for cookies when creating the fetch request
+      if (headers['set-cookie']) {
+        const parsedCookies = headers['set-cookie'].map((cookieStr) => {
+          const [cookie, ...options] = cookieStr.split(';').map((keyVal) => {
+            return keyVal.split('=');
+          });
+          const domain = options.find((opt) => {
+            return opt[0] === 'Domain';
+          });
+          return { name: cookie[0], value: cookie[1], domain: domain[1] };
+        });
+        session.defaultSession.cookies.set(parsedCookies);
+      }
+      delete headers['set-cookie'];
+
       return headers;
     },
   })
