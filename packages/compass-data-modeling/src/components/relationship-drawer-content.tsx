@@ -172,7 +172,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
     <div data-relationship-id={relationshipId} className={containerStyles}>
       <Accordion
         text="RELATIONSHIP"
-        isDefaultExpanded={true}
+        defaultOpen={true}
         textClassName={accordionTitleStyles}
       >
         <FormFieldContainer className={formFieldContainerStyles}>
@@ -204,7 +204,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
       <Accordion
         text="CONFIGURATION"
-        isDefaultExpanded={true}
+        defaultOpen={true}
         textClassName={accordionTitleStyles}
       >
         <FormFieldContainer className={formFieldContainerStyles}>

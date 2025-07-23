@@ -230,7 +230,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
-  selectedItems: SelectedItems | null;
+  selectedItems: SelectedItems;
 }> = ({
   diagramLabel,
   step,
