@@ -128,7 +128,26 @@ function useRelationshipFormFields(
   };
 }
 
-const CARDINALITY_OPTIONS = [1, 10, 100, 1000];
+const cardinalityTagStyle = css({
+  color: palette.gray.base,
+  fontWeight: 'bold',
+});
+
+const CardinalityLabel: React.FunctionComponent<{
+  value: number;
+  tag: string;
+}> = ({ value, tag }) => (
+  <>
+    <span className={cardinalityTagStyle}>{tag}</span>&nbsp;{value}
+  </>
+);
+
+const CARDINALITY_OPTIONS = [
+  { tag: 'One', value: 1 },
+  { tag: 'Many', value: 10 },
+  { tag: 'Many', value: 100 },
+  { tag: 'Many', value: 1000 },
+];
 
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
@@ -320,10 +339,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
               }
             }}
           >
-            {CARDINALITY_OPTIONS.map((option) => {
+            {CARDINALITY_OPTIONS.map(({ tag, value }) => {
               return (
-                <Option key={option} value={String(option)}>
-                  {option}
+                <Option key={value} value={String(value)}>
+                  <CardinalityLabel value={value} tag={tag} />
                 </Option>
               );
             })}
@@ -341,10 +360,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
               }
             }}
           >
-            {CARDINALITY_OPTIONS.map((option) => {
+            {CARDINALITY_OPTIONS.map(({ tag, value }) => {
               return (
-                <Option key={option} value={String(option)}>
-                  {option}
+                <Option key={value} value={String(value)}>
+                  <CardinalityLabel value={value} tag={tag} />
                 </Option>
               );
             })}
