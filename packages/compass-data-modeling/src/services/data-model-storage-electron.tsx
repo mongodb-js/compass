@@ -12,10 +12,13 @@ class DataModelStorageElectron implements DataModelStorage {
     typeof MongoDBDataModelDescriptionSchema
   >;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(MongoDBDataModelDescriptionSchema, {
-      subdir: 'DataModelDescriptions',
-      basePath,
-    });
+    this.userData = new FileUserData(
+      MongoDBDataModelDescriptionSchema,
+      'DataModelDescription',
+      {
+        basePath,
+      }
+    );
   }
   save(description: MongoDBDataModelDescription) {
     return this.userData.write(description.id, description);

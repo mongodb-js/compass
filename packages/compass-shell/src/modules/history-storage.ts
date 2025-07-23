@@ -6,9 +6,8 @@ export class HistoryStorage {
   userData;
 
   constructor(basePath?: string) {
-    this.userData = new FileUserData(z.string().array(), {
+    this.userData = new FileUserData(z.string().array(), getAppName() ?? '', {
       // Todo: https://jira.mongodb.org/browse/COMPASS-7080
-      subdir: getAppName() ?? '',
       basePath,
     });
   }

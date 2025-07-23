@@ -7,8 +7,7 @@ import type { PipelineStorage } from './pipeline-storage';
 export class CompassPipelineStorage implements PipelineStorage {
   private readonly userData: FileUserData<typeof PipelineSchema>;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(PipelineSchema, {
-      subdir: 'SavedPipelines',
+    this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
       basePath,
     });
   }
@@ -56,7 +55,7 @@ export class CompassPipelineStorage implements PipelineStorage {
       : this.create(attributes));
   }
 
-  private async create(data: SavedPipeline) {
+  async create(data: SavedPipeline) {
     await this.userData.write(data.id, {
       ...data,
       lastModified: Date.now(),

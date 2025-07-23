@@ -11,9 +11,13 @@ const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
 type GetFileName = (id: string) => string;
+type GetResourceUrl = (path?: string) => Promise<string>;
+type AuthenticatedFetch = (
+  url: RequestInfo | URL,
+  options?: RequestInit
+) => Promise<Response>;
 
 export type FileUserDataOptions<Input> = {
-  subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
@@ -70,10 +74,12 @@ export interface ReadAllWithStatsResult<T extends z.Schema> {
 
 export abstract class IUserData<T extends z.Schema> {
   protected readonly validator: T;
+  protected readonly dataType: string;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
   constructor(
     validator: T,
+    dataType: string,
     {
       serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
       deserialize = JSON.parse,
@@ -83,6 +89,7 @@ export abstract class IUserData<T extends z.Schema> {
     } = {}
   ) {
     this.validator = validator;
+    this.dataType = dataType;
     this.serialize = serialize;
     this.deserialize = deserialize;
   }
@@ -97,23 +104,21 @@ export abstract class IUserData<T extends z.Schema> {
 }
 
 export class FileUserData<T extends z.Schema> extends IUserData<T> {
-  private readonly subdir: string;
   private readonly basePath?: string;
   private readonly getFileName: GetFileName;
   protected readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
+    dataType: string,
     {
-      subdir,
       basePath,
       serialize,
       deserialize,
       getFileName = (id) => `${id}.json`,
     }: FileUserDataOptions<z.input<T>>
   ) {
-    super(validator, { serialize, deserialize });
-    this.subdir = subdir;
+    super(validator, dataType, { serialize, deserialize });
     this.basePath = basePath;
     this.getFileName = getFileName;
   }
@@ -121,7 +126,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
   private async getEnsuredBasePath(): Promise<string> {
     const basepath = this.basePath ? this.basePath : getStoragePath();
 
-    const root = path.join(basepath, this.subdir);
+    const root = path.join(basepath, this.dataType);
 
     await fs.mkdir(root, { recursive: true });
 
@@ -343,28 +348,20 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly getResourceUrl;
   private orgId: string = '';
   private projectId: string = '';
-  private readonly type:
-    | 'recentQueries'
-    | 'favoriteQueries'
-    | 'favoriteAggregations';
   constructor(
     validator: T,
-    type: 'recentQueries' | 'favoriteQueries' | 'favoriteAggregations',
+    dataType: string,
     orgId: string,
     projectId: string,
-    getResourceUrl: (path?: string) => Promise<string>,
-    authenticatedFetch: (
-      url: RequestInfo | URL,
-      options?: RequestInit
-    ) => Promise<Response>,
+    getResourceUrl: GetResourceUrl,
+    authenticatedFetch: AuthenticatedFetch,
     { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
   ) {
-    super(validator, { serialize, deserialize });
+    super(validator, dataType, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
     this.getResourceUrl = getResourceUrl;
     this.orgId = orgId;
     this.projectId = projectId;
-    this.type = type;
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
@@ -373,7 +370,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}`
+          `${this.dataType}/${this.orgId}/${this.projectId}`
         ),
         {
           method: 'POST',
@@ -403,7 +400,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error writing data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}`
+            `${this.dataType}/${this.orgId}/${this.projectId}`
           ),
           error: (error as Error).message,
         }
@@ -416,7 +413,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'DELETE',
@@ -435,7 +432,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error deleting data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
@@ -452,7 +449,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}`
+          `${this.dataType}/${this.orgId}/${this.projectId}`
         ),
         {
           method: 'GET',
@@ -486,7 +483,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'PUT',
@@ -509,7 +506,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error updating data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }

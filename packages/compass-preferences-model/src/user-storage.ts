@@ -26,8 +26,7 @@ export interface UserStorage {
 export class UserStorageImpl implements UserStorage {
   private readonly userData: FileUserData<typeof UserSchema>;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(UserSchema, {
-      subdir: 'Users',
+    this.userData = new FileUserData(UserSchema, 'Users', {
       basePath,
     });
   }
