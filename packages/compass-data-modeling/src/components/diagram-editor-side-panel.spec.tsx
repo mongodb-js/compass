@@ -7,7 +7,7 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { DataModelingWorkspaceTab } from '../../index';
+import { DataModelingWorkspaceTab } from '../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
   getCurrentDiagramFromState,
@@ -15,9 +15,12 @@ import {
   selectCollection,
   selectCurrentModel,
   selectRelationship,
-} from '../../store/diagram';
-import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
-import type { MongoDBDataModelDescription } from '../../services/data-model-storage';
+} from '../store/diagram';
+import dataModel from '../../test/fixtures/data-model-with-relationships.json';
+import type {
+  MongoDBDataModelDescription,
+  Relationship,
+} from '../services/data-model-storage';
 
 async function comboboxSelectItem(
   label: string,
@@ -133,7 +136,7 @@ describe('DiagramEditorSidePanel', function () {
     // model here
     const modifiedRelationship = selectCurrentModel(
       getCurrentDiagramFromState(result.plugin.store.getState()).edits
-    ).relationships.find((r) => {
+    ).relationships.find((r: Relationship) => {
       return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
     });
 

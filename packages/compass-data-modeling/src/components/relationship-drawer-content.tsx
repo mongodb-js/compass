@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../../store/reducer';
+import type { DataModelingState } from '../store/reducer';
 import {
   Button,
   Combobox,
@@ -27,9 +27,9 @@ import {
   getRelationshipForCurrentModel,
   selectFieldsForCurrentModel,
   updateRelationship,
-} from '../../store/diagram';
+} from '../store/diagram';
 import toNS from 'mongodb-ns';
-import type { Relationship } from '../../services/data-model-storage';
+import type { Relationship } from '../services/data-model-storage';
 import { cloneDeep } from 'lodash';
 
 type RelationshipDrawerContentProps = {

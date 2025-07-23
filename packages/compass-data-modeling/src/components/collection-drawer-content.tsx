@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Relationship } from '../../services/data-model-storage';
+import type { Relationship } from '../services/data-model-storage';
 import { Button, H3 } from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
@@ -8,8 +8,8 @@ import {
   getCurrentDiagramFromState,
   selectCurrentModel,
   selectRelationship,
-} from '../../store/diagram';
-import type { DataModelingState } from '../../store/reducer';
+} from '../store/diagram';
+import type { DataModelingState } from '../store/reducer';
 
 type CollectionDrawerContentProps = {
   namespace: string;

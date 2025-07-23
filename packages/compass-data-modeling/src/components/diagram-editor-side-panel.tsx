@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../../store/reducer';
+import type { DataModelingState } from '../store/reducer';
 import {
   Button,
   css,
@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
-import { closeDrawer } from '../../store/diagram';
+import { closeDrawer } from '../store/diagram';
 
 const containerStyles = css({
   width: '400px',
