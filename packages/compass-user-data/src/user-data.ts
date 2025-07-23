@@ -476,28 +476,20 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly getResourceUrl;
   private orgId: string = '';
   private projectId: string = '';
-  private readonly type:
-    | 'recentQueries'
-    | 'favoriteQueries'
-    | 'favoriteAggregations';
   constructor(
     validator: T,
-    type: 'recentQueries' | 'favoriteQueries' | 'favoriteAggregations',
+    dataType: string,
     orgId: string,
     projectId: string,
-    getResourceUrl: (path?: string) => Promise<string>,
-    authenticatedFetch: (
-      url: RequestInfo | URL,
-      options?: RequestInit
-    ) => Promise<Response>,
+    getResourceUrl: GetResourceUrl,
+    authenticatedFetch: AuthenticatedFetch,
     { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
   ) {
-    super(validator, { serialize, deserialize });
+    super(validator, dataType, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
     this.getResourceUrl = getResourceUrl;
     this.orgId = orgId;
     this.projectId = projectId;
-    this.type = type;
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
@@ -506,7 +498,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}`
+          `${this.dataType}/${this.orgId}/${this.projectId}`
         ),
         {
           method: 'POST',
@@ -536,7 +528,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error writing data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}`
+            `${this.dataType}/${this.orgId}/${this.projectId}`
           ),
           error: (error as Error).message,
         }
@@ -549,7 +541,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'DELETE',
@@ -568,7 +560,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error deleting data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
@@ -585,7 +577,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}`
+          `${this.dataType}/${this.orgId}/${this.projectId}`
         ),
         {
           method: 'GET',
@@ -619,7 +611,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     try {
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
-          `${this.type}/${this.orgId}/${this.projectId}/${id}`
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'PUT',
@@ -642,7 +634,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Error updating data',
         {
           url: await this.getResourceUrl(
-            `${this.type}/${this.orgId}/${this.projectId}/${id}`
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
           ),
           error: (error as Error).message,
         }
