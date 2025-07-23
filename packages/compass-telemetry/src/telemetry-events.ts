@@ -2919,7 +2919,7 @@ type DataModelingDiagramRelationshipAdded = CommonEvent<{
  * @category Data Modeling
  */
 type DataModelingDiagramRelationshipEdited = CommonEvent<{
-  name: 'Data Modeling Relationship Edited';
+  name: 'Data Modeling Relationship Form Opened';
   payload: Record<string, never>;
 }>;
 

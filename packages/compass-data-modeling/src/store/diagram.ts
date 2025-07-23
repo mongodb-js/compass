@@ -306,10 +306,13 @@ export function selectCollection(namespace: string): CollectionSelectedAction {
 
 export function selectRelationship(
   relationshipId: string
-): RelationSelectedAction {
-  return {
-    type: DiagramActionTypes.RELATIONSHIP_SELECTED,
-    relationshipId,
+): DataModelingThunkAction<void, RelationSelectedAction> {
+  return (dispatch, getState, { track }) => {
+    dispatch({
+      type: DiagramActionTypes.RELATIONSHIP_SELECTED,
+      relationshipId,
+    });
+    track('Data Modeling Relationship Form Opened', {});
   };
 }
 
