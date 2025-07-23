@@ -11,9 +11,17 @@ import {
 import { AnalysisProcessActionTypes } from './analysis-process';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
-import { showConfirmation, showPrompt } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation,
+  showPrompt,
+} from '@mongodb-js/compass-components';
+import {
+  downloadDiagram,
+  getDiagramContentsFromFile,
+  getDiagramName,
+} from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import { downloadDiagram } from '../services/open-and-download-diagram';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -403,7 +411,9 @@ export function applyInitialLayout(
   };
 }
 
-export function openDiagram(diagram: MongoDBDataModelDescription) {
+export function openDiagram(
+  diagram: MongoDBDataModelDescription
+): OpenDiagramAction {
   return { type: DiagramActionTypes.OPEN_DIAGRAM, diagram };
 }
 
@@ -456,6 +466,37 @@ export function renameDiagram(
       void dataModelStorage.save({ ...diagram, name: newName });
     } catch {
       // TODO log
+    }
+  };
+}
+
+export function openDiagramFromFile(
+  file: File
+): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
+  return async (dispatch, getState, { dataModelStorage }) => {
+    try {
+      const { name, edits } = await getDiagramContentsFromFile(file);
+
+      const existingDiagramNames = (await dataModelStorage.loadAll()).map(
+        (diagram) => diagram.name
+      );
+
+      const diagram: MongoDBDataModelDescription = {
+        id: new UUID().toString(),
+        name: getDiagramName(existingDiagramNames, name),
+        connectionId: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        edits,
+      };
+      dispatch(openDiagram(diagram));
+      void dataModelStorage.save(diagram);
+    } catch (error) {
+      openToast('data-modeling-file-read-error', {
+        variant: 'warning',
+        title: 'Error opening diagram',
+        description: (error as Error).message,
+      });
     }
   };
 }

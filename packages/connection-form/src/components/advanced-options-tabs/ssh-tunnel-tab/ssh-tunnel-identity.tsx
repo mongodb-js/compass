@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import {
   FormFieldContainer,
   TextInput,
-  FileInput,
+  FilePickerDialog,
 } from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -113,7 +113,7 @@ function SshTunnelIdentity({
           case 'file':
             return (
               <FormFieldContainer key={name}>
-                <FileInput
+                <FilePickerDialog
                   id={name}
                   dataTestId={name}
                   onChange={(files: string[]) => {

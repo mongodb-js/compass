@@ -67,8 +67,19 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
+export const EditListSchema = z
+  .array(EditSchema)
+  .nonempty()
+  // Ensure first item exists and is 'SetModel'
+  .refine((edits) => edits[0]?.type === 'SetModel', {
+    message: "First edit must be of type 'SetModel'",
+  });
 
 export type Edit = z.output<typeof EditSchema>;
+export type SetModelEdit = Extract<
+  z.output<typeof EditSchema>,
+  { type: 'SetModel' }
+>;
 
 export type EditAction = z.output<typeof EditSchemaVariants>;
 
@@ -100,15 +111,7 @@ export const MongoDBDataModelDescriptionSchema = z.object({
    * anything that would require re-fetching data associated with the diagram
    */
   connectionId: z.string().nullable(),
-
-  // Ensure first item exists and is 'SetModel'
-  edits: z
-    .array(EditSchema)
-    .nonempty()
-    .refine((edits) => edits[0]?.type === 'SetModel', {
-      message: "First edit must be of type 'SetModel'",
-    }),
-
+  edits: EditListSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
