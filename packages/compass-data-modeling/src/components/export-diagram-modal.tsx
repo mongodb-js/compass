@@ -13,6 +13,7 @@ import {
   RadioGroup,
   spacing,
   SpinLoader,
+  PngIcon,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -39,8 +40,10 @@ const contentContainerStyles = css({
 
 const radioItemStyles = css({
   display: 'flex',
-  alignItems: 'center',
   gap: spacing[200],
+  '> svg': {
+    marginTop: spacing[50],
+  },
 });
 
 const footerStyles = css({
@@ -94,13 +97,27 @@ const ExportDiagramModal = ({
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
-              <Icon glyph="Diagram2" />
+              <Icon glyph="Diagram" />
+              <Radio
+                checked={exportFormat === 'diagram'}
+                value="diagram"
+                aria-label="Diagram File"
+                onClick={() => onSelectFormat('diagram')}
+                size="small"
+                description="Importable into Compass so teammates can collaborate."
+              >
+                Diagram File
+              </Radio>
+            </div>
+            <div className={radioItemStyles}>
+              <PngIcon />
               <Radio
                 checked={exportFormat === 'png'}
                 value="png"
                 aria-label="PNG"
                 onClick={() => onSelectFormat('png')}
                 size="small"
+                description="Shareable image for documentation or presentations."
               >
                 PNG
               </Radio>
@@ -113,6 +130,7 @@ const ExportDiagramModal = ({
                 aria-label="JSON"
                 onClick={() => onSelectFormat('json')}
                 size="small"
+                description="Raw schema data for programmatic use."
               >
                 JSON
               </Radio>
