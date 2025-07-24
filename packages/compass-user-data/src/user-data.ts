@@ -609,6 +609,29 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     data: Partial<z.input<T>>
   ): Promise<boolean> {
     try {
+      // TODO: change this depending on whether or not updateAttributes can provide all current data
+      const getResponse = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'GET',
+        }
+      );
+      if (!getResponse.ok) {
+        throw new Error(
+          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
+        );
+      }
+      const prevData = await getResponse.json();
+      const validPrevData = this.validator.parse(
+        this.deserialize(prevData.data as string)
+      );
+      const newData: z.input<T> = {
+        ...validPrevData,
+        ...data,
+      };
+
       const response = await this.authenticatedFetch(
         await this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
@@ -618,7 +641,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: this.serialize(data),
+          body: this.serialize(newData),
         }
       );
       if (!response.ok) {
