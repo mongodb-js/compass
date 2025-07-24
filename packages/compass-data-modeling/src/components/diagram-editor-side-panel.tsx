@@ -1,26 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import {
-  Button,
-  css,
-  cx,
-  palette,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { DrawerSection } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
 import { closeDrawer } from '../store/diagram';
 
-const containerStyles = css({
-  width: '400px',
-  height: '100%',
-  borderLeft: `1px solid ${palette.gray.light2}`,
-});
-
-const darkModeContainerStyles = css({
-  borderLeftColor: palette.gray.dark2,
-});
+export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
 type DiagramEditorSidePanelProps = {
   selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
@@ -29,10 +15,7 @@ type DiagramEditorSidePanelProps = {
 
 function DiagmramEditorSidePanel({
   selectedItems,
-  onClose,
 }: DiagramEditorSidePanelProps) {
-  const isDarkMode = useDarkMode();
-
   if (!selectedItems) {
     return null;
   }
@@ -54,15 +37,21 @@ function DiagmramEditorSidePanel({
   }
 
   return (
-    <div
-      className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}
-      data-testid="data-modeling-drawer"
+    <DrawerSection
+      id={DATA_MODELING_DRAWER_ID}
+      title="Details"
+      label="Details"
+      glyph="InfoWithCircle"
+      autoOpen
+      // TODO: Leafygreen doesn't allow us to tie close event to a particular
+      // action. We can add this functionality ourselves, but I'm not sure that
+      // adding even more logic on top of the drawer is a good idea. Maybe we're
+      // okay with the drawer close button click just staying there until you
+      // explicitly click something else?
+      // onClose={onClose}
     >
       {content}
-      <Button onClick={onClose} variant="primary" size="small">
-        Close Side Panel
-      </Button>
-    </div>
+    </DrawerSection>
   );
 }
 
