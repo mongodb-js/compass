@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -20,7 +21,15 @@ import { rafraf } from '../utils/rafraf';
 type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
 
 type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
+  /**
+   * If `true` will automatically open the section when first mounted. Default: `false`
+   */
   autoOpen?: boolean;
+  /**
+   * Allows to control item oder in the drawer toolbar, items without the order
+   * provided will stay unordered at the bottom of the list
+   */
+  order?: number;
 };
 
 type DrawerActionsContextValue = {
@@ -191,17 +200,23 @@ export const DrawerAnchor: React.FunctionComponent<{
     }
     prevDrawerSectionItems.current = drawerSectionItems;
   }, [actions, drawerSectionItems]);
-  const toolbarData = drawerSectionItems.map((data) => {
-    return {
-      ...data,
-      content: (
-        <div
-          data-drawer-section={data.id}
-          className={drawerSectionPortalStyles}
-        ></div>
-      ),
-    };
-  });
+  const toolbarData = useMemo(() => {
+    return drawerSectionItems
+      .map((data) => {
+        return {
+          ...data,
+          content: (
+            <div
+              data-drawer-section={data.id}
+              className={drawerSectionPortalStyles}
+            ></div>
+          ),
+        };
+      })
+      .sort(({ order: orderA = Infinity }, { order: orderB = Infinity }) => {
+        return orderB < orderA ? 1 : orderB > orderA ? -1 : 0;
+      });
+  }, [drawerSectionItems]);
   return (
     <DrawerLayout
       displayMode={displayMode ?? DrawerDisplayMode.Embedded}
