@@ -77,6 +77,9 @@ Generated on Thu, Jul 24, 2025
 
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Relationship Added](#event--DataModelingDiagramRelationshipAdded)
+- [Data Modeling Relationship Form Opened](#event--DataModelingDiagramRelationshipEdited)
+- [Data Modeling Relationship Deleted](#event--DataModelingDiagramRelationshipDeleted)
 
 ### Database / Collection List
 
@@ -1004,6 +1007,34 @@ This event is fired when user exports data modeling diagram.
 **Properties**:
 
 - **format** (required): `"json" | "png"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramRelationshipAdded"></a>
+
+### Data Modeling Relationship Added
+
+This event is fired when user adds a new relationship to a data modeling diagram.
+
+**Properties**:
+
+- **num_relationships** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramRelationshipEdited"></a>
+
+### Data Modeling Relationship Form Opened
+
+This event is fired when user edits a relationship in a data modeling diagram.
+
+<a name="event--DataModelingDiagramRelationshipDeleted"></a>
+
+### Data Modeling Relationship Deleted
+
+This event is fired when user deletes a relationship from a data modeling diagram.
+
+**Properties**:
+
+- **num_relationships** (required): `number`
 - **is_compass_web** (optional): `true | undefined`
 
 ## Database / Collection List
