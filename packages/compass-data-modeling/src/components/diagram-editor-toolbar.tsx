@@ -12,22 +12,8 @@ import {
   palette,
   spacing,
   useDarkMode,
+  transparentize,
 } from '@mongodb-js/compass-components';
-
-/**
- * @param color 6-digit hex color code
- * @param opacity a number between 0 and 1 representing the opacity
- * @returns 8-digit hex color code with the last two digits representing the opacity
- */
-function getColorWithOpacity(color: string, opacity: number) {
-  if (opacity < 0 || opacity > 1) {
-    throw new Error('Opacity must be between 0 and 1');
-  }
-  const alpha = Math.round(opacity * 255)
-    .toString(16)
-    .padStart(2, '0');
-  return `#${color.replace('#', '')}${alpha}`;
-}
 
 const containerStyles = css({
   display: 'flex',
@@ -39,7 +25,7 @@ const containerStyles = css({
   marginBottom: spacing[50],
   boxShadow: `0px ${spacing[50]}px ${spacing[100]}px -${
     spacing[25]
-  }px ${getColorWithOpacity(palette.black, 0.15)}`,
+  }px ${transparentize(0.85, palette.black)}`,
 });
 
 const containerDarkStyles = css({
@@ -47,7 +33,7 @@ const containerDarkStyles = css({
   borderBottom: `1px solid ${palette.gray.dark2}`,
   boxShadow: `0px ${spacing[50]}px ${spacing[100]}px -${
     spacing[25]
-  }px ${getColorWithOpacity(palette.white, 0.15)}`,
+  }px ${transparentize(0.85, palette.white)}`,
 });
 
 const toolbarGroupStyles = css({

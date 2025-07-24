@@ -82,7 +82,7 @@ export { SplitButton } from '@leafygreen-ui/split-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
-export { rgba, lighten } from 'polished';
+export { rgba, lighten, transparentize } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
