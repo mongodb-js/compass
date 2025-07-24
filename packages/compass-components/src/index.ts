@@ -18,12 +18,12 @@ import type {
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
   FileInputBackend,
-} from './components/file-input';
-import FileInput, {
+} from './components/file-picker-dialog';
+import FilePickerDialog, {
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,
   FileInputBackendProvider,
-} from './components/file-input';
+} from './components/file-picker-dialog';
 import { OptionsToggle } from './components/options-toggle';
 import {
   ErrorSummary,
@@ -118,7 +118,7 @@ export {
   CollapsibleFieldSet,
   ConfirmationModal,
   ErrorSummary,
-  FileInput,
+  FilePickerDialog,
   FileInputBackendProvider,
   IndexIcon,
   OptionsToggle,
@@ -219,3 +219,4 @@ export {
 export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
+export { FileSelector } from './components/file-selector';

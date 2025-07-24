@@ -1430,6 +1430,7 @@ export const AutoUpdateReleaseNotesLink =
 
 // Data Modeling
 export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
+export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';
 export const CreateDataModelModal = '[data-testid="new-diagram-modal"]';
 export const CreateDataModelConfirmButton = `${CreateDataModelModal} [data-testid="new-diagram-confirm-button"]`;
@@ -1455,8 +1456,13 @@ export const DataModelExportPngOption = `${DataModelExportModal} input[aria-labe
 export const DataModelExportJsonOption = `${DataModelExportModal} input[aria-label="JSON"]`;
 export const DataModelExportModalConfirmButton =
   '[data-testid="export-button"]';
-export const DataModelsListItem = (diagramName: string) =>
-  `[data-testid="saved-diagram-card"][data-diagram-name="${diagramName}"]`;
+export const DataModelsListItem = (diagramName?: string) => {
+  const diagramListSelector = `[data-testid="saved-diagram-card"]`;
+  if (diagramName) {
+    return `${diagramListSelector}[data-diagram-name="${diagramName}"]`;
+  }
+  return diagramListSelector;
+};
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
