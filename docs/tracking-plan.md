@@ -77,6 +77,7 @@ Generated on Thu, Jul 24, 2025
 
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Diagram Imported](#event--DataModelingDiagramImported)
 - [Data Modeling Relationship Added](#event--DataModelingDiagramRelationshipAdded)
 - [Data Modeling Relationship Form Opened](#event--DataModelingDiagramRelationshipEdited)
 - [Data Modeling Relationship Deleted](#event--DataModelingDiagramRelationshipDeleted)
@@ -1006,8 +1007,14 @@ This event is fired when user exports data modeling diagram.
 
 **Properties**:
 
-- **format** (required): `"json" | "png"`
+- **format** (required): `"json" | "png" | "diagram"`
 - **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramImported"></a>
+
+### Data Modeling Diagram Imported
+
+This event is fired when user imports data modeling diagram.
 
 <a name="event--DataModelingDiagramRelationshipAdded"></a>
 
