@@ -2901,6 +2901,40 @@ type DataModelingDiagramExported = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when user adds a new relationship to a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipAdded = CommonEvent<{
+  name: 'Data Modeling Relationship Added';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
+/**
+ * This event is fired when user edits a relationship in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipEdited = CommonEvent<{
+  name: 'Data Modeling Relationship Form Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user deletes a relationship from a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipDeleted = CommonEvent<{
+  name: 'Data Modeling Relationship Deleted';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3048,4 +3082,7 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported;
+  | DataModelingDiagramExported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted;

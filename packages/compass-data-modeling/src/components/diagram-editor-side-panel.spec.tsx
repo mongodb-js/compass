@@ -17,7 +17,10 @@ import {
   selectRelationship,
 } from '../store/diagram';
 import dataModel from '../../test/fixtures/data-model-with-relationships.json';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import type {
+  MongoDBDataModelDescription,
+  Relationship,
+} from '../services/data-model-storage';
 
 async function comboboxSelectItem(
   label: string,
@@ -67,7 +70,37 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
-    expect(screen.getByText('Edit Relationship')).to.be.visible;
+
+    const name = screen.getByLabelText('Name');
+    expect(name).to.be.visible;
+    expect(name).to.have.value('Airport Country');
+
+    const localCollectionInput = screen.getByLabelText('Local collection');
+    expect(localCollectionInput).to.be.visible;
+    expect(localCollectionInput).to.have.value('countries');
+
+    const foreignCollectionInput = screen.getByLabelText('Foreign collection');
+    expect(foreignCollectionInput).to.be.visible;
+    expect(foreignCollectionInput).to.have.value('airports');
+
+    const localFieldInput = screen.getByLabelText('Local field');
+    expect(localFieldInput).to.be.visible;
+    expect(localFieldInput).to.have.value('name');
+
+    const foreignFieldInput = screen.getByLabelText('Foreign field');
+    expect(foreignFieldInput).to.be.visible;
+    expect(foreignFieldInput).to.have.value('Country');
+
+    const localCardinalityInput = screen.getByLabelText('Local cardinality');
+    expect(localCardinalityInput).to.be.visible;
+    expect(localCardinalityInput).to.have.value('1');
+
+    const foreignCardinalityInput = screen.getByLabelText(
+      'Foreign cardinality'
+    );
+    expect(foreignCardinalityInput).to.be.visible;
+    expect(foreignCardinalityInput).to.have.value('100');
+
     expect(
       document.querySelector(
         '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
@@ -120,7 +153,7 @@ describe('DiagramEditorSidePanel', function () {
     userEvent.click(
       within(relationshipCard!).getByRole('button', { name: 'Edit' })
     );
-    expect(screen.getByText('Edit Relationship')).to.be.visible;
+    expect(screen.getByLabelText('Local field')).to.be.visible;
 
     // Select new values
     await comboboxSelectItem('Local collection', 'planes');
@@ -133,7 +166,7 @@ describe('DiagramEditorSidePanel', function () {
     // model here
     const modifiedRelationship = selectCurrentModel(
       getCurrentDiagramFromState(result.plugin.store.getState()).edits
-    ).relationships.find((r) => {
+    ).relationships.find((r: Relationship) => {
       return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
     });
 
@@ -148,7 +181,7 @@ describe('DiagramEditorSidePanel', function () {
         {
           ns: 'flights.countries',
           fields: ['iso_code'],
-          cardinality: 1,
+          cardinality: 100,
         },
       ]);
   });
