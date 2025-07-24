@@ -193,9 +193,7 @@ const getSelectedFields = (
   if (
     !relationship ||
     !relationship.relationship[0].ns ||
-    !relationship.relationship[1].ns ||
-    !relationship.relationship[0].fields ||
-    !relationship.relationship[1].fields
+    !relationship.relationship[1].ns
   )
     return {};
   return {
