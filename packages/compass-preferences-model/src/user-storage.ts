@@ -78,8 +78,4 @@ export class UserStorageImpl implements UserStorage {
     await this.userData.write(user.id, user);
     return this.getUser(user.id);
   }
-
-  private getFileName(id: string) {
-    return `${id}.json`;
-  }
 }
