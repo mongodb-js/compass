@@ -715,11 +715,26 @@ describe('AtlasUserData', function () {
 
   context('AtlasUserData.updateAttributes', function () {
     it('updates data successfully', async function () {
-      const putResponse = { name: 'Updated Name', hasDarkMode: false };
-      authenticatedFetchStub.resolves(mockResponse(putResponse));
-      getResourceUrlStub.resolves(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
-      );
+      const getResponse = {
+        data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
+      };
+      const putResponse = {};
+
+      authenticatedFetchStub
+        .onFirstCall()
+        .resolves(mockResponse(getResponse))
+        .onSecondCall()
+        .resolves(mockResponse(putResponse));
+
+      getResourceUrlStub
+        .onFirstCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+        )
+        .onSecondCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
+        );
 
       const userData = getAtlasUserData();
       const result = await userData.updateAttributes('test-id', {
@@ -729,20 +744,42 @@ describe('AtlasUserData', function () {
 
       expect(result).equals(true);
 
-      expect(authenticatedFetchStub).to.have.been.calledOnce;
-      const [url, options] = authenticatedFetchStub.firstCall.args;
-      expect(url).to.equal(
+      expect(authenticatedFetchStub).to.have.been.calledTwice;
+
+      const [getUrl, getOptions] = authenticatedFetchStub.firstCall.args;
+      expect(getUrl).to.equal(
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+      );
+      expect(getOptions.method).to.equal('GET');
+
+      const [putUrl, putOptions] = authenticatedFetchStub.secondCall.args;
+      expect(putUrl).to.equal(
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
-      expect(options.method).to.equal('PUT');
-      expect(options.headers['Content-Type']).to.equal('application/json');
+      expect(putOptions.method).to.equal('PUT');
+      expect(putOptions.headers['Content-Type']).to.equal('application/json');
     });
 
     it('returns false when response is not ok', async function () {
-      authenticatedFetchStub.resolves(mockResponse({}, false, 400));
-      getResourceUrlStub.resolves(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
-      );
+      const getResponse = {
+        data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
+      };
+
+      authenticatedFetchStub
+        .onFirstCall()
+        .resolves(mockResponse(getResponse))
+        .onSecondCall()
+        .resolves(mockResponse({}, false, 400));
+
+      getResourceUrlStub
+        .onFirstCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+        )
+        .onSecondCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
+        );
 
       const userData = getAtlasUserData();
 
@@ -753,11 +790,26 @@ describe('AtlasUserData', function () {
     });
 
     it('uses custom serializer for request body', async function () {
-      const putResponse = { name: 'Updated' };
-      authenticatedFetchStub.resolves(mockResponse(putResponse));
-      getResourceUrlStub.resolves(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
-      );
+      const getResponse = {
+        data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
+      };
+      const putResponse = {};
+
+      authenticatedFetchStub
+        .onFirstCall()
+        .resolves(mockResponse(getResponse))
+        .onSecondCall()
+        .resolves(mockResponse(putResponse));
+
+      getResourceUrlStub
+        .onFirstCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+        )
+        .onSecondCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
+        );
 
       const userData = new AtlasUserData(
         getTestSchema(),
@@ -773,8 +825,10 @@ describe('AtlasUserData', function () {
 
       await userData.updateAttributes('test-id', { name: 'Updated' });
 
-      const [, options] = authenticatedFetchStub.firstCall.args;
-      expect(options.body as string).to.equal('custom:{"name":"Updated"}');
+      const [, putOptions] = authenticatedFetchStub.secondCall.args;
+      expect(putOptions.body as string).to.equal(
+        'custom:{"name":"Updated","hasDarkMode":true,"hasWebSupport":false}'
+      );
     });
   });
 
@@ -826,17 +880,39 @@ describe('AtlasUserData', function () {
     });
 
     it('constructs URL correctly for update operation', async function () {
-      const putResponse = { data: { name: 'Updated' } };
-      authenticatedFetchStub.resolves(mockResponse(putResponse));
-      getResourceUrlStub.resolves(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
-      );
+      const getResponse = {
+        data: JSON.stringify({ name: 'Original', hasDarkMode: true }),
+      };
+      const putResponse = {};
+
+      authenticatedFetchStub
+        .onFirstCall()
+        .resolves(mockResponse(getResponse))
+        .onSecondCall()
+        .resolves(mockResponse(putResponse));
+
+      getResourceUrlStub
+        .onFirstCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456'
+        )
+        .onSecondCall()
+        .resolves(
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
+        );
 
       const userData = getAtlasUserData({}, 'org123', 'proj456');
       await userData.updateAttributes('item789', { name: 'Updated' });
 
-      const [url] = authenticatedFetchStub.firstCall.args;
-      expect(url).to.equal(
+      expect(authenticatedFetchStub).to.have.been.calledTwice;
+
+      const [getUrl] = authenticatedFetchStub.firstCall.args;
+      expect(getUrl).to.equal(
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456'
+      );
+
+      const [putUrl] = authenticatedFetchStub.secondCall.args;
+      expect(putUrl).to.equal(
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
     });
