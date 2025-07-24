@@ -609,26 +609,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     data: Partial<z.input<T>>
   ): Promise<boolean> {
     try {
-      // TODO: change this depending on whether or not updateAttributes can provide all current data
-      const getResponse = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-        ),
-        {
-          method: 'GET',
-        }
-      );
-      if (!getResponse.ok) {
-        throw new Error(
-          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
-        );
-      }
-      const prevData = await getResponse.json();
-      const validPrevData = this.validator.parse(
-        this.deserialize(prevData.data as string)
-      );
+      const prevData = await this.readOne(id);
       const newData: z.input<T> = {
-        ...validPrevData,
+        ...prevData,
         ...data,
       };
 
@@ -663,6 +646,41 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         }
       );
       return false;
+    }
+  }
+
+  // TODO: change this depending on whether or not updateAttributes can provide all current data
+  async readOne(id: string): Promise<z.output<T>> {
+    try {
+      const getResponse = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'GET',
+        }
+      );
+      if (!getResponse.ok) {
+        throw new Error(
+          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
+        );
+      }
+      const json = await getResponse.json();
+      const data = this.validator.parse(this.deserialize(json.data as string));
+      return data;
+    } catch {
+      log.error(
+        mongoLogId(1_001_000_365),
+        'Atlas Backend',
+        'Error reading data',
+        {
+          url: await this.getResourceUrl(
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          ),
+          error: (error as Error).message,
+        }
+      );
+      return null;
     }
   }
 }

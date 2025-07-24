@@ -27,10 +27,6 @@ export class CompassPipelineStorage implements PipelineStorage {
     return this.loadAll().then((pipelines) => pipelines.filter(predicate));
   }
 
-  private async loadOne(id: string): Promise<SavedPipeline> {
-    return await this.userData.readOne(id);
-  }
-
   async createOrUpdate(
     id: string,
     attributes: Omit<SavedPipeline, 'lastModified'>
