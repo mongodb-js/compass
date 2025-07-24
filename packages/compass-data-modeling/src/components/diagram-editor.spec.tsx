@@ -262,8 +262,14 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.deep.equal([
-        { name: 'name', type: 'string', depth: 0, glyphs: [] },
-        { name: 'age', type: 'int', depth: 0, glyphs: [] },
+        {
+          name: 'name',
+          type: 'string',
+          depth: 0,
+          glyphs: [],
+          variant: undefined,
+        },
+        { name: 'age', type: 'int', depth: 0, glyphs: [], variant: undefined },
       ]);
     });
 
@@ -274,8 +280,44 @@ describe('getFieldsFromSchema', function () {
           age: { bsonType: ['int', 'string'] },
         },
       });
-      expect(result[0]).to.deep.include({ name: 'age', depth: 0, glyphs: [] });
+      expect(result[0]).to.deep.include({
+        name: 'age',
+        depth: 0,
+        glyphs: [],
+        variant: undefined,
+      });
       await validateMixedType(result[0].type, /int, string/);
+    });
+
+    it('highlights the correct field', function () {
+      const result = getFieldsFromSchema(
+        {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+            age: { bsonType: 'int' },
+            profession: { bsonType: 'string' },
+          },
+        },
+        ['age']
+      );
+      expect(result).to.deep.equal([
+        {
+          name: 'name',
+          type: 'string',
+          depth: 0,
+          glyphs: [],
+          variant: undefined,
+        },
+        { name: 'age', type: 'int', depth: 0, glyphs: [], variant: 'preview' },
+        {
+          name: 'profession',
+          type: 'string',
+          depth: 0,
+          glyphs: [],
+          variant: undefined,
+        },
+      ]);
     });
   });
 
@@ -300,11 +342,102 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.deep.equal([
-        { name: 'person', type: 'object', depth: 0, glyphs: [] },
-        { name: 'name', type: 'string', depth: 1, glyphs: [] },
-        { name: 'address', type: 'object', depth: 1, glyphs: [] },
-        { name: 'street', type: 'string', depth: 2, glyphs: [] },
-        { name: 'city', type: 'string', depth: 2, glyphs: [] },
+        {
+          name: 'person',
+          type: 'object',
+          depth: 0,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'name',
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'address',
+          type: 'object',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'street',
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'city',
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          variant: undefined,
+        },
+      ]);
+    });
+
+    it('highlights a field for a nested schema', function () {
+      const result = getFieldsFromSchema(
+        {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+                address: {
+                  bsonType: 'object',
+                  properties: {
+                    street: { bsonType: 'string' },
+                    city: { bsonType: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        ['person', 'address', 'street']
+      );
+      expect(result).to.deep.equal([
+        {
+          name: 'person',
+          type: 'object',
+          depth: 0,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'name',
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'address',
+          type: 'object',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'street',
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          variant: 'preview',
+        },
+        {
+          name: 'city',
+          type: 'string',
+          depth: 2,
+          glyphs: [],
+          variant: undefined,
+        },
       ]);
     });
 
@@ -319,7 +452,7 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.deep.equal([
-        { name: 'tags', type: '[]', depth: 0, glyphs: [] },
+        { name: 'tags', type: '[]', depth: 0, glyphs: [], variant: undefined },
       ]);
     });
 
@@ -340,9 +473,21 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.deep.equal([
-        { name: 'todos', type: '[]', depth: 0, glyphs: [] },
-        { name: 'title', type: 'string', depth: 1, glyphs: [] },
-        { name: 'completed', type: 'boolean', depth: 1, glyphs: [] },
+        { name: 'todos', type: '[]', depth: 0, glyphs: [], variant: undefined },
+        {
+          name: 'title',
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'completed',
+          type: 'boolean',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
       ]);
     });
 
@@ -365,19 +510,26 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.have.lengthOf(3);
-      expect(result[0]).to.deep.include({ name: 'name', depth: 0, glyphs: [] });
+      expect(result[0]).to.deep.include({
+        name: 'name',
+        depth: 0,
+        glyphs: [],
+        variant: undefined,
+      });
       await validateMixedType(result[0].type, /string, object/);
       expect(result[1]).to.deep.equal({
         name: 'first',
         type: 'string',
         depth: 1,
         glyphs: [],
+        variant: undefined,
       });
       expect(result[2]).to.deep.equal({
         name: 'last',
         type: 'string',
         depth: 1,
         glyphs: [],
+        variant: undefined,
       });
     });
 
@@ -403,9 +555,21 @@ describe('getFieldsFromSchema', function () {
         },
       });
       expect(result).to.deep.equal([
-        { name: 'todos', type: '[]', depth: 0, glyphs: [] },
-        { name: 'title', type: 'string', depth: 1, glyphs: [] },
-        { name: 'completed', type: 'boolean', depth: 1, glyphs: [] },
+        { name: 'todos', type: '[]', depth: 0, glyphs: [], variant: undefined },
+        {
+          name: 'title',
+          type: 'string',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
+        {
+          name: 'completed',
+          type: 'boolean',
+          depth: 1,
+          glyphs: [],
+          variant: undefined,
+        },
       ]);
     });
   });
