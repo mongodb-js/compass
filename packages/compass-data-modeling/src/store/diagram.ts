@@ -9,7 +9,7 @@ import {
   type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
-import { memoize } from 'lodash';
+import { get, memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
   openToast,
@@ -497,6 +497,59 @@ export function openDiagramFromFile(
         description: (error as Error).message,
       });
     }
+  };
+}
+
+export function updateSelectedRelationshipNodes(
+  newSource: string,
+  newTarget: string
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const { selectedItems } = getState().diagram || {};
+    if (!selectedItems || selectedItems.type !== 'relationship') {
+      dispatch({
+        type: DiagramActionTypes.APPLY_EDIT_FAILED,
+        errors: ['No relationship selected'],
+      });
+      return;
+    }
+    const relationship = getRelationshipForCurrentModel(
+      getCurrentDiagramFromState(getState()).edits,
+      selectedItems.id
+    );
+    if (!relationship) {
+      dispatch({
+        type: DiagramActionTypes.APPLY_EDIT_FAILED,
+        errors: ['Selected relationship not found'],
+      });
+      return;
+    }
+    dispatch(
+      applyEdit({
+        type: 'UpdateRelationship',
+        relationship: {
+          ...relationship,
+          relationship: [
+            {
+              ns: newSource,
+              cardinality: relationship.relationship[0].cardinality,
+              fields:
+                relationship.relationship[0].ns === newSource
+                  ? relationship.relationship[0].fields
+                  : null,
+            },
+            {
+              ns: newTarget,
+              cardinality: relationship.relationship[1].cardinality,
+              fields:
+                relationship.relationship[1].ns === newTarget
+                  ? relationship.relationship[1].fields
+                  : null,
+            },
+          ],
+        },
+      })
+    );
   };
 }
 

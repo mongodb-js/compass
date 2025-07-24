@@ -18,6 +18,7 @@ import {
   selectRelationship,
   selectBackground,
   type DiagramState,
+  updateSelectedRelationshipNodes,
 } from '../store/diagram';
 import {
   Banner,
@@ -231,6 +232,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
+  onNodesConnected: (source: string, target: string) => void;
 }> = ({
   diagramLabel,
   step,
@@ -242,6 +244,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect,
   onRelationshipSelect,
   onDiagramBackgroundClicked,
+  onNodesConnected,
   selectedItems,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
@@ -284,6 +287,7 @@ const DiagramEditor: React.FunctionComponent<{
       selectedItems,
       model?.relationships
     );
+    const isInRelationshipMode = selectedItems?.type === 'relationship';
     return (model?.collections ?? []).map(
       (coll): NodeProps => ({
         id: coll.ns,
@@ -302,9 +306,21 @@ const DiagramEditor: React.FunctionComponent<{
           !!selectedItems &&
           selectedItems.type === 'collection' &&
           selectedItems.id === coll.ns,
+        connectable: isInRelationshipMode,
+        draggable: !isInRelationshipMode,
       })
     );
   }, [model?.collections, model?.relationships, selectedItems]);
+
+  const handleNodesConnect = useCallback(
+    (source: string, target: string) => {
+      if (selectedItems?.type !== 'relationship') {
+        return;
+      }
+      onNodesConnected(source, target);
+    },
+    [onNodesConnected, selectedItems]
+  );
 
   const applyInitialLayout = useCallback(async () => {
     try {
@@ -420,6 +436,9 @@ const DiagramEditor: React.FunctionComponent<{
             onNodeDragStop={(evt, node) => {
               onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
+            onConnect={({ source, target }) => {
+              handleNodesConnect(source, target);
+            }}
           />
         </div>
       </div>
@@ -454,6 +473,7 @@ export default connect(
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
+    onNodesConnected: updateSelectedRelationshipNodes,
     onDiagramBackgroundClicked: selectBackground,
   }
 )(DiagramEditor);
