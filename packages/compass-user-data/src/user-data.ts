@@ -668,7 +668,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       const json = await getResponse.json();
       const data = this.validator.parse(this.deserialize(json.data as string));
       return data;
-    } catch {
+    } catch (error) {
       log.error(
         mongoLogId(1_001_000_365),
         'Atlas Backend',
