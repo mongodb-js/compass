@@ -17,7 +17,6 @@ import {
   showPrompt,
 } from '@mongodb-js/compass-components';
 import {
-  downloadDiagram,
   getDiagramContentsFromFile,
   getDiagramName,
 } from '../services/open-and-download-diagram';
@@ -444,16 +443,6 @@ export function deleteDiagram(
   };
 }
 
-export function saveDiagram(): DataModelingThunkAction<void, never> {
-  return (_dispatch, getState) => {
-    const { diagram } = getState();
-    if (!diagram) {
-      return;
-    }
-    downloadDiagram(diagram.name, diagram.edits.current);
-  };
-}
-
 export function renameDiagram(
   id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
@@ -482,7 +471,7 @@ export function renameDiagram(
 export function openDiagramFromFile(
   file: File
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, track }) => {
     try {
       const { name, edits } = await getDiagramContentsFromFile(file);
 
@@ -499,6 +488,7 @@ export function openDiagramFromFile(
         edits,
       };
       dispatch(openDiagram(diagram));
+      track('Data Modeling Diagram Imported', {});
       void dataModelStorage.save(diagram);
     } catch (error) {
       openToast('data-modeling-file-read-error', {
