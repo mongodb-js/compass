@@ -4,7 +4,6 @@ import {
   css,
   Icon,
   Label,
-  Link,
   Modal,
   ModalBody,
   ModalFooter,
@@ -25,8 +24,6 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { useDiagram } from '@mongodb-js/diagramming';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
-
-const nbsp = '\u00a0';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
@@ -76,22 +73,7 @@ const ExportDiagramModal = ({
       setOpen={onCloseClick}
       data-testid="export-diagram-modal"
     >
-      <ModalHeader
-        title="Export data model"
-        subtitle={
-          <div>
-            Export your data model as either an image or JSON file.
-            {nbsp}
-            <Link
-              href="https://www.mongodb.com/docs/manual/data-modeling//"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn more
-            </Link>
-          </div>
-        }
-      />
+      <ModalHeader title="Export data model" />
       <ModalBody className={modelBodyStyles}>
         <div className={contentContainerStyles}>
           <Label htmlFor="">Select file format:</Label>
