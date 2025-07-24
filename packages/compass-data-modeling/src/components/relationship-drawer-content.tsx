@@ -55,10 +55,6 @@ const formFieldContainerStyles = css({
   marginTop: spacing[400],
 });
 
-const containerStyles = css({
-  padding: spacing[400],
-});
-
 const accordionTitleStyles = css({
   fontSize: spacing[300],
   color: palette.gray.dark1,
@@ -188,7 +184,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
   }, [fields, foreignCollection]);
 
   return (
-    <div data-relationship-id={relationshipId} className={containerStyles}>
+    <div data-relationship-id={relationshipId}>
       <Accordion
         text="RELATIONSHIP"
         defaultOpen={true}
