@@ -292,7 +292,7 @@ const DiagramEditor: React.FunctionComponent<{
         title: toNS(coll.ns).collection,
         fields: getFieldsFromSchema(
           coll.jsonSchema,
-          selectedFields[coll.ns],
+          selectedFields[coll.ns] || undefined,
           0
         ),
         selected:
