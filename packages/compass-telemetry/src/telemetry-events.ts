@@ -2897,8 +2897,18 @@ type DataModelingDiagramCreated = CommonEvent<{
 type DataModelingDiagramExported = CommonEvent<{
   name: 'Data Modeling Diagram Exported';
   payload: {
-    format: 'png' | 'json';
+    format: 'png' | 'json' | 'diagram';
   };
+}>;
+
+/**
+ * This event is fired when user imports data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramImported = CommonEvent<{
+  name: 'Data Modeling Diagram Imported';
+  payload: Record<string, never>;
 }>;
 
 export type TelemetryEvent =
@@ -3048,4 +3058,5 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported;
+  | DataModelingDiagramExported
+  | DataModelingDiagramImported;
