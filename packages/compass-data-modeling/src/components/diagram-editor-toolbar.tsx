@@ -19,7 +19,7 @@ import {
  * @param opacity a number between 0 and 1 representing the opacity
  * @returns 8-digit hex color code with the last two digits representing the opacity
  */
-function getColorWithOpactity(color: string, opacity: number) {
+function getColorWithOpacity(color: string, opacity: number) {
   if (opacity < 0 || opacity > 1) {
     throw new Error('Opacity must be between 0 and 1');
   }
@@ -39,7 +39,7 @@ const containerStyles = css({
   marginBottom: spacing[50],
   boxShadow: `0px ${spacing[50]}px ${spacing[100]}px -${
     spacing[25]
-  }px ${getColorWithOpactity(palette.black, 0.15)}`,
+  }px ${getColorWithOpacity(palette.black, 0.15)}`,
 });
 
 const containerDarkStyles = css({
@@ -47,7 +47,7 @@ const containerDarkStyles = css({
   borderBottom: `1px solid ${palette.gray.dark2}`,
   boxShadow: `0px ${spacing[50]}px ${spacing[100]}px -${
     spacing[25]
-  }px ${getColorWithOpactity(palette.white, 0.15)}`,
+  }px ${getColorWithOpacity(palette.white, 0.15)}`,
 });
 
 const toolbarGroupStyles = css({
