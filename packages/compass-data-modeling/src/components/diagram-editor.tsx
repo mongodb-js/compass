@@ -18,6 +18,7 @@ import {
   selectRelationship,
   selectBackground,
   type DiagramState,
+  createNewRelationship,
 } from '../store/diagram';
 import {
   Banner,
@@ -231,6 +232,7 @@ const DiagramEditor: React.FunctionComponent<{
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
+  onRelationshipDrawn: (source: string, target: string) => void;
 }> = ({
   diagramLabel,
   step,
@@ -242,6 +244,7 @@ const DiagramEditor: React.FunctionComponent<{
   onCollectionSelect,
   onRelationshipSelect,
   onDiagramBackgroundClicked,
+  onRelationshipDrawn,
   selectedItems,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-DATA-MODELING-DIAGRAM-EDITOR');
@@ -250,6 +253,8 @@ const DiagramEditor: React.FunctionComponent<{
   const diagram = useDiagram();
   const [areNodesReady, setAreNodesReady] = useState(false);
   const { openDrawer } = useDrawerActions();
+  const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
+    useState(false);
 
   const setDiagramContainerRef = useCallback(
     (ref: HTMLDivElement | null) => {
@@ -302,9 +307,27 @@ const DiagramEditor: React.FunctionComponent<{
           !!selectedItems &&
           selectedItems.type === 'collection' &&
           selectedItems.id === coll.ns,
+        connectable: isInRelationshipDrawingMode,
+        draggable: !isInRelationshipDrawingMode,
       })
     );
-  }, [model?.collections, model?.relationships, selectedItems]);
+  }, [
+    model?.collections,
+    model?.relationships,
+    selectedItems,
+    isInRelationshipDrawingMode,
+  ]);
+
+  const handleNodesConnect = useCallback(
+    (source: string, target: string) => {
+      onRelationshipDrawn(source, target);
+    },
+    [onRelationshipDrawn]
+  );
+
+  const handleRelationshipDrawingToggle = useCallback(() => {
+    setIsInRelationshipDrawingMode((prev) => !prev);
+  }, []);
 
   const applyInitialLayout = useCallback(async () => {
     try {
@@ -420,6 +443,10 @@ const DiagramEditor: React.FunctionComponent<{
             onNodeDragStop={(evt, node) => {
               onMoveCollection(node.id, [node.position.x, node.position.y]);
             }}
+            onConnect={({ source, target }) => {
+              handleNodesConnect(source, target);
+              setIsInRelationshipDrawingMode(false);
+            }}
           />
         </div>
       </div>
@@ -427,7 +454,14 @@ const DiagramEditor: React.FunctionComponent<{
   }
 
   return (
-    <WorkspaceContainer toolbar={<DiagramEditorToolbar />}>
+    <WorkspaceContainer
+      toolbar={
+        <DiagramEditorToolbar
+          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+        />
+      }
+    >
       {content}
       <ExportDiagramModal />
     </WorkspaceContainer>
@@ -454,6 +488,7 @@ export default connect(
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
+    onRelationshipDrawn: createNewRelationship,
     onDiagramBackgroundClicked: selectBackground,
   }
 )(DiagramEditor);
