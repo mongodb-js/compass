@@ -1,7 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { Relationship } from '../services/data-model-storage';
-import { Button, H3 } from '@mongodb-js/compass-components';
+import {
+  Accordion,
+  Badge,
+  Button,
+  IconButton,
+  css,
+  FormFieldContainer,
+  palette,
+  spacing,
+  TextInput,
+  Icon,
+} from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
   deleteRelationship,
@@ -10,6 +21,7 @@ import {
   selectRelationship,
 } from '../store/diagram';
 import type { DataModelingState } from '../store/reducer';
+import { getRelationshipName } from '../utils';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -19,6 +31,43 @@ type CollectionDrawerContentProps = {
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
 };
+
+const formFieldContainerStyles = css({
+  marginBottom: spacing[400],
+  marginTop: spacing[400],
+});
+
+const containerStyles = css({
+  padding: spacing[400],
+});
+
+const accordionTitleStyles = css({
+  fontSize: spacing[300],
+  width: '100%',
+});
+
+const relationshipsTitleStyles = css({
+  width: '100%',
+});
+
+const titleBtnStyles = css({
+  float: 'right',
+});
+
+const emptyRelationshipMessageStyles = css({
+  color: palette.gray.dark1,
+});
+
+const relationshipItemStyles = css({
+  display: 'flex',
+});
+const relationshipNameStyles = css({
+  flexGrow: 1,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  minWidth: 0,
+});
 
 const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
@@ -30,40 +79,83 @@ const CollectionDrawerContent: React.FunctionComponent<
   onDeleteRelationshipClick,
 }) => {
   return (
-    <>
-      <H3>{namespace}</H3>
-      <ul>
-        {relationships.map((r) => {
-          return (
-            <li key={r.id} data-relationship-id={r.id}>
-              {r.relationship[0].fields?.join('.')}&nbsp;-&gt;&nbsp;
-              {r.relationship[1].fields?.join('.')}
-              <Button
-                onClick={() => {
-                  onEditRelationshipClick(r.id);
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                onClick={() => {
-                  onDeleteRelationshipClick(r.id);
-                }}
-              >
-                Delete
-              </Button>
-            </li>
-          );
-        })}
-      </ul>
-      <Button
-        onClick={() => {
-          onCreateNewRelationshipClick(namespace);
-        }}
+    <div className={containerStyles}>
+      <Accordion
+        text="COLLECTION"
+        defaultOpen={true}
+        textClassName={accordionTitleStyles}
       >
-        Add relationship manually
-      </Button>
-    </>
+        <FormFieldContainer className={formFieldContainerStyles}>
+          <TextInput
+            label="Name"
+            sizeVariant="small"
+            value={namespace}
+            disabled={true}
+          />
+        </FormFieldContainer>
+      </Accordion>
+
+      <Accordion
+        text={
+          <>
+            RELATIONSHIPS&nbsp;
+            <Badge>{relationships.length}</Badge>
+            <Button
+              className={titleBtnStyles}
+              size="xsmall"
+              onClick={() => {
+                onCreateNewRelationshipClick(namespace);
+              }}
+            >
+              Add relationship
+            </Button>
+          </>
+        }
+        defaultOpen={true}
+        textClassName={accordionTitleStyles}
+        buttonTextClassName={relationshipsTitleStyles}
+      >
+        {!relationships.length ? (
+          <div className={emptyRelationshipMessageStyles}>
+            This collection does not have any relationships yet.
+          </div>
+        ) : (
+          <ul>
+            {relationships.map((r) => {
+              return (
+                <li
+                  key={r.id}
+                  data-relationship-id={r.id}
+                  className={relationshipItemStyles}
+                >
+                  <span className={relationshipNameStyles}>
+                    {getRelationshipName(r)}
+                  </span>
+                  <IconButton
+                    aria-label="Edit relationship"
+                    title="Edit relationship"
+                    onClick={() => {
+                      onEditRelationshipClick(r.id);
+                    }}
+                  >
+                    <Icon glyph="Edit" />
+                  </IconButton>
+                  <IconButton
+                    aria-label="Delete relationship"
+                    title="Delete relationship"
+                    onClick={() => {
+                      onDeleteRelationshipClick(r.id);
+                    }}
+                  >
+                    <Icon glyph="Trash" />
+                  </IconButton>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Accordion>
+    </div>
   );
 };
 
