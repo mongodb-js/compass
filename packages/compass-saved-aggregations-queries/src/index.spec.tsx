@@ -227,9 +227,11 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       queryStorageLoadAllStub = sandbox
         .stub(queryStorage, 'loadAll')
         .resolves(queries.map((item) => item.query));
-      sandbox
-        .stub(pipelineStorage, 'loadAll')
-        .resolves(pipelines.map((item) => item.aggregation));
+      sandbox.stub(pipelineStorage, 'loadAll').resolves(
+        pipelines.map((item) => {
+          return { ...item.aggregation, lastModified: new Date() };
+        })
+      );
 
       renderPlugin();
 
