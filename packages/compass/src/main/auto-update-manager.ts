@@ -850,8 +850,7 @@ class CompassAutoUpdateManager {
       })
       .then(({ response }) => {
         if (response === 0) {
-          return dl.download(
-            BrowserWindow.getAllWindows()[0],
+          return shell.openExternal(
             `https://compass.mongodb.com/api/v2/download/${this.autoUpdateOptions.version}/compass/${this.autoUpdateOptions.channel}/darwin-arm64`
           );
         }
