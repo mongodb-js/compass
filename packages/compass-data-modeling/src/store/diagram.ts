@@ -9,7 +9,7 @@ import {
   type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
-import { get, memoize } from 'lodash';
+import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
   openToast,
@@ -322,7 +322,8 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 }
 
 export function createNewRelationship(
-  namespace: string
+  localNamespace: string,
+  foreignNamespace: string | null = null
 ): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
@@ -335,8 +336,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: namespace, cardinality: 1, fields: null },
-            { ns: null, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: null },
+            { ns: foreignNamespace, cardinality: 1, fields: null },
           ],
           isInferred: false,
         },
@@ -497,59 +498,6 @@ export function openDiagramFromFile(
         description: (error as Error).message,
       });
     }
-  };
-}
-
-export function updateSelectedRelationshipNodes(
-  newSource: string,
-  newTarget: string
-): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
-  return (dispatch, getState) => {
-    const { selectedItems } = getState().diagram || {};
-    if (!selectedItems || selectedItems.type !== 'relationship') {
-      dispatch({
-        type: DiagramActionTypes.APPLY_EDIT_FAILED,
-        errors: ['No relationship selected'],
-      });
-      return;
-    }
-    const relationship = getRelationshipForCurrentModel(
-      getCurrentDiagramFromState(getState()).edits,
-      selectedItems.id
-    );
-    if (!relationship) {
-      dispatch({
-        type: DiagramActionTypes.APPLY_EDIT_FAILED,
-        errors: ['Selected relationship not found'],
-      });
-      return;
-    }
-    dispatch(
-      applyEdit({
-        type: 'UpdateRelationship',
-        relationship: {
-          ...relationship,
-          relationship: [
-            {
-              ns: newSource,
-              cardinality: relationship.relationship[0].cardinality,
-              fields:
-                relationship.relationship[0].ns === newSource
-                  ? relationship.relationship[0].fields
-                  : null,
-            },
-            {
-              ns: newTarget,
-              cardinality: relationship.relationship[1].cardinality,
-              fields:
-                relationship.relationship[1].ns === newTarget
-                  ? relationship.relationship[1].fields
-                  : null,
-            },
-          ],
-        },
-      })
-    );
   };
 }
 
