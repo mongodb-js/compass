@@ -51,6 +51,7 @@ interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   text: string | React.ReactNode;
   hintText?: string;
   textClassName?: string;
+  buttonTextClassName?: string;
   open?: boolean;
   defaultOpen?: boolean;
   setOpen?: (newValue: boolean) => void;
@@ -59,6 +60,7 @@ function Accordion({
   text,
   hintText,
   textClassName,
+  buttonTextClassName,
   open: _open,
   setOpen: _setOpen,
   defaultOpen = false,
@@ -97,7 +99,7 @@ function Accordion({
           <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
         </span>
 
-        <div className={buttonTextStyles}>
+        <div className={cx(buttonTextStyles, buttonTextClassName)}>
           {text}
           {hintText && (
             <Description className={buttonHintStyles}>{hintText}</Description>

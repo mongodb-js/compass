@@ -57,7 +57,15 @@ const formFieldContainerStyles = css({
 
 const accordionTitleStyles = css({
   fontSize: spacing[300],
-  color: palette.gray.dark1,
+  width: '100%',
+});
+
+const relationshipTitleStyles = css({
+  width: '100%',
+});
+
+const titleBtnStyles = css({
+  float: 'right',
 });
 
 const FIELD_DIVIDER = '~~##$$##~~';
@@ -186,9 +194,25 @@ const RelationshipDrawerContent: React.FunctionComponent<
   return (
     <div data-relationship-id={relationshipId}>
       <Accordion
-        text="RELATIONSHIP"
+        text={
+          <>
+            RELATIONSHIP
+            <Button
+              variant="dangerOutline"
+              leftGlyph={<Icon glyph="Trash" />}
+              className={titleBtnStyles}
+              size="xsmall"
+              onClick={() => {
+                onDeleteRelationshipClick(relationshipId);
+              }}
+            >
+              Delete
+            </Button>
+          </>
+        }
         defaultOpen={true}
         textClassName={accordionTitleStyles}
+        buttonTextClassName={relationshipTitleStyles}
       >
         <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
@@ -202,18 +226,6 @@ const RelationshipDrawerContent: React.FunctionComponent<
               onFieldChange('name', e.target.value);
             }}
           />
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Button
-            variant="dangerOutline"
-            leftGlyph={<Icon glyph="Trash" />}
-            onClick={() => {
-              onDeleteRelationshipClick(relationshipId);
-            }}
-          >
-            Delete reference
-          </Button>
         </FormFieldContainer>
       </Accordion>
 
