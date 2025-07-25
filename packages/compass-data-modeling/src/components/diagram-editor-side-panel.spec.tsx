@@ -21,6 +21,7 @@ import type {
   MongoDBDataModelDescription,
   Relationship,
 } from '../services/data-model-storage';
+import { DrawerAnchor } from '@mongodb-js/compass-components';
 
 async function comboboxSelectItem(
   label: string,
@@ -41,12 +42,21 @@ async function comboboxSelectItem(
 }
 
 describe('DiagramEditorSidePanel', function () {
+  before(function () {
+    // TODO(COMPASS-9618): skip in electron runtime for now, drawer has issues rendering
+    if ((process as any).type === 'renderer') {
+      this.skip();
+    }
+  });
+
   function renderDrawer() {
     const { renderWithConnections } = createPluginTestHelpers(
       DataModelingWorkspaceTab.provider.withMockServices({})
     );
     const result = renderWithConnections(
-      <DiagramEditorSidePanel></DiagramEditorSidePanel>
+      <DrawerAnchor>
+        <DiagramEditorSidePanel></DiagramEditorSidePanel>
+      </DrawerAnchor>
     );
     result.plugin.store.dispatch(
       openDiagram(dataModel as MongoDBDataModelDescription)
@@ -59,21 +69,26 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', function () {
+  it('should render a collection context drawer when collection is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
-    expect(screen.getByText('flights.airlines')).to.be.visible;
+
+    await waitFor(() => {
+      expect(screen.getByText('flights.airlines')).to.be.visible;
+    });
   });
 
-  it('should render a relationship context drawer when relations is clicked', function () {
+  it('should render a relationship context drawer when relations is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
 
-    const name = screen.getByLabelText('Name');
-    expect(name).to.be.visible;
-    expect(name).to.have.value('Airport Country');
+    await waitFor(() => {
+      const name = screen.getByLabelText('Name');
+      expect(name).to.be.visible;
+      expect(name).to.have.value('Airport Country');
+    });
 
     const localCollectionInput = screen.getByLabelText('Local collection');
     expect(localCollectionInput).to.be.visible;
@@ -108,11 +123,14 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
   });
 
-  it('should change the content of the drawer when selecting different items', function () {
+  it('should change the content of the drawer when selecting different items', async function () {
     const result = renderDrawer();
 
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
-    expect(screen.getByText('flights.airlines')).to.be.visible;
+
+    await waitFor(() => {
+      expect(screen.getByText('flights.airlines')).to.be.visible;
+    });
 
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
@@ -145,6 +163,10 @@ describe('DiagramEditorSidePanel', function () {
   it('should open and edit relationship starting from collection', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByText('flights.countries')).to.be.visible;
+    });
 
     // Open relationshipt editing form
     const relationshipCard = document.querySelector<HTMLElement>(

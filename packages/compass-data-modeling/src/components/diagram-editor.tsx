@@ -29,6 +29,7 @@ import {
   Button,
   useDarkMode,
   InlineDefinition,
+  useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
 import {
@@ -42,6 +43,7 @@ import type { Relationship, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { DATA_MODELING_DRAWER_ID } from './diagram-editor-side-panel';
 
 const loadingContainerStyles = css({
   width: '100%',
@@ -247,6 +249,7 @@ const DiagramEditor: React.FunctionComponent<{
   const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useDiagram();
   const [areNodesReady, setAreNodesReady] = useState(false);
+  const { openDrawer } = useDrawerActions();
 
   const setDiagramContainerRef = useCallback(
     (ref: HTMLDivElement | null) => {
@@ -403,10 +406,12 @@ const DiagramEditor: React.FunctionComponent<{
                 return;
               }
               onCollectionSelect(node.id);
+              openDrawer(DATA_MODELING_DRAWER_ID);
             }}
             onPaneClick={onDiagramBackgroundClicked}
             onEdgeClick={(_evt, edge) => {
               onRelationshipSelect(edge.id);
+              openDrawer(DATA_MODELING_DRAWER_ID);
             }}
             fitViewOptions={{
               maxZoom: 1,
