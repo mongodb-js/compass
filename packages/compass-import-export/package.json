@@ -60,7 +60,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.47.0",
     "debug": "^4.3.4",
-    "electron": "^37.2.2",
+    "electron": "^37.2.4",
     "hadron-document": "^8.9.3",
     "hadron-ipc": "^3.5.7",
     "lodash": "^4.17.21",
