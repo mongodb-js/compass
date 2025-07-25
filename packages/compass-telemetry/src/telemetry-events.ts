@@ -832,6 +832,12 @@ type ConnectionFailedEvent = ConnectionScopedEvent<{
      * The error name.
      */
     error_name: string;
+
+    /**
+     * The error codes (or code names) from the error's cause chain.
+     * The driver and the OIDC library we use are two places that use cause chains.
+     */
+    error_code_cause_chain: (string | number)[] | undefined;
   } & ExtraConnectionData;
 }>;
 
