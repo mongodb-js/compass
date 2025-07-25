@@ -109,20 +109,15 @@ const DiagramContent: React.FunctionComponent<{
   selectedItems,
 }) => {
   const isDarkMode = useDarkMode();
-  const diagramContainerRef = useRef<HTMLDivElement | null>(null);
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
 
-  const setDiagramContainerRef = useCallback(
-    (ref: HTMLDivElement | null) => {
-      if (ref) {
-        // For debugging purposes, we attach the diagram to the ref.
-        (ref as any)._diagram = diagram;
-      }
-      diagramContainerRef.current = ref;
-    },
-    [diagram]
-  );
+  const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
+    if (ref) {
+      // For debugging purposes, we attach the diagram to the ref.
+      (ref as any)._diagram = diagram.current;
+    }
+  }, []);
 
   const edges = useMemo<EdgeProps[]>(() => {
     return (model?.relationships ?? []).map((relationship) => {
