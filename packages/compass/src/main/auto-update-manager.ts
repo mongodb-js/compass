@@ -827,11 +827,52 @@ class CompassAutoUpdateManager {
     this.setState(AutoUpdateManagerState.RestartDismissed);
   }
 
-  private static _init(
+  private static checkForMismatchedMacOSArch() {
+    const mismatchedOnArm =
+      isMismatchedArchDarwin() && getSystemArch() === 'arm64';
+
+    if (!mismatchedOnArm) {
+      return;
+    }
+
+    void dialog
+      .showMessageBox({
+        icon: COMPASS_ICON,
+        message: 'Mismatched architecture detected',
+        detail:
+          'You are currently using a build of Compass that is not optimized for Apple Silicon processors. This version might have significat performance issues when used. ' +
+          'Would you like to download the version of Compass optimized for Apple Silicon processors now?',
+        buttons: [
+          'Download Compass for Apple Silicon (Recommended)',
+          'Not now',
+        ],
+        cancelId: 1,
+      })
+      .then(({ response }) => {
+        if (response === 0) {
+          return shell.openExternal(
+            `https://compass.mongodb.com/api/v2/download/${this.autoUpdateOptions.version}/compass/${this.autoUpdateOptions.channel}/darwin-arm64`
+          );
+        }
+      })
+      .catch((err) => {
+        log.warn(
+          mongoLogId(1_001_000_362),
+          'AutoUpdateManager',
+          'Failed to download Compass for a mismatched macos arch',
+          { error: err.message }
+        );
+      });
+  }
+
+  private static async _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
+    await app.whenReady();
+
     this.fetch = (url: string) => compassApp.httpClient.fetch(url);
+
     compassApp.addExitHandler(() => {
       this.stop();
       return Promise.resolve();
@@ -866,6 +907,8 @@ class CompassAutoUpdateManager {
       initialUpdateDelay: THIRTY_SECONDS,
       ...options,
     };
+
+    this.checkForMismatchedMacOSArch();
 
     // TODO(COMPASS-7232): If auto-updates are not supported, then there is
     // still a menu item to check for updates and then if it finds an update but
@@ -961,13 +1004,13 @@ class CompassAutoUpdateManager {
     );
   }
 
-  static init(
+  static async init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
     if (!this.initCalled) {
       this.initCalled = true;
-      this._init(compassApp, options);
+      await this._init(compassApp, options);
     }
   }
 
