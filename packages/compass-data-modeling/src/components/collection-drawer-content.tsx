@@ -61,12 +61,17 @@ const emptyRelationshipMessageStyles = css({
 const relationshipItemStyles = css({
   display: 'flex',
 });
+
 const relationshipNameStyles = css({
   flexGrow: 1,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   minWidth: 0,
+});
+
+const relationshipContentStyles = css({
+  margin: `${spacing[400]}px 0`,
 });
 
 const CollectionDrawerContent: React.FunctionComponent<
@@ -115,45 +120,47 @@ const CollectionDrawerContent: React.FunctionComponent<
         textClassName={accordionTitleStyles}
         buttonTextClassName={relationshipsTitleStyles}
       >
-        {!relationships.length ? (
-          <div className={emptyRelationshipMessageStyles}>
-            This collection does not have any relationships yet.
-          </div>
-        ) : (
-          <ul>
-            {relationships.map((r) => {
-              return (
-                <li
-                  key={r.id}
-                  data-relationship-id={r.id}
-                  className={relationshipItemStyles}
-                >
-                  <span className={relationshipNameStyles}>
-                    {getRelationshipName(r)}
-                  </span>
-                  <IconButton
-                    aria-label="Edit relationship"
-                    title="Edit relationship"
-                    onClick={() => {
-                      onEditRelationshipClick(r.id);
-                    }}
+        <div className={relationshipContentStyles}>
+          {!relationships.length ? (
+            <div className={emptyRelationshipMessageStyles}>
+              This collection does not have any relationships yet.
+            </div>
+          ) : (
+            <ul>
+              {relationships.map((r) => {
+                return (
+                  <li
+                    key={r.id}
+                    data-relationship-id={r.id}
+                    className={relationshipItemStyles}
                   >
-                    <Icon glyph="Edit" />
-                  </IconButton>
-                  <IconButton
-                    aria-label="Delete relationship"
-                    title="Delete relationship"
-                    onClick={() => {
-                      onDeleteRelationshipClick(r.id);
-                    }}
-                  >
-                    <Icon glyph="Trash" />
-                  </IconButton>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                    <span className={relationshipNameStyles}>
+                      {getRelationshipName(r)}
+                    </span>
+                    <IconButton
+                      aria-label="Edit relationship"
+                      title="Edit relationship"
+                      onClick={() => {
+                        onEditRelationshipClick(r.id);
+                      }}
+                    >
+                      <Icon glyph="Edit" />
+                    </IconButton>
+                    <IconButton
+                      aria-label="Delete relationship"
+                      title="Delete relationship"
+                      onClick={() => {
+                        onDeleteRelationshipClick(r.id);
+                      }}
+                    >
+                      <Icon glyph="Trash" />
+                    </IconButton>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </Accordion>
     </div>
   );

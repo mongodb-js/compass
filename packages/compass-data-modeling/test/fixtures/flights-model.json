@@ -241,6 +241,7 @@
     },
     {
       "id": "204b1fc0-601f-4d62-bba3-38fade71e049",
+      "name": "Airport Country",
       "relationship": [
         {
           "ns": "flights.countries",
