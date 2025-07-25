@@ -7,7 +7,7 @@ import {
   render,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import DiagramEditor, { getFieldsFromSchema } from './diagram-editor';
+import DiagramEditor from './diagram-editor';
 import type { DataModelingStore } from '../../test/setup-store';
 import type {
   Edit,
@@ -18,6 +18,7 @@ import sinon from 'sinon';
 import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
+import { getFieldsFromSchema } from '../utils/nodes-and-edges';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {
@@ -68,14 +69,14 @@ const storageItems: MongoDBDataModelDescription[] = [
             {
               ns: 'db1.collection1',
               indexes: [],
-              displayPosition: [NaN, NaN],
+              displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
-              displayPosition: [NaN, NaN],
+              displayPosition: [0, 0],
               shardKey: {},
               jsonSchema: { bsonType: 'object' },
             },
@@ -163,37 +164,6 @@ describe('DiagramEditor', function () {
     sinon
       .stub(diagramming, 'applyLayout')
       .callsFake(mockDiagramming.applyLayout as any);
-  });
-
-  context('with initial diagram', function () {
-    beforeEach(async function () {
-      const result = renderDiagramEditor({
-        renderedItem: storageItems[1],
-      });
-      store = result.store;
-
-      // wait till the editor is loaded
-      await waitFor(() => {
-        expect(screen.getByTestId('model-preview')).to.be.visible;
-      });
-    });
-
-    it('applies the initial layout to unpositioned nodes', function () {
-      const state = store.getState();
-
-      expect(state.diagram?.edits.current).to.have.lengthOf(1);
-      expect(state.diagram?.edits.current[0].type).to.equal('SetModel');
-      const initialEdit = state.diagram?.edits.current[0] as Extract<
-        Edit,
-        { type: 'SetModel' }
-      >;
-      expect(initialEdit.model?.collections[0].displayPosition).to.deep.equal([
-        100, 100,
-      ]);
-      expect(initialEdit.model?.collections[1].displayPosition).to.deep.equal([
-        200, 200,
-      ]);
-    });
   });
 
   context('with existing diagram', function () {

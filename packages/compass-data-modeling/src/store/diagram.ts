@@ -26,6 +26,8 @@ function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
+export type SelectedItems = { type: 'collection' | 'relationship'; id: string };
+
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
@@ -34,7 +36,7 @@ export type DiagramState =
         next: Edit[][];
       };
       editErrors?: string[];
-      selectedItems: { type: 'collection' | 'relationship'; id: string } | null;
+      selectedItems: SelectedItems | null;
     })
   | null; // null when no diagram is currently open
 
@@ -67,11 +69,6 @@ export type RenameDiagramAction = {
   type: DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
-};
-
-export type ApplyInitialLayoutAction = {
-  type: DiagramActionTypes.APPLY_INITIAL_LAYOUT;
-  positions: Record<string, [number, number]>;
 };
 
 export type ApplyEditAction = {
@@ -114,7 +111,6 @@ export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
   | RenameDiagramAction
-  | ApplyInitialLayoutAction
   | ApplyEditAction
   | ApplyEditFailedAction
   | UndoEditAction
@@ -163,8 +159,7 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
-                displayPosition: [NaN, NaN],
-                // TODO
+                displayPosition: [collection.position.x, collection.position.y],
                 indexes: [],
                 shardKey: undefined,
               })),
@@ -188,30 +183,6 @@ export const diagramReducer: Reducer<DiagramState> = (
       ...state,
       name: action.name,
       updatedAt: new Date().toISOString(),
-    };
-  }
-  if (isAction(action, DiagramActionTypes.APPLY_INITIAL_LAYOUT)) {
-    const initialEdit = state.edits.current[0];
-    if (!initialEdit || initialEdit.type !== 'SetModel') {
-      throw new Error('No initial model edit found to apply layout to');
-    }
-    return {
-      ...state,
-      edits: {
-        ...state.edits,
-        current: [
-          {
-            ...initialEdit,
-            model: {
-              ...initialEdit.model,
-              collections: initialEdit.model.collections.map((collection) => ({
-                ...collection,
-                displayPosition: action.positions[collection.ns] || [NaN, NaN],
-              })),
-            },
-          },
-        ],
-      },
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
@@ -404,18 +375,6 @@ export function applyEdit(
     });
     void dataModelStorage.save(getCurrentDiagramFromState(getState()));
     return isValid;
-  };
-}
-
-export function applyInitialLayout(
-  positions: Record<string, [number, number]>
-): DataModelingThunkAction<void, ApplyInitialLayoutAction> {
-  return (dispatch, getState, { dataModelStorage }) => {
-    dispatch({
-      type: DiagramActionTypes.APPLY_INITIAL_LAYOUT,
-      positions,
-    });
-    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
 }
 
