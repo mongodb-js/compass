@@ -76,7 +76,7 @@ export class AtlasService {
     return this.cloudEndpoint(path);
   }
   driverProxyEndpoint(path?: string): string {
-    return `${this.config.wsBaseUrl}${normalizePath(path)}`;
+    return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);

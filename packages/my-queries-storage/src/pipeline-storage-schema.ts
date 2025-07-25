@@ -62,8 +62,8 @@ export const PipelineSchema = z.preprocess(
     pipelineText: z.string(),
     lastModified: z
       .number()
-      .transform((x) => new Date(x))
-      .optional(),
+      .default(0)
+      .transform((x) => new Date(x)),
   })
 );
 

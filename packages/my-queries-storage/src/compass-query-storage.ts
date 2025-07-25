@@ -16,8 +16,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     protected readonly options: QueryStorageOptions
   ) {
     // TODO: logic for whether we're in compass web or compass desktop
-    this.userData = new FileUserData(schemaValidator, {
-      subdir: folder,
+    this.userData = new FileUserData(schemaValidator, folder, {
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),
       deserialize: (content: string) => EJSON.parse(content),
@@ -49,7 +48,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<TSchema>>
-  ): Promise<z.output<TSchema>> {
+  ): Promise<boolean> {
     return await this.userData.updateAttributes(id, data);
   }
 

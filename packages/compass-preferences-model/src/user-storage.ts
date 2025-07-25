@@ -26,8 +26,7 @@ export interface UserStorage {
 export class UserStorageImpl implements UserStorage {
   private readonly userData: FileUserData<typeof UserSchema>;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(UserSchema, {
-      subdir: 'Users',
+    this.userData = new FileUserData(UserSchema, 'Users', {
       basePath,
     });
   }
@@ -78,9 +77,5 @@ export class UserStorageImpl implements UserStorage {
   private async writeUser(user: z.input<typeof UserSchema>): Promise<User> {
     await this.userData.write(user.id, user);
     return this.getUser(user.id);
-  }
-
-  private getFileName(id: string) {
-    return `${id}.json`;
   }
 }

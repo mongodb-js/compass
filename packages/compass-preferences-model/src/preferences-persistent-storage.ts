@@ -25,10 +25,13 @@ export class PersistentStorage implements PreferencesStorage {
   private safeStorage?: PreferencesSafeStorage;
 
   constructor(basePath?: string, safeStorage?: PreferencesSafeStorage) {
-    this.userData = new FileUserData(getPreferencesValidator(), {
-      subdir: 'AppPreferences',
-      basePath,
-    });
+    this.userData = new FileUserData(
+      getPreferencesValidator(),
+      'AppPreferences',
+      {
+        basePath,
+      }
+    );
     this.safeStorage = safeStorage;
   }
 
