@@ -49,7 +49,16 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onRedoClick: () => void;
   onExportClick: () => void;
   onRelationshipDrawingToggle: () => void;
-}> = ({ step, hasUndo, onUndoClick, hasRedo, onRedoClick, onExportClick, onRelationshipDrawingToggle, isInRelationshipDrawingMode }) => {
+}> = ({
+  step,
+  hasUndo,
+  onUndoClick,
+  hasRedo,
+  onRedoClick,
+  onExportClick,
+  onRelationshipDrawingToggle,
+  isInRelationshipDrawingMode,
+}) => {
   const darkmode = useDarkMode();
   if (step !== 'EDITING') {
     return null;
@@ -64,6 +73,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
           aria-label="Add Relationship"
           onClick={onRelationshipDrawingToggle}
           active={isInRelationshipDrawingMode}
+          aria-pressed={isInRelationshipDrawingMode}
         >
           <Icon glyph="Relationship"></Icon>
         </IconButton>

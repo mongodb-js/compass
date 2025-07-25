@@ -232,7 +232,6 @@ const DiagramEditor: React.FunctionComponent<{
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
-  onNodesConnected: (source: string, target: string) => void;
   onRelationshipDrawn: (source: string, target: string) => void;
 }> = ({
   diagramLabel,
@@ -312,7 +311,12 @@ const DiagramEditor: React.FunctionComponent<{
         draggable: !isInRelationshipDrawingMode,
       })
     );
-  }, [model?.collections, model?.relationships, selectedItems, isInRelationshipDrawingMode]);
+  }, [
+    model?.collections,
+    model?.relationships,
+    selectedItems,
+    isInRelationshipDrawingMode,
+  ]);
 
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
