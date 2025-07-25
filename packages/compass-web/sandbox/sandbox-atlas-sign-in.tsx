@@ -19,7 +19,7 @@ type ProjectParams = {
   enableGenAIFeaturesAtlasProject: boolean;
   enableGenAISampleDocumentPassingOnAtlasProject: boolean;
   enableGenAIFeaturesAtlasOrg: boolean;
-  optInDataExplorerGenAIFeatures: boolean;
+  optInGenAIFeatures: boolean;
 };
 
 type AtlasLoginReturnValue =
@@ -129,8 +129,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             projectId,
             csrfToken,
             csrfTime,
-            optInDataExplorerGenAIFeatures:
-              isOptedIntoDataExplorerGenAIFeatures,
+            optInGenAIFeatures: isOptedIntoDataExplorerGenAIFeatures,
             enableGenAIFeaturesAtlasOrg: genAIFeaturesEnabled,
             enableGenAISampleDocumentPassingOnAtlasProject:
               groupEnabledFeatureFlags.includes(

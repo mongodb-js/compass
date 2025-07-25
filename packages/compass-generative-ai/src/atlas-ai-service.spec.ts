@@ -321,6 +321,57 @@ describe('AtlasAiService', function () {
           });
         });
       });
+
+      describe('optIntoGenAIFeatures', function () {
+        beforeEach(async function () {
+          // Reset preferences
+          await preferences.savePreferences({
+            optInGenAIFeatures: false,
+          });
+        });
+
+        if (apiURLPreset === 'cloud') {
+          it('should make a POST request to cloud endpoint and save preference when cloud preset', async function () {
+            const fetchStub = sandbox.stub().resolves(makeResponse({}));
+            global.fetch = fetchStub;
+
+            await atlasAiService.optIntoGenAIFeatures();
+
+            // Verify fetch was called with correct parameters
+            expect(fetchStub).to.have.been.calledOnce;
+
+            expect(fetchStub).to.have.been.calledWith(
+              '/cloud/settings/optInDataExplorerGenAIFeatures',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  Accept: 'application/json',
+                },
+                body: new URLSearchParams([['value', 'true']]),
+              }
+            );
+
+            // Verify preference was saved
+            const currentPreferences = preferences.getPreferences();
+            expect(currentPreferences.optInGenAIFeatures).to.equal(true);
+          });
+        } else {
+          it('should not make any fetch request and only save preference when admin-api preset', async function () {
+            const fetchStub = sandbox.stub().resolves(makeResponse({}));
+            global.fetch = fetchStub;
+
+            await atlasAiService.optIntoGenAIFeatures();
+
+            // Verify no fetch was called
+            expect(fetchStub).to.not.have.been.called;
+
+            // Verify preference was saved
+            const currentPreferences = preferences.getPreferences();
+            expect(currentPreferences.optInGenAIFeatures).to.equal(true);
+          });
+        }
+      });
     });
   }
 });
