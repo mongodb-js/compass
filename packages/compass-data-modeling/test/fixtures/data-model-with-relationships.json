@@ -261,6 +261,7 @@
       "type": "AddRelationship",
       "relationship": {
         "id": "204b1fc0-601f-4d62-bba3-38fade71e049",
+        "name": "Airport Country",
         "relationship": [
           {
             "ns": "flights.countries",
@@ -269,7 +270,7 @@
           },
           {
             "ns": "flights.airports",
-            "cardinality": 1,
+            "cardinality": 100,
             "fields": ["Country"]
           }
         ],
@@ -277,27 +278,27 @@
       }
     },
     {
-      "type": "MoveCollection",
-      "ns": "flights.airports_coordinates_for_schema",
-      "newPosition": [477.4524339160448, 212.09520478224402],
-      "id": "538f3bcd-6f0c-49fd-9fc7-ffe7cf5a4718",
-      "timestamp": "2025-07-16T14:34:20.394Z"
-    },
-    {
-      "type": "MoveCollection",
-      "ns": "flights.countries",
-      "newPosition": [506.93108279248247, 415.73717039549217],
-      "id": "5fb8b8af-4687-4521-8ed7-832156c12c22",
-      "timestamp": "2025-07-16T14:34:24.792Z"
-    },
-    {
-      "type": "MoveCollection",
-      "ns": "flights.planes",
-      "newPosition": [548.5916640852764, 701.8741418473805],
-      "id": "7acf2862-5c29-40f4-8133-e976ae85b20d",
-      "timestamp": "2025-07-16T14:34:25.872Z"
+      "type": "UpdateRelationship",
+      "relationship": {
+        "id": "6f776467-4c98-476b-9b71-1f8a724e6c2c",
+        "relationship": [
+          {
+            "ns": "flights.airports_coordinates_for_schema",
+            "cardinality": 1,
+            "fields": ["coordinates"]
+          },
+          {
+            "ns": "flights.countries",
+            "cardinality": 1,
+            "fields": ["name"]
+          }
+        ],
+        "isInferred": false
+      },
+      "id": "6e06446c-3304-4a1d-a070-99ade7db2d4c",
+      "timestamp": "2025-07-17T10:09:00.490Z"
     }
   ],
   "createdAt": "2025-06-20T06:35:26.773Z",
-  "updatedAt": "2025-07-16T14:34:25.872Z"
+  "updatedAt": "2025-07-17T12:07:37.740Z"
 }

@@ -323,6 +323,7 @@ const InstanceModel = AmpersandModel.extend(
       fetchDbStats = false,
       fetchCollections = false,
       fetchCollStats = false,
+      firstRun = false,
     }) {
       this.set({
         refreshingStatus:
@@ -331,7 +332,15 @@ const InstanceModel = AmpersandModel.extend(
 
       try {
         // First fetch instance info ...
-        await this.fetch({ dataService, force: true });
+        await this.fetch({
+          dataService,
+          // NB: We're optimizing the first run case by passing the instance
+          // info directly to the instance when constructing the class. In all
+          // the other cases we will force refresh it, but if this is a first
+          // run, we won't force this (and it will short circuit in the fetch
+          // method)
+          force: !firstRun,
+        });
 
         // ... and databases list. These are the essentials that we need to make
         // Compass somewhat usable

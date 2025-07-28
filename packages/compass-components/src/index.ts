@@ -18,12 +18,12 @@ import type {
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
   FileInputBackend,
-} from './components/file-input';
-import FileInput, {
+} from './components/file-picker-dialog';
+import FilePickerDialog, {
   createElectronFileInputBackend,
   createJSDomFileInputDummyBackend,
   FileInputBackendProvider,
-} from './components/file-input';
+} from './components/file-picker-dialog';
 import { OptionsToggle } from './components/options-toggle';
 import {
   ErrorSummary,
@@ -69,6 +69,7 @@ export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
+export { PngIcon } from './components/icons/png-icon';
 export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
@@ -81,7 +82,7 @@ export { SplitButton } from '@leafygreen-ui/split-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
-export { rgba, lighten } from 'polished';
+export { rgba, lighten, transparentize } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
@@ -118,7 +119,7 @@ export {
   CollapsibleFieldSet,
   ConfirmationModal,
   ErrorSummary,
-  FileInput,
+  FilePickerDialog,
   FileInputBackendProvider,
   IndexIcon,
   OptionsToggle,
@@ -219,3 +220,5 @@ export {
 export { SelectList } from './components/select-list';
 export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
+export * from './components/drawer-portal';
+export { FileSelector } from './components/file-selector';

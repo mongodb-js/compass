@@ -144,7 +144,7 @@ export const featureFlags: Required<{
   },
 
   enableContextMenus: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable context (right-click) menus',
     },

@@ -12,7 +12,6 @@ function renderDiagramEditorToolbar(
       step="EDITING"
       hasUndo={true}
       hasRedo={true}
-      onDownloadClick={() => {}}
       onUndoClick={() => {}}
       onRedoClick={() => {}}
       onExportClick={() => {}}
@@ -71,14 +70,5 @@ describe('DiagramEditorToolbar', function () {
     expect(exportButton).to.exist;
     userEvent.click(exportButton);
     expect(exportSpy).to.have.been.calledOnce;
-  });
-
-  it('renders download button and calls onDownloadClick', function () {
-    const downloadSpy = sinon.spy();
-    renderDiagramEditorToolbar({ onDownloadClick: downloadSpy });
-    const downloadButton = screen.getByRole('button', { name: 'Download' });
-    expect(downloadButton).to.exist;
-    userEvent.click(downloadButton);
-    expect(downloadSpy).to.have.been.calledOnce;
   });
 });

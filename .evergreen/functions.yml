@@ -731,7 +731,7 @@ functions:
   test-web-sandbox-atlas-cloud:
     - command: shell.exec
       # It can take a very long time for Atlas cluster to get deployed
-      timeout_secs: 2400
+      timeout_secs: 3600 # 1 hour
       params:
         working_dir: src
         shell: bash
@@ -746,6 +746,9 @@ functions:
           MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
           MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
           MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
+          # CCS connection / op running time is slower than allowed timeouts
+          COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
+          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
         script: |
           set -e
           # Load environment variables

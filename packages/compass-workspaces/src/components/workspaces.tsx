@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  DrawerAnchor,
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
@@ -61,7 +62,6 @@ const workspacesContainerStyles = css({
 
 const workspacesContentStyles = css({
   display: 'flex',
-  flex: 1,
   minHeight: 0,
 });
 
@@ -216,11 +216,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       ></WorkspaceTabs>
 
       <div className={workspacesContentStyles}>
-        {activeTab && workspaceTabContent ? (
-          workspaceTabContent
-        ) : (
-          <EmptyWorkspaceContent></EmptyWorkspaceContent>
-        )}
+        <DrawerAnchor>
+          {activeTab && workspaceTabContent ? (
+            workspaceTabContent
+          ) : (
+            <EmptyWorkspaceContent></EmptyWorkspaceContent>
+          )}
+        </DrawerAnchor>
       </div>
     </div>
   );

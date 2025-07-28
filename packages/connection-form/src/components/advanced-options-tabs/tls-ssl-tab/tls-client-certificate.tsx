@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   FormFieldContainer,
-  FileInput,
+  FilePickerDialog,
   TextInput,
 } from '@mongodb-js/compass-components';
 
@@ -27,7 +27,7 @@ function TLSClientCertificate({
   return (
     <>
       <FormFieldContainer>
-        <FileInput
+        <FilePickerDialog
           description={
             displayDatabaseConnectionUserHints ? 'Learn More' : undefined
           }

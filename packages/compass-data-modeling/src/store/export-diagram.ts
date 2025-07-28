@@ -6,8 +6,9 @@ import { getCurrentDiagramFromState, selectCurrentModel } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
+import { downloadDiagram } from '../services/open-and-download-diagram';
 
-export type ExportDiagramFormat = 'png' | 'json';
+export type ExportDiagramFormat = 'png' | 'json' | 'diagram';
 
 export type ExportDiagramState = {
   isModalOpen: boolean;
@@ -120,7 +121,7 @@ export function exportDiagram(
 
       if (exportFormat === 'json') {
         const model = selectCurrentModel(
-          getCurrentDiagramFromState(getState())
+          getCurrentDiagramFromState(getState()).edits
         );
         exportToJson(diagram.name, model);
       } else if (exportFormat === 'png') {
@@ -129,6 +130,10 @@ export function exportDiagram(
           diagramInstance,
           cancelController.signal
         );
+      } else if (exportFormat === 'diagram') {
+        downloadDiagram(diagram.name, diagram.edits.current);
+      } else {
+        throw new Error(`Unsupported export format: ${exportFormat}`);
       }
       track('Data Modeling Diagram Exported', {
         format: exportFormat,
