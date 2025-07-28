@@ -864,6 +864,9 @@ This event is fired when a connection attempt fails.
   - The error code (if available).
 - **error_name** (required): `string`
   - The error name.
+- **error_code_cause_chain** (optional): `{} | undefined`
+  - The error codes (or code names) from the error's cause chain.
+    The driver and the OIDC library we use are two places that use cause chains.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
