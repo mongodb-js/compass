@@ -101,8 +101,6 @@ export function createInstancesStore(
     > = {},
     { connectionId }: { connectionId?: string } = {}
   ) => {
-    let isFirstRun: boolean | undefined;
-
     try {
       if (!connectionId) {
         throw new Error('No connectionId provided');
@@ -110,7 +108,6 @@ export function createInstancesStore(
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
       const dataService = connections.getDataServiceForConnection(connectionId);
-      isFirstRun = instance.status === 'initial';
       await instance.refresh({
         dataService,
         ...refreshOptions,
@@ -123,7 +120,7 @@ export function createInstancesStore(
         {
           message: (err as Error).message,
           connectionId: connectionId,
-          isFirstRun,
+          isFirstRun: refreshOptions.firstRun,
         }
       );
       // The `instance.refresh` method is catching all expected errors: we treat
@@ -137,7 +134,7 @@ export function createInstancesStore(
       // place for the user to see the error. This is a very rare case, but we
       // don't want to leave the user without any indication that something went
       // wrong and so we show an toast with the error message
-      if (isFirstRun) {
+      if (refreshOptions.firstRun) {
         const { name, message } = err as Error;
         openToast('instance-refresh-failed', {
           title: 'Failed to retrieve server info',
@@ -359,6 +356,7 @@ export function createInstancesStore(
         {
           fetchDatabases: true,
           fetchDbStats: true,
+          firstRun: true,
         },
         {
           connectionId: instanceConnectionId,

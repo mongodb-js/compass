@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FileInput as CompassFileInput } from '@mongodb-js/compass-components';
+import { FilePickerDialog } from '@mongodb-js/compass-components';
 
 type FileInputProps = {
   label: string;
@@ -24,7 +24,7 @@ export function FileInput({
   );
 
   return (
-    <CompassFileInput
+    <FilePickerDialog
       disabled={disabled}
       label={label}
       onChange={onChangeFiles}

@@ -8,7 +8,7 @@ import SSHTunnelIdentity from './ssh-tunnel-identity';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
 import { FileInputBackendProvider } from '@mongodb-js/compass-components';
-import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-picker-dialog';
 
 const formFields: {
   key: keyof SSHConnectionOptions;

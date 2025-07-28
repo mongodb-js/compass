@@ -14,7 +14,7 @@ import {
 import FileInput, {
   FileInputBackendProvider,
   createElectronFileInputBackend,
-} from './file-input';
+} from './file-picker-dialog';
 
 describe('FileInput', function () {
   let spy;

@@ -1,64 +1,67 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { closeSidePanel } from '../store/side-panel';
-import {
-  Button,
-  css,
-  cx,
-  Body,
-  spacing,
-  palette,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { DrawerSection } from '@mongodb-js/compass-components';
+import CollectionDrawerContent from './collection-drawer-content';
+import RelationshipDrawerContent from './relationship-drawer-content';
+import { closeDrawer } from '../store/diagram';
 
-const containerStyles = css({
-  width: '400px',
-  height: '100%',
-
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: spacing[400],
-  borderLeft: `1px solid ${palette.gray.light2}`,
-});
-
-const darkModeContainerStyles = css({
-  borderLeftColor: palette.gray.dark2,
-});
+export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
 type DiagramEditorSidePanelProps = {
-  isOpen: boolean;
+  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
   onClose: () => void;
 };
 
 function DiagmramEditorSidePanel({
-  isOpen,
-  onClose,
+  selectedItems,
 }: DiagramEditorSidePanelProps) {
-  const isDarkMode = useDarkMode();
-  if (!isOpen) {
+  if (!selectedItems) {
     return null;
   }
+
+  let content;
+
+  if (selectedItems.type === 'collection') {
+    content = (
+      <CollectionDrawerContent
+        namespace={selectedItems.id}
+      ></CollectionDrawerContent>
+    );
+  } else if (selectedItems.type === 'relationship') {
+    content = (
+      <RelationshipDrawerContent
+        relationshipId={selectedItems.id}
+      ></RelationshipDrawerContent>
+    );
+  }
+
   return (
-    <div className={cx(containerStyles, isDarkMode && darkModeContainerStyles)}>
-      <Body>This feature is under development.</Body>
-      <Button onClick={onClose} variant="primary" size="small">
-        Close Side Panel
-      </Button>
-    </div>
+    <DrawerSection
+      id={DATA_MODELING_DRAWER_ID}
+      title="Details"
+      label="Details"
+      glyph="InfoWithCircle"
+      autoOpen
+      // TODO: Leafygreen doesn't allow us to tie close event to a particular
+      // action. We can add this functionality ourselves, but I'm not sure that
+      // adding even more logic on top of the drawer is a good idea. Maybe we're
+      // okay with the drawer close button click just staying there until you
+      // explicitly click something else?
+      // onClose={onClose}
+    >
+      {content}
+    </DrawerSection>
   );
 }
 
 export default connect(
   (state: DataModelingState) => {
-    const { sidePanel } = state;
     return {
-      isOpen: sidePanel.isOpen,
+      selectedItems: state.diagram?.selectedItems ?? null,
     };
   },
   {
-    onClose: closeSidePanel,
+    onClose: closeDrawer,
   }
 )(DiagmramEditorSidePanel);
