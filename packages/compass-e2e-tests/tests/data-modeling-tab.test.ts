@@ -388,7 +388,7 @@ describe('Data Modeling tab', function () {
 
   it('exports the data model to compass format and imports it back', async function () {
     const dataModelName = 'Test Export Model - Save-Open';
-    exportFileName = `${dataModelName}.compass`;
+    exportFileName = `${dataModelName}.mdm`;
     await setupDiagram(browser, {
       diagramName: dataModelName,
       connectionName: DEFAULT_CONNECTION_NAME_1,
