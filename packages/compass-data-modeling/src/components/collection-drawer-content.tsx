@@ -48,16 +48,16 @@ const accordionTitleStyles = css({
 
 const relationshipsTitleStyles = css({
   width: '100%',
+  display: 'flex',
 });
 
 const titleBtnStyles = css({
-  float: 'right',
+  marginLeft: 'auto',
 });
 
 const emptyRelationshipMessageStyles = css({
   color: palette.gray.dark1,
 });
-
 const relationshipItemStyles = css({
   display: 'flex',
 });

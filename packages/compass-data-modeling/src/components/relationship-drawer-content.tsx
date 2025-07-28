@@ -62,10 +62,11 @@ const accordionTitleStyles = css({
 
 const relationshipTitleStyles = css({
   width: '100%',
+  display: 'flex',
 });
 
 const titleBtnStyles = css({
-  float: 'right',
+  marginLeft: 'auto',
 });
 
 const FIELD_DIVIDER = '~~##$$##~~';
