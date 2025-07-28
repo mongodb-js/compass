@@ -1,5 +1,4 @@
 import fs from 'fs/promises';
-import { Stats } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
@@ -124,39 +123,6 @@ describe('user-data', function () {
       });
       expect(result.data).to.have.lengthOf(0);
       expect(result.errors).to.have.lengthOf(2);
-    });
-
-    it('returns file stats', async function () {
-      await Promise.all(
-        [
-          ['data1.json', JSON.stringify({ name: 'VSCode' })],
-          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
-        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
-      );
-
-      const { data } = await getUserData().readAllWithStats({
-        ignoreErrors: true,
-      });
-
-      {
-        const vscodeData = data.find((x) => x[0].name === 'VSCode');
-        expect(vscodeData?.[0]).to.deep.equal({
-          name: 'VSCode',
-          hasDarkMode: true,
-          hasWebSupport: false,
-        });
-        expect(vscodeData?.[1]).to.be.instanceOf(Stats);
-      }
-
-      {
-        const mongoshData = data.find((x) => x[0].name === 'Mongosh');
-        expect(mongoshData?.[0]).to.deep.equal({
-          name: 'Mongosh',
-          hasDarkMode: true,
-          hasWebSupport: false,
-        });
-        expect(mongoshData?.[1]).to.be.instanceOf(Stats);
-      }
     });
   });
 
@@ -301,27 +267,6 @@ describe('user-data', function () {
         name: 'Mongosh',
         company: 'MongoDB',
       });
-    });
-
-    it('return file stats', async function () {
-      await writeFileToStorage(
-        'data.json',
-        JSON.stringify({
-          name: 'Mongosh',
-          company: 'MongoDB',
-        })
-      );
-
-      const [data, stats] = await getUserData().readOneWithStats('data', {
-        ignoreErrors: false,
-      });
-
-      expect(data).to.deep.equal({
-        name: 'Mongosh',
-        hasDarkMode: true,
-        hasWebSupport: false,
-      });
-      expect(stats).to.be.instanceOf(Stats);
     });
   });
 
