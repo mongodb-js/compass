@@ -17,7 +17,11 @@ import {
   selectRelationship,
 } from '../store/diagram';
 import dataModel from '../../test/fixtures/data-model-with-relationships.json';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import type {
+  MongoDBDataModelDescription,
+  Relationship,
+} from '../services/data-model-storage';
+import { DrawerAnchor } from '@mongodb-js/compass-components';
 
 async function comboboxSelectItem(
   label: string,
@@ -38,12 +42,21 @@ async function comboboxSelectItem(
 }
 
 describe('DiagramEditorSidePanel', function () {
+  before(function () {
+    // TODO(COMPASS-9618): skip in electron runtime for now, drawer has issues rendering
+    if ((process as any).type === 'renderer') {
+      this.skip();
+    }
+  });
+
   function renderDrawer() {
     const { renderWithConnections } = createPluginTestHelpers(
       DataModelingWorkspaceTab.provider.withMockServices({})
     );
     const result = renderWithConnections(
-      <DiagramEditorSidePanel></DiagramEditorSidePanel>
+      <DrawerAnchor>
+        <DiagramEditorSidePanel></DiagramEditorSidePanel>
+      </DrawerAnchor>
     );
     result.plugin.store.dispatch(
       openDiagram(dataModel as MongoDBDataModelDescription)
@@ -56,18 +69,53 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', function () {
+  it('should render a collection context drawer when collection is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
-    expect(screen.getByText('flights.airlines')).to.be.visible;
+
+    await waitFor(() => {
+      expect(screen.getByText('flights.airlines')).to.be.visible;
+    });
   });
 
-  it('should render a relationship context drawer when relations is clicked', function () {
+  it('should render a relationship context drawer when relations is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
-    expect(screen.getByText('Edit Relationship')).to.be.visible;
+
+    await waitFor(() => {
+      const name = screen.getByLabelText('Name');
+      expect(name).to.be.visible;
+      expect(name).to.have.value('Airport Country');
+    });
+
+    const localCollectionInput = screen.getByLabelText('Local collection');
+    expect(localCollectionInput).to.be.visible;
+    expect(localCollectionInput).to.have.value('countries');
+
+    const foreignCollectionInput = screen.getByLabelText('Foreign collection');
+    expect(foreignCollectionInput).to.be.visible;
+    expect(foreignCollectionInput).to.have.value('airports');
+
+    const localFieldInput = screen.getByLabelText('Local field');
+    expect(localFieldInput).to.be.visible;
+    expect(localFieldInput).to.have.value('name');
+
+    const foreignFieldInput = screen.getByLabelText('Foreign field');
+    expect(foreignFieldInput).to.be.visible;
+    expect(foreignFieldInput).to.have.value('Country');
+
+    const localCardinalityInput = screen.getByLabelText('Local cardinality');
+    expect(localCardinalityInput).to.be.visible;
+    expect(localCardinalityInput).to.have.value('1');
+
+    const foreignCardinalityInput = screen.getByLabelText(
+      'Foreign cardinality'
+    );
+    expect(foreignCardinalityInput).to.be.visible;
+    expect(foreignCardinalityInput).to.have.value('100');
+
     expect(
       document.querySelector(
         '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
@@ -75,11 +123,14 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
   });
 
-  it('should change the content of the drawer when selecting different items', function () {
+  it('should change the content of the drawer when selecting different items', async function () {
     const result = renderDrawer();
 
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
-    expect(screen.getByText('flights.airlines')).to.be.visible;
+
+    await waitFor(() => {
+      expect(screen.getByText('flights.airlines')).to.be.visible;
+    });
 
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
@@ -113,6 +164,10 @@ describe('DiagramEditorSidePanel', function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
+    await waitFor(() => {
+      expect(screen.getByText('flights.countries')).to.be.visible;
+    });
+
     // Open relationshipt editing form
     const relationshipCard = document.querySelector<HTMLElement>(
       '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
@@ -120,7 +175,7 @@ describe('DiagramEditorSidePanel', function () {
     userEvent.click(
       within(relationshipCard!).getByRole('button', { name: 'Edit' })
     );
-    expect(screen.getByText('Edit Relationship')).to.be.visible;
+    expect(screen.getByLabelText('Local field')).to.be.visible;
 
     // Select new values
     await comboboxSelectItem('Local collection', 'planes');
@@ -133,7 +188,7 @@ describe('DiagramEditorSidePanel', function () {
     // model here
     const modifiedRelationship = selectCurrentModel(
       getCurrentDiagramFromState(result.plugin.store.getState()).edits
-    ).relationships.find((r) => {
+    ).relationships.find((r: Relationship) => {
       return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
     });
 
@@ -148,7 +203,7 @@ describe('DiagramEditorSidePanel', function () {
         {
           ns: 'flights.countries',
           fields: ['iso_code'],
-          cardinality: 1,
+          cardinality: 100,
         },
       ]);
   });

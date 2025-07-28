@@ -11,27 +11,28 @@ export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
 export const RelationshipSchema = z.object({
   id: z.string().uuid(),
+  name: z.string().optional(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
 });
 
 export type Relationship = z.output<typeof RelationshipSchema>;
 
+const CollectionSchema = z.object({
+  ns: z.string(),
+  jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
+    const isObject = typeof value === 'object' && value !== null;
+    return isObject && 'bsonType' in value;
+  }),
+  indexes: z.array(z.record(z.unknown())),
+  shardKey: z.record(z.unknown()).optional(),
+  displayPosition: z.tuple([z.number(), z.number()]),
+});
+
+export type DataModelCollection = z.output<typeof CollectionSchema>;
+
 export const StaticModelSchema = z.object({
-  collections: z.array(
-    z.object({
-      ns: z.string(),
-      jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
-        const isObject = typeof value === 'object' && value !== null;
-        return isObject && 'bsonType' in value;
-      }),
-      indexes: z.array(z.record(z.unknown())),
-      shardKey: z.record(z.unknown()).optional(),
-      displayPosition: z
-        .tuple([z.number(), z.number()])
-        .or(z.tuple([z.nan(), z.nan()])),
-    })
-  ),
+  collections: z.array(CollectionSchema),
   relationships: z.array(RelationshipSchema),
 });
 
@@ -67,6 +68,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
+
 export const EditListSchema = z
   .array(EditSchema)
   .nonempty()

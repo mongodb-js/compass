@@ -393,7 +393,7 @@ describe('Data Modeling tab', function () {
     expect(text).to.include('String string'.toLowerCase());
   });
 
-  it('downloads the data model and opens it', async function () {
+  it('exports the data model to compass format and imports it back', async function () {
     const dataModelName = 'Test Export Model - Save-Open';
     exportFileName = `${dataModelName}.compass`;
     await setupDiagram(browser, {
@@ -413,8 +413,12 @@ describe('Data Modeling tab', function () {
 
     await browser.waitForAnimations(dataModelEditor);
 
-    await browser.clickVisible(Selectors.DataModelDownloadButton);
-    await browser.waitForAnimations(dataModelEditor);
+    await browser.clickVisible(Selectors.DataModelExportButton);
+    const exportModal = browser.$(Selectors.DataModelExportModal);
+    await exportModal.waitForDisplayed();
+
+    await browser.clickParent(Selectors.DataModelExportDiagramOption);
+    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
 
     const { fileExists, filePath } = await waitForFileDownload(
       exportFileName,
