@@ -209,9 +209,11 @@ export function startAnalysis(
       const positioned = await applyLayout(
         collections.map((coll) => {
           return collectionToDiagramNode({
-            ns: coll.ns,
-            jsonSchema: coll.schema,
-            displayPosition: [0, 0],
+            coll: {
+              ns: coll.ns,
+              jsonSchema: coll.schema,
+              displayPosition: [0, 0],
+            },
           });
         }),
         [],

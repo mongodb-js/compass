@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
@@ -8,6 +14,7 @@ import {
   selectBackground,
   type DiagramState,
   selectCurrentModelFromState,
+  createNewRelationship,
 } from '../store/diagram';
 import {
   Banner,
@@ -92,19 +99,25 @@ type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 const DiagramContent: React.FunctionComponent<{
   diagramLabel: string;
   model: StaticModel | null;
+  isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
+  onCreateNewRelationship: (source: string, target: string) => void;
+  onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
   model,
+  isInRelationshipDrawingMode,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
   onDiagramBackgroundClicked,
+  onCreateNewRelationship,
+  onRelationshipDrawn,
   selectedItems,
 }) => {
   const isDarkMode = useDarkMode();
@@ -138,9 +151,19 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
-      return collectionToDiagramNode(coll, selectedFields, selected);
+      return collectionToDiagramNode({
+        coll,
+        selectedFields,
+        selected,
+        isInRelationshipDrawingMode,
+      });
     });
-  }, [model?.collections, model?.relationships, selectedItems]);
+  }, [
+    model?.collections,
+    model?.relationships,
+    selectedItems,
+    isInRelationshipDrawingMode,
+  ]);
 
   // Fit to view on initial mount
   useEffect(() => {
@@ -154,6 +177,14 @@ const DiagramContent: React.FunctionComponent<{
       void diagram.current.fitView();
     });
   }, []);
+
+  const handleNodesConnect = useCallback(
+    (source: string, target: string) => {
+      onCreateNewRelationship(source, target);
+      onRelationshipDrawn();
+    },
+    [onRelationshipDrawn, onCreateNewRelationship]
+  );
 
   return (
     <div
@@ -191,6 +222,9 @@ const DiagramContent: React.FunctionComponent<{
           onNodeDragStop={(evt, node) => {
             onMoveCollection(node.id, [node.position.x, node.position.y]);
           }}
+          onConnect={({ source, target }) => {
+            handleNodesConnect(source, target);
+          }}
         />
       </div>
     </div>
@@ -211,6 +245,7 @@ const ConnectedDiagramContent = connect(
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
     onDiagramBackgroundClicked: selectBackground,
+    onCreateNewRelationship: createNewRelationship,
   }
 )(DiagramContent);
 
@@ -221,6 +256,17 @@ const DiagramEditor: React.FunctionComponent<{
   onCancelClick: () => void;
 }> = ({ step, diagramId, onRetryClick, onCancelClick }) => {
   let content;
+
+  const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
+    useState(false);
+
+  const handleRelationshipDrawingToggle = useCallback(() => {
+    setIsInRelationshipDrawingMode((prev) => !prev);
+  }, []);
+
+  const onRelationshipDrawn = useCallback(() => {
+    setIsInRelationshipDrawingMode(false);
+  }, []);
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -257,12 +303,23 @@ const DiagramEditor: React.FunctionComponent<{
 
   if (step === 'EDITING' && diagramId) {
     content = (
-      <ConnectedDiagramContent key={diagramId}></ConnectedDiagramContent>
+      <ConnectedDiagramContent
+        key={diagramId}
+        isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+        onRelationshipDrawn={onRelationshipDrawn}
+      ></ConnectedDiagramContent>
     );
   }
 
   return (
-    <WorkspaceContainer toolbar={<DiagramEditorToolbar />}>
+    <WorkspaceContainer
+      toolbar={
+        <DiagramEditorToolbar
+          onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
+          isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+        />
+      }
+    >
       {content}
       <ExportDiagramModal />
     </WorkspaceContainer>
