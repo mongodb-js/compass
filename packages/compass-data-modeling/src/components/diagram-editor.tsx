@@ -92,6 +92,12 @@ const modelPreviewContainerStyles = css({
 
 const modelPreviewStyles = css({
   minHeight: 0,
+
+  /** reactflow handles this normally, but there is a `* { userSelect: 'text' }` in this project,
+   *  which overrides inherited userSelect */
+  ['.connectablestart']: {
+    userSelect: 'none',
+  },
 });
 
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
