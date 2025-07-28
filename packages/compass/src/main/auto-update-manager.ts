@@ -63,7 +63,11 @@ function isMismatchedArchDarwin(): boolean {
 async function download(url: string): Promise<void> {
   const maybeWindow = BrowserWindow.getAllWindows()[0];
   if (maybeWindow) {
-    await dl.download(maybeWindow, url);
+    await dl.download(maybeWindow, url, {
+      onCompleted(file) {
+        void shell.openExternal(file.path);
+      },
+    });
   } else {
     await shell.openExternal(url);
   }
