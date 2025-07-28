@@ -296,10 +296,10 @@ export { DrawerDisplayMode };
 export function useDrawerActions() {
   const actions = useContext(DrawerActionsContext);
   const stableActions = useRef({
-    openDrawer(id: string) {
+    openDrawer: (id: string) => {
       actions.current.openDrawer(id);
     },
-    closeDrawer() {
+    closeDrawer: () => {
       actions.current.closeDrawer();
     },
   });
