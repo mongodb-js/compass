@@ -7,7 +7,7 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { DataModelingWorkspaceTab } from '../index';
+import { DataModelingWorkspaceTab } from '../../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
   getCurrentDiagramFromState,
@@ -15,12 +15,12 @@ import {
   selectCollection,
   selectCurrentModel,
   selectRelationship,
-} from '../store/diagram';
-import dataModel from '../../test/fixtures/data-model-with-relationships.json';
+} from '../../store/diagram';
+import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
   MongoDBDataModelDescription,
   Relationship,
-} from '../services/data-model-storage';
+} from '../../services/data-model-storage';
 import { DrawerAnchor } from '@mongodb-js/compass-components';
 
 async function comboboxSelectItem(

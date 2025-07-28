@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Relationship } from '../services/data-model-storage';
+import type { Relationship } from '../../services/data-model-storage';
 import {
-  Accordion,
   Badge,
   Button,
   IconButton,
@@ -19,9 +18,10 @@ import {
   getCurrentDiagramFromState,
   selectCurrentModel,
   selectRelationship,
-} from '../store/diagram';
-import type { DataModelingState } from '../store/reducer';
-import { getRelationshipName } from '../utils';
+} from '../../store/diagram';
+import type { DataModelingState } from '../../store/reducer';
+import { getRelationshipName } from '../../utils';
+import DMDrawerSection from './dm-drawer-section';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -35,20 +35,6 @@ type CollectionDrawerContentProps = {
 const formFieldContainerStyles = css({
   marginBottom: spacing[400],
   marginTop: spacing[400],
-});
-
-const containerStyles = css({
-  padding: spacing[400],
-});
-
-const accordionTitleStyles = css({
-  fontSize: spacing[300],
-  width: '100%',
-});
-
-const relationshipsTitleStyles = css({
-  width: '100%',
-  display: 'flex',
 });
 
 const titleBtnStyles = css({
@@ -84,12 +70,8 @@ const CollectionDrawerContent: React.FunctionComponent<
   onDeleteRelationshipClick,
 }) => {
   return (
-    <div className={containerStyles}>
-      <Accordion
-        text="COLLECTION"
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
-      >
+    <>
+      <DMDrawerSection label="COLLECTION">
         <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
             label="Name"
@@ -98,10 +80,10 @@ const CollectionDrawerContent: React.FunctionComponent<
             disabled={true}
           />
         </FormFieldContainer>
-      </Accordion>
+      </DMDrawerSection>
 
-      <Accordion
-        text={
+      <DMDrawerSection
+        label={
           <>
             RELATIONSHIPS&nbsp;
             <Badge>{relationships.length}</Badge>
@@ -116,9 +98,6 @@ const CollectionDrawerContent: React.FunctionComponent<
             </Button>
           </>
         }
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
-        buttonTextClassName={relationshipsTitleStyles}
       >
         <div className={relationshipContentStyles}>
           {!relationships.length ? (
@@ -161,8 +140,8 @@ const CollectionDrawerContent: React.FunctionComponent<
             </ul>
           )}
         </div>
-      </Accordion>
-    </div>
+      </DMDrawerSection>
+    </>
   );
 };
 

@@ -31,7 +31,7 @@ import {
 import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
-import { DATA_MODELING_DRAWER_ID } from './diagram-editor-side-panel';
+import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import {
   collectionToDiagramNode,
   getSelectedFields,

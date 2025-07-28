@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
+import type { DataModelingState } from '../../store/reducer';
 import {
   Button,
   Combobox,
@@ -14,7 +14,6 @@ import {
   ComboboxOption,
   Select,
   Option,
-  Accordion,
   TextInput,
   spacing,
   css,
@@ -27,10 +26,11 @@ import {
   getRelationshipForCurrentModel,
   selectFieldsForCurrentModel,
   updateRelationship,
-} from '../store/diagram';
+} from '../../store/diagram';
 import toNS from 'mongodb-ns';
-import type { Relationship } from '../services/data-model-storage';
+import type { Relationship } from '../../services/data-model-storage';
 import { cloneDeep } from 'lodash';
+import DMDrawerSection from './dm-drawer-section';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
@@ -53,16 +53,6 @@ type RelationshipFormFields = {
 const formFieldContainerStyles = css({
   marginBottom: spacing[400],
   marginTop: spacing[400],
-});
-
-const accordionTitleStyles = css({
-  fontSize: spacing[300],
-  width: '100%',
-});
-
-const relationshipTitleStyles = css({
-  width: '100%',
-  display: 'flex',
 });
 
 const titleBtnStyles = css({
@@ -194,8 +184,8 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <Accordion
-        text={
+      <DMDrawerSection
+        label={
           <>
             RELATIONSHIP
             <Button
@@ -211,9 +201,6 @@ const RelationshipDrawerContent: React.FunctionComponent<
             </Button>
           </>
         }
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
-        buttonTextClassName={relationshipTitleStyles}
       >
         <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
@@ -228,13 +215,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
             }}
           />
         </FormFieldContainer>
-      </Accordion>
+      </DMDrawerSection>
 
-      <Accordion
-        text="CONFIGURATION"
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
-      >
+      <DMDrawerSection label="CONFIGURATION">
         <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
             size="small"
@@ -378,7 +361,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
             })}
           </Select>
         </FormFieldContainer>
-      </Accordion>
+      </DMDrawerSection>
     </div>
   );
 };
