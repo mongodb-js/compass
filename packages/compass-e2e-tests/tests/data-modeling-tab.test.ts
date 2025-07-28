@@ -105,7 +105,10 @@ async function moveNode(
 
   await browser
     .action('pointer')
-    .move({ origin: node, x: nodeSize.width / 2, y: nodeSize.height / 2 })
+    .move({
+      x: Math.round(startPosition.x + nodeSize.width / 2),
+      y: Math.round(startPosition.y + nodeSize.height / 2),
+    })
     .down({ button: 0 }) // Left mouse button
     .move({ ...coordinates, duration: 1000, origin: 'pointer' })
     .pause(1000)
