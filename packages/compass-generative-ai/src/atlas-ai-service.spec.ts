@@ -330,13 +330,14 @@ describe('AtlasAiService', function () {
           });
         });
 
-        if (apiURLPreset === 'cloud') {
-          it('should make a POST request to cloud endpoint and save preference when cloud preset', async function () {
-            const fetchStub = sandbox.stub().resolves(makeResponse({}));
-            global.fetch = fetchStub;
+        it('should save preference when cloud preset', async function () {
+          const fetchStub = sandbox.stub().resolves(makeResponse({}));
+          global.fetch = fetchStub;
 
-            await atlasAiService.optIntoGenAIFeatures();
+          await atlasAiService.optIntoGenAIFeatures();
 
+          // In Data Explorer, make a POST request to cloud endpoint and save preference
+          if (apiURLPreset === 'cloud') {
             // Verify fetch was called with correct parameters
             expect(fetchStub).to.have.been.calledOnce;
 
@@ -351,26 +352,15 @@ describe('AtlasAiService', function () {
                 body: new URLSearchParams([['value', 'true']]),
               }
             );
-
-            // Verify preference was saved
-            const currentPreferences = preferences.getPreferences();
-            expect(currentPreferences.optInGenAIFeatures).to.equal(true);
-          });
-        } else {
-          it('should not make any fetch request and only save preference when admin-api preset', async function () {
-            const fetchStub = sandbox.stub().resolves(makeResponse({}));
-            global.fetch = fetchStub;
-
-            await atlasAiService.optIntoGenAIFeatures();
-
-            // Verify no fetch was called
+          } else {
+            // In Compass, no fetch is made, only stored locally
             expect(fetchStub).to.not.have.been.called;
+          }
 
-            // Verify preference was saved
-            const currentPreferences = preferences.getPreferences();
-            expect(currentPreferences.optInGenAIFeatures).to.equal(true);
-          });
-        }
+          // Verify preference was saved
+          const currentPreferences = preferences.getPreferences();
+          expect(currentPreferences.optInGenAIFeatures).to.equal(true);
+        });
       });
     });
   }
