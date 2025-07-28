@@ -60,6 +60,20 @@ function isMismatchedArchDarwin(): boolean {
   return process.platform === 'darwin' && getSystemArch() !== process.arch;
 }
 
+async function download(url: string): Promise<void> {
+  const maybeWindow = BrowserWindow.getAllWindows()[0];
+  if (maybeWindow) {
+    await dl.download(maybeWindow, url);
+  } else {
+    await shell.openExternal(url);
+  }
+}
+
+function getMacOSDownloadUrl(channel: string, version: string): string {
+  version = channel === 'dev' ? 'latest' : version;
+  return `https://compass.mongodb.com/api/v2/download/${version}/compass/${channel}/darwin-${getSystemArch()}`;
+}
+
 type PromptForUpdateResult = 'download' | 'update' | 'cancel';
 async function promptForUpdate(
   from: string,
@@ -445,7 +459,7 @@ const STATE_UPDATE: Record<
   },
   [AutoUpdateManagerState.ManualDownload]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
-    enter: function (_updateManager, _fromState, updateInfo: UpdateInfo) {
+    enter: function (updateManager, _fromState, updateInfo: UpdateInfo) {
       log.info(
         mongoLogId(1_001_000_167),
         'AutoUpdateManager',
@@ -467,10 +481,11 @@ const STATE_UPDATE: Record<
         );
       }
 
-      const url = `https://downloads.mongodb.com/compass/${
-        process.env.HADRON_PRODUCT
-      }-${updateInfo.to}-${process.platform}-${getSystemArch()}.dmg`;
-      void dl.download(BrowserWindow.getAllWindows()[0], url);
+      const url = getMacOSDownloadUrl(
+        updateManager.autoUpdateOptions.channel,
+        updateInfo.to
+      );
+      void download(url);
     },
   },
   [AutoUpdateManagerState.UpdateDismissed]: {
@@ -840,7 +855,7 @@ class CompassAutoUpdateManager {
         icon: COMPASS_ICON,
         message: 'Mismatched architecture detected',
         detail:
-          'You are currently using a build of Compass that is not optimized for Apple Silicon processors. This version might have significat performance issues when used. ' +
+          'You are currently using a build of Compass that is not optimized for Apple Silicon processors. This version might have significant performance issues when used. ' +
           'Would you like to download the version of Compass optimized for Apple Silicon processors now?',
         buttons: [
           'Download Compass for Apple Silicon (Recommended)',
@@ -850,9 +865,11 @@ class CompassAutoUpdateManager {
       })
       .then(({ response }) => {
         if (response === 0) {
-          return shell.openExternal(
-            `https://compass.mongodb.com/api/v2/download/${this.autoUpdateOptions.version}/compass/${this.autoUpdateOptions.channel}/darwin-arm64`
+          const url = getMacOSDownloadUrl(
+            this.autoUpdateOptions.channel,
+            this.autoUpdateOptions.version
           );
+          return download(url);
         }
       })
       .catch((err) => {
