@@ -1,14 +1,46 @@
-import { FileUserData } from '@mongodb-js/compass-user-data';
+import {
+  type IUserData,
+  FileUserData,
+  AtlasUserData,
+} from '@mongodb-js/compass-user-data';
 import { PipelineSchema } from './pipeline-storage-schema';
 import type { SavedPipeline } from './pipeline-storage-schema';
 import type { PipelineStorage } from './pipeline-storage';
 
+export type PipelineStorageOptions = {
+  basePath?: string;
+  orgId?: string;
+  projectId?: string;
+  getResourceUrl?: (path?: string) => string;
+  authenticatedFetch?: (
+    url: RequestInfo | URL,
+    options?: RequestInit
+  ) => Promise<Response>;
+};
+
 export class CompassPipelineStorage implements PipelineStorage {
-  private readonly userData: FileUserData<typeof PipelineSchema>;
-  constructor(basePath?: string) {
-    this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
-      basePath,
-    });
+  private readonly userData: IUserData<typeof PipelineSchema>;
+  constructor(options: PipelineStorageOptions = {}) {
+    if (
+      options.orgId &&
+      options.projectId &&
+      options.getResourceUrl &&
+      options.authenticatedFetch
+    ) {
+      this.userData = new AtlasUserData(
+        PipelineSchema,
+        'favoriteAggregations',
+        options.orgId,
+        options.projectId,
+        options.getResourceUrl,
+        options.authenticatedFetch,
+        {}
+      );
+    } else {
+      this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
+        basePath: options.basePath,
+      });
+    }
   }
 
   async loadAll(): Promise<SavedPipeline[]> {
