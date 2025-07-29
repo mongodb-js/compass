@@ -44,13 +44,13 @@ type AssignExperimentFn = (
   options?: BasicAPICallingFunctionOptions
 ) => Promise<'SUCCESS' | 'ERROR' | null>;
 
-interface ExperimentationProviderContextValue {
+interface CompassExperimentationProviderContextValue {
   useAssignment: UseAssignmentHookFn;
   assignExperiment: AssignExperimentFn;
 }
 
 const ExperimentationContext =
-  createContext<ExperimentationProviderContextValue>({
+  createContext<CompassExperimentationProviderContextValue>({
     useAssignment() {
       return {
         assignment: null,
@@ -63,7 +63,7 @@ const ExperimentationContext =
   });
 
 // Provider component that accepts MMS experiment utils as props
-export const ExperimentationProvider: React.FC<{
+export const CompassExperimentationProvider: React.FC<{
   children: React.ReactNode;
   useAssignment: UseAssignmentHookFn;
   assignExperiment: AssignExperimentFn;

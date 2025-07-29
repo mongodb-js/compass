@@ -6,4 +6,4 @@ export type {
   ExtraConnectionData,
 } from './types';
 
-export { ExperimentationProvider } from './experimentation-provider';
+export { CompassExperimentationProvider } from './experimentation-provider';
