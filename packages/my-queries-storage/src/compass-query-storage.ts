@@ -1,11 +1,22 @@
-import { UUID, EJSON } from 'bson';
+import { ObjectId, EJSON } from 'bson';
 import { type z } from '@mongodb-js/compass-user-data';
-import { type IUserData, FileUserData } from '@mongodb-js/compass-user-data';
+import {
+  type IUserData,
+  FileUserData,
+  AtlasUserData,
+} from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
 export type QueryStorageOptions = {
   basepath?: string;
+  orgId?: string;
+  projectId?: string;
+  getResourceUrl?: (path?: string) => string;
+  authenticatedFetch?: (
+    url: RequestInfo | URL,
+    options?: RequestInit
+  ) => Promise<Response>;
 };
 
 export abstract class CompassQueryStorage<TSchema extends z.Schema> {
@@ -15,12 +26,33 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    // TODO: logic for whether we're in compass web or compass desktop
-    this.userData = new FileUserData(schemaValidator, folder, {
-      basePath: options.basepath,
-      serialize: (content) => EJSON.stringify(content, undefined, 2),
-      deserialize: (content: string) => EJSON.parse(content),
-    });
+    if (
+      options.orgId &&
+      options.projectId &&
+      options.getResourceUrl &&
+      options.authenticatedFetch
+    ) {
+      const pathSegment =
+        folder === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
+      this.userData = new AtlasUserData(
+        schemaValidator,
+        pathSegment,
+        options.orgId,
+        options.projectId,
+        options.getResourceUrl,
+        options.authenticatedFetch,
+        {
+          serialize: (content) => EJSON.stringify(content, undefined, 2),
+          deserialize: (content: string) => EJSON.parse(content),
+        }
+      );
+    } else {
+      this.userData = new FileUserData(schemaValidator, folder, {
+        basePath: options.basepath,
+        serialize: (content) => EJSON.stringify(content, undefined, 2),
+        deserialize: (content: string) => EJSON.parse(content),
+      });
+    }
   }
 
   async loadAll(namespace?: string): Promise<z.output<TSchema>[]> {
@@ -74,8 +106,8 @@ export class CompassRecentQueryStorage
       const lastRecent = recentQueries[recentQueries.length - 1];
       await this.delete(lastRecent._id);
     }
-
-    const _id = new UUID().toString();
+    // TODO: verify that this doesn't break anything in compass
+    const _id = new ObjectId().toHexString();
     // this creates a recent query that we will write to system/db
     const recentQuery = {
       ...data,
@@ -100,7 +132,8 @@ export class CompassFavoriteQueryStorage
       '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
     >
   ): Promise<void> {
-    const _id = new UUID().toString();
+    // TODO: verify that this doesn't break anything in compass
+    const _id = new ObjectId().toHexString();
     // this creates a favorite query that we will write to system/db
     const favoriteQuery = {
       ...data,

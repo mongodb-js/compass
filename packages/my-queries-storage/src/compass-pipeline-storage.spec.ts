@@ -21,7 +21,7 @@ describe('CompassPipelineStorage', function () {
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'saved-pipelines-tests'));
-    pipelineStorage = new CompassPipelineStorage(tmpDir);
+    pipelineStorage = new CompassPipelineStorage({ basePath: tmpDir });
   });
 
   afterEach(async function () {
