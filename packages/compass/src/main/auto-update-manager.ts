@@ -16,6 +16,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { Response } from '@mongodb-js/devtools-proxy-support';
+import { pathToFileURL } from 'url';
 
 const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
 const track = createIpcTrack();
@@ -60,12 +61,25 @@ function isMismatchedArchDarwin(): boolean {
   return process.platform === 'darwin' && getSystemArch() !== process.arch;
 }
 
+async function waitForWindow(timeout = 5_000) {
+  const start = Date.now();
+  while (start + timeout > Date.now()) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const window = BrowserWindow.getAllWindows()[0];
+    if (window) {
+      return window;
+    }
+  }
+  return null;
+}
+
 async function download(url: string): Promise<void> {
-  const maybeWindow = BrowserWindow.getAllWindows()[0];
+  const maybeWindow = await waitForWindow();
   if (maybeWindow) {
     await dl.download(maybeWindow, url, {
       onCompleted(file) {
-        void shell.openExternal(file.path);
+        const fileURL = pathToFileURL(file.path).toString();
+        void shell.openExternal(fileURL);
       },
     });
   } else {
