@@ -3,6 +3,8 @@ import {
   css,
   palette,
   spacing,
+  cx,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -14,6 +16,10 @@ const containerStyles = css({
   marginLeft: `-${spacing[400]}px`,
   marginRight: `-${spacing[400]}px`,
   padding: spacing[400],
+});
+
+const darkModeContainerStyles = css({
+  borderBottom: `1px solid ${palette.gray.dark2}`,
 });
 
 const accordionTitleStyles = css({
@@ -29,8 +35,9 @@ const buttonStyles = css({
 const DMDrawerSection: React.FC<{
   label: React.ReactNode;
 }> = ({ label, children }) => {
+  const darkMode = useDarkMode();
   return (
-    <div className={containerStyles}>
+    <div className={cx(containerStyles, darkMode && darkModeContainerStyles)}>
       <Accordion
         text={label}
         defaultOpen={true}
