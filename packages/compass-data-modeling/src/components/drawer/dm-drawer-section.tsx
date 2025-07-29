@@ -7,9 +7,10 @@ import {
 import React from 'react';
 
 const containerStyles = css({
-  '&:not(:first-child)': {
-    borderTop: `1px solid ${palette.gray.light2}`,
+  '&:first-child': {
+    marginTop: `-${spacing[400]}px`,
   },
+  borderBottom: `1px solid ${palette.gray.light2}`,
   marginLeft: `-${spacing[400]}px`,
   marginRight: `-${spacing[400]}px`,
   padding: spacing[400],

@@ -26,7 +26,6 @@ import DMDrawerSection from './dm-drawer-section';
 type CollectionDrawerContentProps = {
   namespace: string;
   relationships: Relationship[];
-  shouldShowRelationshipEditingForm?: boolean;
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
@@ -44,8 +43,16 @@ const titleBtnStyles = css({
 const emptyRelationshipMessageStyles = css({
   color: palette.gray.dark1,
 });
+
+const relationshipsListStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
+});
+
 const relationshipItemStyles = css({
   display: 'flex',
+  alignItems: 'center',
 });
 
 const relationshipNameStyles = css({
@@ -54,10 +61,11 @@ const relationshipNameStyles = css({
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   minWidth: 0,
+  paddingRight: spacing[200],
 });
 
 const relationshipContentStyles = css({
-  margin: `${spacing[400]}px 0`,
+  marginTop: spacing[400],
 });
 
 const CollectionDrawerContent: React.FunctionComponent<
@@ -105,7 +113,7 @@ const CollectionDrawerContent: React.FunctionComponent<
               This collection does not have any relationships yet.
             </div>
           ) : (
-            <ul>
+            <ul className={relationshipsListStyles}>
               {relationships.map((r) => {
                 return (
                   <li
