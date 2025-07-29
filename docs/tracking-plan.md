@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Jul 27, 2025
+Generated on Tue, Jul 29, 2025
 
 ## Table of Contents
 
@@ -864,6 +864,9 @@ This event is fired when a connection attempt fails.
   - The error code (if available).
 - **error_name** (required): `string`
   - The error name.
+- **error_code_cause_chain** (optional): `{} | undefined`
+  - The error codes (or code names) from the error's cause chain.
+    The driver and the OIDC library we use are two places that use cause chains.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`

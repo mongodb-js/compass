@@ -77,16 +77,23 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
-  const nodes = await browser.execute(function (selector) {
-    const node = document.querySelector(selector);
-    if (!node) {
-      throw new Error(`Element with selector ${selector} not found`);
-    }
-    return (
-      node as Element & { _diagram: DiagramInstance }
-    )._diagram.getNodes();
-  }, Selectors.DataModelEditor);
+async function getDiagramNodes(
+  browser: CompassBrowser,
+  expectedCount: number
+): Promise<Node[]> {
+  let nodes: Node[] = [];
+  await browser.waitUntil(async () => {
+    nodes = await browser.execute(function (selector) {
+      const node = document.querySelector(selector);
+      if (!node) {
+        throw new Error(`Element with selector ${selector} not found`);
+      }
+      return (
+        node as Element & { _diagram: DiagramInstance }
+      )._diagram.getNodes();
+    }, Selectors.DataModelEditor);
+    return nodes.length === expectedCount;
+  });
   return nodes;
 }
 
@@ -172,7 +179,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    const nodes = await getDiagramNodes(browser);
+    const nodes = await getDiagramNodes(browser, 2);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes[0].id).to.equal('test.testCollection-one');
     expect(nodes[1].id).to.equal('test.testCollection-two');
@@ -215,7 +222,7 @@ describe('Data Modeling tab', function () {
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
     // TODO: Verify that the diagram has the latest changes COMPASS-9479
-    const savedNodes = await getDiagramNodes(browser);
+    const savedNodes = await getDiagramNodes(browser, 2);
     expect(savedNodes).to.have.lengthOf(2);
 
     // Open a new tab
@@ -388,7 +395,7 @@ describe('Data Modeling tab', function () {
 
   it('exports the data model to compass format and imports it back', async function () {
     const dataModelName = 'Test Export Model - Save-Open';
-    exportFileName = `${dataModelName}.compass`;
+    exportFileName = `${dataModelName}.mdm`;
     await setupDiagram(browser, {
       diagramName: dataModelName,
       connectionName: DEFAULT_CONNECTION_NAME_1,
@@ -437,7 +444,7 @@ describe('Data Modeling tab', function () {
 
     await browser.selectFile(Selectors.ImportDataModelInput, filePath);
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
-    const savedNodes = await getDiagramNodes(browser);
+    const savedNodes = await getDiagramNodes(browser, 2);
 
     expect(savedNodes).to.have.lengthOf(2);
     expect(savedNodes[0].id).to.equal('test.testCollection-one');

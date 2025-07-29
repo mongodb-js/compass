@@ -40,6 +40,7 @@ import {
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import { getErrorCodeCauseChain } from '../utils/telemetry';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -1278,6 +1279,7 @@ const connectionAttemptError = (
       async () => {
         const trackParams = {
           error_code: err.code,
+          error_code_cause_chain: getErrorCodeCauseChain(err),
           error_name: err.codeName ?? err.name,
         };
         if (connectionInfo) {
