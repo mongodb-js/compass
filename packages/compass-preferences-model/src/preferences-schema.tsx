@@ -85,7 +85,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'web-sandbox-atlas-dev'
       | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
-    optInDataExplorerGenAIFeatures: boolean;
+    optInGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -810,17 +810,16 @@ export const storedUserPreferencesProps: Required<{
       .default('atlas'),
     type: 'string',
   },
-  optInDataExplorerGenAIFeatures: {
+  optInGenAIFeatures: {
     ui: true,
     cli: false,
     global: false,
     description: {
-      short: 'User Opt-in for Data Explorer Gen AI Features',
+      short: 'User or Client Opt-in for Gen AI Features',
     },
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   enableAtlasSearchIndexes: {
     ui: true,
     cli: true,
