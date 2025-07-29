@@ -6,7 +6,7 @@ import {
   CompassAutoUpdateManager,
 } from './auto-update-manager';
 import type { DownloadItem } from 'electron';
-import { dialog, autoUpdater } from 'electron';
+import { dialog, autoUpdater, BrowserWindow } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -344,6 +344,10 @@ describe('CompassAutoUpdateManager', function () {
           return Promise.resolve({ response: 0, checkboxChecked: false });
         });
 
+        sandbox.stub(BrowserWindow, 'getAllWindows').callsFake(() => {
+          return [{} as BrowserWindow];
+        });
+
         const stub = sandbox.stub(dl, 'download').callsFake(() => {
           return Promise.resolve({} as DownloadItem);
         });
@@ -355,6 +359,10 @@ describe('CompassAutoUpdateManager', function () {
             AutoUpdateManagerState.ManualDownload
           )
         ).to.eq(true);
+
+        // Any small timeout will do, we're allowing for the async tasks to
+        // clear
+        await wait(300);
 
         expect(stub).to.be.calledOnce;
       });
