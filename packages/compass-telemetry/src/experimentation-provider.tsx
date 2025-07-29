@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 
 interface ExperimentAssignmentData {
   variant: string | null;
@@ -68,10 +68,13 @@ export const ExperimentationProvider: React.FC<{
   useAssignment: UseAssignmentHookFn;
   assignExperiment: AssignExperimentFn;
 }> = ({ children, useAssignment, assignExperiment }) => {
-  const contextValue = useRef({ useAssignment, assignExperiment });
+  const contextValue = useMemo(
+    () => ({ useAssignment, assignExperiment }),
+    [useAssignment, assignExperiment]
+  );
 
   return (
-    <ExperimentationContext.Provider value={contextValue.current}>
+    <ExperimentationContext.Provider value={contextValue}>
       {children}
     </ExperimentationContext.Provider>
   );
