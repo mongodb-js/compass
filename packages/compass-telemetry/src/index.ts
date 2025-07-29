@@ -5,3 +5,5 @@ export type {
   IdentifyTraits,
   ExtraConnectionData,
 } from './types';
+
+export { ExperimentationProvider } from './experimentation-provider';
