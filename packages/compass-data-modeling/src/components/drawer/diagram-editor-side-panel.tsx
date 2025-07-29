@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
+import type { DataModelingState } from '../../store/reducer';
 import { DrawerSection } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
-import { closeDrawer } from '../store/diagram';
+import { closeDrawer } from '../../store/diagram';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -13,7 +13,7 @@ type DiagramEditorSidePanelProps = {
   onClose: () => void;
 };
 
-function DiagmramEditorSidePanel({
+function DiagramEditorSidePanel({
   selectedItems,
 }: DiagramEditorSidePanelProps) {
   if (!selectedItems) {
@@ -64,4 +64,4 @@ export default connect(
   {
     onClose: closeDrawer,
   }
-)(DiagmramEditorSidePanel);
+)(DiagramEditorSidePanel);

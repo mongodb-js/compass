@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
+import type { DataModelingState } from '../../store/reducer';
 import {
   Button,
   Combobox,
@@ -14,7 +14,6 @@ import {
   ComboboxOption,
   Select,
   Option,
-  Accordion,
   TextInput,
   spacing,
   css,
@@ -27,10 +26,11 @@ import {
   getRelationshipForCurrentModel,
   selectFieldsForCurrentModel,
   updateRelationship,
-} from '../store/diagram';
+} from '../../store/diagram';
 import toNS from 'mongodb-ns';
-import type { Relationship } from '../services/data-model-storage';
+import type { Relationship } from '../../services/data-model-storage';
 import { cloneDeep } from 'lodash';
+import DMDrawerSection from './dm-drawer-section';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
@@ -55,9 +55,8 @@ const formFieldContainerStyles = css({
   marginTop: spacing[400],
 });
 
-const accordionTitleStyles = css({
-  fontSize: spacing[300],
-  color: palette.gray.dark1,
+const titleBtnStyles = css({
+  marginLeft: 'auto',
 });
 
 const FIELD_DIVIDER = '~~##$$##~~';
@@ -185,10 +184,23 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <Accordion
-        text="RELATIONSHIP"
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
+      <DMDrawerSection
+        label={
+          <>
+            RELATIONSHIP
+            <Button
+              variant="dangerOutline"
+              leftGlyph={<Icon glyph="Trash" />}
+              className={titleBtnStyles}
+              size="xsmall"
+              onClick={() => {
+                onDeleteRelationshipClick(relationshipId);
+              }}
+            >
+              Delete
+            </Button>
+          </>
+        }
       >
         <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
@@ -203,25 +215,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
             }}
           />
         </FormFieldContainer>
+      </DMDrawerSection>
 
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Button
-            variant="dangerOutline"
-            leftGlyph={<Icon glyph="Trash" />}
-            onClick={() => {
-              onDeleteRelationshipClick(relationshipId);
-            }}
-          >
-            Delete reference
-          </Button>
-        </FormFieldContainer>
-      </Accordion>
-
-      <Accordion
-        text="CONFIGURATION"
-        defaultOpen={true}
-        textClassName={accordionTitleStyles}
-      >
+      <DMDrawerSection label="CONFIGURATION">
         <FormFieldContainer className={formFieldContainerStyles}>
           <Combobox
             size="small"
@@ -365,7 +361,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
             })}
           </Select>
         </FormFieldContainer>
-      </Accordion>
+      </DMDrawerSection>
     </div>
   );
 };
