@@ -121,8 +121,6 @@ Generated on Sun, Jul 27, 2025
 
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
-- [AI Sign In Modal Shown](#event--AiSignInModalShownEvent)
-- [AI Sign In Modal Dismissed](#event--AiSignInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
@@ -1391,18 +1389,6 @@ This event is fired when the AI Opt-In Modal is shown to the user.
 ### AI Opt In Modal Dismissed
 
 This event is fired when the AI Opt-In Modal is dismissed by the user.
-
-<a name="event--AiSignInModalShownEvent"></a>
-
-### AI Sign In Modal Shown
-
-This event is fired when the AI Sign-In Modal is shown to the user.
-
-<a name="event--AiSignInModalDismissedEvent"></a>
-
-### AI Sign In Modal Dismissed
-
-This event is fired when the AI Sign-In Modal is dismissed by the user.
 
 <a name="event--AiGenerateQueryClickedEvent"></a>
 
