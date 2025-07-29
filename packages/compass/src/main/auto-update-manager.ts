@@ -16,6 +16,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { Response } from '@mongodb-js/devtools-proxy-support';
+import { pathToFileURL } from 'url';
 
 const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
 const track = createIpcTrack();
@@ -58,6 +59,37 @@ function getSystemArch() {
 
 function isMismatchedArchDarwin(): boolean {
   return process.platform === 'darwin' && getSystemArch() !== process.arch;
+}
+
+async function waitForWindow(timeout = 5_000) {
+  const start = Date.now();
+  while (start + timeout > Date.now()) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const window = BrowserWindow.getAllWindows()[0];
+    if (window) {
+      return window;
+    }
+  }
+  return null;
+}
+
+async function download(url: string): Promise<void> {
+  const maybeWindow = await waitForWindow();
+  if (maybeWindow) {
+    await dl.download(maybeWindow, url, {
+      onCompleted(file) {
+        const fileURL = pathToFileURL(file.path).toString();
+        void shell.openExternal(fileURL);
+      },
+    });
+  } else {
+    await shell.openExternal(url);
+  }
+}
+
+function getMacOSDownloadUrl(channel: string, version: string): string {
+  version = channel === 'dev' ? 'latest' : version;
+  return `https://compass.mongodb.com/api/v2/download/${version}/compass/${channel}/darwin-${getSystemArch()}`;
 }
 
 type PromptForUpdateResult = 'download' | 'update' | 'cancel';
@@ -445,7 +477,7 @@ const STATE_UPDATE: Record<
   },
   [AutoUpdateManagerState.ManualDownload]: {
     nextStates: [AutoUpdateManagerState.UserPromptedManualCheck],
-    enter: function (_updateManager, _fromState, updateInfo: UpdateInfo) {
+    enter: function (updateManager, _fromState, updateInfo: UpdateInfo) {
       log.info(
         mongoLogId(1_001_000_167),
         'AutoUpdateManager',
@@ -467,10 +499,11 @@ const STATE_UPDATE: Record<
         );
       }
 
-      const url = `https://downloads.mongodb.com/compass/${
-        process.env.HADRON_PRODUCT
-      }-${updateInfo.to}-${process.platform}-${getSystemArch()}.dmg`;
-      void dl.download(BrowserWindow.getAllWindows()[0], url);
+      const url = getMacOSDownloadUrl(
+        updateManager.autoUpdateOptions.channel,
+        updateInfo.to
+      );
+      void download(url);
     },
   },
   [AutoUpdateManagerState.UpdateDismissed]: {
@@ -827,11 +860,54 @@ class CompassAutoUpdateManager {
     this.setState(AutoUpdateManagerState.RestartDismissed);
   }
 
-  private static _init(
+  private static checkForMismatchedMacOSArch() {
+    const mismatchedOnArm =
+      isMismatchedArchDarwin() && getSystemArch() === 'arm64';
+
+    if (!mismatchedOnArm) {
+      return;
+    }
+
+    void dialog
+      .showMessageBox({
+        icon: COMPASS_ICON,
+        message: 'Mismatched architecture detected',
+        detail:
+          'You are currently using a build of Compass that is not optimized for Apple Silicon processors. This version might have significant performance issues when used. ' +
+          'Would you like to download the version of Compass optimized for Apple Silicon processors now?',
+        buttons: [
+          'Download Compass for Apple Silicon (Recommended)',
+          'Not now',
+        ],
+        cancelId: 1,
+      })
+      .then(({ response }) => {
+        if (response === 0) {
+          const url = getMacOSDownloadUrl(
+            this.autoUpdateOptions.channel,
+            this.autoUpdateOptions.version
+          );
+          return download(url);
+        }
+      })
+      .catch((err) => {
+        log.warn(
+          mongoLogId(1_001_000_362),
+          'AutoUpdateManager',
+          'Failed to download Compass for a mismatched macos arch',
+          { error: err.message }
+        );
+      });
+  }
+
+  private static async _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
+    await app.whenReady();
+
     this.fetch = (url: string) => compassApp.httpClient.fetch(url);
+
     compassApp.addExitHandler(() => {
       this.stop();
       return Promise.resolve();
@@ -866,6 +942,8 @@ class CompassAutoUpdateManager {
       initialUpdateDelay: THIRTY_SECONDS,
       ...options,
     };
+
+    this.checkForMismatchedMacOSArch();
 
     // TODO(COMPASS-7232): If auto-updates are not supported, then there is
     // still a menu item to check for updates and then if it finds an update but
@@ -961,13 +1039,13 @@ class CompassAutoUpdateManager {
     );
   }
 
-  static init(
+  static async init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
-  ): void {
+  ): Promise<void> {
     if (!this.initCalled) {
       this.initCalled = true;
-      this._init(compassApp, options);
+      await this._init(compassApp, options);
     }
   }
 
