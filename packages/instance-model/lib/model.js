@@ -136,7 +136,7 @@ const InstanceModel = AmpersandModel.extend(
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
       shouldFetchDbAndCollStats: { type: 'boolean', default: false },
-      shouldFetchNamespacesFromPrivileges: { type: 'boolean', default: false },
+      shouldFetchNamespacesFromPrivileges: { type: 'boolean', default: true },
     },
     initialize: function ({ preferences, ...props }) {
       // Initialize the property directly from preferences
