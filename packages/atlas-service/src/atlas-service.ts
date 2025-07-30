@@ -76,9 +76,7 @@ export class AtlasService {
     return this.cloudEndpoint(path);
   }
   tempEndpoint(path?: string): string {
-    return `https://cluster-connection.cloud-dev.mongodb.com${normalizePath(
-      path
-    )}`;
+    return `${normalizePath(path)}`;
   }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
@@ -127,6 +125,7 @@ export class AtlasService {
     url: RequestInfo | URL,
     init?: RequestInit
   ): Promise<Response> {
+    debugger;
     const authHeaders = await this.authService.getAuthHeaders();
     return this.fetch(url, {
       ...init,
