@@ -97,7 +97,6 @@ const CollectionDrawerContent: React.FunctionComponent<
             <Badge>{relationships.length}</Badge>
             <Button
               className={titleBtnStyles}
-              aria-label="Add relationship"
               size="xsmall"
               onClick={() => {
                 onCreateNewRelationshipClick(namespace);
