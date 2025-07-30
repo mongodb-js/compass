@@ -1,47 +1,16 @@
 import React, { createContext, useContext, useRef } from 'react';
-
-interface ExperimentAssignmentData {
-  variant: string | null;
-  isInSample: boolean;
-}
-
-interface ExperimentData {
-  assignmentDate: Date;
-  entityId: string;
-  entityType: string;
-  id: string;
-  tag: string;
-  testGroupDatabaseId: string;
-  testGroupId: string;
-  testId: string;
-  testName: string;
-}
-
-interface SDKAssignment {
-  assignmentData: ExperimentAssignmentData;
-  experimentData: ExperimentData | null;
-}
-
-interface UseAssignmentResponse {
-  assignment: SDKAssignment | null;
-  asyncStatus: 'LOADING' | 'SUCCESS' | 'ERROR';
-  error?: Error;
-}
-
-interface BasicAPICallingFunctionOptions {
-  timeoutMs?: number;
-  team?: string;
-}
+import type { types } from '@mongodb-js/mdb-experiment-js';
+import type { typesReact } from '@mongodb-js/mdb-experiment-js/react';
 
 type UseAssignmentHookFn = (
   experimentName: string,
   trackIsInSample: boolean,
-  options?: BasicAPICallingFunctionOptions
-) => UseAssignmentResponse;
+  options?: types.GetAssignmentOptions<types.TypeData>
+) => typesReact.UseAssignmentResponse<types.TypeData>;
 
 type AssignExperimentFn = (
   experimentName: string,
-  options?: BasicAPICallingFunctionOptions
+  options?: types.AssignOptions<string>
 ) => Promise<'SUCCESS' | 'ERROR' | null>;
 
 interface CompassExperimentationProviderContextValue {
@@ -54,7 +23,11 @@ const ExperimentationContext =
     useAssignment() {
       return {
         assignment: null,
-        asyncStatus: 'SUCCESS' as const,
+        asyncStatus: null,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
       };
     },
     assignExperiment() {
@@ -68,8 +41,8 @@ export const CompassExperimentationProvider: React.FC<{
   useAssignment: UseAssignmentHookFn;
   assignExperiment: AssignExperimentFn;
 }> = ({ children, useAssignment, assignExperiment }) => {
-  // Use useRef to keep the functions up-to-date; maintain same object reference for context value
-  // to prevent unnecessary re-renders of consuming components,
+  // Maintain stable object reference for context value to prevent unnecessary re-renders
+  // of consuming components, while keeping the function implementations up-to-date
   const { current: contextValue } = useRef({ useAssignment, assignExperiment });
   contextValue.useAssignment = useAssignment;
   contextValue.assignExperiment = assignExperiment;
