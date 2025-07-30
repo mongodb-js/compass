@@ -23,7 +23,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
   constructor(
     schemaValidator: TSchema,
-    protected readonly folder: string,
+    protected readonly dataType: string,
     protected readonly options: QueryStorageOptions
   ) {
     if (
@@ -32,11 +32,9 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
       options.getResourceUrl &&
       options.authenticatedFetch
     ) {
-      const pathSegment =
-        folder === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
       this.userData = new AtlasUserData(
         schemaValidator,
-        pathSegment,
+        dataType,
         options.orgId,
         options.projectId,
         options.getResourceUrl,
@@ -47,7 +45,7 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
         }
       );
     } else {
-      this.userData = new FileUserData(schemaValidator, folder, {
+      this.userData = new FileUserData(schemaValidator, dataType, {
         basePath: options.basepath,
         serialize: (content) => EJSON.stringify(content, undefined, 2),
         deserialize: (content: string) => EJSON.parse(content),

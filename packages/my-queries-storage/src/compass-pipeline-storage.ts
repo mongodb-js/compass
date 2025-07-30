@@ -21,6 +21,7 @@ export type PipelineStorageOptions = {
 export class CompassPipelineStorage implements PipelineStorage {
   private readonly userData: IUserData<typeof PipelineSchema>;
   constructor(options: PipelineStorageOptions = {}) {
+    const dataType = 'SavedPipelines';
     if (
       options.orgId &&
       options.projectId &&
@@ -29,7 +30,7 @@ export class CompassPipelineStorage implements PipelineStorage {
     ) {
       this.userData = new AtlasUserData(
         PipelineSchema,
-        'favoriteAggregations',
+        dataType,
         options.orgId,
         options.projectId,
         options.getResourceUrl,
@@ -37,7 +38,7 @@ export class CompassPipelineStorage implements PipelineStorage {
         {}
       );
     } else {
-      this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
+      this.userData = new FileUserData(PipelineSchema, dataType, {
         basePath: options.basePath,
       });
     }
