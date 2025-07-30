@@ -18,22 +18,24 @@ interface CompassExperimentationProviderContextValue {
   assignExperiment: AssignExperimentFn;
 }
 
+const initialContext: CompassExperimentationProviderContextValue = {
+  useAssignment() {
+    return {
+      assignment: null,
+      asyncStatus: null,
+      error: null,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    };
+  },
+  assignExperiment() {
+    return Promise.resolve(null);
+  },
+};
+
 const ExperimentationContext =
-  createContext<CompassExperimentationProviderContextValue>({
-    useAssignment() {
-      return {
-        assignment: null,
-        asyncStatus: null,
-        error: null,
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-      };
-    },
-    assignExperiment() {
-      return Promise.resolve(null);
-    },
-  });
+  createContext<CompassExperimentationProviderContextValue>(initialContext);
 
 // Provider component that accepts MMS experiment utils as props
 export const CompassExperimentationProvider: React.FC<{
