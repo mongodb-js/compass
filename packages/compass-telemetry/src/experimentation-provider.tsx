@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useRef } from 'react';
 
 interface ExperimentAssignmentData {
   variant: string | null;
@@ -68,10 +68,11 @@ export const CompassExperimentationProvider: React.FC<{
   useAssignment: UseAssignmentHookFn;
   assignExperiment: AssignExperimentFn;
 }> = ({ children, useAssignment, assignExperiment }) => {
-  const contextValue = useMemo(
-    () => ({ useAssignment, assignExperiment }),
-    [useAssignment, assignExperiment]
-  );
+  // Use useRef to keep the functions up-to-date; maintain same object reference for context value
+  // to prevent unnecessary re-renders of consuming components,
+  const { current: contextValue } = useRef({ useAssignment, assignExperiment });
+  contextValue.useAssignment = useAssignment;
+  contextValue.assignExperiment = assignExperiment;
 
   return (
     <ExperimentationContext.Provider value={contextValue}>
