@@ -1,0 +1,8 @@
+export enum MockDataGeneratorSteps {
+  AI_DISCLAIMER = 1,
+  SCHEMA_CONFIRMATION = 2,
+  SCHEMA_EDITOR = 3,
+  DOCUMENT_COUNT = 4,
+  PREVIEW_DATA = 5,
+  GENERATE_DATA = 6,
+}
