@@ -1,0 +1,1 @@
+export const DEFAULT_OUTPUT_DOCS_COUNT = 1000;
