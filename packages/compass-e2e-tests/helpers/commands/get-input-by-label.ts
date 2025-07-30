@@ -3,9 +3,8 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function getInputByLabel(
   browser: CompassBrowser,
-  labelSelector: string
+  label: ChainablePromiseElement
 ): Promise<ChainablePromiseElement> {
-  const selectLabel = browser.$(labelSelector);
-  await selectLabel.waitForDisplayed();
-  return browser.$(`input[id="${await selectLabel.getAttribute('for')}"]`);
+  await label.waitForDisplayed();
+  return browser.$(`[id="${await label.getAttribute('for')}"]`);
 }

@@ -526,15 +526,12 @@ describe('Data Modeling tab', function () {
       // Click on the collection to open the drawer
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
 
-      console.log('Clicked');
       // Wait for the drawer to open, then click the add relationship button
       const drawer = browser.$(Selectors.SideDrawer);
       await drawer.waitForDisplayed();
-      console.log('Drawer is displayed');
       const collection1Name = await browser.getInputByLabel(
-        Selectors.DataModelCollectionNameInput
+        drawer.$(Selectors.DataModelNameInput)
       );
-      console.log('Collection 1 Name:', await collection1Name.getValue());
       expect(await collection1Name.getValue()).to.equal(
         'test.testCollection-one'
       );
@@ -546,7 +543,7 @@ describe('Data Modeling tab', function () {
 
       // Verify that the local collection is pre-selected
       const localCollectionSelect = await browser.getInputByLabel(
-        Selectors.DataModelRelationshipLocalCollectionSelect
+        drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
       );
       expect(await localCollectionSelect.getValue()).to.equal(
         'testCollection-one'
@@ -555,7 +552,7 @@ describe('Data Modeling tab', function () {
       // Select the foreign collection
       await browser.selectOption({
         selectElement: await browser.getInputByLabel(
-          Selectors.DataModelRelationshipForeignCollectionSelect
+          drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
         ),
         optionText: 'testCollection-two',
       });
@@ -566,13 +563,15 @@ describe('Data Modeling tab', function () {
       expect(edges[0]).to.deep.include({
         source: 'test.testCollection-one',
         target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'one',
       });
       const relationshipId = edges[0].id;
 
       // Select the other collection and see that the new relationship is listed
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
       const collection2Name = await browser.getInputByLabel(
-        Selectors.DataModelCollectionNameInput
+        drawer.$(Selectors.DataModelNameInput)
       );
       expect(await collection2Name.getValue()).to.equal(
         'test.testCollection-two'
@@ -587,15 +586,35 @@ describe('Data Modeling tab', function () {
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
-
-      console.log(`Selecting option: span="(Many)"`);
-      await browser.debug();
+      const relationshipName = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelNameInput)
+      );
+      await relationshipName.setValue('updatedRelationshipName');
       await browser.selectOption({
         selectElement: await browser.getInputByLabel(
-          Selectors.DataModelRelationshipLocalCardinalitySelect
+          drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
         ),
         optionIndex: 3,
       });
+
+      // See the updated relationship on the diagram
+      const updatedEdges = await getDiagramEdges(browser, 1);
+      expect(updatedEdges).to.have.lengthOf(1);
+      expect(updatedEdges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'many',
+      });
+
+      // Select the first collection again and delete the relationship
+      await selectCollectionOnTheDiagram(browser, 'updatedRelationshipName');
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemDelete)
+        .click();
+
+      // Verify that the relationship is removed from the diagram
+      await getDiagramEdges(browser, 0);
     });
   });
 });

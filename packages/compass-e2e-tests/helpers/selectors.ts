@@ -1468,7 +1468,7 @@ export const DataModelsListItemActions = (diagramName: string) =>
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn =
   'button[aria-label="Add relationship"]';
-export const DataModelCollectionNameInput = '//label[text()="Name"]';
+export const DataModelNameInput = '//label[text()="Name"]';
 export const DataModelRelationshipLocalCollectionSelect =
   '//label[text()="Local collection"]';
 export const DataModelRelationshipLocalFieldSelect =
