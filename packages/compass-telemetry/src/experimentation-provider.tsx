@@ -43,8 +43,8 @@ export const CompassExperimentationProvider: React.FC<{
   useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
 }> = ({ children, useAssignment, assignExperiment }) => {
-  // Maintain stable object reference for context value to prevent unnecessary re-renders
-  // of consuming components, while keeping the function implementations up-to-date
+  // Use useRef to keep the functions up-to-date; Use mutation pattern to maintain the
+  // same object reference to prevent unnecessary re-renders of consuming components
   const { current: contextValue } = useRef({ useAssignment, assignExperiment });
   contextValue.useAssignment = useAssignment;
   contextValue.assignExperiment = assignExperiment;
