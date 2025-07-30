@@ -704,13 +704,17 @@ describe('DataService', function () {
         it('returns collections from user privileges', async function () {
           const collections = await dataService.listCollections('imdb');
           const mappedCollections = collections.map(
-            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+            ({ _id, name, is_ghost_namespace }) => ({
+              _id,
+              name,
+              is_ghost_namespace,
+            })
           );
 
           const expectedCollections = [
-            { _id: 'imdb.movies', name: 'movies', is_non_existent: true },
-            { _id: 'imdb.reviews', name: 'reviews', is_non_existent: true },
-            { _id: 'imdb.users', name: 'users', is_non_existent: true },
+            { _id: 'imdb.movies', name: 'movies', is_ghost_namespace: true },
+            { _id: 'imdb.reviews', name: 'reviews', is_ghost_namespace: true },
+            { _id: 'imdb.users', name: 'users', is_ghost_namespace: true },
           ];
           expect(mappedCollections).to.deep.include.members(
             expectedCollections
@@ -721,13 +725,17 @@ describe('DataService', function () {
           await dataService.createCollection('imdb.movies', {});
           const collections = await dataService.listCollections('imdb');
           const mappedCollections = collections.map(
-            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+            ({ _id, name, is_ghost_namespace }) => ({
+              _id,
+              name,
+              is_ghost_namespace,
+            })
           );
 
           const expectedCollections = [
-            { _id: 'imdb.movies', name: 'movies', is_non_existent: false },
-            { _id: 'imdb.reviews', name: 'reviews', is_non_existent: true },
-            { _id: 'imdb.users', name: 'users', is_non_existent: true },
+            { _id: 'imdb.movies', name: 'movies', is_ghost_namespace: false },
+            { _id: 'imdb.reviews', name: 'reviews', is_ghost_namespace: true },
+            { _id: 'imdb.users', name: 'users', is_ghost_namespace: true },
           ];
           expect(mappedCollections).to.deep.include.members(
             expectedCollections
@@ -942,7 +950,11 @@ describe('DataService', function () {
         it('returns databases from user roles and privileges', async function () {
           const databases = await dataService.listDatabases();
           const mappedDatabases = databases.map(
-            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+            ({ _id, name, is_ghost_namespace }) => ({
+              _id,
+              name,
+              is_ghost_namespace,
+            })
           );
 
           const expectedDatabases = [
@@ -950,11 +962,15 @@ describe('DataService', function () {
             {
               _id: 'sample_airbnb',
               name: 'sample_airbnb',
-              is_non_existent: true,
+              is_ghost_namespace: true,
             },
-            { _id: 'sample_wiki', name: 'sample_wiki', is_non_existent: true },
+            {
+              _id: 'sample_wiki',
+              name: 'sample_wiki',
+              is_ghost_namespace: true,
+            },
             // Based on privileges
-            { _id: 'imdb', name: 'imdb', is_non_existent: true },
+            { _id: 'imdb', name: 'imdb', is_ghost_namespace: true },
           ];
           expect(mappedDatabases).to.deep.include.members(expectedDatabases);
         });
@@ -964,17 +980,25 @@ describe('DataService', function () {
           await dataService.createCollection('sample_airbnb.whatever', {});
           const databases = await dataService.listDatabases();
           const mappedDatabases = databases.map(
-            ({ _id, name, is_non_existent }) => ({ _id, name, is_non_existent })
+            ({ _id, name, is_ghost_namespace }) => ({
+              _id,
+              name,
+              is_ghost_namespace,
+            })
           );
 
           const expectedDatabases = [
             {
               _id: 'sample_airbnb',
               name: 'sample_airbnb',
-              is_non_existent: false,
+              is_ghost_namespace: false,
             },
-            { _id: 'sample_wiki', name: 'sample_wiki', is_non_existent: true },
-            { _id: 'imdb', name: 'imdb', is_non_existent: false },
+            {
+              _id: 'sample_wiki',
+              name: 'sample_wiki',
+              is_ghost_namespace: true,
+            },
+            { _id: 'imdb', name: 'imdb', is_ghost_namespace: false },
           ];
           expect(mappedDatabases).to.deep.include.members(expectedDatabases);
         });
@@ -2102,13 +2126,13 @@ describe('DataService', function () {
           },
         });
         const dbs = (await dataService.listDatabases()).map(
-          ({ name, is_non_existent }) => ({ name, is_non_existent })
+          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
         );
         expect(dbs).to.deep.eq([
-          { name: 'pineapple', is_non_existent: true },
-          { name: 'foo', is_non_existent: false },
-          { name: 'buz', is_non_existent: true },
-          { name: 'bar', is_non_existent: false },
+          { name: 'pineapple', is_ghost_namespace: true },
+          { name: 'foo', is_ghost_namespace: false },
+          { name: 'buz', is_ghost_namespace: true },
+          { name: 'bar', is_ghost_namespace: false },
         ]);
       });
 
@@ -2129,9 +2153,9 @@ describe('DataService', function () {
           },
         });
         const dbs = (await dataService.listDatabases()).map(
-          ({ name, is_non_existent }) => ({ name, is_non_existent })
+          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
         );
-        expect(dbs).to.deep.eq([{ name: 'foo', is_non_existent: true }]);
+        expect(dbs).to.deep.eq([{ name: 'foo', is_ghost_namespace: true }]);
       });
     });
 
@@ -2224,13 +2248,13 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          ({ name, is_non_existent }) => ({ name, is_non_existent })
+          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
         );
         expect(colls).to.deep.eq([
-          { name: 'bar', is_non_existent: true },
-          { name: 'buz', is_non_existent: false },
-          { name: 'bla', is_non_existent: false },
-          { name: 'meow', is_non_existent: false },
+          { name: 'bar', is_ghost_namespace: true },
+          { name: 'buz', is_ghost_namespace: false },
+          { name: 'bla', is_ghost_namespace: false },
+          { name: 'meow', is_ghost_namespace: false },
         ]);
       });
 
@@ -2253,9 +2277,9 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          ({ name, is_non_existent }) => ({ name, is_non_existent })
+          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
         );
-        expect(colls).to.deep.eq([{ name: 'bar', is_non_existent: true }]);
+        expect(colls).to.deep.eq([{ name: 'bar', is_ghost_namespace: true }]);
       });
     });
 

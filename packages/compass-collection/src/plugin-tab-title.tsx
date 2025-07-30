@@ -24,7 +24,7 @@ type PluginTitleProps = {
 
 function PluginTitle({
   editViewName,
-  isNonExistent,
+  isGhostNamespace,
   isReadonly,
   isTimeSeries,
   sourceName,
@@ -68,12 +68,12 @@ function PluginTitle({
           ? 'Visibility'
           : collectionType === 'timeseries'
           ? 'TimeSeries'
-          : isNonExistent
+          : isGhostNamespace
           ? 'EmptyFolder'
           : 'Folder'
       }
       data-namespace={ns}
-      isNonExistent={isNonExistent}
+      isGhostNamespace={isGhostNamespace}
     />
   );
 }

@@ -184,7 +184,7 @@ export type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
   title: React.ReactNode;
-  isNonExistent?: boolean;
+  isGhostNamespace?: boolean;
   iconGlyph: GlyphName | 'Logo' | 'Server';
   tooltip?: [string, string][];
 };
@@ -206,7 +206,7 @@ function Tab({
   type,
   title,
   tooltip,
-  isNonExistent,
+  isGhostNamespace,
   isSelected,
   isDragging,
   onSelect,
@@ -271,7 +271,7 @@ function Tab({
           className={cx(
             tabStyles,
             themeClass,
-            isNonExistent && nonExistentStyles,
+            isGhostNamespace && nonExistentStyles,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
             isDragging && draggingTabStyles,

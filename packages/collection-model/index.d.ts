@@ -83,7 +83,7 @@ interface CollectionProps {
   sourceName: string | null;
   source: Collection;
   properties: { id: string; options?: Record<string, unknown> }[];
-  is_non_existent: boolean;
+  is_ghost_namespace: boolean;
 }
 
 type CollectionDataService = Pick<

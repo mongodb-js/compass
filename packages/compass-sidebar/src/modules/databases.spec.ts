@@ -17,12 +17,12 @@ async function createDatabases(dbs: any[] = []) {
       };
     }
   );
-  return data.map(({ is_non_existent, collections, ...rest }) => ({
+  return data.map(({ is_ghost_namespace, collections, ...rest }) => ({
     ...rest,
-    isNonExistent: is_non_existent,
-    collections: collections.map(({ is_non_existent, ...coll }) => ({
+    isGhostNamespace: is_ghost_namespace,
+    collections: collections.map(({ is_ghost_namespace, ...coll }) => ({
       ...coll,
-      isNonExistent: is_non_existent,
+      isGhostNamespace: is_ghost_namespace,
     })),
   }));
 }

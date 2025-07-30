@@ -101,6 +101,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
+    inferNamespacesFromPrivileges?: boolean;
   };
 
 /**
@@ -1007,6 +1008,18 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  inferNamespacesFromPrivileges: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Infer additional namespaces from privileges',
+      long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
     },
     validator: z.boolean().default(true),
     type: 'boolean',

@@ -71,7 +71,7 @@ const DatabasesList: React.FunctionComponent<{
             type="database"
             viewType={viewType}
             status={db.status}
-            isNonExistent={db.is_non_existent}
+            isGhostNamespace={db.is_ghost_namespace}
             data={[
               {
                 label: 'Storage size',

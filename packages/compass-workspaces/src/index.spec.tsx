@@ -98,7 +98,7 @@ describe('WorkspacesPlugin', function () {
                 {
                   _id: 'db',
                   name: 'db',
-                  is_non_existent: false,
+                  is_ghost_namespace: false,
                   collection_count: 0,
                   document_count: 0,
                   index_count: 0,

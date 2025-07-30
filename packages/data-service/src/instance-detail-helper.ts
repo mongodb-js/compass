@@ -76,7 +76,7 @@ export type CollectionDetails = {
     validationAction: string;
     validationLevel: string;
   } | null;
-  is_non_existent: boolean;
+  is_ghost_namespace: boolean;
 };
 
 export type DatabaseDetails = {
@@ -89,7 +89,7 @@ export type DatabaseDetails = {
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
-  is_non_existent: boolean;
+  is_ghost_namespace: boolean;
 };
 
 export type InstanceDetails = {
@@ -362,7 +362,10 @@ export function adaptBuildInfo(
 
 export function adaptDatabaseInfo(
   databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, '_id' | 'collections' | 'name' | 'is_non_existent'> {
+): Omit<
+  DatabaseDetails,
+  '_id' | 'collections' | 'name' | 'is_ghost_namespace'
+> {
   return {
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
@@ -382,7 +385,7 @@ export function adaptCollectionInfo({
 }: CollectionInfoNameOnly &
   Partial<CollectionInfo> & {
     db: string;
-  }): Omit<CollectionDetails, 'is_non_existent'> {
+  }): Omit<CollectionDetails, 'is_ghost_namespace'> {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,

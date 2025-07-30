@@ -35,7 +35,7 @@ const IconWithTooltip = ({
 
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
   if (item.type === 'database') {
-    if (item.isNonExistent) {
+    if (item.isGhostNamespace) {
       return (
         <IconWithTooltip
           text={NON_EXISTANT_NAMESPACE_TEXT}
@@ -46,7 +46,7 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
     return <Icon glyph="Database" />;
   }
   if (item.type === 'collection') {
-    if (item.isNonExistent) {
+    if (item.isGhostNamespace) {
       return (
         <IconWithTooltip
           text={NON_EXISTANT_NAMESPACE_TEXT}

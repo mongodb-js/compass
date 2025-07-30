@@ -77,11 +77,11 @@ export type CollectionTabInfo = {
   isTimeSeries: boolean;
   isReadonly: boolean;
   sourceName?: string | null;
-  isNonExistent: boolean;
+  isGhostNamespace: boolean;
 };
 
 export type DatabaseTabInfo = {
-  isNonExistent: boolean;
+  isGhostNamespace: boolean;
 };
 
 export type WorkspacesState = {
@@ -725,7 +725,7 @@ const fetchCollectionInfo = (
           isTimeSeries: coll.isTimeSeries,
           isReadonly: coll.readonly ?? coll.isView,
           sourceName: coll.sourceName,
-          isNonExistent: coll.is_non_existent,
+          isGhostNamespace: coll.is_ghost_namespace,
         };
         dispatch(updateCollectionInfo(namespaceId, info));
       }
@@ -777,7 +777,7 @@ const fetchDatabaseInfo = (
       if (db) {
         await db.fetch({ dataService });
         const info = {
-          isNonExistent: db.is_non_existent,
+          isGhostNamespace: db.is_ghost_namespace,
         };
         dispatch(updateDatabaseInfo(namespaceId, info));
       }

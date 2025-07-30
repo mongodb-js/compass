@@ -136,12 +136,15 @@ const InstanceModel = AmpersandModel.extend(
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
       shouldFetchDbAndCollStats: { type: 'boolean', default: false },
+      shouldFetchNamespacesFromPrivileges: { type: 'boolean', default: false },
     },
     initialize: function ({ preferences, ...props }) {
       // Initialize the property directly from preferences
       this.set({
         shouldFetchDbAndCollStats:
           preferences.getPreferences().enableDbAndCollStats,
+        shouldFetchNamespacesFromPrivileges:
+          preferences.getPreferences().inferNamespacesFromPrivileges,
       });
 
       // Listen to preference changes using the preferences API
@@ -149,6 +152,12 @@ const InstanceModel = AmpersandModel.extend(
         'enableDbAndCollStats',
         (value) => {
           this.set({ shouldFetchDbAndCollStats: value });
+        }
+      );
+      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
+        'inferNamespacesFromPrivileges',
+        (value) => {
+          this.set({ shouldFetchNamespacesFromPrivileges: value });
         }
       );
 

@@ -104,24 +104,28 @@ export function activateWorkspacePlugin(
       store.dispatch(collectionRenamed(from, collection.ns));
     });
 
-    on(instance, 'change:databases.is_non_existent', (database: Database) => {
-      const namespaceId = `${connectionId}.${database._id}`;
-      const databaseInfo = {
-        isNonExistent: database.is_non_existent,
-      };
-      store.dispatch(updateDatabaseInfo(namespaceId, databaseInfo));
-    });
+    on(
+      instance,
+      'change:databases.is_ghost_namespace',
+      (database: Database) => {
+        const namespaceId = `${connectionId}.${database._id}`;
+        const databaseInfo = {
+          isGhostNamespace: database.is_ghost_namespace,
+        };
+        store.dispatch(updateDatabaseInfo(namespaceId, databaseInfo));
+      }
+    );
 
     on(
       instance,
-      'change:collections.is_non_existent',
+      'change:collections.is_ghost_namespace',
       (collection: Collection) => {
         const namespaceId = `${connectionId}.${collection._id}`;
         const collectionInfo = {
           isTimeSeries: collection.isTimeSeries,
           isReadonly: collection.readonly ?? collection.isView,
           sourceName: collection.sourceName,
-          isNonExistent: collection.is_non_existent,
+          isGhostNamespace: collection.is_ghost_namespace,
         };
         store.dispatch(updateCollectionInfo(namespaceId, collectionInfo));
       }

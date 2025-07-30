@@ -122,21 +122,21 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       const { content: WorkspaceTabContent, header: WorkspaceTabTitle } =
         plugin;
 
-      let isNonExistent: boolean | undefined;
+      let isGhostNamespace: boolean | undefined;
       if (tab.type === 'Collections') {
-        // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
+        // TODO(COMPASS-9456): Move this logic and `isGhostNamespace` setting to the plugin.
         const database = tab.namespace;
         const namespaceId = `${tab.connectionId}.${database}`;
-        const { isNonExistent: databaseDoesNotExist } =
+        const { isGhostNamespace: databaseDoesNotExist } =
           databaseInfo[namespaceId] ?? {};
-        isNonExistent = databaseDoesNotExist;
+        isGhostNamespace = databaseDoesNotExist;
       } else if (tab.type === 'Collection') {
-        // TODO(COMPASS-9456): Move this logic and `isNonExistent` setting to the plugin.
+        // TODO(COMPASS-9456): Move this logic and `isGhostNamespace` setting to the plugin.
         const { ns } = toNS(tab.namespace);
         const namespaceId = `${tab.connectionId}.${ns}`;
-        const { isNonExistent: collectionDoesNotExist } =
+        const { isGhostNamespace: collectionDoesNotExist } =
           collectionInfo[namespaceId] ?? {};
-        isNonExistent = collectionDoesNotExist;
+        isGhostNamespace = collectionDoesNotExist;
       }
 
       return {
@@ -156,7 +156,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <WorkspaceTabContextProvider tab={tab} sectionType="tab-title">
               <WorkspaceTabTitle
                 {...workspaceTabCoreProps}
-                {...(isNonExistent ? { isNonExistent } : {})}
+                {...(isGhostNamespace ? { isGhostNamespace } : {})}
               />
             </WorkspaceTabContextProvider>
           </ErrorBoundary>
