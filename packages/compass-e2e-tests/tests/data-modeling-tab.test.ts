@@ -27,8 +27,18 @@ interface Node {
   position: { x: number; y: number };
 }
 
+interface Edge {
+  id: string;
+  source: string;
+  target: string;
+  markerStart: string;
+  markerEnd: string;
+  selected: boolean;
+}
+
 type DiagramInstance = {
   getNodes: () => Array<Node>;
+  getEdges: () => Array<Edge>;
 };
 
 async function setupDiagram(
@@ -52,17 +62,17 @@ async function setupDiagram(
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select existing connection
-  await browser.selectOption(
-    Selectors.CreateDataModelConnectionSelector,
-    options.connectionName
-  );
+  await browser.selectOption({
+    selectSelector: Selectors.CreateDataModelConnectionSelector,
+    optionText: options.connectionName,
+  });
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select a database
-  await browser.selectOption(
-    Selectors.CreateDataModelDatabaseSelector,
-    options.databaseName
-  );
+  await browser.selectOption({
+    selectSelector: Selectors.CreateDataModelDatabaseSelector,
+    optionText: options.databaseName,
+  });
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Ensure that all the collections are selected by default
@@ -75,6 +85,20 @@ async function setupDiagram(
   // Wait for the diagram editor to load
   const dataModelEditor = browser.$(Selectors.DataModelEditor);
   await dataModelEditor.waitForDisplayed();
+}
+
+async function selectCollectionOnTheDiagram(
+  browser: CompassBrowser,
+  ns: string
+) {
+  // Click on the collection node to open the drawer
+  const testCollection1 = browser.$(Selectors.DataModelPreviewCollection(ns));
+  const size = await testCollection1.getSize();
+  // Normal click doesn't work, we need to click in the middle of the collection node
+  await testCollection1.click({
+    x: Math.round(size.width / 2),
+    y: Math.round(size.height / 2),
+  });
 }
 
 async function getDiagramNodes(
@@ -95,6 +119,26 @@ async function getDiagramNodes(
     return nodes.length === expectedCount;
   });
   return nodes;
+}
+
+async function getDiagramEdges(
+  browser: CompassBrowser,
+  expectedCount: number
+): Promise<Edge[]> {
+  let edges: Edge[] = [];
+  await browser.waitUntil(async () => {
+    edges = await browser.execute(async function (selector) {
+      const node = document.querySelector(selector);
+      if (!node) {
+        throw new Error(`Element with selector ${selector} not found`);
+      }
+      return (
+        node as Element & { _diagram: DiagramInstance }
+      )._diagram.getEdges();
+    }, Selectors.DataModelEditor);
+    return edges.length === expectedCount;
+  });
+  return edges;
 }
 
 /**
@@ -462,5 +506,96 @@ describe('Data Modeling tab', function () {
     expect(titles).to.include(dataModelName);
     // The second one is the one we just opened
     expect(titles).to.include(`${dataModelName} (1)`);
+  });
+
+  context('Drawer and Diagram interactions', function () {
+    it.only('allows relationship management via the sidebar', async function () {
+      const dataModelName = 'Test Add Relationship Manually';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // There are no edges initially
+      // await getDiagramEdges(browser, 0);
+
+      // Click on the collection to open the drawer
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+
+      console.log('Clicked');
+      // Wait for the drawer to open, then click the add relationship button
+      const drawer = browser.$(Selectors.SideDrawer);
+      await drawer.waitForDisplayed();
+      console.log('Drawer is displayed');
+      const collection1Name = await browser.getInputByLabel(
+        Selectors.DataModelCollectionNameInput
+      );
+      console.log('Collection 1 Name:', await collection1Name.getValue());
+      expect(await collection1Name.getValue()).to.equal(
+        'test.testCollection-one'
+      );
+      const addRelationshipBtn = drawer.$(
+        Selectors.DataModelAddRelationshipBtn
+      );
+      await addRelationshipBtn.waitForClickable();
+      await addRelationshipBtn.click();
+
+      // Verify that the local collection is pre-selected
+      const localCollectionSelect = await browser.getInputByLabel(
+        Selectors.DataModelRelationshipLocalCollectionSelect
+      );
+      expect(await localCollectionSelect.getValue()).to.equal(
+        'testCollection-one'
+      );
+
+      // Select the foreign collection
+      await browser.selectOption({
+        selectElement: await browser.getInputByLabel(
+          Selectors.DataModelRelationshipForeignCollectionSelect
+        ),
+        optionText: 'testCollection-two',
+      });
+
+      // See the relationship on the diagram
+      const edges = await getDiagramEdges(browser, 1);
+      expect(edges).to.have.lengthOf(1);
+      expect(edges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+      });
+      const relationshipId = edges[0].id;
+
+      // Select the other collection and see that the new relationship is listed
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
+      const collection2Name = await browser.getInputByLabel(
+        Selectors.DataModelCollectionNameInput
+      );
+      expect(await collection2Name.getValue()).to.equal(
+        'test.testCollection-two'
+      );
+      const relationshipItem = drawer.$(
+        Selectors.DataModelCollectionRelationshipItem(relationshipId)
+      );
+      expect(await relationshipItem.isDisplayed()).to.be.true;
+      expect(await relationshipItem.getText()).to.include('testCollection-one');
+
+      // Edit the relationship
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .click();
+
+      console.log(`Selecting option: span="(Many)"`);
+      await browser.debug();
+      await browser.selectOption({
+        selectElement: await browser.getInputByLabel(
+          Selectors.DataModelRelationshipLocalCardinalitySelect
+        ),
+        optionIndex: 3,
+      });
+    });
   });
 });
