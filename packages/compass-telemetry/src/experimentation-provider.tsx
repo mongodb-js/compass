@@ -2,19 +2,19 @@ import React, { createContext, useContext, useRef } from 'react';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import type { typesReact } from '@mongodb-js/mdb-experiment-js/react';
 
-type UseAssignmentHookFn = (
+type UseAssignmentHook = (
   experimentName: string,
   trackIsInSample: boolean,
-  options?: types.GetAssignmentOptions<types.TypeData>
+  options?: typesReact.UseAssignmentOptions<types.TypeData>
 ) => typesReact.UseAssignmentResponse<types.TypeData>;
 
 type AssignExperimentFn = (
   experimentName: string,
   options?: types.AssignOptions<string>
-) => Promise<'SUCCESS' | 'ERROR' | null>;
+) => Promise<types.AsyncStatus | null>;
 
 interface CompassExperimentationProviderContextValue {
-  useAssignment: UseAssignmentHookFn;
+  useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
 }
 
@@ -40,7 +40,7 @@ const ExperimentationContext =
 // Provider component that accepts MMS experiment utils as props
 export const CompassExperimentationProvider: React.FC<{
   children: React.ReactNode;
-  useAssignment: UseAssignmentHookFn;
+  useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
 }> = ({ children, useAssignment, assignExperiment }) => {
   // Maintain stable object reference for context value to prevent unnecessary re-renders
@@ -57,6 +57,6 @@ export const CompassExperimentationProvider: React.FC<{
 };
 
 // Hook for components to access experiment assignment
-export const useAssignment = (...args: Parameters<UseAssignmentHookFn>) => {
+export const useAssignment = (...args: Parameters<UseAssignmentHook>) => {
   return useContext(ExperimentationContext).useAssignment(...args);
 };
