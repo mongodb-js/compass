@@ -6,5 +6,6 @@ export async function getInputByLabel(
   label: ChainablePromiseElement
 ): Promise<ChainablePromiseElement> {
   await label.waitForDisplayed();
-  return browser.$(`[id="${await label.getAttribute('for')}"]`);
+  const inputId = await label.getAttribute('for');
+  return browser.$(`[id="${inputId}"]`);
 }

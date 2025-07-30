@@ -509,7 +509,7 @@ describe('Data Modeling tab', function () {
   });
 
   context('Drawer and Diagram interactions', function () {
-    it.only('allows relationship management via the sidebar', async function () {
+    it('allows relationship management via the sidebar', async function () {
       const dataModelName = 'Test Add Relationship Manually';
       await setupDiagram(browser, {
         diagramName: dataModelName,
@@ -521,7 +521,7 @@ describe('Data Modeling tab', function () {
       await dataModelEditor.waitForDisplayed();
 
       // There are no edges initially
-      // await getDiagramEdges(browser, 0);
+      await getDiagramEdges(browser, 0);
 
       // Click on the collection to open the drawer
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
@@ -608,12 +608,17 @@ describe('Data Modeling tab', function () {
       });
 
       // Select the first collection again and delete the relationship
-      await selectCollectionOnTheDiagram(browser, 'updatedRelationshipName');
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+      expect(await relationshipItem.isDisplayed()).to.be.true;
+      expect(await relationshipItem.getText()).to.include(
+        'updatedRelationshipName'
+      );
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();
 
-      // Verify that the relationship is removed from the diagram
+      // Verify that the relationship is removed from the list and the diagram
+      expect(await relationshipItem.isExisting()).to.be.false;
       await getDiagramEdges(browser, 0);
     });
   });
