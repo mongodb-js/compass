@@ -148,18 +148,20 @@ const InstanceModel = AmpersandModel.extend(
       });
 
       // Listen to preference changes using the preferences API
-      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
-        'enableDbAndCollStats',
-        (value) => {
-          this.set({ shouldFetchDbAndCollStats: value });
-        }
-      );
-      this._preferenceUnsubscribe = preferences.onPreferenceValueChanged(
-        'inferNamespacesFromPrivileges',
-        (value) => {
-          this.set({ shouldFetchNamespacesFromPrivileges: value });
-        }
-      );
+      this._enableDbAndCollStatsUnsubscribe =
+        preferences.onPreferenceValueChanged(
+          'enableDbAndCollStats',
+          (value) => {
+            this.set({ shouldFetchDbAndCollStats: value });
+          }
+        );
+      this._inferNamespacesFromPrivilegesUnsubscribe =
+        preferences.onPreferenceValueChanged(
+          'inferNamespacesFromPrivileges',
+          (value) => {
+            this.set({ shouldFetchNamespacesFromPrivileges: value });
+          }
+        );
 
       AmpersandModel.prototype.initialize.call(this, props);
     },
@@ -420,8 +422,11 @@ const InstanceModel = AmpersandModel.extend(
 
     removeAllListeners() {
       // Clean up preference listeners
-      if (this._preferenceUnsubscribe) {
-        this._preferenceUnsubscribe();
+      if (this._enableDbAndCollStatsUnsubscribe) {
+        this._enableDbAndCollStatsUnsubscribe();
+      }
+      if (this._inferNamespacesFromPrivilegesUnsubscribe) {
+        this._inferNamespacesFromPrivilegesUnsubscribe();
       }
       InstanceModel.removeAllListeners(this);
     },
