@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { css, ModalBody, ModalHeader } from '@mongodb-js/compass-components';
 
@@ -8,7 +8,8 @@ import {
   ModalFooter,
   ButtonVariant,
 } from '@mongodb-js/compass-components';
-import { MockDataGeneratorSteps } from './types';
+import { MockDataGeneratorStep } from './types';
+import { getNextStepButtonLabel } from './utils';
 
 const footerStyles = css`
   flex-direction: row;
@@ -24,19 +25,22 @@ const rightButtonsStyles = css`
 interface Props {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  currentStep: MockDataGeneratorStep;
+  setCurrentStep: (step: MockDataGeneratorStep) => void;
 }
 
-const MockDataGeneratorModal = ({ isOpen, setIsOpen }: Props) => {
-  const [currentStep, setCurrentStep] = useState<MockDataGeneratorSteps>(
-    MockDataGeneratorSteps.AI_DISCLAIMER
-  );
-
+const MockDataGeneratorModal = ({
+  isOpen,
+  setIsOpen,
+  currentStep,
+  setCurrentStep,
+}: Props) => {
   const resetState = () => {
-    setCurrentStep(MockDataGeneratorSteps.AI_DISCLAIMER);
+    setCurrentStep(MockDataGeneratorStep.AI_DISCLAIMER);
   };
 
   const onNext = () => {
-    if (currentStep < MockDataGeneratorSteps.GENERATE_DATA) {
+    if (currentStep < MockDataGeneratorStep.GENERATE_DATA) {
       setCurrentStep(currentStep + 1);
     } else {
       setIsOpen(false);
@@ -45,31 +49,42 @@ const MockDataGeneratorModal = ({ isOpen, setIsOpen }: Props) => {
   };
 
   const onBack = () => {
-    if (currentStep > MockDataGeneratorSteps.AI_DISCLAIMER) {
+    if (currentStep > MockDataGeneratorStep.AI_DISCLAIMER) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const onCancel = () => {
     setIsOpen(false);
+    resetState();
   };
 
   return (
     <Modal
       open={isOpen}
-      setOpen={() => setIsOpen(false)}
+      setOpen={(open) => setIsOpen(open)}
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
       <ModalBody>
+        {/* TODO: Render actual step content here based on currentStep. (CLOUDP-333851) */}
         <div data-testid={`generate-mock-data-step-${currentStep}`} />
       </ModalBody>
       <ModalFooter className={footerStyles}>
-        <Button onClick={onBack}>Back</Button>
+        <Button
+          onClick={onBack}
+          disabled={currentStep === MockDataGeneratorStep.AI_DISCLAIMER}
+        >
+          Back
+        </Button>
         <div className={rightButtonsStyles}>
           <Button onClick={onCancel}>Cancel</Button>
-          <Button variant={ButtonVariant.Primary} onClick={onNext}>
-            Next
+          <Button
+            variant={ButtonVariant.Primary}
+            onClick={onNext}
+            data-testid="next-step-button"
+          >
+            {getNextStepButtonLabel(currentStep)}
           </Button>
         </div>
       </ModalFooter>
