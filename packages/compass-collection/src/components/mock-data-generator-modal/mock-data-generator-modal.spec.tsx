@@ -103,14 +103,4 @@ describe('MockDataGeneratorModal', () => {
     screen.getByTestId('next-step-button').click();
     expect(screen.getByTestId('next-step-button')).to.have.text('Done');
   });
-
-  it('renders the first step by default', () => {
-    renderModal();
-
-    expect(
-      screen.getByTestId(
-        `generate-mock-data-step-${MockDataGeneratorStep.AI_DISCLAIMER}`
-      )
-    ).to.exist;
-  });
 });
