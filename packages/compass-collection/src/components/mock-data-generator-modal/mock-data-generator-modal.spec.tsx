@@ -4,6 +4,7 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
+import { StepButtonLabelMap } from './constants';
 
 describe('MockDataGeneratorModal', () => {
   const sandbox = Sinon.createSandbox();
@@ -87,20 +88,9 @@ describe('MockDataGeneratorModal', () => {
   it('renders the next step button with the correct label on each step', () => {
     renderModal();
 
-    expect(screen.getByTestId('next-step-button')).to.have.text(
-      'Use Natural Language'
-    );
-    screen.getByTestId('next-step-button').click();
-    expect(screen.getByTestId('next-step-button')).to.have.text('Confirm');
-    screen.getByTestId('next-step-button').click();
-    expect(screen.getByTestId('next-step-button')).to.have.text('Next');
-    screen.getByTestId('next-step-button').click();
-    expect(screen.getByTestId('next-step-button')).to.have.text('Next');
-    screen.getByTestId('next-step-button').click();
-    expect(screen.getByTestId('next-step-button')).to.have.text(
-      'Generate Script'
-    );
-    screen.getByTestId('next-step-button').click();
-    expect(screen.getByTestId('next-step-button')).to.have.text('Done');
+    Object.values(StepButtonLabelMap).forEach((label) => {
+      expect(screen.getByTestId('next-step-button')).to.have.text(label);
+      screen.getByTestId('next-step-button').click();
+    });
   });
 });

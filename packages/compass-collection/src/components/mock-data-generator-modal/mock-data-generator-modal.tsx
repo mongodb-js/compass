@@ -9,7 +9,7 @@ import {
   ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
-import { getNextStepButtonLabel } from './utils';
+import { StepButtonLabelMap } from './constants';
 
 const footerStyles = css`
   flex-direction: row;
@@ -84,7 +84,7 @@ const MockDataGeneratorModal = ({
             onClick={onNext}
             data-testid="next-step-button"
           >
-            {getNextStepButtonLabel(currentStep)}
+            {StepButtonLabelMap[currentStep]}
           </Button>
         </div>
       </ModalFooter>
