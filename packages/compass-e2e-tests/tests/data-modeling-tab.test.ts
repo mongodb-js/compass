@@ -614,7 +614,7 @@ describe('Data Modeling tab', function () {
 
       // Select the first collection again and delete the relationship
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
-      expect(await relationshipItem.isDisplayed()).to.be.true;
+      await relationshipItem.waitForDisplayed();
       expect(await relationshipItem.getText()).to.include(
         'updatedRelationshipName'
       );
