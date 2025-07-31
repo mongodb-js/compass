@@ -92,10 +92,10 @@ async function selectCollectionOnTheDiagram(
   ns: string
 ) {
   // Click on the collection node to open the drawer
-  const testCollection1 = browser.$(Selectors.DataModelPreviewCollection(ns));
-  const size = await testCollection1.getSize();
+  const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
+  const size = await collectionNode.getSize();
   // Normal click doesn't work, we need to click in the middle of the collection node
-  await testCollection1.click({
+  await collectionNode.click({
     x: Math.round(size.width / 2),
     y: Math.round(size.height / 2),
   });
@@ -127,7 +127,7 @@ async function getDiagramEdges(
 ): Promise<Edge[]> {
   let edges: Edge[] = [];
   await browser.waitUntil(async () => {
-    edges = await browser.execute(async function (selector) {
+    edges = await browser.execute(function (selector) {
       const node = document.querySelector(selector);
       if (!node) {
         throw new Error(`Element with selector ${selector} not found`);
@@ -147,7 +147,7 @@ async function getDiagramEdges(
 async function moveNode(
   browser: CompassBrowser,
   selector: string,
-  coordinates: { x: number; y: number }
+  coordinates: { x: number; y: number; origin?: 'pointer' | 'viewport' }
 ) {
   const node = browser.$(selector);
 
@@ -161,9 +161,9 @@ async function moveNode(
       y: Math.round(startPosition.y + nodeSize.height / 2),
     })
     .down({ button: 0 }) // Left mouse button
-    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .move({ duration: 1000, origin: 'pointer', ...coordinates })
     .pause(1000)
-    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .move({ duration: 1000, origin: 'pointer', ...coordinates })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
@@ -535,7 +535,7 @@ describe('Data Modeling tab', function () {
       expect(await collection1Name.getValue()).to.equal(
         'test.testCollection-one'
       );
-      const addRelationshipBtn = drawer.$(
+      const addRelationshipBtn = browser.$(
         Selectors.DataModelAddRelationshipBtn
       );
       await addRelationshipBtn.waitForClickable();
@@ -583,6 +583,7 @@ describe('Data Modeling tab', function () {
       expect(await relationshipItem.getText()).to.include('testCollection-one');
 
       // Edit the relationship
+      await relationshipItem.waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
