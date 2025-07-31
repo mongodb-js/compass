@@ -1,38 +1,25 @@
 import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 
-type SelectOptionOptions = (
+type SelectOptionOptions = {
+  selectSelector: string | ChainablePromiseElement;
+} & (
   | {
-      selectSelector: string;
-      selectElement?: never;
+      optionText: string;
+      optionIndex?: never;
     }
   | {
-      selectElement: ChainablePromiseElement;
-      selectSelector?: never;
+      optionIndex: number;
+      optionText?: never;
     }
-) &
-  (
-    | {
-        optionText: string;
-        optionIndex?: never;
-      }
-    | {
-        optionIndex: number;
-        optionText?: never;
-      }
-  );
+);
 
 export async function selectOption(
   browser: CompassBrowser,
-  {
-    selectSelector,
-    selectElement,
-    optionText,
-    optionIndex,
-  }: SelectOptionOptions
+  { selectSelector, optionText, optionIndex }: SelectOptionOptions
 ): Promise<void> {
   // click the field's button
-  const selectButton = selectElement || browser.$(selectSelector);
+  const selectButton = browser.$(selectSelector);
   await selectButton.waitForDisplayed();
   await selectButton.click();
 

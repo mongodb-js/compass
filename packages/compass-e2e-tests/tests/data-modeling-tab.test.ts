@@ -551,7 +551,7 @@ describe('Data Modeling tab', function () {
 
       // Select the foreign collection
       await browser.selectOption({
-        selectElement: await browser.getInputByLabel(
+        selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
         ),
         optionText: 'testCollection-two',
@@ -592,7 +592,7 @@ describe('Data Modeling tab', function () {
       );
       await relationshipName.setValue('updatedRelationshipName');
       await browser.selectOption({
-        selectElement: await browser.getInputByLabel(
+        selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
         ),
         optionIndex: 3,
