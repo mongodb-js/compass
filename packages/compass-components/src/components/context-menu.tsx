@@ -142,12 +142,10 @@ export function useContextMenuGroups(
       // Cleanup all undefined fields across items and groups which is used
       // for conditional displaying of groups and items.
       return groups
-        .filter((groupItems) => groupItems !== undefined)
-        .map((groupItems) =>
-          groupItems.filter(
-            (item): item is ContextMenuItem => item !== undefined
-          )
-        );
+        .filter(
+          (groupItems) => groupItems !== undefined && groupItems.length > 0
+        )
+        .map((groupItems) => groupItems!.filter((item) => item !== undefined));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies
