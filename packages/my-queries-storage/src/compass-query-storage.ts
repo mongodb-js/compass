@@ -32,9 +32,11 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
       options.getResourceUrl &&
       options.authenticatedFetch
     ) {
+      const type =
+        dataType === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
       this.userData = new AtlasUserData(
         schemaValidator,
-        dataType,
+        type,
         options.orgId,
         options.projectId,
         options.getResourceUrl,
@@ -128,10 +130,11 @@ export class CompassFavoriteQueryStorage
     data: Omit<
       z.input<typeof FavoriteQuerySchema>,
       '_id' | '_lastExecuted' | '_dateModified' | '_dateSaved'
-    >
+    >,
+    _id?: string
   ): Promise<void> {
     // TODO: verify that this doesn't break anything in compass
-    const _id = new ObjectId().toHexString();
+    _id ??= new ObjectId().toHexString();
     // this creates a favorite query that we will write to system/db
     const favoriteQuery = {
       ...data,

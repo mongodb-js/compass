@@ -297,7 +297,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
       const response = await this.authenticatedFetch(
         this.getResourceUrl(
-          `userData/${this.dataType}/${this.orgId}/${this.projectId}`
+          `userData/${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
         {
           method: 'POST',
@@ -305,11 +305,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            id: id,
             data: this.serialize(content),
             createdAt: new Date(),
-            projectId: this.projectId,
           }),
+          credentials: 'include',
         }
       );
 
@@ -344,6 +343,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ),
         {
           method: 'DELETE',
+          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -381,6 +381,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ),
         {
           method: 'GET',
+          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -424,7 +425,11 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: this.serialize(newData),
+          body: JSON.stringify({
+            data: this.serialize(newData),
+            createdAt: new Date(),
+          }),
+          credentials: 'include',
         }
       );
       if (!response.ok) {
@@ -450,7 +455,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
-  async readOne(id: string): Promise<z.output<T>> {
+  async readOne(id: string): Promise<z.output<T> | undefined> {
     try {
       const getResponse = await this.authenticatedFetch(
         this.getResourceUrl(
@@ -458,6 +463,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ),
         {
           method: 'GET',
+          credentials: 'include',
         }
       );
       if (!getResponse.ok) {
@@ -480,7 +486,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           error: (error as Error).message,
         }
       );
-      return null;
     }
   }
 }

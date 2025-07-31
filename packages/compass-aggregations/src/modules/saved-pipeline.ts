@@ -77,8 +77,6 @@ export const savedPipelineAdd = (
 
 export const getSavedPipelines =
   (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
-    console.log('Get saved pipelines');
-    // debugger;
     if (!getState().savedPipeline.isLoaded) {
       dispatch(updatePipelineList());
     }
@@ -95,8 +93,6 @@ export const updatePipelineList =
     { pipelineStorage, logger: { debug }, globalAppRegistry }
   ) => {
     const state = getState();
-    console.log('Update pipeline list');
-    // debugger;
     pipelineStorage
       ?.loadAll()
       .then((pipelines: SavedPipeline[]) => {
