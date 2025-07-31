@@ -134,7 +134,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     status: { type: 'string', default: 'initial' },
     statusError: { type: 'string', default: null },
 
-    // Normalized values from collectionInfo command
+    // Normalized values from collectionInfo method
     inferred_from_privileges: 'boolean',
     readonly: 'boolean',
     clustered: 'boolean',
@@ -286,11 +286,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         ...collStats,
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
-      // If the collection is not unprovisioned `inferred_from_privileges` anymore,
-      // let's update the parent database model to reflect the change.
-      // This happens when a user tries to insert first document into a
-      // collection that doesn't exist yet or creates a new collection
-      // for an unprovisioned database.
+      // If the collection is not `inferred_from_privileges` anymore, let's
+      // update the parent database model to reflect the change.  This happens
+      // when a user tries to insert first document into a collection that
+      // doesn't exist yet or creates a new collection for an unprovisioned
+      // database.
       if (!this.inferred_from_privileges) {
         getParentByType(this, 'Database').set({
           inferred_from_privileges: false,
