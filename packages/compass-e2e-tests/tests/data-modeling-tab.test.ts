@@ -147,7 +147,11 @@ async function getDiagramEdges(
 async function moveNode(
   browser: CompassBrowser,
   selector: string,
-  coordinates: { x: number; y: number; origin?: 'pointer' | 'viewport' }
+  pointerActionMoveParams: {
+    x: number;
+    y: number;
+    origin?: 'pointer' | 'viewport';
+  }
 ) {
   const node = browser.$(selector);
 
@@ -161,9 +165,9 @@ async function moveNode(
       y: Math.round(startPosition.y + nodeSize.height / 2),
     })
     .down({ button: 0 }) // Left mouse button
-    .move({ duration: 1000, origin: 'pointer', ...coordinates })
+    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
     .pause(1000)
-    .move({ duration: 1000, origin: 'pointer', ...coordinates })
+    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
