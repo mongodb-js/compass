@@ -1,4 +1,4 @@
-export enum MockDataGeneratorSteps {
+export enum MockDataGeneratorStep {
   AI_DISCLAIMER = 1,
   SCHEMA_CONFIRMATION = 2,
   SCHEMA_EDITOR = 3,
