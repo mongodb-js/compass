@@ -1385,7 +1385,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         nameOnly,
       });
       return colls.map((coll) => ({
-        is_ghost_namespace: false,
+        inferred_from_privileges: false,
         ...coll,
       }));
     };
@@ -1407,7 +1407,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // those registered as "real" collection names
           Boolean
         )
-        .map((name) => ({ name, is_ghost_namespace: true }));
+        .map((name) => ({ name, inferred_from_privileges: true }));
     };
 
     const [listedCollections, collectionsFromPrivileges] = await Promise.all([
@@ -1425,8 +1425,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map(({ is_ghost_namespace, ...coll }) => ({
-      is_ghost_namespace,
+    ).map(({ inferred_from_privileges, ...coll }) => ({
+      inferred_from_privileges,
       ...adaptCollectionInfo({ db: databaseName, ...coll }),
     }));
 
@@ -1476,7 +1476,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         );
         return databases.map((x) => ({
           ...x,
-          is_ghost_namespace: false,
+          inferred_from_privileges: false,
         }));
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
@@ -1513,7 +1513,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // out
           Boolean
         )
-        .map((name) => ({ name, is_ghost_namespace: true }));
+        .map((name) => ({ name, inferred_from_privileges: true }));
     };
 
     const getDatabasesFromRoles = async () => {
@@ -1528,7 +1528,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // have custom privileges that we can't currently fetch.
         ['read', 'readWrite', 'dbAdmin', 'dbOwner']
       );
-      return databases.map((name) => ({ name, is_ghost_namespace: true }));
+      return databases.map((name) => ({
+        name,
+        inferred_from_privileges: true,
+      }));
     };
 
     const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
@@ -1543,11 +1546,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map(({ name, is_ghost_namespace, ...db }) => {
+    ).map(({ name, inferred_from_privileges, ...db }) => {
       return {
         _id: name,
         name,
-        is_ghost_namespace,
+        inferred_from_privileges,
         ...adaptDatabaseInfo(db),
       };
     });

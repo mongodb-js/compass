@@ -38,11 +38,11 @@ const CardTitleGroup: React.FunctionComponent = ({ children }) => {
   return <div className={cardTitleGroup}>{children}</div>;
 };
 
-const nonExistantLightStyles = css({
+const inferredFromPrivilegesLightStyles = css({
   color: palette.gray.dark1,
 });
 
-const nonExistantDarkStyles = css({
+const inferredFromPrivilegesDarkStyles = css({
   color: palette.gray.base,
 });
 
@@ -86,8 +86,8 @@ const cardName = css({
 
 const CardName: React.FunctionComponent<{
   children: string;
-  isGhostNamespace: boolean;
-}> = ({ children, isGhostNamespace }) => {
+  inferredFromPrivileges: boolean;
+}> = ({ children, inferredFromPrivileges }) => {
   const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
@@ -96,8 +96,10 @@ const CardName: React.FunctionComponent<{
         className={cx(
           cardName,
           darkMode ? cardNameDark : cardNameLight,
-          isGhostNamespace && !darkMode && nonExistantLightStyles,
-          isGhostNamespace && darkMode && nonExistantDarkStyles
+          inferredFromPrivileges &&
+            !darkMode &&
+            inferredFromPrivilegesLightStyles,
+          inferredFromPrivileges && darkMode && inferredFromPrivilegesDarkStyles
         )}
       >
         {children}
@@ -189,7 +191,7 @@ export type NamespaceItemCardProps = {
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
-  isGhostNamespace: boolean;
+  inferredFromPrivileges: boolean;
   onItemClick(id: string): void;
   onItemDeleteClick?: (id: string) => void;
 };
@@ -222,7 +224,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   onItemDeleteClick,
   badges = null,
   viewType,
-  isGhostNamespace,
+  inferredFromPrivileges,
   ...props
 }) => {
   const { readOnly, enableDbAndCollStats } = usePreferences([
@@ -239,7 +241,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return readOnly || !hasDeleteHandler || isGhostNamespace
+    return readOnly || !hasDeleteHandler || inferredFromPrivileges
       ? []
       : [
           {
@@ -248,7 +250,7 @@ export const NamespaceItemCard: React.FunctionComponent<
             icon: 'Trash',
           },
         ];
-  }, [type, readOnly, isGhostNamespace, hasDeleteHandler]);
+  }, [type, readOnly, inferredFromPrivileges, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -273,9 +275,9 @@ export const NamespaceItemCard: React.FunctionComponent<
     {
       className: cx(
         card,
-        isGhostNamespace && [
-          !darkMode && nonExistantLightStyles,
-          darkMode && nonExistantDarkStyles,
+        inferredFromPrivileges && [
+          !darkMode && inferredFromPrivilegesLightStyles,
+          darkMode && inferredFromPrivilegesDarkStyles,
           inactiveCardStyles,
         ]
       ),
@@ -303,9 +305,11 @@ export const NamespaceItemCard: React.FunctionComponent<
       {...cardProps}
     >
       <CardTitleGroup>
-        <CardName isGhostNamespace={isGhostNamespace}>{name}</CardName>
+        <CardName inferredFromPrivileges={inferredFromPrivileges}>
+          {name}
+        </CardName>
 
-        {isGhostNamespace && (
+        {inferredFromPrivileges && (
           <Tooltip
             align="bottom"
             justify="start"
@@ -340,7 +344,7 @@ export const NamespaceItemCard: React.FunctionComponent<
               <NamespaceParam
                 key={idx}
                 label={label}
-                hint={!isGhostNamespace && hint}
+                hint={!inferredFromPrivileges && hint}
                 value={value}
                 status={status}
                 viewType={viewType}

@@ -122,21 +122,21 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       const { content: WorkspaceTabContent, header: WorkspaceTabTitle } =
         plugin;
 
-      let isGhostNamespace: boolean | undefined;
+      let inferredFromPrivileges: boolean | undefined;
       if (tab.type === 'Collections') {
-        // TODO(COMPASS-9456): Move this logic and `isGhostNamespace` setting to the plugin.
+        // TODO(COMPASS-9456): Move this logic and `inferredFromPrivileges` setting to the plugin.
         const database = tab.namespace;
         const namespaceId = `${tab.connectionId}.${database}`;
-        const { isGhostNamespace: databaseDoesNotExist } =
+        const { inferredFromPrivileges: databaseDoesNotExist } =
           databaseInfo[namespaceId] ?? {};
-        isGhostNamespace = databaseDoesNotExist;
+        inferredFromPrivileges = databaseDoesNotExist;
       } else if (tab.type === 'Collection') {
-        // TODO(COMPASS-9456): Move this logic and `isGhostNamespace` setting to the plugin.
+        // TODO(COMPASS-9456): Move this logic and `inferredFromPrivileges` setting to the plugin.
         const { ns } = toNS(tab.namespace);
         const namespaceId = `${tab.connectionId}.${ns}`;
-        const { isGhostNamespace: collectionDoesNotExist } =
+        const { inferredFromPrivileges: collectionDoesNotExist } =
           collectionInfo[namespaceId] ?? {};
-        isGhostNamespace = collectionDoesNotExist;
+        inferredFromPrivileges = collectionDoesNotExist;
       }
 
       return {
@@ -156,7 +156,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <WorkspaceTabContextProvider tab={tab} sectionType="tab-title">
               <WorkspaceTabTitle
                 {...workspaceTabCoreProps}
-                {...(isGhostNamespace ? { isGhostNamespace } : {})}
+                {...(inferredFromPrivileges ? { inferredFromPrivileges } : {})}
               />
             </WorkspaceTabContextProvider>
           </ErrorBoundary>

@@ -45,13 +45,13 @@ export type Database = Pick<
   InstanceDatabase,
   '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
-  isGhostNamespace: boolean;
+  inferredFromPrivileges: boolean;
   collections: Array<
     Pick<
       InstanceDatabase['collections'][number],
       '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
     > & {
-      isGhostNamespace: boolean;
+      inferredFromPrivileges: boolean;
     }
   >;
 };

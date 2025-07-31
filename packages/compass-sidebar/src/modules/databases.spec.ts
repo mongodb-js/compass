@@ -17,12 +17,12 @@ async function createDatabases(dbs: any[] = []) {
       };
     }
   );
-  return data.map(({ is_ghost_namespace, collections, ...rest }) => ({
+  return data.map(({ inferred_from_privileges, collections, ...rest }) => ({
     ...rest,
-    isGhostNamespace: is_ghost_namespace,
-    collections: collections.map(({ is_ghost_namespace, ...coll }) => ({
+    inferredFromPrivileges: inferred_from_privileges,
+    collections: collections.map(({ inferred_from_privileges, ...coll }) => ({
       ...coll,
-      isGhostNamespace: is_ghost_namespace,
+      inferredFromPrivileges: inferred_from_privileges,
     })),
   }));
 }

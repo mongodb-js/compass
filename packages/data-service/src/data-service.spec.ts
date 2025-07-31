@@ -704,17 +704,29 @@ describe('DataService', function () {
         it('returns collections from user privileges', async function () {
           const collections = await dataService.listCollections('imdb');
           const mappedCollections = collections.map(
-            ({ _id, name, is_ghost_namespace }) => ({
+            ({ _id, name, inferred_from_privileges }) => ({
               _id,
               name,
-              is_ghost_namespace,
+              inferred_from_privileges,
             })
           );
 
           const expectedCollections = [
-            { _id: 'imdb.movies', name: 'movies', is_ghost_namespace: true },
-            { _id: 'imdb.reviews', name: 'reviews', is_ghost_namespace: true },
-            { _id: 'imdb.users', name: 'users', is_ghost_namespace: true },
+            {
+              _id: 'imdb.movies',
+              name: 'movies',
+              inferred_from_privileges: true,
+            },
+            {
+              _id: 'imdb.reviews',
+              name: 'reviews',
+              inferred_from_privileges: true,
+            },
+            {
+              _id: 'imdb.users',
+              name: 'users',
+              inferred_from_privileges: true,
+            },
           ];
           expect(mappedCollections).to.deep.include.members(
             expectedCollections
@@ -725,17 +737,29 @@ describe('DataService', function () {
           await dataService.createCollection('imdb.movies', {});
           const collections = await dataService.listCollections('imdb');
           const mappedCollections = collections.map(
-            ({ _id, name, is_ghost_namespace }) => ({
+            ({ _id, name, inferred_from_privileges }) => ({
               _id,
               name,
-              is_ghost_namespace,
+              inferred_from_privileges,
             })
           );
 
           const expectedCollections = [
-            { _id: 'imdb.movies', name: 'movies', is_ghost_namespace: false },
-            { _id: 'imdb.reviews', name: 'reviews', is_ghost_namespace: true },
-            { _id: 'imdb.users', name: 'users', is_ghost_namespace: true },
+            {
+              _id: 'imdb.movies',
+              name: 'movies',
+              inferred_from_privileges: false,
+            },
+            {
+              _id: 'imdb.reviews',
+              name: 'reviews',
+              inferred_from_privileges: true,
+            },
+            {
+              _id: 'imdb.users',
+              name: 'users',
+              inferred_from_privileges: true,
+            },
           ];
           expect(mappedCollections).to.deep.include.members(
             expectedCollections
@@ -950,10 +974,10 @@ describe('DataService', function () {
         it('returns databases from user roles and privileges', async function () {
           const databases = await dataService.listDatabases();
           const mappedDatabases = databases.map(
-            ({ _id, name, is_ghost_namespace }) => ({
+            ({ _id, name, inferred_from_privileges }) => ({
               _id,
               name,
-              is_ghost_namespace,
+              inferred_from_privileges,
             })
           );
 
@@ -962,15 +986,15 @@ describe('DataService', function () {
             {
               _id: 'sample_airbnb',
               name: 'sample_airbnb',
-              is_ghost_namespace: true,
+              inferred_from_privileges: true,
             },
             {
               _id: 'sample_wiki',
               name: 'sample_wiki',
-              is_ghost_namespace: true,
+              inferred_from_privileges: true,
             },
             // Based on privileges
-            { _id: 'imdb', name: 'imdb', is_ghost_namespace: true },
+            { _id: 'imdb', name: 'imdb', inferred_from_privileges: true },
           ];
           expect(mappedDatabases).to.deep.include.members(expectedDatabases);
         });
@@ -980,10 +1004,10 @@ describe('DataService', function () {
           await dataService.createCollection('sample_airbnb.whatever', {});
           const databases = await dataService.listDatabases();
           const mappedDatabases = databases.map(
-            ({ _id, name, is_ghost_namespace }) => ({
+            ({ _id, name, inferred_from_privileges }) => ({
               _id,
               name,
-              is_ghost_namespace,
+              inferred_from_privileges,
             })
           );
 
@@ -991,14 +1015,14 @@ describe('DataService', function () {
             {
               _id: 'sample_airbnb',
               name: 'sample_airbnb',
-              is_ghost_namespace: false,
+              inferred_from_privileges: false,
             },
             {
               _id: 'sample_wiki',
               name: 'sample_wiki',
-              is_ghost_namespace: true,
+              inferred_from_privileges: true,
             },
-            { _id: 'imdb', name: 'imdb', is_ghost_namespace: false },
+            { _id: 'imdb', name: 'imdb', inferred_from_privileges: false },
           ];
           expect(mappedDatabases).to.deep.include.members(expectedDatabases);
         });
@@ -2126,13 +2150,16 @@ describe('DataService', function () {
           },
         });
         const dbs = (await dataService.listDatabases()).map(
-          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
+          ({ name, inferred_from_privileges }) => ({
+            name,
+            inferred_from_privileges,
+          })
         );
         expect(dbs).to.deep.eq([
-          { name: 'pineapple', is_ghost_namespace: true },
-          { name: 'foo', is_ghost_namespace: false },
-          { name: 'buz', is_ghost_namespace: true },
-          { name: 'bar', is_ghost_namespace: false },
+          { name: 'pineapple', inferred_from_privileges: true },
+          { name: 'foo', inferred_from_privileges: false },
+          { name: 'buz', inferred_from_privileges: true },
+          { name: 'bar', inferred_from_privileges: false },
         ]);
       });
 
@@ -2153,9 +2180,14 @@ describe('DataService', function () {
           },
         });
         const dbs = (await dataService.listDatabases()).map(
-          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
+          ({ name, inferred_from_privileges }) => ({
+            name,
+            inferred_from_privileges,
+          })
         );
-        expect(dbs).to.deep.eq([{ name: 'foo', is_ghost_namespace: true }]);
+        expect(dbs).to.deep.eq([
+          { name: 'foo', inferred_from_privileges: true },
+        ]);
       });
     });
 
@@ -2248,13 +2280,16 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
+          ({ name, inferred_from_privileges }) => ({
+            name,
+            inferred_from_privileges,
+          })
         );
         expect(colls).to.deep.eq([
-          { name: 'bar', is_ghost_namespace: true },
-          { name: 'buz', is_ghost_namespace: false },
-          { name: 'bla', is_ghost_namespace: false },
-          { name: 'meow', is_ghost_namespace: false },
+          { name: 'bar', inferred_from_privileges: true },
+          { name: 'buz', inferred_from_privileges: false },
+          { name: 'bla', inferred_from_privileges: false },
+          { name: 'meow', inferred_from_privileges: false },
         ]);
       });
 
@@ -2277,9 +2312,14 @@ describe('DataService', function () {
           },
         });
         const colls = (await dataService.listCollections('foo')).map(
-          ({ name, is_ghost_namespace }) => ({ name, is_ghost_namespace })
+          ({ name, inferred_from_privileges }) => ({
+            name,
+            inferred_from_privileges,
+          })
         );
-        expect(colls).to.deep.eq([{ name: 'bar', is_ghost_namespace: true }]);
+        expect(colls).to.deep.eq([
+          { name: 'bar', inferred_from_privileges: true },
+        ]);
       });
     });
 

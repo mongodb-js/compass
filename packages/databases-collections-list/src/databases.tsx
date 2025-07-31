@@ -71,7 +71,7 @@ const DatabasesList: React.FunctionComponent<{
             type="database"
             viewType={viewType}
             status={db.status}
-            isGhostNamespace={db.is_ghost_namespace}
+            inferredFromPrivileges={db.inferred_from_privileges}
             data={[
               {
                 label: 'Storage size',

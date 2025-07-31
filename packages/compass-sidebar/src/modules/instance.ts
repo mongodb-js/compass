@@ -132,7 +132,7 @@ export const setupInstance =
         name: db.name,
         collectionsStatus: db.collectionsStatus,
         collectionsLength: db.collectionsLength,
-        isGhostNamespace: db.is_ghost_namespace,
+        inferredFromPrivileges: db.inferred_from_privileges,
       };
     }
 
@@ -143,7 +143,7 @@ export const setupInstance =
         type: coll.type,
         sourceName: coll.sourceName,
         pipeline: coll.pipeline,
-        isGhostNamespace: coll.is_ghost_namespace,
+        inferredFromPrivileges: coll.inferred_from_privileges,
       };
     }
 

@@ -192,7 +192,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
-              isGhostNamespace={coll.is_ghost_namespace}
+              inferredFromPrivileges={coll.inferred_from_privileges}
               data={data}
               badges={badges}
               onItemClick={onItemClick}

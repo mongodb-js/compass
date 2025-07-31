@@ -106,11 +106,11 @@ export function activateWorkspacePlugin(
 
     on(
       instance,
-      'change:databases.is_ghost_namespace',
+      'change:databases.inferred_from_privileges',
       (database: Database) => {
         const namespaceId = `${connectionId}.${database._id}`;
         const databaseInfo = {
-          isGhostNamespace: database.is_ghost_namespace,
+          inferredFromPrivileges: database.inferred_from_privileges,
         };
         store.dispatch(updateDatabaseInfo(namespaceId, databaseInfo));
       }
@@ -118,14 +118,14 @@ export function activateWorkspacePlugin(
 
     on(
       instance,
-      'change:collections.is_ghost_namespace',
+      'change:collections.inferred_from_privileges',
       (collection: Collection) => {
         const namespaceId = `${connectionId}.${collection._id}`;
         const collectionInfo = {
           isTimeSeries: collection.isTimeSeries,
           isReadonly: collection.readonly ?? collection.isView,
           sourceName: collection.sourceName,
-          isGhostNamespace: collection.is_ghost_namespace,
+          inferredFromPrivileges: collection.inferred_from_privileges,
         };
         store.dispatch(updateCollectionInfo(namespaceId, collectionInfo));
       }

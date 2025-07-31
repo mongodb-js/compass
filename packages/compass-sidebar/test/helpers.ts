@@ -18,11 +18,11 @@ export function createInstance(
     databases: dbs.map((db) => {
       return {
         _id: db._id,
-        is_ghost_namespace: false,
+        inferred_from_privileges: false,
         collections: (db.collections || []).map((coll) => {
           return {
             _id: `${db._id}.${coll}`,
-            is_ghost_namespace: false,
+            inferred_from_privileges: false,
           };
         }),
       };
