@@ -290,7 +290,6 @@ export function createInstancesStore(
     const connectedConnectionIds = Array.from(
       instancesManager.listMongoDBInstances().keys()
     );
-
     for (const connectionId of connectedConnectionIds) {
       void refreshDatabases({ connectionId });
     }

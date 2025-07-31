@@ -135,33 +135,9 @@ const InstanceModel = AmpersandModel.extend(
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
-      shouldFetchDbAndCollStats: { type: 'boolean', default: false },
-      shouldFetchNamespacesFromPrivileges: { type: 'boolean', default: true },
     },
     initialize: function ({ preferences, ...props }) {
-      // Initialize the property directly from preferences
-      this.set({
-        shouldFetchDbAndCollStats:
-          preferences.getPreferences().enableDbAndCollStats,
-        shouldFetchNamespacesFromPrivileges:
-          preferences.getPreferences().inferNamespacesFromPrivileges,
-      });
-
-      // Listen to preference changes using the preferences API
-      this._enableDbAndCollStatsUnsubscribe =
-        preferences.onPreferenceValueChanged(
-          'enableDbAndCollStats',
-          (value) => {
-            this.set({ shouldFetchDbAndCollStats: value });
-          }
-        );
-      this._inferNamespacesFromPrivilegesUnsubscribe =
-        preferences.onPreferenceValueChanged(
-          'inferNamespacesFromPrivileges',
-          (value) => {
-            this.set({ shouldFetchNamespacesFromPrivileges: value });
-          }
-        );
+      this.preferences = preferences;
 
       AmpersandModel.prototype.initialize.call(this, props);
     },
@@ -420,14 +396,15 @@ const InstanceModel = AmpersandModel.extend(
       return coll;
     },
 
+    shouldFetchDbAndCollStats() {
+      return this.preferences.getPreferences().enableDbAndCollStats;
+    },
+
+    shouldFetchNamespacesFromPrivileges() {
+      return this.preferences.getPreferences().inferNamespacesFromPrivileges;
+    },
+
     removeAllListeners() {
-      // Clean up preference listeners
-      if (this._enableDbAndCollStatsUnsubscribe) {
-        this._enableDbAndCollStatsUnsubscribe();
-      }
-      if (this._inferNamespacesFromPrivilegesUnsubscribe) {
-        this._inferNamespacesFromPrivilegesUnsubscribe();
-      }
       InstanceModel.removeAllListeners(this);
     },
 

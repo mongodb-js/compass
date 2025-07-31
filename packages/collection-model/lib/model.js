@@ -102,7 +102,7 @@ function pickCollectionInfo({
   validation,
   clustered,
   fle2,
-  is_ghost_namespace,
+  inferred_from_privileges,
 }) {
   return {
     type,
@@ -113,7 +113,7 @@ function pickCollectionInfo({
     validation,
     clustered,
     fle2,
-    is_ghost_namespace,
+    inferred_from_privileges,
   };
 }
 
@@ -135,7 +135,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     statusError: { type: 'string', default: null },
 
     // Normalized values from collectionInfo command
-    is_ghost_namespace: 'boolean',
+    inferred_from_privileges: 'boolean',
     readonly: 'boolean',
     clustered: 'boolean',
     fle2: 'boolean',
@@ -269,7 +269,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     const shouldFetchDbAndCollStats = getParentByType(
       this,
       'Instance'
-    ).shouldFetchDbAndCollStats;
+    ).shouldFetchDbAndCollStats();
 
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
@@ -286,14 +286,14 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         ...collStats,
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
-      // If the collection is not unprovisioned `is_ghost_namespace` anymore,
+      // If the collection is not unprovisioned `inferred_from_privileges` anymore,
       // let's update the parent database model to reflect the change.
       // This happens when a user tries to insert first document into a
       // collection that doesn't exist yet or creates a new collection
       // for an unprovisioned database.
-      if (!this.is_ghost_namespace) {
+      if (!this.inferred_from_privileges) {
         getParentByType(this, 'Database').set({
-          is_ghost_namespace: false,
+          inferred_from_privileges: false,
         });
       }
     } catch (err) {
@@ -388,7 +388,7 @@ const CollectionCollection = AmpersandCollection.extend(
       const shouldFetchNamespacesFromPrivileges = getParentByType(
         this,
         'Instance'
-      ).shouldFetchNamespacesFromPrivileges;
+      ).shouldFetchNamespacesFromPrivileges();
 
       if (!databaseName) {
         throw new Error(
