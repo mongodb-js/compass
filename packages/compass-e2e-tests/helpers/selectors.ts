@@ -1,3 +1,5 @@
+import { getDrawerIds } from '@mongodb-js/compass-components';
+
 export type WorkspaceTabSelectorOptions = {
   id?: string;
   connectionName?: string;
@@ -1488,4 +1490,4 @@ export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relati
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
 
 // Side drawer
-export const SideDrawer = '[data-testid="lg-drawer"]';
+export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
