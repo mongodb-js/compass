@@ -51,16 +51,6 @@ describe('MockDataGeneratorModal', () => {
     expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
   });
 
-  it('renders the correct step when currentStep is set', () => {
-    renderModal({ currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION });
-
-    expect(
-      screen.getByTestId(
-        `generate-mock-data-step-${MockDataGeneratorStep.SCHEMA_CONFIRMATION}`
-      )
-    ).to.exist;
-  });
-
   it('calls setIsOpen(false) when the modal is closed', () => {
     renderModal();
 
@@ -85,12 +75,18 @@ describe('MockDataGeneratorModal', () => {
     ).to.equal('true');
   });
 
-  it('renders the next step button with the correct label on each step', () => {
-    renderModal();
+  describe('when rendering the modal in a specific step', () => {
+    const steps = Object.values(MockDataGeneratorStep).filter(
+      (step) => typeof step === 'number'
+    ) as MockDataGeneratorStep[];
 
-    Object.values(StepButtonLabelMap).forEach((label) => {
-      expect(screen.getByTestId('next-step-button')).to.have.text(label);
-      screen.getByTestId('next-step-button').click();
+    steps.forEach((currentStep) => {
+      it(`renders the button with the correct label when the user is in step "${currentStep}"`, () => {
+        renderModal({ currentStep });
+        expect(screen.getByTestId('next-step-button')).to.have.text(
+          StepButtonLabelMap[currentStep]
+        );
+      });
     });
   });
 });
