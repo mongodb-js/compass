@@ -319,7 +319,7 @@ export const NamespaceItemCard: React.FunctionComponent<
               </div>
             }
           >
-            Your privileges grant you access to this namespace, but it does not
+            Your privileges grant you access to this namespace, but it might not
             currently exist
           </Tooltip>
         )}
