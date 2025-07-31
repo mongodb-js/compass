@@ -15,24 +15,23 @@ export function useDocumentItemContextMenu({
   openInsertDocumentDialog,
 }: UseDocumentItemContextMenuProps) {
   const { expanded: isExpanded, editing: isEditing } = doc;
+
   return useContextMenuGroups(
     () => [
-      [
-        ...(isEditable
-          ? [
-              {
-                label: isEditing ? 'Cancel editing' : 'Edit document',
-                onAction: () => {
-                  if (isEditing) {
-                    doc.finishEditing();
-                  } else {
-                    doc.startEditing();
-                  }
-                },
+      isEditable
+        ? [
+            {
+              label: isEditing ? 'Cancel editing' : 'Edit document',
+              onAction: () => {
+                if (isEditing) {
+                  doc.finishEditing();
+                } else {
+                  doc.startEditing();
+                }
               },
-            ]
-          : []),
-      ],
+            },
+          ]
+        : undefined,
       [
         {
           label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
