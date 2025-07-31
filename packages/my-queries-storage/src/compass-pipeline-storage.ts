@@ -30,7 +30,7 @@ export class CompassPipelineStorage implements PipelineStorage {
     ) {
       this.userData = new AtlasUserData(
         PipelineSchema,
-        dataType,
+        'favoriteAggregations',
         options.orgId,
         options.projectId,
         options.getResourceUrl,
