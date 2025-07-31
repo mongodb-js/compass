@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "5.30.0",
+  "version": "5.30.3",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -31,11 +31,11 @@
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-data-service": "^22.29.0",
+    "mongodb-data-service": "^22.29.3",
     "mongodb-ns": "^2.4.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.2",
+    "@mongodb-js/eslint-config-compass": "^1.4.5",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",

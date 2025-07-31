@@ -63,7 +63,7 @@ describe('DiagramEditorToolbar', function () {
     });
   });
 
-  it('renders export buttona and calls onExportClick', function () {
+  it('renders export button and calls onExportClick', function () {
     const exportSpy = sinon.spy();
     renderDiagramEditorToolbar({ onExportClick: exportSpy });
     const exportButton = screen.getByRole('button', { name: 'Export' });

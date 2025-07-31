@@ -2392,6 +2392,72 @@ describe('Document', function () {
         );
       });
     });
+
+    describe('#preserveTypes', function () {
+      it('keeps unnecessary double type', function () {
+        const oldDoc = new Document({
+          number: new Double(1),
+          different: new Double(1),
+          sameArray: [new Double(1), new Double(2)],
+          mixedArray: ['foo', new Double(1), new Int32(2), new Long(3)],
+          object: {
+            number: new Double(1),
+            different: new Double(1),
+          },
+        });
+        const newDoc = new Document({
+          number: new Double(2),
+          different: new Long(1),
+          sameArray: [new Int32(1), new Double(2.2)],
+          mixedArray: ['foo', new Double(1), new Int32(2), new Long(3)],
+          object: {
+            number: new Int32(1),
+            different: new Long(3),
+          },
+        });
+
+        newDoc.preserveTypes(oldDoc);
+
+        expect(newDoc.get('number')?.currentType).to.equal('Double');
+        expect(newDoc.get('different')?.currentType).to.equal('Int64');
+        expect(newDoc.get('object')?.get('number')?.currentType).to.equal(
+          'Double'
+        );
+        expect(newDoc.get('object')?.get('different')?.currentType).to.equal(
+          'Int64'
+        );
+      });
+
+      it('keeps unnecessary long type', function () {
+        const oldDoc = new Document({
+          number: new Long(1),
+          different: new Long(1),
+          object: {
+            number: new Long(1),
+            different: new Long(1),
+          },
+        });
+        const newDoc = new Document({
+          number: new Int32(2),
+          different: new Double(1),
+          object: {
+            number: new Int32(1),
+            different: new Double(3),
+          },
+        });
+
+        newDoc.preserveTypes(oldDoc);
+
+        expect(newDoc.get('number')?.currentType).to.equal('Int64');
+        expect(newDoc.get('different')?.currentType).to.equal('Double');
+        expect(newDoc.get('object')?.get('number')?.currentType).to.equal(
+          'Int64'
+        );
+        expect(newDoc.get('object')?.get('different')?.currentType).to.equal(
+          'Double'
+        );
+      });
+    });
   });
 
   context('when a document is expanded/collapsed', function () {

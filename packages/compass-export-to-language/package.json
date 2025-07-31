@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "9.41.0",
+  "version": "9.44.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,26 +48,26 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-collection": "^4.64.0",
-    "@mongodb-js/compass-components": "^1.43.0",
-    "@mongodb-js/compass-connections": "^1.65.0",
-    "@mongodb-js/compass-editor": "^0.45.0",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.43.0",
-    "@mongodb-js/compass-telemetry": "^1.10.4",
+    "@mongodb-js/compass-collection": "^4.67.0",
+    "@mongodb-js/compass-components": "^1.46.0",
+    "@mongodb-js/compass-connections": "^1.68.0",
+    "@mongodb-js/compass-editor": "^0.48.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.46.0",
+    "@mongodb-js/compass-telemetry": "^1.11.0",
     "@mongodb-js/shell-bson-parser": "^1.2.0",
-    "bson-transpilers": "^3.2.13",
-    "compass-preferences-model": "^2.45.0",
-    "@mongodb-js/compass-app-registry": "^9.4.15",
+    "bson-transpilers": "^3.2.16",
+    "compass-preferences-model": "^2.48.0",
+    "@mongodb-js/compass-app-registry": "^9.4.18",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
     "redux": "^4.2.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.2",
-    "@mongodb-js/mocha-config-compass": "^1.6.10",
+    "@mongodb-js/eslint-config-compass": "^1.4.5",
+    "@mongodb-js/mocha-config-compass": "^1.7.0",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
-    "@mongodb-js/testing-library-compass": "^1.3.5",
+    "@mongodb-js/testing-library-compass": "^1.3.8",
     "@mongodb-js/tsconfig-compass": "^1.2.9",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",

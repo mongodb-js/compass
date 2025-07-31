@@ -16,8 +16,9 @@ import {
 import { useDataModelSavedItems } from '../provider';
 import {
   deleteDiagram,
-  getCurrentModel,
+  selectCurrentModel,
   openDiagram,
+  openDiagramFromFile,
   renameDiagram,
 } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
@@ -27,6 +28,7 @@ import FlexibilityIcon from './icons/flexibility';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 import toNS from 'mongodb-ns';
+import { ImportDiagramButton } from './import-diagram-button';
 
 const sortBy = [
   {
@@ -49,11 +51,15 @@ const rowStyles = css({
 
 export const DiagramListContext = React.createContext<{
   onSearchDiagrams: (search: string) => void;
+  onImportDiagram: (file: File) => void;
   onCreateDiagram: () => void;
   sortControls: React.ReactElement | null;
   searchTerm: string;
 }>({
   onSearchDiagrams: () => {
+    /** */
+  },
+  onImportDiagram: () => {
     /** */
   },
   onCreateDiagram: () => {
@@ -65,6 +71,11 @@ export const DiagramListContext = React.createContext<{
 
 const subTitleStyles = css({
   maxWidth: '750px',
+});
+
+const diagramActionsStyles = css({
+  display: 'flex',
+  gap: spacing[200],
 });
 
 const featuresListStyles = css({
@@ -132,7 +143,8 @@ const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
 
 const DiagramListEmptyContent: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
-}> = ({ onCreateDiagramClick }) => {
+  onImportDiagramClick: (file: File) => void;
+}> = ({ onCreateDiagramClick, onImportDiagramClick }) => {
   return (
     <WorkspaceContainer>
       <EmptyContent
@@ -153,13 +165,16 @@ const DiagramListEmptyContent: React.FunctionComponent<{
         }
         subTitleClassName={subTitleStyles}
         callToAction={
-          <Button
-            onClick={onCreateDiagramClick}
-            variant="primary"
-            data-testid="create-diagram-button"
-          >
-            Generate diagram
-          </Button>
+          <div className={diagramActionsStyles}>
+            <ImportDiagramButton onImportDiagram={onImportDiagramClick} />
+            <Button
+              onClick={onCreateDiagramClick}
+              variant="primary"
+              data-testid="create-diagram-button"
+            >
+              Generate diagram
+            </Button>
+          </div>
         }
       ></EmptyContent>
     </WorkspaceContainer>
@@ -171,11 +186,13 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
   onDiagramRenameClick: (id: string) => void;
+  onImportDiagramClick: (file: File) => void;
 }> = ({
   onCreateDiagramClick,
   onOpenDiagramClick,
   onDiagramRenameClick,
   onDiagramDeleteClick,
+  onImportDiagramClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
   const decoratedItems = useMemo<
@@ -185,7 +202,9 @@ export const SavedDiagramsList: React.FunctionComponent<{
   >(() => {
     return items.map((item) => {
       const databases = new Set(
-        getCurrentModel(item).collections.map(({ ns }) => toNS(ns).database)
+        selectCurrentModel(item.edits).collections.map(
+          ({ ns }) => toNS(ns).database
+        )
       );
       return {
         ...item,
@@ -212,7 +231,10 @@ export const SavedDiagramsList: React.FunctionComponent<{
   }
   if (items.length === 0) {
     return (
-      <DiagramListEmptyContent onCreateDiagramClick={onCreateDiagramClick} />
+      <DiagramListEmptyContent
+        onCreateDiagramClick={onCreateDiagramClick}
+        onImportDiagramClick={onImportDiagramClick}
+      />
     );
   }
 
@@ -223,6 +245,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
         searchTerm: search,
         onCreateDiagram: onCreateDiagramClick,
         onSearchDiagrams: setSearch,
+        onImportDiagram: onImportDiagramClick,
       }}
     >
       <WorkspaceContainer>
@@ -262,4 +285,5 @@ export default connect(null, {
   onOpenDiagramClick: openDiagram,
   onDiagramDeleteClick: deleteDiagram,
   onDiagramRenameClick: renameDiagram,
+  onImportDiagramClick: openDiagramFromFile,
 })(SavedDiagramsList);

@@ -27,3 +27,25 @@ export function trackConnectionRemovedEvent(
 ): void {
   track('Connection Removed', {}, connectionInfo);
 }
+
+export function getErrorCodeCauseChain(
+  err: unknown
+): (string | number)[] | undefined {
+  const errorCodesInCauseChain: (string | number)[] = [];
+  let current = err;
+
+  while (current && typeof current === 'object') {
+    if ('code' in current && current.code) {
+      errorCodesInCauseChain.push(current.code as string | number);
+    } else if ('codeName' in current && current.codeName) {
+      errorCodesInCauseChain.push(current.codeName as string | number);
+    }
+    current = (current as { cause?: unknown }).cause;
+  }
+
+  if (errorCodesInCauseChain.length === 0) {
+    return undefined;
+  }
+
+  return errorCodesInCauseChain;
+}

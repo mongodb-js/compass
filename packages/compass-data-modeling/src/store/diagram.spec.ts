@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
   applyEdit,
-  applyInitialLayout,
   getCurrentDiagramFromState,
   getCurrentModel,
   openDiagram,
@@ -76,8 +75,16 @@ describe('Data Modeling store', function () {
         name: 'New Diagram',
         connectionId: 'connection-id',
         collections: [
-          { ns: 'collection1', schema: model.collections[0].jsonSchema },
-          { ns: 'collection2', schema: model.collections[1].jsonSchema },
+          {
+            ns: 'collection1',
+            schema: model.collections[0].jsonSchema,
+            position: { x: 0, y: 0 },
+          },
+          {
+            ns: 'collection2',
+            schema: model.collections[1].jsonSchema,
+            position: { x: 0, y: 0 },
+          },
         ],
         relations: model.relationships,
       };
@@ -98,44 +105,14 @@ describe('Data Modeling store', function () {
       expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
         jsonSchema: newDiagram.collections[0].schema,
-        displayPosition: [NaN, NaN],
+        displayPosition: [0, 0],
       });
       expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
         jsonSchema: newDiagram.collections[1].schema,
-        displayPosition: [NaN, NaN],
+        displayPosition: [0, 0],
       });
       expect(initialEdit.model.relationships).to.deep.equal(
-        newDiagram.relations
-      );
-
-      // INITIAL LAYOUT
-      const positions: Record<string, [number, number]> = {
-        [newDiagram.collections[0].ns]: [10, 10],
-        [newDiagram.collections[1].ns]: [50, 50],
-      };
-      store.dispatch(applyInitialLayout(positions));
-
-      const diagramWithLayout = getCurrentDiagramFromState(store.getState());
-      expect(diagramWithLayout.name).to.equal(newDiagram.name);
-      expect(diagramWithLayout.connectionId).to.equal(newDiagram.connectionId);
-      expect(diagramWithLayout.edits).to.have.length(1);
-      expect(diagramWithLayout.edits[0].type).to.equal('SetModel');
-      const initialEditWithPositions = diagramWithLayout.edits[0] as Extract<
-        Edit,
-        { type: 'SetModel' }
-      >;
-      expect(initialEditWithPositions.model.collections[0]).to.deep.include({
-        ns: newDiagram.collections[0].ns,
-        jsonSchema: newDiagram.collections[0].schema,
-        displayPosition: positions[newDiagram.collections[0].ns],
-      });
-      expect(initialEditWithPositions.model.collections[1]).to.deep.include({
-        ns: newDiagram.collections[1].ns,
-        jsonSchema: newDiagram.collections[1].schema,
-        displayPosition: positions[newDiagram.collections[1].ns],
-      });
-      expect(initialEditWithPositions.model.relationships).to.deep.equal(
         newDiagram.relations
       );
     });
@@ -220,7 +197,7 @@ describe('Data Modeling store', function () {
         relationship: newRelationship,
       });
 
-      const currentModel = getCurrentModel(diagram);
+      const currentModel = getCurrentModel(diagram.edits);
       expect(currentModel.relationships).to.have.length(2);
     });
 
@@ -265,7 +242,7 @@ describe('Data Modeling store', function () {
       expect(diagram.edits[0]).to.deep.equal(loadedDiagram.edits[0]);
       expect(diagram.edits[1]).to.deep.include(edit);
 
-      const currentModel = getCurrentModel(diagram);
+      const currentModel = getCurrentModel(diagram.edits);
       expect(currentModel.collections[0].displayPosition).to.deep.equal([
         100, 100,
       ]);

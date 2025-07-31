@@ -77,17 +77,53 @@ async function setupDiagram(
   await dataModelEditor.waitForDisplayed();
 }
 
-async function getDiagramNodes(browser: CompassBrowser): Promise<Node[]> {
-  const nodes = await browser.execute(function (selector) {
-    const node = document.querySelector(selector);
-    if (!node) {
-      throw new Error(`Element with selector ${selector} not found`);
-    }
-    return (
-      node as Element & { _diagram: DiagramInstance }
-    )._diagram.getNodes();
-  }, Selectors.DataModelEditor);
+async function getDiagramNodes(
+  browser: CompassBrowser,
+  expectedCount: number
+): Promise<Node[]> {
+  let nodes: Node[] = [];
+  await browser.waitUntil(async () => {
+    nodes = await browser.execute(function (selector) {
+      const node = document.querySelector(selector);
+      if (!node) {
+        throw new Error(`Element with selector ${selector} not found`);
+      }
+      return (
+        node as Element & { _diagram: DiagramInstance }
+      )._diagram.getNodes();
+    }, Selectors.DataModelEditor);
+    return nodes.length === expectedCount;
+  });
   return nodes;
+}
+
+/**
+ * Moves a node to the specified coordinates and returns its original position.
+ */
+async function moveNode(
+  browser: CompassBrowser,
+  selector: string,
+  coordinates: { x: number; y: number }
+) {
+  const node = browser.$(selector);
+
+  const startPosition = await node.getLocation();
+  const nodeSize = await node.getSize();
+
+  await browser
+    .action('pointer')
+    .move({
+      x: Math.round(startPosition.x + nodeSize.width / 2),
+      y: Math.round(startPosition.y + nodeSize.height / 2),
+    })
+    .down({ button: 0 }) // Left mouse button
+    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .pause(1000)
+    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .up({ button: 0 }) // Release the left mouse button
+    .perform();
+  await browser.waitForAnimations(node);
+  return startPosition;
 }
 
 describe('Data Modeling tab', function () {
@@ -143,7 +179,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    const nodes = await getDiagramNodes(browser);
+    const nodes = await getDiagramNodes(browser, 2);
     expect(nodes).to.have.lengthOf(2);
     expect(nodes[0].id).to.equal('test.testCollection-one');
     expect(nodes[1].id).to.equal('test.testCollection-two');
@@ -155,21 +191,11 @@ describe('Data Modeling tab', function () {
     const testCollection1 = browser.$(
       Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
-    const startPosition = await testCollection1.getLocation();
-    const nodeSize = await testCollection1.getSize();
-
-    await browser
-      .action('pointer')
-      .move({
-        x: Math.round(startPosition.x + nodeSize.width / 2),
-        y: Math.round(startPosition.y + nodeSize.height / 2),
-      })
-      .down({ button: 0 }) // Left mouse button
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .pause(1000)
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .up({ button: 0 }) // Release the left mouse button
-      .perform();
+    const startPosition = await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
+    );
     await browser.waitForAnimations(dataModelEditor);
 
     // Check that the first node has moved and mark the new position
@@ -196,7 +222,7 @@ describe('Data Modeling tab', function () {
     await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
     // TODO: Verify that the diagram has the latest changes COMPASS-9479
-    const savedNodes = await getDiagramNodes(browser);
+    const savedNodes = await getDiagramNodes(browser, 2);
     expect(savedNodes).to.have.lengthOf(2);
 
     // Open a new tab
@@ -224,24 +250,11 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    const testCollection1 = browser.$(
-      Selectors.DataModelPreviewCollection('test.testCollection-one')
+    await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
     );
-    const startPosition = await testCollection1.getLocation();
-    const nodeSize = await testCollection1.getSize();
-
-    await browser
-      .action('pointer')
-      .move({
-        x: Math.round(startPosition.x + nodeSize.width / 2),
-        y: Math.round(startPosition.y + nodeSize.height / 2),
-      })
-      .down({ button: 0 }) // Left mouse button
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .pause(1000)
-      .move({ x: 100, y: 0, duration: 1000, origin: 'pointer' })
-      .up({ button: 0 }) // Release the left mouse button
-      .perform();
     await browser.waitForAnimations(dataModelEditor);
 
     // Open the saved diagram in new tab
@@ -378,5 +391,76 @@ describe('Data Modeling tab', function () {
     // its already good enough to verify this for now and if it flakes
     // more, we may need to revisit this test.
     expect(text).to.include('String string'.toLowerCase());
+  });
+
+  it('exports the data model to compass format and imports it back', async function () {
+    const dataModelName = 'Test Export Model - Save-Open';
+    exportFileName = `${dataModelName}.mdm`;
+    await setupDiagram(browser, {
+      diagramName: dataModelName,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      databaseName: 'test',
+    });
+
+    const dataModelEditor = browser.$(Selectors.DataModelEditor);
+    await dataModelEditor.waitForDisplayed();
+
+    await moveNode(
+      browser,
+      Selectors.DataModelPreviewCollection('test.testCollection-one'),
+      { x: 100, y: 0 }
+    );
+
+    await browser.waitForAnimations(dataModelEditor);
+
+    await browser.clickVisible(Selectors.DataModelExportButton);
+    const exportModal = browser.$(Selectors.DataModelExportModal);
+    await exportModal.waitForDisplayed();
+
+    await browser.clickParent(Selectors.DataModelExportDiagramOption);
+    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+    const { fileExists, filePath } = await waitForFileDownload(
+      exportFileName,
+      browser
+    );
+    expect(fileExists).to.be.true;
+
+    const content = readFileSync(filePath, 'utf-8');
+    const model = JSON.parse(content);
+
+    expect(model.name).to.equal(dataModelName);
+
+    const edits = JSON.parse(
+      Buffer.from(model.edits, 'base64').toString('utf-8')
+    );
+    expect(edits).to.be.an('array').of.length(2);
+    expect(edits[0].type).to.equal('SetModel');
+    expect(edits[1].type).to.equal('MoveCollection');
+
+    // Open the saved diagram
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToDataModeling();
+
+    await browser.selectFile(Selectors.ImportDataModelInput, filePath);
+    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+    const savedNodes = await getDiagramNodes(browser, 2);
+
+    expect(savedNodes).to.have.lengthOf(2);
+    expect(savedNodes[0].id).to.equal('test.testCollection-one');
+    expect(savedNodes[1].id).to.equal('test.testCollection-two');
+
+    // Ensure that two diagrams exist (with correct incremental name)
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToDataModeling();
+
+    const cardsSelector = Selectors.DataModelsListItem();
+    await browser.waitForAnimations(cardsSelector);
+    const titles = await browser
+      .$$(cardsSelector)
+      .map((element) => element.getAttribute('data-diagram-name'));
+    expect(titles).to.include(dataModelName);
+    // The second one is the one we just opened
+    expect(titles).to.include(`${dataModelName} (1)`);
   });
 });

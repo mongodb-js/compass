@@ -49,3 +49,5 @@ if (!window.document.queryCommandSupported) {
 globalThis.EventTarget = window.EventTarget;
 globalThis.CustomEvent = window.CustomEvent;
 globalThis.Event = window.Event;
+globalThis.Blob = window.Blob;
+globalThis.File = window.File;

@@ -17,7 +17,6 @@ const { diffString } = require('json-diff');
 const download = require('download');
 const Target = require('../lib/target');
 const {
-  getKeyPrefix,
   downloadManifest,
   uploadAsset,
   uploadAssetNew,
@@ -76,10 +75,10 @@ function readablePlatformName(arch, platform, fileName = '') {
 
   switch (`${platform}-${arch}`) {
     case 'darwin-x64':
-      name = 'macOS 64-bit (10.15+)';
+      name = 'macOS x64 (Intel) (11+)';
       break;
     case 'darwin-arm64':
-      name = 'macOS arm64 (M1) (11.0+)';
+      name = 'macOS arm64 (Apple silicon) (11.0+)';
       break;
     case 'win32-x64':
       name = 'Windows 64-bit (10+)';
@@ -87,7 +86,7 @@ function readablePlatformName(arch, platform, fileName = '') {
     case 'linux-x64':
       name = fileName.endsWith('.rpm')
         ? 'RedHat 64-bit (8+)'
-        : 'Ubuntu 64-bit (16.04+)';
+        : 'Ubuntu 64-bit (20.04+)';
       break;
     default:
       throw new Error(
