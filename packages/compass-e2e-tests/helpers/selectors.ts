@@ -1495,3 +1495,6 @@ export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete re
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
+export const SideDrawerCloseButton = `[data-testid="${
+  getDrawerIds().closeButton
+}"]`;

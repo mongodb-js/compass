@@ -91,6 +91,14 @@ async function selectCollectionOnTheDiagram(
   browser: CompassBrowser,
   ns: string
 ) {
+  // If the drawer is open, close it
+  // Otherwise the drawer or the minimap can cover the collection node
+  const drawer = browser.$(Selectors.SideDrawer);
+  if (await drawer.isDisplayed()) {
+    await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    await drawer.waitForDisplayed({ reverse: true });
+  }
+
   // Click on the collection node to open the drawer
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
   const size = await collectionNode.getSize();
@@ -99,6 +107,13 @@ async function selectCollectionOnTheDiagram(
     x: Math.round(size.width / 2),
     y: Math.round(size.height / 2),
   });
+
+  await drawer.waitForDisplayed();
+
+  const collectionName = await browser.getInputByLabel(
+    drawer.$(Selectors.DataModelNameInput)
+  );
+  expect(await collectionName.getValue()).to.equal(ns);
 }
 
 async function getDiagramNodes(
@@ -530,15 +545,9 @@ describe('Data Modeling tab', function () {
       // Click on the collection to open the drawer
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
 
-      // Wait for the drawer to open, then click the add relationship button
+      // Click the add relationship button
       const drawer = browser.$(Selectors.SideDrawer);
-      await drawer.waitForDisplayed();
-      const collection1Name = await browser.getInputByLabel(
-        drawer.$(Selectors.DataModelNameInput)
-      );
-      expect(await collection1Name.getValue()).to.equal(
-        'test.testCollection-one'
-      );
+
       const addRelationshipBtn = browser.$(
         Selectors.DataModelAddRelationshipBtn
       );
@@ -572,20 +581,8 @@ describe('Data Modeling tab', function () {
       });
       const relationshipId = edges[0].id;
 
-      // Zooming out so that the collections are more accessible
-      // (they can be covered by the drawer or the minimap)
-      await browser.clickVisible(Selectors.DataModelZoomOutButton);
-      await browser.clickVisible(Selectors.DataModelZoomOutButton);
-      await browser.clickVisible(Selectors.DataModelZoomOutButton);
-
       // Select the other collection and see that the new relationship is listed
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
-      const collection2Name = await browser.getInputByLabel(
-        drawer.$(Selectors.DataModelNameInput)
-      );
-      expect(await collection2Name.getValue()).to.equal(
-        'test.testCollection-two'
-      );
       const relationshipItem = drawer.$(
         Selectors.DataModelCollectionRelationshipItem(relationshipId)
       );
