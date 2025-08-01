@@ -59,7 +59,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
-    "electron": "^37.2.4",
+    "electron": "^37.2.5",
     "electron-mocha": "^12.2.0",
     "enzyme": "^3.11.0",
     "mocha": "^10.2.0",

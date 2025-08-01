@@ -55,7 +55,7 @@
     "@mongodb-js/tsconfig-compass": "^1.2.9",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^37.2.4",
+    "electron": "^37.2.5",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
