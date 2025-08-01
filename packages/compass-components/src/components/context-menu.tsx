@@ -117,22 +117,41 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
   );
 }
 
+/** Registers context menu items - items that are `undefined` will get filtered. */
 export function useContextMenuItems(
-  getItems: () => ContextMenuItem[],
+  getItems: () => (ContextMenuItem | undefined)[],
   dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoizedItems = useMemo(getItems, dependencies);
+  const memoizedItems = useMemo(
+    () =>
+      getItems().filter((item): item is ContextMenuItem => item !== undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dependencies
+  );
   const contextMenu = useContextMenu();
   return contextMenu.registerItems(memoizedItems);
 }
 
+/** Registers context menu groups - groups and items that are `undefined` will get filtered. */
 export function useContextMenuGroups(
-  getGroups: () => ContextMenuItemGroup[],
+  getGroups: () => ((ContextMenuItem | undefined)[] | undefined)[],
   dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoizedGroups = useMemo(getGroups, dependencies);
+  const memoizedGroups: ContextMenuItem[][] = useMemo(
+    () => {
+      const groups = getGroups();
+      // Cleanup all undefined fields across items and groups which is used
+      // for conditional displaying of groups and items.
+      return groups
+        .filter(
+          (groupItems): groupItems is ContextMenuItem[] =>
+            groupItems !== undefined && groupItems.length > 0
+        )
+        .map((groupItems) => groupItems.filter((item) => item !== undefined));
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dependencies
+  );
   const contextMenu = useContextMenu();
   return contextMenu.registerItems(...memoizedGroups);
 }

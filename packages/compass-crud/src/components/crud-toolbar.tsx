@@ -217,26 +217,22 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           onCollapseAllClicked();
         },
       },
-      ...(isImportExportEnabled
-        ? [
-            {
-              label: 'Import JSON or CSV file',
-              onAction: () => {
-                insertDataHandler('import-file');
-              },
+      isImportExportEnabled
+        ? {
+            label: 'Import JSON or CSV file',
+            onAction: () => {
+              insertDataHandler('import-file');
             },
-          ]
-        : []),
-      ...(!readonly
-        ? [
-            {
-              label: 'Insert document...',
-              onAction: () => {
-                insertDataHandler('insert-document');
-              },
+          }
+        : undefined,
+      !readonly
+        ? {
+            label: 'Insert document...',
+            onAction: () => {
+              insertDataHandler('insert-document');
             },
-          ]
-        : []),
+          }
+        : undefined,
       ...(isImportExportEnabled
         ? [
             {
