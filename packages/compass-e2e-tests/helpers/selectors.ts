@@ -1444,6 +1444,8 @@ export const CreateDataModelCollectionCheckbox = (
 ): string =>
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
+export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
   `${DataModelPreview} [data-nodeid="${collectionId}"]`;
@@ -1484,6 +1486,8 @@ export const DataModelRelationshipForeignFieldSelect =
   '//label[text()="Foreign field"]';
 export const DataModelRelationshipForeignCardinalitySelect =
   '//label[text()="Foreign cardinality"]';
+export const DataModelRelationshipCardinalityOption = (value: string) =>
+  `[role="option"][value="${value}"]`;
 export const DataModelCollectionRelationshipItem = (relationshipId: string) =>
   `li[data-relationship-id="${relationshipId}"]`;
 export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relationship"]`;

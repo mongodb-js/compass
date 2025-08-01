@@ -572,6 +572,12 @@ describe('Data Modeling tab', function () {
       });
       const relationshipId = edges[0].id;
 
+      // Zooming out so that the collections are more accessible
+      // (they can be covered by the drawer or the minimap)
+      await browser.clickVisible(Selectors.DataModelZoomOutButton);
+      await browser.clickVisible(Selectors.DataModelZoomOutButton);
+      await browser.clickVisible(Selectors.DataModelZoomOutButton);
+
       // Select the other collection and see that the new relationship is listed
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
       const collection2Name = await browser.getInputByLabel(
@@ -599,7 +605,7 @@ describe('Data Modeling tab', function () {
         selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
         ),
-        optionSelector: `[role="option"][value="100"]`,
+        optionSelector: Selectors.DataModelRelationshipCardinalityOption('100'),
       });
 
       // See the updated relationship on the diagram
