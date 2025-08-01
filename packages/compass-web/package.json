@@ -111,7 +111,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "dns-query": "^0.11.2",
-    "electron": "^37.2.4",
+    "electron": "^37.2.5",
     "events": "^3.3.0",
     "express": "^4.21.1",
     "express-http-proxy": "^2.0.0",
