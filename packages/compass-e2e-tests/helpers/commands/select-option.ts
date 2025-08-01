@@ -6,17 +6,17 @@ type SelectOptionOptions = {
 } & (
   | {
       optionText: string;
-      optionIndex?: never;
+      optionSelector?: never;
     }
   | {
-      optionIndex: number;
+      optionSelector: string;
       optionText?: never;
     }
 );
 
 export async function selectOption(
   browser: CompassBrowser,
-  { selectSelector, optionText, optionIndex }: SelectOptionOptions
+  { selectSelector, optionText, optionSelector }: SelectOptionOptions
 ): Promise<void> {
   // click the field's button
   const selectButton = browser.$(selectSelector);
@@ -37,11 +37,11 @@ export async function selectOption(
   await selectList.waitForDisplayed();
 
   // click the option
-  const option = optionText
-    ? selectList.$(`span=${optionText}`)
-    : selectList.$(`:nth-child(${optionIndex})`);
-  await option.scrollIntoView();
-  await option.click();
+  const option =
+    optionText !== undefined
+      ? selectList.$(`span=${optionText}`)
+      : selectList.$(optionSelector);
+  await browser.clickVisible(option);
 
   // wait for the list to go away again
   await selectList.waitForDisplayed({ reverse: true });

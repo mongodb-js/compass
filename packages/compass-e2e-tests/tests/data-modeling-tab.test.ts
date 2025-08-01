@@ -599,7 +599,7 @@ describe('Data Modeling tab', function () {
         selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
         ),
-        optionIndex: 3,
+        optionSelector: `[role="option"][value="100"]`,
       });
 
       // See the updated relationship on the diagram
