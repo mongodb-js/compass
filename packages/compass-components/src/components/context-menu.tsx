@@ -123,7 +123,8 @@ export function useContextMenuItems(
   dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
   const memoizedItems = useMemo(
-    () => getItems().filter((item) => item !== undefined),
+    () =>
+      getItems().filter((item): item is ContextMenuItem => item !== undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies
   );
@@ -143,9 +144,10 @@ export function useContextMenuGroups(
       // for conditional displaying of groups and items.
       return groups
         .filter(
-          (groupItems) => groupItems !== undefined && groupItems.length > 0
+          (groupItems): groupItems is ContextMenuItem[] =>
+            groupItems !== undefined && groupItems.length > 0
         )
-        .map((groupItems) => groupItems!.filter((item) => item !== undefined));
+        .map((groupItems) => groupItems.filter((item) => item !== undefined));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies
