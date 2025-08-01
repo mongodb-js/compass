@@ -498,10 +498,10 @@ export async function setConnectFormState(
   }
 
   if (state.connectionColor) {
-    await browser.selectOption(
-      Selectors.ConnectionFormConnectionColor,
-      colorValueToName(state.connectionColor)
-    );
+    await browser.selectOption({
+      selectSelector: Selectors.ConnectionFormConnectionColor,
+      optionText: colorValueToName(state.connectionColor),
+    });
   }
 
   if (state.connectionFavorite) {

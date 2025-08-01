@@ -92,6 +92,8 @@ import {
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
 
+export { getLgIds as getDrawerIds } from './drawer';
+
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
   size,

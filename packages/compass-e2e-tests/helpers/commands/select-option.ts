@@ -1,14 +1,25 @@
+import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
+
+type SelectOptionOptions = {
+  selectSelector: string | ChainablePromiseElement;
+} & (
+  | {
+      optionText: string;
+      optionSelector?: never;
+    }
+  | {
+      optionSelector: string;
+      optionText?: never;
+    }
+);
 
 export async function selectOption(
   browser: CompassBrowser,
-  // selector must match an element (like a div) that contains the leafygreen
-  // select we want to operate on
-  selector: string,
-  optionText: string
+  { selectSelector, optionText, optionSelector }: SelectOptionOptions
 ): Promise<void> {
   // click the field's button
-  const selectButton = browser.$(`${selector}`);
+  const selectButton = browser.$(selectSelector);
   await selectButton.waitForDisplayed();
   await selectButton.click();
 
@@ -26,9 +37,11 @@ export async function selectOption(
   await selectList.waitForDisplayed();
 
   // click the option
-  const optionSpan = selectList.$(`span=${optionText}`);
-  await optionSpan.scrollIntoView();
-  await optionSpan.click();
+  const option =
+    optionText !== undefined
+      ? selectList.$(`span=${optionText}`)
+      : selectList.$(optionSelector);
+  await browser.clickVisible(option);
 
   // wait for the list to go away again
   await selectList.waitForDisplayed({ reverse: true });
