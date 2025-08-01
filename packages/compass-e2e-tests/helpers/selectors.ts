@@ -1448,7 +1448,7 @@ export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Ico
 export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
-  `${DataModelPreview} [data-nodeid="${collectionId}"]`;
+  `${DataModelPreview} [aria-roleDescription="node"][data-id="${collectionId}"]`;
 export const DataModelPreviewRelationship = (relationshipId: string) =>
   `${DataModelPreview} [aria-roleDescription="edge"][data-id="${relationshipId}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;

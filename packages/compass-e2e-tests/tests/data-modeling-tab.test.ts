@@ -101,12 +101,9 @@ async function selectCollectionOnTheDiagram(
 
   // Click on the collection node to open the drawer
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
-  const size = await collectionNode.getSize();
-  // Normal click doesn't work, we need to click in the middle of the collection node
-  await collectionNode.click({
-    x: Math.round(size.width / 2),
-    y: Math.round(size.height / 2),
-  });
+  await collectionNode.waitForClickable();
+
+  await collectionNode.click();
 
   await drawer.waitForDisplayed();
 
