@@ -281,7 +281,9 @@ export class AtlasAiService {
     // the user is signed into Atlas and opted in.
 
     if (this.apiURLPreset === 'cloud') {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+      return getStore().dispatch(
+        optIntoGenAIWithModalPrompt({ signal, isCloudOptIn: true })
+      );
     }
     return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
   }
