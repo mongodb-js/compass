@@ -299,8 +299,10 @@ describe('Data Modeling store', function () {
 
   describe('selectFieldsForCurrentModel', function () {
     it('should select fields from a flat schema', function () {
-      const edits: Edit[] = [
+      const edits: MongoDBDataModelDescription['edits'] = [
         {
+          id: 'first-edit',
+          timestamp: new Date().toISOString(),
           type: 'SetModel',
           model: {
             collections: [
@@ -331,8 +333,10 @@ describe('Data Modeling store', function () {
     });
 
     it('should select fields from a nested schema', function () {
-      const edits: Edit[] = [
+      const edits: MongoDBDataModelDescription['edits'] = [
         {
+          id: 'first-edit',
+          timestamp: new Date().toISOString(),
           type: 'SetModel',
           model: {
             collections: [
