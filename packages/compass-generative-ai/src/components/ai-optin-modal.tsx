@@ -46,17 +46,15 @@ const disableOptInButtonStyles = css({
 
 const getButtonText = ({
   isOptInInProgress,
-  isCloudOptIn,
   darkMode,
 }: {
   isOptInInProgress: boolean;
-  isCloudOptIn: boolean;
   darkMode: boolean | undefined;
 }) => {
   return (
     <>
       Opt-in AI features
-      {isOptInInProgress && isCloudOptIn && (
+      {isOptInInProgress && (
         <>
           &nbsp;
           <SpinLoader darkMode={darkMode}></SpinLoader>
@@ -88,7 +86,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   }, [isOptInModalVisible, track]);
 
   const onConfirmClick = () => {
-    if ((isOptInInProgress && isCloudOptIn) || !isProjectAIEnabled) {
+    if (isOptInInProgress || !isProjectAIEnabled) {
       return;
     }
     onOptInClick();
@@ -109,7 +107,6 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       // @ts-expect-error - buttonText expects a string but supports ReactNode as well.
       buttonText={getButtonText({
         isOptInInProgress,
-        isCloudOptIn,
         darkMode,
       })}
       linkText="Not now"
