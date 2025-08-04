@@ -63,8 +63,10 @@ export const getSelectedFields = (
     selection[relationship[0].ns] = [relationship[0].fields];
   }
   if (relationship?.[1].ns && relationship?.[1].fields) {
-    selection[relationship[1].ns] = selection[relationship[1].ns] || [];
-    selection[relationship[1].ns]?.push(relationship[1].fields);
+    if (!selection[relationship[1].ns]) {
+      selection[relationship[1].ns] = [];
+    }
+    selection[relationship[1].ns]!.push(relationship[1].fields);
   }
   return selection;
 };
