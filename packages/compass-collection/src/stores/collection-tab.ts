@@ -12,6 +12,10 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import {
+  isAIFeatureEnabled,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 
 export type CollectionTabOptions = {
   /**
@@ -37,6 +41,7 @@ export type CollectionTabServices = {
   experimentationServices: ReturnType<typeof experimentationServiceLocator>;
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
+  preferences: PreferencesAccess;
 };
 
 export function activatePlugin(
@@ -55,6 +60,7 @@ export function activatePlugin(
     experimentationServices,
     connectionInfoRef,
     logger,
+    preferences,
   } = services;
 
   if (!collectionModel) {
@@ -101,10 +107,13 @@ export function activatePlugin(
     store.dispatch(collectionMetadataFetched(metadata));
 
     // Assign experiment for Mock Data Generator (Atlas-only)
+    // Only assign when experimentationServices.assignExperiment is initialized
+    // and the org-level setting for AI features is enabled
     if (
       experimentationServices &&
       experimentationServices.assignExperiment &&
-      connectionInfoRef.current?.atlasMetadata?.clusterName // Ensures we only assign in Atlas
+      connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
+      isAIFeatureEnabled(preferences.getPreferences()) // org-level AI features setting
     ) {
       void experimentationServices
         .assignExperiment('mock-data-generator', {

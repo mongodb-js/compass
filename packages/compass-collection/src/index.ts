@@ -13,6 +13,7 @@ import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 import {
   CollectionWorkspaceTitle,
   CollectionPluginTitleComponent,
@@ -35,6 +36,7 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
       experimentationServices: experimentationServiceLocator,
       connectionInfoRef: connectionInfoRefLocator,
       logger: createLoggerLocator('COMPASS-COLLECTION'),
+      preferences: preferencesLocator,
     }
   ),
   content: CollectionTab,
