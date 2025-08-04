@@ -1,3 +1,5 @@
+import { getDrawerIds } from '@mongodb-js/compass-components';
+
 export type WorkspaceTabSelectorOptions = {
   id?: string;
   connectionName?: string;
@@ -1444,9 +1446,13 @@ export const CreateDataModelCollectionCheckbox = (
 ): string =>
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
+export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
-  `${DataModelPreview} [data-nodeid="${collectionId}"]`;
+  `${DataModelPreview} [aria-roleDescription="node"][data-id="${collectionId}"]`;
+export const DataModelPreviewRelationship = (relationshipId: string) =>
+  `${DataModelPreview} [aria-roleDescription="edge"][data-id="${relationshipId}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
@@ -1468,3 +1474,29 @@ export const DataModelsListItem = (diagramName?: string) => {
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
+export const DataModelAddRelationshipBtn = 'aria/Add relationship';
+export const DataModelNameInput = '//label[text()="Name"]';
+export const DataModelRelationshipLocalCollectionSelect =
+  '//label[text()="Local collection"]';
+export const DataModelRelationshipLocalFieldSelect =
+  '//label[text()="Local field"]';
+export const DataModelRelationshipLocalCardinalitySelect =
+  '//label[text()="Local cardinality"]';
+export const DataModelRelationshipForeignCollectionSelect =
+  '//label[text()="Foreign collection"]';
+export const DataModelRelationshipForeignFieldSelect =
+  '//label[text()="Foreign field"]';
+export const DataModelRelationshipForeignCardinalitySelect =
+  '//label[text()="Foreign cardinality"]';
+export const DataModelRelationshipCardinalityOption = (value: string) =>
+  `[role="option"][value="${value}"]`;
+export const DataModelCollectionRelationshipItem = (relationshipId: string) =>
+  `li[data-relationship-id="${relationshipId}"]`;
+export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relationship"]`;
+export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
+
+// Side drawer
+export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
+export const SideDrawerCloseButton = `[data-testid="${
+  getDrawerIds().closeButton
+}"]`;
