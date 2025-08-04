@@ -390,6 +390,24 @@ describe('Data Modeling store', function () {
                         },
                       ],
                     },
+                    // Mixed array with objects
+                    prop5: {
+                      bsonType: 'array',
+                      items: [
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop5A: { bsonType: 'string' },
+                          },
+                        },
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop5B: { bsonType: 'number' },
+                          },
+                        },
+                      ],
+                    },
                   },
                 },
               },
@@ -419,6 +437,9 @@ describe('Data Modeling store', function () {
       expect(selectedFields.collection1).to.deep.include(['prop4']);
       expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4A']);
       expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4B']);
+      expect(selectedFields.collection1).to.deep.include(['prop5']);
+      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5A']);
+      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5B']);
     });
   });
 });
