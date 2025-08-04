@@ -4,7 +4,6 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
-import { cancelAtlasLoginAttempt } from './atlas-login';
 
 export type SettingsTabId =
   | 'general'
@@ -260,7 +259,6 @@ export const closeModal = (): SettingsThunkAction<
   CloseSettingsModalAction
 > => {
   return (dispatch) => {
-    dispatch(cancelAtlasLoginAttempt());
     dispatch({ type: ActionTypes.CloseSettingsModal });
   };
 };
