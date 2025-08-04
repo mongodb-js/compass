@@ -8,10 +8,10 @@ import { StepButtonLabelMap } from './constants';
 
 describe('MockDataGeneratorModal', () => {
   const sandbox = Sinon.createSandbox();
-  let setIsOpen: Sinon.SinonSpy;
+  let onOpenChange: Sinon.SinonSpy;
 
   beforeEach(() => {
-    setIsOpen = sandbox.spy();
+    onOpenChange = sandbox.spy();
   });
 
   afterEach(() => {
@@ -23,15 +23,15 @@ describe('MockDataGeneratorModal', () => {
     currentStep = MockDataGeneratorStep.AI_DISCLAIMER,
   } = {}) {
     function MockDataGeneratorModalWrapper() {
-      const [currentStepStateMock, setCurrentStepStateMock] =
+      const [currentStepStateMock, onCurrentStepChangeStateMock] =
         React.useState<MockDataGeneratorStep>(currentStep);
       return (
         <MockDataGeneratorModal
           isOpen={isOpen}
-          setIsOpen={setIsOpen}
+          onOpenChange={onOpenChange}
           currentStep={currentStepStateMock}
-          setCurrentStep={(step) => {
-            setCurrentStepStateMock(step);
+          onCurrentStepChange={(step) => {
+            onCurrentStepChangeStateMock(step);
           }}
         />
       );
@@ -51,20 +51,20 @@ describe('MockDataGeneratorModal', () => {
     expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
   });
 
-  it('calls setIsOpen(false) when the modal is closed', () => {
+  it('calls onOpenChange(false) when the modal is closed', () => {
     renderModal();
 
     screen.getByLabelText('Close modal').click();
 
-    expect(setIsOpen.calledOnceWith(false)).to.be.true;
+    expect(onOpenChange.calledOnceWith(false)).to.be.true;
   });
 
-  it('calls setIsOpen(false) when the cancel button is clicked', () => {
+  it('calls onOpenChange(false) when the cancel button is clicked', () => {
     renderModal();
 
     screen.getByText('Cancel').click();
 
-    expect(setIsOpen.calledOnceWith(false)).to.be.true;
+    expect(onOpenChange.calledOnceWith(false)).to.be.true;
   });
 
   it('disables the Back button on the first step', () => {
@@ -76,9 +76,9 @@ describe('MockDataGeneratorModal', () => {
   });
 
   describe('when rendering the modal in a specific step', () => {
-    const steps = Object.values(MockDataGeneratorStep).filter(
-      (step) => typeof step === 'number'
-    ) as MockDataGeneratorStep[];
+    const steps = Object.keys(
+      StepButtonLabelMap
+    ) as unknown as MockDataGeneratorStep[];
 
     steps.forEach((currentStep) => {
       it(`renders the button with the correct label when the user is in step "${currentStep}"`, () => {

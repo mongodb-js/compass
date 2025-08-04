@@ -1,6 +1,11 @@
 import React from 'react';
 
-import { css, ModalBody, ModalHeader } from '@mongodb-js/compass-components';
+import {
+  css,
+  ModalBody,
+  ModalHeader,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import {
   Button,
@@ -18,51 +23,51 @@ const footerStyles = css`
 
 const rightButtonsStyles = css`
   display: flex;
-  gap: 8px;
+  gap: ${spacing[200]}px;
   flex-direction: row;
 `;
 
 interface Props {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  onOpenChange: (isOpen: boolean) => void;
   currentStep: MockDataGeneratorStep;
-  setCurrentStep: (step: MockDataGeneratorStep) => void;
+  onCurrentStepChange: (step: MockDataGeneratorStep) => void;
 }
 
 const MockDataGeneratorModal = ({
   isOpen,
-  setIsOpen,
+  onOpenChange,
   currentStep,
-  setCurrentStep,
+  onCurrentStepChange,
 }: Props) => {
   const resetState = () => {
-    setCurrentStep(MockDataGeneratorStep.AI_DISCLAIMER);
+    onCurrentStepChange(MockDataGeneratorStep.AI_DISCLAIMER);
   };
 
   const onNext = () => {
     if (currentStep < MockDataGeneratorStep.GENERATE_DATA) {
-      setCurrentStep(currentStep + 1);
+      onCurrentStepChange(currentStep + 1);
     } else {
-      setIsOpen(false);
+      onOpenChange(false);
       resetState();
     }
   };
 
   const onBack = () => {
     if (currentStep > MockDataGeneratorStep.AI_DISCLAIMER) {
-      setCurrentStep(currentStep - 1);
+      onCurrentStepChange(currentStep - 1);
     }
   };
 
   const onCancel = () => {
-    setIsOpen(false);
+    onOpenChange(false);
     resetState();
   };
 
   return (
     <Modal
       open={isOpen}
-      setOpen={(open) => setIsOpen(open)}
+      setOpen={(open) => onOpenChange(open)}
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
