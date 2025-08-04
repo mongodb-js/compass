@@ -10,6 +10,7 @@ import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetr
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { TestName } from '../../../compass-telemetry/src/growth-experiments';
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -143,9 +144,9 @@ describe('Collection Tab Content store', function () {
 
       await waitFor(() => {
         expect(assignExperiment).to.have.been.calledOnceWith(
-          'mock-data-generator',
+          TestName.mockDataGenerator,
           {
-            team: 'data-explorer',
+            team: 'Atlas Growth',
           }
         );
       });

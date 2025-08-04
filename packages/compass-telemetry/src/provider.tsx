@@ -53,7 +53,7 @@ export function useTelemetry(): TrackFunction {
 export const experimentationServiceLocator = createServiceLocator(
   function useExperimentationServices(): {
     assignExperiment: (
-      experimentName: string,
+      experimentName: TestName,
       options?: types.AssignOptions<string>
     ) => Promise<types.AsyncStatus | null>;
   } {

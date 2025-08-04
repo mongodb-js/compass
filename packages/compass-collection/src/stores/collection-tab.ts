@@ -16,6 +16,7 @@ import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
+import { TestName } from '../../../compass-telemetry/src/growth-experiments';
 
 export type CollectionTabOptions = {
   /**
@@ -116,14 +117,14 @@ export function activatePlugin(
       isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {
       void experimentationServices
-        .assignExperiment('mock-data-generator', {
+        .assignExperiment(TestName.mockDataGenerator, {
           team: 'Atlas Growth',
         })
         .catch((error) => {
           logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: 'MOCK_DATA_GENERATOR',
+            experiment: TestName.mockDataGenerator,
             namespace: namespace,
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
           });
         });
     }
