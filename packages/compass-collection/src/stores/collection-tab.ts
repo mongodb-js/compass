@@ -106,22 +106,22 @@ export function activatePlugin(
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
 
-    // Assign experiment for Mock Data Generator (Atlas-only)
-    // Only assign when experimentationServices.assignExperiment is initialized
+    // Assign experiment for Mock Data Generator:
+    // Only assign when experimentationServices.assignExperiment is initialized,
+    // we're connected to Atlas,
     // and the org-level setting for AI features is enabled
     if (
-      experimentationServices &&
-      experimentationServices.assignExperiment &&
+      experimentationServices?.assignExperiment && // Ensures experimentation services are available
       connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
-      isAIFeatureEnabled(preferences.getPreferences()) // org-level AI features setting
+      isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {
       void experimentationServices
         .assignExperiment('mock-data-generator', {
-          team: 'data-explorer',
+          team: 'Atlas Growth',
         })
         .catch((error) => {
           logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: 'mock-data-generator',
+            experiment: 'MOCK_DATA_GENERATOR',
             namespace: namespace,
             error: error.message,
           });
