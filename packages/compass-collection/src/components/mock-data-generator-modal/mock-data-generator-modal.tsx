@@ -40,16 +40,11 @@ const MockDataGeneratorModal = ({
   currentStep,
   onCurrentStepChange,
 }: Props) => {
-  const resetState = () => {
-    onCurrentStepChange(MockDataGeneratorStep.AI_DISCLAIMER);
-  };
-
   const onNext = () => {
     if (currentStep < MockDataGeneratorStep.GENERATE_DATA) {
       onCurrentStepChange(currentStep + 1);
     } else {
       onOpenChange(false);
-      resetState();
     }
   };
 
@@ -61,7 +56,6 @@ const MockDataGeneratorModal = ({
 
   const onCancel = () => {
     onOpenChange(false);
-    resetState();
   };
 
   return (
