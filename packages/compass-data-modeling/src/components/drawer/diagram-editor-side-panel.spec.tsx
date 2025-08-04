@@ -7,7 +7,7 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { DataModelingWorkspaceTab } from '../index';
+import { DataModelingWorkspaceTab } from '../../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
   getCurrentDiagramFromState,
@@ -15,12 +15,12 @@ import {
   selectCollection,
   selectCurrentModel,
   selectRelationship,
-} from '../store/diagram';
-import dataModel from '../../test/fixtures/data-model-with-relationships.json';
+} from '../../store/diagram';
+import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
   MongoDBDataModelDescription,
   Relationship,
-} from '../services/data-model-storage';
+} from '../../services/data-model-storage';
 import { DrawerAnchor } from '@mongodb-js/compass-components';
 
 async function comboboxSelectItem(
@@ -74,7 +74,9 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
     await waitFor(() => {
-      expect(screen.getByText('flights.airlines')).to.be.visible;
+      const nameInput = screen.getByLabelText('Name');
+      expect(nameInput).to.be.visible;
+      expect(nameInput).to.have.value('flights.airlines');
     });
   });
 
@@ -129,14 +131,15 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
     await waitFor(() => {
-      expect(screen.getByText('flights.airlines')).to.be.visible;
+      expect(screen.getByLabelText('Name')).to.have.value('flights.airlines');
     });
 
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
     );
-    expect(screen.getByText('flights.airports_coordinates_for_schema')).to.be
-      .visible;
+    expect(screen.getByLabelText('Name')).to.have.value(
+      'flights.airports_coordinates_for_schema'
+    );
 
     result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
@@ -157,7 +160,7 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
 
     result.plugin.store.dispatch(selectCollection('flights.planes'));
-    expect(screen.getByText('flights.planes')).to.be.visible;
+    expect(screen.getByLabelText('Name')).to.have.value('flights.planes');
   });
 
   it('should open and edit relationship starting from collection', async function () {
@@ -165,15 +168,16 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
     await waitFor(() => {
-      expect(screen.getByText('flights.countries')).to.be.visible;
+      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
     });
 
     // Open relationshipt editing form
-    const relationshipCard = document.querySelector<HTMLElement>(
-      '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
-    );
+    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    expect(relationshipItem).to.be.visible;
     userEvent.click(
-      within(relationshipCard!).getByRole('button', { name: 'Edit' })
+      within(relationshipItem!).getByRole('button', {
+        name: 'Edit relationship',
+      })
     );
     expect(screen.getByLabelText('Local field')).to.be.visible;
 
@@ -206,5 +210,29 @@ describe('DiagramEditorSidePanel', function () {
           cardinality: 100,
         },
       ]);
+  });
+
+  it('should delete a relationship from collection', async function () {
+    const result = renderDrawer();
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
+    });
+
+    // Find the relationhip item
+    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    expect(relationshipItem).to.be.visible;
+
+    // Delete relationship
+    userEvent.click(
+      within(relationshipItem!).getByRole('button', {
+        name: 'Delete relationship',
+      })
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Airport Country')).not.to.exist;
+    });
   });
 });

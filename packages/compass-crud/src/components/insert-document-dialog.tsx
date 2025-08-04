@@ -194,6 +194,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         setInvalidElements((invalidElements) =>
           without(invalidElements, el.uuid)
         );
+      } else {
+        setInvalidElements([]);
       }
     },
     [hasErrors, setInvalidElements]
