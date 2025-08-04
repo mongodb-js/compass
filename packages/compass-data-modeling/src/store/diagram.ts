@@ -610,6 +610,19 @@ function extractFields(
   parentKey?: string[],
   fields: string[][] = []
 ) {
+  if ('anyOf' in parentSchema && parentSchema.anyOf) {
+    for (const schema of parentSchema.anyOf) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
+  if ('items' in parentSchema && parentSchema.items) {
+    const items = Array.isArray(parentSchema.items)
+      ? parentSchema.items
+      : [parentSchema.items];
+    for (const schema of items) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
   if ('properties' in parentSchema && parentSchema.properties) {
     for (const [key, value] of Object.entries(parentSchema.properties)) {
       const fullKey = parentKey ? [...parentKey, key] : [key];
