@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';
 import { TestName } from './growth-experiments';
+import { ExperimentationContext } from './experimentation-provider';
+import type { types } from '@mongodb-js/mdb-experiment-js';
 
 const noop = () => {
   // noop
@@ -46,6 +48,20 @@ export function useTelemetry(): TrackFunction {
   }
   return track;
 }
+
+// Service locator for experimentation services (non-component access)
+export const experimentationServiceLocator = createServiceLocator(
+  function useExperimentationServices(): {
+    assignExperiment: (
+      experimentName: string,
+      options?: types.AssignOptions<string>
+    ) => Promise<types.AsyncStatus | null>;
+  } {
+    const { assignExperiment } = useContext(ExperimentationContext);
+    return { assignExperiment };
+  },
+  'experimentationServiceLocator'
+);
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A

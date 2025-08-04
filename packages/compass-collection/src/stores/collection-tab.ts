@@ -9,6 +9,9 @@ import reducer, {
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry';
+import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 export type CollectionTabOptions = {
   /**
@@ -31,18 +34,27 @@ export type CollectionTabServices = {
   collection: Collection;
   localAppRegistry: AppRegistry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  experimentationServices: ReturnType<typeof experimentationServiceLocator>;
+  connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
+  logger: Logger;
 };
 
 export function activatePlugin(
   { namespace, editViewName, tabId }: CollectionTabOptions,
   services: CollectionTabServices,
   { on, cleanup }: ActivateHelpers
-) {
+): {
+  store: ReturnType<typeof createStore>;
+  deactivate: () => void;
+} {
   const {
     dataService,
     collection: collectionModel,
     localAppRegistry,
     workspaces,
+    experimentationServices,
+    connectionInfoRef,
+    logger,
   } = services;
 
   if (!collectionModel) {
@@ -64,6 +76,7 @@ export function activatePlugin(
         dataService,
         workspaces,
         localAppRegistry,
+        experimentationServices,
       })
     )
   );
@@ -86,6 +99,25 @@ export function activatePlugin(
 
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
+
+    // Assign experiment for Mock Data Generator (Atlas-only)
+    if (
+      experimentationServices &&
+      experimentationServices.assignExperiment &&
+      connectionInfoRef.current?.atlasMetadata?.clusterName // Ensures we only assign in Atlas
+    ) {
+      void experimentationServices
+        .assignExperiment('mock-data-generator', {
+          team: 'data-explorer',
+        })
+        .catch((error) => {
+          logger.debug('Mock Data Generator experiment assignment failed', {
+            experiment: 'mock-data-generator',
+            namespace: namespace,
+            error: error.message,
+          });
+        });
+    }
   });
 
   return {

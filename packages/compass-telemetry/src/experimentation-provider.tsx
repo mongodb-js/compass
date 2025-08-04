@@ -34,7 +34,7 @@ const initialContext: CompassExperimentationProviderContextValue = {
   },
 };
 
-const ExperimentationContext =
+export const ExperimentationContext =
   createContext<CompassExperimentationProviderContextValue>(initialContext);
 
 // Provider component that accepts MMS experiment utils as props
