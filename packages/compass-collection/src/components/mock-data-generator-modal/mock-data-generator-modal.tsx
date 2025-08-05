@@ -15,6 +15,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
+import { getNextStep, getPreviousStep } from './utils';
 
 const footerStyles = css`
   flex-direction: row;
@@ -41,17 +42,13 @@ const MockDataGeneratorModal = ({
   onCurrentStepChange,
 }: Props) => {
   const onNext = () => {
-    if (currentStep < MockDataGeneratorStep.GENERATE_DATA) {
-      onCurrentStepChange(currentStep + 1);
-    } else {
-      onOpenChange(false);
-    }
+    const nextStep = getNextStep(currentStep);
+    onCurrentStepChange(nextStep);
   };
 
   const onBack = () => {
-    if (currentStep > MockDataGeneratorStep.AI_DISCLAIMER) {
-      onCurrentStepChange(currentStep - 1);
-    }
+    const previousStep = getPreviousStep(currentStep);
+    onCurrentStepChange(previousStep);
   };
 
   const onCancel = () => {
