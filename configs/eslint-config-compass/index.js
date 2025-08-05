@@ -44,8 +44,7 @@ const tsxRules = {
   'react-hooks/exhaustive-deps': [
     'warn',
     {
-      additionalHooks:
-        '(useTrackOnChange|useContextMenuItems|useContextMenuGroups)',
+      additionalHooks: '(useTrackOnChange|useContextMenuGroups)',
     },
   ],
 };

@@ -103,7 +103,6 @@ export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
 export {
-  useContextMenuItems,
   useContextMenuGroups,
   type ContextMenuItem,
   type ContextMenuItemGroup,
