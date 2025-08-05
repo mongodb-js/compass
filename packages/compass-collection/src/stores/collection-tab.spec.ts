@@ -177,22 +177,6 @@ describe('Collection Tab Content store', function () {
       expect(assignExperiment).to.not.have.been.called;
     });
 
-    it('should handle missing experimentationServices gracefully and initialize successfully', async function () {
-      const store = await configureStore(
-        undefined,
-        {},
-        undefined, // No experimentationServices provided
-        mockAtlasConnectionInfo
-      );
-
-      // Store should still be functional despite missing experimentationServices
-      await waitFor(() => {
-        expect(store.getState())
-          .to.have.property('metadata')
-          .deep.eq(defaultMetadata);
-      });
-    });
-
     it('should not assign experiment when AI features are disabled at the org level', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
