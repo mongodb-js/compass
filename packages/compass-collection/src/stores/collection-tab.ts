@@ -16,7 +16,7 @@ import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
-import { TestName } from '../../../compass-telemetry/src/growth-experiments';
+import { TestName } from '@mongodb-js/compass-telemetry/provider';
 
 export type CollectionTabOptions = {
   /**
