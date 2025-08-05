@@ -107,12 +107,9 @@ export function activatePlugin(
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
 
-    // Assign experiment for Mock Data Generator:
-    // Only assign when experimentationServices.assignExperiment is initialized,
-    // we're connected to Atlas,
-    // and the org-level setting for AI features is enabled
+    // Assign experiment for Mock Data Generator
+    // Only assign when we're connected to Atlas and the org-level setting for AI features is enabled
     if (
-      experimentationServices?.assignExperiment && // Ensures experimentation services are available
       connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
       isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
     ) {
