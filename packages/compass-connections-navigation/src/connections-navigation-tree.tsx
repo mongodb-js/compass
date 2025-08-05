@@ -233,6 +233,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return [];
         case 'connection':
           return itemActionsToContextMenuGroups(
+            'Connection Tree Item',
             item,
             onItemAction,
             item.connectionStatus === 'connected'
@@ -258,6 +259,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             connectionInfo,
           } = item.connectionItem;
           return itemActionsToContextMenuGroups(
+            'Database Tree Item',
             item,
             onItemAction,
             databaseContextMenuActions({
@@ -278,6 +280,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             connectionInfo,
           } = item.databaseItem.connectionItem;
           return itemActionsToContextMenuGroups(
+            'Collection Tree Item',
             item,
             onItemAction,
             collectionContextMenuActions({
