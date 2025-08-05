@@ -156,6 +156,8 @@ const DiagramContent: React.FunctionComponent<{
     });
   }, []);
 
+  console.log({ edges });
+
   return (
     <div
       ref={setDiagramContainerRef}

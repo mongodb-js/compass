@@ -62,7 +62,7 @@ describe('Collection ai query', function () {
         );
       });
 
-      it('should update the query bar with a generated query', async function () {
+      it.only('should update the query bar with a generated query', async function () {
         // Click the ai entry button.
         await browser.clickVisible(Selectors.GenAIEntryButton);
 
