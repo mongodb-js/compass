@@ -49,14 +49,16 @@ export function useTelemetry(): TrackFunction {
   return track;
 }
 
+export interface ExperimentationServices {
+  assignExperiment: (
+    experimentName: TestName,
+    options?: types.AssignOptions<string>
+  ) => Promise<types.AsyncStatus | null>;
+}
+
 // Service locator for experimentation services (non-component access)
 export const experimentationServiceLocator = createServiceLocator(
-  function useExperimentationServices(): {
-    assignExperiment: (
-      experimentName: TestName,
-      options?: types.AssignOptions<string>
-    ) => Promise<types.AsyncStatus | null>;
-  } {
+  function useExperimentationServices(): ExperimentationServices {
     const { assignExperiment } = useContext(ExperimentationContext);
     return { assignExperiment };
   },
