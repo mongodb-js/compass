@@ -15,7 +15,6 @@ import {
   mergeProps,
   useFocusRing,
   useId,
-  type ContextMenuItem,
 } from '@mongodb-js/compass-components';
 import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
 import { type Actions } from '../constants';

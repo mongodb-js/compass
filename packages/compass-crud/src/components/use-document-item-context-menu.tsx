@@ -67,17 +67,19 @@ export function useDocumentItemContextMenu({
             : undefined,
         ],
       },
-      {
-        telemetryLabel: 'Document Item Delete',
-        items: [
-          {
-            label: 'Delete document',
-            onAction: () => {
-              doc.markForDeletion();
-            },
-          },
-        ],
-      },
+      isEditable
+        ? {
+            telemetryLabel: 'Document Item Delete',
+            items: [
+              {
+                label: 'Delete document',
+                onAction: () => {
+                  doc.markForDeletion();
+                },
+              },
+            ],
+          }
+        : undefined,
     ],
     [
       doc,
