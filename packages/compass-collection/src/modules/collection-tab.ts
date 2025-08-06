@@ -5,7 +5,7 @@ import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry';
+import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
