@@ -69,7 +69,7 @@ describe('DiagramEditorToolbar', function () {
     it('renders it active if isInRelationshipDrawingMode is true', function () {
       renderDiagramEditorToolbar({ isInRelationshipDrawingMode: true });
       const addButton = screen.getByRole('button', {
-        name: 'Add Relationship',
+        name: 'Exit Relationship Drawing Mode',
       });
       expect(addButton).to.have.attribute('aria-pressed', 'true');
     });
