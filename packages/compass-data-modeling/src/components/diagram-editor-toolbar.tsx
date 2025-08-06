@@ -73,7 +73,11 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
         <Tooltip
           trigger={
             <IconButton
-              aria-label="Add Relationship"
+              aria-label={
+                !isInRelationshipDrawingMode
+                  ? 'Add Relationship'
+                  : 'Exit Relationship Drawing Mode'
+              }
               onClick={onRelationshipDrawingToggle}
               active={isInRelationshipDrawingMode}
               aria-pressed={isInRelationshipDrawingMode}
