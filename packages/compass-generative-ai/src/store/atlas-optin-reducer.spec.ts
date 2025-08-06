@@ -67,7 +67,9 @@ describe('atlasOptInReducer', function () {
         'state',
         'initial'
       );
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
       await store.dispatch(optIn());
       expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
         .calledOnce;
@@ -99,7 +101,9 @@ describe('atlasOptInReducer', function () {
           'state',
           'initial'
         );
-        void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+        void store
+          .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+          .catch(() => {});
         await store.dispatch(optIn());
         expect(mockAtlasAiService.optIntoGenAIFeaturesAtlas).to.have.been
           .calledOnce;
@@ -122,7 +126,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
       const optInPromise = store.dispatch(optIn());
       // Avoid unhandled rejections.
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
@@ -170,7 +176,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
+      void store
+        .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
+        .catch(() => {});
 
       await Promise.all([
         store.dispatch(optIn()),
@@ -194,7 +202,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       await store.dispatch(optIn());
       await optInPromise;
 
@@ -211,7 +221,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       await store.dispatch(optIn());
 
       try {
@@ -234,7 +246,9 @@ describe('atlasOptInReducer', function () {
         preferences: mockPreferences,
       });
 
-      const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
+      const optInPromise = store.dispatch(
+        optIntoGenAIWithModalPrompt({ isCloudOptIn: true })
+      );
       store.dispatch(closeOptInModal(new Error('This operation was aborted')));
 
       try {
@@ -259,7 +273,10 @@ describe('atlasOptInReducer', function () {
 
       const c = new AbortController();
       const optInPromise = store.dispatch(
-        optIntoGenAIWithModalPrompt({ signal: c.signal })
+        optIntoGenAIWithModalPrompt({
+          signal: c.signal,
+          isCloudOptIn: true,
+        })
       );
       c.abort(new Error('Aborted from outside'));
 
