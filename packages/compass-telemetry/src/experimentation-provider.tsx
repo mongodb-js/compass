@@ -1,16 +1,16 @@
 import React, { createContext, useContext, useRef } from 'react';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import type { typesReact } from '@mongodb-js/mdb-experiment-js/react';
-import type { TestName } from './growth-experiments';
+import type { ExperimentTestName } from './growth-experiments';
 
 type UseAssignmentHook = (
-  experimentName: TestName,
+  experimentName: ExperimentTestName,
   trackIsInSample: boolean,
   options?: typesReact.UseAssignmentOptions<types.TypeData>
 ) => typesReact.UseAssignmentResponse<types.TypeData>;
 
 type AssignExperimentFn = (
-  experimentName: TestName,
+  experimentName: ExperimentTestName,
   options?: types.AssignOptions<string>
 ) => Promise<types.AsyncStatus | null>;
 

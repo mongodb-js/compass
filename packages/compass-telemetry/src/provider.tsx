@@ -3,7 +3,7 @@ import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';
-import { TestName } from './growth-experiments';
+import { ExperimentTestName } from './growth-experiments';
 import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 
@@ -51,7 +51,7 @@ export function useTelemetry(): TrackFunction {
 
 export interface ExperimentationServices {
   assignExperiment: (
-    experimentName: TestName,
+    experimentName: ExperimentTestName,
     options?: types.AssignOptions<string>
   ) => Promise<types.AsyncStatus | null>;
 }
@@ -128,7 +128,7 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: TestName.earlyJourneyIndexesGuidance,
+ *   testName: ExperimentTestName.earlyJourneyIndexesGuidance,
  *   shouldFire: enableInIndexesGuidanceExp ,
  * });
  */
@@ -136,7 +136,7 @@ export const useFireExperimentViewed = ({
   testName,
   shouldFire = true,
 }: {
-  testName: TestName;
+  testName: ExperimentTestName;
   shouldFire?: boolean;
 }) => {
   useTrackOnChange(
@@ -154,4 +154,4 @@ export const useFireExperimentViewed = ({
 };
 
 export type { TrackFunction };
-export { TestName };
+export { ExperimentTestName };
