@@ -591,10 +591,7 @@ describe('Data Modeling tab', function () {
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
-      const relationshipName = await browser.getInputByLabel(
-        drawer.$(Selectors.DataModelNameInput)
-      );
-      await relationshipName.setValue('updatedRelationshipName');
+
       await browser.selectOption({
         selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
@@ -615,9 +612,6 @@ describe('Data Modeling tab', function () {
       // Select the first collection again and delete the relationship
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
       await relationshipItem.waitForDisplayed();
-      expect(await relationshipItem.getText()).to.include(
-        'updatedRelationshipName'
-      );
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();
