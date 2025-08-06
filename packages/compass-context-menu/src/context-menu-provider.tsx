@@ -12,6 +12,7 @@ import {
   getContextMenuContent,
   type EnhancedMouseEvent,
 } from './context-menu-content';
+import { contextMenuClassName } from './consts';
 
 export const ContextMenuContext = createContext<ContextMenuContextType | null>(
   null
@@ -76,7 +77,16 @@ export function ContextMenuProvider({
 
     document.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
-    window.addEventListener('scroll', handleClosingEvent, { capture: true });
+    window.addEventListener(
+      'scroll',
+      (e) => {
+        const isCompassContextMenu = (
+          e.target as HTMLElement
+        ).classList.contains(contextMenuClassName);
+        if (!isCompassContextMenu) handleClosingEvent(e);
+      },
+      { capture: true }
+    );
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);

@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import {
@@ -9,6 +9,7 @@ import {
   type ContextMenuItem,
   type ContextMenuItemGroup,
   type ContextMenuWrapperProps,
+  contextMenuClassName,
 } from '@mongodb-js/compass-context-menu';
 
 export type {
@@ -76,7 +77,7 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         open={menu.isOpen}
         setOpen={menu.close}
         justify="start"
-        className={menuStyles}
+        className={cx(menuStyles, contextMenuClassName)}
         maxHeight={Number.MAX_SAFE_INTEGER}
       >
         {itemGroups.map((items: ContextMenuItemGroup, groupIndex: number) => {
