@@ -80,9 +80,9 @@ export function ContextMenuProvider({
     window.addEventListener(
       'scroll',
       (e) => {
-        const isCompassContextMenu = (
-          e.target as HTMLElement
-        ).classList.contains(contextMenuClassName);
+        const isCompassContextMenu =
+          e.target instanceof HTMLElement &&
+          e.target.classList.contains(contextMenuClassName);
         if (!isCompassContextMenu) handleClosingEvent(e);
       },
       { capture: true }
