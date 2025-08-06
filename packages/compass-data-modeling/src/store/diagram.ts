@@ -52,7 +52,6 @@ export enum DiagramActionTypes {
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
-  DRAWER_CLOSED = 'data-modeling/diagram/DRAWER_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -103,10 +102,6 @@ export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
 
-export type DrawerClosedAction = {
-  type: DiagramActionTypes.DRAWER_CLOSED;
-};
-
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
@@ -117,8 +112,7 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
-  | DiagramBackgroundSelectedAction
-  | DrawerClosedAction;
+  | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
 
@@ -258,10 +252,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
-  if (
-    isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED) ||
-    isAction(action, DiagramActionTypes.DRAWER_CLOSED)
-  ) {
+  if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
       selectedItems: null,
@@ -487,10 +478,6 @@ export function deleteRelationship(
   };
 }
 
-export function closeDrawer(): DrawerClosedAction {
-  return { type: DiagramActionTypes.DRAWER_CLOSED };
-}
-
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -548,8 +535,8 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
 }
 
 /**
- * @internal Exported for testing purposes only, use `selectCurrentModel`
- * instead
+ * @internal Exported for testing purposes only, use `selectCurrentModel` or
+ * `selectCurrentModelFromState` instead
  */
 export function getCurrentModel(
   edits: MongoDBDataModelDescription['edits']
@@ -600,10 +587,16 @@ export function getCurrentDiagramFromState(
   return { id, connectionId, name, edits, createdAt, updatedAt };
 }
 
+const selectCurrentDiagramFromState = memoize(getCurrentDiagramFromState);
+
 /**
  * Memoised method to return computed model
  */
 export const selectCurrentModel = memoize(getCurrentModel);
+
+export const selectCurrentModelFromState = (state: DataModelingState) => {
+  return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
+};
 
 function extractFields(
   parentSchema: MongoDBJSONSchema,
@@ -657,6 +650,5 @@ export function getRelationshipForCurrentModel(
 }
 
 function getCurrentNumberOfRelationships(state: DataModelingState): number {
-  return selectCurrentModel(getCurrentDiagramFromState(state).edits)
-    .relationships.length;
+  return selectCurrentModelFromState(state).relationships.length;
 }

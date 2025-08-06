@@ -23,13 +23,14 @@ const darkModeContainerStyles = css({
 });
 
 const accordionTitleStyles = css({
-  fontSize: spacing[300],
   width: '100%',
+  textTransform: 'uppercase',
 });
 
 const buttonStyles = css({
   width: '100%',
   display: 'flex',
+  alignItems: 'center',
 });
 
 const DMDrawerSection: React.FC<{
@@ -43,6 +44,7 @@ const DMDrawerSection: React.FC<{
         defaultOpen={true}
         textClassName={accordionTitleStyles}
         buttonTextClassName={buttonStyles}
+        size="small"
       >
         {children}
       </Accordion>
