@@ -68,7 +68,7 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', async function () {
+  it('should render and edit a collection in collection context drawer when collection is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
@@ -77,6 +77,24 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('flights.airlines');
     });
+
+    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Notes' }),
+      'Note about the collection'
+    );
+    userEvent.tab();
+
+    const modifiedCollection = selectCurrentModelFromState(
+      result.plugin.store.getState()
+    ).collections.find((coll) => {
+      return coll.ns === 'flights.airlines';
+    });
+
+    expect(modifiedCollection).to.have.property(
+      'note',
+      'Note about the collection'
+    );
   });
 
   it('should render a relationship context drawer when relations is clicked', async function () {
