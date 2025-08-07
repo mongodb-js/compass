@@ -22,12 +22,14 @@ function DiagramEditorSidePanel({
   if (selectedItems.type === 'collection') {
     content = (
       <CollectionDrawerContent
+        key={selectedItems.id}
         namespace={selectedItems.id}
       ></CollectionDrawerContent>
     );
   } else if (selectedItems.type === 'relationship') {
     content = (
       <RelationshipDrawerContent
+        key={selectedItems.id}
         relationshipId={selectedItems.id}
       ></RelationshipDrawerContent>
     );

@@ -68,7 +68,7 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', async function () {
+  it('should render and edit a collection in collection context drawer when collection is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
@@ -77,6 +77,24 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('flights.airlines');
     });
+
+    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Notes' }),
+      'Note about the collection'
+    );
+    userEvent.tab();
+
+    const modifiedCollection = selectCurrentModelFromState(
+      result.plugin.store.getState()
+    ).collections.find((coll) => {
+      return coll.ns === 'flights.airlines';
+    });
+
+    expect(modifiedCollection).to.have.property(
+      'note',
+      'Note about the collection'
+    );
   });
 
   it('should render a relationship context drawer when relations is clicked', async function () {
@@ -187,6 +205,13 @@ describe('DiagramEditorSidePanel', function () {
     await comboboxSelectItem('Foreign collection', 'countries');
     await comboboxSelectItem('Foreign field', 'iso_code');
 
+    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Notes' }),
+      'Note about the relationship'
+    );
+    userEvent.tab();
+
     // We should be testing through rendered UI but as it's really hard to make
     // diagram rendering in tests property, we are just validating the final
     // model here
@@ -210,6 +235,11 @@ describe('DiagramEditorSidePanel', function () {
           cardinality: 100,
         },
       ]);
+
+    expect(modifiedRelationship).to.have.property(
+      'note',
+      'Note about the relationship'
+    );
   });
 
   it('should delete a relationship from collection', async function () {
@@ -234,7 +264,8 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText('Airport Country')).not.to.exist;
+      expect(screen.queryByText('countries.name → airports.Country')).not.to
+        .exist;
     });
   });
 });
