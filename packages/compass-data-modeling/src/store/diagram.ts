@@ -478,6 +478,13 @@ export function deleteRelationship(
   };
 }
 
+export function updateCollectionNote(
+  ns: string,
+  note: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'UpdateCollectionNote', ns, note });
+}
+
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -522,6 +529,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             return {
               ...collection,
               displayPosition: edit.newPosition,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
+    case 'UpdateCollectionNote': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              note: edit.note,
             };
           }
           return collection;
