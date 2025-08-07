@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
+import toNS from 'mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
 import {
   Badge,
@@ -18,6 +19,7 @@ import {
   getCurrentDiagramFromState,
   selectCurrentModel,
   selectRelationship,
+  renameCollection,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
 import { getRelationshipName } from '../../utils';
@@ -25,10 +27,12 @@ import DMDrawerSection from './dm-drawer-section';
 
 type CollectionDrawerContentProps = {
   namespace: string;
+  namespaces: string[];
   relationships: Relationship[];
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
+  onRenameCollection: (fromNS: string, toNS: string) => void;
 };
 
 const formFieldContainerStyles = css({
@@ -68,15 +72,80 @@ const relationshipContentStyles = css({
   marginTop: spacing[400],
 });
 
+export function getIsCollectionNameValid(
+  collectionName: string,
+  namespaces: string[],
+  namespace: string
+): {
+  isValid: boolean;
+  errorMessage?: string;
+} {
+  if (collectionName.trim().length === 0) {
+    return {
+      isValid: false,
+      errorMessage: 'Collection name cannot be empty.',
+    };
+  }
+
+  const namespacesWithoutCurrent = namespaces.filter((ns) => ns !== namespace);
+
+  const isDuplicate = namespacesWithoutCurrent.some(
+    (ns) =>
+      ns === `${toNS(namespace).database}.${collectionName}` ||
+      ns === `${toNS(namespace).database}.${collectionName.trim()}`
+  );
+
+  return {
+    isValid: !isDuplicate,
+    errorMessage: isDuplicate ? 'Collection name must be unique.' : undefined,
+  };
+}
+
 const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
 > = ({
   namespace,
+  namespaces,
   relationships,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
+  onRenameCollection,
 }) => {
+  const [collectionName, setCollectionName] = useState(
+    () => toNS(namespace).collection
+  );
+
+  const isCollectionNameValid = useMemo(
+    () => getIsCollectionNameValid(collectionName, namespaces, namespace),
+    [collectionName, namespaces, namespace]
+  );
+
+  useLayoutEffect(() => {
+    setCollectionName(toNS(namespace).collection);
+  }, [namespace]);
+
+  const onBlurCollectionName = useCallback(() => {
+    const trimmedName = collectionName.trim();
+    if (trimmedName === toNS(namespace).collection) {
+      return;
+    }
+
+    if (!isCollectionNameValid.isValid) {
+      // Reset to previous valid name.
+      // TODO: Maybe we don't reset.
+      setCollectionName(toNS(namespace).collection);
+      return;
+    }
+
+    onRenameCollection(namespace, `${toNS(namespace).database}.${trimmedName}`);
+  }, [
+    collectionName,
+    namespace,
+    onRenameCollection,
+    isCollectionNameValid.isValid,
+  ]);
+
   return (
     <>
       <DMDrawerSection label="COLLECTION">
@@ -84,8 +153,13 @@ const CollectionDrawerContent: React.FunctionComponent<
           <TextInput
             label="Name"
             sizeVariant="small"
-            value={namespace}
-            disabled={true}
+            value={collectionName}
+            state={isCollectionNameValid.isValid ? undefined : 'error'}
+            errorMessage={isCollectionNameValid.errorMessage}
+            onChange={(e) => {
+              setCollectionName(e.target.value);
+            }}
+            onBlur={onBlurCollectionName}
           />
         </FormFieldContainer>
       </DMDrawerSection>
@@ -155,20 +229,21 @@ const CollectionDrawerContent: React.FunctionComponent<
 
 export default connect(
   (state: DataModelingState, ownProps: { namespace: string }) => {
+    const model = selectCurrentModel(getCurrentDiagramFromState(state).edits);
     return {
-      relationships: selectCurrentModel(
-        getCurrentDiagramFromState(state).edits
-      ).relationships.filter((r) => {
+      relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
           local.ns === ownProps.namespace || foreign.ns === ownProps.namespace
         );
       }),
+      namespaces: model.collections.map((c) => c.ns),
     };
   },
   {
     onCreateNewRelationshipClick: createNewRelationship,
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
+    onRenameCollection: renameCollection,
   }
 )(CollectionDrawerContent);

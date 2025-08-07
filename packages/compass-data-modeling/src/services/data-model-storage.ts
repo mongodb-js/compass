@@ -65,6 +65,11 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     ns: z.string(),
     newPosition: z.tuple([z.number(), z.number()]),
   }),
+  z.object({
+    type: z.literal('RenameCollection'),
+    fromNS: z.string(),
+    toNS: z.string(),
+  }),
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);

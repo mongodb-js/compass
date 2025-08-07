@@ -19,6 +19,7 @@ import {
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
   MongoDBDataModelDescription,
+  DataModelCollection,
   Relationship,
 } from '../../services/data-model-storage';
 import { DrawerAnchor } from '@mongodb-js/compass-components';
@@ -76,7 +77,7 @@ describe('DiagramEditorSidePanel', function () {
     await waitFor(() => {
       const nameInput = screen.getByLabelText('Name');
       expect(nameInput).to.be.visible;
-      expect(nameInput).to.have.value('flights.airlines');
+      expect(nameInput).to.have.value('airlines');
     });
   });
 
@@ -131,14 +132,14 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('flights.airlines');
+      expect(screen.getByLabelText('Name')).to.have.value('airlines');
     });
 
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
     );
     expect(screen.getByLabelText('Name')).to.have.value(
-      'flights.airports_coordinates_for_schema'
+      'airports_coordinates_for_schema'
     );
 
     result.plugin.store.dispatch(
@@ -160,7 +161,7 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
 
     result.plugin.store.dispatch(selectCollection('flights.planes'));
-    expect(screen.getByLabelText('Name')).to.have.value('flights.planes');
+    expect(screen.getByLabelText('Name')).to.have.value('planes');
   });
 
   it('should open and edit relationship starting from collection', async function () {
@@ -168,7 +169,7 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
     });
 
     // Open relationshipt editing form
@@ -217,7 +218,7 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
     });
 
     // Find the relationhip item
@@ -234,5 +235,30 @@ describe('DiagramEditorSidePanel', function () {
     await waitFor(() => {
       expect(screen.queryByText('Airport Country')).not.to.exist;
     });
+  });
+
+  it('should open and edit a collection name', async function () {
+    const result = renderDrawer();
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
+    });
+
+    // Update the name.
+    userEvent.clear(screen.getByLabelText('Name'));
+    userEvent.type(screen.getByLabelText('Name'), 'pineapple');
+
+    // Blur/unfocus the input.
+    userEvent.click(document.body);
+
+    // Check the name in the model.
+    const modifiedCollection = selectCurrentModel(
+      getCurrentDiagramFromState(result.plugin.store.getState()).edits
+    ).collections.find((c: DataModelCollection) => {
+      return c.ns === 'flights.pineapple';
+    });
+
+    expect(modifiedCollection).to.exist;
   });
 });

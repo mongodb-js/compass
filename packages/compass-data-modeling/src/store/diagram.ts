@@ -352,6 +352,34 @@ export function moveCollection(
   return applyEdit(edit);
 }
 
+export function renameCollection(
+  fromNS: string,
+  toNS: string
+): DataModelingThunkAction<
+  void,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch) => {
+    const edit: Omit<
+      Extract<Edit, { type: 'RenameCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'RenameCollection',
+      fromNS,
+      toNS,
+    };
+
+    dispatch(applyEdit(edit));
+
+    // When renaming we want to keep the renamed collection selected in the UI,
+    // the ID is the collection name.
+    dispatch({
+      type: DiagramActionTypes.COLLECTION_SELECTED,
+      namespace: toNS,
+    });
+  };
+}
+
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
@@ -539,6 +567,34 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return collection;
         }),
+      };
+    }
+    case 'RenameCollection': {
+      return {
+        ...model,
+        // Update relationships to point to the renamed namespace.
+        relationships: model.relationships.map((relationship) => {
+          const [local, foreign] = relationship.relationship;
+
+          return {
+            ...relationship,
+            relationship: [
+              {
+                ...local,
+                ns: local.ns === edit.fromNS ? edit.toNS : local.ns,
+              },
+              {
+                ...foreign,
+                ns: foreign.ns === edit.fromNS ? edit.toNS : foreign.ns,
+              },
+            ],
+          };
+        }),
+        collections: model.collections.map((collection) => ({
+          ...collection,
+          // Rename the collection.
+          ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
+        })),
       };
     }
     default: {
