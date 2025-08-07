@@ -1,10 +1,13 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import { createStore, applyMiddleware } from 'redux';
+
 import thunk from 'redux-thunk';
 import reducer, {
   selectTab,
   collectionMetadataFetched,
+  analyzeCollectionSchema,
+  SchemaAnalysisStatus,
 } from '../modules/collection-tab';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -77,6 +80,13 @@ export function activatePlugin(
       namespace,
       metadata: null,
       editViewName,
+      schemaAnalysis: {
+        status: SchemaAnalysisStatus.INITIAL,
+        schema: null,
+        sampleDocument: null,
+        schemaMetadata: null,
+        error: null,
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -84,6 +94,11 @@ export function activatePlugin(
         workspaces,
         localAppRegistry,
         experimentationServices,
+        logger,
+        preferences,
+        analysisAbortControllerRef: {
+          current: undefined,
+        },
       })
     )
   );
@@ -124,6 +139,11 @@ export function activatePlugin(
             error: error instanceof Error ? error.message : String(error),
           });
         });
+    }
+
+    if (!metadata.isReadonly && !metadata.isTimeSeries) {
+      // TODO: Consider checking experiment variant
+      store.dispatch(analyzeCollectionSchema());
     }
   });
 
