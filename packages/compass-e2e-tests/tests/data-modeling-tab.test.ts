@@ -156,7 +156,7 @@ async function getDiagramEdges(
 /**
  * Moves a node to the specified coordinates and returns its original position.
  */
-async function moveNode(
+async function dragNode(
   browser: CompassBrowser,
   selector: string,
   pointerActionMoveParams: {
@@ -251,7 +251,7 @@ describe('Data Modeling tab', function () {
     const testCollection1 = browser.$(
       Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
-    const startPosition = await moveNode(
+    const startPosition = await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -310,7 +310,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    await moveNode(
+    await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -465,7 +465,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    await moveNode(
+    await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -619,6 +619,60 @@ describe('Data Modeling tab', function () {
       // Verify that the relationship is removed from the list and the diagram
       expect(await relationshipItem.isExisting()).to.be.false;
       await getDiagramEdges(browser, 0);
+    });
+
+    it('adding relationship by drawing opens it in the sidebar', async function () {
+      const dataModelName = 'Test Relationship By Drawing';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      await browser.clickVisible(
+        Selectors.DataModelRelationshipDrawingButton()
+      );
+
+      const targetNode = browser.$(
+        Selectors.DataModelPreviewCollection('test.testCollection-two')
+      );
+
+      const targetPosition = await targetNode.getLocation();
+      const targetSize = await targetNode.getSize();
+
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        {
+          x: Math.round(targetPosition.x + targetSize.width / 2),
+          y: Math.round(targetPosition.y + targetSize.height / 2),
+          origin: 'viewport',
+        }
+      );
+
+      const edges = await getDiagramEdges(browser, 1);
+      expect(edges).to.have.lengthOf(1);
+      expect(edges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'one',
+      });
+
+      // Verify that the relationship is opened in the sidebar
+      const drawer = browser.$(Selectors.SideDrawer);
+      const localCollectionSelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
+      );
+      expect(await localCollectionSelect.getValue()).to.equal(
+        'testCollection-one'
+      );
+      const foreignCollectionSelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
+      );
+      expect(await foreignCollectionSelect.getValue()).to.equal(
+        'testCollection-two'
+      );
     });
   });
 });
