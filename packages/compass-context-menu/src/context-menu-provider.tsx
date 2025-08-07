@@ -57,14 +57,6 @@ export function ContextMenuProvider({
     [close]
   );
 
-  const handleContextMenuOpen = useCallback(
-    (itemGroups: ContextMenuItemGroup[]) => {
-      onContextMenuOpen?.(itemGroups);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   useEffect(() => {
     // Don't set up event listeners if we have a parent context
     if (parentContext || disabled) return;
@@ -78,7 +70,7 @@ export function ContextMenuProvider({
         return;
       }
 
-      handleContextMenuOpen(itemGroups);
+      onContextMenuOpen?.(itemGroups);
 
       setMenu({
         isOpen: true,
@@ -110,7 +102,8 @@ export function ContextMenuProvider({
         capture: true,
       });
     };
-  }, [disabled, handleClosingEvent, handleContextMenuOpen, parentContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabled, handleClosingEvent, parentContext]);
 
   const value = useMemo(
     () => ({
