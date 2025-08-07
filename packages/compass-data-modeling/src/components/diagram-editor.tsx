@@ -3,12 +3,11 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
   moveCollection,
-  getCurrentDiagramFromState,
-  selectCurrentModel,
   selectCollection,
   selectRelationship,
   selectBackground,
   type DiagramState,
+  selectCurrentModelFromState,
 } from '../store/diagram';
 import {
   Banner,
@@ -202,9 +201,7 @@ const ConnectedDiagramContent = connect(
   (state: DataModelingState) => {
     const { diagram } = state;
     return {
-      model: diagram
-        ? selectCurrentModel(getCurrentDiagramFromState(state).edits)
-        : null,
+      model: diagram ? selectCurrentModelFromState(state) : null,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
     };

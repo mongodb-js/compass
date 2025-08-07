@@ -11,7 +11,6 @@ export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
 export const RelationshipSchema = z.object({
   id: z.string().uuid(),
-  name: z.string().optional(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
 });

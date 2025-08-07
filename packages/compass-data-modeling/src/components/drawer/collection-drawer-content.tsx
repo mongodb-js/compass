@@ -16,13 +16,12 @@ import {
 import {
   createNewRelationship,
   deleteRelationship,
-  getCurrentDiagramFromState,
-  selectCurrentModel,
+  selectCurrentModelFromState,
   selectRelationship,
   renameCollection,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
-import { getRelationshipName } from '../../utils';
+import { getDefaultRelationshipName } from '../../utils';
 import DMDrawerSection from './dm-drawer-section';
 
 type CollectionDrawerContentProps = {
@@ -42,6 +41,7 @@ const formFieldContainerStyles = css({
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
+  maxHeight: 20, // To match accordion line height
 });
 
 const emptyRelationshipMessageStyles = css({
@@ -146,7 +146,7 @@ const CollectionDrawerContent: React.FunctionComponent<
 
   return (
     <>
-      <DMDrawerSection label="COLLECTION">
+      <DMDrawerSection label="Collection properties">
         <FormFieldContainer className={formFieldContainerStyles}>
           <TextInput
             label="Name"
@@ -165,7 +165,7 @@ const CollectionDrawerContent: React.FunctionComponent<
       <DMDrawerSection
         label={
           <>
-            RELATIONSHIPS&nbsp;
+            Relationships&nbsp;
             <Badge>{relationships.length}</Badge>
             <Button
               className={titleBtnStyles}
@@ -194,7 +194,7 @@ const CollectionDrawerContent: React.FunctionComponent<
                     className={relationshipItemStyles}
                   >
                     <span className={relationshipNameStyles}>
-                      {getRelationshipName(r)}
+                      {getDefaultRelationshipName(r.relationship)}
                     </span>
                     <IconButton
                       aria-label="Edit relationship"
@@ -227,7 +227,7 @@ const CollectionDrawerContent: React.FunctionComponent<
 
 export default connect(
   (state: DataModelingState, ownProps: { namespace: string }) => {
-    const model = selectCurrentModel(getCurrentDiagramFromState(state).edits);
+    const model = selectCurrentModelFromState(state);
     return {
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;

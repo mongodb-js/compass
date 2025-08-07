@@ -10,10 +10,9 @@ import {
 import { DataModelingWorkspaceTab } from '../../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
-  getCurrentDiagramFromState,
   openDiagram,
   selectCollection,
-  selectCurrentModel,
+  selectCurrentModelFromState,
   selectRelationship,
 } from '../../store/diagram';
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
@@ -88,9 +87,8 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      const name = screen.getByLabelText('Name');
-      expect(name).to.be.visible;
-      expect(name).to.have.value('Airport Country');
+      const section = screen.getByText('Relationship properties');
+      expect(section).to.be.visible;
     });
 
     const localCollectionInput = screen.getByLabelText('Local collection');
@@ -173,7 +171,9 @@ describe('DiagramEditorSidePanel', function () {
     });
 
     // Open relationshipt editing form
-    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    const relationshipItem = screen
+      .getByText('countries.name → airports.Country')
+      .closest('li');
     expect(relationshipItem).to.be.visible;
     userEvent.click(
       within(relationshipItem!).getByRole('button', {
@@ -191,8 +191,8 @@ describe('DiagramEditorSidePanel', function () {
     // We should be testing through rendered UI but as it's really hard to make
     // diagram rendering in tests property, we are just validating the final
     // model here
-    const modifiedRelationship = selectCurrentModel(
-      getCurrentDiagramFromState(result.plugin.store.getState()).edits
+    const modifiedRelationship = selectCurrentModelFromState(
+      result.plugin.store.getState()
     ).relationships.find((r: Relationship) => {
       return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
     });
@@ -222,7 +222,9 @@ describe('DiagramEditorSidePanel', function () {
     });
 
     // Find the relationhip item
-    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    const relationshipItem = screen
+      .getByText('countries.name → airports.Country')
+      .closest('li');
     expect(relationshipItem).to.be.visible;
 
     // Delete relationship

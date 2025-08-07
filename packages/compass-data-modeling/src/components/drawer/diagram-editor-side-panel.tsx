@@ -4,13 +4,10 @@ import type { DataModelingState } from '../../store/reducer';
 import { DrawerSection } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
-import { closeDrawer } from '../../store/diagram';
-
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
 type DiagramEditorSidePanelProps = {
   selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
-  onClose: () => void;
 };
 
 function DiagramEditorSidePanel({
@@ -55,13 +52,8 @@ function DiagramEditorSidePanel({
   );
 }
 
-export default connect(
-  (state: DataModelingState) => {
-    return {
-      selectedItems: state.diagram?.selectedItems ?? null,
-    };
-  },
-  {
-    onClose: closeDrawer,
-  }
-)(DiagramEditorSidePanel);
+export default connect((state: DataModelingState) => {
+  return {
+    selectedItems: state.diagram?.selectedItems ?? null,
+  };
+})(DiagramEditorSidePanel);
