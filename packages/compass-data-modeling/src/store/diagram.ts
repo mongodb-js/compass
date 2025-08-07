@@ -284,7 +284,8 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 }
 
 export function createNewRelationship(
-  namespace: string
+  localNamespace: string,
+  foreignNamespace: string | null = null
 ): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
@@ -297,8 +298,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: namespace, cardinality: 1, fields: null },
-            { ns: null, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: null },
+            { ns: foreignNamespace, cardinality: 1, fields: null },
           ],
           isInferred: false,
         },
