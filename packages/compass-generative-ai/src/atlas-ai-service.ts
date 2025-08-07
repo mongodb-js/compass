@@ -9,9 +9,9 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
-import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
+import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -277,6 +277,10 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
+    if (this.preferences.getPreferences().enableUnauthenticatedGenAI) {
+      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
+    }
+
     // When the ai feature is attempted to be opened we make sure
     // the user is signed into Atlas and opted in.
 
@@ -391,23 +395,25 @@ export class AtlasAiService {
     );
   }
 
-  // Performs a post request to atlas to set the user opt in preference to true.
-  async optIntoGenAIFeaturesAtlas() {
-    await this.atlasService.authenticatedFetch(
-      this.atlasService.cloudEndpoint(
-        '/settings/optInDataExplorerGenAIFeatures'
-      ),
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-        },
-        body: new URLSearchParams([['value', 'true']]),
-      }
-    );
+  async optIntoGenAIFeatures() {
+    if (this.apiURLPreset === 'cloud') {
+      // Performs a post request to Atlas to set the user opt in preference to true.
+      await this.atlasService.authenticatedFetch(
+        this.atlasService.cloudEndpoint(
+          'settings/optInDataExplorerGenAIFeatures'
+        ),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+          },
+          body: new URLSearchParams([['value', 'true']]),
+        }
+      );
+    }
     await this.preferences.savePreferences({
-      optInDataExplorerGenAIFeatures: true,
+      optInGenAIFeatures: true,
     });
   }
 

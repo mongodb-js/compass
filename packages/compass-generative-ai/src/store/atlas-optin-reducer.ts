@@ -228,7 +228,7 @@ export const optIntoGenAIWithModalPrompt = ({
     const { state } = getState().optIn;
     if (
       (state === 'optin-success' ||
-        preferences.getPreferences().optInDataExplorerGenAIFeatures) &&
+        preferences.getPreferences().optInGenAIFeatures) &&
       preferences.getPreferences().enableGenAIFeaturesAtlasProject
     ) {
       return Promise.resolve();
@@ -265,7 +265,7 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
 
     try {
       throwIfAborted(signal);
-      await atlasAiService.optIntoGenAIFeaturesAtlas();
+      await atlasAiService.optIntoGenAIFeatures();
       dispatch(atlasAiServiceOptedIn());
       resolve();
     } catch (err) {

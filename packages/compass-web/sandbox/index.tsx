@@ -48,7 +48,7 @@ const App = () => {
     enableGenAIFeaturesAtlasProject,
     enableGenAISampleDocumentPassingOnAtlasProject,
     enableGenAIFeaturesAtlasOrg,
-    optInDataExplorerGenAIFeatures,
+    optInGenAIFeatures,
   } = projectParams ?? {};
 
   const atlasServiceSandboxBackendVariant =
@@ -135,8 +135,7 @@ const App = () => {
                 isAtlas && !!enableGenAISampleDocumentPassingOnAtlasProject,
               enableGenAIFeaturesAtlasOrg:
                 isAtlas && !!enableGenAIFeaturesAtlasOrg,
-              optInDataExplorerGenAIFeatures:
-                isAtlas && !!optInDataExplorerGenAIFeatures,
+              optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
               enableDataModeling: true,
             }}
             onTrack={sandboxTelemetry.track}

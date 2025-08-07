@@ -321,6 +321,54 @@ describe('AtlasAiService', function () {
           });
         });
       });
+
+      describe('optIntoGenAIFeatures', function () {
+        beforeEach(async function () {
+          // Reset preferences
+          await preferences.savePreferences({
+            optInGenAIFeatures: false,
+            enableUnauthenticatedGenAI: true,
+          });
+        });
+
+        afterEach(async function () {
+          await preferences.savePreferences({
+            enableUnauthenticatedGenAI: false,
+          });
+        });
+
+        it('should save preference when cloud preset', async function () {
+          const fetchStub = sandbox.stub().resolves(makeResponse({}));
+          global.fetch = fetchStub;
+
+          await atlasAiService.optIntoGenAIFeatures();
+
+          // In Data Explorer, make a POST request to cloud endpoint and save preference
+          if (apiURLPreset === 'cloud') {
+            // Verify fetch was called with correct parameters
+            expect(fetchStub).to.have.been.calledOnce;
+
+            expect(fetchStub).to.have.been.calledWith(
+              '/cloud/settings/optInDataExplorerGenAIFeatures',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  Accept: 'application/json',
+                },
+                body: new URLSearchParams([['value', 'true']]),
+              }
+            );
+          } else {
+            // In Compass, no fetch is made, only stored locally
+            expect(fetchStub).to.not.have.been.called;
+          }
+
+          // Verify preference was saved
+          const currentPreferences = preferences.getPreferences();
+          expect(currentPreferences.optInGenAIFeatures).to.equal(true);
+        });
+      });
     });
   }
 });
