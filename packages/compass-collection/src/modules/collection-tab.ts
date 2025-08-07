@@ -1,7 +1,7 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import {
   analyzeDocuments,
-  SchemaParseOptions,
+  type SchemaParseOptions,
   type Schema,
 } from 'mongodb-schema';
 
@@ -13,10 +13,9 @@ import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { calculateSchemaMetadata } from '@mongodb-js/compass-schema';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
 import { isInternalFieldPath } from 'hadron-document';
-import { mongoLogId } from '@mongodb-js/compass-logging';
 import toNS from 'mongodb-ns';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -190,7 +189,9 @@ export const selectTab = (
   };
 };
 
-export const analyzeCollectionSchema = (): CollectionThunkAction<void> => {
+export const analyzeCollectionSchema = (): CollectionThunkAction<
+  Promise<void>
+> => {
   return async (
     dispatch,
     getState,
