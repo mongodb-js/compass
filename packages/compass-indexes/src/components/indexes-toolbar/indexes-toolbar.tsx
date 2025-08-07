@@ -5,12 +5,9 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import {
-  Banner,
-  BannerVariant,
   Button,
   css,
   DropdownMenuButton,
-  ErrorSummary,
   Icon,
   Link,
   PerformanceSignals,
@@ -30,7 +27,6 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
-import { getAtlasUpgradeClusterLink } from '../../utils/atlas-upgrade-cluster-link';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -54,15 +50,6 @@ const spinnerStyles = css({ marginRight: spacing[200] });
 const createIndexButtonContainerStyles = css({
   display: 'inline-block',
   width: 'fit-content',
-});
-
-const viewContentStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
-  //alignItems: 'flex-end',
-  //gap: spacing[200],
 });
 
 const MIN_SEARCH_INDEX_MANAGEMENT_SERVER_VERSION = '6.0.7';
@@ -121,7 +108,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
-  const mongoDBMajorVersion = serverVersion.split('.').slice(0, 2).join('.');
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -129,89 +115,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
-
-  const renderViewBanner = (
-    serverVersion: string,
-    mongoDBMajorVersion: string
-  ) => {
-    const version = parseFloat(mongoDBMajorVersion);
-    if (version < 8.0) {
-      return (
-        <Banner variant={BannerVariant.Warning}>
-          <b>Looking for search indexes?</b>
-          <br />
-          <div className={viewContentStyles}>
-            <span>
-              Your MongoDB version is {serverVersion}. Creating and managing
-              search indexes on views in Compass is supported on MongoDB version
-              8.1 or higher. Upgrade your cluster to create search indexes on
-              views.
-            </span>
-            {atlasMetadata && (
-              <Button
-                size="xsmall"
-                onClick={() => {
-                  window.open(
-                    getAtlasUpgradeClusterLink({
-                      clusterName: atlasMetadata.clusterName,
-                    }),
-                    '_blank'
-                  );
-                }}
-              >
-                Upgrade Cluster
-              </Button>
-            )}
-          </div>
-        </Banner>
-      );
-    }
-
-    if (version === 8.0) {
-      return (
-        <Banner variant={BannerVariant.Warning}>
-          <b>Looking for search indexes?</b>
-          <br />
-          <div className={viewContentStyles}>
-            <span>
-              Your MongoDB version is {serverVersion}. Creating and managing
-              search indexes on views in Compass is supported on MongoDB version
-              8.1 or higher. Upgrade your cluster or manage search indexes on
-              views in the Atlas UI.
-            </span>
-            {atlasMetadata && (
-              <Button
-                size="xsmall"
-                onClick={() => {
-                  window.open(
-                    getAtlasSearchIndexesLink({
-                      clusterName: atlasMetadata.clusterName,
-                      namespace,
-                    }),
-                    '_blank'
-                  );
-                }}
-              >
-                Go to Atlas
-              </Button>
-            )}
-          </div>
-        </Banner>
-      );
-    }
-    if (version > 8.0) {
-      return (
-        <Banner variant={BannerVariant.Warning}>
-          <b>Looking for search indexes?</b>
-          <br />
-          This view is incompatible with search indexes. To use search indexes,
-          edit the view to only contain $addFields, $set, or $match stages with
-          the $expr operator. You can view all search indexes under INSERT LINK.
-        </Banner>
-      );
-    }
-    return null;
-  };
 
   return (
     <div
@@ -335,11 +238,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           </div>
         </div>
       )}
-      {isReadonlyView
-        ? renderViewBanner(serverVersion, mongoDBMajorVersion)
-        : !!errorMessage && (
-            <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
-          )}
     </div>
   );
 };
