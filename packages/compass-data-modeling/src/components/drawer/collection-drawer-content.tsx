@@ -116,7 +116,10 @@ const CollectionDrawerContent: React.FunctionComponent<
     () => toNS(namespace).collection
   );
 
-  const isCollectionNameValid = useMemo(
+  const {
+    isValid: isCollectionNameValid,
+    errorMessage: collectionNameEditErrorMessage,
+  } = useMemo(
     () => getIsCollectionNameValid(collectionName, namespaces, namespace),
     [collectionName, namespaces, namespace]
   );
@@ -131,7 +134,7 @@ const CollectionDrawerContent: React.FunctionComponent<
       return;
     }
 
-    if (!isCollectionNameValid.isValid) {
+    if (!isCollectionNameValid) {
       // Reset to previous valid name.
       // TODO: Maybe we don't reset.
       setCollectionName(toNS(namespace).collection);
@@ -139,12 +142,7 @@ const CollectionDrawerContent: React.FunctionComponent<
     }
 
     onRenameCollection(namespace, `${toNS(namespace).database}.${trimmedName}`);
-  }, [
-    collectionName,
-    namespace,
-    onRenameCollection,
-    isCollectionNameValid.isValid,
-  ]);
+  }, [collectionName, namespace, onRenameCollection, isCollectionNameValid]);
 
   return (
     <>
@@ -154,8 +152,8 @@ const CollectionDrawerContent: React.FunctionComponent<
             label="Name"
             sizeVariant="small"
             value={collectionName}
-            state={isCollectionNameValid.isValid ? undefined : 'error'}
-            errorMessage={isCollectionNameValid.errorMessage}
+            state={isCollectionNameValid ? undefined : 'error'}
+            errorMessage={collectionNameEditErrorMessage}
             onChange={(e) => {
               setCollectionName(e.target.value);
             }}

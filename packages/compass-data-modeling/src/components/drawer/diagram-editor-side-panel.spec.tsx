@@ -261,4 +261,71 @@ describe('DiagramEditorSidePanel', function () {
 
     expect(modifiedCollection).to.exist;
   });
+
+  it('should prevent editing to an empty collection name', async function () {
+    const result = renderDrawer();
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
+      expect(screen.getByLabelText('Name')).to.have.attribute(
+        'aria-invalid',
+        'false'
+      );
+    });
+
+    userEvent.clear(screen.getByLabelText('Name'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.attribute(
+        'aria-invalid',
+        'true'
+      );
+    });
+
+    // Blur/unfocus the input.
+    userEvent.click(document.body);
+
+    const notModifiedCollection = selectCurrentModel(
+      getCurrentDiagramFromState(result.plugin.store.getState()).edits
+    ).collections.find((c: DataModelCollection) => {
+      return c.ns === 'flights.countries';
+    });
+
+    expect(notModifiedCollection).to.exist;
+  });
+
+  it('should prevent editing to a duplicate collection name', async function () {
+    const result = renderDrawer();
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
+      expect(screen.getByLabelText('Name')).to.have.attribute(
+        'aria-invalid',
+        'false'
+      );
+    });
+
+    userEvent.clear(screen.getByLabelText('Name'));
+    userEvent.type(screen.getByLabelText('Name'), 'airlines');
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.attribute(
+        'aria-invalid',
+        'true'
+      );
+    });
+
+    // Blur/unfocus the input.
+    userEvent.click(document.body);
+
+    const notModifiedCollection = selectCurrentModel(
+      getCurrentDiagramFromState(result.plugin.store.getState()).edits
+    ).collections.find((c: DataModelCollection) => {
+      return c.ns === 'flights.countries';
+    });
+
+    expect(notModifiedCollection).to.exist;
+  });
 });
