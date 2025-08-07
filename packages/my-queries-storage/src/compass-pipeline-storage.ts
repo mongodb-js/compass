@@ -48,6 +48,8 @@ export class CompassPipelineStorage implements PipelineStorage {
     try {
       const { data } = await this.userData.readAll();
       return data;
+      const { data } = await this.userData.readAll();
+      return data;
     } catch {
       return [];
     }

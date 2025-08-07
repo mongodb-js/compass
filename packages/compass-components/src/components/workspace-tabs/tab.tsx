@@ -138,7 +138,7 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
-const nonExistentStyles = css({
+const inferredFromPrivilegesStyles = css({
   color: palette.gray.base,
 });
 
@@ -184,7 +184,7 @@ export type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
   title: React.ReactNode;
-  isNonExistent?: boolean;
+  inferredFromPrivileges?: boolean;
   iconGlyph: GlyphName | 'Logo' | 'Server';
   tooltip?: [string, string][];
 };
@@ -206,7 +206,7 @@ function Tab({
   type,
   title,
   tooltip,
-  isNonExistent,
+  inferredFromPrivileges,
   isSelected,
   isDragging,
   onSelect,
@@ -271,7 +271,7 @@ function Tab({
           className={cx(
             tabStyles,
             themeClass,
-            isNonExistent && nonExistentStyles,
+            inferredFromPrivileges && inferredFromPrivilegesStyles,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
             isDragging && draggingTabStyles,

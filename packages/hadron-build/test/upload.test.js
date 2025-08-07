@@ -43,7 +43,7 @@ describe('upload', function () {
   describe('readablePlatformName', function () {
     it('returns a pretty-printed platform / arch label', function () {
       expect(readablePlatformName('x64', 'darwin')).to.eq(
-        'macOS x64 (Intel) (10.15+)'
+        'macOS x64 (Intel) (11+)'
       );
     });
 
@@ -69,21 +69,21 @@ describe('upload', function () {
               arch: 'arm64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-1.0.0-darwin-arm64.dmg',
-              name: 'macOS arm64 (M1) (11.0+)',
+              name: 'macOS arm64 (Apple silicon) (11.0+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-1.0.0-darwin-x64.dmg',
-              name: 'macOS x64 (Intel) (10.15+)',
+              name: 'macOS x64 (Intel) (11+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass_1.0.0_amd64.deb',
-              name: 'Ubuntu 64-bit (16.04+)',
+              name: 'Ubuntu 64-bit (20.04+)',
               os: 'linux',
             },
             {
@@ -124,21 +124,21 @@ describe('upload', function () {
               arch: 'arm64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.0.0-darwin-arm64.dmg',
-              name: 'macOS arm64 (M1) (11.0+)',
+              name: 'macOS arm64 (Apple silicon) (11.0+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.0.0-darwin-x64.dmg',
-              name: 'macOS x64 (Intel) (10.15+)',
+              name: 'macOS x64 (Intel) (11+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-readonly_1.0.0_amd64.deb',
-              name: 'Ubuntu 64-bit (16.04+)',
+              name: 'Ubuntu 64-bit (20.04+)',
               os: 'linux',
             },
             {
@@ -179,21 +179,21 @@ describe('upload', function () {
               arch: 'arm64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.0.0-darwin-arm64.dmg',
-              name: 'macOS arm64 (M1) (11.0+)',
+              name: 'macOS arm64 (Apple silicon) (11.0+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.0.0-darwin-x64.dmg',
-              name: 'macOS x64 (Intel) (10.15+)',
+              name: 'macOS x64 (Intel) (11+)',
               os: 'darwin',
             },
             {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-isolated_1.0.0_amd64.deb',
-              name: 'Ubuntu 64-bit (16.04+)',
+              name: 'Ubuntu 64-bit (20.04+)',
               os: 'linux',
             },
             {

@@ -3,8 +3,11 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ContextMenuProvider } from '@mongodb-js/compass-context-menu';
-import { useContextMenuItems, ContextMenu } from './context-menu';
-import type { ContextMenuItem } from '@mongodb-js/compass-context-menu';
+import {
+  useContextMenuItems,
+  ContextMenu,
+  type ContextMenuItem,
+} from './context-menu';
 
 describe('useContextMenuItems', function () {
   const menuTestTriggerId = 'test-trigger';

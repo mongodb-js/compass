@@ -351,6 +351,7 @@ export interface DataService {
     filter?: Document,
     options?: {
       nameOnly?: true;
+      fetchNamespacesFromPrivileges?: boolean;
       privileges?:
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
@@ -459,6 +460,7 @@ export interface DataService {
    */
   listDatabases(options?: {
     nameOnly?: true;
+    fetchNamespacesFromPrivileges?: boolean;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
       | null;
@@ -1368,9 +1370,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Document = {},
     {
       nameOnly,
+      fetchNamespacesFromPrivileges = true,
       privileges = null,
     }: {
       nameOnly?: true;
+      fetchNamespacesFromPrivileges?: boolean;
       privileges?:
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
@@ -1381,11 +1385,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
         nameOnly,
       });
       return colls.map((coll) => ({
-        is_non_existent: false,
+        inferred_from_privileges: false,
         ...coll,
       }));
     };
     const getCollectionsFromPrivileges = async () => {
+      if (!fetchNamespacesFromPrivileges) {
+        return [];
+      }
       const databases = getPrivilegesByDatabaseAndCollection(
         await this._getPrivilegesOrFallback(privileges),
         ['find']
@@ -1400,7 +1407,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // those registered as "real" collection names
           Boolean
         )
-        .map((name) => ({ name, is_non_existent: true }));
+        .map((name) => ({ name, inferred_from_privileges: true }));
     };
 
     const [listedCollections, collectionsFromPrivileges] = await Promise.all([
@@ -1418,8 +1425,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...collectionsFromPrivileges, ...listedCollections],
       'name'
-    ).map(({ is_non_existent, ...coll }) => ({
-      is_non_existent,
+    ).map(({ inferred_from_privileges, ...coll }) => ({
+      inferred_from_privileges,
       ...adaptCollectionInfo({ db: databaseName, ...coll }),
     }));
 
@@ -1434,10 +1441,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async listDatabases({
     nameOnly,
+    fetchNamespacesFromPrivileges = true,
     privileges = null,
     roles = null,
   }: {
     nameOnly?: true;
+    fetchNamespacesFromPrivileges?: boolean;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
       | null;
@@ -1467,7 +1476,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         );
         return databases.map((x) => ({
           ...x,
-          is_non_existent: false,
+          inferred_from_privileges: false,
         }));
       } catch (err) {
         // Currently Compass should not fail if listDatabase failed for any
@@ -1488,6 +1497,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     const getDatabasesFromPrivileges = async () => {
+      if (!fetchNamespacesFromPrivileges) {
+        return [];
+      }
+
       const databases = getPrivilegesByDatabaseAndCollection(
         await this._getPrivilegesOrFallback(privileges),
         ['find']
@@ -1500,7 +1513,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // out
           Boolean
         )
-        .map((name) => ({ name, is_non_existent: true }));
+        .map((name) => ({ name, inferred_from_privileges: true }));
     };
 
     const getDatabasesFromRoles = async () => {
@@ -1515,7 +1528,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // have custom privileges that we can't currently fetch.
         ['read', 'readWrite', 'dbAdmin', 'dbOwner']
       );
-      return databases.map((name) => ({ name, is_non_existent: true }));
+      return databases.map((name) => ({
+        name,
+        inferred_from_privileges: true,
+      }));
     };
 
     const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
@@ -1530,11 +1546,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // if they were fetched successfully
       [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
       'name'
-    ).map(({ name, is_non_existent, ...db }) => {
+    ).map(({ name, inferred_from_privileges, ...db }) => {
       return {
         _id: name,
         name,
-        is_non_existent,
+        inferred_from_privileges,
         ...adaptDatabaseInfo(db),
       };
     });

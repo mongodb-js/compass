@@ -23,10 +23,10 @@ describe('mongodb-instance-model', function () {
     const instance = new MongoDBInstance({ _id: 'abc', preferences });
 
     await preferences.savePreferences({ enableDbAndCollStats: true });
-    expect(instance.shouldFetchDbAndCollStats).to.equal(true);
+    expect(instance.shouldFetchDbAndCollStats()).to.equal(true);
 
     await preferences.savePreferences({ enableDbAndCollStats: false });
-    expect(instance.shouldFetchDbAndCollStats).to.equal(false);
+    expect(instance.shouldFetchDbAndCollStats()).to.equal(false);
   });
 
   context('with mocked dataService', function () {

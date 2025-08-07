@@ -42,8 +42,8 @@ export type CollectionsWorkspace = {
   type: 'Collections';
   connectionId: string;
   namespace: string;
-  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
-  isNonExistent?: boolean;
+  // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.
+  inferredFromPrivileges?: boolean;
 };
 
 export type CollectionWorkspace = {
@@ -61,8 +61,8 @@ export type CollectionWorkspace = {
   initialPipelineText?: string;
   initialAggregation?: unknown;
   editViewName?: string;
-  // TODO(COMPASS-9456): Remove the `isNonExistent` field here.
-  isNonExistent?: boolean;
+  // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.
+  inferredFromPrivileges?: boolean;
 };
 
 export type WorkspaceTabProps =
