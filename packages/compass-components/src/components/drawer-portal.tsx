@@ -146,6 +146,15 @@ const drawerLayoutFixesStyles = css({
   '& > div:nth-child(2)': {
     marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
   },
+
+  // Doing our best to target the section title here, leafygreen really doesn't
+  // give us anything else to try. We're stretching the title container to all
+  // available width so that we can layout the controls there better
+  '& > div:nth-child(2) div:has(> strong)': {
+    flex: 1,
+    maxWidth: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
+    overflow: 'hidden',
+  },
 });
 
 const emptyDrawerLayoutFixesStyles = css({

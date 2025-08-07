@@ -1,61 +1,161 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
-import { DrawerSection } from '@mongodb-js/compass-components';
+import {
+  css,
+  DrawerSection,
+  ItemActionControls,
+} from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
+import {
+  deleteRelationship,
+  selectCurrentModelFromState,
+} from '../../store/diagram';
+import { getDefaultRelationshipName } from '../../utils';
+
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
+const drawerTitleStyles = css({
+  display: 'flex',
+  width: '100%',
+});
+
+const drawerTitleTextStyles = css({
+  flex: 1,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const drawerTitleActionGroupStyles = css({});
+
 type DiagramEditorSidePanelProps = {
-  selectedItems: { type: 'relationship' | 'collection'; id: string } | null;
+  selectedItems: {
+    id: string;
+    type: 'relationship' | 'collection';
+    label: string;
+  } | null;
+  onDeleteRelationship: (rId: string) => void;
 };
 
 function DiagramEditorSidePanel({
   selectedItems,
+  onDeleteRelationship,
 }: DiagramEditorSidePanelProps) {
-  if (!selectedItems) {
+  const { content, label, actions, handleAction } = useMemo(() => {
+    if (selectedItems?.type === 'collection') {
+      return {
+        label: selectedItems.label,
+        content: (
+          <CollectionDrawerContent
+            key={selectedItems.id}
+            namespace={selectedItems.id}
+          ></CollectionDrawerContent>
+        ),
+        actions: [],
+        handleAction: () => {},
+      };
+    }
+
+    if (selectedItems?.type === 'relationship') {
+      return {
+        label: selectedItems.label,
+        content: (
+          <RelationshipDrawerContent
+            key={selectedItems.id}
+            relationshipId={selectedItems.id}
+          ></RelationshipDrawerContent>
+        ),
+        actions: [
+          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+        ],
+        handleAction: (actionName: string) => {
+          if (actionName === 'delete') {
+            onDeleteRelationship(selectedItems.id);
+          }
+        },
+      };
+    }
+
+    return { content: null };
+  }, [selectedItems, onDeleteRelationship]);
+
+  if (!content) {
     return null;
-  }
-
-  let content;
-
-  if (selectedItems.type === 'collection') {
-    content = (
-      <CollectionDrawerContent
-        key={selectedItems.id}
-        namespace={selectedItems.id}
-      ></CollectionDrawerContent>
-    );
-  } else if (selectedItems.type === 'relationship') {
-    content = (
-      <RelationshipDrawerContent
-        key={selectedItems.id}
-        relationshipId={selectedItems.id}
-      ></RelationshipDrawerContent>
-    );
   }
 
   return (
     <DrawerSection
       id={DATA_MODELING_DRAWER_ID}
-      title="Details"
-      label="Details"
-      glyph="InfoWithCircle"
+      title={
+        <div className={drawerTitleStyles}>
+          <span className={drawerTitleTextStyles} title={label}>
+            {label}
+          </span>
+
+          <ItemActionControls
+            actions={actions}
+            iconSize="small"
+            onAction={handleAction}
+            className={drawerTitleActionGroupStyles}
+            // Because the close button here is out of our control, we have do
+            // adjust the actions rendering in a bit of an unconventional way:
+            // if there's more than one action available, collapse it to "...",
+            // if it's just one, render the button
+            collapseAfter={actions.length > 1 ? 0 : 1}
+          ></ItemActionControls>
+        </div>
+      }
+      label={label}
+      glyph="Wrench"
       autoOpen
-      // TODO: Leafygreen doesn't allow us to tie close event to a particular
-      // action. We can add this functionality ourselves, but I'm not sure that
-      // adding even more logic on top of the drawer is a good idea. Maybe we're
-      // okay with the drawer close button click just staying there until you
-      // explicitly click something else?
-      // onClose={onClose}
     >
       {content}
     </DrawerSection>
   );
 }
 
-export default connect((state: DataModelingState) => {
-  return {
-    selectedItems: state.diagram?.selectedItems ?? null,
-  };
-})(DiagramEditorSidePanel);
+export default connect(
+  (state: DataModelingState) => {
+    const selected = state.diagram?.selectedItems;
+
+    if (!selected) {
+      return {
+        selectedItems: null,
+      };
+    }
+
+    if (selected.type === 'collection') {
+      return {
+        selectedItems: {
+          ...selected,
+          label: selected.id,
+        },
+      };
+    }
+
+    if (selected.type === 'relationship') {
+      const model = selectCurrentModelFromState(state);
+      const relationship = model.relationships.find((relationship) => {
+        return relationship.id === selected.id;
+      });
+
+      if (!relationship) {
+        throw new Error(
+          'Can not find corresponding relationship when rendering DiagramEditorSidePanel'
+        );
+      }
+
+      return {
+        selectedItems: {
+          ...selected,
+          label: getDefaultRelationshipName(relationship.relationship),
+        },
+      };
+    }
+  },
+  {
+    onDeleteRelationship: deleteRelationship,
+  }
+)(DiagramEditorSidePanel);

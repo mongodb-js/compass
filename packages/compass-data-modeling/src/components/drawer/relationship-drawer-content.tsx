@@ -9,8 +9,6 @@ import {
   spacing,
   css,
   palette,
-  Button,
-  Icon,
   TextArea,
 } from '@mongodb-js/compass-components';
 import {
@@ -34,7 +32,6 @@ type RelationshipDrawerContentProps = {
   relationship: Relationship;
   fields: Record<string, string[][]>;
   onRelationshipUpdate: (relationship: Relationship) => void;
-  onDeleteRelationshipClick: (rId: string) => void;
 };
 
 type RelationshipFormFields = {
@@ -46,11 +43,6 @@ type RelationshipFormFields = {
   foreignCardinality: string;
   note: string;
 };
-
-const titleBtnStyles = css({
-  marginLeft: 'auto',
-  maxHeight: 20, // to make sure we're matching accordion line height
-});
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -156,13 +148,7 @@ const configurationForeignFieldStyles = css({
 
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
-> = ({
-  relationshipId,
-  relationship,
-  fields,
-  onRelationshipUpdate,
-  onDeleteRelationshipClick,
-}) => {
+> = ({ relationshipId, relationship, fields, onRelationshipUpdate }) => {
   const collections = useMemo(() => {
     return Object.keys(fields);
   }, [fields]);
@@ -192,25 +178,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <DMDrawerSection
-        label={
-          <>
-            <span>Relationship properties</span>
-
-            <Button
-              variant="dangerOutline"
-              leftGlyph={<Icon glyph="Trash" />}
-              className={titleBtnStyles}
-              size="xsmall"
-              onClick={() => {
-                onDeleteRelationshipClick(relationshipId);
-              }}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      >
+      <DMDrawerSection label="Relationship properties">
         <div className={configurationContainerStyles}>
           <div className={configurationLocalFieldStyles}>
             <DMFormFieldContainer>
