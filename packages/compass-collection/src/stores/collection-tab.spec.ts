@@ -12,7 +12,7 @@ import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/p
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
-import { CollectionMetadata } from 'mongodb-collection-model';
+import { type CollectionMetadata } from 'mongodb-collection-model';
 
 const defaultMetadata = {
   namespace: 'test.foo',
@@ -61,7 +61,7 @@ describe('Collection Tab Content store', function () {
   const localAppRegistry = sandbox.spy(new AppRegistry());
   const analyzeCollectionSchemaStub = sandbox
     .stub(collectionTabModule, 'analyzeCollectionSchema')
-    .returns(() => async () => {});
+    .returns(async () => {});
   const dataService = {} as any;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
@@ -81,8 +81,7 @@ describe('Collection Tab Content store', function () {
       enableGenAIFeaturesAtlasOrg: true,
       cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
     }),
-    collectionMetadata: Partial<CollectionMetadata> = defaultMetadata,
-    analysisAbortControllerRef: { current?: AbortController } = {}
+    collectionMetadata: Partial<CollectionMetadata> = defaultMetadata
   ) => {
     const mockCollection = {
       _id: collectionMetadata.namespace,

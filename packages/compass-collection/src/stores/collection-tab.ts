@@ -143,7 +143,7 @@ export function activatePlugin(
 
     if (!metadata.isReadonly && !metadata.isTimeSeries) {
       // TODO: Consider checking experiment variant
-      store.dispatch(analyzeCollectionSchema());
+      void store.dispatch(analyzeCollectionSchema());
     }
   });
 
