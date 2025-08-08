@@ -5,6 +5,7 @@ import React, {
   useMemo,
   createContext,
   useContext,
+  useRef,
 } from 'react';
 
 import type {
@@ -48,6 +49,9 @@ export function ContextMenuProvider({
     [setMenu]
   );
 
+  const onContextMenuOpenRef = useRef(onContextMenuOpen);
+  onContextMenuOpenRef.current = onContextMenuOpen;
+
   const handleClosingEvent = useCallback(
     (event: Event) => {
       if (!event.defaultPrevented) {
@@ -70,7 +74,7 @@ export function ContextMenuProvider({
         return;
       }
 
-      onContextMenuOpen?.(itemGroups);
+      onContextMenuOpenRef.current?.(itemGroups);
 
       setMenu({
         isOpen: true,
@@ -102,8 +106,7 @@ export function ContextMenuProvider({
         capture: true,
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled, handleClosingEvent, parentContext]);
+  }, [disabled, handleClosingEvent, onContextMenuOpenRef, parentContext]);
 
   const value = useMemo(
     () => ({
