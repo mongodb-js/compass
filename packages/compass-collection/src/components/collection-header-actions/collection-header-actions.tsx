@@ -85,14 +85,9 @@ const CollectionHeaderActions: React.FunctionComponent<
     atlasMetadata && // Only show in Atlas
     !isReadonly && // Don't show for readonly collections (views)
     !sourceName; // sourceName indicates it's a view
+  // TODO: CLOUDP-337090: also filter out overly nested collections
 
   const hasData = true; // TODO: CLOUDP-337090
-
-  // Determine if button should be enabled or disabled with tooltip
-  const isMockDataButtonEnabled = hasData; // TODO: CLOUDP-337090: also filter out overly nested collections
-  const disabledTooltipText = !hasData
-    ? 'Please add data to your collection to generate similar mock documents'
-    : undefined;
 
   return (
     <div
@@ -116,13 +111,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!isMockDataButtonEnabled && !!disabledTooltipText}
+          enabled={!hasData}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data"
                 size={ButtonSize.Small}
-                disabled={!isMockDataButtonEnabled}
+                disabled={!hasData}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
@@ -131,7 +126,7 @@ const CollectionHeaderActions: React.FunctionComponent<
             </div>
           }
         >
-          {disabledTooltipText}
+          Please add data to your collection to generate similar mock documents
         </Tooltip>
       )}
       {atlasMetadata && (
