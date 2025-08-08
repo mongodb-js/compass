@@ -80,21 +80,18 @@ const CollectionHeaderActions: React.FunctionComponent<
     mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroup.mockDataGeneratorVariant;
 
-  // Determine if we should show the Mock Data Generator button
   const shouldShowMockDataButton =
     isInMockDataTreatmentVariant &&
     atlasMetadata && // Only show in Atlas
-    !isReadonly && // Don't show for readonly collections (views) // TODO is this redundant?
-    !sourceName; // Don't show for views (sourceName indicates it's a view)
+    !isReadonly && // Don't show for readonly collections (views)
+    !sourceName; // sourceName indicates it's a view
 
-  // For now, we'll assume collection has data (no schema analysis dependency)
-  // In the future, this will be replaced with actual schema analysis
-  const hasCollectionData = true;
+  const hasData = true; // TODO: CLOUDP-337090
 
   // Determine if button should be enabled or disabled with tooltip
-  const canGenerateMockData = hasCollectionData; // TODO: Redundant
-  const disabledTooltipText = !hasCollectionData
-    ? 'Collection is empty'
+  const isMockDataButtonEnabled = hasData; // TODO: CLOUDP-337090: also filter out overly nested collections
+  const disabledTooltipText = !hasData
+    ? 'Please add data to your collection to generate similar mock documents'
     : undefined;
 
   return (
@@ -166,13 +163,13 @@ const CollectionHeaderActions: React.FunctionComponent<
       )}
       {shouldShowMockDataButton && (
         <Tooltip
-          enabled={!canGenerateMockData && !!disabledTooltipText}
+          enabled={!isMockDataButtonEnabled && !!disabledTooltipText}
           trigger={
             <div>
               <Button
                 data-testid="collection-header-generate-mock-data"
                 size={ButtonSize.Small}
-                disabled={!canGenerateMockData}
+                disabled={!isMockDataButtonEnabled}
                 onClick={onOpenMockDataModal}
                 leftGlyph={<Icon glyph="Sparkle" />}
               >
