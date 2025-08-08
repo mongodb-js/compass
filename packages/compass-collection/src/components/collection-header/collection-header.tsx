@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
@@ -18,6 +18,8 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
+import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -106,6 +108,16 @@ export const CollectionHeader: React.FunctionComponent<
   const connectionId = connectionInfo.id;
   const connectionName = getConnectionTitle(connectionInfo);
 
+  // Mock Data Generator modal state
+  const [isMockDataModalOpen, setIsMockDataModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(
+    MockDataGeneratorStep.AI_DISCLAIMER
+  );
+
+  const handleOpenMockDataModal = useCallback(() => {
+    setIsMockDataModalOpen(true);
+  }, []);
+
   const breadcrumbItems = useMemo(() => {
     return [
       {
@@ -170,8 +182,17 @@ export const CollectionHeader: React.FunctionComponent<
           namespace={namespace}
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
+          onOpenMockDataModal={handleOpenMockDataModal}
         />
       </div>
+      <MockDataGeneratorModal
+        isOpen={isMockDataModalOpen}
+        onOpenChange={setIsMockDataModalOpen}
+        currentStep={currentStep}
+        onCurrentStepChange={(step) => {
+          setCurrentStep(step);
+        }}
+      />
     </div>
   );
 };
