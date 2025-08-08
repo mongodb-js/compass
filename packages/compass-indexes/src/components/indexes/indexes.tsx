@@ -2,12 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
-  Body,
   Link,
   WorkspaceContainer,
   css,
   spacing,
   usePersistedState,
+  EmptyContent,
 } from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
@@ -29,6 +29,9 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
+import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
+import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
+import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -48,25 +51,70 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
+const ViewVersionIncompatibleEmptyState = ({
+  mongoDBMajorVersion,
+  enableAtlasSearchIndexes,
+}: {
+  mongoDBMajorVersion: number;
+  enableAtlasSearchIndexes: boolean;
+}) => {
+  const viewIsSearchCompatible = true; // view only contains $addFields, $set or $match stages with the $expr operator.
+
+  if (
+    mongoDBMajorVersion >= 8.1 &&
+    enableAtlasSearchIndexes &&
+    viewIsSearchCompatible
+  ) {
+    return null;
+  }
+  return (
+    <EmptyContent
+      icon={ZeroGraphic}
+      title="No standard indexes"
+      subTitle="Standard views use the indexes of the underlying collection. As a result, you
+           cannot create, drop or re-build indexes on a standard view directly, nor get a list of indexes on the view."
+      callToActionLink={
+        <Link
+          href="https://www.mongodb.com/docs/atlas/atlas-search/" // PLACEHOLDER LINK
+          target="_blank"
+        >
+          Learn more about views
+        </Link>
+      }
+    />
+  );
+};
+
 const AtlasIndexesBanner = ({
   namespace,
   dismissed,
   onDismissClick,
+  atlasMetadata,
+  isReadonlyView,
+  mongoDBMajorVersion,
 }: {
   namespace: string;
   dismissed: boolean;
   onDismissClick: () => void;
+  atlasMetadata: AtlasClusterMetadata | undefined;
+  isReadonlyView?: boolean;
+  mongoDBMajorVersion: number;
 }) => {
-  const { atlasMetadata } = useConnectionInfo();
-
-  if (!atlasMetadata || dismissed) {
+  const viewIsSearchCompatible = true; // view only contains $addFields, $set or $match stages with the $expr operator.
+  if (dismissed || (mongoDBMajorVersion > 8.0 && viewIsSearchCompatible)) {
     return null;
   }
-
+  const bannerVariant =
+    isReadonlyView && !viewIsSearchCompatible ? 'warning' : 'info';
+  const bannerText =
+    isReadonlyView && !viewIsSearchCompatible
+      ? 'This view is incompatible with search indexes. To use search indexes, edit the view to only contain $addFields, $set or $match stages with the $expr operator. You can view all search indexes under '
+      : 'These indexes can be created and viewed under ';
   return (
-    <Banner variant="info" dismissible onClose={onDismissClick}>
-      <Body weight="medium">Looking for search indexes?</Body>
-      These indexes can be created and viewed under{' '}
+    <Banner variant={bannerVariant} dismissible onClose={onDismissClick}>
+      <b>Looking for search indexes?</b>
+      <br />
+      {bannerText}
       {atlasMetadata ? (
         <Link
           href={getAtlasSearchIndexesLink({
@@ -92,6 +140,7 @@ type IndexesProps = {
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
+  serverVersion: string;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -117,6 +166,7 @@ export function Indexes({
   currentIndexesView,
   refreshRegularIndexes,
   refreshSearchIndexes,
+  serverVersion,
 }: IndexesProps) {
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
@@ -143,7 +193,10 @@ export function Indexes({
       : refreshSearchIndexes;
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
-
+  const mongoDBMajorVersion = parseFloat(
+    serverVersion.split('.').slice(0, 2).join('.')
+  );
+  const { atlasMetadata } = useConnectionInfo();
   return (
     <div className={containerStyles}>
       <WorkspaceContainer
@@ -162,20 +215,37 @@ export function Indexes({
         }
       >
         <div className={indexesContainersStyles}>
-          {!isReadonlyView && !enableAtlasSearchIndexes && (
-            <AtlasIndexesBanner
+          {isReadonlyView && (
+            <ViewVersionIncompatibleBanner
               namespace={namespace}
-              dismissed={atlasBannerDismissed}
-              onDismissClick={() => {
-                setDismissed(true);
-              }}
+              serverVersion={serverVersion}
+              mongoDBMajorVersion={mongoDBMajorVersion}
+              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+              atlasMetadata={atlasMetadata}
             />
           )}
+          {!enableAtlasSearchIndexes ||
+            (mongoDBMajorVersion > 8.0 && (
+              <AtlasIndexesBanner
+                namespace={namespace}
+                dismissed={atlasBannerDismissed}
+                onDismissClick={() => {
+                  setDismissed(true);
+                }}
+                atlasMetadata={atlasMetadata}
+                isReadonlyView={isReadonlyView}
+                mongoDBMajorVersion={mongoDBMajorVersion}
+              />
+            ))}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
-          {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-            <SearchIndexesTable />
+          {currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
+          {isReadonlyView && searchIndexes.indexes.length === 0 && (
+            <ViewVersionIncompatibleEmptyState
+              mongoDBMajorVersion={mongoDBMajorVersion}
+              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+            />
           )}
         </div>
       </WorkspaceContainer>
@@ -192,12 +262,14 @@ const mapState = ({
   regularIndexes,
   searchIndexes,
   indexView,
+  serverVersion,
 }: RootState) => ({
   namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
   currentIndexesView: indexView,
+  serverVersion,
 });
 
 const mapDispatch = {

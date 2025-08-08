@@ -605,7 +605,8 @@ const fetchIndexes = (
       searchIndexes: { status },
     } = getState();
 
-    if (isReadonlyView || !isWritable) {
+    if (!isWritable) {
+      // remove is ReadOnlyBlocker,
       return;
     }
 
