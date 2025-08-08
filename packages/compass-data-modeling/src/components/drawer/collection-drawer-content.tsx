@@ -140,8 +140,6 @@ const CollectionDrawerContent: React.FunctionComponent<
 
     if (!isCollectionNameValid) {
       // Reset to previous valid name.
-      // TODO: Maybe we don't reset.
-      setCollectionName(toNS(namespace).collection);
       return;
     }
 
