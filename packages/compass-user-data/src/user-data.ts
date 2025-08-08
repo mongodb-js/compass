@@ -373,7 +373,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       data: [],
       errors: [],
     };
-    // debugger;
     try {
       const response = await this.authenticatedFetch(
         this.getResourceUrl(
