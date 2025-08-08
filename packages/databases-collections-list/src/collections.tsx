@@ -192,7 +192,7 @@ const CollectionsList: React.FunctionComponent<{
               name={coll.name}
               type="collection"
               status={coll.status}
-              isNonExistent={coll.is_non_existent}
+              inferredFromPrivileges={coll.inferred_from_privileges}
               data={data}
               badges={badges}
               onItemClick={onItemClick}

@@ -501,24 +501,22 @@ export const HadronElement: React.FunctionComponent<{
   // Add context menu hook for the field
   const fieldContextMenuRef = useContextMenuItems(
     () => [
-      ...(onUpdateQuery
-        ? [
-            {
-              label: isFieldInQuery(
+      onUpdateQuery
+        ? {
+            label: isFieldInQuery(
+              getNestedKeyPathForElement(element),
+              element.generateObject()
+            )
+              ? 'Remove from query'
+              : 'Add to query',
+            onAction: () => {
+              onUpdateQuery(
                 getNestedKeyPathForElement(element),
                 element.generateObject()
-              )
-                ? 'Remove from query'
-                : 'Add to query',
-              onAction: () => {
-                onUpdateQuery(
-                  getNestedKeyPathForElement(element),
-                  element.generateObject()
-                );
-              },
+              );
             },
-          ]
-        : []),
+          }
+        : undefined,
       {
         label: 'Copy field & value',
         onAction: () => {
@@ -527,16 +525,14 @@ export const HadronElement: React.FunctionComponent<{
           );
         },
       },
-      ...(type.value === 'String' && isValidUrl(value.value)
-        ? [
-            {
-              label: 'Open URL in browser',
-              onAction: () => {
-                window.open(value.value, '_blank', 'noopener');
-              },
+      type.value === 'String' && isValidUrl(value.value)
+        ? {
+            label: 'Open URL in browser',
+            onAction: () => {
+              window.open(value.value, '_blank', 'noopener');
             },
-          ]
-        : []),
+          }
+        : undefined,
     ],
     [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
   );

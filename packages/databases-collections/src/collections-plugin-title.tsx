@@ -31,9 +31,9 @@ export function CollectionsPluginTitleComponent(props: PluginTitleProps) {
         ['Connection', connectionName || ''],
         ['Database', database],
       ]}
-      iconGlyph={props.isNonExistent ? 'EmptyDatabase' : 'Database'}
+      iconGlyph={props.inferredFromPrivileges ? 'EmptyDatabase' : 'Database'}
       data-namespace={props.namespace}
-      isNonExistent={props.isNonExistent}
+      inferredFromPrivileges={props.inferredFromPrivileges}
     />
   );
 }

@@ -71,31 +71,17 @@ export class CompassPipelineStorage implements PipelineStorage {
   }
 
   async create(data: Omit<SavedPipeline, 'lastModified'>): Promise<boolean> {
-    try {
-      await this.userData.write(data.id, {
-        ...data,
-        lastModified: Date.now(),
-      });
-      return true;
-    } catch {
-      return false;
-    }
+    return await this.userData.write(data.id, {
+      ...data,
+      lastModified: Date.now(),
+    });
   }
 
   async updateAttributes(
     id: string,
     attributes: Partial<SavedPipeline>
   ): Promise<boolean> {
-    try {
-      await this.userData.write(id, {
-        ...(await this.userData.readOne(id)),
-        ...attributes,
-        lastModified: Date.now(),
-      });
-      return true;
-    } catch {
-      return false;
-    }
+    return await this.userData.updateAttributes(id, attributes);
   }
 
   async delete(id: string) {
