@@ -396,13 +396,6 @@ export function renameCollection(
     };
 
     dispatch(applyEdit(edit));
-
-    // When renaming we want to keep the renamed collection selected in the UI,
-    // the ID is the collection name.
-    dispatch({
-      type: DiagramActionTypes.COLLECTION_SELECTED,
-      namespace: toNS,
-    });
   };
 }
 
