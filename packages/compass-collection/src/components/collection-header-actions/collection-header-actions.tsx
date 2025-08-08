@@ -115,7 +115,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           trigger={
             <div>
               <Button
-                data-testid="collection-header-generate-mock-data"
+                data-testid="collection-header-generate-mock-data-button"
                 size={ButtonSize.Small}
                 disabled={!hasData}
                 onClick={onOpenMockDataModal}

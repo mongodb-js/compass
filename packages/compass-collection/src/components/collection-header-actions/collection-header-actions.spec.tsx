@@ -248,7 +248,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(
-        screen.queryByTestId('collection-header-generate-mock-data')
+        screen.queryByTestId('collection-header-generate-mock-data-button')
       ).to.not.exist;
     });
 
@@ -268,7 +268,7 @@ describe('CollectionHeaderActions [Component]', function () {
       });
 
       expect(
-        screen.queryByTestId('collection-header-generate-mock-data')
+        screen.queryByTestId('collection-header-generate-mock-data-button')
       ).to.not.exist;
     });
 
@@ -291,7 +291,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(
-        screen.queryByTestId('collection-header-generate-mock-data')
+        screen.queryByTestId('collection-header-generate-mock-data-button')
       ).to.not.exist;
     });
 
@@ -315,7 +315,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(
-        screen.queryByTestId('collection-header-generate-mock-data')
+        screen.queryByTestId('collection-header-generate-mock-data-button')
       ).to.not.exist;
     });
 
@@ -338,7 +338,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
 
       expect(
-        screen.getByTestId('collection-header-generate-mock-data')
+        screen.getByTestId('collection-header-generate-mock-data-button')
       ).to.exist;
       expect(screen.getByText('Generate Mock Data')).to.exist;
     });
@@ -376,7 +376,9 @@ describe('CollectionHeaderActions [Component]', function () {
         atlasConnectionInfo
       );
 
-      const button = screen.getByTestId('collection-header-generate-mock-data');
+      const button = screen.getByTestId(
+        'collection-header-generate-mock-data-button'
+      );
       button.click();
 
       expect(onOpenMockDataModal).to.have.been.calledOnce;
