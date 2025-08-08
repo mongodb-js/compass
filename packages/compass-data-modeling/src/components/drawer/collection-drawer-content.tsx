@@ -139,7 +139,6 @@ const CollectionDrawerContent: React.FunctionComponent<
     }
 
     if (!isCollectionNameValid) {
-      // Reset to previous valid name.
       return;
     }
 
