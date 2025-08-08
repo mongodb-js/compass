@@ -98,6 +98,10 @@ const modelPreviewStyles = css({
   ['.connectablestart']: {
     userSelect: 'none',
   },
+
+  ['*']: {
+    boxSizing: 'content-box',
+  },
 });
 
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
