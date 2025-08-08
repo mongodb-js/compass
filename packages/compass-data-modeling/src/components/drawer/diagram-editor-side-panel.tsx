@@ -102,7 +102,8 @@ function DiagramEditorSidePanel({
             // Because the close button here is out of our control, we have do
             // adjust the actions rendering in a bit of an unconventional way:
             // if there's more than one action available, collapse it to "...",
-            // if it's just one, render the button
+            // if it's just one, make sure button is not collapsed by setting
+            // collapseAfter to >0
             collapseAfter={actions.length > 1 ? 0 : 1}
           ></ItemActionControls>
         </div>
