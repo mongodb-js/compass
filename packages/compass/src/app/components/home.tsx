@@ -189,6 +189,19 @@ export default function ThemedHome(
           });
         }
       }}
+      onContextMenuOpen={(itemGroups) => {
+        if (itemGroups.length > 0) {
+          track('Context Menu Opened', {
+            item_groups: itemGroups.map((group) => group.telemetryLabel),
+          });
+        }
+      }}
+      onContextMenuItemClick={(itemGroup, item) => {
+        track('Context Menu Item Clicked', {
+          item_group: itemGroup.telemetryLabel,
+          item_label: item.label,
+        });
+      }}
       utmSource="compass"
       utmMedium="product"
       onSignalMount={(id) => {

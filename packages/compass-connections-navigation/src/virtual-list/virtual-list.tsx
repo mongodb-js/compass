@@ -10,11 +10,11 @@ import {
   type ListChildComponentProps,
 } from 'react-window';
 import {
+  type ContextMenuItemGroup,
   css,
   mergeProps,
   useFocusRing,
   useId,
-  type ContextMenuItem,
 } from '@mongodb-js/compass-components';
 import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
 import { type Actions } from '../constants';
@@ -77,7 +77,7 @@ type RenderItem<T> = (props: {
   getContextMenuGroups: (
     this: void,
     item: SidebarTreeItem
-  ) => ContextMenuItem[][];
+  ) => ContextMenuItemGroup[];
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
@@ -109,7 +109,10 @@ type VirtualTreeProps<T extends VirtualItem> = {
       collapseAfter: number;
     };
   };
-  getContextMenuGroups(this: void, item: SidebarTreeItem): ContextMenuItem[][];
+  getContextMenuGroups(
+    this: void,
+    item: SidebarTreeItem
+  ): ContextMenuItemGroup[];
 
   __TEST_OVER_SCAN_COUNT?: number;
 };
@@ -250,7 +253,10 @@ type VirtualItemData<T extends VirtualItem> = {
       collapseAfter: number;
     };
   };
-  getContextMenuGroups(this: void, item: SidebarTreeItem): ContextMenuItem[][];
+  getContextMenuGroups(
+    this: void,
+    item: SidebarTreeItem
+  ): ContextMenuItemGroup[];
 };
 function TreeItem<T extends VirtualItem>({
   index,

@@ -13,7 +13,7 @@ import {
   Select,
   Option,
   SignalPopover,
-  useContextMenuItems,
+  useContextMenuGroups,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -203,73 +203,78 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     [querySkip, queryLimit]
   );
 
-  const contextMenuRef = useContextMenuItems(
+  const contextMenuRef = useContextMenuGroups(
     () => [
       {
-        label: 'Expand all documents',
-        onAction: () => {
-          onExpandAllClicked();
-        },
-      },
-      {
-        label: 'Collapse all documents',
-        onAction: () => {
-          onCollapseAllClicked();
-        },
-      },
-      isImportExportEnabled
-        ? {
-            label: 'Import JSON or CSV file',
+        telemetryLabel: 'Expand all documents',
+        items: [
+          {
+            label: 'Expand all documents',
             onAction: () => {
-              insertDataHandler('import-file');
+              onExpandAllClicked();
             },
-          }
-        : undefined,
-      !readonly
-        ? {
-            label: 'Insert document...',
+          },
+          {
+            label: 'Collapse all documents',
             onAction: () => {
-              insertDataHandler('insert-document');
+              onCollapseAllClicked();
             },
-          }
-        : undefined,
-      ...(isImportExportEnabled
-        ? [
-            {
-              label: 'Export query results...',
-              onAction: () => {
-                openExportFileDialog(false);
-              },
+          },
+          isImportExportEnabled
+            ? {
+                label: 'Import JSON or CSV file',
+                onAction: () => {
+                  insertDataHandler('import-file');
+                },
+              }
+            : undefined,
+          !readonly
+            ? {
+                label: 'Insert document...',
+                onAction: () => {
+                  insertDataHandler('insert-document');
+                },
+              }
+            : undefined,
+          ...(isImportExportEnabled
+            ? [
+                {
+                  label: 'Export query results...',
+                  onAction: () => {
+                    openExportFileDialog(false);
+                  },
+                },
+                {
+                  label: 'Export full collection...',
+                  onAction: () => {
+                    openExportFileDialog(true);
+                  },
+                },
+              ]
+            : []),
+          ...(!readonly && isWritable && !shouldDisableBulkOp
+            ? [
+                {
+                  label: 'Bulk update',
+                  onAction: () => {
+                    onUpdateButtonClicked();
+                  },
+                },
+                {
+                  label: 'Bulk delete',
+                  onAction: () => {
+                    onDeleteButtonClicked();
+                  },
+                },
+              ]
+            : []),
+          {
+            label: 'Refresh',
+            onAction: () => {
+              onClickRefreshDocuments();
             },
-            {
-              label: 'Export full collection...',
-              onAction: () => {
-                openExportFileDialog(true);
-              },
-            },
-          ]
-        : []),
-      ...(!readonly && isWritable && !shouldDisableBulkOp
-        ? [
-            {
-              label: 'Bulk update',
-              onAction: () => {
-                onUpdateButtonClicked();
-              },
-            },
-            {
-              label: 'Bulk delete',
-              onAction: () => {
-                onDeleteButtonClicked();
-              },
-            },
-          ]
-        : []),
-      {
-        label: 'Refresh',
-        onAction: () => {
-          onClickRefreshDocuments();
-        },
+          },
+        ],
       },
     ],
     [

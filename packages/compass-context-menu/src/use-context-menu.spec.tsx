@@ -16,7 +16,7 @@ const { render } = testingLibrary;
 describe('useContextMenu', function () {
   const TestMenu: React.FC<ContextMenuWrapperProps> = ({ menu }) => (
     <div data-testid="test-menu">
-      {menu.itemGroups.flatMap((items, groupIdx) =>
+      {menu.itemGroups.flatMap(({ items }, groupIdx) =>
         items.map((item, idx) => (
           <div
             key={`${groupIdx}-${idx}`}
@@ -51,7 +51,12 @@ describe('useContextMenu', function () {
         onAction: () => onAction?.(1),
       },
     ];
-    const ref = contextMenu.registerItems(items);
+    const ref = contextMenu.registerItemGroups([
+      {
+        telemetryLabel: 'Test Item Group',
+        items,
+      },
+    ]);
 
     React.useEffect(() => {
       onRegister?.(ref);
@@ -82,7 +87,12 @@ describe('useContextMenu', function () {
         onAction: () => onAction?.(2),
       },
     ];
-    const ref = contextMenu.registerItems(parentItems);
+    const ref = contextMenu.registerItemGroups([
+      {
+        telemetryLabel: 'Parent Item Group',
+        items: parentItems,
+      },
+    ]);
 
     return (
       <div data-testid="parent-trigger" ref={ref}>
@@ -108,7 +118,12 @@ describe('useContextMenu', function () {
         onAction: () => onAction?.(2),
       },
     ];
-    const ref = contextMenu.registerItems(childItems);
+    const ref = contextMenu.registerItemGroups([
+      {
+        telemetryLabel: 'Child Item Group',
+        items: childItems,
+      },
+    ]);
 
     return (
       <div data-testid="child-trigger" ref={ref}>
@@ -262,6 +277,33 @@ describe('useContextMenu', function () {
         expect(childOnAction).to.not.have.been.called;
         expect(() => screen.getByTestId('test-menu')).to.throw;
       });
+    });
+
+    it('calls onContextMenuOpen when context menu is opened', function () {
+      const onContextMenuOpen = sinon.spy();
+
+      render(
+        <ContextMenuProvider
+          menuWrapper={TestMenu}
+          onContextMenuOpen={onContextMenuOpen}
+        >
+          <TestComponent />
+        </ContextMenuProvider>
+      );
+
+      const trigger = screen.getByTestId('test-trigger');
+      userEvent.click(trigger, { button: 2 });
+
+      // Verify the callback was called
+      expect(onContextMenuOpen).to.have.been.calledOnce;
+
+      // Verify the callback was called with the correct item groups
+      const [itemGroup] = onContextMenuOpen.firstCall.args[0];
+      expect(itemGroup).to.include({
+        telemetryLabel: 'Test Item Group',
+      });
+      expect(itemGroup.items).to.have.lengthOf(1);
+      expect(itemGroup.items[0]).to.include({ label: 'Test Item' });
     });
 
     describe('menu closing behavior', function () {
