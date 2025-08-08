@@ -25,19 +25,21 @@ export const ViewVersionIncompatibleBanner = ({
 }: {
   namespace: string;
   serverVersion: string;
-  mongoDBMajorVersion: string;
+  mongoDBMajorVersion: number;
   enableAtlasSearchIndexes: boolean;
   atlasMetadata: AtlasClusterMetadata | undefined;
 }) => {
-  const version = parseFloat(mongoDBMajorVersion);
   const searchIndexOnViewsVersion = enableAtlasSearchIndexes ? '8.1' : '8.0';
 
-  if (version > 8.0 || (version === 8.0 && !enableAtlasSearchIndexes)) {
+  if (
+    mongoDBMajorVersion > 8.0 ||
+    (mongoDBMajorVersion === 8.0 && !enableAtlasSearchIndexes)
+  ) {
     // return if 8.1+ or 8.0+ for data explorer
     return null;
   }
 
-  if (version < 8.0) {
+  if (mongoDBMajorVersion < 8.0) {
     // data explorer <8.0 and compass <8.0
     return (
       <Banner variant={BannerVariant.Warning}>
@@ -70,7 +72,7 @@ export const ViewVersionIncompatibleBanner = ({
     );
   }
 
-  if (version === 8.0 && enableAtlasSearchIndexes) {
+  if (mongoDBMajorVersion === 8.0 && enableAtlasSearchIndexes) {
     // compass 8.0
     return (
       <Banner variant={BannerVariant.Warning}>

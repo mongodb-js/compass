@@ -105,9 +105,16 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
+  const mongoDBMajorVersion = parseFloat(
+    serverVersion.split('.').slice(0, 2).join('.')
+  );
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
-  const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
+  const showCreateIndexButton =
+    mongoDBMajorVersion > 8.0 && !readOnly && !errorMessage;
+  const showRefreshButton =
+    !isReadonlyView ||
+    (mongoDBMajorVersion > 8.0 && indexView === 'search-indexes');
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -121,7 +128,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {!isReadonlyView && (
+      {mongoDBMajorVersion > 8.0 && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
@@ -137,23 +144,27 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       isWritable={isWritable}
                       onCreateRegularIndexClick={onCreateRegularIndexClick}
                       onCreateSearchIndexClick={onCreateSearchIndexClick}
-                    ></CreateIndexButton>
+                      isReadonlyView={isReadonlyView}
+                      indexView={indexView}
+                    />
                   </div>
                 }
               >
                 {writeStateDescription}
               </Tooltip>
             )}
-            <Button
-              data-testid="refresh-indexes-button"
-              disabled={isRefreshing}
-              onClick={() => onRefreshIndexes()}
-              variant="default"
-              size="small"
-              leftGlyph={refreshButtonIcon}
-            >
-              Refresh
-            </Button>
+            {showRefreshButton && (
+              <Button
+                data-testid="refresh-indexes-button"
+                disabled={isRefreshing}
+                onClick={() => onRefreshIndexes()}
+                variant="default"
+                size="small"
+                leftGlyph={refreshButtonIcon}
+              >
+                Refresh
+              </Button>
+            )}
             {showAtlasSearchLink && atlasMetadata && (
               <Link
                 href={getAtlasSearchIndexesLink({
@@ -180,13 +191,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 value={indexView}
                 data-testid="indexes-segment-controls"
               >
-                <SegmentedControlOption
+                <SegmentedControlOption // NEED TOOLTIP
                   data-testid="regular-indexes-tab"
                   value="regular-indexes"
+                  disabled={isReadonlyView}
                 >
                   Indexes
                 </SegmentedControlOption>
-                {!isSearchIndexesSupported && (
+                {/* {!isSearchIndexesSupported && (
                   <Tooltip
                     align="top"
                     justify="end"
@@ -224,15 +236,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </>
                     )}
                   </Tooltip>
-                )}
-                {isSearchIndexesSupported && (
-                  <SegmentedControlOption
-                    data-testid="search-indexes-tab"
-                    value="search-indexes"
-                  >
-                    Search Indexes
-                  </SegmentedControlOption>
-                )}
+                )}*/}
+
+                <SegmentedControlOption
+                  data-testid="search-indexes-tab"
+                  value="search-indexes"
+                >
+                  Search Indexes
+                </SegmentedControlOption>
               </SegmentedControl>
             )}
           </div>
@@ -248,6 +259,8 @@ type CreateIndexButtonProps = {
   isWritable: boolean;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: () => void;
+  isReadonlyView: boolean;
+  indexView: IndexView;
 };
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
@@ -260,6 +273,8 @@ export const CreateIndexButton: React.FunctionComponent<
   isWritable,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
+  isReadonlyView,
+  indexView,
 }) => {
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
@@ -273,7 +288,24 @@ export const CreateIndexButton: React.FunctionComponent<
     [onCreateRegularIndexClick, onCreateSearchIndexClick]
   );
 
-  if (isSearchIndexesSupported && isSearchManagementActive) {
+  if (isReadonlyView && isSearchManagementActive) {
+    if (indexView === 'search-indexes') {
+      return (
+        <Button
+          data-testid="open-create-index-modal-button"
+          disabled={!isWritable}
+          onClick={onCreateRegularIndexClick}
+          variant="primary"
+          size="small"
+        >
+          Create Search Index
+        </Button>
+      );
+    }
+
+    return null;
+  }
+  if (!isReadonlyView && isSearchIndexesSupported && isSearchManagementActive) {
     return (
       <DropdownMenuButton
         data-testid="multiple-index-types-creation-dropdown"
