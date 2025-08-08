@@ -114,6 +114,26 @@ const CollectionHeaderActions: React.FunctionComponent<
           Open MongoDB shell
         </Button>
       )}
+      {shouldShowMockDataButton && (
+        <Tooltip
+          enabled={!isMockDataButtonEnabled && !!disabledTooltipText}
+          trigger={
+            <div>
+              <Button
+                data-testid="collection-header-generate-mock-data"
+                size={ButtonSize.Small}
+                disabled={!isMockDataButtonEnabled}
+                onClick={onOpenMockDataModal}
+                leftGlyph={<Icon glyph="Sparkle" />}
+              >
+                Generate Mock Data
+              </Button>
+            </div>
+          }
+        >
+          {disabledTooltipText}
+        </Tooltip>
+      )}
       {atlasMetadata && (
         <Button
           data-testid="collection-header-visualize-your-data"
@@ -160,26 +180,6 @@ const CollectionHeaderActions: React.FunctionComponent<
           <Icon glyph="ArrowLeft" />
           Return to View
         </Button>
-      )}
-      {shouldShowMockDataButton && (
-        <Tooltip
-          enabled={!isMockDataButtonEnabled && !!disabledTooltipText}
-          trigger={
-            <div>
-              <Button
-                data-testid="collection-header-generate-mock-data"
-                size={ButtonSize.Small}
-                disabled={!isMockDataButtonEnabled}
-                onClick={onOpenMockDataModal}
-                leftGlyph={<Icon glyph="Sparkle" />}
-              >
-                Generate Mock Data
-              </Button>
-            </div>
-          }
-        >
-          {disabledTooltipText}
-        </Tooltip>
       )}
     </div>
   );
