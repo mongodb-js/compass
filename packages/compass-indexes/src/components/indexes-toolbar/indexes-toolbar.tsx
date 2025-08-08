@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   usePreference,
@@ -25,7 +25,7 @@ import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import { createIndexOpened } from '../../modules/create-index';
-import type { IndexView } from '../../modules/index-view';
+import { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
 
 const toolbarButtonsContainer = css({
@@ -111,10 +111,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
-    mongoDBMajorVersion > 8.0 && !readOnly && !errorMessage;
+    (!isReadonlyView || mongoDBMajorVersion > 8.0) && !errorMessage;
   const showRefreshButton =
-    !isReadonlyView ||
-    (mongoDBMajorVersion > 8.0 && indexView === 'search-indexes');
+    (!isReadonlyView || mongoDBMajorVersion > 8.0) &&
+    indexView === 'search-indexes';
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -123,12 +123,19 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
 
+  useEffect(() => {
+    // If the view is readonly, set the default tab to 'search-indexes'
+    if (isReadonlyView) {
+      onIndexViewChanged('search-indexes'); // Update the Redux state
+    }
+  }, [isReadonlyView, indexView]);
+
   return (
     <div
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {mongoDBMajorVersion > 8.0 && (
+      {(!isReadonlyView || mongoDBMajorVersion > 8.0) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
@@ -188,17 +195,34 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
-                value={indexView}
+                value={isReadonlyView ? 'search-indexes' : indexView}
                 data-testid="indexes-segment-controls"
               >
-                <SegmentedControlOption // NEED TOOLTIP
-                  data-testid="regular-indexes-tab"
-                  value="regular-indexes"
-                  disabled={isReadonlyView}
+                <Tooltip
+                  align="top"
+                  justify="end"
+                  enabled={true}
+                  renderMode="portal"
+                  trigger={
+                    <SegmentedControlOption
+                      data-testid="regular-indexes-tab"
+                      value="regular-indexes"
+                      disabled={isReadonlyView}
+                    >
+                      Indexes
+                    </SegmentedControlOption>
+                  }
                 >
-                  Indexes
-                </SegmentedControlOption>
-                {/* {!isSearchIndexesSupported && (
+                  Readonly views may not contain standard indexes.
+                </Tooltip>
+                {serverSupportsSearchIndexManagement(serverVersion) ? (
+                  <SegmentedControlOption
+                    data-testid="search-indexes-tab"
+                    value="search-indexes"
+                  >
+                    Search Indexes
+                  </SegmentedControlOption>
+                ) : (
                   <Tooltip
                     align="top"
                     justify="end"
@@ -214,36 +238,20 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </SegmentedControlOption>
                     }
                   >
-                    {serverSupportsSearchIndexManagement(serverVersion) ? (
+                    <>
                       <p>
-                        Unable to fetch search indexes. This can occur when your
-                        cluster does not support search indexes or the request
-                        to list search indexes failed.
+                        Atlas Search index management in Compass is only
+                        available for Atlas local deployments and clusters
+                        running MongoDB 6.0.7 or newer.
                       </p>
-                    ) : (
-                      <>
-                        <p>
-                          Atlas Search index management in Compass is only
-                          available for Atlas local deployments and clusters
-                          running MongoDB 6.0.7 or newer.
-                        </p>
-                        <p>
-                          For clusters running an earlier version of MongoDB,
-                          you can manage your Atlas Search indexes from the
-                          Atlas web Ul, with the CLI, or with the Administration
-                          API.
-                        </p>
-                      </>
-                    )}
+                      <p>
+                        For clusters running an earlier version of MongoDB, you
+                        can manage your Atlas Search indexes from the Atlas web
+                        Ul, with the CLI, or with the Administration API.
+                      </p>
+                    </>
                   </Tooltip>
-                )}*/}
-
-                <SegmentedControlOption
-                  data-testid="search-indexes-tab"
-                  value="search-indexes"
-                >
-                  Search Indexes
-                </SegmentedControlOption>
+                )}
               </SegmentedControl>
             )}
           </div>
