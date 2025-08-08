@@ -284,7 +284,8 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 }
 
 export function createNewRelationship(
-  namespace: string
+  localNamespace: string,
+  foreignNamespace: string | null = null
 ): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
@@ -297,8 +298,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: namespace, cardinality: 1, fields: null },
-            { ns: null, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: null },
+            { ns: foreignNamespace, cardinality: 1, fields: null },
           ],
           isInferred: false,
         },
@@ -506,6 +507,13 @@ export function deleteRelationship(
   };
 }
 
+export function updateCollectionNote(
+  ns: string,
+  note: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'UpdateCollectionNote', ns, note });
+}
+
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -582,6 +590,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           // Rename the collection.
           ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
         })),
+      };
+    }
+    case 'UpdateCollectionNote': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              note: edit.note,
+            };
+          }
+          return collection;
+        }),
       };
     }
     default: {

@@ -144,9 +144,18 @@ export const getFieldsFromSchema = (
 
 export function collectionToDiagramNode(
   coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
-  selectedFields: Record<string, string[][] | undefined> = {},
-  selected = false
+  options: {
+    selectedFields?: Record<string, string[][] | undefined>;
+    selected?: boolean;
+    isInRelationshipDrawingMode?: boolean;
+  } = {}
 ): NodeProps {
+  const {
+    selectedFields = {},
+    selected = false,
+    isInRelationshipDrawingMode = false,
+  } = options;
+
   return {
     id: coll.ns,
     type: 'collection',
@@ -161,6 +170,8 @@ export function collectionToDiagramNode(
       0
     ),
     selected,
+    connectable: isInRelationshipDrawingMode,
+    draggable: !isInRelationshipDrawingMode,
   };
 }
 

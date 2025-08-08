@@ -12,9 +12,11 @@ function renderDiagramEditorToolbar(
       step="EDITING"
       hasUndo={true}
       hasRedo={true}
+      isInRelationshipDrawingMode={false}
       onUndoClick={() => {}}
       onRedoClick={() => {}}
       onExportClick={() => {}}
+      onRelationshipDrawingToggle={() => {}}
       {...props}
     />
   );
@@ -60,6 +62,36 @@ describe('DiagramEditorToolbar', function () {
       expect(redoButton).to.have.attribute('aria-disabled', 'false');
       userEvent.click(redoButton);
       expect(redoSpy).to.have.been.calledOnce;
+    });
+  });
+
+  context('add relationship button', function () {
+    it('renders it active if isInRelationshipDrawingMode is true', function () {
+      renderDiagramEditorToolbar({ isInRelationshipDrawingMode: true });
+      const addButton = screen.getByRole('button', {
+        name: 'Exit Relationship Drawing Mode',
+      });
+      expect(addButton).to.have.attribute('aria-pressed', 'true');
+    });
+
+    it('does not render it active if isInRelationshipDrawingMode is false', function () {
+      renderDiagramEditorToolbar({ isInRelationshipDrawingMode: false });
+      const addButton = screen.getByRole('button', {
+        name: 'Add Relationship',
+      });
+      expect(addButton).to.have.attribute('aria-pressed', 'false');
+    });
+
+    it('clicking on it calls onRelationshipDrawingToggle', function () {
+      const relationshipDrawingToggleSpy = sinon.spy();
+      renderDiagramEditorToolbar({
+        onRelationshipDrawingToggle: relationshipDrawingToggleSpy,
+      });
+      const addRelationshipButton = screen.getByRole('button', {
+        name: 'Add Relationship',
+      });
+      userEvent.click(addRelationshipButton);
+      expect(relationshipDrawingToggleSpy).to.have.been.calledOnce;
     });
   });
 

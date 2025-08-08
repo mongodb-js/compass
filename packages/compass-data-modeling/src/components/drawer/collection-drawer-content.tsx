@@ -7,37 +7,39 @@ import {
   Button,
   IconButton,
   css,
-  FormFieldContainer,
   palette,
   spacing,
   TextInput,
   Icon,
+  TextArea,
 } from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
   deleteRelationship,
+  renameCollection,
   selectCurrentModelFromState,
   selectRelationship,
-  renameCollection,
+  updateCollectionNote,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
 import { getDefaultRelationshipName } from '../../utils';
-import DMDrawerSection from './dm-drawer-section';
+import {
+  DMDrawerSection,
+  DMFormFieldContainer,
+} from './drawer-section-components';
+import { useChangeOnBlur } from './use-change-on-blur';
 
 type CollectionDrawerContentProps = {
   namespace: string;
   namespaces: string[];
+  note?: string;
   relationships: Relationship[];
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
+  onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
 };
-
-const formFieldContainerStyles = css({
-  marginBottom: spacing[400],
-  marginTop: spacing[400],
-});
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
@@ -106,10 +108,12 @@ const CollectionDrawerContent: React.FunctionComponent<
 > = ({
   namespace,
   namespaces,
+  note = '',
   relationships,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
+  onNoteChange,
   onRenameCollection,
 }) => {
   const [collectionName, setCollectionName] = useState(
@@ -144,10 +148,14 @@ const CollectionDrawerContent: React.FunctionComponent<
     onRenameCollection(namespace, `${toNS(namespace).database}.${trimmedName}`);
   }, [collectionName, namespace, onRenameCollection, isCollectionNameValid]);
 
+  const noteInputProps = useChangeOnBlur(note, (newNote) => {
+    onNoteChange(namespace, newNote);
+  });
+
   return (
     <>
       <DMDrawerSection label="Collection properties">
-        <FormFieldContainer className={formFieldContainerStyles}>
+        <DMFormFieldContainer>
           <TextInput
             label="Name"
             sizeVariant="small"
@@ -159,7 +167,7 @@ const CollectionDrawerContent: React.FunctionComponent<
             }}
             onBlur={onBlurCollectionName}
           />
-        </FormFieldContainer>
+        </DMFormFieldContainer>
       </DMDrawerSection>
 
       <DMDrawerSection
@@ -221,6 +229,12 @@ const CollectionDrawerContent: React.FunctionComponent<
           )}
         </div>
       </DMDrawerSection>
+
+      <DMDrawerSection label="Notes">
+        <DMFormFieldContainer>
+          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+        </DMFormFieldContainer>
+      </DMDrawerSection>
     </>
   );
 };
@@ -229,19 +243,24 @@ export default connect(
   (state: DataModelingState, ownProps: { namespace: string }) => {
     const model = selectCurrentModelFromState(state);
     return {
+      note:
+        model.collections.find((collection) => {
+          return collection.ns === ownProps.namespace;
+        })?.note ?? '',
+      namespaces: model.collections.map((c) => c.ns),
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
           local.ns === ownProps.namespace || foreign.ns === ownProps.namespace
         );
       }),
-      namespaces: model.collections.map((c) => c.ns),
     };
   },
   {
     onCreateNewRelationshipClick: createNewRelationship,
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
+    onNoteChange: updateCollectionNote,
     onRenameCollection: renameCollection,
   }
 )(CollectionDrawerContent);

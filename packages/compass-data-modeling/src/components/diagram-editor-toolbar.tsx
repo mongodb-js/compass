@@ -13,6 +13,7 @@ import {
   spacing,
   useDarkMode,
   transparentize,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -44,10 +45,21 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   step: DataModelingState['step'];
   hasUndo: boolean;
   hasRedo: boolean;
+  isInRelationshipDrawingMode: boolean;
   onUndoClick: () => void;
   onRedoClick: () => void;
   onExportClick: () => void;
-}> = ({ step, hasUndo, onUndoClick, hasRedo, onRedoClick, onExportClick }) => {
+  onRelationshipDrawingToggle: () => void;
+}> = ({
+  step,
+  hasUndo,
+  onUndoClick,
+  hasRedo,
+  onRedoClick,
+  onExportClick,
+  onRelationshipDrawingToggle,
+  isInRelationshipDrawingMode,
+}) => {
   const darkmode = useDarkMode();
   if (step !== 'EDITING') {
     return null;
@@ -58,6 +70,24 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
       data-testid="diagram-editor-toolbar"
     >
       <div className={toolbarGroupStyles}>
+        <Tooltip
+          trigger={
+            <IconButton
+              aria-label={
+                !isInRelationshipDrawingMode
+                  ? 'Add Relationship'
+                  : 'Exit Relationship Drawing Mode'
+              }
+              onClick={onRelationshipDrawingToggle}
+              active={isInRelationshipDrawingMode}
+              aria-pressed={isInRelationshipDrawingMode}
+            >
+              <Icon glyph="Relationship"></Icon>
+            </IconButton>
+          }
+        >
+          Drag from one collection to another to create a relationship.
+        </Tooltip>
         <IconButton aria-label="Undo" disabled={!hasUndo} onClick={onUndoClick}>
           <Icon glyph="Undo"></Icon>
         </IconButton>
