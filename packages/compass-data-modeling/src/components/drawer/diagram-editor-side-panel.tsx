@@ -9,6 +9,7 @@ import {
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
 import {
+  deleteCollection,
   deleteRelationship,
   selectCurrentModelFromState,
 } from '../../store/diagram';
@@ -36,11 +37,13 @@ type DiagramEditorSidePanelProps = {
     type: 'relationship' | 'collection';
     label: string;
   } | null;
+  onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
 };
 
 function DiagramEditorSidePanel({
   selectedItems,
+  onDeleteCollection,
   onDeleteRelationship,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, handleAction } = useMemo(() => {
@@ -53,8 +56,14 @@ function DiagramEditorSidePanel({
             namespace={selectedItems.id}
           ></CollectionDrawerContent>
         ),
-        actions: [],
-        handleAction: () => {},
+        actions: [
+          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+        ],
+        handleAction: (actionName: string) => {
+          if (actionName === 'delete') {
+            onDeleteCollection(selectedItems.id);
+          }
+        },
       };
     }
 
@@ -79,7 +88,7 @@ function DiagramEditorSidePanel({
     }
 
     return { content: null };
-  }, [selectedItems, onDeleteRelationship]);
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship]);
 
   if (!content) {
     return null;
@@ -97,6 +106,7 @@ function DiagramEditorSidePanel({
           <ItemActionControls
             actions={actions}
             iconSize="small"
+            data-testid="data-modeling-drawer-actions"
             onAction={handleAction}
             className={drawerTitleActionGroupStyles}
             // Because the close button here is out of our control, we have do
@@ -157,6 +167,7 @@ export default connect(
     }
   },
   {
+    onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
   }
 )(DiagramEditorSidePanel);

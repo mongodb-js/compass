@@ -270,4 +270,30 @@ describe('DiagramEditorSidePanel', function () {
         .exist;
     });
   });
+
+  it('should delete a collection', async function () {
+    const result = renderDrawer();
+    result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
+    });
+
+    userEvent.click(
+      screen.getByTestId('data-modeling-drawer-actions-delete-action')
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('flights.countries')).not.to.exist;
+    });
+    expect(screen.queryByLabelText('Name')).to.not.exist;
+
+    const modifiedCollection = selectCurrentModelFromState(
+      result.plugin.store.getState()
+    ).collections.find((coll) => {
+      return coll.ns === 'flights.countries';
+    });
+
+    expect(modifiedCollection).to.be.undefined;
+  });
 });

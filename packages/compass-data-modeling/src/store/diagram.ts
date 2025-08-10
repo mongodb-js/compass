@@ -199,6 +199,15 @@ export const diagramReducer: Reducer<DiagramState> = (
       newState.selectedItems = null;
     }
 
+    // Unselect the collection when it's removed.
+    if (
+      action.edit.type === 'RemoveCollection' &&
+      state.selectedItems?.type === 'collection' &&
+      state.selectedItems.id === action.edit.ns
+    ) {
+      newState.selectedItems = null;
+    }
+
     return newState;
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
@@ -479,6 +488,12 @@ export function deleteRelationship(
   };
 }
 
+export function deleteCollection(
+  ns: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RemoveCollection', ns });
+}
+
 export function updateCollectionNote(
   ns: string,
   note: string
@@ -534,6 +549,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return collection;
         }),
+      };
+    }
+    case 'RemoveCollection': {
+      return {
+        ...model,
+        // Remove any relationships involving the collection being removed.
+        relationships: model.relationships.filter((r) => {
+          return !(
+            r.relationship[0].ns === edit.ns || r.relationship[1].ns === edit.ns
+          );
+        }),
+        collections: model.collections.filter(
+          (collection) => collection.ns !== edit.ns
+        ),
       };
     }
     case 'UpdateCollectionNote': {
