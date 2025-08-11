@@ -269,24 +269,6 @@ const updateSelectedItemsFromAppliedEdit = (
   }
 
   switch (edit.type) {
-    case 'RemoveRelationship': {
-      if (
-        currentSelection?.type === 'relationship' &&
-        currentSelection.id === edit.relationshipId
-      ) {
-        return null;
-      }
-      break;
-    }
-    case 'RemoveCollection': {
-      if (
-        currentSelection?.type === 'collection' &&
-        currentSelection.id === edit.ns
-      ) {
-        return null;
-      }
-      break;
-    }
     case 'RenameCollection': {
       if (
         currentSelection?.type === 'collection' &&

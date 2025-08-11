@@ -155,6 +155,7 @@ const CollectionDrawerContent: React.FunctionComponent<
         <DMFormFieldContainer>
           <TextInput
             label="Name"
+            data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={collectionName}
             state={isCollectionNameValid ? undefined : 'error'}
