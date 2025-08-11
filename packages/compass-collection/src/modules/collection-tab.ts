@@ -1,9 +1,5 @@
 import type { Reducer, AnyAction, Action } from 'redux';
-import {
-  analyzeDocuments,
-  type SchemaParseOptions,
-  type Schema,
-} from 'mongodb-schema';
+import { analyzeDocuments, type Schema } from 'mongodb-schema';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -37,7 +33,6 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
-    analysisAbortControllerRef: { current?: AbortController };
   },
   A
 >;
@@ -82,12 +77,16 @@ interface CollectionMetadataFetchedAction {
 
 interface SchemaAnalysisStartedAction {
   type: CollectionActions.SchemaAnalysisStarted;
-  analysisStartTime: number;
 }
 
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
-  schemaAnalysis: SchemaAnalysis;
+  schema: Schema | null;
+  sampleDocument: Document | null;
+  schemaMetadata: {
+    maxNestingDepth: number;
+    validationRules: Document;
+  } | null;
 }
 
 interface SchemaAnalysisFailedAction {
@@ -149,7 +148,13 @@ const reducer: Reducer<CollectionState, Action> = (
   ) {
     return {
       ...state,
-      schemaAnalysis: action.schemaAnalysis,
+      schemaAnalysis: {
+        status: SchemaAnalysisStatus.COMPLETED,
+        schema: action.schema,
+        sampleDocument: action.sampleDocument,
+        schemaMetadata: action.schemaMetadata,
+        error: null,
+      },
     };
   }
 
@@ -162,7 +167,9 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       schemaAnalysis: {
-        ...state.schemaAnalysis,
+        schema: null,
+        sampleDocument: null,
+        schemaMetadata: null,
         status: SchemaAnalysisStatus.ERROR,
         error: action.error.message,
       },
@@ -192,11 +199,7 @@ export const selectTab = (
 export const analyzeCollectionSchema = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (
-    dispatch,
-    getState,
-    { analysisAbortControllerRef, dataService, preferences, logger }
-  ) => {
+  return async (dispatch, getState, { dataService, preferences, logger }) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
     if (analysisStatus === SchemaAnalysisStatus.ANALYZING) {
@@ -206,24 +209,17 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       return;
     }
 
-    analysisAbortControllerRef.current = new AbortController();
-    const abortSignal = analysisAbortControllerRef.current.signal;
-
-    const analysisStartTime = Date.now();
-
     try {
       logger.debug('Schema analysis started.');
 
       dispatch({
         type: CollectionActions.SchemaAnalysisStarted,
-        analysisStartTime,
       });
 
       // Sample documents
       const samplingOptions = { size: DEFAULT_SAMPLE_SIZE };
       const driverOptions = {
         maxTimeMS: preferences.getPreferences().maxTimeMS,
-        signal: abortSignal,
       };
       const sampleCursor = dataService.sampleCursor(
         namespace,
@@ -236,16 +232,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const sampleDocuments = await sampleCursor.toArray();
 
       // Analyze sampled documents
-      const schemaParseOptions: SchemaParseOptions = {
-        signal: abortSignal,
-      };
-      const schemaAccessor = await analyzeDocuments(
-        sampleDocuments,
-        schemaParseOptions
-      );
-      if (abortSignal?.aborted) {
-        throw new Error(abortSignal?.reason || new Error('Operation aborted'));
-      }
+      const schemaAccessor = await analyzeDocuments(sampleDocuments);
 
       let schema: Schema | null = null;
       if (schemaAccessor) {
@@ -264,17 +251,14 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         const collInfo = await dataService.collectionInfo(database, collection);
         schemaMetadata = {
           maxNestingDepth: schema_depth,
-          validationRules: collInfo?.validation?.validator || null,
+          validationRules: collInfo?.validation?.validator ?? null,
         };
       }
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        schemaAnalysis: {
-          status: SchemaAnalysisStatus.COMPLETED,
-          schema,
-          sampleDocument: sampleDocuments[0] ?? null,
-          schemaMetadata,
-        },
+        schema,
+        sampleDocument: sampleDocuments[0] ?? null,
+        schemaMetadata,
       });
     } catch (err: any) {
       logger.log.error(
@@ -284,18 +268,12 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         {
           namespace,
           error: err.message,
-          aborted: abortSignal.aborted,
-          ...(abortSignal.aborted
-            ? { abortReason: abortSignal.reason?.message ?? abortSignal.reason }
-            : {}),
         }
       );
       dispatch({
         type: CollectionActions.SchemaAnalysisFailed,
         error: err as Error,
       });
-    } finally {
-      analysisAbortControllerRef.current = undefined;
     }
   };
 };
