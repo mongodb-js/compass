@@ -73,6 +73,11 @@ Generated on Mon, Aug 11, 2025
 - [Connection Removed](#event--ConnectionRemovedEvent)
 - [New Connection](#event--NewConnectionEvent)
 
+### Context Menu
+
+- [Context Menu Opened](#event--ContextMenuOpened)
+- [Context Menu Item Clicked](#event--ContextMenuItemClicked)
+
 ### Data Modeling
 
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
@@ -988,6 +993,31 @@ This event is fired when user successfully connects to a new server/cluster.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Context Menu
+
+<a name="event--ContextMenuOpened"></a>
+
+### Context Menu Opened
+
+This event is fired when the context menu is opened.
+
+**Properties**:
+
+- **item_groups** (required): `{}`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--ContextMenuItemClicked"></a>
+
+### Context Menu Item Clicked
+
+This event is fired when a context menu item is clicked.
+
+**Properties**:
+
+- **item_group** (required): `string`
+- **item_label** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
 
 ## Data Modeling
 
