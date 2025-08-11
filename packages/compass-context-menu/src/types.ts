@@ -1,16 +1,23 @@
-export type ContextMenuItemGroup = ContextMenuItem[];
+export type ContextMenuItemGroup<T extends ContextMenuItem = ContextMenuItem> =
+  {
+    /** Label for the group used for telemetry. */
+    telemetryLabel: string;
+    items: T[];
+  };
 
-export type ContextMenuState = {
+export type ContextMenuState<T extends ContextMenuItem = ContextMenuItem> = {
   isOpen: boolean;
-  itemGroups: ContextMenuItemGroup[];
+  itemGroups: ContextMenuItemGroup<T>[];
   position: {
     x: number;
     y: number;
   };
 };
 
-export type ContextMenuWrapperProps = {
-  menu: ContextMenuState & { close: () => void };
+export type ContextMenuWrapperProps<
+  T extends ContextMenuItem = ContextMenuItem
+> = {
+  menu: ContextMenuState<T> & { close: () => void };
 };
 
 export type ContextMenuContextType = {

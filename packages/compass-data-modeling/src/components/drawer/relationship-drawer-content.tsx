@@ -3,15 +3,13 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
   Combobox,
-  FormFieldContainer,
   ComboboxOption,
   Select,
   Option,
   spacing,
   css,
   palette,
-  Button,
-  Icon,
+  TextArea,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -23,14 +21,17 @@ import {
 import toNS from 'mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
 import { cloneDeep } from 'lodash';
-import DMDrawerSection from './dm-drawer-section';
+import {
+  DMDrawerSection,
+  DMFormFieldContainer,
+} from './drawer-section-components';
+import { useChangeOnBlur } from './use-change-on-blur';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
   relationship: Relationship;
   fields: Record<string, string[][]>;
   onRelationshipUpdate: (relationship: Relationship) => void;
-  onDeleteRelationshipClick: (rId: string) => void;
 };
 
 type RelationshipFormFields = {
@@ -40,23 +41,8 @@ type RelationshipFormFields = {
   foreignCollection: string;
   foreignField: string;
   foreignCardinality: string;
+  note: string;
 };
-
-const formFieldContainerStyles = css({
-  marginBottom: spacing[400],
-  marginTop: spacing[400],
-  '&:first-child': {
-    marginTop: 0,
-  },
-  '&:last-child': {
-    marginBottom: 0,
-  },
-});
-
-const titleBtnStyles = css({
-  marginLeft: 'auto',
-  maxHeight: 20, // to make sure we're matching accordion line height
-});
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -101,6 +87,9 @@ function useRelationshipFormFields(
         case 'foreignCardinality':
           newRelationship.relationship[1].cardinality = Number(value);
           break;
+        case 'note':
+          newRelationship.note = value;
+          break;
       }
       onRelationshipChangeRef.current(newRelationship);
     },
@@ -114,6 +103,7 @@ function useRelationshipFormFields(
     foreignField,
     foreignCardinality,
     onFieldChange,
+    note: relationship.note ?? '',
   };
 }
 
@@ -146,7 +136,6 @@ const configurationContainerStyles = css({
   `,
   gridTemplateColumns: '1fr 1fr',
   gap: spacing[400],
-  paddingTop: spacing[400],
 });
 
 const configurationLocalFieldStyles = css({
@@ -159,13 +148,7 @@ const configurationForeignFieldStyles = css({
 
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
-> = ({
-  relationshipId,
-  relationship,
-  fields,
-  onRelationshipUpdate,
-  onDeleteRelationshipClick,
-}) => {
+> = ({ relationshipId, relationship, fields, onRelationshipUpdate }) => {
   const collections = useMemo(() => {
     return Object.keys(fields);
   }, [fields]);
@@ -178,7 +161,12 @@ const RelationshipDrawerContent: React.FunctionComponent<
     foreignField,
     foreignCardinality,
     onFieldChange,
+    note,
   } = useRelationshipFormFields(relationship, onRelationshipUpdate);
+
+  const noteInputProps = useChangeOnBlur(note, (newNote) => {
+    onFieldChange('note', newNote);
+  });
 
   const localFieldOptions = useMemo(() => {
     return fields[localCollection] ?? [];
@@ -190,28 +178,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <DMDrawerSection
-        label={
-          <>
-            <span>Relationship properties</span>
-
-            <Button
-              variant="dangerOutline"
-              leftGlyph={<Icon glyph="Trash" />}
-              className={titleBtnStyles}
-              size="xsmall"
-              onClick={() => {
-                onDeleteRelationshipClick(relationshipId);
-              }}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      >
+      <DMDrawerSection label="Relationship properties">
         <div className={configurationContainerStyles}>
           <div className={configurationLocalFieldStyles}>
-            <FormFieldContainer className={formFieldContainerStyles}>
+            <DMFormFieldContainer>
               <Combobox
                 size="small"
                 label="Local collection"
@@ -235,9 +205,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Combobox>
-            </FormFieldContainer>
+            </DMFormFieldContainer>
 
-            <FormFieldContainer className={formFieldContainerStyles}>
+            <DMFormFieldContainer>
               <Combobox
                 size="small"
                 label="Local field"
@@ -260,8 +230,8 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Combobox>
-            </FormFieldContainer>
-            <FormFieldContainer className={formFieldContainerStyles}>
+            </DMFormFieldContainer>
+            <DMFormFieldContainer>
               <Select
                 size="small"
                 label="Local cardinality"
@@ -280,11 +250,11 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Select>
-            </FormFieldContainer>
+            </DMFormFieldContainer>
           </div>
 
           <div className={configurationForeignFieldStyles}>
-            <FormFieldContainer className={formFieldContainerStyles}>
+            <DMFormFieldContainer>
               <Combobox
                 size="small"
                 label="Foreign collection"
@@ -308,9 +278,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Combobox>
-            </FormFieldContainer>
+            </DMFormFieldContainer>
 
-            <FormFieldContainer className={formFieldContainerStyles}>
+            <DMFormFieldContainer>
               <Combobox
                 size="small"
                 label="Foreign field"
@@ -333,9 +303,9 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Combobox>
-            </FormFieldContainer>
+            </DMFormFieldContainer>
 
-            <FormFieldContainer className={formFieldContainerStyles}>
+            <DMFormFieldContainer>
               <Select
                 size="small"
                 label="Foreign cardinality"
@@ -354,9 +324,15 @@ const RelationshipDrawerContent: React.FunctionComponent<
                   );
                 })}
               </Select>
-            </FormFieldContainer>
+            </DMFormFieldContainer>
           </div>
         </div>
+      </DMDrawerSection>
+
+      <DMDrawerSection label="Notes">
+        <DMFormFieldContainer>
+          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+        </DMFormFieldContainer>
       </DMDrawerSection>
     </div>
   );

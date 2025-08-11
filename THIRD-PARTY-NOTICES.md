@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Aug 06 2025.
+This document was automatically generated on Mon Aug 11 2025.
 
 ## List of dependencies
 
@@ -228,7 +228,7 @@ This document was automatically generated on Wed Aug 06 2025.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#1327750d12492f42942fd3f95f07d0669748ed9a8a8cc5f182921fe22cf39761)**                                           | 37.2.5       | MIT                                 |
+| **[electron](#77028953dbf1c0658e7548098ee9c65eb010bf5a40354ff46424dd36f72bbc94)**                                           | 37.2.6       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -303,7 +303,7 @@ This document was automatically generated on Wed Aug 06 2025.
 | **[is-utf8](#df5522c387e62effc17916c612bf340d6543c4bccca99fed4c1c1fae77ed4900)**                                            | 0.2.1        | MIT                                 |
 | **[is-wsl](#38b5685d9d35bd3f3dfc5cb892b9edef01eb8769b2cc19aad7e5807e304b7015)**                                             | 3.1.0        | MIT                                 |
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                               | 2.1.0        | MIT                                 |
-| **[jose](#458723a9e5f5f8cdac179e007d7874cbac5a617063510d9c6e4e4ec235e43ea8)**                                               | 6.0.11       | MIT                                 |
+| **[jose](#f9d2cbf414f008926ab4887a10cb2c34b1b205b42ce272c330e2eb0248071b7a)**                                               | 6.0.12       | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**                                            | 3.14.1       | MIT                                 |
 | **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**                                            | 4.1.0        | MIT                                 |
@@ -361,13 +361,13 @@ This document was automatically generated on Wed Aug 06 2025.
 | **[node-fetch](#22edb8ba3fe3457e8c1a02e497e6a8cb54e89775224f0c7680ea43772b5c1638)**                                         | 3.3.2        | MIT                                 |
 | **[numeral](#b3c90be596160f7dccbd1ff771ddbffb9a1b19d0bb9456553d8822903386573e)**                                            | 1.5.6        | MIT                                 |
 | **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**                                            | 2.0.6        | MIT                                 |
-| **[oauth4webapi](#225b6b6709d0bebf556e68b486ddde16d898f1228bce49d9c5f3b3671b11f94e)**                                       | 3.5.5        | MIT                                 |
+| **[oauth4webapi](#20c210c3de969a4d06291b8bf773ce03262544409a28dac2ba63df67a1534827)**                                       | 3.6.2        | MIT                                 |
 | **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**                                      | 4.1.1        | MIT                                 |
 | **[object-inspect](#ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e)**                                     | 1.13.4       | MIT                                 |
 | **[on-finished](#d3c391e10faad1d82190a06f5be315d94a9194cff75aa389940432ef15cf45de)**                                        | 2.4.1        | MIT                                 |
 | **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**                                               | 1.4.0        | ISC                                 |
 | **[open](#adf67a26a7a19e515580af6636b13bbeb1df10fda82a82941a504e1be994a604)**                                               | 10.1.2       | MIT                                 |
-| **[openid-client](#c872797bd36f8e53bb75298134568c31c56cac936aadf5b4909ce5c554791187)**                                      | 6.6.2        | MIT                                 |
+| **[openid-client](#00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c)**                                      | 6.6.3        | MIT                                 |
 | **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**                                      | 1.2.1        | MIT                                 |
 | **[pac-proxy-agent](#751f2ba44d5fbf79ece4fea4bc03df4f4b3cb4470a1495adda33a28db3dd6d1f)**                                    | 7.1.0        | MIT                                 |
 | **[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**                                       | 7.0.1        | MIT                                 |
@@ -18618,9 +18618,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="1327750d12492f42942fd3f95f07d0669748ed9a8a8cc5f182921fe22cf39761"></a>
+<a id="77028953dbf1c0658e7548098ee9c65eb010bf5a40354ff46424dd36f72bbc94"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 37.2.5)
+### [electron](https://www.npmjs.com/package/electron) (version 37.2.6)
 
 License tags: MIT
 
@@ -21102,9 +21102,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="458723a9e5f5f8cdac179e007d7874cbac5a617063510d9c6e4e4ec235e43ea8"></a>
+<a id="f9d2cbf414f008926ab4887a10cb2c34b1b205b42ce272c330e2eb0248071b7a"></a>
 
-### [jose](https://www.npmjs.com/package/jose) (version 6.0.11)
+### [jose](https://www.npmjs.com/package/jose) (version 6.0.12)
 
 License tags: MIT
 
@@ -24871,9 +24871,9 @@ License files:
       FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
       OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="225b6b6709d0bebf556e68b486ddde16d898f1228bce49d9c5f3b3671b11f94e"></a>
+<a id="20c210c3de969a4d06291b8bf773ce03262544409a28dac2ba63df67a1534827"></a>
 
-### [oauth4webapi](https://www.npmjs.com/package/oauth4webapi) (version 3.5.5)
+### [oauth4webapi](https://www.npmjs.com/package/oauth4webapi) (version 3.6.2)
 
 License tags: MIT
 
@@ -25047,9 +25047,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="c872797bd36f8e53bb75298134568c31c56cac936aadf5b4909ce5c554791187"></a>
+<a id="00df66b19cf3a8fdcd5bae5a38751e39685ed1f6986557e9d30b90917b9c768c"></a>
 
-### [openid-client](https://www.npmjs.com/package/openid-client) (version 6.6.2)
+### [openid-client](https://www.npmjs.com/package/openid-client) (version 6.6.3)
 
 License tags: MIT
 

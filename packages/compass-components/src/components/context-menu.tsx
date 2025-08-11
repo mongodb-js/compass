@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { Menu, MenuItem, MenuSeparator } from './leafygreen';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import {
@@ -9,6 +9,7 @@ import {
   type ContextMenuItem,
   type ContextMenuItemGroup,
   type ContextMenuWrapperProps,
+  contextMenuClassName,
 } from '@mongodb-js/compass-context-menu';
 
 export type {
@@ -32,18 +33,42 @@ const itemStyles = css({
 export function ContextMenuProvider({
   children,
   disabled,
+  onContextMenuItemClick,
+  onContextMenuOpen,
 }: {
   children: React.ReactNode;
   disabled?: boolean;
+  onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
+  onContextMenuItemClick?: (
+    itemGroup: ContextMenuItemGroup,
+    item: ContextMenuItem
+  ) => void;
 }) {
   return (
-    <ContextMenuProviderBase disabled={disabled} menuWrapper={ContextMenu}>
+    <ContextMenuProviderBase
+      disabled={disabled}
+      menuWrapper={(props) => (
+        <ContextMenu
+          {...props}
+          onContextMenuItemClick={onContextMenuItemClick}
+        />
+      )}
+      onContextMenuOpen={onContextMenuOpen}
+    >
       {children}
     </ContextMenuProviderBase>
   );
 }
 
-export function ContextMenu({ menu }: ContextMenuWrapperProps) {
+export function ContextMenu({
+  menu,
+  onContextMenuItemClick,
+}: ContextMenuWrapperProps & {
+  onContextMenuItemClick?: (
+    itemGroup: ContextMenuItemGroup,
+    item: ContextMenuItem
+  ) => void;
+}) {
   const menuRef = useRef(null);
   const anchorRef = useRef<HTMLDivElement>(null);
 
@@ -76,82 +101,82 @@ export function ContextMenu({ menu }: ContextMenuWrapperProps) {
         open={menu.isOpen}
         setOpen={menu.close}
         justify="start"
-        className={menuStyles}
+        className={cx(menuStyles, contextMenuClassName)}
         maxHeight={Number.MAX_SAFE_INTEGER}
       >
-        {itemGroups.map((items: ContextMenuItemGroup, groupIndex: number) => {
-          return (
-            <div
-              key={`menu-group-${groupIndex}`}
-              data-testid={`menu-group-${groupIndex}`}
-            >
-              {items.map((item: ContextMenuItem, itemIndex: number) => {
-                return (
-                  <MenuItem
-                    key={`menu-group-${groupIndex}-item-${itemIndex}`}
-                    data-text={item.label}
-                    data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
-                    className={itemStyles}
-                    onClick={(evt: React.MouseEvent) => {
-                      item.onAction?.(evt);
-                      menu.close();
-                    }}
+        {itemGroups.map(
+          (itemGroup: ContextMenuItemGroup, groupIndex: number) => {
+            return (
+              <div
+                key={`menu-group-${groupIndex}`}
+                data-testid={`menu-group-${groupIndex}`}
+              >
+                {itemGroup.items.map(
+                  (item: ContextMenuItem, itemIndex: number) => {
+                    return (
+                      <MenuItem
+                        key={`menu-group-${groupIndex}-item-${itemIndex}`}
+                        data-text={item.label}
+                        data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
+                        className={itemStyles}
+                        onClick={(evt: React.MouseEvent) => {
+                          item.onAction?.(evt);
+                          onContextMenuItemClick?.(itemGroup, item);
+                          menu.close();
+                        }}
+                      >
+                        {item.label}
+                      </MenuItem>
+                    );
+                  }
+                )}
+                {groupIndex < itemGroups.length - 1 && (
+                  <div
+                    key={`menu-group-${groupIndex}-separator`}
+                    data-testid={`menu-group-${groupIndex}-separator`}
                   >
-                    {item.label}
-                  </MenuItem>
-                );
-              })}
-              {groupIndex < itemGroups.length - 1 && (
-                <div
-                  key={`menu-group-${groupIndex}-separator`}
-                  data-testid={`menu-group-${groupIndex}-separator`}
-                >
-                  <MenuSeparator />
-                </div>
-              )}
-            </div>
-          );
-        })}
+                    <MenuSeparator />
+                  </div>
+                )}
+              </div>
+            );
+          }
+        )}
       </Menu>
     </div>
   );
 }
 
-/** Registers context menu items - items that are `undefined` will get filtered. */
-export function useContextMenuItems(
-  getItems: () => (ContextMenuItem | undefined)[],
-  dependencies: React.DependencyList | undefined
-): React.RefCallback<HTMLElement> {
-  const memoizedItems = useMemo(
-    () =>
-      getItems().filter((item): item is ContextMenuItem => item !== undefined),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies
-  );
-  const contextMenu = useContextMenu();
-  return contextMenu.registerItems(memoizedItems);
-}
-
 /** Registers context menu groups - groups and items that are `undefined` will get filtered. */
 export function useContextMenuGroups(
-  getGroups: () => ((ContextMenuItem | undefined)[] | undefined)[],
+  getGroups: () => (
+    | (Omit<ContextMenuItemGroup, 'items'> & {
+        items: undefined | (ContextMenuItem | undefined)[];
+      })
+    | undefined
+  )[],
   dependencies: React.DependencyList | undefined
 ): React.RefCallback<HTMLElement> {
-  const memoizedGroups: ContextMenuItem[][] = useMemo(
+  const memoizedGroups: ContextMenuItemGroup[] = useMemo(
     () => {
       const groups = getGroups();
       // Cleanup all undefined fields across items and groups which is used
       // for conditional displaying of groups and items.
       return groups
         .filter(
-          (groupItems): groupItems is ContextMenuItem[] =>
-            groupItems !== undefined && groupItems.length > 0
+          (group): group is ContextMenuItemGroup =>
+            group !== undefined &&
+            group.items !== undefined &&
+            group.items.length > 0
         )
-        .map((groupItems) => groupItems.filter((item) => item !== undefined));
+        .map(({ items, telemetryLabel }) => ({
+          items: items?.filter((item) => item !== undefined),
+          telemetryLabel,
+        }));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies
   );
   const contextMenu = useContextMenu();
-  return contextMenu.registerItems(...memoizedGroups);
+  return contextMenu.registerItemGroups(memoizedGroups);
 }

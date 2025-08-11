@@ -14,7 +14,7 @@ import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
 import { useTabTheme } from './use-tab-theme';
-import { useContextMenuItems } from '../context-menu';
+import { useContextMenuGroups } from '../context-menu';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -239,10 +239,15 @@ function Tab({
     return css(tabTheme);
   }, [tabTheme, darkMode]);
 
-  const contextMenuRef = useContextMenuItems(
+  const contextMenuRef = useContextMenuGroups(
     () => [
-      { label: 'Close all other tabs', onAction: onCloseAllOthers },
-      { label: 'Duplicate', onAction: onDuplicate },
+      {
+        telemetryLabel: 'Workspace Tab',
+        items: [
+          { label: 'Close all other tabs', onAction: onCloseAllOthers },
+          { label: 'Duplicate', onAction: onDuplicate },
+        ],
+      },
     ],
     [onCloseAllOthers, onDuplicate]
   );

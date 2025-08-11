@@ -28,6 +28,7 @@ export type FeatureFlags = {
   showIndexesGuidanceVariant: boolean;
   enableContextMenus: boolean;
   enableSearchActivationProgramP1: boolean;
+  enableUnauthenticatedGenAI: boolean;
 };
 
 export const featureFlags: Required<{
@@ -147,6 +148,13 @@ export const featureFlags: Required<{
     stage: 'released',
     description: {
       short: 'Enable context (right-click) menus',
+    },
+  },
+
+  enableUnauthenticatedGenAI: {
+    stage: 'development',
+    description: {
+      short: 'Enable GenAI for unauthenticated users',
     },
   },
 
