@@ -2951,6 +2951,31 @@ type DataModelingDiagramRelationshipDeleted = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when the context menu is opened.
+ *
+ * @category Context Menu
+ */
+type ContextMenuOpened = CommonEvent<{
+  name: 'Context Menu Opened';
+  payload: {
+    item_groups: string[];
+  };
+}>;
+
+/**
+ * This event is fired when a context menu item is clicked.
+ *
+ * @category Context Menu
+ */
+type ContextMenuItemClicked = CommonEvent<{
+  name: 'Context Menu Item Clicked';
+  payload: {
+    item_group: string;
+    item_label: string;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3102,4 +3127,6 @@ export type TelemetryEvent =
   | DataModelingDiagramImported
   | DataModelingDiagramRelationshipAdded
   | DataModelingDiagramRelationshipEdited
-  | DataModelingDiagramRelationshipDeleted;
+  | DataModelingDiagramRelationshipDeleted
+  | ContextMenuOpened
+  | ContextMenuItemClicked;
