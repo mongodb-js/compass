@@ -96,9 +96,6 @@ export function activatePlugin(
         experimentationServices,
         logger,
         preferences,
-        analysisAbortControllerRef: {
-          current: undefined,
-        },
       })
     )
   );
