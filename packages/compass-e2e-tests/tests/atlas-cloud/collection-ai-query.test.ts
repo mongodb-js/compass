@@ -49,7 +49,7 @@ describe('Collection ai query', function () {
         true
       );
       await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
-      await browser.setFeature('optInDataExplorerGenAIFeatures', true);
+      await browser.setFeature('optInGenAIFeatures', true);
     });
 
     describe('on the documents tab', function () {
@@ -170,7 +170,7 @@ describe('Collection ai query', function () {
         true
       );
       await browser.setFeature('enableGenAIFeaturesAtlasOrg', false);
-      await browser.setFeature('optInDataExplorerGenAIFeatures', true);
+      await browser.setFeature('optInGenAIFeatures', true);
     });
 
     it('should not show the gen ai intro button', async function () {
