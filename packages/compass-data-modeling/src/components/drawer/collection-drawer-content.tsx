@@ -123,14 +123,21 @@ const CollectionDrawerContent: React.FunctionComponent<
           ) : (
             <ul className={relationshipsListStyles}>
               {relationships.map((r) => {
+                const relationshipLabel = getDefaultRelationshipName(
+                  r.relationship
+                );
+
                 return (
                   <li
                     key={r.id}
                     data-relationship-id={r.id}
                     className={relationshipItemStyles}
                   >
-                    <span className={relationshipNameStyles}>
-                      {getDefaultRelationshipName(r.relationship)}
+                    <span
+                      className={relationshipNameStyles}
+                      title={relationshipLabel}
+                    >
+                      {relationshipLabel}
                     </span>
                     <IconButton
                       aria-label="Edit relationship"
