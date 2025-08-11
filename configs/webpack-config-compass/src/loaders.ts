@@ -60,12 +60,24 @@ const cloudSupportedBrowserslistConfig =
 
 export const javascriptLoader = (args: ConfigArgs, web = false) => ({
   test: /\.(mjs|c?jsx?|tsx?)$/,
-  exclude: [
-    /\bnode_modules\b/,
-    // Otherwise core-js will polyfill itself with core-js and this doesn't work
-    // for obvious reasons
-    /\bcore-js\b/,
-  ],
+  exclude: (modulePath: string) => {
+    // Include TypeScript files from @leafygreen-ui packages to handle newer versions
+    if (
+      modulePath.includes('node_modules/@leafygreen-ui/') &&
+      /\.(tsx?)$/.test(modulePath)
+    ) {
+      return false;
+    }
+    // Exclude all other node_modules
+    if (modulePath.includes('node_modules')) {
+      return true;
+    }
+    // Exclude core-js to prevent self-polyfilling
+    if (modulePath.includes('core-js')) {
+      return true;
+    }
+    return false;
+  },
   use: {
     loader: require.resolve('babel-loader'),
     options: {

@@ -5,7 +5,7 @@ import {
   type ChatStatus,
   type UIMessage,
 } from 'ai';
-import { throttle } from './@ai-sdk/react/throttle';
+import { throttle } from './throttle';
 
 class ReactChatState<UI_MESSAGE extends UIMessage>
   implements ChatState<UI_MESSAGE>

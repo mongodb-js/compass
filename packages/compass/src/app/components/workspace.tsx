@@ -36,6 +36,7 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
+import { CompassAssistant } from '@mongodb-js/compass-assistant';
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
@@ -111,6 +112,7 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
+              <CompassAssistant></CompassAssistant>
             </>
           )}
         ></WorkspacesPlugin>

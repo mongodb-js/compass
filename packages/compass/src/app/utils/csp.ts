@@ -21,6 +21,7 @@ const defaultCSP = {
     'https://cloud-qa.mongodb.com',
     'https://compass.mongodb.com',
     'https://uploads.intercomusercontent.com',
+    'https://knowledge.staging.corp.mongodb.com',
   ],
   'img-src': [
     "'self'",
@@ -56,6 +57,8 @@ const defaultCSP = {
     'https://cloud-qa.mongodb.com',
     'https://compass.mongodb.com',
     'https://ip-ranges.amazonaws.com',
+    'https://knowledge.staging.corp.mongodb.com',
+    'https://knowledge.corp.mongodb.com',
   ],
   'child-src': [
     'blob:',

@@ -21,13 +21,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
     "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -49,8 +49,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.4",
+    "@mongodb-js/compass-components": "^1.30.5",
+    "ai": "^5.0.5",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "throttleit": "^2.1.0",
+    "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.18",

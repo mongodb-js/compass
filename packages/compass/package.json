@@ -189,7 +189,8 @@
     "mongodb-client-encryption": "^6.3.0",
     "native-machine-id": "^0.1.1",
     "os-dns-native": "^1.2.1",
-    "system-ca": "^2.0.0"
+    "system-ca": "^2.0.0",
+    "@mongodb-js/compass-assistant": "^1.0.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",
