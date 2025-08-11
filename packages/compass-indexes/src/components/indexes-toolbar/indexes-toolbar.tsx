@@ -25,7 +25,7 @@ import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import { createIndexOpened } from '../../modules/create-index';
-import { IndexView } from '../../modules/index-view';
+import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
 
 const toolbarButtonsContainer = css({
@@ -102,7 +102,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onIndexViewChanged,
   serverVersion,
-  readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
   const mongoDBMajorVersion = parseFloat(
@@ -112,9 +111,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
     (!isReadonlyView || mongoDBMajorVersion > 8.0) && !errorMessage;
-  const showRefreshButton =
-    (!isReadonlyView || mongoDBMajorVersion > 8.0) &&
-    indexView === 'search-indexes';
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -126,9 +122,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   useEffect(() => {
     // If the view is readonly, set the default tab to 'search-indexes'
     if (isReadonlyView) {
-      onIndexViewChanged('search-indexes'); // Update the Redux state
+      onIndexViewChanged('search-indexes'); // Update redux state
     }
-  }, [isReadonlyView, indexView]);
+  }, [isReadonlyView, onIndexViewChanged]);
 
   return (
     <div
@@ -160,18 +156,16 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 {writeStateDescription}
               </Tooltip>
             )}
-            {showRefreshButton && (
-              <Button
-                data-testid="refresh-indexes-button"
-                disabled={isRefreshing}
-                onClick={() => onRefreshIndexes()}
-                variant="default"
-                size="small"
-                leftGlyph={refreshButtonIcon}
-              >
-                Refresh
-              </Button>
-            )}
+            <Button
+              data-testid="refresh-indexes-button"
+              disabled={isRefreshing}
+              onClick={() => onRefreshIndexes()}
+              variant="default"
+              size="small"
+              leftGlyph={refreshButtonIcon}
+            >
+              Refresh
+            </Button>
             {showAtlasSearchLink && atlasMetadata && (
               <Link
                 href={getAtlasSearchIndexesLink({
@@ -189,40 +183,44 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 signals={PerformanceSignals.get('too-many-indexes')}
               />
             )}
+
             {isSearchManagementActive && (
               <SegmentedControl
                 size="xsmall"
                 onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
-                value={isReadonlyView ? 'search-indexes' : indexView}
+                value={indexView}
                 data-testid="indexes-segment-controls"
               >
-                <Tooltip
-                  align="top"
-                  justify="end"
-                  enabled={true}
-                  renderMode="portal"
-                  trigger={
-                    <SegmentedControlOption
-                      data-testid="regular-indexes-tab"
-                      value="regular-indexes"
-                      disabled={isReadonlyView}
-                    >
-                      Indexes
-                    </SegmentedControlOption>
-                  }
-                >
-                  Readonly views may not contain standard indexes.
-                </Tooltip>
-                {serverSupportsSearchIndexManagement(serverVersion) ? (
-                  <SegmentedControlOption
-                    data-testid="search-indexes-tab"
-                    value="search-indexes"
+                {isReadonlyView && (
+                  <Tooltip
+                    align="top"
+                    justify="end"
+                    enabled={true}
+                    renderMode="portal"
+                    trigger={
+                      <SegmentedControlOption
+                        data-testid="regular-indexes-tab"
+                        value="regular-indexes"
+                        disabled={isReadonlyView}
+                      >
+                        Indexes
+                      </SegmentedControlOption>
+                    }
                   >
-                    Search Indexes
+                    Readonly views may not contain standard indexes.
+                  </Tooltip>
+                )}
+                {!isReadonlyView && (
+                  <SegmentedControlOption
+                    data-testid="regular-indexes-tab"
+                    value="regular-indexes"
+                  >
+                    Indexes
                   </SegmentedControlOption>
-                ) : (
+                )}
+                {!isSearchIndexesSupported && !isReadonlyView && (
                   <Tooltip
                     align="top"
                     justify="end"
@@ -238,19 +236,36 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       </SegmentedControlOption>
                     }
                   >
-                    <>
+                    {serverSupportsSearchIndexManagement(serverVersion) ? (
                       <p>
-                        Atlas Search index management in Compass is only
-                        available for Atlas local deployments and clusters
-                        running MongoDB 6.0.7 or newer.
+                        Unable to fetch search indexes. This can occur when your
+                        cluster does not support search indexes or the request
+                        to list search indexes failed.
                       </p>
-                      <p>
-                        For clusters running an earlier version of MongoDB, you
-                        can manage your Atlas Search indexes from the Atlas web
-                        Ul, with the CLI, or with the Administration API.
-                      </p>
-                    </>
+                    ) : (
+                      <>
+                        <p>
+                          Atlas Search index management in Compass is only
+                          available for Atlas local deployments and clusters
+                          running MongoDB 6.0.7 or newer.
+                        </p>
+                        <p>
+                          For clusters running an earlier version of MongoDB,
+                          you can manage your Atlas Search indexes from the
+                          Atlas web Ul, with the CLI, or with the Administration
+                          API.
+                        </p>
+                      </>
+                    )}
                   </Tooltip>
+                )}
+                {(isSearchIndexesSupported || isReadonlyView) && (
+                  <SegmentedControlOption
+                    data-testid="search-indexes-tab"
+                    value="search-indexes"
+                  >
+                    Search Indexes
+                  </SegmentedControlOption>
                 )}
               </SegmentedControl>
             )}
@@ -300,9 +315,8 @@ export const CreateIndexButton: React.FunctionComponent<
     if (indexView === 'search-indexes') {
       return (
         <Button
-          data-testid="open-create-index-modal-button"
           disabled={!isWritable}
-          onClick={onCreateRegularIndexClick}
+          onClick={onCreateSearchIndexClick}
           variant="primary"
           size="small"
         >

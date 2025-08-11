@@ -197,6 +197,7 @@ export function Indexes({
     serverVersion.split('.').slice(0, 2).join('.')
   );
   const { atlasMetadata } = useConnectionInfo();
+
   return (
     <div className={containerStyles}>
       <WorkspaceContainer
@@ -240,7 +241,8 @@ export function Indexes({
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
-          {currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
+          {(!isReadonlyView || mongoDBMajorVersion > 8.0) &&
+            currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && searchIndexes.indexes.length === 0 && (
             <ViewVersionIncompatibleEmptyState
               mongoDBMajorVersion={mongoDBMajorVersion}

@@ -85,22 +85,6 @@ export const ViewVersionIncompatibleBanner = ({
             {searchIndexOnViewsVersion} or higher. Upgrade your cluster or
             manage search indexes on views in the Atlas UI.
           </span>
-          {atlasMetadata && (
-            <Button
-              size="xsmall"
-              onClick={() => {
-                window.open(
-                  getAtlasSearchIndexesLink({
-                    clusterName: atlasMetadata.clusterName,
-                    namespace,
-                  }),
-                  '_blank'
-                );
-              }}
-            >
-              Go to Atlas
-            </Button>
-          )}
         </div>
       </Banner>
     );
