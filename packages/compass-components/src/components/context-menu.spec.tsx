@@ -4,12 +4,12 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { ContextMenuProvider } from '@mongodb-js/compass-context-menu';
 import {
-  useContextMenuItems,
   ContextMenu,
   type ContextMenuItem,
+  useContextMenuGroups,
 } from './context-menu';
 
-describe('useContextMenuItems', function () {
+describe('useContextMenuGroups', function () {
   const menuTestTriggerId = 'test-trigger';
 
   const TestComponent = ({
@@ -21,7 +21,15 @@ describe('useContextMenuItems', function () {
     children?: React.ReactNode;
     'data-testid'?: string;
   }) => {
-    const ref = useContextMenuItems(() => items, [items]);
+    const ref = useContextMenuGroups(
+      () => [
+        {
+          telemetryLabel: 'Test Item Group',
+          items,
+        },
+      ],
+      [items]
+    );
 
     return (
       <div data-testid={dataTestId} ref={ref}>
