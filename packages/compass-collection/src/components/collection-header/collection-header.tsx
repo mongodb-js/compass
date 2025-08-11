@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
@@ -19,7 +19,14 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
-import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+import type { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+import { connect } from 'react-redux';
+import type { CollectionState } from '../../modules/collection-tab';
+import {
+  openMockDataGeneratorModal,
+  closeMockDataGeneratorModal,
+  setMockDataGeneratorStep,
+} from '../../modules/collection-tab';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -60,6 +67,11 @@ type CollectionHeaderProps = {
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: unknown[];
+  isMockDataModalOpen: boolean;
+  currentStep: MockDataGeneratorStep;
+  onOpenMockDataModal: () => void;
+  onCloseMockDataModal: () => void;
+  onSetMockDataGeneratorStep: (step: MockDataGeneratorStep) => void;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -84,9 +96,7 @@ const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
   return Array.from(insights);
 };
 
-export const CollectionHeader: React.FunctionComponent<
-  CollectionHeaderProps
-> = ({
+const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   namespace,
   isReadonly,
   isTimeSeries,
@@ -96,6 +106,11 @@ export const CollectionHeader: React.FunctionComponent<
   sourceName,
   editViewName,
   sourcePipeline,
+  isMockDataModalOpen,
+  currentStep,
+  onOpenMockDataModal,
+  onCloseMockDataModal,
+  onSetMockDataGeneratorStep,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -107,16 +122,6 @@ export const CollectionHeader: React.FunctionComponent<
   const connectionInfo = useConnectionInfo();
   const connectionId = connectionInfo.id;
   const connectionName = getConnectionTitle(connectionInfo);
-
-  // Mock Data Generator modal state
-  const [isMockDataModalOpen, setIsMockDataModalOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(
-    MockDataGeneratorStep.AI_DISCLAIMER
-  );
-
-  const handleOpenMockDataModal = useCallback(() => {
-    setIsMockDataModalOpen(true);
-  }, []);
 
   const breadcrumbItems = useMemo(() => {
     return [
@@ -182,17 +187,40 @@ export const CollectionHeader: React.FunctionComponent<
           namespace={namespace}
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
-          onOpenMockDataModal={handleOpenMockDataModal}
+          onOpenMockDataModal={onOpenMockDataModal}
         />
       </div>
       <MockDataGeneratorModal
         isOpen={isMockDataModalOpen}
-        onOpenChange={setIsMockDataModalOpen}
+        onClose={onCloseMockDataModal}
         currentStep={currentStep}
-        onCurrentStepChange={(step) => {
-          setCurrentStep(step);
-        }}
+        onCurrentStepChange={onSetMockDataGeneratorStep}
       />
     </div>
   );
+};
+
+const mapStateToProps = (state: CollectionState) => ({
+  isMockDataModalOpen: state.mockDataGenerator.isModalOpen,
+  currentStep: state.mockDataGenerator.currentStep,
+});
+
+type ConnectedCollectionHeaderProps = Omit<
+  CollectionHeaderProps,
+  | 'isMockDataModalOpen'
+  | 'currentStep'
+  | 'onOpenMockDataModal'
+  | 'onCloseMockDataModal'
+  | 'onSetMockDataGeneratorStep'
+>;
+
+const ConnectedCollectionHeader = connect(mapStateToProps, {
+  onOpenMockDataModal: openMockDataGeneratorModal,
+  onCloseMockDataModal: closeMockDataGeneratorModal,
+  onSetMockDataGeneratorStep: setMockDataGeneratorStep,
+})(CollectionHeader) as React.ComponentType<ConnectedCollectionHeaderProps>;
+
+export {
+  ConnectedCollectionHeader as CollectionHeader,
+  CollectionHeader as UnconnectedCollectionHeader, // For tests
 };

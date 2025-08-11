@@ -30,14 +30,14 @@ const rightButtonsStyles = css`
 
 interface Props {
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  onClose: () => void;
   currentStep: MockDataGeneratorStep;
   onCurrentStepChange: (step: MockDataGeneratorStep) => void;
 }
 
 const MockDataGeneratorModal = ({
   isOpen,
-  onOpenChange,
+  onClose,
   currentStep,
   onCurrentStepChange,
 }: Props) => {
@@ -51,14 +51,14 @@ const MockDataGeneratorModal = ({
     onCurrentStepChange(previousStep);
   };
 
-  const onCancel = () => {
-    onOpenChange(false);
-  };
-
   return (
     <Modal
       open={isOpen}
-      setOpen={(open) => onOpenChange(open)}
+      setOpen={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
@@ -74,7 +74,7 @@ const MockDataGeneratorModal = ({
           Back
         </Button>
         <div className={rightButtonsStyles}>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={onNext}

@@ -8,10 +8,10 @@ import { StepButtonLabelMap } from './constants';
 
 describe('MockDataGeneratorModal', () => {
   const sandbox = Sinon.createSandbox();
-  let onOpenChange: Sinon.SinonSpy;
+  let onClose: Sinon.SinonSpy;
 
   beforeEach(() => {
-    onOpenChange = sandbox.spy();
+    onClose = sandbox.spy();
   });
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe('MockDataGeneratorModal', () => {
       return (
         <MockDataGeneratorModal
           isOpen={isOpen}
-          onOpenChange={onOpenChange}
+          onClose={onClose}
           currentStep={currentStepStateMock}
           onCurrentStepChange={(step) => {
             onCurrentStepChangeStateMock(step);
@@ -51,20 +51,20 @@ describe('MockDataGeneratorModal', () => {
     expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
   });
 
-  it('calls onOpenChange(false) when the modal is closed', () => {
+  it('calls onClose when the modal is closed', () => {
     renderModal();
 
     screen.getByLabelText('Close modal').click();
 
-    expect(onOpenChange.calledOnceWith(false)).to.be.true;
+    expect(onClose.calledOnce).to.be.true;
   });
 
-  it('calls onOpenChange(false) when the cancel button is clicked', () => {
+  it('calls onClose when the cancel button is clicked', () => {
     renderModal();
 
     screen.getByText('Cancel').click();
 
-    expect(onOpenChange.calledOnceWith(false)).to.be.true;
+    expect(onClose.calledOnce).to.be.true;
   });
 
   it('disables the Back button on the first step', () => {

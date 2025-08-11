@@ -6,6 +6,7 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -31,15 +32,35 @@ export type CollectionState = {
   namespace: string;
   metadata: CollectionMetadata | null;
   editViewName?: string;
+  mockDataGenerator: {
+    isModalOpen: boolean;
+    currentStep: MockDataGeneratorStep;
+  };
 };
 
 enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
+  OpenMockDataGeneratorModal = 'compass-collection/OpenMockDataGeneratorModal',
+  CloseMockDataGeneratorModal = 'compass-collection/CloseMockDataGeneratorModal',
+  SetMockDataGeneratorStep = 'compass-collection/SetMockDataGeneratorStep',
 }
 
 interface CollectionMetadataFetchedAction {
   type: CollectionActions.CollectionMetadataFetched;
   metadata: CollectionMetadata;
+}
+
+interface OpenMockDataGeneratorModalAction {
+  type: CollectionActions.OpenMockDataGeneratorModal;
+}
+
+interface CloseMockDataGeneratorModalAction {
+  type: CollectionActions.CloseMockDataGeneratorModal;
+}
+
+interface SetMockDataGeneratorStepAction {
+  type: CollectionActions.SetMockDataGeneratorStep;
+  step: MockDataGeneratorStep;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -48,6 +69,10 @@ const reducer: Reducer<CollectionState, Action> = (
     workspaceTabId: '',
     namespace: '',
     metadata: null,
+    mockDataGenerator: {
+      isModalOpen: false,
+      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+    },
   },
   action
 ) => {
@@ -62,6 +87,54 @@ const reducer: Reducer<CollectionState, Action> = (
       metadata: action.metadata,
     };
   }
+
+  if (
+    isAction<OpenMockDataGeneratorModalAction>(
+      action,
+      CollectionActions.OpenMockDataGeneratorModal
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        isModalOpen: true,
+        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      },
+    };
+  }
+
+  if (
+    isAction<CloseMockDataGeneratorModalAction>(
+      action,
+      CollectionActions.CloseMockDataGeneratorModal
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        isModalOpen: false,
+        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      },
+    };
+  }
+
+  if (
+    isAction<SetMockDataGeneratorStepAction>(
+      action,
+      CollectionActions.SetMockDataGeneratorStep
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: action.step,
+      },
+    };
+  }
+
   return state;
 };
 
@@ -69,6 +142,22 @@ export const collectionMetadataFetched = (
   metadata: CollectionMetadata
 ): CollectionMetadataFetchedAction => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
+};
+
+export const openMockDataGeneratorModal =
+  (): OpenMockDataGeneratorModalAction => {
+    return { type: CollectionActions.OpenMockDataGeneratorModal };
+  };
+
+export const closeMockDataGeneratorModal =
+  (): CloseMockDataGeneratorModalAction => {
+    return { type: CollectionActions.CloseMockDataGeneratorModal };
+  };
+
+export const setMockDataGeneratorStep = (
+  step: MockDataGeneratorStep
+): SetMockDataGeneratorStepAction => {
+  return { type: CollectionActions.SetMockDataGeneratorStep, step };
 };
 
 export const selectTab = (
