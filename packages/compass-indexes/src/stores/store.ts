@@ -156,7 +156,9 @@ export function activateIndexesPlugin(
   });
 
   void store.dispatch(fetchRegularIndexes());
-  void store.dispatch(fetchSearchIndexes());
+  if (options.isSearchIndexesSupported || options.isReadonly) {
+    void store.dispatch(fetchSearchIndexes());
+  }
 
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
     if (status === 'ready') {

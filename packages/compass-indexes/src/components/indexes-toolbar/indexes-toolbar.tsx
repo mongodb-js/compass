@@ -8,6 +8,7 @@ import {
   Button,
   css,
   DropdownMenuButton,
+  ErrorSummary,
   Icon,
   Link,
   PerformanceSignals,
@@ -102,6 +103,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onIndexViewChanged,
   serverVersion,
+  readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
   const mongoDBMajorVersion = parseFloat(
@@ -110,7 +112,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
-    (!isReadonlyView || mongoDBMajorVersion > 8.0) && !errorMessage;
+    (!isReadonlyView || mongoDBMajorVersion > 8.0) &&
+    !readOnly &&
+    !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -271,6 +275,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             )}
           </div>
         </div>
+      )}
+      {!!errorMessage && (
+        <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
       )}
     </div>
   );
