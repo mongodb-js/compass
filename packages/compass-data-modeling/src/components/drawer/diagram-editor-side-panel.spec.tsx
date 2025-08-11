@@ -73,10 +73,12 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
     await waitFor(() => {
-      const nameInput = screen.getByLabelText('Name');
-      expect(nameInput).to.be.visible;
-      expect(nameInput).to.have.value('flights.airlines');
+      expect(screen.getByTitle('flights.airlines')).to.exist;
     });
+
+    const nameInput = screen.getByLabelText('Name');
+    expect(nameInput).to.be.visible;
+    expect(nameInput).to.have.value('flights.airlines');
 
     userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
     userEvent.type(
@@ -104,8 +106,8 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      const section = screen.getByText('Relationship properties');
-      expect(section).to.be.visible;
+      expect(screen.getByTitle('countries.name → airports.Country')).to.be
+        .visible;
     });
 
     const localCollectionInput = screen.getByLabelText('Local collection');
