@@ -6,7 +6,7 @@ import Sinon from 'sinon';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry';
+import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
