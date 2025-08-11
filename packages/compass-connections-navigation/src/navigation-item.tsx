@@ -7,7 +7,7 @@ import {
   useDarkMode,
   useContextMenuGroups,
   type ItemAction,
-  type ContextMenuItem,
+  type ContextMenuItemGroup,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -103,7 +103,7 @@ type NavigationItemProps = {
   };
   onItemAction: (item: SidebarActionableItem, action: Actions) => void;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
-  getContextMenuGroups(item: SidebarTreeItem): ContextMenuItem[][];
+  getContextMenuGroups(item: SidebarTreeItem): ContextMenuItemGroup[];
 };
 
 export function NavigationItem({

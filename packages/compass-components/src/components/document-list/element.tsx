@@ -28,8 +28,8 @@ import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
-import { useContextMenuItems } from '../context-menu';
 import { hasDistinctValue } from 'mongodb-query-util';
+import { useContextMenuGroups } from '../context-menu';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -499,40 +499,45 @@ export const HadronElement: React.FunctionComponent<{
   );
 
   // Add context menu hook for the field
-  const fieldContextMenuRef = useContextMenuItems(
+  const fieldContextMenuRef = useContextMenuGroups(
     () => [
-      onUpdateQuery
-        ? {
-            label: isFieldInQuery(
-              getNestedKeyPathForElement(element),
-              element.generateObject()
-            )
-              ? 'Remove from query'
-              : 'Add to query',
+      {
+        telemetryLabel: 'Element Field',
+        items: [
+          onUpdateQuery
+            ? {
+                label: isFieldInQuery(
+                  getNestedKeyPathForElement(element),
+                  element.generateObject()
+                )
+                  ? 'Remove from query'
+                  : 'Add to query',
+                onAction: () => {
+                  onUpdateQuery(
+                    getNestedKeyPathForElement(element),
+                    element.generateObject()
+                  );
+                },
+              }
+            : undefined,
+          {
+            label: 'Copy field & value',
             onAction: () => {
-              onUpdateQuery(
-                getNestedKeyPathForElement(element),
-                element.generateObject()
+              void navigator.clipboard.writeText(
+                `${key.value}: ${element.toEJSON()}`
               );
             },
-          }
-        : undefined,
-      {
-        label: 'Copy field & value',
-        onAction: () => {
-          void navigator.clipboard.writeText(
-            `${key.value}: ${element.toEJSON()}`
-          );
-        },
+          },
+          type.value === 'String' && isValidUrl(value.value)
+            ? {
+                label: 'Open URL in browser',
+                onAction: () => {
+                  window.open(value.value, '_blank', 'noopener');
+                },
+              }
+            : undefined,
+        ],
       },
-      type.value === 'String' && isValidUrl(value.value)
-        ? {
-            label: 'Open URL in browser',
-            onAction: () => {
-              window.open(value.value, '_blank', 'noopener');
-            },
-          }
-        : undefined,
     ],
     [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
   );

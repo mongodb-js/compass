@@ -337,6 +337,19 @@ const CompassWeb = ({
               });
             }
           }}
+          onContextMenuOpen={(itemGroups) => {
+            if (itemGroups.length > 0) {
+              onTrackRef.current?.('Context Menu Opened', {
+                item_groups: itemGroups.map((group) => group.telemetryLabel),
+              });
+            }
+          }}
+          onContextMenuItemClick={(itemGroup, item) => {
+            onTrackRef.current?.('Context Menu Item Clicked', {
+              item_group: itemGroup.telemetryLabel,
+              item_label: item.label,
+            });
+          }}
           onSignalMount={(id) => {
             onTrackRef.current?.('Signal Shown', { id });
           }}
