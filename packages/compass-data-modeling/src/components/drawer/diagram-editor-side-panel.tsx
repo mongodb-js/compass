@@ -137,7 +137,21 @@ export default connect(
       };
     }
 
+    const model = selectCurrentModelFromState(state);
+
     if (selected.type === 'collection') {
+      const doesCollectionExist = model.collections.find((collection) => {
+        return collection.ns === selected.id;
+      });
+
+      if (!doesCollectionExist) {
+        // TODO(COMPASS-9680): When the selected collection doesn't exist then we
+        // don't show any selection. We can get into this state with undo/redo.
+        return {
+          selectedItems: null,
+        };
+      }
+
       return {
         selectedItems: {
           ...selected,
@@ -147,15 +161,16 @@ export default connect(
     }
 
     if (selected.type === 'relationship') {
-      const model = selectCurrentModelFromState(state);
       const relationship = model.relationships.find((relationship) => {
         return relationship.id === selected.id;
       });
 
       if (!relationship) {
-        throw new Error(
-          'Can not find corresponding relationship when rendering DiagramEditorSidePanel'
-        );
+        // TODO(COMPASS-9680): When the selected relationship doesn't exist we don't
+        // show any selection. We can get into this state with undo/redo.
+        return {
+          selectedItems: null,
+        };
       }
 
       return {

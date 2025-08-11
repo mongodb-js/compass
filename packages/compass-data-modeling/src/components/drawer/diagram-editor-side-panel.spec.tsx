@@ -277,7 +277,7 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('flights.countries');
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
     });
 
     userEvent.click(
@@ -285,7 +285,7 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText('flights.countries')).not.to.exist;
+      expect(screen.queryByText('countries')).not.to.exist;
     });
     expect(screen.queryByLabelText('Name')).to.not.exist;
 
