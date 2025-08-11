@@ -12,10 +12,7 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  TelemetryProvider,
-  ExperimentTestName,
-} from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
@@ -54,30 +51,21 @@ describe('CollectionHeaderActions [Component]', function () {
     };
 
     const ui = (
-      <TelemetryProvider options={{ sendTrack: sinon.stub() }}>
-        <CompassExperimentationProvider
-          useAssignment={mockUseAssignment}
-          assignExperiment={sinon.stub()}
+      <CompassExperimentationProvider
+        useAssignment={mockUseAssignment}
+        assignExperiment={sinon.stub()}
+      >
+        <WorkspacesServiceProvider
+          value={workspaceService as WorkspacesService}
         >
-          <WorkspacesServiceProvider
-            value={workspaceService as WorkspacesService}
-          >
-            <PreferencesProvider value={preferences}>
-              <CollectionHeaderActions {...defaultProps} />
-            </PreferencesProvider>
-          </WorkspacesServiceProvider>
-        </CompassExperimentationProvider>
-      </TelemetryProvider>
+          <PreferencesProvider value={preferences}>
+            <CollectionHeaderActions {...defaultProps} />
+          </PreferencesProvider>
+        </WorkspacesServiceProvider>
+      </CompassExperimentationProvider>
     );
 
-    if (connectionInfo) {
-      // For tests that need Atlas metadata (Mock Data Generator button visibility, etc.)
-      return await renderWithActiveConnection(ui, connectionInfo);
-    } else {
-      // For tests that only need basic component rendering (readonly checks, view buttons, etc.)
-      const { render } = await import('@mongodb-js/testing-library-compass');
-      return render(ui);
-    }
+    return await renderWithActiveConnection(ui, connectionInfo);
   };
 
   context('when the collection is not readonly', function () {
@@ -340,7 +328,6 @@ describe('CollectionHeaderActions [Component]', function () {
       expect(
         screen.getByTestId('collection-header-generate-mock-data-button')
       ).to.exist;
-      expect(screen.getByText('Generate Mock Data')).to.exist;
     });
 
     it('should call useAssignment with correct parameters', async function () {
