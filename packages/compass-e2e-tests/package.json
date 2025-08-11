@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",
+    "@mongodb-js/compass-components": "^1.46.0",
     "@mongodb-js/compass-test-server": "^0.3.16",
     "@mongodb-js/connection-info": "^0.17.0",
     "@mongodb-js/eslint-config-compass": "^1.4.5",
@@ -51,7 +52,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^37.2.5",
-    "electron-to-chromium": "^1.5.194",
+    "electron-to-chromium": "^1.5.195",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
     "hadron-build": "^25.8.9",

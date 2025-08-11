@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { exportToJson, exportToPng } from '../services/export-diagram';
-import { getCurrentDiagramFromState, selectCurrentModel } from './diagram';
+import { selectCurrentModelFromState } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
@@ -120,9 +120,7 @@ export function exportDiagram(
         new AbortController());
 
       if (exportFormat === 'json') {
-        const model = selectCurrentModel(
-          getCurrentDiagramFromState(getState()).edits
-        );
+        const model = selectCurrentModelFromState(getState());
         exportToJson(diagram.name, model);
       } else if (exportFormat === 'png') {
         await exportToPng(

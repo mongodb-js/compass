@@ -1,24 +1,15 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../../store/reducer';
 import {
-  Button,
   Combobox,
-  FormFieldContainer,
   ComboboxOption,
   Select,
   Option,
-  TextInput,
   spacing,
   css,
-  Icon,
   palette,
+  TextArea,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -30,34 +21,28 @@ import {
 import toNS from 'mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
 import { cloneDeep } from 'lodash';
-import DMDrawerSection from './dm-drawer-section';
+import {
+  DMDrawerSection,
+  DMFormFieldContainer,
+} from './drawer-section-components';
+import { useChangeOnBlur } from './use-change-on-blur';
 
 type RelationshipDrawerContentProps = {
   relationshipId: string;
   relationship: Relationship;
   fields: Record<string, string[][]>;
   onRelationshipUpdate: (relationship: Relationship) => void;
-  onDeleteRelationshipClick: (rId: string) => void;
 };
 
 type RelationshipFormFields = {
-  name: string;
   localCollection: string;
   localField: string;
   localCardinality: string;
   foreignCollection: string;
   foreignField: string;
   foreignCardinality: string;
+  note: string;
 };
-
-const formFieldContainerStyles = css({
-  marginBottom: spacing[400],
-  marginTop: spacing[400],
-});
-
-const titleBtnStyles = css({
-  marginLeft: 'auto',
-});
 
 const FIELD_DIVIDER = '~~##$$##~~';
 
@@ -78,14 +63,10 @@ function useRelationshipFormFields(
   const foreignCollection = foreign.ns ?? '';
   const foreignField = foreign.fields?.join(FIELD_DIVIDER) ?? '';
   const foreignCardinality = String(foreign.cardinality);
-  const name = relationship.name ?? '';
   const onFieldChange = useCallback(
     (key: keyof RelationshipFormFields, value: string) => {
       const newRelationship = cloneDeep(relationship);
       switch (key) {
-        case 'name':
-          newRelationship.name = value;
-          break;
         case 'localCollection':
           newRelationship.relationship[0].ns = value;
           newRelationship.relationship[0].fields = null;
@@ -106,13 +87,15 @@ function useRelationshipFormFields(
         case 'foreignCardinality':
           newRelationship.relationship[1].cardinality = Number(value);
           break;
+        case 'note':
+          newRelationship.note = value;
+          break;
       }
       onRelationshipChangeRef.current(newRelationship);
     },
     [relationship]
   );
   return {
-    name,
     localCollection,
     localField,
     localCardinality,
@@ -120,6 +103,7 @@ function useRelationshipFormFields(
     foreignField,
     foreignCardinality,
     onFieldChange,
+    note: relationship.note ?? '',
   };
 }
 
@@ -144,25 +128,30 @@ const CARDINALITY_OPTIONS = [
   { tag: 'Many', value: 1000 },
 ];
 
+const configurationContainerStyles = css({
+  width: '100%',
+  display: 'grid',
+  gridTemplateAreas: `
+    "local foreign"
+  `,
+  gridTemplateColumns: '1fr 1fr',
+  gap: spacing[400],
+});
+
+const configurationLocalFieldStyles = css({
+  gridArea: 'local',
+});
+
+const configurationForeignFieldStyles = css({
+  gridArea: 'foreign',
+});
+
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
-> = ({
-  relationshipId,
-  relationship,
-  fields,
-  onRelationshipUpdate,
-  onDeleteRelationshipClick,
-}) => {
+> = ({ relationshipId, relationship, fields, onRelationshipUpdate }) => {
   const collections = useMemo(() => {
     return Object.keys(fields);
   }, [fields]);
-
-  const [relationshipName, setRelationshipName] = useState<string>(
-    relationship.name || ''
-  );
-  useEffect(() => {
-    setRelationshipName(relationship.name || '');
-  }, [relationship.name]);
 
   const {
     localCollection,
@@ -172,7 +161,12 @@ const RelationshipDrawerContent: React.FunctionComponent<
     foreignField,
     foreignCardinality,
     onFieldChange,
+    note,
   } = useRelationshipFormFields(relationship, onRelationshipUpdate);
+
+  const noteInputProps = useChangeOnBlur(note, (newNote) => {
+    onFieldChange('note', newNote);
+  });
 
   const localFieldOptions = useMemo(() => {
     return fields[localCollection] ?? [];
@@ -184,183 +178,161 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <DMDrawerSection
-        label={
-          <>
-            RELATIONSHIP
-            <Button
-              variant="dangerOutline"
-              leftGlyph={<Icon glyph="Trash" />}
-              className={titleBtnStyles}
-              size="xsmall"
-              onClick={() => {
-                onDeleteRelationshipClick(relationshipId);
-              }}
-            >
-              Delete
-            </Button>
-          </>
-        }
-      >
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <TextInput
-            label="Name"
-            sizeVariant="small"
-            value={relationshipName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setRelationshipName(e.target.value);
-            }}
-            onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-              onFieldChange('name', e.target.value);
-            }}
-          />
-        </FormFieldContainer>
+      <DMDrawerSection label="Relationship properties">
+        <div className={configurationContainerStyles}>
+          <div className={configurationLocalFieldStyles}>
+            <DMFormFieldContainer>
+              <Combobox
+                size="small"
+                label="Local collection"
+                value={localCollection}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('localCollection', val);
+                  }
+                }}
+                multiselect={false}
+                clearable={false}
+              >
+                {collections.map((ns) => {
+                  return (
+                    <ComboboxOption
+                      key={ns}
+                      value={ns}
+                      // Database name is always the same, so we trim it
+                      displayName={toNS(ns).collection}
+                    ></ComboboxOption>
+                  );
+                })}
+              </Combobox>
+            </DMFormFieldContainer>
+
+            <DMFormFieldContainer>
+              <Combobox
+                size="small"
+                label="Local field"
+                value={localField}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('localField', val);
+                  }
+                }}
+                multiselect={false}
+                clearable={false}
+              >
+                {localFieldOptions.map((field) => {
+                  return (
+                    <ComboboxOption
+                      key={field.join('.')}
+                      value={field.join(FIELD_DIVIDER)}
+                      displayName={field.join('.')}
+                    ></ComboboxOption>
+                  );
+                })}
+              </Combobox>
+            </DMFormFieldContainer>
+            <DMFormFieldContainer>
+              <Select
+                size="small"
+                label="Local cardinality"
+                value={localCardinality}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('localCardinality', val);
+                  }
+                }}
+              >
+                {CARDINALITY_OPTIONS.map(({ tag, value }) => {
+                  return (
+                    <Option key={value} value={String(value)}>
+                      <CardinalityLabel value={value} tag={tag} />
+                    </Option>
+                  );
+                })}
+              </Select>
+            </DMFormFieldContainer>
+          </div>
+
+          <div className={configurationForeignFieldStyles}>
+            <DMFormFieldContainer>
+              <Combobox
+                size="small"
+                label="Foreign collection"
+                value={foreignCollection}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('foreignCollection', val);
+                  }
+                }}
+                multiselect={false}
+                clearable={false}
+              >
+                {collections.map((ns) => {
+                  return (
+                    <ComboboxOption
+                      key={ns}
+                      value={ns}
+                      // Database name is always the same, so we trim it
+                      displayName={toNS(ns).collection}
+                    ></ComboboxOption>
+                  );
+                })}
+              </Combobox>
+            </DMFormFieldContainer>
+
+            <DMFormFieldContainer>
+              <Combobox
+                size="small"
+                label="Foreign field"
+                value={foreignField}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('foreignField', val);
+                  }
+                }}
+                multiselect={false}
+                clearable={false}
+              >
+                {foreignFieldOptions.map((field) => {
+                  return (
+                    <ComboboxOption
+                      key={field.join('.')}
+                      value={field.join(FIELD_DIVIDER)}
+                      displayName={field.join('.')}
+                    ></ComboboxOption>
+                  );
+                })}
+              </Combobox>
+            </DMFormFieldContainer>
+
+            <DMFormFieldContainer>
+              <Select
+                size="small"
+                label="Foreign cardinality"
+                value={foreignCardinality}
+                onChange={(val) => {
+                  if (val) {
+                    onFieldChange('foreignCardinality', val);
+                  }
+                }}
+              >
+                {CARDINALITY_OPTIONS.map(({ tag, value }) => {
+                  return (
+                    <Option key={value} value={String(value)}>
+                      <CardinalityLabel value={value} tag={tag} />
+                    </Option>
+                  );
+                })}
+              </Select>
+            </DMFormFieldContainer>
+          </div>
+        </div>
       </DMDrawerSection>
 
-      <DMDrawerSection label="CONFIGURATION">
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Combobox
-            size="small"
-            label="Local collection"
-            value={localCollection}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('localCollection', val);
-              }
-            }}
-            multiselect={false}
-            clearable={false}
-          >
-            {collections.map((ns) => {
-              return (
-                <ComboboxOption
-                  key={ns}
-                  value={ns}
-                  // Database name is always the same, so we trim it
-                  displayName={toNS(ns).collection}
-                ></ComboboxOption>
-              );
-            })}
-          </Combobox>
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Combobox
-            size="small"
-            label="Local field"
-            value={localField}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('localField', val);
-              }
-            }}
-            multiselect={false}
-            clearable={false}
-          >
-            {localFieldOptions.map((field) => {
-              return (
-                <ComboboxOption
-                  key={field.join('.')}
-                  value={field.join(FIELD_DIVIDER)}
-                  displayName={field.join('.')}
-                ></ComboboxOption>
-              );
-            })}
-          </Combobox>
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Combobox
-            size="small"
-            label="Foreign collection"
-            value={foreignCollection}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('foreignCollection', val);
-              }
-            }}
-            multiselect={false}
-            clearable={false}
-          >
-            {collections.map((ns) => {
-              return (
-                <ComboboxOption
-                  key={ns}
-                  value={ns}
-                  // Database name is always the same, so we trim it
-                  displayName={toNS(ns).collection}
-                ></ComboboxOption>
-              );
-            })}
-          </Combobox>
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Combobox
-            size="small"
-            label="Foreign field"
-            value={foreignField}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('foreignField', val);
-              }
-            }}
-            multiselect={false}
-            clearable={false}
-          >
-            {foreignFieldOptions.map((field) => {
-              return (
-                <ComboboxOption
-                  key={field.join('.')}
-                  value={field.join(FIELD_DIVIDER)}
-                  displayName={field.join('.')}
-                ></ComboboxOption>
-              );
-            })}
-          </Combobox>
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Select
-            size="small"
-            label="Local cardinality"
-            value={localCardinality}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('localCardinality', val);
-              }
-            }}
-          >
-            {CARDINALITY_OPTIONS.map(({ tag, value }) => {
-              return (
-                <Option key={value} value={String(value)}>
-                  <CardinalityLabel value={value} tag={tag} />
-                </Option>
-              );
-            })}
-          </Select>
-        </FormFieldContainer>
-
-        <FormFieldContainer className={formFieldContainerStyles}>
-          <Select
-            size="small"
-            label="Foreign cardinality"
-            value={foreignCardinality}
-            onChange={(val) => {
-              if (val) {
-                onFieldChange('foreignCardinality', val);
-              }
-            }}
-          >
-            {CARDINALITY_OPTIONS.map(({ tag, value }) => {
-              return (
-                <Option key={value} value={String(value)}>
-                  <CardinalityLabel value={value} tag={tag} />
-                </Option>
-              );
-            })}
-          </Select>
-        </FormFieldContainer>
+      <DMDrawerSection label="Notes">
+        <DMFormFieldContainer>
+          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+        </DMFormFieldContainer>
       </DMDrawerSection>
     </div>
   );

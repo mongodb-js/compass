@@ -10,10 +10,9 @@ import {
 import { DataModelingWorkspaceTab } from '../../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
-  getCurrentDiagramFromState,
   openDiagram,
   selectCollection,
-  selectCurrentModel,
+  selectCurrentModelFromState,
   selectRelationship,
 } from '../../store/diagram';
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
@@ -69,15 +68,35 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
   });
 
-  it('should render a collection context drawer when collection is clicked', async function () {
+  it('should render and edit a collection in collection context drawer when collection is clicked', async function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
     await waitFor(() => {
-      const nameInput = screen.getByLabelText('Name');
-      expect(nameInput).to.be.visible;
-      expect(nameInput).to.have.value('flights.airlines');
+      expect(screen.getByTitle('flights.airlines')).to.exist;
     });
+
+    const nameInput = screen.getByLabelText('Name');
+    expect(nameInput).to.be.visible;
+    expect(nameInput).to.have.value('flights.airlines');
+
+    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Notes' }),
+      'Note about the collection'
+    );
+    userEvent.tab();
+
+    const modifiedCollection = selectCurrentModelFromState(
+      result.plugin.store.getState()
+    ).collections.find((coll) => {
+      return coll.ns === 'flights.airlines';
+    });
+
+    expect(modifiedCollection).to.have.property(
+      'note',
+      'Note about the collection'
+    );
   });
 
   it('should render a relationship context drawer when relations is clicked', async function () {
@@ -87,9 +106,8 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      const name = screen.getByLabelText('Name');
-      expect(name).to.be.visible;
-      expect(name).to.have.value('Airport Country');
+      expect(screen.getByTitle('countries.name → airports.Country')).to.be
+        .visible;
     });
 
     const localCollectionInput = screen.getByLabelText('Local collection');
@@ -172,7 +190,9 @@ describe('DiagramEditorSidePanel', function () {
     });
 
     // Open relationshipt editing form
-    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    const relationshipItem = screen
+      .getByText('countries.name → airports.Country')
+      .closest('li');
     expect(relationshipItem).to.be.visible;
     userEvent.click(
       within(relationshipItem!).getByRole('button', {
@@ -187,11 +207,18 @@ describe('DiagramEditorSidePanel', function () {
     await comboboxSelectItem('Foreign collection', 'countries');
     await comboboxSelectItem('Foreign field', 'iso_code');
 
+    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Notes' }),
+      'Note about the relationship'
+    );
+    userEvent.tab();
+
     // We should be testing through rendered UI but as it's really hard to make
     // diagram rendering in tests property, we are just validating the final
     // model here
-    const modifiedRelationship = selectCurrentModel(
-      getCurrentDiagramFromState(result.plugin.store.getState()).edits
+    const modifiedRelationship = selectCurrentModelFromState(
+      result.plugin.store.getState()
     ).relationships.find((r: Relationship) => {
       return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
     });
@@ -210,6 +237,11 @@ describe('DiagramEditorSidePanel', function () {
           cardinality: 100,
         },
       ]);
+
+    expect(modifiedRelationship).to.have.property(
+      'note',
+      'Note about the relationship'
+    );
   });
 
   it('should delete a relationship from collection', async function () {
@@ -221,7 +253,9 @@ describe('DiagramEditorSidePanel', function () {
     });
 
     // Find the relationhip item
-    const relationshipItem = screen.getByText('Airport Country').closest('li');
+    const relationshipItem = screen
+      .getByText('countries.name → airports.Country')
+      .closest('li');
     expect(relationshipItem).to.be.visible;
 
     // Delete relationship
@@ -232,7 +266,8 @@ describe('DiagramEditorSidePanel', function () {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText('Airport Country')).not.to.exist;
+      expect(screen.queryByText('countries.name → airports.Country')).not.to
+        .exist;
     });
   });
 });

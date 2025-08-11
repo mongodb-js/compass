@@ -5,6 +5,7 @@ import {
   spacing,
   cx,
   useDarkMode,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -23,16 +24,18 @@ const darkModeContainerStyles = css({
 });
 
 const accordionTitleStyles = css({
-  fontSize: spacing[300],
   width: '100%',
+  textTransform: 'uppercase',
+  marginBottom: spacing[400],
 });
 
 const buttonStyles = css({
   width: '100%',
   display: 'flex',
+  alignItems: 'center',
 });
 
-const DMDrawerSection: React.FC<{
+export const DMDrawerSection: React.FC<{
   label: React.ReactNode;
 }> = ({ label, children }) => {
   const darkMode = useDarkMode();
@@ -43,6 +46,7 @@ const DMDrawerSection: React.FC<{
         defaultOpen={true}
         textClassName={accordionTitleStyles}
         buttonTextClassName={buttonStyles}
+        size="small"
       >
         {children}
       </Accordion>
@@ -50,4 +54,25 @@ const DMDrawerSection: React.FC<{
   );
 };
 
-export default DMDrawerSection;
+const formFieldContainerStyles = css({
+  marginBottom: spacing[400],
+  marginTop: spacing[400],
+  '&:first-child': {
+    marginTop: 0,
+  },
+  '&:last-child': {
+    marginBottom: 0,
+  },
+});
+
+export const DMFormFieldContainer: typeof FormFieldContainer = ({
+  className,
+  ...props
+}) => {
+  return (
+    <FormFieldContainer
+      {...props}
+      className={cx(formFieldContainerStyles, className)}
+    ></FormFieldContainer>
+  );
+};

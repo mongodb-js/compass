@@ -52,7 +52,6 @@ export enum DiagramActionTypes {
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
-  DRAWER_CLOSED = 'data-modeling/diagram/DRAWER_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -103,10 +102,6 @@ export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
 
-export type DrawerClosedAction = {
-  type: DiagramActionTypes.DRAWER_CLOSED;
-};
-
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
@@ -117,8 +112,7 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
-  | DiagramBackgroundSelectedAction
-  | DrawerClosedAction;
+  | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
 
@@ -258,10 +252,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
-  if (
-    isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED) ||
-    isAction(action, DiagramActionTypes.DRAWER_CLOSED)
-  ) {
+  if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
       selectedItems: null,
@@ -293,7 +284,8 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 }
 
 export function createNewRelationship(
-  namespace: string
+  localNamespace: string,
+  foreignNamespace: string | null = null
 ): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
@@ -306,8 +298,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: namespace, cardinality: 1, fields: null },
-            { ns: null, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: null },
+            { ns: foreignNamespace, cardinality: 1, fields: null },
           ],
           isInferred: false,
         },
@@ -487,8 +479,11 @@ export function deleteRelationship(
   };
 }
 
-export function closeDrawer(): DrawerClosedAction {
-  return { type: DiagramActionTypes.DRAWER_CLOSED };
+export function updateCollectionNote(
+  ns: string,
+  note: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
@@ -541,6 +536,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         }),
       };
     }
+    case 'UpdateCollectionNote': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              note: edit.note,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
     default: {
       return model;
     }
@@ -548,8 +557,8 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
 }
 
 /**
- * @internal Exported for testing purposes only, use `selectCurrentModel`
- * instead
+ * @internal Exported for testing purposes only, use `selectCurrentModel` or
+ * `selectCurrentModelFromState` instead
  */
 export function getCurrentModel(
   edits: MongoDBDataModelDescription['edits']
@@ -600,16 +609,35 @@ export function getCurrentDiagramFromState(
   return { id, connectionId, name, edits, createdAt, updatedAt };
 }
 
+const selectCurrentDiagramFromState = memoize(getCurrentDiagramFromState);
+
 /**
  * Memoised method to return computed model
  */
 export const selectCurrentModel = memoize(getCurrentModel);
+
+export const selectCurrentModelFromState = (state: DataModelingState) => {
+  return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
+};
 
 function extractFields(
   parentSchema: MongoDBJSONSchema,
   parentKey?: string[],
   fields: string[][] = []
 ) {
+  if ('anyOf' in parentSchema && parentSchema.anyOf) {
+    for (const schema of parentSchema.anyOf) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
+  if ('items' in parentSchema && parentSchema.items) {
+    const items = Array.isArray(parentSchema.items)
+      ? parentSchema.items
+      : [parentSchema.items];
+    for (const schema of items) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
   if ('properties' in parentSchema && parentSchema.properties) {
     for (const [key, value] of Object.entries(parentSchema.properties)) {
       const fullKey = parentKey ? [...parentKey, key] : [key];
@@ -644,6 +672,5 @@ export function getRelationshipForCurrentModel(
 }
 
 function getCurrentNumberOfRelationships(state: DataModelingState): number {
-  return selectCurrentModel(getCurrentDiagramFromState(state).edits)
-    .relationships.length;
+  return selectCurrentModelFromState(state).relationships.length;
 }

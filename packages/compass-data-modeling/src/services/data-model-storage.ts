@@ -11,9 +11,9 @@ export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
 export const RelationshipSchema = z.object({
   id: z.string().uuid(),
-  name: z.string().optional(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
+  note: z.string().optional(),
 });
 
 export type Relationship = z.output<typeof RelationshipSchema>;
@@ -27,6 +27,7 @@ const CollectionSchema = z.object({
   indexes: z.array(z.record(z.unknown())),
   shardKey: z.record(z.unknown()).optional(),
   displayPosition: z.tuple([z.number(), z.number()]),
+  note: z.string().optional(),
 });
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
@@ -64,6 +65,11 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     type: z.literal('MoveCollection'),
     ns: z.string(),
     newPosition: z.tuple([z.number(), z.number()]),
+  }),
+  z.object({
+    type: z.literal('UpdateCollectionNote'),
+    ns: z.string(),
+    note: z.string(),
   }),
 ]);
 
