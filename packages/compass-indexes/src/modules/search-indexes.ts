@@ -602,12 +602,15 @@ const fetchIndexes = (
       isReadonlyView,
       isWritable,
       namespace,
+      serverVersion,
       searchIndexes: { status },
     } = getState();
 
-    if (!isWritable) {
-      // remove is ReadOnlyBlocker,
-      return;
+    const mongoDBMajorVersion = parseFloat(
+      serverVersion.split('.').slice(0, 2).join('.')
+    );
+    if (isReadonlyView || mongoDBMajorVersion < 8.1 || !isWritable) {
+      return; // fetch for views 8.1+
     }
 
     // If we are already fetching indexes, we will wait for that

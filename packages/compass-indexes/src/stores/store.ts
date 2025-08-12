@@ -156,7 +156,14 @@ export function activateIndexesPlugin(
   });
 
   void store.dispatch(fetchRegularIndexes());
-  if (options.isSearchIndexesSupported || options.isReadonly) {
+
+  const mongoDBMajorVersion = parseFloat(
+    options.serverVersion.split('.').slice(0, 2).join('.')
+  );
+  if (
+    options.isSearchIndexesSupported ||
+    (options.isReadonly && mongoDBMajorVersion > 8.0)
+  ) {
     void store.dispatch(fetchSearchIndexes());
   }
 
