@@ -86,7 +86,7 @@ export function ContextMenu({
         data-testid="context-menu-anchor"
         ref={anchorRef}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           left: position.x,
           top: position.y,
           // This is to ensure the menu gets positioned correctly as the left and top updates
