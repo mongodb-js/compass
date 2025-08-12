@@ -207,8 +207,8 @@ export function Indexes({
               atlasMetadata={atlasMetadata}
             />
           )}
-          {!enableAtlasSearchIndexes ||
-            (mongoDBMajorVersion > 8.0 && (
+          {(!isReadonlyView || mongoDBMajorVersion >= 8.0) &&
+            !enableAtlasSearchIndexes && (
               <AtlasIndexesBanner
                 namespace={namespace}
                 dismissed={atlasBannerDismissed}
@@ -216,7 +216,7 @@ export function Indexes({
                   setDismissed(true);
                 }}
               />
-            ))}
+            )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
