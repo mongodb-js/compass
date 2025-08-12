@@ -18,6 +18,7 @@ import {
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
 import { recognize } from 'tesseract.js';
+import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
@@ -110,7 +111,7 @@ async function selectCollectionOnTheDiagram(
   const collectionName = await browser.getInputByLabel(
     drawer.$(Selectors.DataModelNameInput)
   );
-  expect(await collectionName.getValue()).to.equal(ns);
+  expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
 }
 
 async function getDiagramNodes(

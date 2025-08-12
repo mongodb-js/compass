@@ -6,7 +6,11 @@ import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
 import { StackedComponentProvider } from '../hooks/use-stacked-component';
-import { ContextMenuProvider } from './context-menu';
+import {
+  type ContextMenuItem,
+  type ContextMenuItemGroup,
+  ContextMenuProvider,
+} from './context-menu';
 import { DrawerContentProvider } from './drawer-portal';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
@@ -46,6 +50,17 @@ type CompassComponentsProviderProps = {
 } & {
   utmSource?: string;
   utmMedium?: string;
+  /**
+   * Callback for when the context menu is opened.
+   */
+  onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
+  /**
+   * Callback for when a context menu item is clicked.
+   */
+  onContextMenuItemClick?: (
+    itemGroup: ContextMenuItemGroup,
+    item: ContextMenuItem
+  ) => void;
 } & React.ComponentProps<typeof SignalHooksProvider>;
 
 const darkModeMediaQuery = (() => {
@@ -102,6 +117,8 @@ export const CompassComponentsProvider = ({
   children,
   onNextGuideGue,
   onNextGuideCueGroup,
+  onContextMenuOpen,
+  onContextMenuItemClick,
   utmSource,
   utmMedium,
   stackedElementsZIndex,
@@ -144,7 +161,11 @@ export const CompassComponentsProvider = ({
             >
               <SignalHooksProvider {...signalHooksProviderProps}>
                 <ConfirmationModalArea>
-                  <ContextMenuProvider disabled={disableContextMenus}>
+                  <ContextMenuProvider
+                    disabled={disableContextMenus}
+                    onContextMenuOpen={onContextMenuOpen}
+                    onContextMenuItemClick={onContextMenuItemClick}
+                  >
                     <ToastArea>
                       {typeof children === 'function'
                         ? children({

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
+import toNS from 'mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
 import {
   Badge,
@@ -15,6 +16,7 @@ import {
 import {
   createNewRelationship,
   deleteRelationship,
+  renameCollection,
   selectCurrentModelFromState,
   selectRelationship,
   updateCollectionNote,
@@ -29,12 +31,14 @@ import { useChangeOnBlur } from './use-change-on-blur';
 
 type CollectionDrawerContentProps = {
   namespace: string;
+  namespaces: string[];
+  note?: string;
   relationships: Relationship[];
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
-  note?: string;
   onNoteChange: (namespace: string, note: string) => void;
+  onRenameCollection: (fromNS: string, toNS: string) => void;
 };
 
 const titleBtnStyles = css({
@@ -70,17 +74,77 @@ const relationshipContentStyles = css({
   marginTop: spacing[400],
 });
 
+export function getIsCollectionNameValid(
+  collectionName: string,
+  namespaces: string[],
+  namespace: string
+): {
+  isValid: boolean;
+  errorMessage?: string;
+} {
+  if (collectionName.trim().length === 0) {
+    return {
+      isValid: false,
+      errorMessage: 'Collection name cannot be empty.',
+    };
+  }
+
+  const namespacesWithoutCurrent = namespaces.filter((ns) => ns !== namespace);
+
+  const isDuplicate = namespacesWithoutCurrent.some(
+    (ns) =>
+      ns === `${toNS(namespace).database}.${collectionName}` ||
+      ns === `${toNS(namespace).database}.${collectionName.trim()}`
+  );
+
+  return {
+    isValid: !isDuplicate,
+    errorMessage: isDuplicate ? 'Collection name must be unique.' : undefined,
+  };
+}
+
 const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
 > = ({
   namespace,
+  namespaces,
+  note = '',
   relationships,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
-  note = '',
   onNoteChange,
+  onRenameCollection,
 }) => {
+  const [collectionName, setCollectionName] = useState(
+    () => toNS(namespace).collection
+  );
+
+  const {
+    isValid: isCollectionNameValid,
+    errorMessage: collectionNameEditErrorMessage,
+  } = useMemo(
+    () => getIsCollectionNameValid(collectionName, namespaces, namespace),
+    [collectionName, namespaces, namespace]
+  );
+
+  useLayoutEffect(() => {
+    setCollectionName(toNS(namespace).collection);
+  }, [namespace]);
+
+  const onBlurCollectionName = useCallback(() => {
+    const trimmedName = collectionName.trim();
+    if (trimmedName === toNS(namespace).collection) {
+      return;
+    }
+
+    if (!isCollectionNameValid) {
+      return;
+    }
+
+    onRenameCollection(namespace, `${toNS(namespace).database}.${trimmedName}`);
+  }, [collectionName, namespace, onRenameCollection, isCollectionNameValid]);
+
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
     onNoteChange(namespace, newNote);
   });
@@ -92,8 +156,13 @@ const CollectionDrawerContent: React.FunctionComponent<
           <TextInput
             label="Name"
             sizeVariant="small"
-            value={namespace}
-            disabled={true}
+            value={collectionName}
+            state={isCollectionNameValid ? undefined : 'error'}
+            errorMessage={collectionNameEditErrorMessage}
+            onChange={(e) => {
+              setCollectionName(e.target.value);
+            }}
+            onBlur={onBlurCollectionName}
           />
         </DMFormFieldContainer>
       </DMDrawerSection>
@@ -123,14 +192,21 @@ const CollectionDrawerContent: React.FunctionComponent<
           ) : (
             <ul className={relationshipsListStyles}>
               {relationships.map((r) => {
+                const relationshipLabel = getDefaultRelationshipName(
+                  r.relationship
+                );
+
                 return (
                   <li
                     key={r.id}
                     data-relationship-id={r.id}
                     className={relationshipItemStyles}
                   >
-                    <span className={relationshipNameStyles}>
-                      {getDefaultRelationshipName(r.relationship)}
+                    <span
+                      className={relationshipNameStyles}
+                      title={relationshipLabel}
+                    >
+                      {relationshipLabel}
                     </span>
                     <IconButton
                       aria-label="Edit relationship"
@@ -175,6 +251,7 @@ export default connect(
         model.collections.find((collection) => {
           return collection.ns === ownProps.namespace;
         })?.note ?? '',
+      namespaces: model.collections.map((c) => c.ns),
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
@@ -188,5 +265,6 @@ export default connect(
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
     onNoteChange: updateCollectionNote,
+    onRenameCollection: renameCollection,
   }
 )(CollectionDrawerContent);

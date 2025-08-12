@@ -205,9 +205,7 @@ const DiagramContent: React.FunctionComponent<{
           nodes={nodes}
           // With threshold too low clicking sometimes gets confused with
           // dragging
-          // @ts-expect-error expose this prop from the component
           nodeDragThreshold={5}
-          // @ts-expect-error expose this prop from the component
           onNodeClick={(_evt, node) => {
             if (node.type !== 'collection') {
               return;

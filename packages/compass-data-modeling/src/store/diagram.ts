@@ -180,7 +180,7 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
-    const newState = {
+    return {
       ...state,
       edits: {
         prev: [...state.edits.prev, state.edits.current],
@@ -189,17 +189,11 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
       editErrors: undefined,
       updatedAt: new Date().toISOString(),
+      selectedItems: updateSelectedItemsFromAppliedEdit(
+        state.selectedItems,
+        action.edit
+      ),
     };
-
-    if (
-      action.edit.type === 'RemoveRelationship' &&
-      state.selectedItems?.type === 'relationship' &&
-      state.selectedItems.id === action.edit.relationshipId
-    ) {
-      newState.selectedItems = null;
-    }
-
-    return newState;
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
     return {
@@ -259,6 +253,46 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   return state;
+};
+
+/**
+ * When an edit impacts the selected item we sometimes need to update
+ * the selection to reflect that, for instance when renaming a
+ * collection we update the selection `id` to the new name.
+ */
+const updateSelectedItemsFromAppliedEdit = (
+  currentSelection: SelectedItems | null,
+  edit: Edit
+): SelectedItems | null => {
+  if (!currentSelection) {
+    return currentSelection;
+  }
+
+  switch (edit.type) {
+    case 'RemoveRelationship': {
+      if (
+        currentSelection?.type === 'relationship' &&
+        currentSelection.id === edit.relationshipId
+      ) {
+        return null;
+      }
+      break;
+    }
+    case 'RenameCollection': {
+      if (
+        currentSelection?.type === 'collection' &&
+        currentSelection.id === edit.fromNS
+      ) {
+        return {
+          type: 'collection',
+          id: edit.toNS,
+        };
+      }
+      break;
+    }
+  }
+
+  return currentSelection;
 };
 
 export function selectCollection(namespace: string): CollectionSelectedAction {
@@ -342,6 +376,27 @@ export function moveCollection(
     newPosition,
   };
   return applyEdit(edit);
+}
+
+export function renameCollection(
+  fromNS: string,
+  toNS: string
+): DataModelingThunkAction<
+  void,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch) => {
+    const edit: Omit<
+      Extract<Edit, { type: 'RenameCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'RenameCollection',
+      fromNS,
+      toNS,
+    };
+
+    dispatch(applyEdit(edit));
+  };
 }
 
 export function applyEdit(
@@ -534,6 +589,34 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return collection;
         }),
+      };
+    }
+    case 'RenameCollection': {
+      return {
+        ...model,
+        // Update relationships to point to the renamed namespace.
+        relationships: model.relationships.map((relationship) => {
+          const [local, foreign] = relationship.relationship;
+
+          return {
+            ...relationship,
+            relationship: [
+              {
+                ...local,
+                ns: local.ns === edit.fromNS ? edit.toNS : local.ns,
+              },
+              {
+                ...foreign,
+                ns: foreign.ns === edit.fromNS ? edit.toNS : foreign.ns,
+              },
+            ],
+          };
+        }),
+        collections: model.collections.map((collection) => ({
+          ...collection,
+          // Rename the collection.
+          ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
+        })),
       };
     }
     case 'UpdateCollectionNote': {
