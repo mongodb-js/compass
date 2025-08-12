@@ -280,9 +280,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
     });
 
-    userEvent.click(
-      screen.getByTestId('data-modeling-drawer-actions-delete-action')
-    );
+    userEvent.click(screen.getByLabelText(/delete collection/i));
 
     await waitFor(() => {
       expect(screen.queryByText('countries')).not.to.exist;

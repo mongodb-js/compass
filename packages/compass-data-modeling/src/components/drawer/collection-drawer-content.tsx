@@ -93,8 +93,8 @@ export function getIsCollectionNameValid(
 
   const isDuplicate = namespacesWithoutCurrent.some(
     (ns) =>
-      ns === `${toNS(namespace).database}.${collectionName}` ||
-      ns === `${toNS(namespace).database}.${collectionName.trim()}`
+      ns.trim() ===
+      `${toNS(namespace).database}.${collectionName.trim()}`.trim()
   );
 
   return {

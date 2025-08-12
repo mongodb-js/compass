@@ -57,7 +57,11 @@ function DiagramEditorSidePanel({
           ></CollectionDrawerContent>
         ),
         actions: [
-          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+          {
+            action: 'delete',
+            label: 'Delete Collection',
+            icon: 'Trash' as const,
+          },
         ],
         handleAction: (actionName: string) => {
           if (actionName === 'delete') {
