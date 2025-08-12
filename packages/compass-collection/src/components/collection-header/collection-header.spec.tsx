@@ -287,4 +287,34 @@ describe('CollectionHeader [Component]', function () {
       });
     });
   });
+
+  context('Mock Data Generator Modal', function () {
+    it('should close modal when cancel button is clicked', function () {
+      const onCloseMockDataModal = Sinon.stub();
+
+      renderCollectionHeader({
+        isMockDataModalOpen: true,
+        onCloseMockDataModal,
+      });
+
+      const cancelButton = screen.getByText('Cancel');
+      userEvent.click(cancelButton);
+
+      expect(onCloseMockDataModal).to.have.been.calledOnce;
+    });
+
+    it('should close modal when X button is clicked', function () {
+      const onCloseMockDataModal = Sinon.stub();
+
+      renderCollectionHeader({
+        isMockDataModalOpen: true,
+        onCloseMockDataModal,
+      });
+
+      const closeButton = screen.getByLabelText('Close modal');
+      userEvent.click(closeButton);
+
+      expect(onCloseMockDataModal).to.have.been.calledOnce;
+    });
+  });
 });
