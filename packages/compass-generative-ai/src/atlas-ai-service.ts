@@ -198,8 +198,8 @@ const aiURLConfig = {
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
   'admin-api': {
-    aggregation: 'ai/api/v1/mql-aggregation',
-    query: 'ai/api/v1/mql-query',
+    aggregation: 'unauth/ai/api/v1/mql-aggregation',
+    query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
