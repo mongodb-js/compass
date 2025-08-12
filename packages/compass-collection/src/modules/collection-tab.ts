@@ -40,9 +40,9 @@ export type CollectionState = {
 
 enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
-  OpenMockDataGeneratorModal = 'compass-collection/OpenMockDataGeneratorModal',
-  CloseMockDataGeneratorModal = 'compass-collection/CloseMockDataGeneratorModal',
-  SetMockDataGeneratorStep = 'compass-collection/SetMockDataGeneratorStep',
+  MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
+  MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
+  MockDataGeneratorStepChanged = 'compass-collection/MockDataGeneratorStepChanged',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -50,16 +50,16 @@ interface CollectionMetadataFetchedAction {
   metadata: CollectionMetadata;
 }
 
-interface OpenMockDataGeneratorModalAction {
-  type: CollectionActions.OpenMockDataGeneratorModal;
+interface MockDataGeneratorModalOpenedAction {
+  type: CollectionActions.MockDataGeneratorModalOpened;
 }
 
-interface CloseMockDataGeneratorModalAction {
-  type: CollectionActions.CloseMockDataGeneratorModal;
+interface MockDataGeneratorModalClosedAction {
+  type: CollectionActions.MockDataGeneratorModalClosed;
 }
 
-interface SetMockDataGeneratorStepAction {
-  type: CollectionActions.SetMockDataGeneratorStep;
+interface MockDataGeneratorStepChangedAction {
+  type: CollectionActions.MockDataGeneratorStepChanged;
   step: MockDataGeneratorStep;
 }
 
@@ -89,9 +89,9 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
-    isAction<OpenMockDataGeneratorModalAction>(
+    isAction<MockDataGeneratorModalOpenedAction>(
       action,
-      CollectionActions.OpenMockDataGeneratorModal
+      CollectionActions.MockDataGeneratorModalOpened
     )
   ) {
     return {
@@ -105,9 +105,9 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
-    isAction<CloseMockDataGeneratorModalAction>(
+    isAction<MockDataGeneratorModalClosedAction>(
       action,
-      CollectionActions.CloseMockDataGeneratorModal
+      CollectionActions.MockDataGeneratorModalClosed
     )
   ) {
     return {
@@ -121,9 +121,9 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
-    isAction<SetMockDataGeneratorStepAction>(
+    isAction<MockDataGeneratorStepChangedAction>(
       action,
-      CollectionActions.SetMockDataGeneratorStep
+      CollectionActions.MockDataGeneratorStepChanged
     )
   ) {
     return {
@@ -144,20 +144,20 @@ export const collectionMetadataFetched = (
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
 };
 
-export const openMockDataGeneratorModal =
-  (): OpenMockDataGeneratorModalAction => {
-    return { type: CollectionActions.OpenMockDataGeneratorModal };
+export const mockDataGeneratorModalOpened =
+  (): MockDataGeneratorModalOpenedAction => {
+    return { type: CollectionActions.MockDataGeneratorModalOpened };
   };
 
-export const closeMockDataGeneratorModal =
-  (): CloseMockDataGeneratorModalAction => {
-    return { type: CollectionActions.CloseMockDataGeneratorModal };
+export const mockDataGeneratorModalClosed =
+  (): MockDataGeneratorModalClosedAction => {
+    return { type: CollectionActions.MockDataGeneratorModalClosed };
   };
 
-export const setMockDataGeneratorStep = (
+export const mockDataGeneratorStepChanged = (
   step: MockDataGeneratorStep
-): SetMockDataGeneratorStepAction => {
-  return { type: CollectionActions.SetMockDataGeneratorStep, step };
+): MockDataGeneratorStepChangedAction => {
+  return { type: CollectionActions.MockDataGeneratorStepChanged, step };
 };
 
 export const selectTab = (

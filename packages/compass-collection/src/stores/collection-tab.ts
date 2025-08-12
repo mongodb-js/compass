@@ -5,11 +5,9 @@ import thunk from 'redux-thunk';
 import reducer, {
   selectTab,
   collectionMetadataFetched,
-  openMockDataGeneratorModal,
-  closeMockDataGeneratorModal,
-  setMockDataGeneratorStep,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -56,11 +54,6 @@ export function activatePlugin(
 ): {
   store: ReturnType<typeof createStore>;
   deactivate: () => void;
-  actions: {
-    openMockDataGeneratorModal: () => void;
-    closeMockDataGeneratorModal: () => void;
-    setMockDataGeneratorStep: (step: MockDataGeneratorStep) => void;
-  };
 } {
   const {
     dataService,
@@ -143,13 +136,5 @@ export function activatePlugin(
   return {
     store,
     deactivate: cleanup,
-    actions: {
-      openMockDataGeneratorModal: () =>
-        store.dispatch(openMockDataGeneratorModal()),
-      closeMockDataGeneratorModal: () =>
-        store.dispatch(closeMockDataGeneratorModal()),
-      setMockDataGeneratorStep: (step: MockDataGeneratorStep) =>
-        store.dispatch(setMockDataGeneratorStep(step)),
-    },
   };
 }

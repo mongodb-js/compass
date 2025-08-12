@@ -23,9 +23,9 @@ import type { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
 import { connect } from 'react-redux';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
-  openMockDataGeneratorModal,
-  closeMockDataGeneratorModal,
-  setMockDataGeneratorStep,
+  mockDataGeneratorModalOpened,
+  mockDataGeneratorModalClosed,
+  mockDataGeneratorStepChanged,
 } from '../../modules/collection-tab';
 
 const collectionHeaderStyles = css({
@@ -215,9 +215,9 @@ type ConnectedCollectionHeaderProps = Omit<
 >;
 
 const ConnectedCollectionHeader = connect(mapStateToProps, {
-  onOpenMockDataModal: openMockDataGeneratorModal,
-  onCloseMockDataModal: closeMockDataGeneratorModal,
-  onSetMockDataGeneratorStep: setMockDataGeneratorStep,
+  onOpenMockDataModal: mockDataGeneratorModalOpened,
+  onCloseMockDataModal: mockDataGeneratorModalClosed,
+  onSetMockDataGeneratorStep: mockDataGeneratorStepChanged,
 })(CollectionHeader) as React.ComponentType<ConnectedCollectionHeaderProps>;
 
 export {
