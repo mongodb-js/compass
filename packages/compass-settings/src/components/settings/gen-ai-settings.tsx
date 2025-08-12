@@ -1,14 +1,8 @@
 import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../stores';
 import SettingsList from './settings-list';
-import { ConnectedAtlasLoginSettings } from './atlas-login';
-
-const atlasSettingsContainerStyles = css({
-  marginTop: spacing[400],
-});
 
 export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
@@ -24,9 +18,6 @@ export const GenAISettings: React.FunctionComponent<{
 
       {isAIFeatureEnabled && (
         <>
-          <div className={atlasSettingsContainerStyles}>
-            <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
-          </div>
           <SettingsList fields={['enableGenAISampleDocumentPassing']} />
         </>
       )}
