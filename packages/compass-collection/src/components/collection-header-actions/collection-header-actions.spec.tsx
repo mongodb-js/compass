@@ -39,12 +39,12 @@ describe('CollectionHeaderActions [Component]', function () {
     sinon.restore();
   });
 
-  const renderCollectionHeaderActions = async (
+  const renderCollectionHeaderActions = (
     props: Partial<ComponentProps<typeof CollectionHeaderActions>> = {},
     workspaceService: Partial<WorkspacesService> = {},
     connectionInfo?: ConnectionInfo
   ) => {
-    return await renderWithActiveConnection(
+    return renderWithActiveConnection(
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
         assignExperiment={sinon.stub()}

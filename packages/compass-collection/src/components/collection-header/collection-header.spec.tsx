@@ -8,7 +8,7 @@ import {
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { UnconnectedCollectionHeader } from './collection-header';
+import { UnconnectedCollectionHeader as CollectionHeader } from './collection-header';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
@@ -17,12 +17,12 @@ import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
 import Sinon from 'sinon';
 
 function renderCollectionHeader(
-  props: Partial<ComponentProps<typeof UnconnectedCollectionHeader>> = {},
+  props: Partial<ComponentProps<typeof CollectionHeader>> = {},
   workspaceService: Partial<WorkspacesService> = {}
 ) {
   return render(
     <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
-      <UnconnectedCollectionHeader
+      <CollectionHeader
         isAtlas={false}
         isReadonly={false}
         isTimeSeries={false}
