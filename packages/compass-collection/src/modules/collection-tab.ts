@@ -54,7 +54,7 @@ export type CollectionState = {
   schemaAnalysis: SchemaAnalysis;
 };
 
-export enum CollectionActions {
+enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
