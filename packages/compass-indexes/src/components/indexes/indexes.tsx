@@ -8,6 +8,7 @@ import {
   spacing,
   usePersistedState,
   EmptyContent,
+  Body,
 } from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
@@ -31,7 +32,6 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
-import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -58,13 +58,7 @@ const ViewVersionIncompatibleEmptyState = ({
   mongoDBMajorVersion: number;
   enableAtlasSearchIndexes: boolean;
 }) => {
-  const viewIsSearchCompatible = true; // view only contains $addFields, $set or $match stages with the $expr operator.
-
-  if (
-    mongoDBMajorVersion >= 8.1 &&
-    enableAtlasSearchIndexes &&
-    viewIsSearchCompatible
-  ) {
+  if (mongoDBMajorVersion > 8.0 && enableAtlasSearchIndexes) {
     return null;
   }
   return (
@@ -89,32 +83,21 @@ const AtlasIndexesBanner = ({
   namespace,
   dismissed,
   onDismissClick,
-  atlasMetadata,
-  isReadonlyView,
-  mongoDBMajorVersion,
 }: {
   namespace: string;
   dismissed: boolean;
   onDismissClick: () => void;
-  atlasMetadata: AtlasClusterMetadata | undefined;
-  isReadonlyView?: boolean;
-  mongoDBMajorVersion: number;
 }) => {
-  const viewIsSearchCompatible = true; // view only contains $addFields, $set or $match stages with the $expr operator.
-  if (dismissed || (mongoDBMajorVersion > 8.0 && viewIsSearchCompatible)) {
+  const { atlasMetadata } = useConnectionInfo();
+
+  if (!atlasMetadata || dismissed) {
     return null;
   }
-  const bannerVariant =
-    isReadonlyView && !viewIsSearchCompatible ? 'warning' : 'info';
-  const bannerText =
-    isReadonlyView && !viewIsSearchCompatible
-      ? 'This view is incompatible with search indexes. To use search indexes, edit the view to only contain $addFields, $set or $match stages with the $expr operator. You can view all search indexes under '
-      : 'These indexes can be created and viewed under ';
+
   return (
-    <Banner variant={bannerVariant} dismissible onClose={onDismissClick}>
-      <b>Looking for search indexes?</b>
-      <br />
-      {bannerText}
+    <Banner variant="info" dismissible onClose={onDismissClick}>
+      <Body weight="medium">Looking for search indexes?</Body>
+      These indexes can be created and viewed under{' '}
       {atlasMetadata ? (
         <Link
           href={getAtlasSearchIndexesLink({
@@ -218,7 +201,6 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {isReadonlyView && (
             <ViewVersionIncompatibleBanner
-              namespace={namespace}
               serverVersion={serverVersion}
               mongoDBMajorVersion={mongoDBMajorVersion}
               enableAtlasSearchIndexes={enableAtlasSearchIndexes}
@@ -233,9 +215,6 @@ export function Indexes({
                 onDismissClick={() => {
                   setDismissed(true);
                 }}
-                atlasMetadata={atlasMetadata}
-                isReadonlyView={isReadonlyView}
-                mongoDBMajorVersion={mongoDBMajorVersion}
               />
             ))}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (

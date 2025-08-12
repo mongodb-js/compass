@@ -5,7 +5,6 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import { getAtlasUpgradeClusterLink } from '../../utils/atlas-upgrade-cluster-link';
-import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import React from 'react';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
@@ -17,13 +16,11 @@ const viewContentStyles = css({
 });
 
 export const ViewVersionIncompatibleBanner = ({
-  namespace,
   serverVersion,
   mongoDBMajorVersion,
   enableAtlasSearchIndexes,
   atlasMetadata,
 }: {
-  namespace: string;
   serverVersion: string;
   mongoDBMajorVersion: number;
   enableAtlasSearchIndexes: boolean;
@@ -35,14 +32,17 @@ export const ViewVersionIncompatibleBanner = ({
     mongoDBMajorVersion > 8.0 ||
     (mongoDBMajorVersion === 8.0 && !enableAtlasSearchIndexes)
   ) {
-    // return if 8.1+ or 8.0+ for data explorer
+    // return if 8.1+ on compass or 8.0+ for data explorer
     return null;
   }
 
   if (mongoDBMajorVersion < 8.0) {
     // data explorer <8.0 and compass <8.0
     return (
-      <Banner variant={BannerVariant.Warning}>
+      <Banner
+        variant={BannerVariant.Warning}
+        data-testid="upgrade-cluster-banner-less-than-8.0"
+      >
         <b>Looking for search indexes?</b>
         <br />
         <div className={viewContentStyles}>
@@ -75,7 +75,10 @@ export const ViewVersionIncompatibleBanner = ({
   if (mongoDBMajorVersion === 8.0 && enableAtlasSearchIndexes) {
     // compass 8.0
     return (
-      <Banner variant={BannerVariant.Warning}>
+      <Banner
+        variant={BannerVariant.Warning}
+        data-testid="upgrade-cluster-banner-8.0"
+      >
         <b>Looking for search indexes?</b>
         <br />
         <div className={viewContentStyles}>
