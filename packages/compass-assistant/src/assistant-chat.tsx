@@ -6,6 +6,10 @@ interface AsisstantChatProps {
   onSendMessage?: (message: string) => void;
 }
 
+/**
+ * This component is currently using placeholders as Leafygreen UI updates are not available yet.
+ * Before release, we will replace this with the actual Leafygreen chat components.
+ */
 export const AsisstantChat: React.FunctionComponent<AsisstantChatProps> = ({
   messages,
   onSendMessage,

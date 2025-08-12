@@ -3,6 +3,7 @@ import React, { type PropsWithChildren, useCallback, useRef } from 'react';
 import { type UIMessage, useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat.react';
 import { AsisstantChat } from './assistant-chat';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -22,6 +23,8 @@ export const AssistantProvider: React.FunctionComponent<
     chat?: Chat<UIMessage>;
   }>
 > = ({ chat, children }) => {
+  const enableAIAssistant = usePreference('enableAIAssistant');
+
   const { messages, sendMessage } = useChat({
     transport: docsProviderTransport,
     chat,
@@ -37,16 +40,25 @@ export const AssistantProvider: React.FunctionComponent<
     [sendMessage]
   );
 
+  if (!enableAIAssistant) {
+    return <>{children}</>;
+  }
+
   return (
     <AssistantActionsContext.Provider value={contextActions.current}>
-      <DrawerSection
-        id={ASSISTANT_DRAWER_ID}
-        title="MongoDB Assistant"
-        label="MongoDB Assistant"
-        glyph="Sparkle"
-      >
-        <AsisstantChat messages={messages} onSendMessage={handleMessageSend} />
-      </DrawerSection>
+      {enableAIAssistant && (
+        <DrawerSection
+          id={ASSISTANT_DRAWER_ID}
+          title="MongoDB Assistant"
+          label="MongoDB Assistant"
+          glyph="Sparkle"
+        >
+          <AsisstantChat
+            messages={messages}
+            onSendMessage={handleMessageSend}
+          />
+        </DrawerSection>
+      )}
       {children}
     </AssistantActionsContext.Provider>
   );
