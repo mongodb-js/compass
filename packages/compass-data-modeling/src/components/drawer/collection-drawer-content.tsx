@@ -93,8 +93,8 @@ export function getIsCollectionNameValid(
 
   const isDuplicate = namespacesWithoutCurrent.some(
     (ns) =>
-      ns === `${toNS(namespace).database}.${collectionName}` ||
-      ns === `${toNS(namespace).database}.${collectionName.trim()}`
+      ns.trim() ===
+      `${toNS(namespace).database}.${collectionName.trim()}`.trim()
   );
 
   return {
@@ -151,6 +151,7 @@ const CollectionDrawerContent: React.FunctionComponent<
         <DMFormFieldContainer>
           <TextInput
             label="Name"
+            data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={collectionName}
             {...nameInputProps}
