@@ -82,8 +82,8 @@ describe('AtlasAiService', function () {
     {
       apiURLPreset: 'admin-api',
       expectedEndpoints: {
-        'mql-aggregation': `http://example.com/ai/api/v1/mql-aggregation?request_id=abc`,
-        'mql-query': `http://example.com/ai/api/v1/mql-query?request_id=abc`,
+        'mql-aggregation': `http://example.com/unauth/ai/api/v1/mql-aggregation?request_id=abc`,
+        'mql-query': `http://example.com/unauth/ai/api/v1/mql-query?request_id=abc`,
       },
     },
     {
