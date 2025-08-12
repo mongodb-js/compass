@@ -8,13 +8,22 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
-import { calculateSchemaMetadata } from '@mongodb-js/compass-schema';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
+import {
+  SCHEMA_ANALYSIS_STATE_ANALYZING,
+  SCHEMA_ANALYSIS_STATE_COMPLETE,
+  SCHEMA_ANALYSIS_STATE_ERROR,
+  SCHEMA_ANALYSIS_STATE_INITIAL,
+  type SchemaAnalysis,
+} from '../schema-analysis-types';
+import { calculateSchemaDepth } from '../calculate-schema-depth';
 
 const DEFAULT_SAMPLE_SIZE = 100;
+
+const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -36,24 +45,6 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   },
   A
 >;
-
-export enum SchemaAnalysisStatus {
-  INITIAL = 'initial',
-  ANALYZING = 'analyzing',
-  COMPLETED = 'completed',
-  ERROR = 'error',
-}
-
-type SchemaAnalysis = {
-  status: SchemaAnalysisStatus;
-  schema: Schema | null;
-  sampleDocument: Document | null;
-  schemaMetadata: {
-    maxNestingDepth: number;
-    validationRules: Document;
-  } | null;
-  error: string | null;
-};
 
 export type CollectionState = {
   workspaceTabId: string;
@@ -81,12 +72,12 @@ interface SchemaAnalysisStartedAction {
 
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
-  schema: Schema | null;
-  sampleDocument: Document | null;
+  schema: Schema;
+  sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
-    validationRules: Document;
-  } | null;
+    validationRules: Document | null;
+  };
 }
 
 interface SchemaAnalysisFailedAction {
@@ -101,11 +92,7 @@ const reducer: Reducer<CollectionState, Action> = (
     namespace: '',
     metadata: null,
     schemaAnalysis: {
-      status: SchemaAnalysisStatus.INITIAL,
-      schema: null,
-      sampleDocument: null,
-      schemaMetadata: null,
-      error: null,
+      status: SCHEMA_ANALYSIS_STATE_INITIAL,
     },
   },
   action
@@ -131,11 +118,11 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       schemaAnalysis: {
-        status: SchemaAnalysisStatus.ANALYZING,
+        status: SCHEMA_ANALYSIS_STATE_ANALYZING,
+        error: null,
         schema: null,
         sampleDocument: null,
         schemaMetadata: null,
-        error: null,
       },
     };
   }
@@ -149,11 +136,10 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       schemaAnalysis: {
-        status: SchemaAnalysisStatus.COMPLETED,
+        status: SCHEMA_ANALYSIS_STATE_COMPLETE,
         schema: action.schema,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
-        error: null,
       },
     };
   }
@@ -167,11 +153,8 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       schemaAnalysis: {
-        schema: null,
-        sampleDocument: null,
-        schemaMetadata: null,
-        status: SchemaAnalysisStatus.ERROR,
-        error: action.error.message,
+        status: SCHEMA_ANALYSIS_STATE_ERROR,
+        error: action.error,
       },
     };
   }
@@ -202,7 +185,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
   return async (dispatch, getState, { dataService, preferences, logger }) => {
     const { schemaAnalysis, namespace } = getState();
     const analysisStatus = schemaAnalysis.status;
-    if (analysisStatus === SchemaAnalysisStatus.ANALYZING) {
+    if (analysisStatus === SCHEMA_ANALYSIS_STATE_ANALYZING) {
       logger.debug(
         'Schema analysis is already in progress, skipping new analysis.'
       );
@@ -229,35 +212,38 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
           fallbackReadPreference: 'secondaryPreferred',
         }
       );
-      const sampleDocuments = await sampleCursor.toArray();
+      const sampleDocuments: Array<Document> = await sampleCursor.toArray();
+      if (sampleDocuments.length === 0) {
+        logger.debug(NO_DOCUMENTS_ERROR);
+        dispatch({
+          type: CollectionActions.SchemaAnalysisFailed,
+          error: new Error(NO_DOCUMENTS_ERROR),
+        });
+        return;
+      }
 
       // Analyze sampled documents
       const schemaAccessor = await analyzeDocuments(sampleDocuments);
+      const schema = await schemaAccessor.getInternalSchema();
 
-      let schema: Schema | null = null;
-      if (schemaAccessor) {
-        schema = await schemaAccessor.getInternalSchema();
-        // Filter out internal fields from the schema
-        schema.fields = schema.fields.filter(
-          ({ path }) => !isInternalFieldPath(path[0])
-        );
-        // TODO: Transform schema to structure that will be used by the LLM.
-      }
+      // Filter out internal fields from the schema
+      schema.fields = schema.fields.filter(
+        ({ path }) => !isInternalFieldPath(path[0])
+      );
+      // TODO: Transform schema to structure that will be used by the LLM.
 
-      let schemaMetadata = null;
-      if (schema !== null) {
-        const { schema_depth } = await calculateSchemaMetadata(schema);
-        const { database, collection } = toNS(namespace);
-        const collInfo = await dataService.collectionInfo(database, collection);
-        schemaMetadata = {
-          maxNestingDepth: schema_depth,
-          validationRules: collInfo?.validation?.validator ?? null,
-        };
-      }
+      const maxNestingDepth = await calculateSchemaDepth(schema);
+      const { database, collection } = toNS(namespace);
+      const collInfo = await dataService.collectionInfo(database, collection);
+      const validationRules = collInfo?.validation?.validator ?? null;
+      const schemaMetadata = {
+        maxNestingDepth,
+        validationRules,
+      };
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
         schema,
-        sampleDocument: sampleDocuments[0] ?? null,
+        sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });
     } catch (err: any) {
