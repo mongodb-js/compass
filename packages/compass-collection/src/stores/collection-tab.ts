@@ -7,7 +7,6 @@ import reducer, {
   selectTab,
   collectionMetadataFetched,
   analyzeCollectionSchema,
-  SchemaAnalysisStatus,
 } from '../modules/collection-tab';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -20,6 +19,7 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
 
 export type CollectionTabOptions = {
   /**
@@ -81,11 +81,7 @@ export function activatePlugin(
       metadata: null,
       editViewName,
       schemaAnalysis: {
-        status: SchemaAnalysisStatus.INITIAL,
-        schema: null,
-        sampleDocument: null,
-        schemaMetadata: null,
-        error: null,
+        status: SCHEMA_ANALYSIS_STATE_INITIAL,
       },
     },
     applyMiddleware(
