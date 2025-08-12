@@ -157,13 +157,7 @@ export function activateIndexesPlugin(
 
   void store.dispatch(fetchRegularIndexes());
 
-  const mongoDBMajorVersion = parseFloat(
-    options.serverVersion.split('.').slice(0, 2).join('.')
-  );
-  if (
-    options.isSearchIndexesSupported ||
-    (options.isReadonly && mongoDBMajorVersion > 8.0)
-  ) {
+  if (options.isSearchIndexesSupported || options.isReadonly) {
     void store.dispatch(fetchSearchIndexes());
   }
 
