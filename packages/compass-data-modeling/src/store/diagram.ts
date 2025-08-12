@@ -269,15 +269,6 @@ const updateSelectedItemsFromAppliedEdit = (
   }
 
   switch (edit.type) {
-    case 'RemoveRelationship': {
-      if (
-        currentSelection?.type === 'relationship' &&
-        currentSelection.id === edit.relationshipId
-      ) {
-        return null;
-      }
-      break;
-    }
     case 'RenameCollection': {
       if (
         currentSelection?.type === 'collection' &&
@@ -534,6 +525,12 @@ export function deleteRelationship(
   };
 }
 
+export function deleteCollection(
+  ns: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RemoveCollection', ns });
+}
+
 export function updateCollectionNote(
   ns: string,
   note: string
@@ -589,6 +586,20 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           }
           return collection;
         }),
+      };
+    }
+    case 'RemoveCollection': {
+      return {
+        ...model,
+        // Remove any relationships involving the collection being removed.
+        relationships: model.relationships.filter((r) => {
+          return !(
+            r.relationship[0].ns === edit.ns || r.relationship[1].ns === edit.ns
+          );
+        }),
+        collections: model.collections.filter(
+          (collection) => collection.ns !== edit.ns
+        ),
       };
     }
     case 'RenameCollection': {

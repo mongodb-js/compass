@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
@@ -93,8 +93,8 @@ export function getIsCollectionNameValid(
 
   const isDuplicate = namespacesWithoutCurrent.some(
     (ns) =>
-      ns === `${toNS(namespace).database}.${collectionName}` ||
-      ns === `${toNS(namespace).database}.${collectionName.trim()}`
+      ns.trim() ===
+      `${toNS(namespace).database}.${collectionName.trim()}`.trim()
   );
 
   return {
@@ -116,8 +116,21 @@ const CollectionDrawerContent: React.FunctionComponent<
   onNoteChange,
   onRenameCollection,
 }) => {
-  const [collectionName, setCollectionName] = useState(
-    () => toNS(namespace).collection
+  const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
+    toNS(namespace).collection,
+    (collectionName) => {
+      const trimmedName = collectionName.trim();
+      if (trimmedName === toNS(namespace).collection) {
+        return;
+      }
+      if (!isCollectionNameValid) {
+        return;
+      }
+      onRenameCollection(
+        namespace,
+        `${toNS(namespace).database}.${trimmedName}`
+      );
+    }
   );
 
   const {
@@ -127,23 +140,6 @@ const CollectionDrawerContent: React.FunctionComponent<
     () => getIsCollectionNameValid(collectionName, namespaces, namespace),
     [collectionName, namespaces, namespace]
   );
-
-  useLayoutEffect(() => {
-    setCollectionName(toNS(namespace).collection);
-  }, [namespace]);
-
-  const onBlurCollectionName = useCallback(() => {
-    const trimmedName = collectionName.trim();
-    if (trimmedName === toNS(namespace).collection) {
-      return;
-    }
-
-    if (!isCollectionNameValid) {
-      return;
-    }
-
-    onRenameCollection(namespace, `${toNS(namespace).database}.${trimmedName}`);
-  }, [collectionName, namespace, onRenameCollection, isCollectionNameValid]);
 
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
     onNoteChange(namespace, newNote);
@@ -155,14 +151,12 @@ const CollectionDrawerContent: React.FunctionComponent<
         <DMFormFieldContainer>
           <TextInput
             label="Name"
+            data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={collectionName}
+            {...nameInputProps}
             state={isCollectionNameValid ? undefined : 'error'}
             errorMessage={collectionNameEditErrorMessage}
-            onChange={(e) => {
-              setCollectionName(e.target.value);
-            }}
-            onBlur={onBlurCollectionName}
           />
         </DMFormFieldContainer>
       </DMDrawerSection>
