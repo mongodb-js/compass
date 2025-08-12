@@ -56,10 +56,10 @@
     "ai": "^5.0.5",
     "compass-preferences-model": "^2.49.0",
     "react": "^17.0.2",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.5.0",
+    "throttleit": "^2.1.0"
   },
   "devDependencies": {
-    "throttleit": "^2.1.0",
     "@mongodb-js/eslint-config-compass": "^1.4.5",
     "@mongodb-js/mocha-config-compass": "^1.7.0",
     "@mongodb-js/prettier-config-compass": "^1.2.8",

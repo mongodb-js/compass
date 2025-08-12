@@ -35,9 +35,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         height: '100%',
         width: '100%',
       }}
+      data-testid="assistant-chat"
     >
       {/* Message Feed */}
       <div
+        data-testid="assistant-chat-messages"
         style={{
           width: '100%',
           flex: 1,
@@ -51,6 +53,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         {messages.map((message) => (
           <div
             key={message.id}
+            data-testid={`assistant-message-${message.role}`}
             style={{
               marginBottom: '12px',
               padding: '8px 12px',
@@ -73,6 +76,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
       {/* Input Bar */}
       <form
+        data-testid="assistant-chat-form"
         onSubmit={handleInputSubmit}
         style={{
           display: 'flex',
@@ -85,6 +89,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         }}
       >
         <input
+          data-testid="assistant-chat-input"
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -98,6 +103,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           }}
         />
         <button
+          data-testid="assistant-chat-send-button"
           type="submit"
           disabled={!inputValue.trim()}
           style={{

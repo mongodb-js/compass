@@ -1,7 +1,7 @@
 import { DrawerSection } from '@mongodb-js/compass-components';
 import React, { type PropsWithChildren, useCallback, useRef } from 'react';
 import { type UIMessage, useChat } from './@ai-sdk/react/use-chat';
-import type { Chat } from './@ai-sdk/react/chat.react';
+import type { Chat } from './@ai-sdk/react/chat-react';
 import { AssistantChat } from './assistant-chat';
 import { usePreference } from 'compass-preferences-model/provider';
 

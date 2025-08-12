@@ -14,7 +14,7 @@
 import type { AbstractChat, ChatInit, CreateUIMessage, UIMessage } from 'ai';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
-import { Chat } from './chat.react';
+import { Chat } from './chat-react';
 
 export type { CreateUIMessage, UIMessage };
 
