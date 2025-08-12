@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import type { UIMessage } from './@ai-sdk/react/use-chat';
 
-interface AsisstantChatProps {
+interface AssistantChatProps {
   messages: UIMessage[];
   onSendMessage?: (message: string) => void;
 }
@@ -10,7 +10,7 @@ interface AsisstantChatProps {
  * This component is currently using placeholders as Leafygreen UI updates are not available yet.
  * Before release, we will replace this with the actual Leafygreen chat components.
  */
-export const AsisstantChat: React.FunctionComponent<AsisstantChatProps> = ({
+export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   messages,
   onSendMessage,
 }) => {
@@ -60,6 +60,7 @@ export const AsisstantChat: React.FunctionComponent<AsisstantChatProps> = ({
               alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
               maxWidth: '80%',
               wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
             }}
           >
             {message.parts

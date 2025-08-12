@@ -59,7 +59,6 @@
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
-    "react-dom": "^17.0.2",
     "throttleit": "^2.1.0",
     "@mongodb-js/eslint-config-compass": "^1.4.5",
     "@mongodb-js/mocha-config-compass": "^1.7.0",

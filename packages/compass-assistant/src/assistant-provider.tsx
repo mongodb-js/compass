@@ -2,7 +2,7 @@ import { DrawerSection } from '@mongodb-js/compass-components';
 import React, { type PropsWithChildren, useCallback, useRef } from 'react';
 import { type UIMessage, useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat.react';
-import { AsisstantChat } from './assistant-chat';
+import { AssistantChat } from './assistant-chat';
 import { usePreference } from 'compass-preferences-model/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
@@ -53,7 +53,7 @@ export const AssistantProvider: React.FunctionComponent<
           label="MongoDB Assistant"
           glyph="Sparkle"
         >
-          <AsisstantChat
+          <AssistantChat
             messages={messages}
             onSendMessage={handleMessageSend}
           />
