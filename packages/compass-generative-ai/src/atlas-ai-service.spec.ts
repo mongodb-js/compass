@@ -327,13 +327,6 @@ describe('AtlasAiService', function () {
           // Reset preferences
           await preferences.savePreferences({
             optInGenAIFeatures: false,
-            enableUnauthenticatedGenAI: true,
-          });
-        });
-
-        afterEach(async function () {
-          await preferences.savePreferences({
-            enableUnauthenticatedGenAI: false,
           });
         });
 

@@ -11,7 +11,6 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
-import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -197,9 +196,11 @@ const aiURLConfig = {
   // There are two different sets of endpoints we use for our requests.
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
+  // NOTE: The unauthenticated endpoints are also rate limited by IP address
+  // rather than by logged in user.
   'admin-api': {
-    aggregation: 'ai/api/v1/mql-aggregation',
-    query: 'ai/api/v1/mql-query',
+    aggregation: 'unauth/ai/api/v1/mql-aggregation',
+    query: 'unauth/ai/api/v1/mql-query',
   },
   cloud: {
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
@@ -277,17 +278,7 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
-    if (this.preferences.getPreferences().enableUnauthenticatedGenAI) {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-
-    // When the ai feature is attempted to be opened we make sure
-    // the user is signed into Atlas and opted in.
-
-    if (this.apiURLPreset === 'cloud') {
-      return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
-    }
-    return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
+    return getStore().dispatch(optIntoGenAIWithModalPrompt({ signal }));
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(
