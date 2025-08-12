@@ -125,10 +125,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 
   useEffect(() => {
     // If the view is readonly, set the default tab to 'search-indexes'
-    if (isReadonlyView) {
+    if (isReadonlyView && indexView !== 'search-indexes') {
       onIndexViewChanged('search-indexes'); // Update redux state
     }
-  }, [isReadonlyView, onIndexViewChanged]);
+  }, [indexView, isReadonlyView, onIndexViewChanged]);
 
   return (
     <div
