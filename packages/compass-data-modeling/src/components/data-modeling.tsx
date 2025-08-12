@@ -5,7 +5,7 @@ import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram-form';
 import type { DataModelingState } from '../store/reducer';
 import { DiagramProvider } from '@mongodb-js/diagramming';
-import DiagramEditorSidePanel from './diagram-editor-side-panel';
+import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
 
 type DataModelingProps = {
   showList: boolean;

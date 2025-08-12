@@ -15,11 +15,13 @@ export function useDocumentItemContextMenu({
   openInsertDocumentDialog,
 }: UseDocumentItemContextMenuProps) {
   const { expanded: isExpanded, editing: isEditing } = doc;
+
   return useContextMenuGroups(
     () => [
-      [
-        ...(isEditable
-          ? [
+      isEditable
+        ? {
+            telemetryLabel: 'Document Item Edit',
+            items: [
               {
                 label: isEditing ? 'Cancel editing' : 'Edit document',
                 onAction: () => {
@@ -30,29 +32,30 @@ export function useDocumentItemContextMenu({
                   }
                 },
               },
-            ]
-          : []),
-      ],
-      [
-        {
-          label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
-          onAction: () => {
-            if (isExpanded) {
-              doc.collapse();
-            } else {
-              doc.expand();
-            }
+            ],
+          }
+        : undefined,
+      {
+        telemetryLabel: 'Document Item',
+        items: [
+          {
+            label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
+            onAction: () => {
+              if (isExpanded) {
+                doc.collapse();
+              } else {
+                doc.expand();
+              }
+            },
           },
-        },
-        {
-          label: 'Copy document',
-          onAction: () => {
-            copyToClipboard?.(doc);
+          {
+            label: 'Copy document',
+            onAction: () => {
+              copyToClipboard?.(doc);
+            },
           },
-        },
-        ...(isEditable
-          ? [
-              {
+          isEditable
+            ? {
                 label: 'Clone document...',
                 onAction: () => {
                   const clonedDoc = doc.generateObject({
@@ -60,16 +63,23 @@ export function useDocumentItemContextMenu({
                   });
                   void openInsertDocumentDialog?.(clonedDoc, true);
                 },
-              },
+              }
+            : undefined,
+        ],
+      },
+      isEditable
+        ? {
+            telemetryLabel: 'Document Item Delete',
+            items: [
               {
                 label: 'Delete document',
                 onAction: () => {
                   doc.markForDeletion();
                 },
               },
-            ]
-          : []),
-      ],
+            ],
+          }
+        : undefined,
     ],
     [
       doc,

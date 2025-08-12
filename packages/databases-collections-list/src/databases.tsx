@@ -71,7 +71,7 @@ const DatabasesList: React.FunctionComponent<{
             type="database"
             viewType={viewType}
             status={db.status}
-            isNonExistent={db.is_non_existent}
+            inferredFromPrivileges={db.inferred_from_privileges}
             data={[
               {
                 label: 'Storage size',

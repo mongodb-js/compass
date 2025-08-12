@@ -20,7 +20,7 @@ import {
   ButtonVariant,
   cx,
   Placeholder,
-  useContextMenuItems,
+  useContextMenuGroups,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -508,12 +508,16 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [onCollapseAll, onNewConnection, openConnectionImportExportModal]
   );
 
-  const contextMenuRef = useContextMenuItems(
-    () =>
-      connectionListTitleActions.map(({ label, action }) => ({
-        label,
-        onAction: () => onConnectionListTitleAction(action),
-      })),
+  const contextMenuRef = useContextMenuGroups(
+    () => [
+      {
+        telemetryLabel: 'Connection List Title Actions',
+        items: connectionListTitleActions.map(({ label, action }) => ({
+          label,
+          onAction: () => onConnectionListTitleAction(action),
+        })),
+      },
+    ],
     [connectionListTitleActions, onConnectionListTitleAction]
   );
 

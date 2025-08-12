@@ -41,9 +41,9 @@ export default function StyledNavigationItem({
       !showDisabledConnections || getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
-    const isNonExistentNamespace =
+    const inferredFromPrivilegesNamespace =
       (item.type === 'database' || item.type === 'collection') &&
-      item.isNonExistent;
+      item.inferredFromPrivileges;
 
     if (colorCode && colorCode !== DefaultColorCode) {
       style['--item-bg-color'] = connectionColorToHex(colorCode);
@@ -51,12 +51,16 @@ export default function StyledNavigationItem({
       style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
     }
 
-    if (isDisconnectedConnection || isNonExistentNamespace || !isConnectable) {
+    if (
+      isDisconnectedConnection ||
+      inferredFromPrivilegesNamespace ||
+      !isConnectable
+    ) {
       style['--item-color'] = inactiveColor;
     }
 
     // We always show these as inactive
-    if (isNonExistentNamespace || !isConnectable) {
+    if (inferredFromPrivilegesNamespace || !isConnectable) {
       style['--item-color-active'] = inactiveColor;
     }
     return style;

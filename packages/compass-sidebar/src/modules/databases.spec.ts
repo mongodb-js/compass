@@ -17,12 +17,12 @@ async function createDatabases(dbs: any[] = []) {
       };
     }
   );
-  return data.map(({ is_non_existent, collections, ...rest }) => ({
+  return data.map(({ inferred_from_privileges, collections, ...rest }) => ({
     ...rest,
-    isNonExistent: is_non_existent,
-    collections: collections.map(({ is_non_existent, ...coll }) => ({
+    inferredFromPrivileges: inferred_from_privileges,
+    collections: collections.map(({ inferred_from_privileges, ...coll }) => ({
       ...coll,
-      isNonExistent: is_non_existent,
+      inferredFromPrivileges: inferred_from_privileges,
     })),
   }));
 }

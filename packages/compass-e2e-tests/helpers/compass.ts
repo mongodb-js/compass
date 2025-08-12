@@ -1223,7 +1223,7 @@ function redact(value: string): string {
       continue;
     }
 
-    const quoted = `'${process.env[field] as string}'`;
+    const quoted = `'${process.env[field]}'`;
     // /regex/s would be ideal, but we'd have to escape the value to not be
     // interpreted as a regex.
     while (value.indexOf(quoted) !== -1) {

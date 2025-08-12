@@ -2,7 +2,7 @@ import type { RefCallback } from 'react';
 import { useContext, useMemo, useRef } from 'react';
 import { ContextMenuContext } from './context-menu-provider';
 import { appendContextMenuContent } from './context-menu-content';
-import type { ContextMenuItem } from './types';
+import type { ContextMenuItem, ContextMenuItemGroup } from './types';
 
 export type ContextMenuMethods<T extends ContextMenuItem> = {
   /**
@@ -10,10 +10,12 @@ export type ContextMenuMethods<T extends ContextMenuItem> = {
    */
   close(): void;
   /**
-   * Register the menu items for the context menu.
+   * Register the menu item group for the context menu.
    * @returns a callback ref to be passed onto the element responsible for triggering the menu.
    */
-  registerItems(...groups: T[][]): RefCallback<HTMLElement>;
+  registerItemGroups(
+    groups: ContextMenuItemGroup<T>[]
+  ): RefCallback<HTMLElement>;
 };
 
 export function useContextMenu<
@@ -34,7 +36,7 @@ export function useContextMenu<
       /**
        * @returns a callback ref, passed onto the element responsible for triggering the menu.
        */
-      registerItems(...groups: ContextMenuItem[][]) {
+      registerItemGroups(groups: ContextMenuItemGroup<T>[]) {
         function listener(event: MouseEvent): void {
           appendContextMenuContent(event, ...groups);
         }

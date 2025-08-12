@@ -25,7 +25,7 @@ function createDatabase(name) {
     collectionsStatusError: null,
     collection_count: 1,
     collections: [] as any,
-    is_non_existent: false,
+    inferred_from_privileges: false,
     // dbStats
     document_count: 10,
     storage_size: 1500,
@@ -59,7 +59,7 @@ function createCollection(name, props: any = {}) {
     is_capped: false,
     isTimeSeries: false,
     isView: false,
-    is_non_existent: false,
+    inferred_from_privileges: false,
     /** Only relevant for a view and identifies collection/view from which this view was created. */
     sourceName: null,
     source: {} as any,

@@ -14,7 +14,7 @@ export function downloadDiagram(fileName: string, edits: Edit[]) {
     }
   );
   const url = window.URL.createObjectURL(blob);
-  downloadFile(url, `${fileName}.compass`, () => {
+  downloadFile(url, `${fileName}.mdm`, () => {
     window.URL.revokeObjectURL(url);
   });
 }

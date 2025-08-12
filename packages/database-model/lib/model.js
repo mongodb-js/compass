@@ -105,7 +105,7 @@ const DatabaseModel = AmpersandModel.extend(
       statusError: { type: 'string', default: null },
       collectionsStatus: { type: 'string', default: 'initial' },
       collectionsStatusError: { type: 'string', default: null },
-      is_non_existent: 'boolean',
+      inferred_from_privileges: 'boolean',
       collection_count: 'number',
       document_count: 'number',
       storage_size: 'number',
@@ -142,7 +142,7 @@ const DatabaseModel = AmpersandModel.extend(
       const shouldFetchDbAndCollStats = getParentByType(
         this,
         'Instance'
-      ).shouldFetchDbAndCollStats;
+      ).shouldFetchDbAndCollStats();
 
       if (!shouldFetch(this.status, force)) {
         return;
@@ -251,17 +251,21 @@ const DatabaseCollection = AmpersandCollection.extend(
         );
       }
 
+      const shouldFetchNamespacesFromPrivileges =
+        instanceModel.shouldFetchNamespacesFromPrivileges();
+
       const dbs = await dataService.listDatabases({
         nameOnly: true,
+        fetchNamespacesFromPrivileges: shouldFetchNamespacesFromPrivileges,
         privileges: instanceModel.auth.privileges,
         roles: instanceModel.auth.roles,
       });
 
       this.set(
-        dbs.map(({ _id, name, is_non_existent }) => ({
+        dbs.map(({ _id, name, inferred_from_privileges }) => ({
           _id,
           name,
-          is_non_existent,
+          inferred_from_privileges,
         }))
       );
     },

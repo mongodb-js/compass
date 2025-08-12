@@ -83,7 +83,7 @@ interface CollectionProps {
   sourceName: string | null;
   source: Collection;
   properties: { id: string; options?: Record<string, unknown> }[];
-  is_non_existent: boolean;
+  inferred_from_privileges: boolean;
 }
 
 type CollectionDataService = Pick<

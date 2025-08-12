@@ -24,7 +24,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
   useFireExperimentViewed,
-  TestName,
+  ExperimentTestName,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
@@ -91,7 +91,7 @@ function CreateIndexModal({
     usePreference('showIndexesGuidanceVariant') && enableInIndexesGuidanceExp;
 
   useFireExperimentViewed({
-    testName: TestName.earlyJourneyIndexesGuidance,
+    testName: ExperimentTestName.earlyJourneyIndexesGuidance,
     shouldFire: enableInIndexesGuidanceExp && isVisible,
   });
 

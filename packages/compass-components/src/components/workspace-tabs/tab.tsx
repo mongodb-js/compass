@@ -14,7 +14,7 @@ import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
 import { useTabTheme } from './use-tab-theme';
-import { useContextMenuItems } from '../context-menu';
+import { useContextMenuGroups } from '../context-menu';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -138,7 +138,7 @@ const draggingTabStyles = css({
   cursor: 'grabbing !important',
 });
 
-const nonExistentStyles = css({
+const inferredFromPrivilegesStyles = css({
   color: palette.gray.base,
 });
 
@@ -184,7 +184,7 @@ export type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
   title: React.ReactNode;
-  isNonExistent?: boolean;
+  inferredFromPrivileges?: boolean;
   iconGlyph: GlyphName | 'Logo' | 'Server';
   tooltip?: [string, string][];
 };
@@ -206,7 +206,7 @@ function Tab({
   type,
   title,
   tooltip,
-  isNonExistent,
+  inferredFromPrivileges,
   isSelected,
   isDragging,
   onSelect,
@@ -239,10 +239,15 @@ function Tab({
     return css(tabTheme);
   }, [tabTheme, darkMode]);
 
-  const contextMenuRef = useContextMenuItems(
+  const contextMenuRef = useContextMenuGroups(
     () => [
-      { label: 'Close all other tabs', onAction: onCloseAllOthers },
-      { label: 'Duplicate', onAction: onDuplicate },
+      {
+        telemetryLabel: 'Workspace Tab',
+        items: [
+          { label: 'Close all other tabs', onAction: onCloseAllOthers },
+          { label: 'Duplicate', onAction: onDuplicate },
+        ],
+      },
     ],
     [onCloseAllOthers, onDuplicate]
   );
@@ -271,7 +276,7 @@ function Tab({
           className={cx(
             tabStyles,
             themeClass,
-            isNonExistent && nonExistentStyles,
+            inferredFromPrivileges && inferredFromPrivilegesStyles,
             isSelected && selectedTabStyles,
             isSelected && tabTheme && selectedThemedTabStyles,
             isDragging && draggingTabStyles,

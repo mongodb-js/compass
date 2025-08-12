@@ -175,15 +175,13 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
-      this.setupAutoUpdate();
-    }
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
+    this.setupAutoUpdate();
     this.trackApplicationLaunched(globalPreferences);
   }
 
@@ -213,7 +211,9 @@ class CompassApplication {
   }
 
   private static setupAutoUpdate(): void {
-    CompassAutoUpdateManager.init(this);
+    if (!process.env.CI || process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
+      void CompassAutoUpdateManager.init(this);
+    }
   }
 
   private static setupApplicationMenu(): void {

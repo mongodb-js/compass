@@ -104,11 +104,14 @@ describe('Bulk Delete', function () {
     // The success toast is displayed
     await browser.$(Selectors.BulkDeleteSuccessToast).waitForDisplayed();
 
-    const toastText = await browser
-      .$(Selectors.BulkDeleteSuccessToast)
-      .getText();
+    await browser.waitUntil(async () => {
+      const toastText = await browser
+        .$(Selectors.BulkDeleteSuccessToast)
+        .getText();
 
-    expect(toastText).to.contain('1 document has been deleted.');
+      return toastText.includes('1 document has been deleted.');
+    });
+
     // We close the toast
     await browser.clickVisible(Selectors.BulkDeleteSuccessToastDismissButton);
 

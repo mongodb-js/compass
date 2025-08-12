@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
 import {
   applyEdit,
-  applyInitialLayout,
   getCurrentDiagramFromState,
   getCurrentModel,
   openDiagram,
   redoEdit,
   undoEdit,
+  selectFieldsForCurrentModel,
 } from './diagram';
 import type {
   Edit,
@@ -76,8 +76,16 @@ describe('Data Modeling store', function () {
         name: 'New Diagram',
         connectionId: 'connection-id',
         collections: [
-          { ns: 'collection1', schema: model.collections[0].jsonSchema },
-          { ns: 'collection2', schema: model.collections[1].jsonSchema },
+          {
+            ns: 'collection1',
+            schema: model.collections[0].jsonSchema,
+            position: { x: 0, y: 0 },
+          },
+          {
+            ns: 'collection2',
+            schema: model.collections[1].jsonSchema,
+            position: { x: 0, y: 0 },
+          },
         ],
         relations: model.relationships,
       };
@@ -98,44 +106,14 @@ describe('Data Modeling store', function () {
       expect(initialEdit.model.collections[0]).to.deep.include({
         ns: newDiagram.collections[0].ns,
         jsonSchema: newDiagram.collections[0].schema,
-        displayPosition: [NaN, NaN],
+        displayPosition: [0, 0],
       });
       expect(initialEdit.model.collections[1]).to.deep.include({
         ns: newDiagram.collections[1].ns,
         jsonSchema: newDiagram.collections[1].schema,
-        displayPosition: [NaN, NaN],
+        displayPosition: [0, 0],
       });
       expect(initialEdit.model.relationships).to.deep.equal(
-        newDiagram.relations
-      );
-
-      // INITIAL LAYOUT
-      const positions: Record<string, [number, number]> = {
-        [newDiagram.collections[0].ns]: [10, 10],
-        [newDiagram.collections[1].ns]: [50, 50],
-      };
-      store.dispatch(applyInitialLayout(positions));
-
-      const diagramWithLayout = getCurrentDiagramFromState(store.getState());
-      expect(diagramWithLayout.name).to.equal(newDiagram.name);
-      expect(diagramWithLayout.connectionId).to.equal(newDiagram.connectionId);
-      expect(diagramWithLayout.edits).to.have.length(1);
-      expect(diagramWithLayout.edits[0].type).to.equal('SetModel');
-      const initialEditWithPositions = diagramWithLayout.edits[0] as Extract<
-        Edit,
-        { type: 'SetModel' }
-      >;
-      expect(initialEditWithPositions.model.collections[0]).to.deep.include({
-        ns: newDiagram.collections[0].ns,
-        jsonSchema: newDiagram.collections[0].schema,
-        displayPosition: positions[newDiagram.collections[0].ns],
-      });
-      expect(initialEditWithPositions.model.collections[1]).to.deep.include({
-        ns: newDiagram.collections[1].ns,
-        jsonSchema: newDiagram.collections[1].schema,
-        displayPosition: positions[newDiagram.collections[1].ns],
-      });
-      expect(initialEditWithPositions.model.relationships).to.deep.equal(
         newDiagram.relations
       );
     });
@@ -317,5 +295,151 @@ describe('Data Modeling store', function () {
     expect(diagramAfterRedo.edits).to.have.length(2);
     expect(diagramAfterRedo.edits[0]).to.deep.include(loadedDiagram.edits[0]);
     expect(diagramAfterRedo.edits[1]).to.deep.include(edit);
+  });
+
+  describe('selectFieldsForCurrentModel', function () {
+    it('should select fields from a flat schema', function () {
+      const edits: MongoDBDataModelDescription['edits'] = [
+        {
+          id: 'first-edit',
+          timestamp: new Date().toISOString(),
+          type: 'SetModel',
+          model: {
+            collections: [
+              {
+                ns: 'collection1',
+                indexes: [],
+                displayPosition: [0, 0],
+                shardKey: {},
+                jsonSchema: {
+                  bsonType: 'object',
+                  properties: {
+                    field1: { bsonType: 'string' },
+                    field2: { bsonType: 'int' },
+                    field3: { bsonType: 'int' },
+                  },
+                },
+              },
+            ],
+            relationships: [],
+          },
+        },
+      ];
+      const selectedFields = selectFieldsForCurrentModel(edits);
+
+      expect(selectedFields).to.deep.equal({
+        collection1: [['field1'], ['field2'], ['field3']],
+      });
+    });
+
+    it('should select fields from a nested schema', function () {
+      const edits: MongoDBDataModelDescription['edits'] = [
+        {
+          id: 'first-edit',
+          timestamp: new Date().toISOString(),
+          type: 'SetModel',
+          model: {
+            collections: [
+              {
+                ns: 'collection1',
+                indexes: [],
+                displayPosition: [0, 0],
+                shardKey: {},
+                jsonSchema: {
+                  bsonType: 'object',
+                  properties: {
+                    prop1: { bsonType: 'string' },
+                    // Deeply nested properties
+                    prop2: {
+                      bsonType: 'object',
+                      properties: {
+                        prop2A: { bsonType: 'string' },
+                        prop2B: {
+                          bsonType: 'object',
+                          properties: {
+                            prop2B1: { bsonType: 'string' },
+                            prop2B2: { bsonType: 'int' },
+                          },
+                        },
+                      },
+                    },
+                    // Array of objects
+                    prop3: {
+                      bsonType: 'array',
+                      items: {
+                        bsonType: 'object',
+                        properties: {
+                          prop3A: { bsonType: 'string' },
+                        },
+                      },
+                    },
+                    // Mixed type with objects
+                    prop4: {
+                      anyOf: [
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop4A: { bsonType: 'string' },
+                          },
+                        },
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop4B: { bsonType: 'string' },
+                          },
+                        },
+                      ],
+                    },
+                    // Mixed array with objects
+                    prop5: {
+                      bsonType: 'array',
+                      items: [
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop5A: { bsonType: 'string' },
+                          },
+                        },
+                        {
+                          bsonType: 'object',
+                          properties: {
+                            prop5B: { bsonType: 'number' },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+            relationships: [],
+          },
+        },
+      ];
+      const selectedFields = selectFieldsForCurrentModel(edits);
+
+      expect(selectedFields).to.have.property('collection1');
+      expect(selectedFields.collection1).to.deep.include(['prop1']);
+      expect(selectedFields.collection1).to.deep.include(['prop2']);
+      expect(selectedFields.collection1).to.deep.include(['prop2', 'prop2A']);
+      expect(selectedFields.collection1).to.deep.include([
+        'prop2',
+        'prop2B',
+        'prop2B1',
+      ]);
+      expect(selectedFields.collection1).to.deep.include([
+        'prop2',
+        'prop2B',
+        'prop2B2',
+      ]);
+      expect(selectedFields.collection1).to.deep.include(['prop3']);
+      expect(selectedFields.collection1).to.deep.include(['prop3', 'prop3A']);
+      expect(selectedFields.collection1).to.deep.include(['prop4']);
+      expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4A']);
+      expect(selectedFields.collection1).to.deep.include(['prop4', 'prop4B']);
+      expect(selectedFields.collection1).to.deep.include(['prop5']);
+      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5A']);
+      expect(selectedFields.collection1).to.deep.include(['prop5', 'prop5B']);
+    });
   });
 });

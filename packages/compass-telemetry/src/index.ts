@@ -5,3 +5,6 @@ export type {
   IdentifyTraits,
   ExtraConnectionData,
 } from './types';
+
+export { CompassExperimentationProvider } from './experimentation-provider';
+export { ExperimentTestName } from './growth-experiments';

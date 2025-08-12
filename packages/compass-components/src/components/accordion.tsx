@@ -9,9 +9,8 @@ import { Description, Icon } from './leafygreen';
 
 const buttonStyles = css({
   fontWeight: 'bold',
-  fontSize: '14px',
   display: 'flex',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   paddingLeft: 0,
   paddingRight: 0,
   border: 'none',
@@ -28,40 +27,69 @@ const buttonStyles = css({
   },
 });
 
+const buttonVariantStyles = {
+  default: css({
+    fontSize: 14,
+    lineHeight: `${spacing[500]}px`,
+  }),
+  small: css({
+    fontSize: spacing[300],
+    lineHeight: `${spacing[500]}px`,
+  }),
+};
+
+const iconVariantSizes = {
+  default: spacing[400],
+  small: 14,
+};
+
 const buttonLightThemeStyles = css({
   color: palette.gray.dark2,
 });
+
 const buttonDarkThemeStyles = css({
   color: palette.white,
 });
+
 const buttonIconContainerStyles = css({
-  padding: spacing[100] / 2, // matches the line-height (16 + 4)
-  paddingLeft: 0,
+  fontSize: 0,
+  lineHeight: 0,
+  padding: 0,
+  paddingRight: spacing[150],
 });
+
 const buttonTextStyles = css({
   textAlign: 'left',
 });
+
 const buttonHintStyles = css({
   margin: 0,
   marginLeft: spacing[100],
   padding: 0,
   display: 'inline',
 });
-interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
+
+interface AccordionProps
+  extends Omit<React.HTMLProps<HTMLButtonElement>, 'size'> {
   text: string | React.ReactNode;
   hintText?: string;
   textClassName?: string;
+  buttonTextClassName?: string;
   open?: boolean;
   defaultOpen?: boolean;
   setOpen?: (newValue: boolean) => void;
+  size?: 'default' | 'small';
 }
+
 function Accordion({
   text,
   hintText,
   textClassName,
+  buttonTextClassName,
   open: _open,
   setOpen: _setOpen,
   defaultOpen = false,
+  size = 'default',
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
@@ -85,6 +113,7 @@ function Accordion({
         className={cx(
           darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
           buttonStyles,
+          buttonVariantStyles[size],
           textClassName
         )}
         id={labelId}
@@ -94,10 +123,13 @@ function Accordion({
         onClick={onOpenChange}
       >
         <span className={buttonIconContainerStyles}>
-          <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
+          <Icon
+            glyph={open ? 'ChevronDown' : 'ChevronRight'}
+            size={iconVariantSizes[size]}
+          />
         </span>
 
-        <div className={buttonTextStyles}>
+        <div className={cx(buttonTextStyles, buttonTextClassName)}>
           {text}
           {hintText && (
             <Description className={buttonHintStyles}>{hintText}</Description>
