@@ -52,6 +52,7 @@
     "@ai-sdk/openai": "^2.0.4",
     "@mongodb-js/compass-components": "^1.30.5",
     "@mongodb-js/compass-logging": "^1.7.10",
+    "@mongodb-js/compass-app-registry": "^9.4.18",
     "ai": "^5.0.5",
     "compass-preferences-model": "^2.49.0",
     "react": "^17.0.2",
@@ -60,7 +61,6 @@
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-app-registry": "^9.4.18",
     "@mongodb-js/eslint-config-compass": "^1.4.5",
     "@mongodb-js/mocha-config-compass": "^1.7.0",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
