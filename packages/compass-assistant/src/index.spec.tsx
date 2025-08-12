@@ -1,10 +1,9 @@
 import React from 'react';
-import { expect } from 'chai';
-import { cleanup, render } from '@mongodb-js/testing-library-compass';
-import CompassPlugin from './index';
+import { render } from '@mongodb-js/testing-library-compass';
+import { CompassAssistantProvider } from './index';
 
-describe('Compass Plugin', function () {
-  const Plugin = CompassPlugin.withMockServices({});
+describe('Compass Assistant', function () {
+  const Plugin = CompassAssistantProvider.withMockServices({});
 
   it('renders a Plugin', function () {
     render(<Plugin></Plugin>);

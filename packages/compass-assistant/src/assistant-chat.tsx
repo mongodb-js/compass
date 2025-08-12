@@ -1,0 +1,113 @@
+import React, { useCallback, useState } from 'react';
+import type { UIMessage } from './@ai-sdk/react/use-chat';
+
+interface AsisstantChatProps {
+  messages: UIMessage[];
+  onSendMessage?: (message: string) => void;
+}
+
+export const AsisstantChat: React.FunctionComponent<AsisstantChatProps> = ({
+  messages,
+  onSendMessage,
+}) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleInputSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (inputValue.trim() && onSendMessage) {
+        onSendMessage(inputValue.trim());
+        setInputValue('');
+      }
+    },
+    [inputValue, onSendMessage]
+  );
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+      }}
+    >
+      {/* Message Feed */}
+      <div
+        style={{
+          width: '100%',
+          flex: 1,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          minHeight: 0,
+        }}
+      >
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            style={{
+              marginBottom: '12px',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              backgroundColor: message.role === 'user' ? '#207245' : '#e9ecef',
+              color: message.role === 'user' ? 'white' : '#333',
+              alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '80%',
+              wordWrap: 'break-word',
+            }}
+          >
+            {message.parts
+              ?.filter((part) => part.type === 'text')
+              .map((part) => part.text)
+              .join('') || ''}
+          </div>
+        ))}
+      </div>
+
+      {/* Input Bar */}
+      <form
+        onSubmit={handleInputSubmit}
+        style={{
+          display: 'flex',
+          gap: '8px',
+          flexShrink: 0, // Prevents the input bar from shrinking
+          position: 'sticky',
+          bottom: 0,
+          backgroundColor: 'inherit',
+          paddingTop: '8px',
+        }}
+      >
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Ask MongoDB Assistant a question"
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '14px',
+          }}
+        />
+        <button
+          type="submit"
+          disabled={!inputValue.trim()}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#207245',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+            opacity: inputValue.trim() ? 1 : 0.6,
+          }}
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
+};
