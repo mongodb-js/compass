@@ -609,7 +609,7 @@ const fetchIndexes = (
     const mongoDBMajorVersion = parseFloat(
       serverVersion.split('.').slice(0, 2).join('.')
     );
-    if (isReadonlyView || mongoDBMajorVersion < 8.1 || !isWritable) {
+    if ((isReadonlyView && mongoDBMajorVersion < 8.1) || !isWritable) {
       return; // fetch for views 8.1+
     }
 
