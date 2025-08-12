@@ -11,7 +11,6 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
-import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 
 type GenerativeAiInput = {
   userInput: string;
