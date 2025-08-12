@@ -3,6 +3,7 @@ import React, { type ComponentProps } from 'react';
 import {
   renderWithActiveConnection,
   screen,
+  cleanup,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import {
@@ -43,14 +44,7 @@ describe('CollectionHeaderActions [Component]', function () {
     workspaceService: Partial<WorkspacesService> = {},
     connectionInfo?: ConnectionInfo
   ) => {
-    const defaultProps = {
-      namespace: 'test.test',
-      isReadonly: false,
-      onOpenMockDataModal: sinon.stub(),
-      ...props,
-    };
-
-    const ui = (
+    return await renderWithActiveConnection(
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
         assignExperiment={sinon.stub()}
@@ -59,13 +53,17 @@ describe('CollectionHeaderActions [Component]', function () {
           value={workspaceService as WorkspacesService}
         >
           <PreferencesProvider value={preferences}>
-            <CollectionHeaderActions {...defaultProps} />
+            <CollectionHeaderActions
+              namespace="test.test"
+              isReadonly={false}
+              onOpenMockDataModal={sinon.stub()}
+              {...props}
+            />
           </PreferencesProvider>
         </WorkspacesServiceProvider>
-      </CompassExperimentationProvider>
+      </CompassExperimentationProvider>,
+      connectionInfo
     );
-
-    return await renderWithActiveConnection(ui, connectionInfo);
   };
 
   context('when the collection is not readonly', function () {
@@ -76,6 +74,8 @@ describe('CollectionHeaderActions [Component]', function () {
         sourceName: 'db.coll',
       });
     });
+
+    afterEach(cleanup);
 
     it('does not render any buttons', function () {
       expect(
@@ -137,6 +137,8 @@ describe('CollectionHeaderActions [Component]', function () {
       );
     });
 
+    afterEach(cleanup);
+
     it('shows a button to edit the view pipeline', function () {
       expect(
         screen.getByTestId('collection-header-actions-edit-button')
@@ -174,6 +176,8 @@ describe('CollectionHeaderActions [Component]', function () {
         }
       );
     });
+
+    afterEach(cleanup);
 
     it('shows a button to return to the view', function () {
       expect(
