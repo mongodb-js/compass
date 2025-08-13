@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 'use strict';
-const path = require('path');
+const path = require('node:path');
+const fs = require('node:fs');
 
 /*
 This script writes a bash script that can be eval()'d in evergreen to modify the
@@ -84,7 +85,11 @@ function printCompassEnv() {
   // to be a non-cygwin path
   const npmCacheDir = path.resolve(__dirname, '..', '.deps', '.npm-cache');
 
-  printVar('ARTIFACTS_PATH', `${newPWD}/.deps`);
+  const artifactsPath = path.resolve(newPWD, '.deps');
+  if (!fs.existsSync(artifactsPath)) {
+    fs.mkdirSync(artifactsPath, { recursive: true });
+  }
+
   printVar('NPM_CACHE_DIR', npmCacheDir);
 
   // all npm var names need to be lowercase

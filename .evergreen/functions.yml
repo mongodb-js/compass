@@ -149,23 +149,11 @@ functions:
           <<: *compass-env
         script: |
           set -e
+          .evergreen/install-node.sh
+
           eval $(.evergreen/print-compass-env.sh)
 
-          # Make all the dirs
-          mkdir -p $ARTIFACTS_PATH
-
-    - command: shell.exec
-      type: setup
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-        script: |
-          set -e
-          eval $(.evergreen/print-compass-env.sh)
-
-          .evergreen/preinstall.sh
+          .evergreen/print-debug-info.sh
 
           # Make sure install worked
           echo "Using node version:";
