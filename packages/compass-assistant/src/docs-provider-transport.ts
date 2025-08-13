@@ -1,5 +1,4 @@
 import {
-  type ChatRequestOptions,
   type ChatTransport,
   type UIMessage,
   type UIMessageChunk,
@@ -18,8 +17,7 @@ export class DocsProviderTransport implements ChatTransport<UIMessage> {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async sendMessages({
+  sendMessages({
     messages,
     abortSignal,
   }: Parameters<ChatTransport<UIMessage>['sendMessages']>[0]) {
@@ -29,15 +27,11 @@ export class DocsProviderTransport implements ChatTransport<UIMessage> {
       abortSignal: abortSignal,
     });
 
-    return result.toUIMessageStream();
+    return Promise.resolve(result.toUIMessageStream());
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async reconnectToStream(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    options: ChatRequestOptions
-  ): Promise<ReadableStream<UIMessageChunk> | null> {
+  reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {
     // For this implementation, we don't support reconnecting to streams
-    return null;
+    return Promise.resolve(null);
   }
 }
