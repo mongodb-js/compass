@@ -143,7 +143,7 @@ export function activateIndexesPlugin(
   on(globalAppRegistry, 'refresh-data', () => {
     void store.dispatch(fetchRegularIndexes());
     if (options.isSearchIndexesSupported) {
-      void store.dispatch(fetchRegularIndexes());
+      void store.dispatch(fetchSearchIndexes());
     }
   });
 
