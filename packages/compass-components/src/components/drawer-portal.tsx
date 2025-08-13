@@ -221,6 +221,7 @@ export const DrawerAnchor: React.FunctionComponent<{
           ...data,
           content: (
             <div
+              key={data.id}
               data-drawer-section={data.id}
               className={drawerSectionPortalStyles}
             ></div>
