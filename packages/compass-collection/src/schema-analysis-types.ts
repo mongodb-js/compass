@@ -11,20 +11,25 @@ export type SchemaAnalysisStatus =
   | typeof SCHEMA_ANALYSIS_STATE_COMPLETE
   | typeof SCHEMA_ANALYSIS_STATE_ERROR;
 
-export type SchemaAnalysisInitial = {
+export type SchemaAnalysisInitialState = {
   status: typeof SCHEMA_ANALYSIS_STATE_INITIAL;
 };
 
-export type SchemaAnalysisStarted = {
+export type SchemaAnalysisStartedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_ANALYZING;
 };
 
 export type SchemaAnalysisError = {
-  status: typeof SCHEMA_ANALYSIS_STATE_ERROR;
-  error: Error;
+  errorMessage: string;
+  errorType: 'timeout' | 'highComplexity' | 'general';
 };
 
-export type SchemaAnalysisCompleted = {
+export type SchemaAnalysisErrorState = {
+  status: typeof SCHEMA_ANALYSIS_STATE_ERROR;
+  error: SchemaAnalysisError;
+};
+
+export type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
   schema: Schema;
   sampleDocument: Document;
@@ -34,8 +39,8 @@ export type SchemaAnalysisCompleted = {
   };
 };
 
-export type SchemaAnalysis =
-  | SchemaAnalysisError
-  | SchemaAnalysisInitial
-  | SchemaAnalysisStarted
-  | SchemaAnalysisCompleted;
+export type SchemaAnalysisState =
+  | SchemaAnalysisErrorState
+  | SchemaAnalysisInitialState
+  | SchemaAnalysisStartedState
+  | SchemaAnalysisCompletedState;
