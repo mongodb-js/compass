@@ -13,7 +13,7 @@ import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-import { filterStageOperators } from '../../utils/stage';
+import { filterStageOperators, isSearchStage } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 
@@ -43,6 +43,9 @@ type StageOperatorSelectProps = {
     env: ServerEnvironment[];
     description: string;
   }[];
+  serverVersion: string;
+  isReadonlyView: boolean;
+  pipelineBuilder: any;
 };
 
 // exported for tests
@@ -52,6 +55,9 @@ export const StageOperatorSelect = ({
   selectedStage,
   isDisabled,
   stages,
+  serverVersion,
+  isReadonlyView,
+  pipelineBuilder,
 }: StageOperatorSelectProps) => {
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
@@ -59,6 +65,19 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+
+  const getStageDescription = (stage: {
+    name: string;
+    env: ServerEnvironment[];
+    description: string;
+  }) => {
+    //const mongoDBMajorVersion = parseFloat(serverVersion.split('.').slice(0, 2).join('.'));
+    if (isSearchStage(stage.name)) {
+      return `${serverVersion} ${isReadonlyView}Atlas only. Requires MongoDB 8.1+ to run on a view. Performs a full-text search on the specified fields.`;
+    }
+    return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
+  };
+
   return (
     <Combobox
       value={selectedStage}
@@ -75,9 +94,8 @@ export const StageOperatorSelect = ({
           data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
           value={stage.name}
-          description={
-            (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
-          }
+          disabled={isSearchStage(stage.name)}
+          description={getStageDescription(stage)}
         />
       ))}
     </Combobox>
@@ -113,6 +131,9 @@ export default withPreferences(
         selectedStage: stage.stageOperator,
         isDisabled: stage.disabled,
         stages: stages,
+        serverVersion: state.serverVersion,
+        isReadonlyView: !!state.sourceName,
+        pipelineBuilder: state.pipelineBuilder,
       };
     },
     (dispatch: any, ownProps) => {
