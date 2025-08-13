@@ -17,9 +17,11 @@ import {
   SCHEMA_ANALYSIS_STATE_COMPLETE,
   SCHEMA_ANALYSIS_STATE_ERROR,
   SCHEMA_ANALYSIS_STATE_INITIAL,
-  type SchemaAnalysis,
+  type SchemaAnalysisError,
+  type SchemaAnalysisState,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
+import type { MongoError } from 'mongodb';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -30,6 +32,24 @@ function isAction<A extends AnyAction>(
   type: A['type']
 ): action is A {
   return action.type === type;
+}
+
+const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
+
+function getErrorDetails(error: Error): SchemaAnalysisError {
+  const errorCode = (error as MongoError).code;
+  const errorMessage = error.message || 'Unknown error';
+  let errorType: SchemaAnalysisError['errorType'] = 'general';
+  if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
+    errorType = 'timeout';
+  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
+    errorType = 'highComplexity';
+  }
+
+  return {
+    errorType,
+    errorMessage,
+  };
 }
 
 type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
@@ -51,7 +71,7 @@ export type CollectionState = {
   namespace: string;
   metadata: CollectionMetadata | null;
   editViewName?: string;
-  schemaAnalysis: SchemaAnalysis;
+  schemaAnalysis: SchemaAnalysisState;
 };
 
 enum CollectionActions {
@@ -154,7 +174,7 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_ERROR,
-        error: action.error,
+        error: getErrorDetails(action.error),
       },
     };
   }
@@ -204,7 +224,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const driverOptions = {
         maxTimeMS: preferences.getPreferences().maxTimeMS,
       };
-      const sampleCursor = dataService.sampleCursor(
+      const sampleDocuments = await dataService.sample(
         namespace,
         samplingOptions,
         driverOptions,
@@ -212,7 +232,6 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
           fallbackReadPreference: 'secondaryPreferred',
         }
       );
-      const sampleDocuments: Array<Document> = await sampleCursor.toArray();
       if (sampleDocuments.length === 0) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
