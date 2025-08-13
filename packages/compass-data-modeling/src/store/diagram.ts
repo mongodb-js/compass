@@ -1,7 +1,11 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type { EditAction, Relationship } from '../services/data-model-storage';
+import type {
+  DataModelCollection,
+  EditAction,
+  Relationship,
+} from '../services/data-model-storage';
 import {
   validateEdit,
   type Edit,
@@ -21,12 +25,20 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import {
+  type NodeProps,
+  getCoordinatesForNewNode,
+} from '@mongodb-js/diagramming';
+import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
-export type SelectedItems = { type: 'collection' | 'relationship'; id: string };
+export type SelectedItems = {
+  type: 'collection' | 'relationship';
+  id?: string;
+};
 
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
@@ -50,6 +62,7 @@ export enum DiagramActionTypes {
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
+  COLLECTION_CREATION_INITIATED = 'data-modeling/diagram/COLLECTION_CREATION_INITIATED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
@@ -93,6 +106,10 @@ export type CollectionSelectedAction = {
   namespace: string;
 };
 
+export type CollectionCreationStartedAction = {
+  type: DiagramActionTypes.COLLECTION_CREATION_INITIATED;
+};
+
 export type RelationSelectedAction = {
   type: DiagramActionTypes.RELATIONSHIP_SELECTED;
   relationshipId: string;
@@ -111,6 +128,7 @@ export type DiagramActions =
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
+  | CollectionCreationStartedAction
   | RelationSelectedAction
   | DiagramBackgroundSelectedAction;
 
@@ -237,6 +255,13 @@ export const diagramReducer: Reducer<DiagramState> = (
       selectedItems: { type: 'collection', id: action.namespace },
     };
   }
+  if (isAction(action, DiagramActionTypes.COLLECTION_CREATION_INITIATED)) {
+    console.log('Collection creation initiated');
+    return {
+      ...state,
+      selectedItems: { type: 'collection', id: undefined },
+    };
+  }
   if (isAction(action, DiagramActionTypes.RELATIONSHIP_SELECTED)) {
     return {
       ...state,
@@ -288,6 +313,10 @@ const updateSelectedItemsFromAppliedEdit = (
 
 export function selectCollection(namespace: string): CollectionSelectedAction {
   return { type: DiagramActionTypes.COLLECTION_SELECTED, namespace };
+}
+
+export function startCreatingCollection(): CollectionCreationStartedAction {
+  return { type: DiagramActionTypes.COLLECTION_CREATION_INITIATED };
 }
 
 export function selectRelationship(
@@ -538,6 +567,55 @@ export function updateCollectionNote(
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
+function getPositionForNewCollection(
+  existingNodes: NodeProps[],
+  newCollection: Omit<DataModelCollection, 'displayPosition'>
+): [number, number] {
+  const newNode = collectionToDiagramNode({
+    ns: newCollection.ns,
+    jsonSchema: newCollection.jsonSchema,
+    displayPosition: [0, 0],
+  });
+  const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
+  return [xyposition.x, xyposition.y];
+}
+
+export function addCollection({
+  ns,
+  position,
+  existingNodes,
+}: {
+  ns: string;
+  existingNodes: NodeProps[];
+  position?: [number, number];
+}): DataModelingThunkAction<
+  boolean,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch) => {
+    if (!position) {
+      position = getPositionForNewCollection(existingNodes, {
+        ns,
+        jsonSchema: {} as MongoDBJSONSchema, // TODO: should we use a default schema?
+        indexes: [],
+      });
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddCollection',
+      ns,
+      initialSchema: {} as MongoDBJSONSchema, // TODO: should we use a default schema?
+      position,
+    };
+    dispatch(applyEdit(edit));
+    dispatch(selectCollection(ns));
+    return true;
+  };
+}
+
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -546,6 +624,18 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
     throw new Error('Editing a model that has not been initialized');
   }
   switch (edit.type) {
+    case 'AddCollection': {
+      const newCollection: DataModelCollection = {
+        ns: edit.ns,
+        jsonSchema: edit.initialSchema,
+        displayPosition: edit.position,
+        indexes: [],
+      };
+      return {
+        ...model,
+        collections: [...model.collections, newCollection],
+      };
+    }
     case 'AddRelationship': {
       return {
         ...model,

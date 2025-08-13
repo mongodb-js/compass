@@ -33,7 +33,7 @@ const drawerTitleActionGroupStyles = css({});
 
 type DiagramEditorSidePanelProps = {
   selectedItems: {
-    id: string;
+    id?: string;
     type: 'relationship' | 'collection';
     label: string;
   } | null;
@@ -47,12 +47,14 @@ function DiagramEditorSidePanel({
   onDeleteRelationship,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, handleAction } = useMemo(() => {
+    console.log('selectedItems', selectedItems);
     if (selectedItems?.type === 'collection') {
+      console.log('it is collection', selectedItems.id);
       return {
         label: selectedItems.label,
         content: (
           <CollectionDrawerContent
-            key={selectedItems.id}
+            key={selectedItems.id || 'new-collection'}
             namespace={selectedItems.id}
           ></CollectionDrawerContent>
         ),
@@ -134,6 +136,7 @@ function DiagramEditorSidePanel({
 export default connect(
   (state: DataModelingState) => {
     const selected = state.diagram?.selectedItems;
+    console.log('selected', selected);
 
     if (!selected) {
       return {
@@ -144,11 +147,12 @@ export default connect(
     const model = selectCurrentModelFromState(state);
 
     if (selected.type === 'collection') {
+      const isNewCollection = !selected.id;
       const doesCollectionExist = model.collections.find((collection) => {
         return collection.ns === selected.id;
       });
 
-      if (!doesCollectionExist) {
+      if (!isNewCollection && !doesCollectionExist) {
         // TODO(COMPASS-9680): When the selected collection doesn't exist then we
         // don't show any selection. We can get into this state with undo/redo.
         return {
@@ -159,7 +163,7 @@ export default connect(
       return {
         selectedItems: {
           ...selected,
-          label: selected.id,
+          label: selected.id || 'New Collection',
         },
       };
     }
