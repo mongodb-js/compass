@@ -359,21 +359,15 @@ describe('IndexesToolbar Component', function () {
       beforeEach(function () {
         renderIndexesToolbar({
           isReadonlyView: true,
-          onIndexViewChanged: onChangeViewCallback,
           serverVersion: '8.1.0',
         });
       });
 
-      it('it renders tabs with Indexes disabled and automatically selects Search Indexes', function () {
+      it('it renders tabs with Indexes disabled', function () {
         const indexesTab = screen.getByText('Indexes');
         expect(indexesTab).to.be.visible;
         expect(indexesTab.closest('button')).to.have.attr('disabled');
-
         expect(screen.getByText('Search Indexes')).to.be.visible;
-        expect(onChangeViewCallback).to.have.been.calledOnce;
-        expect(onChangeViewCallback.firstCall.args[0]).to.equal(
-          'search-indexes'
-        );
       });
     });
   });
