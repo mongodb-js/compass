@@ -208,7 +208,8 @@ describe('AssistantChat', function () {
         role: 'assistant',
         parts: [
           { type: 'text', text: 'This is text content.' },
-          { type: 'tool-call' as any, text: 'This should be filtered out.' },
+          // @ts-expect-error - tool-call is not a valid part type
+          { type: 'tool-call', text: 'This should be filtered out.' },
           { type: 'text', text: ' More text content.' },
         ],
       },

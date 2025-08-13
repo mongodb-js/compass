@@ -7,6 +7,8 @@ import {
   DrawerAnchor,
   DrawerContentProvider,
 } from '@mongodb-js/compass-components';
+import { Chat } from './@ai-sdk/react/chat-react';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 describe('CompassAssistantProvider', function () {
   beforeEach(function () {
@@ -25,13 +27,13 @@ describe('CompassAssistantProvider', function () {
     };
 
     const MockedProvider = CompassAssistantProvider.withMockServices({
-      atlasService: mockAtlasService,
+      atlasService: mockAtlasService as unknown as AtlasService,
     });
 
     render(
       <DrawerContentProvider>
         <DrawerAnchor />
-        <MockedProvider />
+        <MockedProvider chat={new Chat({})} />
       </DrawerContentProvider>,
       {
         preferences: { enableAIAssistant: true },
