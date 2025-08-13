@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
-import { type NodeProps } from '@mongodb-js/diagramming';
-import type { Relationship } from '../../services/data-model-storage';
+import type {
+  Relationship,
+  DataModelCollection,
+} from '../../services/data-model-storage';
 import {
   Badge,
   Button,
@@ -33,7 +35,7 @@ import { useChangeOnBlur } from './use-change-on-blur';
 
 type CollectionDrawerContentProps = {
   namespace?: string;
-  namespaces: string[];
+  collections: DataModelCollection[];
   note?: string;
   relationships: Relationship[];
   onCreateNewRelationshipClick: (namespace: string) => void;
@@ -41,13 +43,7 @@ type CollectionDrawerContentProps = {
   onDeleteRelationshipClick: (rId: string) => void;
   onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
-  onCreateCollection: ({
-    ns,
-    existingNodes,
-  }: {
-    ns: string;
-    existingNodes: NodeProps[];
-  }) => void;
+  onCreateCollection: (ns: string, position?: [number, number]) => void;
 };
 
 const titleBtnStyles = css({
@@ -100,13 +96,10 @@ export function getIsCollectionNameValid(
 
   const namespacesWithoutCurrent = namespaces.filter((ns) => ns !== namespace);
 
-  const isDuplicate = namespacesWithoutCurrent.some(
-    (ns) => {
-      const database = namespace ? toNS(namespace).database : toNS(ns).database;
-      return ns.trim() ===
-      `${database}.${collectionName.trim()}`.trim()
-    }
-  );
+  const isDuplicate = namespacesWithoutCurrent.some((ns) => {
+    const database = namespace ? toNS(namespace).database : toNS(ns).database;
+    return ns.trim() === `${database}.${collectionName.trim()}`.trim();
+  });
 
   return {
     isValid: !isDuplicate,
@@ -118,7 +111,7 @@ const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
 > = ({
   namespace,
-  namespaces,
+  collections,
   note = '',
   relationships,
   onCreateNewRelationshipClick,
@@ -128,6 +121,9 @@ const CollectionDrawerContent: React.FunctionComponent<
   onRenameCollection,
   onCreateCollection,
 }) => {
+  const namespaces = useMemo(() => {
+    return collections.map((c) => c.ns);
+  }, [collections]);
   const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO: what if there are no namespaces?
 
   const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
@@ -138,10 +134,7 @@ const CollectionDrawerContent: React.FunctionComponent<
         return;
       }
       if (!namespace) {
-        onCreateCollection({
-          ns: `${database}.${trimmedName}`,
-          existingNodes: [], // TODO: get existing nodes
-        });
+        onCreateCollection(`${database}.${trimmedName}`);
         return;
       }
       if (trimmedName === toNS(namespace).collection) {
@@ -260,7 +253,12 @@ const CollectionDrawerContent: React.FunctionComponent<
 
       <DMDrawerSection label="Notes">
         <DMFormFieldContainer>
-          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+          <TextArea
+            label=""
+            aria-label="Notes"
+            disabled={!namespace}
+            {...noteInputProps}
+          ></TextArea>
         </DMFormFieldContainer>
       </DMDrawerSection>
     </>
@@ -268,7 +266,7 @@ const CollectionDrawerContent: React.FunctionComponent<
 };
 
 export default connect(
-  (state: DataModelingState, ownProps: { namespace: string }) => {
+  (state: DataModelingState, ownProps: { namespace?: string }) => {
     const model = selectCurrentModelFromState(state);
     const collection = model.collections.find((collection) => {
       return collection.ns === ownProps.namespace;
@@ -276,7 +274,7 @@ export default connect(
     return {
       note: collection?.note,
       namespace: collection?.ns,
-      namespaces: model.collections.map((c) => c.ns),
+      collections: model.collections,
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (

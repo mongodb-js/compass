@@ -47,9 +47,7 @@ function DiagramEditorSidePanel({
   onDeleteRelationship,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, handleAction } = useMemo(() => {
-    console.log('selectedItems', selectedItems);
     if (selectedItems?.type === 'collection') {
-      console.log('it is collection', selectedItems.id);
       return {
         label: selectedItems.label,
         content: (
@@ -136,7 +134,6 @@ function DiagramEditorSidePanel({
 export default connect(
   (state: DataModelingState) => {
     const selected = state.diagram?.selectedItems;
-    console.log('selected', selected);
 
     if (!selected) {
       return {

@@ -281,7 +281,6 @@ const DiagramEditor: React.FunctionComponent<{
   }, []);
 
   const handleAddCollectionClick = useCallback(() => {
-    console.log('Adding collection');
     onAddCollectionClick();
     openDrawer(DATA_MODELING_DRAWER_ID);
   }, [openDrawer, onAddCollectionClick]);
