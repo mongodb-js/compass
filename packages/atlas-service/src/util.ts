@@ -176,7 +176,7 @@ const config = {
       issuer: 'https://auth.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.corp.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-local': {
     wsBaseUrl: '/ccs',
@@ -187,6 +187,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-dev': {
     wsBaseUrl: '/ccs',

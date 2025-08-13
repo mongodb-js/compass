@@ -22,14 +22,9 @@ const CompassAssistantProvider = registerCompassPlugin(
       return <AssistantProvider chat={chat}>{children}</AssistantProvider>;
     },
     activate: (initialProps, { atlasService }) => {
-      // TODO: We will temporarily default to the staging url until the docs
-      // API is deployed to the production environment.
-      const baseUrl = process.env.COMPASS_ASSISTANT_USE_ATLAS_SERVICE_URL
-        ? atlasService.assistantApiEndpoint()
-        : 'https://knowledge.staging.corp.mongodb.com/api/v1';
       const chat = new Chat({
         transport: new DocsProviderTransport({
-          baseUrl,
+          baseUrl: atlasService.assistantApiEndpoint(),
         }),
       });
       return {
