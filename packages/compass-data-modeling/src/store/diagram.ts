@@ -25,10 +25,7 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
-import {
-  type NodeProps,
-  getCoordinatesForNewNode,
-} from '@mongodb-js/diagramming';
+import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
@@ -256,7 +253,6 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   if (isAction(action, DiagramActionTypes.COLLECTION_CREATION_INITIATED)) {
-    console.log('Collection creation initiated');
     return {
       ...state,
       selectedItems: { type: 'collection', id: undefined },
@@ -568,9 +564,12 @@ export function updateCollectionNote(
 }
 
 function getPositionForNewCollection(
-  existingNodes: NodeProps[],
+  existingCollections: DataModelCollection[],
   newCollection: Omit<DataModelCollection, 'displayPosition'>
 ): [number, number] {
+  const existingNodes = existingCollections.map((collection) =>
+    collectionToDiagramNode(collection)
+  );
   const newNode = collectionToDiagramNode({
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
@@ -580,21 +579,19 @@ function getPositionForNewCollection(
   return [xyposition.x, xyposition.y];
 }
 
-export function addCollection({
-  ns,
-  position,
-  existingNodes,
-}: {
-  ns: string;
-  existingNodes: NodeProps[];
-  position?: [number, number];
-}): DataModelingThunkAction<
+export function addCollection(
+  ns: string,
+  position?: [number, number]
+): DataModelingThunkAction<
   boolean,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     if (!position) {
-      position = getPositionForNewCollection(existingNodes, {
+      const existingCollections = selectCurrentModelFromState(
+        getState()
+      ).collections;
+      position = getPositionForNewCollection(existingCollections, {
         ns,
         jsonSchema: {} as MongoDBJSONSchema, // TODO: should we use a default schema?
         indexes: [],
