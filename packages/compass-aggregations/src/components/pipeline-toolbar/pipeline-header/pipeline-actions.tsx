@@ -14,7 +14,7 @@ import {
   exportAggregationResults,
   runAggregation,
 } from '../../../modules/aggregation';
-import { updateView } from '../../../modules/update-view';
+import { openConfirmUpdateModal } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
@@ -59,6 +59,7 @@ type PipelineActionsProps = {
 
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
+  resultPipeline: any;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -189,7 +190,7 @@ const mapState = (state: RootState) => {
 };
 
 const mapDispatch = {
-  onUpdateView: updateView,
+  onUpdateView: openConfirmUpdateModal,
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,

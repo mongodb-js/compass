@@ -9,12 +9,29 @@ import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
 
-export type UpdateViewState = null | string;
+export type UpdateViewState = {
+  isOpen: boolean;
+  updateViewError: null | string;
+};
 
-/**
- * State `null` when there is no error, or string if there's an error.
- */
-export const INITIAL_STATE: UpdateViewState = null;
+export const INITIAL_STATE: UpdateViewState = {
+  isOpen: false,
+  updateViewError: null,
+};
+
+// Action for opening model.
+export const OPEN_CONFIRM_UPDATE_MODEL =
+  'aggregations/update-view/OPEN_CONFIRM_UPDATE_MODEL' as const;
+interface OpenConfirmUpdateModel {
+  type: typeof OPEN_CONFIRM_UPDATE_MODEL;
+}
+
+// Action for closing model.
+export const CLOSE_CONFIRM_UPDATE_MODEL =
+  'aggregations/update-view/CLOSE_CONFIRM_UPDATE_MODEL' as const;
+interface CloseConfirmUpdateModel {
+  type: typeof CLOSE_CONFIRM_UPDATE_MODEL;
+}
 
 // Action for when an error occurs when updating a view.
 export const ERROR_UPDATING_VIEW =
@@ -32,6 +49,8 @@ interface DismissViewUpdateErrorAction {
 }
 
 export type UpdateViewAction =
+  | OpenConfirmUpdateModel
+  | CloseConfirmUpdateModel
   | ErrorUpdatingViewAction
   | DismissViewUpdateErrorAction;
 
@@ -39,8 +58,25 @@ export default function reducer(
   state: UpdateViewState = INITIAL_STATE,
   action: AnyAction
 ): UpdateViewState {
+  if (isAction<OpenConfirmUpdateModel>(action, OPEN_CONFIRM_UPDATE_MODEL)) {
+    return {
+      ...state,
+      isOpen: true,
+    };
+  }
+
+  if (isAction<CloseConfirmUpdateModel>(action, CLOSE_CONFIRM_UPDATE_MODEL)) {
+    return {
+      ...state,
+      isOpen: false,
+    };
+  }
+
   if (isAction<ErrorUpdatingViewAction>(action, ERROR_UPDATING_VIEW)) {
-    return action.error;
+    return {
+      ...state,
+      updateViewError: action.error,
+    };
   }
   if (
     isAction<DismissViewUpdateErrorAction>(action, DISMISS_VIEW_UPDATE_ERROR) ||
@@ -54,6 +90,23 @@ export default function reducer(
   return state;
 }
 
+/**
+ * Action creator for opening the confirmation modal.
+ *
+ * @returns {Object} The action to open the modal.
+ */
+export const openConfirmUpdateModal = (): OpenConfirmUpdateModel => ({
+  type: OPEN_CONFIRM_UPDATE_MODEL,
+});
+
+/**
+ * Action creator for closing the confirmation modal.
+ *
+ * @returns {Object} The action to close the modal.
+ */
+export const closeConfirmUpdateModal = (): CloseConfirmUpdateModel => ({
+  type: CLOSE_CONFIRM_UPDATE_MODEL,
+});
 /**
  * Action creator for showing the error that occured with updating the view.
  */
