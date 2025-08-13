@@ -15,6 +15,7 @@ import {
   type DiagramState,
   selectCurrentModelFromState,
   createNewRelationship,
+  startCreatingCollection,
 } from '../store/diagram';
 import {
   Banner,
@@ -257,7 +258,15 @@ const DiagramEditor: React.FunctionComponent<{
   diagramId?: string;
   onRetryClick: () => void;
   onCancelClick: () => void;
-}> = ({ step, diagramId, onRetryClick, onCancelClick }) => {
+  onAddCollectionClick: () => void;
+}> = ({
+  step,
+  diagramId,
+  onRetryClick,
+  onCancelClick,
+  onAddCollectionClick,
+}) => {
+  const { openDrawer } = useDrawerActions();
   let content;
 
   const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
@@ -270,6 +279,12 @@ const DiagramEditor: React.FunctionComponent<{
   const onRelationshipDrawn = useCallback(() => {
     setIsInRelationshipDrawingMode(false);
   }, []);
+
+  const handleAddCollectionClick = useCallback(() => {
+    console.log('Adding collection');
+    onAddCollectionClick();
+    openDrawer(DATA_MODELING_DRAWER_ID);
+  }, [openDrawer, onAddCollectionClick]);
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -320,6 +335,7 @@ const DiagramEditor: React.FunctionComponent<{
         <DiagramEditorToolbar
           onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
           isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+          onAddCollectionClick={handleAddCollectionClick}
         />
       }
     >
@@ -341,5 +357,6 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
+    onAddCollectionClick: startCreatingCollection,
   }
 )(DiagramEditor);
