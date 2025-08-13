@@ -7,7 +7,7 @@ import {
 import { getAtlasUpgradeClusterLink } from '../../utils/atlas-upgrade-cluster-link';
 import React from 'react';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
-import { compareVersionForViewCompatibility } from '../indexes/indexes';
+import { compareVersionForViewSearchCompatibility } from '../../modules/search-indexes';
 
 const viewContentStyles = css({
   display: 'flex',
@@ -28,15 +28,15 @@ export const ViewVersionIncompatibleBanner = ({
   const searchIndexOnViewsVersion = enableAtlasSearchIndexes ? '8.1' : '8.0';
 
   if (
-    compareVersionForViewCompatibility(serverVersion) ||
-    (compareVersionForViewCompatibility(serverVersion, 'gte', '8.0.0') &&
+    compareVersionForViewSearchCompatibility(serverVersion) ||
+    (compareVersionForViewSearchCompatibility(serverVersion, 'gte', '8.0.0') &&
       !enableAtlasSearchIndexes)
   ) {
     // return if 8.1+ on compass or 8.0+ for data explorer
     return null;
   }
 
-  if (compareVersionForViewCompatibility(serverVersion, 'lt', '8.0.0')) {
+  if (compareVersionForViewSearchCompatibility(serverVersion, 'lt', '8.0.0')) {
     // data explorer <8.0 and compass <8.0
     return (
       <Banner
@@ -73,8 +73,8 @@ export const ViewVersionIncompatibleBanner = ({
   }
 
   if (
-    compareVersionForViewCompatibility(serverVersion, 'gte', '8.0.0') &&
-    compareVersionForViewCompatibility(serverVersion, 'lt', '8.1.0') &&
+    compareVersionForViewSearchCompatibility(serverVersion, 'gte', '8.0.0') &&
+    compareVersionForViewSearchCompatibility(serverVersion, 'lt', '8.1.0') &&
     enableAtlasSearchIndexes
   ) {
     // compass 8.0

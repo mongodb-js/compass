@@ -25,14 +25,28 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
     'This index name is already in use. Please choose another one.',
 };
 
-const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
+/*const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
 
 const isVersionSearchCompatibleForViews = (serverVersion: string) => {
   try {
     return semver.gte(
-      serverVersion,
-      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+        serverVersion,
+        MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
     );
+  } catch {
+    return false;
+  }
+};*/
+
+const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
+export const compareVersionForViewSearchCompatibility = (
+  //default to 8.1+
+  serverVersion: string,
+  comparator: 'gt' | 'gte' | 'lt' | 'lte' = 'gte',
+  compareVersion: string = MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+) => {
+  try {
+    return semver[comparator](serverVersion, compareVersion);
   } catch {
     return false;
   }
@@ -621,7 +635,8 @@ const fetchIndexes = (
     } = getState();
 
     if (
-      (isReadonlyView && !isVersionSearchCompatibleForViews(serverVersion)) ||
+      (isReadonlyView &&
+        !compareVersionForViewSearchCompatibility(serverVersion)) ||
       !isWritable
     ) {
       return; // return if view is not search compatible

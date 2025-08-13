@@ -23,12 +23,14 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import semver from 'semver';
 
 import type { RootState } from '../../modules';
-import { createSearchIndexOpened } from '../../modules/search-indexes';
+import {
+  compareVersionForViewSearchCompatibility,
+  createSearchIndexOpened,
+} from '../../modules/search-indexes';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
-import { compareVersionForViewCompatibility } from '../indexes/indexes';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -110,7 +112,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
-    (!isReadonlyView || compareVersionForViewCompatibility(serverVersion)) &&
+    (!isReadonlyView ||
+      compareVersionForViewSearchCompatibility(serverVersion)) &&
     !readOnly &&
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
@@ -127,7 +130,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       data-testid="indexes-toolbar-container"
     >
       {(!isReadonlyView ||
-        compareVersionForViewCompatibility(serverVersion)) && (
+        compareVersionForViewSearchCompatibility(serverVersion)) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
