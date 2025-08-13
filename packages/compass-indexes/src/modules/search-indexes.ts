@@ -666,15 +666,6 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
   };
 };
 
-export const refreshSearchIndexes = (): IndexesThunkAction<
-  Promise<void>,
-  FetchSearchIndexesActions
-> => {
-  return async (dispatch) => {
-    await dispatch(fetchIndexes(FetchReasons.REFRESH));
-  };
-};
-
 export const pollSearchIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchSearchIndexesActions

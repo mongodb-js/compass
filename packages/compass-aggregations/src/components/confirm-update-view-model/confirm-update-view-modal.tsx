@@ -1,12 +1,13 @@
 import React from 'react';
 import { FormModal } from '@mongodb-js/compass-components';
 import type { UpdateViewState } from '../../modules/update-view';
-import { closeConfirmUpdateModal, updateView } from '../../modules/update-view';
+import { closeConfirmUpdateModal } from '../../modules/update-view';
+import { updateView } from '../../modules/update-view';
 import { connect } from 'react-redux';
 
 type ConfirmUpdateViewModalProps = {
   updateView: () => void;
-  isOpen?: boolean;
+  isOpen: boolean;
   closeModal: () => void;
 };
 
@@ -37,11 +38,10 @@ const mapStateToProps = (state: UpdateViewState) => ({
   isOpen: state.isOpen,
 });
 
-// Connect actions for dispatching
-const MappedConfirmUpdateViewModal = connect(mapStateToProps, {
+const MappedCreateViewModal = connect(mapStateToProps, {
   updateView,
   closeModal: closeConfirmUpdateModal,
 })(ConfirmUpdateViewModal);
 
-export default MappedConfirmUpdateViewModal;
+export default MappedCreateViewModal;
 export { ConfirmUpdateViewModal };
