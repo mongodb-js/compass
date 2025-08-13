@@ -28,5 +28,9 @@ if [[ "${EVERGREEN_PROJECT}" == "10gen-compass-main" ]]; then
     fi
 fi
 
-
-.evergreen/print-compass-env.js
+# We cannot rely on node from the PATH, as the script we're calling is setting up that PATH.
+if [ -n "$IS_WINDOWS" ]; then
+  .deps/node.exe .evergreen/print-compass-env.js
+else
+  .deps/bin/node .evergreen/print-compass-env.js
+fi

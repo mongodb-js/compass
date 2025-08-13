@@ -1,4 +1,3 @@
-#! /usr/bin/env node
 'use strict';
 const path = require('node:path');
 const fs = require('node:fs');
