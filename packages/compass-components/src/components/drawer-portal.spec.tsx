@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import {
   DrawerContentProvider,
   DrawerSection,
@@ -45,6 +50,59 @@ describe('DrawerSection', function () {
       expect(screen.getByText('Test section: 42')).to.be.visible;
       expect(screen.getByText('This is a test section and the count is 42')).to
         .be.visible;
+    });
+  });
+
+  // Doesn't really matter, but leafygreen uses these as keys when rendering and
+  // this produces a ton of warnings in the logs
+  const icons = ['ArrowDown', 'CaretDown', 'ChevronDown'] as const;
+
+  it('switches drawer content when selecting a different section in the toolbar', async function () {
+    render(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          {[1, 2, 3].map((n, idx) => {
+            return (
+              <DrawerSection
+                key={`section-${n}`}
+                id={`section-${n}`}
+                label={`Section ${n}`}
+                title={`Section ${n}`}
+                glyph={icons[idx]}
+              >
+                This is section {n}
+              </DrawerSection>
+            );
+          })}
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 1' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 1')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 2')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 3' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 3')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 1' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 1')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    await waitFor(() => {
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+      expect(screen.queryByText('This is section 2')).not.to.exist;
+      expect(screen.queryByText('This is section 3')).not.to.exist;
     });
   });
 });
