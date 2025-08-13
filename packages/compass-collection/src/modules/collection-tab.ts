@@ -21,7 +21,7 @@ import {
   type SchemaAnalysisState,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
-import type { MongoError } from 'mongodb';
+import type { Document, MongoError } from 'mongodb';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -79,11 +79,16 @@ enum CollectionActions {
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
   SchemaAnalysisFailed = 'compass-collection/SchemaAnalysisFailed',
+  SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
 }
 
 interface CollectionMetadataFetchedAction {
   type: CollectionActions.CollectionMetadataFetched;
   metadata: CollectionMetadata;
+}
+
+interface SchemaAnalysisResetAction {
+  type: CollectionActions.SchemaAnalysisReset;
 }
 
 interface SchemaAnalysisStartedAction {
@@ -130,6 +135,20 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
+    isAction<SchemaAnalysisResetAction>(
+      action,
+      CollectionActions.SchemaAnalysisReset
+    )
+  ) {
+    return {
+      ...state,
+      schemaAnalysis: {
+        status: SCHEMA_ANALYSIS_STATE_INITIAL,
+      },
+    };
+  }
+
+  if (
     isAction<SchemaAnalysisStartedAction>(
       action,
       CollectionActions.SchemaAnalysisStarted
@@ -139,10 +158,6 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_ANALYZING,
-        error: null,
-        schema: null,
-        sampleDocument: null,
-        schemaMetadata: null,
       },
     };
   }
