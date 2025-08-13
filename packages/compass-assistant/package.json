@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.4",
+    "@mongodb-js/atlas-service": "^0.54.0",
     "@mongodb-js/compass-components": "^1.30.5",
     "@mongodb-js/compass-logging": "^1.7.10",
     "@mongodb-js/compass-app-registry": "^9.4.18",

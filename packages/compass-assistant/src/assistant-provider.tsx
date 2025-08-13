@@ -8,7 +8,6 @@ import { usePreference } from 'compass-preferences-model/provider';
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
 import { createContext, useContext } from 'react';
-import { docsProviderTransport } from './docs-provider-transport';
 
 type AssistantActions = unknown;
 
@@ -20,13 +19,12 @@ export function useAssistantActions(): AssistantActions {
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
-    chat?: Chat<UIMessage>;
+    chat: Chat<UIMessage>;
   }>
 > = ({ chat, children }) => {
   const enableAIAssistant = usePreference('enableAIAssistant');
 
   const { messages, sendMessage } = useChat({
-    transport: docsProviderTransport,
     chat,
   });
 
@@ -34,7 +32,6 @@ export const AssistantProvider: React.FunctionComponent<
 
   const handleMessageSend = useCallback(
     (messageBody: string) => {
-      /** Telemetry, etc. */
       void sendMessage({ text: messageBody });
     },
     [sendMessage]
@@ -46,19 +43,14 @@ export const AssistantProvider: React.FunctionComponent<
 
   return (
     <AssistantActionsContext.Provider value={contextActions.current}>
-      {enableAIAssistant && (
-        <DrawerSection
-          id={ASSISTANT_DRAWER_ID}
-          title="MongoDB Assistant"
-          label="MongoDB Assistant"
-          glyph="Sparkle"
-        >
-          <AssistantChat
-            messages={messages}
-            onSendMessage={handleMessageSend}
-          />
-        </DrawerSection>
-      )}
+      <DrawerSection
+        id={ASSISTANT_DRAWER_ID}
+        title="MongoDB Assistant"
+        label="MongoDB Assistant"
+        glyph="Sparkle"
+      >
+        <AssistantChat messages={messages} onSendMessage={handleMessageSend} />
+      </DrawerSection>
       {children}
     </AssistantActionsContext.Provider>
   );

@@ -116,6 +116,10 @@ export type AtlasServiceConfig = {
    * Atlas Account Portal UI base url
    */
   authPortalUrl: string;
+  /**
+   * Assistant API base url
+   */
+  assistantApiBaseUrl: string;
 };
 
 /**
@@ -139,6 +143,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'atlas-dev': {
     wsBaseUrl: '',
@@ -149,6 +154,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'atlas-qa': {
     wsBaseUrl: '',
@@ -159,6 +165,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   atlas: {
     wsBaseUrl: '',
@@ -169,6 +176,7 @@ const config = {
       issuer: 'https://auth.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-local': {
     wsBaseUrl: '/ccs',
@@ -189,6 +197,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-qa': {
     wsBaseUrl: '/ccs',
@@ -199,6 +208,7 @@ const config = {
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas': {
     wsBaseUrl: '/ccs',
@@ -209,6 +219,7 @@ const config = {
       issuer: 'https://auth.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
 } as const;
 
@@ -223,6 +234,7 @@ export function getAtlasConfig(
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
     },
     authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
+    assistantApiBaseUrl: process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE,
   };
   return defaultsDeep(
     envConfig,

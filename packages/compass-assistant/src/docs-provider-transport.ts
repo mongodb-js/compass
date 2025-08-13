@@ -8,24 +8,25 @@ import {
 } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 
-const openai = createOpenAI({
-  baseURL: 'https://knowledge.staging.corp.mongodb.com/api/v1',
-  apiKey: '',
-});
-
 export class DocsProviderTransport implements ChatTransport<UIMessage> {
+  private openai: ReturnType<typeof createOpenAI>;
+
+  constructor({ baseUrl }: { baseUrl: string }) {
+    this.openai = createOpenAI({
+      baseURL: baseUrl,
+      apiKey: '',
+    });
+  }
+
   // eslint-disable-next-line @typescript-eslint/require-await
   async sendMessages({
     messages,
     abortSignal,
   }: Parameters<ChatTransport<UIMessage>['sendMessages']>[0]) {
     const result = streamText({
-      model: openai.responses('mongodb-chat-latest'),
+      model: this.openai.responses('mongodb-chat-latest'),
       messages: convertToModelMessages(messages),
       abortSignal: abortSignal,
-      headers: {
-        origin: 'https://knowledge.staging.corp.mongodb.com',
-      },
     });
 
     return result.toUIMessageStream();
@@ -40,5 +41,3 @@ export class DocsProviderTransport implements ChatTransport<UIMessage> {
     return null;
   }
 }
-
-export const docsProviderTransport = new DocsProviderTransport();

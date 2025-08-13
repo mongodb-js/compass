@@ -67,6 +67,9 @@ export class AtlasService {
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
   }
+  assistantApiEndpoint(path?: string): string {
+    return `${this.config.assistantApiBaseUrl}${normalizePath(path)}`;
+  }
   regionalizedCloudEndpoint(
     _atlasMetadata: Pick<AtlasClusterMetadata, 'regionalBaseUrl'>,
     path?: string
