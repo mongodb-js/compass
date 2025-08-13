@@ -245,7 +245,7 @@ buildvariants:
     tasks:
     <% for (const group of E2E_TEST_GROUPS) { %>
     <% if (['test-packaged-app-macos-11-arm', 'test-packaged-app-macos-11-x64'].includes(buildVariant.name)) { %>
-    - name: test-packaged-app-macos13-<%= group.number %>
+    - name: test-packaged-app-macos-11-<%= group.number %>
     <% } else { %>
     - name: test-packaged-app-<%= group.number %>
     <% } %>
@@ -508,7 +508,7 @@ tasks:
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
-  - name: test-packaged-app-macos13-<%= group.number %>
+  - name: test-packaged-app-macos-11-<%= group.number %>
     tags:
       - required-for-publish
       - run-on-pr

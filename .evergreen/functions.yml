@@ -149,23 +149,11 @@ functions:
           <<: *compass-env
         script: |
           set -e
+          .evergreen/install-node.sh
+
           eval $(.evergreen/print-compass-env.sh)
 
-          # Make all the dirs
-          mkdir -p $ARTIFACTS_PATH
-
-    - command: shell.exec
-      type: setup
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-        script: |
-          set -e
-          eval $(.evergreen/print-compass-env.sh)
-
-          .evergreen/preinstall.sh
+          .evergreen/print-debug-info.sh
 
           # Make sure install worked
           echo "Using node version:";
@@ -747,8 +735,8 @@ functions:
           MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
           MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
           # CCS connection / op running time is slower than allowed timeouts
-          COMPASS_E2E_MOCHA_TIMEOUT: '720000' # 12 min
-          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '360000' # 6 min
+          COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
+          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
         script: |
           set -e
           # Load environment variables

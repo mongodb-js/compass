@@ -269,7 +269,7 @@
           },
           {
             "ns": "flights.airports",
-            "cardinality": 1,
+            "cardinality": 100,
             "fields": ["Country"]
           }
         ],

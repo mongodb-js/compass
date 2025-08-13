@@ -1596,10 +1596,12 @@ describe('Collection aggregations tab', function () {
         'name'
       );
 
-      await browser.selectOption(
-        `${Selectors.AggregationWizardSortFormDirectionSelect(0)} button`,
-        'Ascending'
-      );
+      await browser.selectOption({
+        selectSelector: `${Selectors.AggregationWizardSortFormDirectionSelect(
+          0
+        )} button`,
+        optionText: 'Ascending',
+      });
 
       await browser.clickVisible(Selectors.AggregationWizardApplyButton);
 

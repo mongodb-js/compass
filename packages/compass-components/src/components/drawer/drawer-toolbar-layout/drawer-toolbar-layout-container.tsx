@@ -37,11 +37,19 @@ export const DrawerToolbarLayoutContainer = forwardRef<
     }: DrawerToolbarLayoutContainerProps,
     forwardRef
   ) => {
-    const { openDrawer, closeDrawer, getActiveDrawerContent, isDrawerOpen } =
-      useDrawerToolbarContext();
-    const { id, title, content } = getActiveDrawerContent() || {};
+    const {
+      openDrawer,
+      closeDrawer,
+      getActiveDrawerContent,
+      isDrawerOpen: _isDrawerOpen,
+    } = useDrawerToolbarContext();
+    const { id } = getActiveDrawerContent() || {};
     const lgIds = getLgIds(dataLgId);
     const hasData = toolbarData && toolbarData.length > 0;
+    const { title, content } =
+      toolbarData.find((data) => {
+        return data.id === id;
+      }) ?? {};
 
     const handleOnClose = (event: React.MouseEvent<HTMLButtonElement>) => {
       onClose?.(event);
@@ -56,6 +64,8 @@ export const DrawerToolbarLayoutContainer = forwardRef<
       onClick?.(event);
       openDrawer(id);
     };
+
+    const isDrawerOpen = Boolean(title && content && _isDrawerOpen);
 
     return (
       <LayoutComponent

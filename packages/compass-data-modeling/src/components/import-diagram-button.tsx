@@ -17,7 +17,7 @@ export const ImportDiagramButton = ({
       id="import-diagram-file-input"
       data-testid="import-diagram-file-input"
       multiple={false}
-      accept=".compass"
+      accept=".mdm"
       onSelect={(files) => {
         if (files.length === 0) {
           return;

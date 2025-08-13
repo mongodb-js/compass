@@ -65,3 +65,4 @@ export * from './switch-pipeline-mode';
 export * from './read-first-document-content';
 export * from './read-stage-operators';
 export * from './click-confirmation-action';
+export * from './get-input-by-label';

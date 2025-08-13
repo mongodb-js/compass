@@ -286,6 +286,15 @@ export function createInstancesStore(
     }
   );
 
+  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', () => {
+    const connectedConnectionIds = Array.from(
+      instancesManager.listMongoDBInstances().keys()
+    );
+    for (const connectionId of connectedConnectionIds) {
+      void refreshDatabases({ connectionId });
+    }
+  });
+
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {
       const instance =
