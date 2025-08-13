@@ -32,6 +32,7 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
+import semver from 'semver';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -51,14 +52,31 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
+const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
+export const compareVersionForViewCompatibility = (
+  //default to 8.1+
+  serverVersion: string,
+  comparator: 'gt' | 'gte' | 'lt' | 'lte' = 'gte',
+  compareVersion: string = MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+) => {
+  try {
+    return semver[comparator](serverVersion, compareVersion);
+  } catch {
+    return false;
+  }
+};
+
 const ViewVersionIncompatibleEmptyState = ({
-  mongoDBMajorVersion,
+  serverVersion,
   enableAtlasSearchIndexes,
 }: {
-  mongoDBMajorVersion: number;
+  serverVersion: string;
   enableAtlasSearchIndexes: boolean;
 }) => {
-  if (mongoDBMajorVersion > 8.0 && enableAtlasSearchIndexes) {
+  if (
+    compareVersionForViewCompatibility(serverVersion) &&
+    enableAtlasSearchIndexes
+  ) {
     return null;
   }
   return (
@@ -176,9 +194,6 @@ export function Indexes({
       : refreshSearchIndexes;
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
-  const mongoDBMajorVersion = parseFloat(
-    serverVersion.split('.').slice(0, 2).join('.')
-  );
   const { atlasMetadata } = useConnectionInfo();
 
   return (
@@ -202,12 +217,12 @@ export function Indexes({
           {isReadonlyView && (
             <ViewVersionIncompatibleBanner
               serverVersion={serverVersion}
-              mongoDBMajorVersion={mongoDBMajorVersion}
               enableAtlasSearchIndexes={enableAtlasSearchIndexes}
               atlasMetadata={atlasMetadata}
             />
           )}
-          {(!isReadonlyView || mongoDBMajorVersion >= 8.0) &&
+          {(!isReadonlyView ||
+            compareVersionForViewCompatibility(serverVersion, 'gte')) &&
             !enableAtlasSearchIndexes && (
               <AtlasIndexesBanner
                 namespace={namespace}
@@ -220,11 +235,12 @@ export function Indexes({
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
-          {(!isReadonlyView || mongoDBMajorVersion > 8.0) &&
+          {(!isReadonlyView ||
+            compareVersionForViewCompatibility(serverVersion)) &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && searchIndexes.indexes.length === 0 && (
             <ViewVersionIncompatibleEmptyState
-              mongoDBMajorVersion={mongoDBMajorVersion}
+              serverVersion={serverVersion}
               enableAtlasSearchIndexes={enableAtlasSearchIndexes}
             />
           )}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   usePreference,
@@ -28,6 +28,7 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
+import { compareVersionForViewCompatibility } from '../indexes/indexes';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -106,13 +107,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
-  const mongoDBMajorVersion = parseFloat(
-    serverVersion.split('.').slice(0, 2).join('.')
-  );
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
-    (!isReadonlyView || mongoDBMajorVersion > 8.0) &&
+    (!isReadonlyView || compareVersionForViewCompatibility(serverVersion)) &&
     !readOnly &&
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
@@ -123,19 +121,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
 
-  useEffect(() => {
-    // If the view is readonly, set the default tab to 'search-indexes'
-    if (isReadonlyView && indexView !== 'search-indexes') {
-      onIndexViewChanged('search-indexes'); // Update redux state
-    }
-  }, [indexView, isReadonlyView, onIndexViewChanged]);
-
   return (
     <div
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {(!isReadonlyView || mongoDBMajorVersion > 8.0) && (
+      {(!isReadonlyView ||
+        compareVersionForViewCompatibility(serverVersion)) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (

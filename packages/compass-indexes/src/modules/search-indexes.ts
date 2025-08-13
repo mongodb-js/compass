@@ -17,11 +17,25 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
+import semver from 'semver';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
+};
+
+const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
+
+const isVersionSearchCompatibleForViews = (serverVersion: string) => {
+  try {
+    return semver.gte(
+      serverVersion,
+      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+    );
+  } catch {
+    return false;
+  }
 };
 
 export enum ActionTypes {
@@ -606,11 +620,11 @@ const fetchIndexes = (
       searchIndexes: { status },
     } = getState();
 
-    const mongoDBMajorVersion = parseFloat(
-      serverVersion.split('.').slice(0, 2).join('.')
-    );
-    if ((isReadonlyView && mongoDBMajorVersion < 8.1) || !isWritable) {
-      return; // fetch for views 8.1+
+    if (
+      (isReadonlyView && !isVersionSearchCompatibleForViews(serverVersion)) ||
+      !isWritable
+    ) {
+      return; // return if view is not search compatible
     }
 
     // If we are already fetching indexes, we will wait for that
