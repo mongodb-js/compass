@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import {
   DrawerContentProvider,
   DrawerSection,
@@ -46,5 +51,115 @@ describe('DrawerSection', function () {
       expect(screen.getByText('This is a test section and the count is 42')).to
         .be.visible;
     });
+  });
+
+  // Doesn't really matter, but leafygreen uses these as keys when rendering and
+  // this produces a ton of warnings in the logs if they are not unique
+  const icons = ['ArrowDown', 'CaretDown', 'ChevronDown'] as const;
+
+  it('switches drawer content when selecting a different section in the toolbar', async function () {
+    render(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          {[1, 2, 3].map((n, idx) => {
+            return (
+              <DrawerSection
+                key={`section-${n}`}
+                id={`section-${n}`}
+                label={`Section ${n}`}
+                title={`Section ${n}`}
+                glyph={icons[idx]}
+              >
+                This is section {n}
+              </DrawerSection>
+            );
+          })}
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 1' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 1')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 2')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 3' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 3')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Section 1' }));
+    await waitFor(() => {
+      expect(screen.getByText('This is section 1')).to.be.visible;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    await waitFor(() => {
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+      expect(screen.queryByText('This is section 2')).not.to.exist;
+      expect(screen.queryByText('This is section 3')).not.to.exist;
+    });
+  });
+
+  it('closes drawer when opened section is removed from toolbar data', async function () {
+    // Render two sections, auto-open first one
+    const { rerender } = render(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          <DrawerSection
+            id="test-section-1"
+            label="Test section 1"
+            title="Test section 1"
+            glyph="Trash"
+            autoOpen
+          >
+            This is a test section
+          </DrawerSection>
+          <DrawerSection
+            id="test-section-2"
+            label="Test section 2"
+            title="Test section 2"
+            glyph="Bell"
+          >
+            This is another test section
+          </DrawerSection>
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('This is a test section')).to.be.visible;
+    });
+
+    // Now render without opened section
+    rerender(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          <DrawerSection
+            id="test-section-2"
+            label="Test section 2"
+            title="Test section 2"
+            glyph="Bell"
+          >
+            This is another test section
+          </DrawerSection>
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('This is a test section')).not.to.exist;
+    });
+
+    expect(
+      // Specifically a selector for the drawer content section, not the whole
+      // drawer with toolbar
+      screen.getByTestId('lg-drawer')
+    ).to.have.attribute('aria-hidden', 'true');
   });
 });
