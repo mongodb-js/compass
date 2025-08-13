@@ -318,7 +318,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_362),
+        mongoLogId(1_001_000_366),
         'Atlas Backend',
         'Error writing data',
         {
@@ -350,7 +350,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_363),
+        mongoLogId(1_001_000_367),
         'Atlas Backend',
         'Error deleting data',
         {
@@ -430,7 +430,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_364),
+        mongoLogId(1_001_000_368),
         'Atlas Backend',
         'Error updating data',
         {
@@ -465,7 +465,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       return data;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_365),
+        mongoLogId(1_001_000_369),
         'Atlas Backend',
         'Error reading data',
         {
