@@ -105,4 +105,60 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 3')).not.to.exist;
     });
   });
+
+  it('closes drawer when opened section is removed from toolbar data', async function () {
+    // Render two sections, auto-open first one
+    const { rerender } = render(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          <DrawerSection
+            id="test-section-1"
+            label="Test section 1"
+            title="Test section 1"
+            glyph="Trash"
+            autoOpen
+          >
+            This is a test section
+          </DrawerSection>
+          <DrawerSection
+            id="test-section-2"
+            label="Test section 2"
+            title="Test section 2"
+            glyph="Bell"
+          >
+            This is another test section
+          </DrawerSection>
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('This is a test section')).to.be.visible;
+    });
+
+    // Now render without opened section
+    rerender(
+      <DrawerContentProvider>
+        <DrawerAnchor>
+          <DrawerSection
+            id="test-section-2"
+            label="Test section 2"
+            title="Test section 2"
+            glyph="Bell"
+          >
+            This is another test section
+          </DrawerSection>
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('This is a test section')).not.to.exist;
+    });
+
+    expect(
+      // Specifically a selector for the drawer content section
+      screen.getByTestId('lg-drawer')
+    ).to.have.attribute('aria-hidden', 'true');
+  });
 });
