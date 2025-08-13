@@ -1,3 +1,4 @@
+import type { Document } from 'mongodb';
 import { type Schema } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
@@ -40,7 +41,7 @@ export type SchemaAnalysisCompletedState = {
 };
 
 export type SchemaAnalysisState =
-  | SchemaAnalysisErrorState
   | SchemaAnalysisInitialState
   | SchemaAnalysisStartedState
-  | SchemaAnalysisCompletedState;
+  | SchemaAnalysisCompletedState
+  | SchemaAnalysisErrorState;
