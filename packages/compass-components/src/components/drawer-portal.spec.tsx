@@ -54,7 +54,7 @@ describe('DrawerSection', function () {
   });
 
   // Doesn't really matter, but leafygreen uses these as keys when rendering and
-  // this produces a ton of warnings in the logs
+  // this produces a ton of warnings in the logs if they are not unique
   const icons = ['ArrowDown', 'CaretDown', 'ChevronDown'] as const;
 
   it('switches drawer content when selecting a different section in the toolbar', async function () {
@@ -157,7 +157,8 @@ describe('DrawerSection', function () {
     });
 
     expect(
-      // Specifically a selector for the drawer content section
+      // Specifically a selector for the drawer content section, not the whole
+      // drawer with toolbar
       screen.getByTestId('lg-drawer')
     ).to.have.attribute('aria-hidden', 'true');
   });
