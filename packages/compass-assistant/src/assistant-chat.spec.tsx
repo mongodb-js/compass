@@ -3,6 +3,8 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import type { UIMessage } from './@ai-sdk/react/use-chat';
+import { Chat } from './@ai-sdk/react/chat-react';
+import sinon from 'sinon';
 
 describe('AssistantChat', function () {
   const mockMessages: UIMessage[] = [
@@ -23,8 +25,30 @@ describe('AssistantChat', function () {
     },
   ];
 
+  let renderWithChat: (messages: UIMessage[]) => {
+    result: ReturnType<typeof render>;
+    chat: Chat<UIMessage> & {
+      sendMessage: sinon.SinonStub;
+    };
+  };
+
+  beforeEach(() => {
+    renderWithChat = (messages: UIMessage[]) => {
+      const newChat = new Chat<UIMessage>({
+        messages,
+      });
+      sinon.replace(newChat, 'sendMessage', sinon.stub());
+      return {
+        result: render(<AssistantChat chat={newChat} />),
+        chat: newChat as unknown as Chat<UIMessage> & {
+          sendMessage: sinon.SinonStub;
+        },
+      };
+    };
+  });
+
   it('renders input field and send button', function () {
-    render(<AssistantChat messages={[]} />);
+    renderWithChat([]);
 
     const inputField = screen.getByTestId('assistant-chat-input');
     const sendButton = screen.getByTestId('assistant-chat-send-button');
@@ -34,7 +58,7 @@ describe('AssistantChat', function () {
   });
 
   it('input field accepts text input', function () {
-    render(<AssistantChat messages={[]} />);
+    renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByTestId(
@@ -47,7 +71,7 @@ describe('AssistantChat', function () {
   });
 
   it('send button is disabled when input is empty', function () {
-    render(<AssistantChat messages={[]} />);
+    renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByTestId(
@@ -58,7 +82,7 @@ describe('AssistantChat', function () {
   });
 
   it('send button is enabled when input has text', function () {
-    render(<AssistantChat messages={[]} />);
+    renderWithChat([]);
 
     const inputField = screen.getByTestId('assistant-chat-input');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -72,7 +96,7 @@ describe('AssistantChat', function () {
   });
 
   it('send button is disabled for whitespace-only input', function () {
-    render(<AssistantChat messages={[]} />);
+    renderWithChat([]);
 
     const inputField = screen.getByTestId('assistant-chat-input');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -86,7 +110,7 @@ describe('AssistantChat', function () {
   });
 
   it('displays messages in the chat feed', function () {
-    render(<AssistantChat messages={mockMessages} />);
+    renderWithChat(mockMessages);
 
     expect(screen.getByTestId('assistant-message-user')).to.exist;
     expect(screen.getByTestId('assistant-message-assistant')).to.exist;
@@ -95,27 +119,20 @@ describe('AssistantChat', function () {
       .exist;
   });
 
-  it('calls onSendMessage when form is submitted', function () {
-    let sentMessage = '';
-    const handleSendMessage = (message: string) => {
-      sentMessage = message;
-    };
-
-    render(<AssistantChat messages={[]} onSendMessage={handleSendMessage} />);
-
+  it('calls sendMessage when form is submitted', function () {
+    const { chat } = renderWithChat([]);
     const inputField = screen.getByTestId('assistant-chat-input');
     const sendButton = screen.getByTestId('assistant-chat-send-button');
 
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
 
-    expect(sentMessage).to.equal('What is aggregation?');
+    expect(chat.sendMessage.calledWith({ text: 'What is aggregation?' })).to.be
+      .true;
   });
 
   it('clears input field after successful submission', function () {
-    const handleSendMessage = () => {};
-
-    render(<AssistantChat messages={[]} onSendMessage={handleSendMessage} />);
+    renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByTestId(
@@ -130,44 +147,35 @@ describe('AssistantChat', function () {
   });
 
   it('trims whitespace from input before sending', function () {
-    let sentMessage = '';
-    const handleSendMessage = (message: string) => {
-      sentMessage = message;
-    };
-
-    render(<AssistantChat messages={[]} onSendMessage={handleSendMessage} />);
+    const { chat } = renderWithChat([]);
 
     const inputField = screen.getByTestId('assistant-chat-input');
 
     userEvent.type(inputField, '  What is sharding?  ');
     userEvent.click(screen.getByTestId('assistant-chat-send-button'));
 
-    expect(sentMessage).to.equal('What is sharding?');
+    expect(chat.sendMessage.calledWith({ text: 'What is sharding?' })).to.be
+      .true;
   });
 
-  it('does not call onSendMessage when input is empty or whitespace-only', function () {
-    let messageSent = false;
-    const handleSendMessage = () => {
-      messageSent = true;
-    };
-
-    render(<AssistantChat messages={[]} onSendMessage={handleSendMessage} />);
+  it('does not call sendMessage when input is empty or whitespace-only', function () {
+    const { chat } = renderWithChat([]);
 
     const inputField = screen.getByTestId('assistant-chat-input');
     const chatForm = screen.getByTestId('assistant-chat-form');
 
     // Test empty input
     userEvent.click(chatForm);
-    expect(messageSent).to.be.false;
+    expect(chat.sendMessage.notCalled).to.be.true;
 
     // Test whitespace-only input
     userEvent.type(inputField, '   ');
     userEvent.click(chatForm);
-    expect(messageSent).to.be.false;
+    expect(chat.sendMessage.notCalled).to.be.true;
   });
 
   it('displays user and assistant messages with different styling', function () {
-    render(<AssistantChat messages={mockMessages} />);
+    renderWithChat(mockMessages);
 
     const userMessage = screen.getByTestId('assistant-message-user');
     const assistantMessage = screen.getByTestId('assistant-message-assistant');
@@ -196,7 +204,7 @@ describe('AssistantChat', function () {
       },
     ];
 
-    render(<AssistantChat messages={messagesWithMultipleParts} />);
+    renderWithChat(messagesWithMultipleParts);
 
     expect(screen.getByText('Here is part 1. And here is part 2.')).to.exist;
   });
@@ -215,7 +223,7 @@ describe('AssistantChat', function () {
       },
     ];
 
-    render(<AssistantChat messages={messagesWithMixedParts} />);
+    renderWithChat(messagesWithMixedParts);
 
     expect(screen.getByText('This is text content. More text content.')).to
       .exist;

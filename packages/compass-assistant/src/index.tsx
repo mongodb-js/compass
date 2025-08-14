@@ -7,7 +7,7 @@ import type { PropsWithChildren } from 'react';
 import type { UIMessage } from 'ai';
 import React from 'react';
 
-const CompassAssistantProvider = registerCompassPlugin(
+export const CompassAssistantProvider = registerCompassPlugin(
   {
     name: 'CompassAssistant',
     component: ({
@@ -38,7 +38,4 @@ const CompassAssistantProvider = registerCompassPlugin(
   }
 );
 
-export { CompassAssistantProvider };
-
-// Export hooks and components for external use
-export { AssistantProvider, useAssistantActions } from './assistant-provider';
+export { AssistantDrawer as CompassAssistantDrawer } from './assistant-drawer';

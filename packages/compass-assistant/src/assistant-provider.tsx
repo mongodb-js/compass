@@ -1,19 +1,25 @@
-import { DrawerSection } from '@mongodb-js/compass-components';
-import React, { type PropsWithChildren, useCallback, useRef } from 'react';
-import { type UIMessage, useChat } from './@ai-sdk/react/use-chat';
+import React, { type PropsWithChildren, useRef } from 'react';
+import { type UIMessage } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat-react';
-import { AssistantChat } from './assistant-chat';
 import { usePreference } from 'compass-preferences-model/provider';
+import { createContext, useContext } from 'react';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
-import { createContext, useContext } from 'react';
+interface AssistantContextType {
+  chat: Chat<UIMessage>;
+  isEnabled: boolean;
+}
 
-type AssistantActions = unknown;
+export const AssistantContext = createContext<AssistantContextType | null>(
+  null
+);
 
-export const AssistantActionsContext = createContext<AssistantActions>({});
+type AssistantActionsContextType = unknown;
+export const AssistantActionsContext =
+  createContext<AssistantActionsContextType>({});
 
-export function useAssistantActions(): AssistantActions {
+export function useAssistantActions(): AssistantActionsContextType {
   return useContext(AssistantActionsContext);
 }
 
@@ -24,35 +30,27 @@ export const AssistantProvider: React.FunctionComponent<
 > = ({ chat, children }) => {
   const enableAIAssistant = usePreference('enableAIAssistant');
 
-  const { messages, sendMessage } = useChat({
+  const assistantContext = useRef<AssistantContextType>({
     chat,
+    isEnabled: enableAIAssistant,
   });
+  assistantContext.current = {
+    chat,
+    isEnabled: enableAIAssistant,
+  };
 
-  const contextActions = useRef({});
-
-  const handleMessageSend = useCallback(
-    (messageBody: string) => {
-      void sendMessage({ text: messageBody });
-    },
-    [sendMessage]
-  );
+  const assistantActionsContext = useRef<AssistantActionsContextType>({});
 
   if (!enableAIAssistant) {
     return <>{children}</>;
   }
 
   return (
-    <AssistantActionsContext.Provider value={contextActions.current}>
-      <DrawerSection
-        id={ASSISTANT_DRAWER_ID}
-        title="MongoDB Assistant"
-        label="MongoDB Assistant"
-        glyph="Sparkle"
-      >
-        <AssistantChat messages={messages} onSendMessage={handleMessageSend} />
-      </DrawerSection>
-      {children}
-    </AssistantActionsContext.Provider>
+    <AssistantContext.Provider value={assistantContext.current}>
+      <AssistantActionsContext.Provider value={assistantActionsContext.current}>
+        {children}
+      </AssistantActionsContext.Provider>
+    </AssistantContext.Provider>
   );
 };
 
