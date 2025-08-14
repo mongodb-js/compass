@@ -70,6 +70,13 @@ describe('AssistantProvider', function () {
   });
 
   describe('with existing chat instance', function () {
+    before(function () {
+      // TODO(COMPASS-9618): skip in electron runtime for now, drawer has issues rendering
+      if ((process as any).type === 'renderer') {
+        this.skip();
+      }
+    });
+
     async function renderOpenAssistantDrawer(
       mockChat: Chat<UIMessage>
     ): Promise<ReturnType<typeof render>> {
