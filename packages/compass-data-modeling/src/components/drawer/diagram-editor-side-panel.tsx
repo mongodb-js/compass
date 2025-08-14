@@ -57,21 +57,25 @@ function DiagramEditorSidePanel({
           ></CollectionDrawerContent>
         ),
         actions: [
-          {
-            action: 'delete',
-            label: 'Delete Collection',
-            icon: 'Trash' as const,
-          },
+          ...(selectedItems.id
+            ? [
+                {
+                  action: 'delete',
+                  label: 'Delete Collection',
+                  icon: 'Trash' as const,
+                },
+              ]
+            : []),
         ],
         handleAction: (actionName: string) => {
-          if (actionName === 'delete') {
+          if (actionName === 'delete' && selectedItems.id) {
             onDeleteCollection(selectedItems.id);
           }
         },
       };
     }
 
-    if (selectedItems?.type === 'relationship') {
+    if (selectedItems?.type === 'relationship' && selectedItems.id) {
       return {
         label: selectedItems.label,
         content: (
@@ -84,7 +88,7 @@ function DiagramEditorSidePanel({
           { action: 'delete', label: 'Delete', icon: 'Trash' as const },
         ],
         handleAction: (actionName: string) => {
-          if (actionName === 'delete') {
+          if (actionName === 'delete' && selectedItems.id) {
             onDeleteRelationship(selectedItems.id);
           }
         },
