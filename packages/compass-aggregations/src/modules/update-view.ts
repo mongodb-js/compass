@@ -145,6 +145,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     }
   ) => {
     dispatch(dismissViewError());
+    dispatch(closeConfirmUpdateModal());
 
     const state = getState();
     const ds = state.dataService.dataService;
