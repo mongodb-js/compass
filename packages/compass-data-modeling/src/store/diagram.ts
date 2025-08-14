@@ -593,7 +593,7 @@ export function addCollection(
       ).collections;
       position = getPositionForNewCollection(existingCollections, {
         ns,
-        jsonSchema: {} as MongoDBJSONSchema, // TODO: should we use a default schema?
+        jsonSchema: {} as MongoDBJSONSchema,
         indexes: [],
       });
     }
@@ -604,7 +604,15 @@ export function addCollection(
     > = {
       type: 'AddCollection',
       ns,
-      initialSchema: {} as MongoDBJSONSchema, // TODO: should we use a default schema?
+      initialSchema: {
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+        },
+        required: ['_id'],
+      },
       position,
     };
     dispatch(applyEdit(edit));
