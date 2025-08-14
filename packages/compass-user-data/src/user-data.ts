@@ -273,8 +273,8 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
   private readonly getResourceUrl;
-  private orgId: string = '';
-  private projectId: string = '';
+  private orgId: string;
+  private projectId: string;
   constructor(
     validator: T,
     dataType: string,
@@ -420,7 +420,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           error: (error as Error).message,
         }
       );
-      return false;
+      throw error;
     }
   }
 
@@ -447,7 +447,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           error: (error as Error).message,
         }
       );
-      return null;
+      throw error;
     }
   }
 }

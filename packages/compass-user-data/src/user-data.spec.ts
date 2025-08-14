@@ -669,7 +669,7 @@ describe('AtlasUserData', function () {
       getResourceUrlStub
         .onFirstCall()
         .resolves(
-          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         )
         .onSecondCall()
         .resolves(
@@ -688,7 +688,7 @@ describe('AtlasUserData', function () {
 
       const [getUrl, getOptions] = authenticatedFetchStub.firstCall.args;
       expect(getUrl).to.equal(
-        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+        'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
       expect(getOptions.method).to.equal('GET');
 
@@ -700,7 +700,7 @@ describe('AtlasUserData', function () {
       expect(putOptions.headers['Content-Type']).to.equal('application/json');
     });
 
-    it('returns false when authenticatedFetch throws an error', async function () {
+    it('throws error when authenticatedFetch throws an error', async function () {
       const getResponse = {
         data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
       };
@@ -714,7 +714,7 @@ describe('AtlasUserData', function () {
       getResourceUrlStub
         .onFirstCall()
         .resolves(
-          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
+          'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         )
         .onSecondCall()
         .resolves(
@@ -723,10 +723,15 @@ describe('AtlasUserData', function () {
 
       const userData = getAtlasUserData();
 
-      const result = await userData.updateAttributes('test-id', {
-        name: 'Updated',
-      });
-      expect(result).equals(false);
+      try {
+        await userData.updateAttributes('test-id', {
+          name: 'Updated',
+        });
+        expect.fail('Expected method to throw an error');
+      } catch (error) {
+        expect(error).to.be.instanceOf(Error);
+        expect((error as Error).message).to.equal('HTTP 400: Bad Request');
+      }
     });
 
     it('uses custom serializer for request body', async function () {

@@ -14,7 +14,7 @@ class DataModelStorageElectron implements DataModelStorage {
   constructor(basePath?: string) {
     this.userData = new FileUserData(
       MongoDBDataModelDescriptionSchema,
-      'DataModelDescription',
+      'DataModelDescriptions',
       {
         basePath,
       }
