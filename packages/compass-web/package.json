@@ -88,7 +88,7 @@
     "@mongodb-js/compass-welcome": "^0.67.0",
     "@mongodb-js/compass-workspaces": "^0.50.0",
     "@mongodb-js/connection-storage": "^0.44.0",
-    "@mongodb-js/devtools-proxy-support": "^0.5.1",
+    "@mongodb-js/devtools-proxy-support": "^0.5.2",
     "@mongodb-js/eslint-config-compass": "^1.4.5",
     "@mongodb-js/mocha-config-compass": "^1.7.0",
     "@mongodb-js/prettier-config-compass": "^1.2.8",
