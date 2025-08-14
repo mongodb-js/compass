@@ -14,7 +14,7 @@ import {
   exportAggregationResults,
   runAggregation,
 } from '../../../modules/aggregation';
-import { openConfirmUpdateModal } from '../../../modules/update-view';
+import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
@@ -189,7 +189,7 @@ const mapState = (state: RootState) => {
 };
 
 const mapDispatch = {
-  onUpdateView: openConfirmUpdateModal,
+  onUpdateView: updateView,
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,

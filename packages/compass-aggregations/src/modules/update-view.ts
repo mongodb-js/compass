@@ -8,30 +8,15 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
+import { showConfirmation } from '@mongodb-js/compass-components';
+import { fetchIndexes } from './search-indexes';
 
-export type UpdateViewState = {
-  isOpen: boolean;
-  updateViewError: null | string;
-};
+export type UpdateViewState = null | string;
 
-export const INITIAL_STATE: UpdateViewState = {
-  isOpen: false,
-  updateViewError: null,
-};
-
-// Action for opening model.
-export const OPEN_CONFIRM_UPDATE_MODEL =
-  'aggregations/update-view/OPEN_CONFIRM_UPDATE_MODEL' as const;
-interface OpenConfirmUpdateModel {
-  type: typeof OPEN_CONFIRM_UPDATE_MODEL;
-}
-
-// Action for closing model.
-export const CLOSE_CONFIRM_UPDATE_MODEL =
-  'aggregations/update-view/CLOSE_CONFIRM_UPDATE_MODEL' as const;
-interface CloseConfirmUpdateModel {
-  type: typeof CLOSE_CONFIRM_UPDATE_MODEL;
-}
+/**
+ * State `null` when there is no error, or string if there's an error.
+ */
+export const INITIAL_STATE: UpdateViewState = null;
 
 // Action for when an error occurs when updating a view.
 export const ERROR_UPDATING_VIEW =
@@ -49,8 +34,6 @@ interface DismissViewUpdateErrorAction {
 }
 
 export type UpdateViewAction =
-  | OpenConfirmUpdateModel
-  | CloseConfirmUpdateModel
   | ErrorUpdatingViewAction
   | DismissViewUpdateErrorAction;
 
@@ -58,25 +41,8 @@ export default function reducer(
   state: UpdateViewState = INITIAL_STATE,
   action: AnyAction
 ): UpdateViewState {
-  if (isAction<OpenConfirmUpdateModel>(action, OPEN_CONFIRM_UPDATE_MODEL)) {
-    return {
-      ...state,
-      isOpen: true,
-    };
-  }
-
-  if (isAction<CloseConfirmUpdateModel>(action, CLOSE_CONFIRM_UPDATE_MODEL)) {
-    return {
-      ...state,
-      isOpen: false,
-    };
-  }
-
   if (isAction<ErrorUpdatingViewAction>(action, ERROR_UPDATING_VIEW)) {
-    return {
-      ...state,
-      updateViewError: action.error,
-    };
+    return action.error;
   }
   if (
     isAction<DismissViewUpdateErrorAction>(action, DISMISS_VIEW_UPDATE_ERROR) ||
@@ -90,23 +56,6 @@ export default function reducer(
   return state;
 }
 
-/**
- * Action creator for opening the confirmation modal.
- *
- * @returns {Object} The action to open the modal.
- */
-export const openConfirmUpdateModal = (): OpenConfirmUpdateModel => ({
-  type: OPEN_CONFIRM_UPDATE_MODEL,
-});
-
-/**
- * Action creator for closing the confirmation modal.
- *
- * @returns {Object} The action to close the modal.
- */
-export const closeConfirmUpdateModal = (): CloseConfirmUpdateModel => ({
-  type: CLOSE_CONFIRM_UPDATE_MODEL,
-});
 /**
  * Action creator for showing the error that occured with updating the view.
  */
@@ -125,6 +74,37 @@ export const updateViewErrorOccured = (
 export const dismissViewError = (): DismissViewUpdateErrorAction => ({
   type: DISMISS_VIEW_UPDATE_ERROR,
 });
+
+const isPipelineSearchQueryable = (
+  pipeline: Array<Record<string, any>>
+): boolean => {
+  for (const stage of pipeline) {
+    const stageKey = Object.keys(stage)[0];
+
+    // Check if the stage is $addFields, $set, or $match
+    if (
+      !(
+        stageKey === '$addFields' ||
+        stageKey === '$set' ||
+        stageKey === '$match'
+      )
+    ) {
+      return false; // Not searchable
+    }
+
+    // If the stage is $match, check if uses $expr
+    if (stageKey === '$match') {
+      const matchStage = stage['$match'];
+      const allKeys = Object.keys(matchStage);
+
+      if (!(allKeys.length === 1 && allKeys.includes('$expr'))) {
+        return false; // Not searchable
+      }
+    }
+  }
+
+  return true;
+};
 
 /**
  * Updates a view.
@@ -145,7 +125,6 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     }
   ) => {
     dispatch(dismissViewError());
-    dispatch(closeConfirmUpdateModal());
 
     const state = getState();
     const ds = state.dataService.dataService;
@@ -161,6 +140,24 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       getState(),
       pipelineBuilder
     );
+
+    await dispatch(fetchIndexes());
+    if (state.searchIndexes.indexes.length > 0) {
+      const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
+      const confirmed = await showConfirmation({
+        title: `Are you sure you want to update the view?`,
+        description: pipelineIsSearchQueryable
+          ? 'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
+          : 'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.',
+        buttonText: 'Update',
+        variant: pipelineIsSearchQueryable ? 'primary' : 'danger',
+      });
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline,
