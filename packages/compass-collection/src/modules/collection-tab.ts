@@ -87,7 +87,8 @@ enum CollectionActions {
   SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
   MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
-  MockDataGeneratorStepChanged = 'compass-collection/MockDataGeneratorStepChanged',
+  MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
+  MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -126,9 +127,12 @@ interface MockDataGeneratorModalClosedAction {
   type: CollectionActions.MockDataGeneratorModalClosed;
 }
 
-interface MockDataGeneratorStepChangedAction {
-  type: CollectionActions.MockDataGeneratorStepChanged;
-  step: MockDataGeneratorStep;
+interface MockDataGeneratorNextButtonClickedAction {
+  type: CollectionActions.MockDataGeneratorNextButtonClicked;
+}
+
+interface MockDataGeneratorPreviousButtonClickedAction {
+  type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
 const reducer: Reducer<CollectionState, Action> = (
@@ -252,16 +256,79 @@ const reducer: Reducer<CollectionState, Action> = (
   }
 
   if (
-    isAction<MockDataGeneratorStepChangedAction>(
+    isAction<MockDataGeneratorNextButtonClickedAction>(
       action,
-      CollectionActions.MockDataGeneratorStepChanged
+      CollectionActions.MockDataGeneratorNextButtonClicked
     )
   ) {
+    const currentStep = state.mockDataGenerator.currentStep;
+    let nextStep: MockDataGeneratorStep;
+
+    // Reducer contains all step transition logic
+    switch (currentStep) {
+      case MockDataGeneratorStep.AI_DISCLAIMER:
+        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
+        break;
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
+        break;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
+        break;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        nextStep = MockDataGeneratorStep.PREVIEW_DATA;
+        break;
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        nextStep = MockDataGeneratorStep.GENERATE_DATA;
+        break;
+      default:
+        nextStep = currentStep; // Stay on current step if at end
+    }
+
     return {
       ...state,
       mockDataGenerator: {
         ...state.mockDataGenerator,
-        currentStep: action.step,
+        currentStep: nextStep,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorPreviousButtonClickedAction>(
+      action,
+      CollectionActions.MockDataGeneratorPreviousButtonClicked
+    )
+  ) {
+    const currentStep = state.mockDataGenerator.currentStep;
+    let previousStep: MockDataGeneratorStep;
+
+    // Reducer contains all step transition logic
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        break;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
+        break;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        previousStep = MockDataGeneratorStep.SCHEMA_EDITOR;
+        break;
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        previousStep = MockDataGeneratorStep.DOCUMENT_COUNT;
+        break;
+      case MockDataGeneratorStep.GENERATE_DATA:
+        previousStep = MockDataGeneratorStep.PREVIEW_DATA;
+        break;
+      default:
+        previousStep = currentStep; // Stay on current step if at beginning
+    }
+
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: previousStep,
       },
     };
   }
@@ -285,11 +352,15 @@ export const mockDataGeneratorModalClosed =
     return { type: CollectionActions.MockDataGeneratorModalClosed };
   };
 
-export const mockDataGeneratorStepChanged = (
-  step: MockDataGeneratorStep
-): MockDataGeneratorStepChangedAction => {
-  return { type: CollectionActions.MockDataGeneratorStepChanged, step };
-};
+export const mockDataGeneratorNextButtonClicked =
+  (): MockDataGeneratorNextButtonClickedAction => {
+    return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
+  };
+
+export const mockDataGeneratorPreviousButtonClicked =
+  (): MockDataGeneratorPreviousButtonClickedAction => {
+    return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
+  };
 
 export const selectTab = (
   tabName: CollectionSubtab

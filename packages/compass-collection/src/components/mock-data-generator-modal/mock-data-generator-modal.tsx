@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import {
   css,
@@ -15,7 +16,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
-import { getNextStep, getPreviousStep } from './utils';
+import type { CollectionState } from '../../modules/collection-tab';
+import {
+  mockDataGeneratorModalClosed,
+  mockDataGeneratorNextButtonClicked,
+  mockDataGeneratorPreviousButtonClicked,
+} from '../../modules/collection-tab';
 
 const footerStyles = css`
   flex-direction: row;
@@ -32,25 +38,17 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   currentStep: MockDataGeneratorStep;
-  onCurrentStepChange: (step: MockDataGeneratorStep) => void;
+  onNextStep: () => void;
+  onPreviousStep: () => void;
 }
 
 const MockDataGeneratorModal = ({
   isOpen,
   onClose,
   currentStep,
-  onCurrentStepChange,
+  onNextStep,
+  onPreviousStep,
 }: Props) => {
-  const onNext = () => {
-    const nextStep = getNextStep(currentStep);
-    onCurrentStepChange(nextStep);
-  };
-
-  const onBack = () => {
-    const previousStep = getPreviousStep(currentStep);
-    onCurrentStepChange(previousStep);
-  };
-
   return (
     <Modal
       open={isOpen}
@@ -68,7 +66,7 @@ const MockDataGeneratorModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={onBack}
+          onClick={onPreviousStep}
           disabled={currentStep === MockDataGeneratorStep.AI_DISCLAIMER}
         >
           Back
@@ -77,7 +75,7 @@ const MockDataGeneratorModal = ({
           <Button onClick={onClose}>Cancel</Button>
           <Button
             variant={ButtonVariant.Primary}
-            onClick={onNext}
+            onClick={onNextStep}
             data-testid="next-step-button"
           >
             {StepButtonLabelMap[currentStep]}
@@ -88,4 +86,16 @@ const MockDataGeneratorModal = ({
   );
 };
 
-export default MockDataGeneratorModal;
+const mapStateToProps = (state: CollectionState) => ({
+  isOpen: state.mockDataGenerator.isModalOpen,
+  currentStep: state.mockDataGenerator.currentStep,
+});
+
+const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
+  onClose: mockDataGeneratorModalClosed,
+  onNextStep: mockDataGeneratorNextButtonClicked,
+  onPreviousStep: mockDataGeneratorPreviousButtonClicked,
+})(MockDataGeneratorModal);
+
+export default ConnectedMockDataGeneratorModal;
+export { MockDataGeneratorModal as UnconnectedMockDataGeneratorModal };

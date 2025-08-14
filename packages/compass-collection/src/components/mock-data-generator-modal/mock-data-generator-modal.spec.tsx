@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
-import MockDataGeneratorModal from './mock-data-generator-modal';
+import { UnconnectedMockDataGeneratorModal as MockDataGeneratorModal } from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
 
@@ -18,25 +18,22 @@ describe('MockDataGeneratorModal', () => {
     sandbox.restore();
   });
 
+  const onNextStep = Sinon.stub();
+  const onPreviousStep = Sinon.stub();
+
   function renderModal({
     isOpen = true,
     currentStep = MockDataGeneratorStep.AI_DISCLAIMER,
   } = {}) {
-    function MockDataGeneratorModalWrapper() {
-      const [currentStepStateMock, onCurrentStepChangeStateMock] =
-        React.useState<MockDataGeneratorStep>(currentStep);
-      return (
-        <MockDataGeneratorModal
-          isOpen={isOpen}
-          onClose={onClose}
-          currentStep={currentStepStateMock}
-          onCurrentStepChange={(step) => {
-            onCurrentStepChangeStateMock(step);
-          }}
-        />
-      );
-    }
-    return render(<MockDataGeneratorModalWrapper />);
+    return render(
+      <MockDataGeneratorModal
+        isOpen={isOpen}
+        onClose={onClose}
+        currentStep={currentStep}
+        onNextStep={onNextStep}
+        onPreviousStep={onPreviousStep}
+      />
+    );
   }
 
   it('renders the modal when isOpen is true', () => {

@@ -2,41 +2,48 @@ import { expect } from 'chai';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import {
-  render,
+  renderWithConnections,
   screen,
   cleanup,
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { UnconnectedCollectionHeader as CollectionHeader } from './collection-header';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import CollectionHeader from './collection-header';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
 import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+
 import Sinon from 'sinon';
 
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {},
   workspaceService: Partial<WorkspacesService> = {}
 ) {
-  return render(
-    <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
-      <CollectionHeader
-        isAtlas={false}
-        isReadonly={false}
-        isTimeSeries={false}
-        isClustered={false}
-        isFLE={false}
-        namespace="test.test"
-        isMockDataModalOpen={false}
-        currentStep={MockDataGeneratorStep.AI_DISCLAIMER}
-        onOpenMockDataModal={() => {}}
-        onCloseMockDataModal={() => {}}
-        onSetMockDataGeneratorStep={() => {}}
-        {...props}
-      />
-    </WorkspacesServiceProvider>
+  const mockStore = createStore(() => ({
+    mockDataGenerator: {
+      isModalOpen: false,
+      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+    },
+  }));
+
+  return renderWithConnections(
+    <Provider store={mockStore}>
+      <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
+        <CollectionHeader
+          isAtlas={false}
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={false}
+          isFLE={false}
+          namespace="test.test"
+          {...props}
+        />
+      </WorkspacesServiceProvider>
+    </Provider>
   );
 }
 
@@ -285,36 +292,6 @@ describe('CollectionHeader [Component]', function () {
           'db.coll2',
         ]);
       });
-    });
-  });
-
-  context('Mock Data Generator Modal', function () {
-    it('should close modal when cancel button is clicked', function () {
-      const onCloseMockDataModal = Sinon.stub();
-
-      renderCollectionHeader({
-        isMockDataModalOpen: true,
-        onCloseMockDataModal,
-      });
-
-      const cancelButton = screen.getByText('Cancel');
-      userEvent.click(cancelButton);
-
-      expect(onCloseMockDataModal).to.have.been.calledOnce;
-    });
-
-    it('should close modal when X button is clicked', function () {
-      const onCloseMockDataModal = Sinon.stub();
-
-      renderCollectionHeader({
-        isMockDataModalOpen: true,
-        onCloseMockDataModal,
-      });
-
-      const closeButton = screen.getByLabelText('Close modal');
-      userEvent.click(closeButton);
-
-      expect(onCloseMockDataModal).to.have.been.calledOnce;
     });
   });
 });
