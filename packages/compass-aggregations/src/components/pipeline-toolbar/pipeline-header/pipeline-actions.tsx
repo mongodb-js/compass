@@ -59,7 +59,6 @@ type PipelineActionsProps = {
 
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
-  resultPipeline: any;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({

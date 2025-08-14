@@ -19,10 +19,10 @@ import comments from './comments';
 import autoPreview from './auto-preview';
 import id from './id';
 import savedPipeline from './saved-pipeline';
+import updateView from './update-view';
 import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
-import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
 import isDataLake from './is-datalake';
@@ -77,7 +77,6 @@ const rootReducer = combineReducers({
   editViewName,
   sourceName,
   outResultsFn,
-  updateViewError,
   aggregation,
   workspace,
   countDocuments,
@@ -90,6 +89,7 @@ const rootReducer = combineReducers({
   insights,
   searchIndexes,
   collectionStats,
+  updateView,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -1,9 +1,9 @@
 import React from 'react';
 import { FormModal } from '@mongodb-js/compass-components';
-import type { UpdateViewState } from '../../modules/update-view';
 import { closeConfirmUpdateModal } from '../../modules/update-view';
 import { updateView } from '../../modules/update-view';
 import { connect } from 'react-redux';
+import type { RootState } from '../../modules';
 
 type ConfirmUpdateViewModalProps = {
   updateView: () => void;
@@ -34,8 +34,8 @@ const ConfirmUpdateViewModal: React.FunctionComponent<
   );
 };
 
-const mapStateToProps = (state: UpdateViewState) => ({
-  isOpen: state.isOpen,
+const mapStateToProps = (state: RootState) => ({
+  isOpen: state.updateView.isOpen,
 });
 
 const MappedCreateViewModal = connect(mapStateToProps, {
