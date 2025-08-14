@@ -15,6 +15,7 @@ const ATLAS_CONFIG = {
     issuer: 'http://example.com/oauth2/default',
   },
   authPortalUrl: 'http://example.com/account/login',
+  assistantApiBaseUrl: 'http://example.com/assistant',
 };
 
 function getAtlasService(
