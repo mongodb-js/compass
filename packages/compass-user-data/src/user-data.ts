@@ -23,6 +23,10 @@ export type FileUserDataOptions<Input> = {
 };
 
 export type AtlasUserDataOptions<Input> = {
+  orgId: string;
+  projectId: string;
+  getResourceUrl: GetResourceUrl;
+  authenticatedFetch: AuthenticatedFetch;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
 };
@@ -274,11 +278,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   constructor(
     validator: T,
     dataType: string,
-    orgId: string,
-    projectId: string,
-    getResourceUrl: GetResourceUrl,
-    authenticatedFetch: AuthenticatedFetch,
-    { serialize, deserialize }: AtlasUserDataOptions<z.input<T>>
+    {
+      orgId,
+      projectId,
+      getResourceUrl,
+      authenticatedFetch,
+      serialize,
+      deserialize,
+    }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.authenticatedFetch = authenticatedFetch;
@@ -288,32 +295,25 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}`
+    );
+
     try {
       this.validator.parse(content);
 
-      const response = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}`
-        ),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: id,
-            data: this.serialize(content),
-            createdAt: new Date(),
-            projectId: this.projectId,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to post data: ${response.status} ${response.statusText}`
-        );
-      }
+      await this.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          data: this.serialize(content),
+          createdAt: new Date(),
+          projectId: this.projectId,
+        }),
+      });
 
       return true;
     } catch (error) {
@@ -322,9 +322,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error writing data',
         {
-          url: await this.getResourceUrl(
-            `${this.dataType}/${this.orgId}/${this.projectId}`
-          ),
+          url,
           error: (error as Error).message,
         }
       );
@@ -333,20 +331,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async delete(id: string): Promise<boolean> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+    );
+
     try {
-      const response = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-        ),
-        {
-          method: 'DELETE',
-        }
-      );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to delete data: ${response.status} ${response.statusText}`
-        );
-      }
+      await this.authenticatedFetch(url, {
+        method: 'DELETE',
+      });
       return true;
     } catch (error) {
       log.error(
@@ -354,9 +346,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error deleting data',
         {
-          url: await this.getResourceUrl(
-            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-          ),
+          url,
           error: (error as Error).message,
         }
       );
@@ -378,11 +368,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           method: 'GET',
         }
       );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to get data: ${response.status} ${response.statusText}`
-        );
-      }
       const json = await response.json();
       for (const item of json) {
         try {
@@ -410,7 +395,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      const response = await this.authenticatedFetch(
+      await this.authenticatedFetch(
         await this.getResourceUrl(
           `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
         ),
@@ -422,11 +407,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
           body: this.serialize(newData),
         }
       );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to update data: ${response.status} ${response.statusText}`
-        );
-      }
       return true;
     } catch (error) {
       log.error(
@@ -446,20 +426,14 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
   async readOne(id: string): Promise<z.output<T>> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+    );
+
     try {
-      const getResponse = await this.authenticatedFetch(
-        await this.getResourceUrl(
-          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-        ),
-        {
-          method: 'GET',
-        }
-      );
-      if (!getResponse.ok) {
-        throw new Error(
-          `Failed to fetch data: ${getResponse.status} ${getResponse.statusText}`
-        );
-      }
+      const getResponse = await this.authenticatedFetch(url, {
+        method: 'GET',
+      });
       const json = await getResponse.json();
       const data = this.validator.parse(this.deserialize(json.data as string));
       return data;
@@ -469,9 +443,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error reading data',
         {
-          url: await this.getResourceUrl(
-            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
-          ),
+          url,
           error: (error as Error).message,
         }
       );

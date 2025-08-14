@@ -366,15 +366,12 @@ describe('AtlasUserData', function () {
       | 'FavoriteQueries'
       | 'SavedPipelines' = 'FavoriteQueries'
   ) => {
-    return new AtlasUserData(
-      getTestSchema(validatorOpts),
-      type,
+    return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
       projectId,
-      getResourceUrlStub,
-      authenticatedFetchStub,
-      {}
-    );
+      getResourceUrl: getResourceUrlStub,
+      authenticatedFetch: authenticatedFetchStub,
+    });
   };
 
   const mockResponse = (data: unknown, ok = true, status = 200) => {
@@ -415,8 +412,10 @@ describe('AtlasUserData', function () {
       expect(new Date(body.createdAt as string)).to.be.instanceOf(Date);
     });
 
-    it('returns false when response is not ok', async function () {
-      authenticatedFetchStub.resolves(mockResponse({}, false, 500));
+    it('returns false when authenticatedFetch throws an error', async function () {
+      authenticatedFetchStub.rejects(
+        new Error('HTTP 500: Internal Server Error')
+      );
       getResourceUrlStub.resolves(
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
@@ -449,17 +448,13 @@ describe('AtlasUserData', function () {
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
-      const userData = new AtlasUserData(
-        getTestSchema(),
-        'FavoriteQueries',
-        'test-org',
-        'test-proj',
-        getResourceUrlStub,
-        authenticatedFetchStub,
-        {
-          serialize: (data) => `custom:${JSON.stringify(data)}`,
-        }
-      );
+      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
+        orgId: 'test-org',
+        projectId: 'test-proj',
+        getResourceUrl: getResourceUrlStub,
+        authenticatedFetch: authenticatedFetchStub,
+        serialize: (data) => `custom:${JSON.stringify(data)}`,
+      });
 
       await userData.write('test-id', { name: 'Custom' });
 
@@ -489,8 +484,8 @@ describe('AtlasUserData', function () {
       expect(options.method).to.equal('DELETE');
     });
 
-    it('returns false when response is not ok', async function () {
-      authenticatedFetchStub.resolves(mockResponse({}, false, 404));
+    it('returns false when authenticatedFetch throws an error', async function () {
+      authenticatedFetchStub.rejects(new Error('HTTP 404: Not Found'));
       getResourceUrlStub.resolves(
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
@@ -583,8 +578,10 @@ describe('AtlasUserData', function () {
       expect(result.errors[0].message).to.equal('Unknown error');
     });
 
-    it('handles non-ok response gracefully', async function () {
-      authenticatedFetchStub.resolves(mockResponse({}, false, 500));
+    it('handles authenticatedFetch errors gracefully', async function () {
+      authenticatedFetchStub.rejects(
+        new Error('HTTP 500: Internal Server Error')
+      );
       getResourceUrlStub.resolves(
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
@@ -594,7 +591,9 @@ describe('AtlasUserData', function () {
 
       expect(result.data).to.have.lengthOf(0);
       expect(result.errors).to.have.lengthOf(1);
-      expect(result.errors[0].message).to.contain('Failed to get data: 500');
+      expect(result.errors[0].message).to.contain(
+        'HTTP 500: Internal Server Error'
+      );
     });
 
     it('uses custom deserializer when provided', async function () {
@@ -604,22 +603,18 @@ describe('AtlasUserData', function () {
         'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
-      const userData = new AtlasUserData(
-        getTestSchema(),
-        'FavoriteQueries',
-        'test-org',
-        'test-proj',
-        getResourceUrlStub,
-        authenticatedFetchStub,
-        {
-          deserialize: (data) => {
-            if (data.startsWith('custom:')) {
-              return JSON.parse(data.slice(7));
-            }
-            return JSON.parse(data);
-          },
-        }
-      );
+      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
+        orgId: 'test-org',
+        projectId: 'test-proj',
+        getResourceUrl: getResourceUrlStub,
+        authenticatedFetch: authenticatedFetchStub,
+        deserialize: (data) => {
+          if (data.startsWith('custom:')) {
+            return JSON.parse(data.slice(7));
+          }
+          return JSON.parse(data);
+        },
+      });
 
       const result = await userData.readAll();
 
@@ -705,7 +700,7 @@ describe('AtlasUserData', function () {
       expect(putOptions.headers['Content-Type']).to.equal('application/json');
     });
 
-    it('returns false when response is not ok', async function () {
+    it('returns false when authenticatedFetch throws an error', async function () {
       const getResponse = {
         data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
       };
@@ -714,7 +709,7 @@ describe('AtlasUserData', function () {
         .onFirstCall()
         .resolves(mockResponse(getResponse))
         .onSecondCall()
-        .resolves(mockResponse({}, false, 400));
+        .rejects(new Error('HTTP 400: Bad Request'));
 
       getResourceUrlStub
         .onFirstCall()
@@ -756,17 +751,13 @@ describe('AtlasUserData', function () {
           'cluster-connection.cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         );
 
-      const userData = new AtlasUserData(
-        getTestSchema(),
-        'FavoriteQueries',
-        'test-org',
-        'test-proj',
-        getResourceUrlStub,
-        authenticatedFetchStub,
-        {
-          serialize: (data) => `custom:${JSON.stringify(data)}`,
-        }
-      );
+      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
+        orgId: 'test-org',
+        projectId: 'test-proj',
+        getResourceUrl: getResourceUrlStub,
+        authenticatedFetch: authenticatedFetchStub,
+        serialize: (data) => `custom:${JSON.stringify(data)}`,
+      });
 
       await userData.updateAttributes('test-id', { name: 'Updated' });
 
