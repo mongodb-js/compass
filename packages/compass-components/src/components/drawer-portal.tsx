@@ -187,6 +187,7 @@ const emptyDrawerLayoutFixesStyles = css({
 const drawerSectionPortalStyles = css({
   minWidth: '100%',
   minHeight: '100%',
+  height: '100%',
 });
 
 /**

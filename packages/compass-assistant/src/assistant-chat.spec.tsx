@@ -3,18 +3,17 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import type { UIMessage } from './@ai-sdk/react/use-chat';
-import { Chat } from './@ai-sdk/react/chat-react';
-import sinon from 'sinon';
+import { createMockChat } from '../test/utils';
 
 describe('AssistantChat', function () {
   const mockMessages: UIMessage[] = [
     {
-      id: '1',
+      id: 'user',
       role: 'user',
       parts: [{ type: 'text', text: 'Hello, MongoDB Assistant!' }],
     },
     {
-      id: '2',
+      id: 'assistant',
       role: 'assistant',
       parts: [
         {
@@ -25,27 +24,13 @@ describe('AssistantChat', function () {
     },
   ];
 
-  let renderWithChat: (messages: UIMessage[]) => {
-    result: ReturnType<typeof render>;
-    chat: Chat<UIMessage> & {
-      sendMessage: sinon.SinonStub;
+  function renderWithChat(messages: UIMessage[]) {
+    const chat = createMockChat({ messages });
+    return {
+      result: render(<AssistantChat chat={chat} />),
+      chat,
     };
-  };
-
-  beforeEach(() => {
-    renderWithChat = (messages: UIMessage[]) => {
-      const newChat = new Chat<UIMessage>({
-        messages,
-      });
-      sinon.replace(newChat, 'sendMessage', sinon.stub());
-      return {
-        result: render(<AssistantChat chat={newChat} />),
-        chat: newChat as unknown as Chat<UIMessage> & {
-          sendMessage: sinon.SinonStub;
-        },
-      };
-    };
-  });
+  }
 
   it('renders input field and send button', function () {
     renderWithChat([]);
@@ -114,9 +99,12 @@ describe('AssistantChat', function () {
 
     expect(screen.getByTestId('assistant-message-user')).to.exist;
     expect(screen.getByTestId('assistant-message-assistant')).to.exist;
-    expect(screen.getByText('Hello, MongoDB Assistant!')).to.exist;
-    expect(screen.getByText('Hello! How can I help you with MongoDB today?')).to
-      .exist;
+    expect(screen.getByTestId('assistant-message-user')).to.have.text(
+      'Hello, MongoDB Assistant!'
+    );
+    expect(screen.getByTestId('assistant-message-assistant')).to.have.text(
+      'Hello! How can I help you with MongoDB today?'
+    );
   });
 
   it('calls sendMessage when form is submitted', function () {

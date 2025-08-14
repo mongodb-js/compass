@@ -56,7 +56,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         {messages.map((message) => (
           <div
             key={message.id}
-            data-testid={`assistant-message-${message.role}`}
+            data-testid={`assistant-message-${message.id}`}
             style={{
               marginBottom: '12px',
               padding: '8px 12px',

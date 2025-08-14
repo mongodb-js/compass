@@ -1,14 +1,16 @@
 import React, { type PropsWithChildren, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
-import type { Chat } from './@ai-sdk/react/chat-react';
+import { Chat } from './@ai-sdk/react/chat-react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createContext, useContext } from 'react';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import { DocsProviderTransport } from './docs-provider-transport';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
 interface AssistantContextType {
   chat: Chat<UIMessage>;
-  isEnabled: boolean;
 }
 
 export const AssistantContext = createContext<AssistantContextType | null>(
@@ -32,11 +34,9 @@ export const AssistantProvider: React.FunctionComponent<
 
   const assistantContext = useRef<AssistantContextType>({
     chat,
-    isEnabled: enableAIAssistant,
   });
   assistantContext.current = {
     chat,
-    isEnabled: enableAIAssistant,
   };
 
   const assistantActionsContext = useRef<AssistantActionsContextType>({});
@@ -54,5 +54,33 @@ export const AssistantProvider: React.FunctionComponent<
   );
 };
 
-// Keep the old component name for backward compatibility during transition
-export const AssistantDrawerSection = AssistantProvider;
+export const CompassAssistantProvider = registerCompassPlugin(
+  {
+    name: 'CompassAssistant',
+    component: ({
+      chat,
+      children,
+    }: PropsWithChildren<{
+      chat?: Chat<UIMessage>;
+    }>) => {
+      if (!chat) {
+        throw new Error('Chat was not provided by the state');
+      }
+      return <AssistantProvider chat={chat}>{children}</AssistantProvider>;
+    },
+    activate: (initialProps, { atlasService }) => {
+      const chat = new Chat({
+        transport: new DocsProviderTransport({
+          baseUrl: atlasService.assistantApiEndpoint(),
+        }),
+      });
+      return {
+        store: { state: { chat } },
+        deactivate: () => {},
+      };
+    },
+  },
+  {
+    atlasService: atlasServiceLocator,
+  }
+);
