@@ -733,5 +733,41 @@ describe('Data Modeling tab', function () {
       expect(nodesPostDelete).to.have.lengthOf(1);
       expect(nodesPostDelete[0].id).to.equal('test.testCollection-renamedOne');
     });
+
+    it('adding a new collection from the toolbar', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Click on the add collection button.
+      await browser.clickVisible(Selectors.DataModelAddCollectionBtn);
+
+      // Verify that the drawer is opened.
+      const drawer = browser.$(Selectors.SideDrawer);
+      await drawer.waitForDisplayed();
+
+      // Name the collection (it submits on unfocus).
+      const collectionName = 'testCollection-newOne';
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        collectionName
+      );
+      await drawer.click(); // Unfocus the input.
+
+      // Verify that the new collection is added to the diagram.
+      const nodes = await getDiagramNodes(browser, 3);
+      expect(nodes[2].id).to.equal('test.testCollection-newOne');
+
+      // Undo once - verify that the collection is removed
+      // This is to ensure that the initial edit of the collection name wasn't a separate edit
+      await browser.clickVisible(Selectors.DataModelUndoButton);
+      await getDiagramNodes(browser, 2);
+    });
   });
 });

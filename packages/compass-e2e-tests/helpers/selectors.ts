@@ -1480,7 +1480,8 @@ export const DataModelsListItem = (diagramName?: string) => {
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
-export const DataModelAddRelationshipBtn = 'aria/Add relationship';
+export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
+export const DataModelAddCollectionBtn = 'aria/Add Collection';
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelNameInput =
   'input[data-testid="data-model-collection-drawer-name-input"]';
