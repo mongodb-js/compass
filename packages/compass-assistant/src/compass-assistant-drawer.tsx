@@ -4,11 +4,11 @@ import { AssistantChat } from './assistant-chat';
 import { ASSISTANT_DRAWER_ID, AssistantContext } from './assistant-provider';
 
 /**
- * AssistantDrawer component that wraps AssistantChat in a DrawerSection.
+ * CompassAssistantDrawer component that wraps AssistantChat in a DrawerSection.
  * This component can be placed at any level in the component tree as long as
  * it's within an AssistantProvider.
  */
-export const AssistantDrawer: React.FunctionComponent = () => {
+export const CompassAssistantDrawer: React.FunctionComponent = () => {
   const context = useContext(AssistantContext);
 
   if (!context) {

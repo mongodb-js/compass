@@ -38,4 +38,4 @@ export const CompassAssistantProvider = registerCompassPlugin(
   }
 );
 
-export { AssistantDrawer as CompassAssistantDrawer } from './assistant-drawer';
+export { CompassAssistantDrawer } from './compass-assistant-drawer';

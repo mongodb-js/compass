@@ -58,7 +58,10 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
-import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import {
+  CompassAssistantDrawer,
+  CompassAssistantProvider,
+} from '@mongodb-js/compass-assistant';
 
 export type TrackFunction = (
   event: string,
