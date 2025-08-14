@@ -8,6 +8,8 @@ import {
   redoEdit,
   undoEdit,
   selectFieldsForCurrentModel,
+  startCreatingCollection,
+  addCollection,
 } from './diagram';
 import type {
   Edit,
@@ -221,6 +223,58 @@ describe('Data Modeling store', function () {
       );
       const diagram = getCurrentDiagramFromState(store.getState());
       expect(diagram.edits).to.deep.equal(loadedDiagram.edits);
+    });
+
+    it('should handle the collection creation flow', function () {
+      store.dispatch(openDiagram(loadedDiagram));
+
+      // start creating a new collection
+      store.dispatch(startCreatingCollection());
+
+      // the new collection is not yet in the edit history
+      const diagramAtCreation = getCurrentDiagramFromState(store.getState());
+      expect(diagramAtCreation.edits).to.deep.equal(loadedDiagram.edits);
+
+      // but the selection changes accordingly
+      const selectedItems = store.getState().diagram?.selectedItems;
+      expect(selectedItems).to.deep.equal({
+        type: 'collection',
+        id: undefined,
+      });
+
+      // save the new collection
+      const newCollectionNs = 'db.newCollection';
+      store.dispatch(addCollection(newCollectionNs));
+
+      // now the collection is added to the edit history
+      const diagramAfterCreation = getCurrentDiagramFromState(store.getState());
+      expect(diagramAfterCreation.edits).to.have.length(2);
+      expect(diagramAfterCreation.edits[0]).to.deep.equal(
+        loadedDiagram.edits[0]
+      );
+      const addCollectionEdit = diagramAfterCreation.edits[1] as Extract<
+        Edit,
+        { type: 'AddCollection' }
+      >;
+      expect(addCollectionEdit.type).to.equal('AddCollection');
+      expect(addCollectionEdit.ns).to.equal(newCollectionNs);
+      expect(addCollectionEdit.initialSchema).to.deep.equal({
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+        },
+        required: ['_id'],
+      });
+
+      // and it is selected
+      const selectedItemsAfterCreation =
+        store.getState().diagram?.selectedItems;
+      expect(selectedItemsAfterCreation).to.deep.equal({
+        type: 'collection',
+        id: newCollectionNs,
+      });
     });
 
     it('should apply a valid MoveCollection edit', function () {
