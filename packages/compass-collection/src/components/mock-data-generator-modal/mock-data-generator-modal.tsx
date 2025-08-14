@@ -49,6 +49,9 @@ const MockDataGeneratorModal = ({
   onNextStep,
   onPreviousStep,
 }: Props) => {
+  const handleNextClick =
+    currentStep === MockDataGeneratorStep.GENERATE_DATA ? onClose : onNextStep;
+
   return (
     <Modal
       open={isOpen}
@@ -75,7 +78,7 @@ const MockDataGeneratorModal = ({
           <Button onClick={onClose}>Cancel</Button>
           <Button
             variant={ButtonVariant.Primary}
-            onClick={onNextStep}
+            onClick={handleNextClick}
             data-testid="next-step-button"
           >
             {StepButtonLabelMap[currentStep]}

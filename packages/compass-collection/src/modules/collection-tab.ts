@@ -250,7 +250,6 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         isModalOpen: false,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
       },
     };
   }
@@ -264,7 +263,6 @@ const reducer: Reducer<CollectionState, Action> = (
     const currentStep = state.mockDataGenerator.currentStep;
     let nextStep: MockDataGeneratorStep;
 
-    // Reducer contains all step transition logic
     switch (currentStep) {
       case MockDataGeneratorStep.AI_DISCLAIMER:
         nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
@@ -303,7 +301,6 @@ const reducer: Reducer<CollectionState, Action> = (
     const currentStep = state.mockDataGenerator.currentStep;
     let previousStep: MockDataGeneratorStep;
 
-    // Reducer contains all step transition logic
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
