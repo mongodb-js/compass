@@ -5,6 +5,7 @@ import Sinon from 'sinon';
 import { UnconnectedMockDataGeneratorModal as MockDataGeneratorModal } from './mock-data-generator-modal';
 import { MockDataGeneratorStep } from './types';
 import { StepButtonLabelMap } from './constants';
+import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../../schema-analysis-types';
 
 describe('MockDataGeneratorModal', () => {
   const sandbox = Sinon.createSandbox();
@@ -32,6 +33,8 @@ describe('MockDataGeneratorModal', () => {
         currentStep={currentStep}
         onNextStep={onNextStep}
         onPreviousStep={onPreviousStep}
+        namespace="test.collection"
+        schemaAnalysis={{ status: SCHEMA_ANALYSIS_STATE_INITIAL }}
       />
     );
   }
