@@ -1479,7 +1479,9 @@ export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
 export const DataModelAddRelationshipBtn = 'aria/Add relationship';
-export const DataModelNameInput = '//label[text()="Name"]';
+export const DataModelNameInputLabel = '//label[text()="Name"]';
+export const DataModelNameInput =
+  'input[data-testid="data-model-collection-drawer-name-input"]';
 export const DataModelRelationshipLocalCollectionSelect =
   '//label[text()="Local collection"]';
 export const DataModelRelationshipLocalFieldSelect =
@@ -1498,6 +1500,8 @@ export const DataModelCollectionRelationshipItem = (relationshipId: string) =>
   `li[data-relationship-id="${relationshipId}"]`;
 export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relationship"]`;
 export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
+export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
+export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;

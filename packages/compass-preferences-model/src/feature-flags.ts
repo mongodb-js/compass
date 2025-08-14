@@ -29,6 +29,7 @@ export type FeatureFlags = {
   enableContextMenus: boolean;
   enableSearchActivationProgramP1: boolean;
   enableUnauthenticatedGenAI: boolean;
+  enableAIAssistant: boolean;
 };
 
 export const featureFlags: Required<{
@@ -165,6 +166,16 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable interface to view and modify search indexes',
+    },
+  },
+
+  /**
+   * Feature flag for AI Assistant.
+   */
+  enableAIAssistant: {
+    stage: 'development',
+    description: {
+      short: 'Enable AI Assistant',
     },
   },
 };
