@@ -14,6 +14,7 @@ import {
   selectCollection,
   selectCurrentModelFromState,
   selectRelationship,
+  startCreatingCollection,
 } from '../../store/diagram';
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
@@ -21,7 +22,18 @@ import type {
   DataModelCollection,
   Relationship,
 } from '../../services/data-model-storage';
-import { DrawerAnchor } from '@mongodb-js/compass-components';
+import { DrawerAnchor, getDrawerIds } from '@mongodb-js/compass-components';
+
+const drawerTestId = getDrawerIds().root;
+
+const waitForDrawerToOpen = async () => {
+  await waitFor(() => {
+    expect(screen.queryByTestId(drawerTestId)).to.have.attribute(
+      'aria-hidden',
+      'false'
+    );
+  });
+};
 
 async function comboboxSelectItem(
   label: string,
@@ -66,37 +78,9 @@ describe('DiagramEditorSidePanel', function () {
 
   it('should not render if no items are selected', function () {
     renderDrawer();
-    expect(screen.queryByTestId('data-modeling-drawer')).to.eq(null);
-  });
-
-  it('should render and edit a collection in collection context drawer when collection is clicked', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.airlines'));
-
-    await waitFor(() => {
-      expect(screen.getByTitle('flights.airlines')).to.be.visible;
-    });
-
-    const nameInput = screen.getByLabelText('Name');
-    expect(nameInput).to.be.visible;
-    expect(nameInput).to.have.value('airlines');
-
-    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
-    userEvent.type(
-      screen.getByRole('textbox', { name: 'Notes' }),
-      'Note about the collection'
-    );
-    userEvent.tab();
-
-    const modifiedCollection = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).collections.find((coll) => {
-      return coll.ns === 'flights.airlines';
-    });
-
-    expect(modifiedCollection).to.have.property(
-      'note',
-      'Note about the collection'
+    expect(screen.queryByTestId(drawerTestId)).to.have.attribute(
+      'aria-hidden',
+      'true'
     );
   });
 
@@ -106,11 +90,10 @@ describe('DiagramEditorSidePanel', function () {
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
 
-    await waitFor(() => {
-      expect(screen.getByTitle('countries.name → airports.Country')).to.be
-        .visible;
-    });
+    await waitForDrawerToOpen();
 
+    expect(screen.getByTitle('countries.name → airports.Country')).to.be
+      .visible;
     const localCollectionInput = screen.getByLabelText('Local collection');
     expect(localCollectionInput).to.be.visible;
     expect(localCollectionInput).to.have.value('countries');
@@ -149,9 +132,9 @@ describe('DiagramEditorSidePanel', function () {
 
     result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('airlines');
-    });
+    await waitForDrawerToOpen();
+
+    expect(screen.getByLabelText('Name')).to.have.value('airlines');
 
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
@@ -186,9 +169,9 @@ describe('DiagramEditorSidePanel', function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('countries');
-    });
+    await waitForDrawerToOpen();
+
+    expect(screen.getByLabelText('Name')).to.have.value('countries');
 
     // Open relationshipt editing form
     const relationshipItem = screen
@@ -249,9 +232,9 @@ describe('DiagramEditorSidePanel', function () {
     const result = renderDrawer();
     result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.value('countries');
-    });
+    await waitForDrawerToOpen();
+
+    expect(screen.getByLabelText('Name')).to.have.value('countries');
 
     // Find the relationhip item
     const relationshipItem = screen
@@ -272,119 +255,201 @@ describe('DiagramEditorSidePanel', function () {
     });
   });
 
-  it('should delete a collection', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
+  describe('When a collection is selected', function () {
+    it('should render and edit a collection in collection context drawer when collection is clicked', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.airlines'));
 
-    await waitFor(() => {
+      await waitForDrawerToOpen();
+
+      expect(screen.getByTitle('flights.airlines')).to.be.visible;
+
+      const nameInput = screen.getByLabelText('Name');
+      expect(nameInput).to.be.visible;
+      expect(nameInput).to.have.value('airlines');
+
+      userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+      userEvent.type(
+        screen.getByRole('textbox', { name: 'Notes' }),
+        'Note about the collection'
+      );
+      userEvent.tab();
+
+      const modifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((coll) => {
+        return coll.ns === 'flights.airlines';
+      });
+
+      expect(modifiedCollection).to.have.property(
+        'note',
+        'Note about the collection'
+      );
+    });
+
+    it('should delete a collection', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+      await waitForDrawerToOpen();
+
       expect(screen.getByLabelText('Name')).to.have.value('countries');
+
+      userEvent.click(screen.getByLabelText(/delete collection/i));
+
+      await waitFor(() => {
+        expect(screen.queryByText('countries')).not.to.exist;
+      });
+      expect(screen.queryByLabelText('Name')).to.not.exist;
+
+      const modifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((coll) => {
+        return coll.ns === 'flights.countries';
+      });
+
+      expect(modifiedCollection).to.be.undefined;
     });
 
-    userEvent.click(screen.getByLabelText(/delete collection/i));
+    it('should open and edit a collection name', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    await waitFor(() => {
-      expect(screen.queryByText('countries')).not.to.exist;
-    });
-    expect(screen.queryByLabelText('Name')).to.not.exist;
+      await waitForDrawerToOpen();
 
-    const modifiedCollection = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).collections.find((coll) => {
-      return coll.ns === 'flights.countries';
-    });
-
-    expect(modifiedCollection).to.be.undefined;
-  });
-
-  it('should open and edit a collection name', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
-
-    await waitFor(() => {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
+
+      // Update the name.
+      userEvent.clear(screen.getByLabelText('Name'));
+      userEvent.type(screen.getByLabelText('Name'), 'pineapple');
+
+      // Blur/unfocus the input.
+      userEvent.click(document.body);
+
+      // Check the name in the model.
+      const modifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((c: DataModelCollection) => {
+        return c.ns === 'flights.pineapple';
+      });
+
+      expect(modifiedCollection).to.exist;
     });
 
-    // Update the name.
-    userEvent.clear(screen.getByLabelText('Name'));
-    userEvent.type(screen.getByLabelText('Name'), 'pineapple');
+    it('should handle new collection creation', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(startCreatingCollection());
 
-    // Blur/unfocus the input.
-    userEvent.click(document.body);
+      await waitForDrawerToOpen();
 
-    // Check the name in the model.
-    const modifiedCollection = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).collections.find((c: DataModelCollection) => {
-      return c.ns === 'flights.pineapple';
+      expect(screen.getByLabelText('Name')).to.have.value('new-collection');
+
+      // The name should be focused
+      const nameInput = screen.getByLabelText<HTMLInputElement>('Name');
+      const activeElement = document.activeElement;
+      expect(activeElement).to.equal(nameInput);
+
+      // The other controls are not usable in this state
+      expect(screen.getByRole('textbox', { name: 'Notes' })).to.have.attribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.queryByRole('button', { name: 'Delete Collection' })).not.to
+        .exist;
+
+      // Update the name.
+      userEvent.clear(nameInput);
+      userEvent.type(nameInput, 'pineapple');
+
+      // Blur/unfocus the input - now the collection should be created
+      userEvent.click(document.body);
+
+      // Check the name in the model.
+      const newCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((c: DataModelCollection) => {
+        return c.ns === 'flights.pineapple';
+      });
+      expect(newCollection).to.exist;
+
+      // The name appears and controls are enabled
+      expect(screen.getByText('flights.pineapple')).to.be.visible;
+      expect(screen.getByRole('textbox', { name: 'Notes' })).to.have.attribute(
+        'aria-disabled',
+        'false'
+      );
+      expect(screen.getByRole('button', { name: 'Delete Collection' })).to.be
+        .visible;
+      expect(
+        screen.getByRole('button', { name: 'Delete Collection' })
+      ).to.have.attribute('aria-disabled', 'false');
     });
 
-    expect(modifiedCollection).to.exist;
-  });
+    it('should prevent editing to an empty collection name', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-  it('should prevent editing to an empty collection name', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
+      await waitForDrawerToOpen();
 
-    await waitFor(() => {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
       expect(screen.getByLabelText('Name')).to.have.attribute(
         'aria-invalid',
         'false'
       );
+
+      userEvent.clear(screen.getByLabelText('Name'));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Name')).to.have.attribute(
+          'aria-invalid',
+          'true'
+        );
+      });
+
+      // Blur/unfocus the input.
+      userEvent.click(document.body);
+
+      const notModifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((c: DataModelCollection) => {
+        return c.ns === 'flights.countries';
+      });
+
+      expect(notModifiedCollection).to.exist;
     });
 
-    userEvent.clear(screen.getByLabelText('Name'));
+    it('should prevent editing to a duplicate collection name', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.attribute(
-        'aria-invalid',
-        'true'
-      );
-    });
+      await waitForDrawerToOpen();
 
-    // Blur/unfocus the input.
-    userEvent.click(document.body);
-
-    const notModifiedCollection = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).collections.find((c: DataModelCollection) => {
-      return c.ns === 'flights.countries';
-    });
-
-    expect(notModifiedCollection).to.exist;
-  });
-
-  it('should prevent editing to a duplicate collection name', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
-
-    await waitFor(() => {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
       expect(screen.getByLabelText('Name')).to.have.attribute(
         'aria-invalid',
         'false'
       );
+
+      userEvent.clear(screen.getByLabelText('Name'));
+      userEvent.type(screen.getByLabelText('Name'), 'airlines');
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Name')).to.have.attribute(
+          'aria-invalid',
+          'true'
+        );
+      });
+
+      // Blur/unfocus the input.
+      userEvent.click(document.body);
+
+      const notModifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((c: DataModelCollection) => {
+        return c.ns === 'flights.countries';
+      });
+
+      expect(notModifiedCollection).to.exist;
     });
-
-    userEvent.clear(screen.getByLabelText('Name'));
-    userEvent.type(screen.getByLabelText('Name'), 'airlines');
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Name')).to.have.attribute(
-        'aria-invalid',
-        'true'
-      );
-    });
-
-    // Blur/unfocus the input.
-    userEvent.click(document.body);
-
-    const notModifiedCollection = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).collections.find((c: DataModelCollection) => {
-      return c.ns === 'flights.countries';
-    });
-
-    expect(notModifiedCollection).to.exist;
   });
 });

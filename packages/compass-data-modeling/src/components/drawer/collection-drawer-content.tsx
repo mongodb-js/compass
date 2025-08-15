@@ -1,7 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
-import type { Relationship } from '../../services/data-model-storage';
+import type {
+  Relationship,
+  DataModelCollection,
+} from '../../services/data-model-storage';
 import {
   Badge,
   Button,
@@ -16,6 +19,7 @@ import {
 import {
   createNewRelationship,
   deleteRelationship,
+  nameDraftCollection,
   renameCollection,
   selectCurrentModelFromState,
   selectRelationship,
@@ -31,14 +35,16 @@ import { useChangeOnBlur } from './use-change-on-blur';
 
 type CollectionDrawerContentProps = {
   namespace: string;
-  namespaces: string[];
+  collections: DataModelCollection[];
   note?: string;
   relationships: Relationship[];
+  isDraftCollection?: boolean;
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
   onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
+  onCreateCollection: (ns: string, position?: [number, number]) => void;
 };
 
 const titleBtnStyles = css({
@@ -107,23 +113,34 @@ const CollectionDrawerContent: React.FunctionComponent<
   CollectionDrawerContentProps
 > = ({
   namespace,
-  namespaces,
+  collections,
   note = '',
   relationships,
+  isDraftCollection,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
   onNoteChange,
   onRenameCollection,
+  onCreateCollection,
 }) => {
+  const namespaces = useMemo(() => {
+    return collections.map((c) => c.ns);
+  }, [collections]);
+  const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO: what if there are no namespaces?
+
   const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
     toNS(namespace).collection,
     (collectionName) => {
       const trimmedName = collectionName.trim();
-      if (trimmedName === toNS(namespace).collection) {
+      if (!isCollectionNameValid) {
         return;
       }
-      if (!isCollectionNameValid) {
+      if (isDraftCollection) {
+        onCreateCollection(`${database}.${trimmedName}`);
+        return;
+      }
+      if (trimmedName === toNS(namespace).collection) {
         return;
       }
       onRenameCollection(
@@ -145,11 +162,19 @@ const CollectionDrawerContent: React.FunctionComponent<
     onNoteChange(namespace, newNote);
   });
 
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (isDraftCollection) {
+      nameInputRef.current?.focus();
+    }
+  }, [isDraftCollection]);
+
   return (
     <>
       <DMDrawerSection label="Collection properties">
         <DMFormFieldContainer>
           <TextInput
+            ref={nameInputRef}
             label="Name"
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
@@ -240,12 +265,17 @@ const CollectionDrawerContent: React.FunctionComponent<
 export default connect(
   (state: DataModelingState, ownProps: { namespace: string }) => {
     const model = selectCurrentModelFromState(state);
+    const collection = model.collections.find((collection) => {
+      return collection.ns === ownProps.namespace;
+    });
+    if (!collection) {
+      throw new Error('Namespace not found in model: ' + ownProps.namespace);
+    }
     return {
-      note:
-        model.collections.find((collection) => {
-          return collection.ns === ownProps.namespace;
-        })?.note ?? '',
-      namespaces: model.collections.map((c) => c.ns),
+      note: collection.note,
+      namespace: collection.ns,
+      isDraftCollection: state.diagram?.draftCollection === ownProps.namespace,
+      collections: model.collections,
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
@@ -260,5 +290,6 @@ export default connect(
     onDeleteRelationshipClick: deleteRelationship,
     onNoteChange: updateCollectionNote,
     onRenameCollection: renameCollection,
+    onCreateCollection: nameDraftCollection,
   }
 )(CollectionDrawerContent);

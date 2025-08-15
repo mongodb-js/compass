@@ -144,11 +144,12 @@ export default connect(
     const model = selectCurrentModelFromState(state);
 
     if (selected.type === 'collection') {
+      const isNewCollection = !selected.id;
       const doesCollectionExist = model.collections.find((collection) => {
         return collection.ns === selected.id;
       });
 
-      if (!doesCollectionExist) {
+      if (!isNewCollection && !doesCollectionExist) {
         // TODO(COMPASS-9680): When the selected collection doesn't exist then we
         // don't show any selection. We can get into this state with undo/redo.
         return {
@@ -159,7 +160,7 @@ export default connect(
       return {
         selectedItems: {
           ...selected,
-          label: selected.id,
+          label: selected.id || 'New Collection',
         },
       };
     }
