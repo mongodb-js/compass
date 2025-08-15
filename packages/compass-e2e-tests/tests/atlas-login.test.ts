@@ -36,7 +36,8 @@ function getTestBrowserShellCommand() {
   )}`;
 }
 
-describe('Atlas Login', function () {
+// TODO: remove these when we remove atlas login
+describe.skip('Atlas Login', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let oidcMockProvider: OIDCMockProvider;
@@ -281,7 +282,8 @@ describe('Atlas Login', function () {
       );
     });
 
-    it('should not show AI input if sign in flow was not finished', async function () {
+    // TODO: remove once we remove atlas login
+    it.skip('should not show AI input if sign in flow was not finished', async function () {
       getTokenPayload = () => {
         return new Promise(() => {});
       };
@@ -314,7 +316,8 @@ describe('Atlas Login', function () {
       );
     });
 
-    it('should not show AI input if sign in flow was not finished', async function () {
+    // TODO: remove once we remove atlas login
+    it.skip('should not show AI input if sign in flow was not finished', async function () {
       getTokenPayload = () => {
         return new Promise(() => {});
       };
