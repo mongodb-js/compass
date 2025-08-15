@@ -7,8 +7,7 @@ export class SecretStore {
   private readonly userData: FileUserData<typeof AtlasPluginStateSchema>;
   private readonly fileName = 'AtlasPluginState';
   constructor(basePath?: string) {
-    this.userData = new FileUserData(AtlasPluginStateSchema, {
-      subdir: 'AtlasState',
+    this.userData = new FileUserData(AtlasPluginStateSchema, 'AtlasState', {
       basePath,
     });
   }

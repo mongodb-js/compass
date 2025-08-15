@@ -95,8 +95,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     private readonly ipcMain: ConnectionStorageIPCMain,
     basePath?: string
   ) {
-    this.userData = new FileUserData(ConnectionSchema, {
-      subdir: 'Connections',
+    this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });
     this.ipcMain.createHandle<ConnectionStorageIPCInterface>(

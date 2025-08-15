@@ -10,15 +10,23 @@ const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
+type GetResourceUrl = (path?: string) => Promise<string>;
+type AuthenticatedFetch = (
+  url: RequestInfo | URL,
+  options?: RequestInit
+) => Promise<Response>;
 
 export type FileUserDataOptions<Input> = {
-  subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
 };
 
 export type AtlasUserDataOptions<Input> = {
+  orgId: string;
+  projectId: string;
+  getResourceUrl: GetResourceUrl;
+  authenticatedFetch: AuthenticatedFetch;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
 };
@@ -34,11 +42,12 @@ export interface ReadAllResult<T extends z.Schema> {
 
 export abstract class IUserData<T extends z.Schema> {
   protected readonly validator: T;
+  protected readonly dataType: string;
   protected readonly serialize: SerializeContent<z.input<T>>;
   protected readonly deserialize: DeserializeContent;
-
   constructor(
     validator: T,
+    dataType: string,
     {
       serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
       deserialize = JSON.parse,
@@ -48,6 +57,7 @@ export abstract class IUserData<T extends z.Schema> {
     } = {}
   ) {
     this.validator = validator;
+    this.dataType = dataType;
     this.serialize = serialize;
     this.deserialize = deserialize;
   }
@@ -58,25 +68,19 @@ export abstract class IUserData<T extends z.Schema> {
   abstract updateAttributes(
     id: string,
     data: Partial<z.input<T>>
-  ): Promise<z.output<T>>;
+  ): Promise<boolean>;
 }
 
 export class FileUserData<T extends z.Schema> extends IUserData<T> {
-  private readonly subdir: string;
   private readonly basePath?: string;
   protected readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
-    {
-      subdir,
-      basePath,
-      serialize,
-      deserialize,
-    }: FileUserDataOptions<z.input<T>>
+    dataType: string,
+    { basePath, serialize, deserialize }: FileUserDataOptions<z.input<T>>
   ) {
-    super(validator, { serialize, deserialize });
-    this.subdir = subdir;
+    super(validator, dataType, { serialize, deserialize });
     this.basePath = basePath;
   }
 
@@ -87,7 +91,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
   private async getEnsuredBasePath(): Promise<string> {
     const basepath = this.basePath ? this.basePath : getStoragePath();
 
-    const root = path.join(basepath, this.subdir);
+    const root = path.join(basepath, this.dataType);
 
     await fs.mkdir(root, { recursive: true });
 
@@ -252,11 +256,198 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
   async updateAttributes(
     id: string,
     data: Partial<z.input<T>>
-  ): Promise<z.output<T>> {
-    await this.write(id, {
-      ...((await this.readOne(id)) ?? {}),
-      ...data,
-    });
-    return await this.readOne(id);
+  ): Promise<boolean> {
+    try {
+      await this.write(id, {
+        ...((await this.readOne(id)) ?? {}),
+        ...data,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+// TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
+export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
+  private readonly authenticatedFetch;
+  private readonly getResourceUrl;
+  private orgId: string;
+  private projectId: string;
+  constructor(
+    validator: T,
+    dataType: string,
+    {
+      orgId,
+      projectId,
+      getResourceUrl,
+      authenticatedFetch,
+      serialize,
+      deserialize,
+    }: AtlasUserDataOptions<z.input<T>>
+  ) {
+    super(validator, dataType, { serialize, deserialize });
+    this.authenticatedFetch = authenticatedFetch;
+    this.getResourceUrl = getResourceUrl;
+    this.orgId = orgId;
+    this.projectId = projectId;
+  }
+
+  async write(id: string, content: z.input<T>): Promise<boolean> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}`
+    );
+
+    try {
+      this.validator.parse(content);
+
+      await this.authenticatedFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          data: this.serialize(content),
+          createdAt: new Date(),
+          projectId: this.projectId,
+        }),
+      });
+
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_366),
+        'Atlas Backend',
+        'Error writing data',
+        {
+          url,
+          error: (error as Error).message,
+        }
+      );
+      return false;
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+    );
+
+    try {
+      await this.authenticatedFetch(url, {
+        method: 'DELETE',
+      });
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_367),
+        'Atlas Backend',
+        'Error deleting data',
+        {
+          url,
+          error: (error as Error).message,
+        }
+      );
+      return false;
+    }
+  }
+
+  async readAll(): Promise<ReadAllResult<T>> {
+    const result: ReadAllResult<T> = {
+      data: [],
+      errors: [],
+    };
+    try {
+      const response = await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.dataType}/${this.orgId}/${this.projectId}`
+        ),
+        {
+          method: 'GET',
+        }
+      );
+      const json = await response.json();
+      for (const item of json) {
+        try {
+          const parsedData = this.deserialize(item.data as string);
+          result.data.push(this.validator.parse(parsedData) as z.output<T>);
+        } catch (error) {
+          result.errors.push(error as Error);
+        }
+      }
+      return result;
+    } catch (error) {
+      result.errors.push(error as Error);
+      return result;
+    }
+  }
+
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<boolean> {
+    try {
+      const prevData = await this.readOne(id);
+      const newData: z.input<T> = {
+        ...prevData,
+        ...data,
+      };
+
+      await this.authenticatedFetch(
+        await this.getResourceUrl(
+          `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+        ),
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: this.serialize(newData),
+        }
+      );
+      return true;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_368),
+        'Atlas Backend',
+        'Error updating data',
+        {
+          url: await this.getResourceUrl(
+            `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+          ),
+          error: (error as Error).message,
+        }
+      );
+      throw error;
+    }
+  }
+
+  // TODO: change this depending on whether or not updateAttributes can provide all current data
+  async readOne(id: string): Promise<z.output<T>> {
+    const url = await this.getResourceUrl(
+      `${this.dataType}/${this.orgId}/${this.projectId}/${id}`
+    );
+
+    try {
+      const getResponse = await this.authenticatedFetch(url, {
+        method: 'GET',
+      });
+      const json = await getResponse.json();
+      const data = this.validator.parse(this.deserialize(json.data as string));
+      return data;
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_369),
+        'Atlas Backend',
+        'Error reading data',
+        {
+          url,
+          error: (error as Error).message,
+        }
+      );
+      throw error;
+    }
   }
 }
