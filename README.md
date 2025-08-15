@@ -1,4 +1,4 @@
-# MongoDB Compass Monorepo
+# MongoDB Compass Monorepo Test
 
 This repository contains the source code and build tooling used in [MongoDB Compass](https://www.mongodb.com/products/compass).
 
