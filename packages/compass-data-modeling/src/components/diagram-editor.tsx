@@ -15,7 +15,7 @@ import {
   type DiagramState,
   selectCurrentModelFromState,
   createNewRelationship,
-  startCreatingCollection,
+  addCollection,
 } from '../store/diagram';
 import {
   Banner,
@@ -356,6 +356,6 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
-    onAddCollectionClick: startCreatingCollection,
+    onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

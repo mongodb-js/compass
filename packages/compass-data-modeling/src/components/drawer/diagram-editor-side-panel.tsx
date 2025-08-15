@@ -33,7 +33,7 @@ const drawerTitleActionGroupStyles = css({});
 
 type DiagramEditorSidePanelProps = {
   selectedItems: {
-    id?: string;
+    id: string;
     type: 'relationship' | 'collection';
     label: string;
   } | null;
@@ -52,30 +52,26 @@ function DiagramEditorSidePanel({
         label: selectedItems.label,
         content: (
           <CollectionDrawerContent
-            key={selectedItems.id || 'new-collection'}
+            key={selectedItems.id}
             namespace={selectedItems.id}
           ></CollectionDrawerContent>
         ),
         actions: [
-          ...(selectedItems.id
-            ? [
-                {
-                  action: 'delete',
-                  label: 'Delete Collection',
-                  icon: 'Trash' as const,
-                },
-              ]
-            : []),
+          {
+            action: 'delete',
+            label: 'Delete Collection',
+            icon: 'Trash' as const,
+          },
         ],
         handleAction: (actionName: string) => {
-          if (actionName === 'delete' && selectedItems.id) {
+          if (actionName === 'delete') {
             onDeleteCollection(selectedItems.id);
           }
         },
       };
     }
 
-    if (selectedItems?.type === 'relationship' && selectedItems.id) {
+    if (selectedItems?.type === 'relationship') {
       return {
         label: selectedItems.label,
         content: (
@@ -88,7 +84,7 @@ function DiagramEditorSidePanel({
           { action: 'delete', label: 'Delete', icon: 'Trash' as const },
         ],
         handleAction: (actionName: string) => {
-          if (actionName === 'delete' && selectedItems.id) {
+          if (actionName === 'delete') {
             onDeleteRelationship(selectedItems.id);
           }
         },
