@@ -9,7 +9,7 @@ import {
   unhideIndex,
   startPollingRegularIndexes,
   stopPollingRegularIndexes,
-  trackIndexProgress,
+  getIndexesProgress,
   indexCreationStarted,
 } from './regular-indexes';
 import {
@@ -550,7 +550,7 @@ describe('regular-indexes module', function () {
     });
   });
 
-  describe('#trackIndexProgress action', function () {
+  describe('#getIndexesProgress action', function () {
     it('updates progress when currentOp returns matching index operation', async function () {
       const currentOpResponse = {
         inprog: [
@@ -583,8 +583,8 @@ describe('regular-indexes module', function () {
 
       store.dispatch(indexCreationStarted(mockIndex));
 
-      // Track progress
-      await store.dispatch(trackIndexProgress('test-index-id', 'test_index_1'));
+      // Track progress - pass array of indexes to track
+      await store.dispatch(getIndexesProgress([mockIndex]));
 
       const state = store.getState();
       const inProgressIndex = state.regularIndexes.inProgressIndexes.find(
@@ -617,8 +617,8 @@ describe('regular-indexes module', function () {
 
       store.dispatch(indexCreationStarted(mockIndex));
 
-      // Track progress
-      await store.dispatch(trackIndexProgress('test-index-id', 'test_index_1'));
+      // Track progress - pass array of indexes to track
+      await store.dispatch(getIndexesProgress([mockIndex]));
 
       const state = store.getState();
       const inProgressIndex = state.regularIndexes.inProgressIndexes.find(
