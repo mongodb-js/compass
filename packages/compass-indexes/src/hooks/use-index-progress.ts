@@ -38,7 +38,10 @@ export function useIndexProgress(inProgressIndexes: InProgressIndex[]) {
         void dispatch(getIndexesProgress(indexesToTrack)).finally(() => {
           if (timeoutRef.current) {
             // After the first 3 checks, slow down the poller
-            setTimeout(updateIndexProgress, INDEX_PROGRESS_POLLING_INTERVAL_MS);
+            timeoutRef.current = +setTimeout(
+              updateIndexProgress,
+              INDEX_PROGRESS_POLLING_INTERVAL_MS
+            );
           }
         });
       };

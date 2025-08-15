@@ -669,11 +669,10 @@ export const getIndexesProgress = (
           }
         }
       }
-    } catch (err) {
+    } catch {
       // If we can't get progress, the UI will continue with existing progress
       // This ensures the UI doesn't break if currentOp fails
       // Using void to indicate intentionally ignoring this error
-      void err;
     }
   };
 };
