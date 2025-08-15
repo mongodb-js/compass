@@ -353,7 +353,7 @@ This document was automatically generated on Fri Aug 15 2025.
 | **[mongodb-query-parser](#15068a4e6d825438a4e6d365a3566f58762ef216402070179557503b775f3ff4)**                               | 4.3.0        | Apache-2.0                          |
 | **[mongodb-redact](#6e144657052b14482fcf7c46948b75815e885a6a92d9770bf29d479ba3188617)**                                     | 1.1.8        | Apache-2.0                          |
 | **[mongodb-schema](#dc7b6e03e707abdf4c8e28a57ca2df873ec3a9fc74b1822a899a0f7eb0cc4bd5)**                                     | 12.6.2       | Apache-2.0                          |
-| **[mongodb](#3145a15c2928eed9669f2e1bb6298bfbf2f03c22b2b70a1579b089223058930a)**                                            | 6.18.0       | Apache-2.0                          |
+| **[mongodb](#e9259a133815c37f78beb53d1e96543d3af8114834d306de35d623db235b3cca)**                                            | 6.17.0       | Apache-2.0                          |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                                 | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3        | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0        | MIT                                 |
@@ -24446,9 +24446,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="3145a15c2928eed9669f2e1bb6298bfbf2f03c22b2b70a1579b089223058930a"></a>
+<a id="e9259a133815c37f78beb53d1e96543d3af8114834d306de35d623db235b3cca"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.18.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.17.0)
 
 License tags: Apache-2.0
 
