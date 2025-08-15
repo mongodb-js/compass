@@ -1,5 +1,4 @@
 import type { Document } from 'mongodb';
-import { type Schema } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -30,9 +29,16 @@ export type SchemaAnalysisErrorState = {
   error: SchemaAnalysisError;
 };
 
+export interface FieldInfo {
+  type: string; // MongoDB type (eg. String, Double, Array, Document)
+  sample_values: unknown[]; // Real sample values (empty array if none)
+  isArray?: boolean; // For arrays. Denotes that the type field refers to the type of the array elements
+  probability?: number; // 0.0 - 1.0 field frequency
+}
+
 export type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
-  schema: Schema;
+  processedSchema: Record<string, FieldInfo>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
