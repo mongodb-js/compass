@@ -5,7 +5,7 @@ import { getIndexesProgress } from '../modules/regular-indexes';
 import type { IndexesThunkDispatch } from '../modules';
 
 /** 10 seconds polling interval */
-const INDEX_PROGRESS_POLLING_INTERVAL_MS = 10 * 1000;
+const INDEX_PROGRESS_POLLING_INTERVAL_MS = 10_000;
 
 /**
  * Custom hook to manage index build progress tracking
