@@ -124,14 +124,14 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     progressPercentage < 100 &&
     progressPercentage > 0
   ) {
-    const progressText = `${Math.round(progressPercentage)}%`;
-
     return (
       <div
         className={combinedContainerStyles}
         data-testid="index-building-spinner"
       >
-        <Body className={progressTextStyles}>Building... {progressText}</Body>
+        <Body className={progressTextStyles}>
+          Building... {progressPercentage | 0}%
+        </Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>
           data-testid="index-actions"

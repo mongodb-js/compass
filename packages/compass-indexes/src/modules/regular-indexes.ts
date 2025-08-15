@@ -646,9 +646,7 @@ export const getIndexesProgress = (
 
       for (const op of createIndexOps) {
         if (op.command?.indexes && op.progress) {
-          const percentage = Math.round(
-            (op.progress.done / op.progress.total) * 100
-          );
+          const percentage = (op.progress.done / op.progress.total) * 100;
 
           // Add progress for all indexes in this operation
           for (const idx of op.command.indexes) {

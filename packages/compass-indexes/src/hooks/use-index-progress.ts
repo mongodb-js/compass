@@ -4,8 +4,6 @@ import type { InProgressIndex } from '../modules/regular-indexes';
 import { getIndexesProgress } from '../modules/regular-indexes';
 import type { IndexesThunkDispatch } from '../modules';
 
-/** 1 seconds polling interval */
-const INDEX_INIT_PROGRESS_POLLING_INTERVAL_MS = 1 * 1000;
 /** 10 seconds polling interval */
 const INDEX_PROGRESS_POLLING_INTERVAL_MS = 10 * 1000;
 
@@ -18,7 +16,6 @@ const INDEX_PROGRESS_POLLING_INTERVAL_MS = 10 * 1000;
 export function useIndexProgress(inProgressIndexes: InProgressIndex[]) {
   const dispatch = useDispatch<IndexesThunkDispatch>();
   const timeoutRef = useRef<number | undefined>(undefined);
-  const checksRef = useRef<number>(0);
 
   useEffect(() => {
     const indexesToTrack = inProgressIndexes.filter((index) => {
@@ -37,19 +34,11 @@ export function useIndexProgress(inProgressIndexes: InProgressIndex[]) {
     timeoutRef.current = undefined;
 
     if (indexesToTrack.length) {
-      checksRef.current = 0;
-
       const updateIndexProgress = () => {
-        checksRef.current += 1;
         void dispatch(getIndexesProgress(indexesToTrack)).finally(() => {
           if (timeoutRef.current) {
             // After the first 3 checks, slow down the poller
-            setTimeout(
-              updateIndexProgress,
-              checksRef.current < 3
-                ? INDEX_INIT_PROGRESS_POLLING_INTERVAL_MS
-                : INDEX_PROGRESS_POLLING_INTERVAL_MS
-            );
+            setTimeout(updateIndexProgress, INDEX_PROGRESS_POLLING_INTERVAL_MS);
           }
         });
       };
