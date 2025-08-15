@@ -241,6 +241,20 @@ describe('Collection import', function () {
       `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddSibling}`
     );
 
+    // set the type to Date (this causes an error)
+    await browser
+      .$(
+        `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentTypeEditor}`
+      )
+      .selectByAttribute('value', 'Date');
+
+    // set the type to String (this clears the error)
+    await browser
+      .$(
+        `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentTypeEditor}`
+      )
+      .selectByAttribute('value', 'String');
+
     // Add field data
     await browser.setValueVisible(
       `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`,

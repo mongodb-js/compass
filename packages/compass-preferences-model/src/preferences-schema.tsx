@@ -85,7 +85,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'web-sandbox-atlas-dev'
       | 'web-sandbox-atlas-qa'
       | 'web-sandbox-atlas';
-    optInDataExplorerGenAIFeatures: boolean;
+    optInGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -101,6 +101,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
+    inferNamespacesFromPrivileges?: boolean;
   };
 
 /**
@@ -810,17 +811,16 @@ export const storedUserPreferencesProps: Required<{
       .default('atlas'),
     type: 'string',
   },
-  optInDataExplorerGenAIFeatures: {
+  optInGenAIFeatures: {
     ui: true,
     cli: false,
     global: false,
     description: {
-      short: 'User Opt-in for Data Explorer Gen AI Features',
+      short: 'User or Client Opt-in for Gen AI Features',
     },
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   enableAtlasSearchIndexes: {
     ui: true,
     cli: true,
@@ -1007,6 +1007,18 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  inferNamespacesFromPrivileges: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Infer additional namespaces from privileges',
+      long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
     },
     validator: z.boolean().default(true),
     type: 'boolean',

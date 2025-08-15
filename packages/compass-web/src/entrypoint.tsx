@@ -11,17 +11,20 @@ import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
 import {
-  DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
+  CreateNamespacePlugin,
+  DatabasesWorkspaceTab,
+  DropNamespacePlugin,
+  RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassComponentsProvider, css } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
+  WorkspaceTab as CollectionWorkspace,
 } from '@mongodb-js/compass-collection';
 import {
-  CompassSidebarPlugin,
   AtlasClusterConnectionsOnlyProvider,
+  CompassSidebarPlugin,
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
@@ -36,13 +39,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  CreateNamespacePlugin,
-  DropNamespacePlugin,
-  RenameCollectionPlugin,
-} from '@mongodb-js/compass-databases-collections';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
   AtlasServiceProvider,
@@ -54,7 +52,7 @@ import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type { LogFunction, DebugFunction } from './logger';
+import type { DebugFunction, LogFunction } from './logger';
 import { useCompassWebLogger } from './logger';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
@@ -68,12 +66,16 @@ import {
   CompassRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import {
-  PipelineStorageProvider,
-  FavoriteQueryStorageProvider,
-  RecentQueryStorageProvider,
   type FavoriteQueryStorageAccess,
+  FavoriteQueryStorageProvider,
+  PipelineStorageProvider,
   type RecentQueryStorageAccess,
+  RecentQueryStorageProvider,
 } from '@mongodb-js/my-queries-storage/provider';
+import {
+  CompassAssistantDrawer,
+  CompassAssistantProvider,
+} from '@mongodb-js/compass-assistant';
 
 export type TrackFunction = (
   event: string,
@@ -101,8 +103,8 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
 }) => {
   const atlasService = useAtlasServiceContext();
   const authenticatedFetch = atlasService.authenticatedFetch.bind(atlasService);
-  // TODO: use non-hardcoded endpoint
-  const getResourceUrl = atlasService.tempEndpoint.bind(atlasService);
+  const getResourceUrl = (path?: string) =>
+    Promise.resolve(atlasService.tempEndpoint(`/userdata/${path || ''}`));
   const pipelineStorage = useRef(
     new CompassPipelineStorage({
       orgId,
@@ -114,7 +116,7 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   const favoriteQueryStorage = useRef<FavoriteQueryStorageAccess>({
     getStorage(options) {
       return new CompassFavoriteQueryStorage({
-        ...options,
+        basepath: options?.basepath,
         orgId,
         projectId,
         getResourceUrl,
@@ -125,7 +127,7 @@ const WithStorageProviders: React.FC<{ orgId: string; projectId: string }> = ({
   const recentQueryStorage = useRef<RecentQueryStorageAccess>({
     getStorage(options) {
       return new CompassRecentQueryStorage({
-        ...options,
+        basepath: options?.basepath,
         orgId,
         projectId,
         getResourceUrl,
@@ -285,6 +287,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CompassAssistantDrawer />
                 </>
               );
             }}
@@ -404,6 +407,8 @@ const CompassWeb = ({
               });
             }
           }}
+          // TODO: Re-add context menu tracking once CompassComponentsProvider supports these props
+          // onContextMenuOpen and onContextMenuItemClick props are not available in current version
           onSignalMount={(id) => {
             onTrackRef.current?.('Signal Shown', { id });
           }}
@@ -465,20 +470,26 @@ const CompassWeb = ({
                           }}
                         >
                           <CompassInstanceStorePlugin>
-                            <FieldStorePlugin>
-                              <WithConnectionsStore>
-                                <CompassWorkspace
-                                  initialWorkspaceTabs={
-                                    initialWorkspaceTabsRef.current
-                                  }
-                                  onActiveWorkspaceTabChange={
-                                    onActiveWorkspaceTabChange
-                                  }
-                                  onOpenConnectViaModal={onOpenConnectViaModal}
-                                ></CompassWorkspace>
-                              </WithConnectionsStore>
-                            </FieldStorePlugin>
-                            <CompassGenerativeAIPlugin projectId={projectId} />
+                            <CompassAssistantProvider>
+                              <FieldStorePlugin>
+                                <WithConnectionsStore>
+                                  <CompassWorkspace
+                                    initialWorkspaceTabs={
+                                      initialWorkspaceTabsRef.current
+                                    }
+                                    onActiveWorkspaceTabChange={
+                                      onActiveWorkspaceTabChange
+                                    }
+                                    onOpenConnectViaModal={
+                                      onOpenConnectViaModal
+                                    }
+                                  ></CompassWorkspace>
+                                </WithConnectionsStore>
+                              </FieldStorePlugin>
+                              <CompassGenerativeAIPlugin
+                                projectId={projectId}
+                              />
+                            </CompassAssistantProvider>
                           </CompassInstanceStorePlugin>
                         </CompassConnections>
                       </AtlasCloudConnectionStorageProvider>

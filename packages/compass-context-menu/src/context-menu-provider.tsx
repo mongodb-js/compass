@@ -5,13 +5,19 @@ import React, {
   useMemo,
   createContext,
   useContext,
+  useRef,
 } from 'react';
 
-import type { ContextMenuContextType, ContextMenuState } from './types';
+import type {
+  ContextMenuContextType,
+  ContextMenuItemGroup,
+  ContextMenuState,
+} from './types';
 import {
   getContextMenuContent,
   type EnhancedMouseEvent,
 } from './context-menu-content';
+import { contextMenuClassName } from './consts';
 
 export const ContextMenuContext = createContext<ContextMenuContextType | null>(
   null
@@ -21,12 +27,14 @@ export function ContextMenuProvider({
   disabled = false,
   children,
   menuWrapper: Wrapper,
+  onContextMenuOpen,
 }: {
   disabled?: boolean;
   children: React.ReactNode;
   menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
   }>;
+  onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
 }) {
   // Check if there's already a parent context menu provider
   const parentContext = useContext(ContextMenuContext);
@@ -40,6 +48,9 @@ export function ContextMenuProvider({
     () => setMenu((prev) => ({ ...prev, isOpen: false })),
     [setMenu]
   );
+
+  const onContextMenuOpenRef = useRef(onContextMenuOpen);
+  onContextMenuOpenRef.current = onContextMenuOpen;
 
   const handleClosingEvent = useCallback(
     (event: Event) => {
@@ -63,11 +74,12 @@ export function ContextMenuProvider({
         return;
       }
 
+      onContextMenuOpenRef.current?.(itemGroups);
+
       setMenu({
         isOpen: true,
         itemGroups,
         position: {
-          // TODO: Fix handling offset while scrolling
           x: event.clientX,
           y: event.clientY,
         },
@@ -76,7 +88,16 @@ export function ContextMenuProvider({
 
     document.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
-    window.addEventListener('scroll', handleClosingEvent, { capture: true });
+    window.addEventListener(
+      'scroll',
+      (e) => {
+        const isCompassContextMenu =
+          e.target instanceof HTMLElement &&
+          e.target.classList.contains(contextMenuClassName);
+        if (!isCompassContextMenu) handleClosingEvent(e);
+      },
+      { capture: true }
+    );
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
@@ -85,7 +106,7 @@ export function ContextMenuProvider({
         capture: true,
       });
     };
-  }, [disabled, handleClosingEvent, parentContext]);
+  }, [disabled, handleClosingEvent, onContextMenuOpenRef, parentContext]);
 
   const value = useMemo(
     () => ({

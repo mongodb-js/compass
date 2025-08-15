@@ -6,6 +6,8 @@ import { getCurrentDiagramFromState } from './diagram';
 import type { Document } from 'bson';
 import type { AggregationCursor } from 'mongodb';
 import type { Relationship } from '../services/data-model-storage';
+import { applyLayout } from '@mongodb-js/diagramming';
+import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:
@@ -62,7 +64,11 @@ export type AnalysisFinishedAction = {
   type: AnalysisProcessActionTypes.ANALYSIS_FINISHED;
   name: string;
   connectionId: string;
-  collections: { ns: string; schema: MongoDBJSONSchema }[];
+  collections: {
+    ns: string;
+    schema: MongoDBJSONSchema;
+    position: { x: number; y: number };
+  }[];
   relations: Relationship[];
 };
 
@@ -191,17 +197,38 @@ export function startAnalysis(
           return { ns, schema };
         })
       );
+
       if (options.automaticallyInferRelations) {
         // TODO
       }
+
       if (cancelController.signal.aborted) {
         throw cancelController.signal.reason;
       }
+
+      const positioned = await applyLayout(
+        collections.map((coll) => {
+          return collectionToDiagramNode({
+            ns: coll.ns,
+            jsonSchema: coll.schema,
+            displayPosition: [0, 0],
+          });
+        }),
+        [],
+        'LEFT_RIGHT'
+      );
+
       dispatch({
         type: AnalysisProcessActionTypes.ANALYSIS_FINISHED,
         name,
         connectionId,
-        collections,
+        collections: collections.map((coll) => {
+          const node = positioned.nodes.find((node) => {
+            return node.id === coll.ns;
+          });
+          const position = node ? node.position : { x: 0, y: 0 };
+          return { ...coll, position };
+        }),
         relations: [],
       });
 

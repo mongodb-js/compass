@@ -4,7 +4,6 @@ import {
   css,
   Icon,
   Label,
-  Link,
   Modal,
   ModalBody,
   ModalFooter,
@@ -13,6 +12,7 @@ import {
   RadioGroup,
   spacing,
   SpinLoader,
+  PngIcon,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -24,8 +24,6 @@ import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { useDiagram } from '@mongodb-js/diagramming';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
-
-const nbsp = '\u00a0';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
@@ -39,8 +37,10 @@ const contentContainerStyles = css({
 
 const radioItemStyles = css({
   display: 'flex',
-  alignItems: 'center',
   gap: spacing[200],
+  '> svg': {
+    marginTop: spacing[50],
+  },
 });
 
 const footerStyles = css({
@@ -73,34 +73,33 @@ const ExportDiagramModal = ({
       setOpen={onCloseClick}
       data-testid="export-diagram-modal"
     >
-      <ModalHeader
-        title="Export data model"
-        subtitle={
-          <div>
-            Export your data model as either an image or JSON file.
-            {nbsp}
-            <Link
-              href="https://www.mongodb.com/docs/manual/data-modeling//"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn more
-            </Link>
-          </div>
-        }
-      />
+      <ModalHeader title="Export data model" />
       <ModalBody className={modelBodyStyles}>
         <div className={contentContainerStyles}>
           <Label htmlFor="">Select file format:</Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
-              <Icon glyph="Diagram2" />
+              <Icon glyph="Diagram" />
+              <Radio
+                checked={exportFormat === 'diagram'}
+                value="diagram"
+                aria-label="Diagram File"
+                onClick={() => onSelectFormat('diagram')}
+                size="small"
+                description="Importable into Compass so teammates can collaborate."
+              >
+                Diagram File
+              </Radio>
+            </div>
+            <div className={radioItemStyles}>
+              <PngIcon />
               <Radio
                 checked={exportFormat === 'png'}
                 value="png"
                 aria-label="PNG"
                 onClick={() => onSelectFormat('png')}
                 size="small"
+                description="Shareable image for documentation or presentations."
               >
                 PNG
               </Radio>
@@ -113,6 +112,7 @@ const ExportDiagramModal = ({
                 aria-label="JSON"
                 onClick={() => onSelectFormat('json')}
                 size="small"
+                description="Raw schema data for programmatic use."
               >
                 JSON
               </Radio>

@@ -11,21 +11,25 @@ class DataModelStorageElectron implements DataModelStorage {
   private readonly userData: FileUserData<
     typeof MongoDBDataModelDescriptionSchema
   >;
+
   constructor(basePath?: string) {
     this.userData = new FileUserData(
       MongoDBDataModelDescriptionSchema,
-      'DataModelDescription',
+      'DataModelDescriptions',
       {
         basePath,
       }
     );
   }
+
   save(description: MongoDBDataModelDescription) {
     return this.userData.write(description.id, description);
   }
+
   delete(id: MongoDBDataModelDescription['id']) {
     return this.userData.delete(id);
   }
+
   async loadAll(): Promise<MongoDBDataModelDescription[]> {
     try {
       const res = await this.userData.readAll();
@@ -34,6 +38,7 @@ class DataModelStorageElectron implements DataModelStorage {
       return [];
     }
   }
+
   async load(id: string): Promise<MongoDBDataModelDescription | null> {
     return (
       (await this.loadAll()).find((item) => {

@@ -1,18 +1,18 @@
-import { ObjectId, EJSON } from 'bson';
-import { type z } from '@mongodb-js/compass-user-data';
+import { EJSON, ObjectId } from 'bson';
 import {
-  type IUserData,
-  FileUserData,
   AtlasUserData,
+  FileUserData,
+  type IUserData,
+  type z,
 } from '@mongodb-js/compass-user-data';
-import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
+import { FavoriteQuerySchema, RecentQuerySchema } from './query-storage-schema';
 import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
 export type QueryStorageOptions = {
   basepath?: string;
   orgId?: string;
   projectId?: string;
-  getResourceUrl?: (path?: string) => string;
+  getResourceUrl?: (path?: string) => Promise<string>;
   authenticatedFetch?: (
     url: RequestInfo | URL,
     options?: RequestInit
@@ -21,6 +21,7 @@ export type QueryStorageOptions = {
 
 export abstract class CompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
+
   constructor(
     schemaValidator: TSchema,
     protected readonly dataType: string,
@@ -34,22 +35,18 @@ export abstract class CompassQueryStorage<TSchema extends z.Schema> {
     ) {
       const type =
         dataType === 'RecentQueries' ? 'recentQueries' : 'favoriteQueries';
-      this.userData = new AtlasUserData(
-        schemaValidator,
-        type,
-        options.orgId,
-        options.projectId,
-        options.getResourceUrl,
-        options.authenticatedFetch,
-        {
-          serialize: (content) => EJSON.stringify(content, undefined, 2),
-          deserialize: (content: string) => EJSON.parse(content),
-        }
-      );
+      this.userData = new AtlasUserData(schemaValidator, type, {
+        orgId: options.orgId,
+        projectId: options.projectId,
+        getResourceUrl: options.getResourceUrl,
+        authenticatedFetch: options.authenticatedFetch,
+        serialize: (content: any) => EJSON.stringify(content, undefined),
+        deserialize: (content: string) => EJSON.parse(content),
+      });
     } else {
       this.userData = new FileUserData(schemaValidator, dataType, {
         basePath: options.basepath,
-        serialize: (content) => EJSON.stringify(content, undefined, 2),
+        serialize: (content: any) => EJSON.stringify(content, undefined),
         deserialize: (content: string) => EJSON.parse(content),
       });
     }

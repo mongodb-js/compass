@@ -8,16 +8,18 @@ import type { Actions } from './constants';
 import type { SidebarActionableItem } from './tree-data';
 
 export function itemActionsToContextMenuGroups(
+  telemetryLabel: string,
   item: SidebarActionableItem,
   onItemAction: (item: SidebarActionableItem, action: Actions) => void,
   itemActions: NavigationItemActions
 ): ContextMenuItemGroup[] {
-  return splitBySeparator<Actions>(itemActions).map((actions) =>
-    actions.map(({ label, action }) => ({
+  return splitBySeparator<Actions>(itemActions).map((actions) => ({
+    telemetryLabel,
+    items: actions.map(({ label, action }) => ({
       label,
       onAction() {
         onItemAction({ ...item, entrypoint: 'context-menu' }, action);
       },
-    }))
-  );
+    })),
+  }));
 }

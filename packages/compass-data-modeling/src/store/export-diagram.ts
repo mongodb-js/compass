@@ -2,12 +2,13 @@ import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { exportToJson, exportToPng } from '../services/export-diagram';
-import { getCurrentDiagramFromState, selectCurrentModel } from './diagram';
+import { selectCurrentModelFromState } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import type { DiagramInstance } from '@mongodb-js/diagramming';
+import { downloadDiagram } from '../services/open-and-download-diagram';
 
-export type ExportDiagramFormat = 'png' | 'json';
+export type ExportDiagramFormat = 'png' | 'json' | 'diagram';
 
 export type ExportDiagramState = {
   isModalOpen: boolean;
@@ -119,9 +120,7 @@ export function exportDiagram(
         new AbortController());
 
       if (exportFormat === 'json') {
-        const model = selectCurrentModel(
-          getCurrentDiagramFromState(getState()).edits
-        );
+        const model = selectCurrentModelFromState(getState());
         exportToJson(diagram.name, model);
       } else if (exportFormat === 'png') {
         await exportToPng(
@@ -129,6 +128,10 @@ export function exportDiagram(
           diagramInstance,
           cancelController.signal
         );
+      } else if (exportFormat === 'diagram') {
+        downloadDiagram(diagram.name, diagram.edits.current);
+      } else {
+        throw new Error(`Unsupported export format: ${exportFormat}`);
       }
       track('Data Modeling Diagram Exported', {
         format: exportFormat,

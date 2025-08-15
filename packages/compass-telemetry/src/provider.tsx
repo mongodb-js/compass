@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';
-import { TestName } from './growth-experiments';
+import { ExperimentTestName } from './growth-experiments';
+import { ExperimentationContext } from './experimentation-provider';
+import type { types } from '@mongodb-js/mdb-experiment-js';
 
 const noop = () => {
   // noop
@@ -46,6 +48,22 @@ export function useTelemetry(): TrackFunction {
   }
   return track;
 }
+
+export interface ExperimentationServices {
+  assignExperiment: (
+    experimentName: ExperimentTestName,
+    options?: types.AssignOptions<string>
+  ) => Promise<types.AsyncStatus | null>;
+}
+
+// Service locator for experimentation services (non-component access)
+export const experimentationServiceLocator = createServiceLocator(
+  function useExperimentationServices(): ExperimentationServices {
+    const { assignExperiment } = useContext(ExperimentationContext);
+    return { assignExperiment };
+  },
+  'experimentationServiceLocator'
+);
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
@@ -110,7 +128,7 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: TestName.earlyJourneyIndexesGuidance,
+ *   testName: ExperimentTestName.earlyJourneyIndexesGuidance,
  *   shouldFire: enableInIndexesGuidanceExp ,
  * });
  */
@@ -118,7 +136,7 @@ export const useFireExperimentViewed = ({
   testName,
   shouldFire = true,
 }: {
-  testName: TestName;
+  testName: ExperimentTestName;
   shouldFire?: boolean;
 }) => {
   useTrackOnChange(
@@ -136,4 +154,4 @@ export const useFireExperimentViewed = ({
 };
 
 export type { TrackFunction };
-export { TestName };
+export { ExperimentTestName };

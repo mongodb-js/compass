@@ -28,6 +28,8 @@ export type FeatureFlags = {
   showIndexesGuidanceVariant: boolean;
   enableContextMenus: boolean;
   enableSearchActivationProgramP1: boolean;
+  enableUnauthenticatedGenAI: boolean;
+  enableAIAssistant: boolean;
 };
 
 export const featureFlags: Required<{
@@ -144,9 +146,16 @@ export const featureFlags: Required<{
   },
 
   enableContextMenus: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable context (right-click) menus',
+    },
+  },
+
+  enableUnauthenticatedGenAI: {
+    stage: 'development',
+    description: {
+      short: 'Enable GenAI for unauthenticated users',
     },
   },
 
@@ -157,6 +166,16 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'Enable interface to view and modify search indexes',
+    },
+  },
+
+  /**
+   * Feature flag for AI Assistant.
+   */
+  enableAIAssistant: {
+    stage: 'development',
+    description: {
+      short: 'Enable AI Assistant',
     },
   },
 };

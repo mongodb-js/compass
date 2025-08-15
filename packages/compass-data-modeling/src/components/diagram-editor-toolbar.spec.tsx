@@ -12,10 +12,11 @@ function renderDiagramEditorToolbar(
       step="EDITING"
       hasUndo={true}
       hasRedo={true}
-      onDownloadClick={() => {}}
+      isInRelationshipDrawingMode={false}
       onUndoClick={() => {}}
       onRedoClick={() => {}}
       onExportClick={() => {}}
+      onRelationshipDrawingToggle={() => {}}
       {...props}
     />
   );
@@ -64,6 +65,36 @@ describe('DiagramEditorToolbar', function () {
     });
   });
 
+  context('add relationship button', function () {
+    it('renders it active if isInRelationshipDrawingMode is true', function () {
+      renderDiagramEditorToolbar({ isInRelationshipDrawingMode: true });
+      const addButton = screen.getByRole('button', {
+        name: 'Exit Relationship Drawing Mode',
+      });
+      expect(addButton).to.have.attribute('aria-pressed', 'true');
+    });
+
+    it('does not render it active if isInRelationshipDrawingMode is false', function () {
+      renderDiagramEditorToolbar({ isInRelationshipDrawingMode: false });
+      const addButton = screen.getByRole('button', {
+        name: 'Add Relationship',
+      });
+      expect(addButton).to.have.attribute('aria-pressed', 'false');
+    });
+
+    it('clicking on it calls onRelationshipDrawingToggle', function () {
+      const relationshipDrawingToggleSpy = sinon.spy();
+      renderDiagramEditorToolbar({
+        onRelationshipDrawingToggle: relationshipDrawingToggleSpy,
+      });
+      const addRelationshipButton = screen.getByRole('button', {
+        name: 'Add Relationship',
+      });
+      userEvent.click(addRelationshipButton);
+      expect(relationshipDrawingToggleSpy).to.have.been.calledOnce;
+    });
+  });
+
   it('renders export button and calls onExportClick', function () {
     const exportSpy = sinon.spy();
     renderDiagramEditorToolbar({ onExportClick: exportSpy });
@@ -71,14 +102,5 @@ describe('DiagramEditorToolbar', function () {
     expect(exportButton).to.exist;
     userEvent.click(exportButton);
     expect(exportSpy).to.have.been.calledOnce;
-  });
-
-  it('renders download button and calls onDownloadClick', function () {
-    const downloadSpy = sinon.spy();
-    renderDiagramEditorToolbar({ onDownloadClick: downloadSpy });
-    const downloadButton = screen.getByRole('button', { name: 'Download' });
-    expect(downloadButton).to.exist;
-    userEvent.click(downloadButton);
-    expect(downloadSpy).to.have.been.calledOnce;
   });
 });

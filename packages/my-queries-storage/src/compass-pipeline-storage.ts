@@ -1,17 +1,17 @@
 import {
-  type IUserData,
-  FileUserData,
   AtlasUserData,
+  FileUserData,
+  type IUserData,
 } from '@mongodb-js/compass-user-data';
-import { PipelineSchema } from './pipeline-storage-schema';
 import type { SavedPipeline } from './pipeline-storage-schema';
+import { PipelineSchema } from './pipeline-storage-schema';
 import type { PipelineStorage } from './pipeline-storage';
 
 export type PipelineStorageOptions = {
   basePath?: string;
   orgId?: string;
   projectId?: string;
-  getResourceUrl?: (path?: string) => string;
+  getResourceUrl?: (path?: string) => Promise<string>;
   authenticatedFetch?: (
     url: RequestInfo | URL,
     options?: RequestInit
@@ -20,6 +20,7 @@ export type PipelineStorageOptions = {
 
 export class CompassPipelineStorage implements PipelineStorage {
   private readonly userData: IUserData<typeof PipelineSchema>;
+
   constructor(options: PipelineStorageOptions = {}) {
     const dataType = 'SavedPipelines';
     if (
@@ -31,11 +32,12 @@ export class CompassPipelineStorage implements PipelineStorage {
       this.userData = new AtlasUserData(
         PipelineSchema,
         'favoriteAggregations',
-        options.orgId,
-        options.projectId,
-        options.getResourceUrl,
-        options.authenticatedFetch,
-        {}
+        {
+          orgId: options.orgId,
+          projectId: options.projectId,
+          getResourceUrl: options.getResourceUrl,
+          authenticatedFetch: options.authenticatedFetch,
+        }
       );
     } else {
       this.userData = new FileUserData(PipelineSchema, dataType, {
@@ -100,5 +102,13 @@ export class CompassPipelineStorage implements PipelineStorage {
 
   async delete(id: string) {
     await this.userData.delete(id);
+  }
+
+  private async loadOne(id: string): Promise<SavedPipeline> {
+    const result = await this.userData.readOne(id);
+    if (!result) {
+      throw new Error(`Pipeline with id ${id} not found`);
+    }
+    return result;
   }
 }

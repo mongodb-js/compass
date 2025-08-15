@@ -13,25 +13,27 @@ export const RelationshipSchema = z.object({
   id: z.string().uuid(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
+  note: z.string().optional(),
 });
 
 export type Relationship = z.output<typeof RelationshipSchema>;
 
+const CollectionSchema = z.object({
+  ns: z.string(),
+  jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
+    const isObject = typeof value === 'object' && value !== null;
+    return isObject && 'bsonType' in value;
+  }),
+  indexes: z.array(z.record(z.unknown())),
+  shardKey: z.record(z.unknown()).optional(),
+  displayPosition: z.tuple([z.number(), z.number()]),
+  note: z.string().optional(),
+});
+
+export type DataModelCollection = z.output<typeof CollectionSchema>;
+
 export const StaticModelSchema = z.object({
-  collections: z.array(
-    z.object({
-      ns: z.string(),
-      jsonSchema: z.custom<MongoDBJSONSchema>((value) => {
-        const isObject = typeof value === 'object' && value !== null;
-        return isObject && 'bsonType' in value;
-      }),
-      indexes: z.array(z.record(z.unknown())),
-      shardKey: z.record(z.unknown()).optional(),
-      displayPosition: z
-        .tuple([z.number(), z.number()])
-        .or(z.tuple([z.nan(), z.nan()])),
-    })
-  ),
+  collections: z.array(CollectionSchema),
   relationships: z.array(RelationshipSchema),
 });
 
@@ -64,9 +66,24 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     ns: z.string(),
     newPosition: z.tuple([z.number(), z.number()]),
   }),
+  z.object({
+    type: z.literal('RemoveCollection'),
+    ns: z.string(),
+  }),
+  z.object({
+    type: z.literal('RenameCollection'),
+    fromNS: z.string(),
+    toNS: z.string(),
+  }),
+  z.object({
+    type: z.literal('UpdateCollectionNote'),
+    ns: z.string(),
+    note: z.string(),
+  }),
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
+
 export const EditListSchema = z
   .array(EditSchema)
   .nonempty()

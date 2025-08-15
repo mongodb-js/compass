@@ -92,6 +92,8 @@ import {
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
 
+export { getLgIds as getDrawerIds } from './drawer';
+
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
   size,
@@ -133,16 +135,6 @@ const TextInput: typeof LeafyGreenTextInput = React.forwardRef(
 );
 
 TextInput.displayName = 'TextInput';
-
-export {
-  Drawer,
-  DrawerLayout,
-  DisplayMode as DrawerDisplayMode,
-  DrawerStackProvider,
-  useDrawerStackContext,
-  useDrawerToolbarContext,
-  type DrawerLayoutProps,
-} from './drawer';
 
 // 3. Export the leafygreen components.
 export {

@@ -17,7 +17,6 @@ import {
   showPrompt,
 } from '@mongodb-js/compass-components';
 import {
-  downloadDiagram,
   getDiagramContentsFromFile,
   getDiagramName,
 } from '../services/open-and-download-diagram';
@@ -27,6 +26,8 @@ function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
+export type SelectedItems = { type: 'collection' | 'relationship'; id: string };
+
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
       edits: {
@@ -35,7 +36,7 @@ export type DiagramState =
         next: Edit[][];
       };
       editErrors?: string[];
-      selectedItems: { type: 'collection' | 'relationship'; id: string } | null;
+      selectedItems: SelectedItems | null;
     })
   | null; // null when no diagram is currently open
 
@@ -51,7 +52,6 @@ export enum DiagramActionTypes {
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
-  DRAWER_CLOSED = 'data-modeling/diagram/DRAWER_CLOSED',
 }
 
 export type OpenDiagramAction = {
@@ -68,11 +68,6 @@ export type RenameDiagramAction = {
   type: DiagramActionTypes.RENAME_DIAGRAM;
   id: string;
   name: string;
-};
-
-export type ApplyInitialLayoutAction = {
-  type: DiagramActionTypes.APPLY_INITIAL_LAYOUT;
-  positions: Record<string, [number, number]>;
 };
 
 export type ApplyEditAction = {
@@ -107,23 +102,17 @@ export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
 
-export type DrawerClosedAction = {
-  type: DiagramActionTypes.DRAWER_CLOSED;
-};
-
 export type DiagramActions =
   | OpenDiagramAction
   | DeleteDiagramAction
   | RenameDiagramAction
-  | ApplyInitialLayoutAction
   | ApplyEditAction
   | ApplyEditFailedAction
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
-  | DiagramBackgroundSelectedAction
-  | DrawerClosedAction;
+  | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
 
@@ -164,8 +153,7 @@ export const diagramReducer: Reducer<DiagramState> = (
               collections: action.collections.map((collection) => ({
                 ns: collection.ns,
                 jsonSchema: collection.schema,
-                displayPosition: [NaN, NaN],
-                // TODO
+                displayPosition: [collection.position.x, collection.position.y],
                 indexes: [],
                 shardKey: undefined,
               })),
@@ -191,32 +179,8 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
-  if (isAction(action, DiagramActionTypes.APPLY_INITIAL_LAYOUT)) {
-    const initialEdit = state.edits.current[0];
-    if (!initialEdit || initialEdit.type !== 'SetModel') {
-      throw new Error('No initial model edit found to apply layout to');
-    }
-    return {
-      ...state,
-      edits: {
-        ...state.edits,
-        current: [
-          {
-            ...initialEdit,
-            model: {
-              ...initialEdit.model,
-              collections: initialEdit.model.collections.map((collection) => ({
-                ...collection,
-                displayPosition: action.positions[collection.ns] || [NaN, NaN],
-              })),
-            },
-          },
-        ],
-      },
-    };
-  }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
-    const newState = {
+    return {
       ...state,
       edits: {
         prev: [...state.edits.prev, state.edits.current],
@@ -225,17 +189,11 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
       editErrors: undefined,
       updatedAt: new Date().toISOString(),
+      selectedItems: updateSelectedItemsFromAppliedEdit(
+        state.selectedItems,
+        action.edit
+      ),
     };
-
-    if (
-      action.edit.type === 'RemoveRelationship' &&
-      state.selectedItems?.type === 'relationship' &&
-      state.selectedItems.id === action.edit.relationshipId
-    ) {
-      newState.selectedItems = null;
-    }
-
-    return newState;
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
     return {
@@ -288,10 +246,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
-  if (
-    isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED) ||
-    isAction(action, DiagramActionTypes.DRAWER_CLOSED)
-  ) {
+  if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
       selectedItems: null,
@@ -300,16 +255,50 @@ export const diagramReducer: Reducer<DiagramState> = (
   return state;
 };
 
+/**
+ * When an edit impacts the selected item we sometimes need to update
+ * the selection to reflect that, for instance when renaming a
+ * collection we update the selection `id` to the new name.
+ */
+const updateSelectedItemsFromAppliedEdit = (
+  currentSelection: SelectedItems | null,
+  edit: Edit
+): SelectedItems | null => {
+  if (!currentSelection) {
+    return currentSelection;
+  }
+
+  switch (edit.type) {
+    case 'RenameCollection': {
+      if (
+        currentSelection?.type === 'collection' &&
+        currentSelection.id === edit.fromNS
+      ) {
+        return {
+          type: 'collection',
+          id: edit.toNS,
+        };
+      }
+      break;
+    }
+  }
+
+  return currentSelection;
+};
+
 export function selectCollection(namespace: string): CollectionSelectedAction {
   return { type: DiagramActionTypes.COLLECTION_SELECTED, namespace };
 }
 
 export function selectRelationship(
   relationshipId: string
-): RelationSelectedAction {
-  return {
-    type: DiagramActionTypes.RELATIONSHIP_SELECTED,
-    relationshipId,
+): DataModelingThunkAction<void, RelationSelectedAction> {
+  return (dispatch, getState, { track }) => {
+    dispatch({
+      type: DiagramActionTypes.RELATIONSHIP_SELECTED,
+      relationshipId,
+    });
+    track('Data Modeling Relationship Form Opened', {});
   };
 }
 
@@ -320,18 +309,22 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
 }
 
 export function createNewRelationship(
-  namespace: string
+  localNamespace: string,
+  foreignNamespace: string | null = null
 ): DataModelingThunkAction<void, RelationSelectedAction> {
-  return (dispatch) => {
+  return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
+    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
+      getState()
+    );
     dispatch(
       applyEdit({
         type: 'AddRelationship',
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: namespace, cardinality: 1, fields: null },
-            { ns: null, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: null },
+            { ns: foreignNamespace, cardinality: 1, fields: null },
           ],
           isInferred: false,
         },
@@ -340,6 +333,9 @@ export function createNewRelationship(
     dispatch({
       type: DiagramActionTypes.RELATIONSHIP_SELECTED,
       relationshipId,
+    });
+    track('Data Modeling Relationship Added', {
+      num_relationships: currentNumberOfRelationships + 1,
     });
   };
 }
@@ -373,6 +369,27 @@ export function moveCollection(
   return applyEdit(edit);
 }
 
+export function renameCollection(
+  fromNS: string,
+  toNS: string
+): DataModelingThunkAction<
+  void,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch) => {
+    const edit: Omit<
+      Extract<Edit, { type: 'RenameCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'RenameCollection',
+      fromNS,
+      toNS,
+    };
+
+    dispatch(applyEdit(edit));
+  };
+}
+
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
@@ -399,18 +416,6 @@ export function applyEdit(
   };
 }
 
-export function applyInitialLayout(
-  positions: Record<string, [number, number]>
-): DataModelingThunkAction<void, ApplyInitialLayoutAction> {
-  return (dispatch, getState, { dataModelStorage }) => {
-    dispatch({
-      type: DiagramActionTypes.APPLY_INITIAL_LAYOUT,
-      positions,
-    });
-    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
-  };
-}
-
 export function openDiagram(
   diagram: MongoDBDataModelDescription
 ): OpenDiagramAction {
@@ -432,16 +437,6 @@ export function deleteDiagram(
     const isCurrent = getState().diagram?.id === id;
     dispatch({ type: DiagramActionTypes.DELETE_DIAGRAM, isCurrent });
     void dataModelStorage.delete(id);
-  };
-}
-
-export function saveDiagram(): DataModelingThunkAction<void, never> {
-  return (_dispatch, getState) => {
-    const { diagram } = getState();
-    if (!diagram) {
-      return;
-    }
-    downloadDiagram(diagram.name, diagram.edits.current);
   };
 }
 
@@ -473,7 +468,7 @@ export function renameDiagram(
 export function openDiagramFromFile(
   file: File
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, track }) => {
     try {
       const { name, edits } = await getDiagramContentsFromFile(file);
 
@@ -490,6 +485,7 @@ export function openDiagramFromFile(
         edits,
       };
       dispatch(openDiagram(diagram));
+      track('Data Modeling Diagram Imported', {});
       void dataModelStorage.save(diagram);
     } catch (error) {
       openToast('data-modeling-file-read-error', {
@@ -510,12 +506,36 @@ export function updateRelationship(
   });
 }
 
-export function deleteRelationship(relationshipId: string) {
-  return applyEdit({ type: 'RemoveRelationship', relationshipId });
+export function deleteRelationship(
+  relationshipId: string
+): DataModelingThunkAction<void, RelationSelectedAction> {
+  return (dispatch, getState, { track }) => {
+    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
+      getState()
+    );
+    dispatch(
+      applyEdit({
+        type: 'RemoveRelationship',
+        relationshipId,
+      })
+    );
+    track('Data Modeling Relationship Deleted', {
+      num_relationships: currentNumberOfRelationships - 1,
+    });
+  };
 }
 
-export function closeDrawer(): DrawerClosedAction {
-  return { type: DiagramActionTypes.DRAWER_CLOSED };
+export function deleteCollection(
+  ns: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RemoveCollection', ns });
+}
+
+export function updateCollectionNote(
+  ns: string,
+  note: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
@@ -568,6 +588,62 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         }),
       };
     }
+    case 'RemoveCollection': {
+      return {
+        ...model,
+        // Remove any relationships involving the collection being removed.
+        relationships: model.relationships.filter((r) => {
+          return !(
+            r.relationship[0].ns === edit.ns || r.relationship[1].ns === edit.ns
+          );
+        }),
+        collections: model.collections.filter(
+          (collection) => collection.ns !== edit.ns
+        ),
+      };
+    }
+    case 'RenameCollection': {
+      return {
+        ...model,
+        // Update relationships to point to the renamed namespace.
+        relationships: model.relationships.map((relationship) => {
+          const [local, foreign] = relationship.relationship;
+
+          return {
+            ...relationship,
+            relationship: [
+              {
+                ...local,
+                ns: local.ns === edit.fromNS ? edit.toNS : local.ns,
+              },
+              {
+                ...foreign,
+                ns: foreign.ns === edit.fromNS ? edit.toNS : foreign.ns,
+              },
+            ],
+          };
+        }),
+        collections: model.collections.map((collection) => ({
+          ...collection,
+          // Rename the collection.
+          ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
+        })),
+      };
+    }
+    case 'UpdateCollectionNote': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              note: edit.note,
+            };
+          }
+          return collection;
+        }),
+      };
+    }
     default: {
       return model;
     }
@@ -575,8 +651,8 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
 }
 
 /**
- * @internal Exported for testing purposes only, use `selectCurrentModel`
- * instead
+ * @internal Exported for testing purposes only, use `selectCurrentModel` or
+ * `selectCurrentModelFromState` instead
  */
 export function getCurrentModel(
   edits: MongoDBDataModelDescription['edits']
@@ -627,16 +703,35 @@ export function getCurrentDiagramFromState(
   return { id, connectionId, name, edits, createdAt, updatedAt };
 }
 
+const selectCurrentDiagramFromState = memoize(getCurrentDiagramFromState);
+
 /**
  * Memoised method to return computed model
  */
 export const selectCurrentModel = memoize(getCurrentModel);
+
+export const selectCurrentModelFromState = (state: DataModelingState) => {
+  return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
+};
 
 function extractFields(
   parentSchema: MongoDBJSONSchema,
   parentKey?: string[],
   fields: string[][] = []
 ) {
+  if ('anyOf' in parentSchema && parentSchema.anyOf) {
+    for (const schema of parentSchema.anyOf) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
+  if ('items' in parentSchema && parentSchema.items) {
+    const items = Array.isArray(parentSchema.items)
+      ? parentSchema.items
+      : [parentSchema.items];
+    for (const schema of items) {
+      extractFields(schema, parentKey, fields);
+    }
+  }
   if ('properties' in parentSchema && parentSchema.properties) {
     for (const [key, value] of Object.entries(parentSchema.properties)) {
       const fullKey = parentKey ? [...parentKey, key] : [key];
@@ -668,4 +763,8 @@ export function getRelationshipForCurrentModel(
   return selectCurrentModel(edits).relationships.find(
     (r) => r.id === relationshipId
   );
+}
+
+function getCurrentNumberOfRelationships(state: DataModelingState): number {
+  return selectCurrentModelFromState(state).relationships.length;
 }

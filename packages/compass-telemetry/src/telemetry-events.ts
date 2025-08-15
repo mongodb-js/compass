@@ -832,6 +832,12 @@ type ConnectionFailedEvent = ConnectionScopedEvent<{
      * The error name.
      */
     error_name: string;
+
+    /**
+     * The error codes (or code names) from the error's cause chain.
+     * The driver and the OIDC library we use are two places that use cause chains.
+     */
+    error_code_cause_chain: (string | number)[] | undefined;
   } & ExtraConnectionData;
 }>;
 
@@ -2897,7 +2903,76 @@ type DataModelingDiagramCreated = CommonEvent<{
 type DataModelingDiagramExported = CommonEvent<{
   name: 'Data Modeling Diagram Exported';
   payload: {
-    format: 'png' | 'json';
+    format: 'png' | 'json' | 'diagram';
+  };
+}>;
+
+/**
+ * This event is fired when user imports data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramImported = CommonEvent<{
+  name: 'Data Modeling Diagram Imported';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user adds a new relationship to a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipAdded = CommonEvent<{
+  name: 'Data Modeling Relationship Added';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
+/**
+ * This event is fired when user edits a relationship in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipEdited = CommonEvent<{
+  name: 'Data Modeling Relationship Form Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user deletes a relationship from a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramRelationshipDeleted = CommonEvent<{
+  name: 'Data Modeling Relationship Deleted';
+  payload: {
+    num_relationships: number;
+  };
+}>;
+
+/**
+ * This event is fired when the context menu is opened.
+ *
+ * @category Context Menu
+ */
+type ContextMenuOpened = CommonEvent<{
+  name: 'Context Menu Opened';
+  payload: {
+    item_groups: string[];
+  };
+}>;
+
+/**
+ * This event is fired when a context menu item is clicked.
+ *
+ * @category Context Menu
+ */
+type ContextMenuItemClicked = CommonEvent<{
+  name: 'Context Menu Item Clicked';
+  payload: {
+    item_group: string;
+    item_label: string;
   };
 }>;
 
@@ -3048,4 +3123,10 @@ export type TelemetryEvent =
   | CreateIndexIndexSuggestionsCopied
   | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
-  | DataModelingDiagramExported;
+  | DataModelingDiagramExported
+  | DataModelingDiagramImported
+  | DataModelingDiagramRelationshipAdded
+  | DataModelingDiagramRelationshipEdited
+  | DataModelingDiagramRelationshipDeleted
+  | ContextMenuOpened
+  | ContextMenuItemClicked;
