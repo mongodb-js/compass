@@ -45,7 +45,37 @@ type StageOperatorSelectProps = {
   }[];
   serverVersion: string;
   isReadonlyView: boolean;
-  pipelineBuilder: any;
+  pipeline: any;
+  fetchEffectivePipeline: () => void;
+};
+
+const isPipelineSearchQueryable = (
+  pipeline: Array<Record<string, any>>
+): boolean => {
+  for (const stage of pipeline) {
+    const stageKey = Object.keys(stage)[0];
+
+    if (
+      !(
+        stageKey === '$addFields' ||
+        stageKey === '$set' ||
+        stageKey === '$match'
+      )
+    ) {
+      return false;
+    }
+
+    if (stageKey === '$match') {
+      const matchStage = stage['$match'];
+      const allKeys = Object.keys(matchStage);
+
+      if (!(allKeys.length === 1 && allKeys.includes('$expr'))) {
+        return false; // Not searchable
+      }
+    }
+  }
+
+  return true;
 };
 
 // exported for tests
@@ -54,10 +84,9 @@ export const StageOperatorSelect = ({
   index,
   selectedStage,
   isDisabled,
-  stages,
   serverVersion,
   isReadonlyView,
-  pipelineBuilder,
+  stages,
 }: StageOperatorSelectProps) => {
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
@@ -71,9 +100,18 @@ export const StageOperatorSelect = ({
     env: ServerEnvironment[];
     description: string;
   }) => {
-    //const mongoDBMajorVersion = parseFloat(serverVersion.split('.').slice(0, 2).join('.'));
     if (isSearchStage(stage.name)) {
-      return `${serverVersion} ${isReadonlyView}Atlas only. Requires MongoDB 8.1+ to run on a view. Performs a full-text search on the specified fields.`;
+      // check if server version>8.0 and isReadonlyView after editing stages file
+      if (isPipelineSearchQueryable([])) {
+        return (
+          `Atlas only. Requires MongoDB 8.1+ to run on a view. ` +
+          stage.description
+        );
+      }
+      return (
+        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.` +
+        stage.description
+      );
     }
     return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
   };
@@ -133,7 +171,6 @@ export default withPreferences(
         stages: stages,
         serverVersion: state.serverVersion,
         isReadonlyView: !!state.sourceName,
-        pipelineBuilder: state.pipelineBuilder,
       };
     },
     (dispatch: any, ownProps) => {
