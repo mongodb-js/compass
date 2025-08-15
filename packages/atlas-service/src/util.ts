@@ -96,7 +96,7 @@ export type AtlasServiceConfig = {
   /**
    * MongoDB Driver WebSocket proxy base url
    */
-  wsBaseUrl: string;
+  ccsBaseUrl: string;
   /**
    * Cloud UI backend base url
    */
@@ -135,7 +135,7 @@ export type AtlasServiceConfig = {
  */
 const config = {
   'atlas-local': {
-    wsBaseUrl: 'ws://localhost:61001/ws',
+    ccsBaseUrl: 'ws://localhost:61001/ws',
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'http://localhost:8080/api/private',
     atlasLogin: {
@@ -146,7 +146,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'atlas-dev': {
-    wsBaseUrl: '',
+    ccsBaseUrl: '',
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -157,7 +157,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'atlas-qa': {
-    wsBaseUrl: '',
+    ccsBaseUrl: '',
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasLogin: {
@@ -168,7 +168,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   atlas: {
-    wsBaseUrl: '',
+    ccsBaseUrl: '',
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {
@@ -179,7 +179,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-local': {
-    wsBaseUrl: '/ccs',
+    ccsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'http://localhost:8080/api/private',
     atlasLogin: {
@@ -190,7 +190,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-dev': {
-    wsBaseUrl: '/ccs',
+    ccsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -201,7 +201,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas-qa': {
-    wsBaseUrl: '/ccs',
+    ccsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -212,7 +212,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.staging.corp.mongodb.com/api/v1',
   },
   'web-sandbox-atlas': {
-    wsBaseUrl: '/ccs',
+    ccsBaseUrl: '/ccs',
     cloudBaseUrl: '/cloud-mongodb-com',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {
