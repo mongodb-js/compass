@@ -8,6 +8,8 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
+import { showConfirmation } from '@mongodb-js/compass-components';
+import { fetchIndexes } from './search-indexes';
 
 export type UpdateViewState = null | string;
 
@@ -73,6 +75,37 @@ export const dismissViewError = (): DismissViewUpdateErrorAction => ({
   type: DISMISS_VIEW_UPDATE_ERROR,
 });
 
+const isPipelineSearchQueryable = (
+  pipeline: Array<Record<string, any>>
+): boolean => {
+  for (const stage of pipeline) {
+    const stageKey = Object.keys(stage)[0];
+
+    // Check if the stage is $addFields, $set, or $match
+    if (
+      !(
+        stageKey === '$addFields' ||
+        stageKey === '$set' ||
+        stageKey === '$match'
+      )
+    ) {
+      return false; // Not searchable
+    }
+
+    // If the stage is $match, check if uses $expr
+    if (stageKey === '$match') {
+      const matchStage = stage['$match'];
+      const allKeys = Object.keys(matchStage);
+
+      if (!(allKeys.length === 1 && allKeys.includes('$expr'))) {
+        return false; // Not searchable
+      }
+    }
+  }
+
+  return true;
+};
+
 /**
  * Updates a view.
  *
@@ -107,6 +140,24 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       getState(),
       pipelineBuilder
     );
+
+    await dispatch(fetchIndexes());
+    if (state.searchIndexes.indexes.length > 0) {
+      const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
+      const confirmed = await showConfirmation({
+        title: `Are you sure you want to update the view?`,
+        description: pipelineIsSearchQueryable
+          ? 'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
+          : 'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.',
+        buttonText: 'Update',
+        variant: pipelineIsSearchQueryable ? 'primary' : 'danger',
+      });
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline,

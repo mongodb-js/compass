@@ -2,19 +2,23 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
-  Body,
   Link,
   WorkspaceContainer,
   css,
   spacing,
   usePersistedState,
+  EmptyContent,
+  Body,
 } from '@mongodb-js/compass-components';
 
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
-import { refreshSearchIndexes } from '../../modules/search-indexes';
+import {
+  compareVersionForViewSearchCompatibility,
+  refreshSearchIndexes,
+} from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { FetchStatuses } from '../../utils/fetch-status';
@@ -29,6 +33,8 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
+import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
+import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -47,6 +53,37 @@ const linkTitle = 'Search and Vector Search.';
 
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
+
+const ViewVersionIncompatibleEmptyState = ({
+  serverVersion,
+  enableAtlasSearchIndexes,
+}: {
+  serverVersion: string;
+  enableAtlasSearchIndexes: boolean;
+}) => {
+  if (
+    compareVersionForViewSearchCompatibility(serverVersion) &&
+    enableAtlasSearchIndexes
+  ) {
+    return null;
+  }
+  return (
+    <EmptyContent
+      icon={ZeroGraphic}
+      title="No standard indexes"
+      subTitle="Standard views use the indexes of the underlying collection. As a result, you
+           cannot create, drop or re-build indexes on a standard view directly, nor get a list of indexes on the view."
+      callToActionLink={
+        <Link
+          href="https://www.mongodb.com/docs/atlas/atlas-search/" // PLACEHOLDER LINK
+          target="_blank"
+        >
+          Learn more about views
+        </Link>
+      }
+    />
+  );
+};
 
 const AtlasIndexesBanner = ({
   namespace,
@@ -92,6 +129,7 @@ type IndexesProps = {
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
+  serverVersion: string;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -117,6 +155,7 @@ export function Indexes({
   currentIndexesView,
   refreshRegularIndexes,
   refreshSearchIndexes,
+  serverVersion,
 }: IndexesProps) {
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
@@ -143,6 +182,7 @@ export function Indexes({
       : refreshSearchIndexes;
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+  const { atlasMetadata } = useConnectionInfo();
 
   return (
     <div className={containerStyles}>
@@ -162,20 +202,35 @@ export function Indexes({
         }
       >
         <div className={indexesContainersStyles}>
-          {!isReadonlyView && !enableAtlasSearchIndexes && (
-            <AtlasIndexesBanner
-              namespace={namespace}
-              dismissed={atlasBannerDismissed}
-              onDismissClick={() => {
-                setDismissed(true);
-              }}
+          {isReadonlyView && (
+            <ViewVersionIncompatibleBanner
+              serverVersion={serverVersion}
+              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+              atlasMetadata={atlasMetadata}
             />
           )}
+          {(!isReadonlyView ||
+            compareVersionForViewSearchCompatibility(serverVersion, 'gte')) &&
+            !enableAtlasSearchIndexes && (
+              <AtlasIndexesBanner
+                namespace={namespace}
+                dismissed={atlasBannerDismissed}
+                onDismissClick={() => {
+                  setDismissed(true);
+                }}
+              />
+            )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
-          {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-            <SearchIndexesTable />
+          {(!isReadonlyView ||
+            compareVersionForViewSearchCompatibility(serverVersion)) &&
+            currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
+          {isReadonlyView && searchIndexes.indexes.length === 0 && (
+            <ViewVersionIncompatibleEmptyState
+              serverVersion={serverVersion}
+              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+            />
           )}
         </div>
       </WorkspaceContainer>
@@ -192,12 +247,14 @@ const mapState = ({
   regularIndexes,
   searchIndexes,
   indexView,
+  serverVersion,
 }: RootState) => ({
   namespace,
   isReadonlyView,
   regularIndexes,
   searchIndexes,
   currentIndexesView: indexView,
+  serverVersion,
 });
 
 const mapDispatch = {
