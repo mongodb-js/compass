@@ -5,7 +5,8 @@ import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
-import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
+import { COLL_INITIAL_STATE, VIEW_INITIAL_STATE } from '../modules/index-view';
+
 import { createIndexOpened } from '../modules/create-index';
 import {
   fetchRegularIndexes,
@@ -106,7 +107,7 @@ export function activateIndexesPlugin(
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
       isSearchIndexesSupported: options.isSearchIndexesSupported,
-      indexView: INDEX_LIST_INITIAL_STATE,
+      indexView: options.isReadonly ? VIEW_INITIAL_STATE : COLL_INITIAL_STATE,
       collectionStats: extractCollectionStats(collectionModel),
     },
     applyMiddleware(
@@ -156,7 +157,8 @@ export function activateIndexesPlugin(
   });
 
   void store.dispatch(fetchRegularIndexes());
-  if (options.isSearchIndexesSupported) {
+
+  if (options.isSearchIndexesSupported || options.isReadonly) {
     void store.dispatch(fetchSearchIndexes());
   }
 
