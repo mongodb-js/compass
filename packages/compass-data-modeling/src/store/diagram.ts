@@ -27,6 +27,7 @@ import {
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import toNS from 'mongodb-ns';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -34,7 +35,7 @@ function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
 
 export type SelectedItems = {
   type: 'collection' | 'relationship';
-  id?: string;
+  id: string;
 };
 
 export type DiagramState =
@@ -46,6 +47,7 @@ export type DiagramState =
       };
       editErrors?: string[];
       selectedItems: SelectedItems | null;
+      draftCollection?: string | null;
     })
   | null; // null when no diagram is currently open
 
@@ -59,7 +61,7 @@ export enum DiagramActionTypes {
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
-  COLLECTION_CREATION_INITIATED = 'data-modeling/diagram/COLLECTION_CREATION_INITIATED',
+  DRAFT_COLLECTION_NAMED = 'data-modeling/diagram/DRAFT_COLLECTION_NAMED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
@@ -103,8 +105,9 @@ export type CollectionSelectedAction = {
   namespace: string;
 };
 
-export type CollectionCreationStartedAction = {
-  type: DiagramActionTypes.COLLECTION_CREATION_INITIATED;
+export type DraftCollectionNamedAction = {
+  type: DiagramActionTypes.DRAFT_COLLECTION_NAMED;
+  namespace: string;
 };
 
 export type RelationSelectedAction = {
@@ -125,7 +128,7 @@ export type DiagramActions =
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
-  | CollectionCreationStartedAction
+  | DraftCollectionNamedAction
   | RelationSelectedAction
   | DiagramBackgroundSelectedAction;
 
@@ -194,6 +197,26 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
+  if (isAction(action, DiagramActionTypes.DRAFT_COLLECTION_NAMED)) {
+    if (!state.draftCollection) {
+      throw new Error('There is no draft collection to name');
+    }
+    return {
+      ...state,
+      edits: getEditsAfterDraftCollectionNamed(
+        state.edits,
+        state.draftCollection,
+        action.namespace
+      ),
+      editErrors: undefined,
+      updatedAt: new Date().toISOString(),
+      selectedItems: {
+        type: 'collection',
+        id: action.namespace,
+      },
+      draftCollection: undefined,
+    };
+  }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
     return {
       ...state,
@@ -208,6 +231,8 @@ export const diagramReducer: Reducer<DiagramState> = (
         state.selectedItems,
         action.edit
       ),
+      draftCollection:
+        action.edit.type === 'AddCollection' ? action.edit.ns : undefined,
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
@@ -252,12 +277,6 @@ export const diagramReducer: Reducer<DiagramState> = (
       selectedItems: { type: 'collection', id: action.namespace },
     };
   }
-  if (isAction(action, DiagramActionTypes.COLLECTION_CREATION_INITIATED)) {
-    return {
-      ...state,
-      selectedItems: { type: 'collection', id: undefined },
-    };
-  }
   if (isAction(action, DiagramActionTypes.RELATIONSHIP_SELECTED)) {
     return {
       ...state,
@@ -274,6 +293,43 @@ export const diagramReducer: Reducer<DiagramState> = (
     };
   }
   return state;
+};
+
+/**
+ * When the collection is created, it gets a draft name
+ * If the user renames it, we update the addCollection edit
+ * instead of appending a renameCollection edit, for cleaner history.
+ * @param edits
+ * @param draftNamespace
+ * @param newNamespace
+ * @returns
+ */
+const getEditsAfterDraftCollectionNamed = (
+  edits: NonNullable<DiagramState>['edits'],
+  draftNamespace: string,
+  newNamespace: string
+) => {
+  if (draftNamespace === newNamespace) {
+    return edits;
+  }
+
+  const { current } = edits;
+  const originalEditIndex = current.findIndex(
+    (edit) => edit.type === 'AddCollection' && edit.ns === draftNamespace
+  );
+  const newEdit = {
+    ...current[originalEditIndex],
+    ns: newNamespace,
+  };
+  return {
+    prev: edits.prev,
+    current: [
+      ...current.slice(0, originalEditIndex),
+      newEdit,
+      ...current.slice(originalEditIndex + 1),
+    ] as [Edit, ...Edit[]],
+    next: [],
+  };
 };
 
 /**
@@ -309,10 +365,6 @@ const updateSelectedItemsFromAppliedEdit = (
 
 export function selectCollection(namespace: string): CollectionSelectedAction {
   return { type: DiagramActionTypes.COLLECTION_SELECTED, namespace };
-}
-
-export function startCreatingCollection(): CollectionCreationStartedAction {
-  return { type: DiagramActionTypes.COLLECTION_CREATION_INITIATED };
 }
 
 export function selectRelationship(
@@ -412,6 +464,15 @@ export function renameCollection(
     };
 
     dispatch(applyEdit(edit));
+  };
+}
+
+export function nameDraftCollection(
+  namespace: string
+): DataModelingThunkAction<void, DraftCollectionNamedAction> {
+  return (dispatch, getState, { dataModelStorage }) => {
+    dispatch({ type: DiagramActionTypes.DRAFT_COLLECTION_NAMED, namespace });
+    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
 }
 
@@ -579,18 +640,35 @@ function getPositionForNewCollection(
   return [xyposition.x, xyposition.y];
 }
 
+function getNameForNewCollection(
+  existingCollections: DataModelCollection[]
+): string {
+  const database = toNS(existingCollections[0]?.ns).database; // TODO: again, what if there just isn't anything
+  const baseName = `${database}.new-collection`;
+  let counter = 1;
+  let newName = baseName;
+
+  while (existingCollections.some((collection) => collection.ns === newName)) {
+    newName = `${baseName}-${counter}`;
+    counter++;
+  }
+
+  return newName;
+}
+
 export function addCollection(
-  ns: string,
+  ns?: string,
   position?: [number, number]
 ): DataModelingThunkAction<
   boolean,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
   return (dispatch, getState) => {
+    const existingCollections = selectCurrentModelFromState(
+      getState()
+    ).collections;
+    if (!ns) ns = getNameForNewCollection(existingCollections);
     if (!position) {
-      const existingCollections = selectCurrentModelFromState(
-        getState()
-      ).collections;
       position = getPositionForNewCollection(existingCollections, {
         ns,
         jsonSchema: {} as MongoDBJSONSchema,

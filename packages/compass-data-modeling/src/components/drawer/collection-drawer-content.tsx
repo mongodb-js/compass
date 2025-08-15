@@ -17,9 +17,9 @@ import {
   TextArea,
 } from '@mongodb-js/compass-components';
 import {
-  addCollection,
   createNewRelationship,
   deleteRelationship,
+  nameDraftCollection,
   renameCollection,
   selectCurrentModelFromState,
   selectRelationship,
@@ -34,10 +34,11 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 
 type CollectionDrawerContentProps = {
-  namespace?: string;
+  namespace: string;
   collections: DataModelCollection[];
   note?: string;
   relationships: Relationship[];
+  isDraftCollection?: boolean;
   onCreateNewRelationshipClick: (namespace: string) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
@@ -82,7 +83,7 @@ const relationshipContentStyles = css({
 export function getIsCollectionNameValid(
   collectionName: string,
   namespaces: string[],
-  namespace?: string
+  namespace: string
 ): {
   isValid: boolean;
   errorMessage?: string;
@@ -96,10 +97,11 @@ export function getIsCollectionNameValid(
 
   const namespacesWithoutCurrent = namespaces.filter((ns) => ns !== namespace);
 
-  const isDuplicate = namespacesWithoutCurrent.some((ns) => {
-    const database = namespace ? toNS(namespace).database : toNS(ns).database;
-    return ns.trim() === `${database}.${collectionName.trim()}`.trim();
-  });
+  const isDuplicate = namespacesWithoutCurrent.some(
+    (ns) =>
+      ns.trim() ===
+      `${toNS(namespace).database}.${collectionName.trim()}`.trim()
+  );
 
   return {
     isValid: !isDuplicate,
@@ -114,6 +116,7 @@ const CollectionDrawerContent: React.FunctionComponent<
   collections,
   note = '',
   relationships,
+  isDraftCollection,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
@@ -127,13 +130,13 @@ const CollectionDrawerContent: React.FunctionComponent<
   const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO: what if there are no namespaces?
 
   const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
-    namespace ? toNS(namespace).collection : 'new-collection',
+    toNS(namespace).collection,
     (collectionName) => {
       const trimmedName = collectionName.trim();
       if (!isCollectionNameValid) {
         return;
       }
-      if (!namespace) {
+      if (isDraftCollection) {
         onCreateCollection(`${database}.${trimmedName}`);
         return;
       }
@@ -156,15 +159,15 @@ const CollectionDrawerContent: React.FunctionComponent<
   );
 
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
-    if (namespace) onNoteChange(namespace, newNote);
+    onNoteChange(namespace, newNote);
   });
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
-    if (!namespace) {
+    if (isDraftCollection) {
       nameInputRef.current?.focus();
     }
-  }, [namespace]);
+  }, [isDraftCollection]);
 
   return (
     <>
@@ -191,9 +194,8 @@ const CollectionDrawerContent: React.FunctionComponent<
             <Button
               className={titleBtnStyles}
               size="xsmall"
-              disabled={!namespace}
               onClick={() => {
-                if (namespace) onCreateNewRelationshipClick(namespace);
+                onCreateNewRelationshipClick(namespace);
               }}
             >
               Add relationship
@@ -253,12 +255,7 @@ const CollectionDrawerContent: React.FunctionComponent<
 
       <DMDrawerSection label="Notes">
         <DMFormFieldContainer>
-          <TextArea
-            label=""
-            aria-label="Notes"
-            disabled={!namespace}
-            {...noteInputProps}
-          ></TextArea>
+          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
         </DMFormFieldContainer>
       </DMDrawerSection>
     </>
@@ -266,14 +263,18 @@ const CollectionDrawerContent: React.FunctionComponent<
 };
 
 export default connect(
-  (state: DataModelingState, ownProps: { namespace?: string }) => {
+  (state: DataModelingState, ownProps: { namespace: string }) => {
     const model = selectCurrentModelFromState(state);
     const collection = model.collections.find((collection) => {
       return collection.ns === ownProps.namespace;
     });
+    if (!collection) {
+      throw new Error('Namespace not found in model: ' + ownProps.namespace);
+    }
     return {
-      note: collection?.note,
-      namespace: collection?.ns,
+      note: collection.note,
+      namespace: collection.ns,
+      isDraftCollection: state.diagram?.draftCollection === ownProps.namespace,
       collections: model.collections,
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
@@ -289,6 +290,6 @@ export default connect(
     onDeleteRelationshipClick: deleteRelationship,
     onNoteChange: updateCollectionNote,
     onRenameCollection: renameCollection,
-    onCreateCollection: addCollection,
+    onCreateCollection: nameDraftCollection,
   }
 )(CollectionDrawerContent);
