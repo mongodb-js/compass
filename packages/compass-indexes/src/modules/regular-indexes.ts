@@ -42,6 +42,7 @@ export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
   status: 'inprogress' | 'failed';
   error?: string;
+  progressPercentage?: number;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -85,6 +86,7 @@ export const prepareInProgressIndex = (
     name: inProgressIndexName,
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
+    progressPercentage: 0, // Default to 0% when index creation starts
   };
 };
 
@@ -102,6 +104,7 @@ export enum ActionTypes {
   FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
 
   IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
+  IndexCreationProgressUpdated = 'compass-indexes/create-index/index-creation-progress-updated',
   IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
   IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
 
@@ -144,6 +147,12 @@ type FetchIndexesFailedAction = {
 type IndexCreationStartedAction = {
   type: ActionTypes.IndexCreationStarted;
   inProgressIndex: InProgressIndex;
+};
+
+type IndexCreationProgressUpdatedAction = {
+  type: ActionTypes.IndexCreationProgressUpdated;
+  inProgressIndexId: string;
+  progressPercentage: number;
 };
 
 type IndexCreationSucceededAction = {
@@ -240,11 +249,32 @@ export default function reducer(
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
-      // Remove in progress stubs when we got the "real" indexes from one of the
-      // backends. Keep the error ones around even if the name matches (should
-      // only be possible in cases of "index with the same name already exists")
+      // Keep in-progress indexes that are still actively building, but remove:
+      // 1. Failed indexes (status: 'failed')
+      // 2. Completed indexes (real index exists and progress >= 100%)
       inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
-        return !!inProgress.error || !allIndexNames.has(inProgress.name);
+        // Always keep indexes with explicit errors
+        if (inProgress.error) {
+          return true;
+        }
+
+        // Remove failed indexes (they're done and should be cleaned up)
+        if (inProgress.status === 'failed') {
+          return false;
+        }
+
+        // If real index doesn't exist, keep the in-progress one
+        if (!allIndexNames.has(inProgress.name)) {
+          return true;
+        }
+
+        // Real index exists - only keep in-progress if it's still actively building
+        // (status: 'inprogress' AND progress < 100%)
+        const isActivelyBuilding =
+          inProgress.status === 'inprogress' &&
+          (inProgress.progressPercentage ?? 0) < 100;
+
+        return isActivelyBuilding;
       }),
       status: FetchStatuses.READY,
     };
@@ -288,6 +318,25 @@ export default function reducer(
   }
 
   if (
+    isAction<IndexCreationProgressUpdatedAction>(
+      action,
+      ActionTypes.IndexCreationProgressUpdated
+    )
+  ) {
+    // Update the progress percentage for the in-progress index
+    const inProgressIndexes = state.inProgressIndexes.map((index) =>
+      index.id === action.inProgressIndexId
+        ? { ...index, progressPercentage: action.progressPercentage }
+        : index
+    );
+
+    return {
+      ...state,
+      inProgressIndexes,
+    };
+  }
+
+  if (
     isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
     return {
@@ -315,6 +364,21 @@ export default function reducer(
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
+    };
+  }
+
+  if (
+    isAction<IndexCreationSucceededAction>(
+      action,
+      ActionTypes.IndexCreationSucceeded
+    )
+  ) {
+    // Remove the completed index from in-progress list
+    return {
+      ...state,
+      inProgressIndexes: state.inProgressIndexes.filter(
+        (x) => x.id !== action.inProgressIndexId
+      ),
     };
   }
 
@@ -513,6 +577,17 @@ export const indexCreationStarted = (
   inProgressIndex,
 });
 
+const indexCreationProgressUpdated = (
+  inProgressIndexId: string,
+  progressPercentage: number
+): IndexCreationProgressUpdatedAction => ({
+  type: ActionTypes.IndexCreationProgressUpdated,
+  inProgressIndexId,
+  progressPercentage,
+});
+
+export { indexCreationProgressUpdated };
+
 const indexCreationSucceeded = (
   inProgressIndexId: string
 ): IndexCreationSucceededAction => ({
@@ -528,6 +603,82 @@ const indexCreationFailed = (
   inProgressIndexId,
   error,
 });
+
+export const getIndexesProgress = (
+  indexesToTrack: InProgressIndex[]
+): IndexesThunkAction<
+  Promise<void>,
+  IndexCreationProgressUpdatedAction | IndexCreationSucceededAction
+> => {
+  return async (dispatch, getState, { dataService }) => {
+    const { namespace } = getState();
+
+    try {
+      const currentOps = await dataService.currentOp();
+
+      type IndexProgressOp = {
+        command?: {
+          createIndexes?: string;
+          indexes?: { name?: string }[];
+        };
+        progress?: {
+          done: number;
+          total: number;
+        };
+        ns?: string;
+      };
+
+      // Filter for index creation operations in our namespace
+      const createIndexOps: IndexProgressOp[] = currentOps.inprog.filter(
+        (op: IndexProgressOp) => {
+          return (
+            op.command &&
+            op.command.createIndexes &&
+            op.progress &&
+            op.ns === namespace &&
+            op.command.indexes
+          );
+        }
+      );
+
+      // Create a map of index name to progress for quick lookup
+      const progressMap = new Map<string, number>();
+
+      for (const op of createIndexOps) {
+        if (op.command?.indexes && op.progress) {
+          const percentage = Math.round(
+            (op.progress.done / op.progress.total) * 100
+          );
+
+          // Add progress for all indexes in this operation
+          for (const idx of op.command.indexes) {
+            if (idx.name && typeof idx.name === 'string') {
+              progressMap.set(idx.name, percentage);
+            }
+          }
+        }
+      }
+
+      // Update progress for all tracked indexes
+      for (const { id, name } of indexesToTrack) {
+        const percentage = progressMap.get(name);
+        if (percentage !== undefined) {
+          dispatch(indexCreationProgressUpdated(id, percentage));
+
+          // If index build is complete, mark it as succeeded
+          if (percentage >= 100) {
+            dispatch(indexCreationSucceeded(id));
+          }
+        }
+      }
+    } catch (err) {
+      // If we can't get progress, the UI will continue with existing progress
+      // This ensures the UI doesn't break if currentOp fails
+      // Using void to indicate intentionally ignoring this error
+      void err;
+    }
+  };
+};
 
 /**
  * @internal exported only for testing
@@ -549,6 +700,7 @@ export function createRegularIndex(
 ): IndexesThunkAction<
   Promise<void>,
   | IndexCreationStartedAction
+  | IndexCreationProgressUpdatedAction
   | IndexCreationSucceededAction
   | IndexCreationFailedAction
   | RollingIndexTimeoutCheckAction

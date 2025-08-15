@@ -9,6 +9,8 @@ import {
   unhideIndex,
   startPollingRegularIndexes,
   stopPollingRegularIndexes,
+  trackIndexProgress,
+  indexCreationStarted,
 } from './regular-indexes';
 import {
   indexesList,
@@ -545,6 +547,86 @@ describe('regular-indexes module', function () {
       store.dispatch(stopPollingRegularIndexes());
 
       expect(collection.fetch.callCount).to.equal(0);
+    });
+  });
+
+  describe('#trackIndexProgress action', function () {
+    it('updates progress when currentOp returns matching index operation', async function () {
+      const currentOpResponse = {
+        inprog: [
+          {
+            command: {
+              createIndexes: 'trips',
+              indexes: [{ name: 'test_index_1' }],
+            },
+            progress: { done: 50, total: 100 },
+            ns: 'citibike.trips', // Use the same namespace as the test setup
+          },
+        ],
+      };
+
+      const store = setupStore(
+        {},
+        {
+          currentOp: () => Promise.resolve(currentOpResponse),
+        }
+      );
+
+      // Add an in-progress index to track
+      const mockIndex = {
+        id: 'test-index-id',
+        name: 'test_index_1',
+        fields: [{ field: 'field1', value: 1 }],
+        status: 'inprogress' as const,
+        progressPercentage: 0,
+      };
+
+      store.dispatch(indexCreationStarted(mockIndex));
+
+      // Track progress
+      await store.dispatch(trackIndexProgress('test-index-id', 'test_index_1'));
+
+      const state = store.getState();
+      const inProgressIndex = state.regularIndexes.inProgressIndexes.find(
+        (index) => index.id === 'test-index-id'
+      );
+
+      expect(inProgressIndex?.progressPercentage).to.equal(50);
+    });
+
+    it('does not update progress when no matching index operation is found', async function () {
+      const currentOpResponse = {
+        inprog: [], // No operations in progress
+      };
+
+      const store = setupStore(
+        {},
+        {
+          currentOp: () => Promise.resolve(currentOpResponse),
+        }
+      );
+
+      // Add an in-progress index to track
+      const mockIndex = {
+        id: 'test-index-id',
+        name: 'test_index_1',
+        fields: [{ field: 'field1', value: 1 }],
+        status: 'inprogress' as const,
+        progressPercentage: 0,
+      };
+
+      store.dispatch(indexCreationStarted(mockIndex));
+
+      // Track progress
+      await store.dispatch(trackIndexProgress('test-index-id', 'test_index_1'));
+
+      const state = store.getState();
+      const inProgressIndex = state.regularIndexes.inProgressIndexes.find(
+        (index) => index.id === 'test-index-id'
+      );
+
+      // Progress should remain unchanged
+      expect(inProgressIndex?.progressPercentage).to.equal(0);
     });
   });
 });
