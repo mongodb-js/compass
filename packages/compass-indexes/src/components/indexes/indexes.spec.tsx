@@ -321,7 +321,7 @@ describe('Indexes Component', function () {
       expect(getSearchIndexesStub.callCount).to.equal(2);
     });
 
-    it('renders search indexes list if isReadonlyView >8.0 and has indexes', async function () {
+    it('renders search indexes list if isReadonlyView 8.1+ and has indexes', async function () {
       const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
       const dataProvider = {
         getSearchIndexes: getSearchIndexesStub,
@@ -337,7 +337,7 @@ describe('Indexes Component', function () {
       });
     });
 
-    it('renders correct empty state if isReadonlyView >8.0 and has no indexes', async function () {
+    it('renders correct empty state if isReadonlyView 8.1+ and has no indexes', async function () {
       const getSearchIndexesStub = sinon.stub().resolves([]);
       const dataProvider = {
         getSearchIndexes: getSearchIndexesStub,
@@ -363,10 +363,15 @@ describe('Indexes Component', function () {
         serverVersion: '8.0.0',
       });
 
-      expect(screen.queryByTestId('upgrade-cluster-banner-8.0')).to.exist;
+      expect(
+        screen.queryByText(
+          /Upgrade your cluster or manage search indexes on views in the Atlas UI./i
+        )
+      ).to.exist;
       expect(screen.queryByText('No standard indexes')).to.exist;
       expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;
     });
+
     it('renders correct empty state if isReadonlyView <8.0 and has no indexes', async function () {
       const getSearchIndexesStub = sinon.stub().resolves([]);
       const dataProvider = {
@@ -379,7 +384,9 @@ describe('Indexes Component', function () {
       });
 
       expect(
-        screen.queryByTestId('upgrade-cluster-banner-less-than-8.0')
+        screen.queryByText(
+          /Upgrade your cluster to create search indexes on views./i
+        )
       ).to.exist;
       expect(screen.queryByText('No standard indexes')).to.exist;
       expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;

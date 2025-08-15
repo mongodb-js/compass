@@ -24,7 +24,7 @@ import semver from 'semver';
 
 import type { RootState } from '../../modules';
 import {
-  compareVersionForViewSearchCompatibility,
+  isVersionSearchCompatibleForViews,
   createSearchIndexOpened,
 } from '../../modules/search-indexes';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
@@ -112,8 +112,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const { atlasMetadata } = useConnectionInfo();
   const showInsights = usePreference('showInsights') && !errorMessage;
   const showCreateIndexButton =
-    (!isReadonlyView ||
-      compareVersionForViewSearchCompatibility(serverVersion)) &&
+    (!isReadonlyView || isVersionSearchCompatibleForViews(serverVersion)) &&
     !readOnly &&
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
@@ -130,7 +129,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       data-testid="indexes-toolbar-container"
     >
       {(!isReadonlyView ||
-        compareVersionForViewSearchCompatibility(serverVersion)) && (
+        isVersionSearchCompatibleForViews(serverVersion)) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (

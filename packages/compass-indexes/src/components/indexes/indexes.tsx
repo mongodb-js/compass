@@ -16,7 +16,7 @@ import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table'
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import {
-  compareVersionForViewSearchCompatibility,
+  isVersionSearchCompatibleForViews,
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
@@ -35,6 +35,7 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
+import semver from 'semver';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -54,6 +55,20 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
+export const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE = '8.0.0';
+export const isVersionSearchCompatibleForViewsDataExplorer = (
+  serverVersion: string
+) => {
+  try {
+    return semver.gte(
+      serverVersion,
+      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE
+    );
+  } catch {
+    return false;
+  }
+};
+
 const ViewVersionIncompatibleEmptyState = ({
   serverVersion,
   enableAtlasSearchIndexes,
@@ -62,7 +77,7 @@ const ViewVersionIncompatibleEmptyState = ({
   enableAtlasSearchIndexes: boolean;
 }) => {
   if (
-    compareVersionForViewSearchCompatibility(serverVersion) &&
+    isVersionSearchCompatibleForViews(serverVersion) &&
     enableAtlasSearchIndexes
   ) {
     return null;
@@ -210,21 +225,21 @@ export function Indexes({
             />
           )}
           {(!isReadonlyView ||
-            compareVersionForViewSearchCompatibility(serverVersion, 'gte')) &&
-            !enableAtlasSearchIndexes && (
-              <AtlasIndexesBanner
-                namespace={namespace}
-                dismissed={atlasBannerDismissed}
-                onDismissClick={() => {
-                  setDismissed(true);
-                }}
-              />
-            )}
+            (isVersionSearchCompatibleForViewsDataExplorer(serverVersion) &&
+              !enableAtlasSearchIndexes)) && (
+            <AtlasIndexesBanner // cta to Atlas Search Indexes Page
+              namespace={namespace}
+              dismissed={atlasBannerDismissed}
+              onDismissClick={() => {
+                setDismissed(true);
+              }}
+            />
+          )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}
           {(!isReadonlyView ||
-            compareVersionForViewSearchCompatibility(serverVersion)) &&
+            isVersionSearchCompatibleForViews(serverVersion)) &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && searchIndexes.indexes.length === 0 && (
             <ViewVersionIncompatibleEmptyState
