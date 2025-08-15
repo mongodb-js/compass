@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.4.18",
+    "@mongodb-js/compass-assistant": "^1.0.0",
     "@mongodb-js/compass-collection": "^4.68.0",
     "@mongodb-js/compass-components": "^1.47.0",
     "@mongodb-js/compass-connections": "^1.69.0",

@@ -5,6 +5,8 @@ import { createContext, useContext } from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
+import { useDrawerActions } from '@mongodb-js/compass-components';
+import { buildExplainPlanPrompt } from './prompts';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -14,9 +16,13 @@ export const AssistantContext = createContext<AssistantContextType | null>(
   null
 );
 
-type AssistantActionsContextType = unknown;
+type AssistantActionsContextType = {
+  interpretExplainPlan: (explainPlan: string) => void;
+};
 export const AssistantActionsContext =
-  createContext<AssistantActionsContextType>({});
+  createContext<AssistantActionsContextType>({
+    interpretExplainPlan: () => {},
+  });
 
 export function useAssistantActions(): AssistantActionsContextType {
   return useContext(AssistantActionsContext);
@@ -27,7 +33,15 @@ export const AssistantProvider: React.FunctionComponent<
     chat: Chat<UIMessage>;
   }>
 > = ({ chat, children }) => {
-  const assistantActionsContext = useRef<AssistantActionsContextType>();
+  const assistantActionsContext = useRef<AssistantActionsContextType>({
+    interpretExplainPlan: (explainPlan: string) => {
+      openDrawer(ASSISTANT_DRAWER_ID);
+      void chat.sendMessage({
+        text: buildExplainPlanPrompt(explainPlan),
+      });
+    },
+  });
+  const { openDrawer } = useDrawerActions();
 
   return (
     <AssistantContext.Provider value={chat}>
