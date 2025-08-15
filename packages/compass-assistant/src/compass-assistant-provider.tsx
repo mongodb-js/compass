@@ -30,23 +30,12 @@ export const AssistantProvider: React.FunctionComponent<
     chat: Chat<UIMessage>;
   }>
 > = ({ chat, children }) => {
-  const enableAIAssistant = usePreference('enableAIAssistant');
-
-  const assistantContext = useRef<AssistantContextType>({
+  const assistantActionsContext = useRef<AssistantActionsContextType>({
     chat,
   });
-  assistantContext.current = {
-    chat,
-  };
-
-  const assistantActionsContext = useRef<AssistantActionsContextType>({});
-
-  if (!enableAIAssistant) {
-    return <>{children}</>;
-  }
 
   return (
-    <AssistantContext.Provider value={assistantContext.current}>
+    <AssistantContext.Provider value={{ chat }}>
       <AssistantActionsContext.Provider value={assistantActionsContext.current}>
         {children}
       </AssistantActionsContext.Provider>
