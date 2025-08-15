@@ -10,6 +10,7 @@ import type {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
+import { useIndexProgress } from '../../hooks/use-index-progress';
 
 import TypeField from './type-field';
 import SizeField from './size-field';
@@ -248,12 +249,16 @@ function mergeIndexes(
   const rollingIndexNames = new Set(
     rollingIndexes.map((index) => index.indexName)
   );
+  const inProgressIndexNames = new Set(
+    inProgressIndexes.map(({ name }) => name)
+  );
 
   const mappedIndexes: MappedRegularIndex[] = indexes
     // exclude partially-built indexes so that we don't include indexes that
     // only exist on the primary node and then duplicate those as rolling
     // builds in the same table
     .filter((index) => !rollingIndexNames.has(index.name))
+    .filter((index) => !inProgressIndexNames.has(index.name))
     .map((index) => {
       return { ...index, compassIndexType: 'regular-index' };
     });
@@ -286,10 +291,44 @@ function getInProgressIndexInfo(
   index: MappedInProgressIndex,
   {
     onDeleteFailedIndexClick,
+    onDeleteIndexClick,
+    serverVersion,
   }: {
     onDeleteFailedIndexClick: (indexName: string) => void;
+    onDeleteIndexClick: (indexName: string) => void;
+    serverVersion: string;
   }
 ): CommonIndexInfo {
+  // Use progress directly from Redux state
+  const progressToUse = index.progressPercentage ?? 0;
+
+  // Show spinner and progress only if:
+  // 1. Index is not failed (status !== 'failed')
+  // 2. Index has meaningful progress (> 0% and < 100%)
+  let actionsComponent;
+  if (index.status !== 'failed' && progressToUse > 0 && progressToUse < 100) {
+    actionsComponent = (
+      <RegularIndexActions
+        index={{
+          name: index.name,
+          progressPercentage: progressToUse,
+        }}
+        serverVersion={serverVersion}
+        onDeleteIndexClick={onDeleteIndexClick}
+        onHideIndexClick={() => {}} // No-op for building indexes
+        onUnhideIndexClick={() => {}} // No-op for building indexes
+      />
+    );
+  } else {
+    // For failed or pending indexes, use the InProgressIndexActions
+    actionsComponent = (
+      <InProgressIndexActions
+        index={index}
+        onDeleteFailedIndexClick={onDeleteFailedIndexClick}
+      />
+    );
+  }
+
   return {
     id: index.id,
     name: index.name,
@@ -300,12 +339,7 @@ function getInProgressIndexInfo(
     // TODO(COMPASS-8335): add properties for in-progress indexes
     properties: null,
     status: <StatusField status={index.status} error={index.error} />,
-    actions: (
-      <InProgressIndexActions
-        index={index}
-        onDeleteFailedIndexClick={onDeleteFailedIndexClick}
-      ></InProgressIndexActions>
-    ),
+    actions: actionsComponent,
   };
 }
 
@@ -387,6 +421,9 @@ export const RegularIndexesTable: React.FunctionComponent<
 }) => {
   const tabId = useWorkspaceTabId();
 
+  // Use our custom hook to handle index progress tracking
+  useIndexProgress(inProgressIndexes);
+
   useEffect(() => {
     onRegularIndexesOpened(tabId);
     return () => {
@@ -407,6 +444,8 @@ export const RegularIndexesTable: React.FunctionComponent<
         if (index.compassIndexType === 'in-progress-index') {
           indexData = getInProgressIndexInfo(index, {
             onDeleteFailedIndexClick,
+            onDeleteIndexClick,
+            serverVersion,
           });
         } else if (index.compassIndexType === 'rolling-index') {
           indexData = getRollingIndexInfo(index);
