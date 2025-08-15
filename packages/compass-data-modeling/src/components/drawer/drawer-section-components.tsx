@@ -26,7 +26,10 @@ const darkModeContainerStyles = css({
 const accordionTitleStyles = css({
   width: '100%',
   textTransform: 'uppercase',
-  marginBottom: spacing[400],
+  // Only when accordion is expanded and content is rendered
+  '&:not(:last-child)': {
+    marginBottom: spacing[400],
+  },
 });
 
 const buttonStyles = css({

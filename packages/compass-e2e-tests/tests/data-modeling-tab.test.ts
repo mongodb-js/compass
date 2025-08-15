@@ -18,6 +18,7 @@ import {
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
 import { recognize } from 'tesseract.js';
+import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
@@ -94,7 +95,10 @@ async function selectCollectionOnTheDiagram(
   // If the drawer is open, close it
   // Otherwise the drawer or the minimap can cover the collection node
   const drawer = browser.$(Selectors.SideDrawer);
-  if (await drawer.isDisplayed()) {
+  if (
+    (await drawer.isDisplayed()) &&
+    (await drawer.$(Selectors.SideDrawerCloseButton).isClickable())
+  ) {
     await browser.clickVisible(Selectors.SideDrawerCloseButton);
     await drawer.waitForDisplayed({ reverse: true });
   }
@@ -108,9 +112,9 @@ async function selectCollectionOnTheDiagram(
   await drawer.waitForDisplayed();
 
   const collectionName = await browser.getInputByLabel(
-    drawer.$(Selectors.DataModelNameInput)
+    browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
   );
-  expect(await collectionName.getValue()).to.equal(ns);
+  expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
 }
 
 async function getDiagramNodes(
@@ -438,8 +442,6 @@ describe('Data Modeling tab', function () {
 
     const text = data.text.toLowerCase();
 
-    console.log(`Recognized PNG export text:`, text);
-
     expect(text).to.include('testCollection-one'.toLowerCase());
     expect(text).to.include('testCollection-two'.toLowerCase());
 
@@ -673,6 +675,63 @@ describe('Data Modeling tab', function () {
       expect(await foreignCollectionSelect.getValue()).to.equal(
         'testCollection-two'
       );
+    });
+
+    it('allows collection management via the sidebar', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Click on the collection to open the drawer.
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+
+      const drawer = browser.$(Selectors.SideDrawer);
+
+      // Rename the collection (it submits on unfocus).
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        'testCollection-renamedOne'
+      );
+      await drawer.click(); // Unfocus the input.
+
+      // Verify that the renamed collection is still selected.
+      await browser.waitUntil(async () => {
+        const collectionName = await browser.getInputByLabel(
+          browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
+        );
+        return (
+          (await collectionName.getValue()) === 'testCollection-renamedOne'
+        );
+      });
+
+      // Select the second collection and verify that the new name is in the diagram.
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
+      const nodes = await getDiagramNodes(browser, 2);
+      expect(nodes).to.have.lengthOf(2);
+      expect(nodes[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodes[1].id).to.equal('test.testCollection-two');
+
+      // Remove the collection.
+      await drawer
+        .$(Selectors.DataModelCollectionSidebarItemDeleteButton)
+        .click();
+      // Ensure the drawer closed.
+      if (await drawer.$(Selectors.DataModelNameInputLabel).isDisplayed()) {
+        await drawer
+          .$(Selectors.DataModelNameInputLabel)
+          .waitForDisplayed({ reverse: true });
+      }
+
+      // Verify that the collection is removed from the list and the diagram.
+      const nodesPostDelete = await getDiagramNodes(browser, 1);
+      expect(nodesPostDelete).to.have.lengthOf(1);
+      expect(nodesPostDelete[0].id).to.equal('test.testCollection-renamedOne');
     });
   });
 });

@@ -34,6 +34,7 @@ import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provid
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 
 resetGlobalCSS();
 
@@ -107,22 +108,27 @@ function Home({
   return (
     <ConnectionImportExportProvider>
       <CompassInstanceStorePlugin>
-        <FieldStorePlugin>
-          <div data-testid="home" className={verticalSplitStyles}>
-            <AppRegistryProvider scopeName="Connections">
-              <Workspace
-                appName={appName}
-                onActiveWorkspaceTabChange={onWorkspaceChange}
-              />
-            </AppRegistryProvider>
-          </div>
-          <WelcomeModal isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          <CompassSettingsPlugin></CompassSettingsPlugin>
-          <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasAuthPlugin></AtlasAuthPlugin>
-          <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
-          <LegacyConnectionsModal />
-        </FieldStorePlugin>
+        <CompassAssistantProvider>
+          <FieldStorePlugin>
+            <div data-testid="home" className={verticalSplitStyles}>
+              <AppRegistryProvider scopeName="Connections">
+                <Workspace
+                  appName={appName}
+                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                />
+              </AppRegistryProvider>
+            </div>
+            <WelcomeModal
+              isOpen={isWelcomeOpen}
+              closeModal={closeWelcomeModal}
+            />
+            <CompassSettingsPlugin></CompassSettingsPlugin>
+            <CompassFindInPagePlugin></CompassFindInPagePlugin>
+            <AtlasAuthPlugin></AtlasAuthPlugin>
+            <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
+            <LegacyConnectionsModal />
+          </FieldStorePlugin>
+        </CompassAssistantProvider>
       </CompassInstanceStorePlugin>
     </ConnectionImportExportProvider>
   );
@@ -188,6 +194,19 @@ export default function ThemedHome(
             step: cue.step,
           });
         }
+      }}
+      onContextMenuOpen={(itemGroups) => {
+        if (itemGroups.length > 0) {
+          track('Context Menu Opened', {
+            item_groups: itemGroups.map((group) => group.telemetryLabel),
+          });
+        }
+      }}
+      onContextMenuItemClick={(itemGroup, item) => {
+        track('Context Menu Item Clicked', {
+          item_group: itemGroup.telemetryLabel,
+          item_label: item.label,
+        });
       }}
       utmSource="compass"
       utmMedium="product"
