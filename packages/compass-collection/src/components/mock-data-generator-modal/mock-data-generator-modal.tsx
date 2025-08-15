@@ -22,6 +22,9 @@ import {
   mockDataGeneratorNextButtonClicked,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+import { ConfirmationScreen } from './confirmation-screen';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 
 const footerStyles = css`
   flex-direction: row;
@@ -40,6 +43,8 @@ interface Props {
   currentStep: MockDataGeneratorStep;
   onNextStep: () => void;
   onPreviousStep: () => void;
+  namespace: string; // "database.collection"
+  schemaAnalysis: SchemaAnalysisState;
 }
 
 const MockDataGeneratorModal = ({
@@ -48,9 +53,32 @@ const MockDataGeneratorModal = ({
   currentStep,
   onNextStep,
   onPreviousStep,
+  namespace,
+  schemaAnalysis,
 }: Props) => {
   const handleNextClick =
     currentStep === MockDataGeneratorStep.GENERATE_DATA ? onClose : onNextStep;
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        if (schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE) {
+          return (
+            <ConfirmationScreen
+              namespace={namespace}
+              schema={schemaAnalysis.schema}
+              sampleDocument={schemaAnalysis.sampleDocument}
+            />
+          );
+        }
+        // TODO: Fallback if schema analysis is not complete
+        return <div>Loading schema analysis...</div>;
+
+      default:
+        // TODO: Render other step content here based on currentStep
+        return <div data-testid={`generate-mock-data-step-${currentStep}`} />;
+    }
+  };
 
   return (
     <Modal
@@ -63,10 +91,7 @@ const MockDataGeneratorModal = ({
       data-testid="generate-mock-data-modal"
     >
       <ModalHeader title="Generate Mock Data" />
-      <ModalBody>
-        {/* TODO: Render actual step content here based on currentStep. (CLOUDP-333851) */}
-        <div data-testid={`generate-mock-data-step-${currentStep}`} />
-      </ModalBody>
+      <ModalBody>{renderStepContent()}</ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
           onClick={onPreviousStep}
@@ -92,6 +117,8 @@ const MockDataGeneratorModal = ({
 const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
+  namespace: state.namespace,
+  schemaAnalysis: state.schemaAnalysis,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {
