@@ -15,7 +15,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 export const CompassAssistantDrawer: React.FunctionComponent<{
   autoOpen?: boolean;
 }> = ({ autoOpen }) => {
-  const context = useContext(AssistantContext);
+  const chat = useContext(AssistantContext);
 
   const enableAIAssistant = usePreference('enableAIAssistant');
 
@@ -23,13 +23,11 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     return null;
   }
 
-  if (!context) {
+  if (!chat) {
     throw new Error(
       'CompassAssistantDrawer must be used within an CompassAssistantProvider'
     );
   }
-
-  const { chat } = context;
 
   return (
     <DrawerSection

@@ -1,7 +1,6 @@
 import React, { type PropsWithChildren, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
-import { usePreference } from 'compass-preferences-model/provider';
 import { createContext, useContext } from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
@@ -9,9 +8,7 @@ import { DocsProviderTransport } from './docs-provider-transport';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
-interface AssistantContextType {
-  chat: Chat<UIMessage>;
-}
+type AssistantContextType = Chat<UIMessage>;
 
 export const AssistantContext = createContext<AssistantContextType | null>(
   null
@@ -30,12 +27,10 @@ export const AssistantProvider: React.FunctionComponent<
     chat: Chat<UIMessage>;
   }>
 > = ({ chat, children }) => {
-  const assistantActionsContext = useRef<AssistantActionsContextType>({
-    chat,
-  });
+  const assistantActionsContext = useRef<AssistantActionsContextType>();
 
   return (
-    <AssistantContext.Provider value={{ chat }}>
+    <AssistantContext.Provider value={chat}>
       <AssistantActionsContext.Provider value={assistantActionsContext.current}>
         {children}
       </AssistantActionsContext.Provider>
