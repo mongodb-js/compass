@@ -7,4 +7,4 @@ export type {
 } from './types';
 
 export { CompassExperimentationProvider } from './experimentation-provider';
-export { ExperimentTestName } from './growth-experiments';
+export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';

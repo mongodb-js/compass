@@ -4,6 +4,7 @@ import {
   Icon,
   css,
   spacing,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -11,7 +12,12 @@ import React from 'react';
 import { usePreferences } from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useAssignment,
+  ExperimentTestName,
+  ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -40,6 +46,7 @@ type CollectionHeaderActionsProps = {
   editViewName?: string;
   sourceName?: string;
   sourcePipeline?: unknown[];
+  onOpenMockDataModal: () => void;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<
@@ -50,6 +57,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   editViewName,
   sourceName,
   sourcePipeline,
+  onOpenMockDataModal,
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -59,7 +67,27 @@ const CollectionHeaderActions: React.FunctionComponent<
     usePreferences(['readOnly', 'enableShell']);
   const track = useTelemetry();
 
+  // Get experiment assignment for Mock Data Generator
+  const mockDataGeneratorAssignment = useAssignment(
+    ExperimentTestName.mockDataGenerator,
+    true // trackIsInSample - this will fire the "Experiment Viewed" event
+  );
+
   const { database, collection } = toNS(namespace);
+
+  // Check if user is in treatment group for Mock Data Generator experiment
+  const isInMockDataTreatmentVariant =
+    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
+    ExperimentTestGroup.mockDataGeneratorVariant;
+
+  const shouldShowMockDataButton =
+    isInMockDataTreatmentVariant &&
+    atlasMetadata && // Only show in Atlas
+    !isReadonly && // Don't show for readonly collections (views)
+    !sourceName; // sourceName indicates it's a view
+  // TODO: CLOUDP-337090: also filter out overly nested collections
+
+  const hasData = true; // TODO: CLOUDP-337090
 
   return (
     <div
@@ -80,6 +108,26 @@ const CollectionHeaderActions: React.FunctionComponent<
         >
           Open MongoDB shell
         </Button>
+      )}
+      {shouldShowMockDataButton && (
+        <Tooltip
+          enabled={!hasData}
+          trigger={
+            <div>
+              <Button
+                data-testid="collection-header-generate-mock-data-button"
+                size={ButtonSize.Small}
+                disabled={!hasData}
+                onClick={onOpenMockDataModal}
+                leftGlyph={<Icon glyph="Sparkle" />}
+              >
+                Generate Mock Data
+              </Button>
+            </div>
+          }
+        >
+          Please add data to your collection to generate similar mock documents
+        </Tooltip>
       )}
       {atlasMetadata && (
         <Button

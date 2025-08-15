@@ -8,6 +8,8 @@ import reducer, {
   collectionMetadataFetched,
   analyzeCollectionSchema,
 } from '../modules/collection-tab';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -82,6 +84,10 @@ export function activatePlugin(
       editViewName,
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_INITIAL,
+      },
+      mockDataGenerator: {
+        isModalOpen: false,
+        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
       },
     },
     applyMiddleware(

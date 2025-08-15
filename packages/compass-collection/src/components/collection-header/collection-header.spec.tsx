@@ -2,35 +2,48 @@ import { expect } from 'chai';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import {
-  render,
+  renderWithConnections,
   screen,
   cleanup,
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { CollectionHeader } from './collection-header';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import CollectionHeader from './collection-header';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
+import { MockDataGeneratorStep } from '../mock-data-generator-modal/types';
+
 import Sinon from 'sinon';
 
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {},
   workspaceService: Partial<WorkspacesService> = {}
 ) {
-  return render(
-    <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
-      <CollectionHeader
-        isAtlas={false}
-        isReadonly={false}
-        isTimeSeries={false}
-        isClustered={false}
-        isFLE={false}
-        namespace="test.test"
-        {...props}
-      />
-    </WorkspacesServiceProvider>
+  const mockStore = createStore(() => ({
+    mockDataGenerator: {
+      isModalOpen: false,
+      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+    },
+  }));
+
+  return renderWithConnections(
+    <Provider store={mockStore}>
+      <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
+        <CollectionHeader
+          isAtlas={false}
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={false}
+          isFLE={false}
+          namespace="test.test"
+          {...props}
+        />
+      </WorkspacesServiceProvider>
+    </Provider>
   );
 }
 
