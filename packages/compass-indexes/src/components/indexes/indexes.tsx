@@ -239,7 +239,8 @@ export function Indexes({
             <RegularIndexesTable />
           )}
           {(!isReadonlyView ||
-            isVersionSearchCompatibleForViews(serverVersion)) &&
+            (isVersionSearchCompatibleForViews(serverVersion) &&
+              enableAtlasSearchIndexes)) &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && searchIndexes.indexes.length === 0 && (
             <ViewVersionIncompatibleEmptyState

@@ -129,7 +129,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       data-testid="indexes-toolbar-container"
     >
       {(!isReadonlyView ||
-        isVersionSearchCompatibleForViews(serverVersion)) && (
+        (isVersionSearchCompatibleForViews(serverVersion) &&
+          isSearchManagementActive)) && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
@@ -270,7 +271,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           </div>
         </div>
       )}
-      {!!errorMessage && (
+      {!!errorMessage && isSearchManagementActive && (
         <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
       )}
     </div>
