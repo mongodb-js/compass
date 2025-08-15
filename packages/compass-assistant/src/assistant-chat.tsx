@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import type { UIMessage } from './@ai-sdk/react/use-chat';
+import type { Chat } from './@ai-sdk/react/chat-react';
+import { useChat } from './@ai-sdk/react/use-chat';
 
 interface AssistantChatProps {
-  messages: UIMessage[];
-  onSendMessage?: (message: string) => void;
+  chat: Chat<UIMessage>;
 }
 
 /**
@@ -11,20 +12,22 @@ interface AssistantChatProps {
  * Before release, we will replace this with the actual Leafygreen chat components.
  */
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
-  messages,
-  onSendMessage,
+  chat,
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const { messages, sendMessage } = useChat({
+    chat,
+  });
 
   const handleInputSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (inputValue.trim() && onSendMessage) {
-        onSendMessage(inputValue.trim());
+      if (inputValue.trim()) {
+        void sendMessage({ text: inputValue.trim() });
         setInputValue('');
       }
     },
-    [inputValue, onSendMessage]
+    [inputValue, sendMessage]
   );
 
   return (
@@ -53,7 +56,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         {messages.map((message) => (
           <div
             key={message.id}
-            data-testid={`assistant-message-${message.role}`}
+            data-testid={`assistant-message-${message.id}`}
             style={{
               marginBottom: '12px',
               padding: '8px 12px',
