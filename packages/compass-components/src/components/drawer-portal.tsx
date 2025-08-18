@@ -150,6 +150,10 @@ const drawerLayoutFixesStyles = css({
   // drawer section
   '& > div:nth-child(2)': {
     marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
+    // Current animations assume a 42px sidebar but we hide it when there's no content
+    // so we use a transtion instead of animations
+    animation: 'none',
+    transition: 'grid-template-columns 0.3s ease-in-out',
   },
 
   // We're stretching the title container to all available width so that we can
@@ -165,6 +169,17 @@ const drawerLayoutFixesStyles = css({
       width: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
       overflow: 'hidden',
     },
+
+  '& > div:nth-child(2):has([aria-hidden="false"])': {
+    // Leafygreen currently has the sidebar width hardcoded to a width
+    // but we also hide it when there's no content so we need auto
+    gridTemplateColumns: 'auto 432px',
+  },
+  '& > div:nth-child(2):has(div[aria-hidden="true"])': {
+    // Leafygreen currently has the sidebar width hardcoded to a width
+    // but we also hide it when there's no content so we need auto
+    gridTemplateColumns: 'auto 0px',
+  },
 });
 
 const emptyDrawerLayoutFixesStyles = css({
@@ -188,30 +203,9 @@ const emptyDrawerLayoutFixesStyles = css({
     overflow: 'hidden',
   },
 
-  '& > div:nth-child(2):has([aria-hidden="false"])': {
-    animationName: 'drawer-empty-layout-open',
-    transition: 'grid-template-columns 0.3s ease-in-out',
-    gridTemplateColumns: 'auto 432px',
-  },
-  '& > div:nth-child(2):has(div[aria-hidden="true"])': {
-    animationName: 'drawer-empty-layout-close',
-    gridTemplateColumns: '0px 0px',
-  },
-  '@keyframes drawer-empty-layout-open': {
-    '0%': {
-      gridTemplateColumns: '0px 1px',
-    },
-    '100%': {
-      gridTemplateColumns: '0px 432px',
-    },
-  },
-  '@keyframes drawer-empty-layout-close': {
-    '0%': {
-      gridTemplateColumns: '0px 432px',
-    },
-    '100%': {
-      gridTemplateColumns: '0px 1px',
-    },
+  '& > div:nth-child(2) > div:first-child': {
+    width: '0px',
+    border: 'none',
   },
 });
 
