@@ -16,6 +16,10 @@ export type IndexStats = {
 
 type IndexSize = number;
 
+type IndexProgress = {
+  buildProgress?: number;
+};
+
 export type IndexDefinition = {
   ns: string;
   name: string;
@@ -35,7 +39,8 @@ export type IndexDefinition = {
   extra: Record<string, string | number | boolean | Record<string, any>>;
   size: IndexSize;
   relativeSize: number;
-} & IndexStats;
+} & IndexStats &
+  IndexProgress;
 
 export function getIndexCardinality(
   index: Pick<IndexDefinition, 'key' | 'fields' | 'extra'>
@@ -120,7 +125,8 @@ export function createIndexDefinition(
   { name, key, v, ...extra }: IndexInfo,
   indexStats?: IndexStats,
   indexSize?: number,
-  maxSize?: number
+  maxSize?: number,
+  buildProgress?: number
 ): IndexDefinition {
   indexStats ??= {
     name,
@@ -149,5 +155,6 @@ export function createIndexDefinition(
     properties: getIndexProperties(index),
     size: indexSize,
     relativeSize: (indexSize / maxSize) * 100,
+    buildProgress,
   };
 }

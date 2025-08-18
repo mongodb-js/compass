@@ -2134,15 +2134,54 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
+  private async _indexProgress(ns: string): Promise<Record<string, number>> {
+    type IndexProgressResult = {
+      _id: string;
+      progress: { done: number; total: number };
+    };
+
+    const currentOps: IndexProgressResult[] = await this._database(
+      'admin',
+      'META'
+    )
+      .aggregate([
+        { $currentOp: { allUsers: true, localOps: true } }, // get all ops
+        {
+          $match: {
+            ns,
+            progress: { $type: 'object' },
+            'command.createIndexes': { $exists: true },
+          },
+        }, // filter for createIndexes
+        { $unwind: '$command.indexes' }, // explode the "indexes" array for each createIndexes command
+        {
+          $group: {
+            _id: '$command.indexes.name',
+            progress: { $first: '$progress' },
+          },
+        }, // group on index name
+      ])
+      .toArray()
+      .then(undefined, () => []);
+
+    const indexToProgress = Object.create(null);
+    for (const { _id, progress } of currentOps) {
+      indexToProgress[_id] = progress.done / progress.total;
+    }
+
+    return indexToProgress;
+  }
+
   @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
     options?: IndexInformationOptions
   ): Promise<IndexDefinition[]> {
-    const [indexes, indexStats, indexSizes] = await Promise.all([
+    const [indexes, indexStats, indexSizes, indexProgress] = await Promise.all([
       this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
       this._indexStats(ns),
       this._indexSizes(ns),
+      this._indexProgress(ns),
     ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
@@ -2154,7 +2193,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
         index,
         indexStats[name],
         indexSizes[name],
-        maxSize
+        maxSize,
+        indexProgress[name]
       );
     });
   }

@@ -1,11 +1,25 @@
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import {
+  ItemActionGroup,
+  SpinLoader,
+  Body,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
+
+const buildingTextStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+  marginRight: spacing[2],
+});
 
 type Index = {
   name: string;
   status: InProgressIndex['status'];
+  buildProgress?: number;
 };
 
 type IndexActionsProps = {
@@ -43,12 +57,26 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteFailedIndexClick, index]
   );
 
+  const progress = (index.buildProgress ?? 0) * 100;
+  const isBuilding = progress > 0 && progress < 100;
+
   return (
-    <ItemActionGroup<IndexAction>
-      data-testid="index-actions"
-      actions={indexActions}
-      onAction={onAction}
-    ></ItemActionGroup>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {isBuilding && (
+        <div
+          className={buildingTextStyles}
+          data-testid="index-building-spinner"
+        >
+          <SpinLoader size={16} title="Index build in progress" />
+          <Body>Building... {progress | 0}%</Body>
+        </div>
+      )}
+      <ItemActionGroup<IndexAction>
+        data-testid="index-actions"
+        actions={indexActions}
+        onAction={onAction}
+      />
+    </div>
   );
 };
 

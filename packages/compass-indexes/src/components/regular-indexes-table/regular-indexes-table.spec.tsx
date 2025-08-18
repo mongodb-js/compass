@@ -7,7 +7,6 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type {
@@ -16,7 +15,6 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
-import * as useIndexProgressModule from '../../hooks/use-index-progress';
 
 const indexes: RegularIndex[] = [
   {
@@ -184,15 +182,6 @@ const indexFields = [
 describe('RegularIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
-
-  before(function () {
-    // Mock the useIndexProgress hook since it requires Redux store
-    sinon.stub(useIndexProgressModule, 'useIndexProgress').returns(undefined);
-  });
-
-  after(function () {
-    sinon.restore();
-  });
 
   it('renders regular indexes', function () {
     renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });

@@ -8,6 +8,7 @@ import {
   spacing,
   Body,
 } from '@mongodb-js/compass-components';
+import type { RegularIndex } from '../../modules/regular-indexes';
 
 const styles = css({
   // Align actions with the end of the table
@@ -27,17 +28,13 @@ const progressTextStyles = css({
   fontWeight: 'normal',
 });
 
-type Index = {
-  name: string;
-  extra?: {
-    hidden?: boolean;
-  };
-  status?: 'inprogress' | 'ready' | 'failed';
-  progressPercentage?: number;
+// Extended type to include buildProgress which might not be in the base RegularIndex type
+type IndexWithProgress = RegularIndex & {
+  buildProgress?: number;
 };
 
 type IndexActionsProps = {
-  index: Index;
+  index: IndexWithProgress;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
@@ -63,9 +60,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onHideIndexClick,
   onUnhideIndexClick,
 }) => {
+  const progressPercentage = (index.buildProgress ?? 0) * 100;
+
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [];
-    const progressPercentage = index.progressPercentage ?? 0;
 
     if (progressPercentage < 100 && progressPercentage > 0) {
       // partially built
@@ -103,7 +101,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     }
 
     return actions;
-  }, [index, serverVersion]);
+  }, [index.name, index.extra?.hidden, serverVersion, progressPercentage]);
 
   const onAction = useCallback(
     (action: IndexAction) => {
@@ -118,12 +116,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
   );
 
-  const progressPercentage = index.progressPercentage ?? 0;
-  if (
-    index.status !== 'failed' &&
-    progressPercentage < 100 &&
-    progressPercentage > 0
-  ) {
+  if (progressPercentage > 0 && progressPercentage < 100) {
     return (
       <div
         className={combinedContainerStyles}
