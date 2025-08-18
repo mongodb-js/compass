@@ -38,6 +38,7 @@ export function ContextMenuProvider({
 }) {
   // Check if there's already a parent context menu provider
   const parentContext = useContext(ContextMenuContext);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const [menu, setMenu] = useState<ContextMenuState>({
     isOpen: false,
@@ -62,8 +63,9 @@ export function ContextMenuProvider({
   );
 
   useEffect(() => {
-    // Don't set up event listeners if we have a parent context
-    if (parentContext || disabled) return;
+    // We skip registering listeners when parentContext is known to avoid registering multiple (nested) listeners
+    const { current: container } = containerRef;
+    if (parentContext || disabled || !container) return;
 
     function handleContextMenu(event: MouseEvent) {
       event.preventDefault();
@@ -86,7 +88,7 @@ export function ContextMenuProvider({
       });
     }
 
-    document.addEventListener('contextmenu', handleContextMenu);
+    container.addEventListener('contextmenu', handleContextMenu);
     window.addEventListener('resize', handleClosingEvent);
     window.addEventListener(
       'scroll',
@@ -100,13 +102,19 @@ export function ContextMenuProvider({
     );
 
     return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
+      container.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('resize', handleClosingEvent);
       window.removeEventListener('scroll', handleClosingEvent, {
         capture: true,
       });
     };
-  }, [disabled, handleClosingEvent, onContextMenuOpenRef, parentContext]);
+  }, [
+    disabled,
+    containerRef,
+    handleClosingEvent,
+    onContextMenuOpenRef,
+    parentContext,
+  ]);
 
   const value = useMemo(
     () => ({
@@ -122,7 +130,9 @@ export function ContextMenuProvider({
 
   return (
     <ContextMenuContext.Provider value={value}>
-      {children}
+      <div ref={containerRef} style={{ display: 'contents' }}>
+        {children}
+      </div>
       <Wrapper menu={{ ...menu, close }} />
     </ContextMenuContext.Provider>
   );
