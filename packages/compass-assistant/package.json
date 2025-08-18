@@ -1,6 +1,6 @@
 {
-  "name": "@mongodb-js/compass-collection",
-  "description": "Compass Collection",
+  "name": "@mongodb-js/compass-assistant",
+  "description": "Compass plugin for the AI Assistant",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "4.68.0",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -21,17 +21,19 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
-  "types": "dist/index.d.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
-    ".": "./dist/index.js"
+    "import": "./dist/.esm-wrapper.mjs",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -44,29 +46,18 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.4",
+    "@mongodb-js/atlas-service": "^0.54.0",
     "@mongodb-js/compass-app-registry": "^9.4.18",
-    "@mongodb-js/compass-app-stores": "^7.55.0",
-    "@mongodb-js/compass-components": "^1.47.0",
-    "@mongodb-js/compass-connections": "^1.69.0",
-    "@mongodb-js/compass-logging": "^1.7.10",
-    "@mongodb-js/compass-telemetry": "^1.12.0",
-    "@mongodb-js/compass-workspaces": "^0.50.0",
-    "@mongodb-js/connection-info": "^0.17.0",
-    "@mongodb-js/mongodb-constants": "^0.12.2",
+    "@mongodb-js/compass-components": "^1.30.5",
+    "ai": "^5.0.5",
     "compass-preferences-model": "^2.49.0",
-    "hadron-document": "^8.9.4",
-    "mongodb": "^6.17.0",
-    "mongodb-collection-model": "^5.31.0",
-    "mongodb-ns": "^2.4.2",
-    "mongodb-schema": "^12.6.2",
     "react": "^17.0.2",
-    "react-redux": "^8.1.3",
-    "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2"
+    "throttleit": "^2.1.0",
+    "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.5",
@@ -82,11 +73,9 @@
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
-    "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "react-dom": "^17.0.2",
-    "sinon": "^9.2.3",
+    "sinon": "^17.0.1",
     "typescript": "^5.8.3",
     "xvfb-maybe": "^0.2.1"
   },

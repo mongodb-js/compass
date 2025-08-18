@@ -67,6 +67,9 @@ export class AtlasService {
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
   }
+  assistantApiEndpoint(path?: string): string {
+    return `${this.config.assistantApiBaseUrl}${normalizePath(path)}`;
+  }
   regionalizedCloudEndpoint(
     _atlasMetadata: Pick<AtlasClusterMetadata, 'regionalBaseUrl'>,
     path?: string
@@ -76,7 +79,7 @@ export class AtlasService {
     return this.cloudEndpoint(path);
   }
   driverProxyEndpoint(path?: string): string {
-    return `${this.config.wsBaseUrl}${normalizePath(path)}`;
+    return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
