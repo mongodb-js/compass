@@ -5,7 +5,6 @@ import {
   css,
   ItemActionGroup,
   SpinLoader,
-  spacing,
   Body,
 } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
@@ -15,26 +14,8 @@ const styles = css({
   justifyContent: 'flex-end',
 });
 
-const combinedContainerStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[200],
-  minWidth: spacing[800],
-  justifyContent: 'flex-end',
-});
-
-const progressTextStyles = css({
-  fontSize: '12px',
-  fontWeight: 'normal',
-});
-
-// Extended type to include buildProgress which might not be in the base RegularIndex type
-type IndexWithProgress = RegularIndex & {
-  buildProgress?: number;
-};
-
 type IndexActionsProps = {
-  index: IndexWithProgress;
+  index: RegularIndex;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
@@ -62,7 +43,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [];
-    const buildProgress = index.buildProgress ?? 0;
+    const buildProgress = index.buildProgress;
     const isBuilding = buildProgress > 0 && buildProgress < 1;
 
     if (isBuilding) {
@@ -116,16 +97,19 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
   );
 
-  const buildProgress = index.buildProgress ?? 0;
+  const buildProgress = index.buildProgress;
   if (buildProgress > 0 && buildProgress < 1) {
     return (
       <div
-        className={combinedContainerStyles}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: '8px',
+        }}
         data-testid="index-building-spinner"
       >
-        <Body className={progressTextStyles}>
-          Building... {(buildProgress * 100) | 0}%
-        </Body>
+        <Body>Building... {(buildProgress * 100) | 0}%</Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>
           data-testid="index-actions"

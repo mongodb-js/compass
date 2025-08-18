@@ -50,9 +50,7 @@ export type IndexesDataServiceProps =
   | 'collectionStats'
   | 'collectionInfo'
   | 'listCollections'
-  | 'isListSearchIndexesSupported'
-  // Required for tracking index build progress
-  | 'currentOp';
+  | 'isListSearchIndexesSupported';
 export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 
 export type IndexesPluginServices = {

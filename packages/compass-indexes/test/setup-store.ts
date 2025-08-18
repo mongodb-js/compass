@@ -90,9 +90,6 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   sample(namespace: string) {
     return Promise.resolve([]);
   },
-  currentOp() {
-    return Promise.resolve({ inprog: [] });
-  },
 };
 
 class FakeInstance extends EventEmitter {

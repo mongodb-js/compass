@@ -252,11 +252,9 @@ function mergeIndexes(
     inProgressIndexes.map(({ name }) => name)
   );
 
-  // Create a map of regular indexes by name to look up buildProgress
-  const regularIndexesByName = new Map<string, RegularIndex>();
-  indexes.forEach((index) => {
-    regularIndexesByName.set(index.name, index);
-  });
+  const regularIndexesByName = new Map<string, RegularIndex>(
+    indexes.map((index) => [index.name, index])
+  );
 
   const mappedIndexes: MappedRegularIndex[] = indexes
     // exclude partially-built indexes so that we don't include indexes that
@@ -271,12 +269,9 @@ function mergeIndexes(
   // For in-progress indexes, merge in buildProgress from regular indexes if available
   const mappedInProgressIndexes: MappedInProgressIndex[] =
     inProgressIndexes.map((index) => {
-      const regularIndex = regularIndexesByName.get(index.name);
-      const buildProgress = regularIndex?.buildProgress;
-
       return {
         ...index,
-        buildProgress,
+        buildProgress: regularIndexesByName.get(index.name)?.buildProgress ?? 0,
         compassIndexType: 'in-progress-index',
       };
     });

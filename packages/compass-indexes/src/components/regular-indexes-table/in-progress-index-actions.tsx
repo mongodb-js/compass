@@ -4,22 +4,13 @@ import {
   ItemActionGroup,
   SpinLoader,
   Body,
-  css,
-  spacing,
 } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
-
-const buildingTextStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[1],
-  marginRight: spacing[2],
-});
 
 type Index = {
   name: string;
   status: InProgressIndex['status'];
-  buildProgress?: number;
+  buildProgress: number;
 };
 
 type IndexActionsProps = {
@@ -57,19 +48,27 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteFailedIndexClick, index]
   );
 
-  const progress = (index.buildProgress ?? 0) * 100;
+  const progress = index.buildProgress * 100;
   const isBuilding = progress > 0 && progress < 100;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: '8px',
+      }}
+    >
       {isBuilding && (
-        <div
-          className={buildingTextStyles}
-          data-testid="index-building-spinner"
-        >
-          <SpinLoader size={16} title="Index build in progress" />
+        <>
           <Body>Building... {progress | 0}%</Body>
-        </div>
+          <SpinLoader
+            size={16}
+            title="Index build in progress"
+            data-testid="index-building-spinner"
+          />
+        </>
       )}
       <ItemActionGroup<IndexAction>
         data-testid="index-actions"
