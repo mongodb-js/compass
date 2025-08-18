@@ -34,7 +34,6 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       id={ASSISTANT_DRAWER_ID}
       title="MongoDB Assistant"
       label="MongoDB Assistant"
-      glyph="Sparkle"
       autoOpen={autoOpen}
     >
       <AssistantChat chat={chat} />

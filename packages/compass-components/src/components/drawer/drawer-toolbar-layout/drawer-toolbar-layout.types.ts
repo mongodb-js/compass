@@ -4,6 +4,7 @@ import type { DarkModeProps, LgIdProps } from '@leafygreen-ui/lib';
 import type { ToolbarIconButtonProps } from '../../toolbar';
 
 import type { DrawerProps } from '../drawer/drawer.types';
+import type { GlyphName } from '@leafygreen-ui/icon';
 
 type PickedOptionalDrawerProps = Pick<DrawerProps, 'onClose' | 'displayMode'>;
 type PickedRequiredToolbarIconButtonProps = Pick<
@@ -46,13 +47,14 @@ export type LayoutData = LayoutWithContent | LayoutWithoutContent;
 
 export type DrawerToolbarLayoutProps = PickedOptionalDrawerProps &
   DarkModeProps &
-  LgIdProps & {
+  Omit<LgIdProps, 'glyph'> & {
     /**
      * An array of data that will be used to render the toolbar items and the drawer content.
      */
     toolbarData: Array<LayoutData>;
     className?: string;
     children: React.ReactNode;
+    glyph?: GlyphName;
   };
 
 export type DrawerToolbarLayoutContainerProps = DrawerToolbarLayoutProps;

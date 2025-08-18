@@ -13,6 +13,13 @@ export interface DrawerToolbarContextType {
   openDrawer: (id: DataId) => void;
 
   /**
+   * This function is used to toggle the drawer with the given data.
+   * @param id - The id of the drawer to toggle
+   * @returns void
+   */
+  toggleDrawer: (id: DataId) => void;
+
+  /**
    * This function is used to clear the active drawer data and indicates that the drawer should close.
    * @returns void
    */

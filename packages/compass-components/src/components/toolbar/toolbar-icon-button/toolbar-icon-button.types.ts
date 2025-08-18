@@ -17,7 +17,7 @@ export interface ToolbarIconButtonProps extends ButtonProps {
   /**
    * The LG Icon that will render in the button
    */
-  glyph: GlyphName;
+  glyph?: GlyphName;
 
   /**
    * The text that will render in the tooltip on hover

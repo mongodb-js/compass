@@ -67,6 +67,8 @@ export const DrawerToolbarLayoutContainer = forwardRef<
 
     const isDrawerOpen = Boolean(title && content && _isDrawerOpen);
 
+    const visibleItems = toolbarData?.filter((data) => data.glyph);
+
     return (
       <LayoutComponent
         {...rest}
@@ -81,29 +83,30 @@ export const DrawerToolbarLayoutContainer = forwardRef<
           isDrawerOpen={isDrawerOpen}
         >
           <Toolbar data-lgid={lgIds.toolbar} data-testid={lgIds.toolbar}>
-            {toolbarData?.map((toolbarItem) => (
-              <ToolbarIconButton
-                key={toolbarItem.glyph}
-                glyph={toolbarItem.glyph}
-                label={toolbarItem.label}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                  if (!toolbarItem.content) {
-                    // If the toolbar item does not have content, we don't want to open/update/close the drawer
-                    // but we still want to call the onClick function if it exists. E.g. open a modal or perform an action
-                    toolbarItem.onClick?.(event);
-                    return;
-                  }
+            {visibleItems &&
+              visibleItems?.map((toolbarItem) => (
+                <ToolbarIconButton
+                  key={toolbarItem.glyph}
+                  glyph={toolbarItem.glyph}
+                  label={toolbarItem.label}
+                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                    if (!toolbarItem.content) {
+                      // If the toolbar item does not have content, we don't want to open/update/close the drawer
+                      // but we still want to call the onClick function if it exists. E.g. open a modal or perform an action
+                      toolbarItem.onClick?.(event);
+                      return;
+                    }
 
-                  return handleIconClick(
-                    event,
-                    toolbarItem.id,
-                    toolbarItem.onClick
-                  );
-                }}
-                active={toolbarItem.id === id}
-                disabled={toolbarItem.disabled}
-              />
-            ))}
+                    return handleIconClick(
+                      event,
+                      toolbarItem.id,
+                      toolbarItem.onClick
+                    );
+                  }}
+                  active={toolbarItem.id === id}
+                  disabled={toolbarItem.disabled}
+                />
+              ))}
           </Toolbar>
           <Drawer
             displayMode={displayMode}

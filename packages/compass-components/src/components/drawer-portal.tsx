@@ -17,6 +17,7 @@ import {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
 import { rafraf } from '../utils/rafraf';
+import { palette } from '@leafygreen-ui/palette';
 
 type SectionData = Required<DrawerLayoutProps>['toolbarData'][number];
 
@@ -36,6 +37,7 @@ type DrawerActionsContextValue = {
   current: {
     openDrawer: (id: string) => void;
     closeDrawer: () => void;
+    toggleDrawer: (id: string) => void;
     updateToolbarData: (data: DrawerSectionProps) => void;
     removeToolbarData: (id: string) => void;
   };
@@ -47,6 +49,7 @@ const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
+    toggleDrawer: () => undefined,
     updateToolbarData: () => undefined,
     removeToolbarData: () => undefined,
   },
@@ -92,6 +95,7 @@ export const DrawerContentProvider: React.FunctionComponent = ({
   const drawerActions = useRef({
     openDrawer: () => undefined,
     closeDrawer: () => undefined,
+    toggleDrawer: () => undefined,
     updateToolbarData: (data: DrawerSectionProps) => {
       setDrawerState((prevState) => {
         const itemIndex = prevState.findIndex((item) => {
@@ -128,6 +132,7 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+  actions.current.toggleDrawer = drawerToolbarContext.toggleDrawer;
   return <>{children}</>;
 };
 
@@ -179,8 +184,34 @@ const emptyDrawerLayoutFixesStyles = css({
   // so we override the values to hide the drawer toolbar when there's nothing
   // to show
   '& > div:nth-child(2)': {
-    width: '0 !important',
+    borderLeft: `1px solid ${palette.gray.light2}`,
     overflow: 'hidden',
+  },
+
+  '& > div:nth-child(2):has([aria-hidden="false"])': {
+    animationName: 'drawer-empty-layout-open',
+    transition: 'grid-template-columns 0.3s ease-in-out',
+    gridTemplateColumns: 'auto 432px',
+  },
+  '& > div:nth-child(2):has(div[aria-hidden="true"])': {
+    animationName: 'drawer-empty-layout-close',
+    gridTemplateColumns: '0px 0px',
+  },
+  '@keyframes drawer-empty-layout-open': {
+    '0%': {
+      gridTemplateColumns: '0px 1px',
+    },
+    '100%': {
+      gridTemplateColumns: '0px 432px',
+    },
+  },
+  '@keyframes drawer-empty-layout-close': {
+    '0%': {
+      gridTemplateColumns: '0px 432px',
+    },
+    '100%': {
+      gridTemplateColumns: '0px 1px',
+    },
   },
 });
 
@@ -215,8 +246,8 @@ export const DrawerAnchor: React.FunctionComponent<{
     }
     prevDrawerSectionItems.current = drawerSectionItems;
   }, [actions, drawerSectionItems]);
-  const toolbarData = useMemo(() => {
-    return drawerSectionItems
+  const { toolbarData, hasVisibleToolbarItems } = useMemo(() => {
+    const toolbarData = drawerSectionItems
       .map((data) => {
         return {
           ...data,
@@ -232,6 +263,10 @@ export const DrawerAnchor: React.FunctionComponent<{
       .sort(({ order: orderA = Infinity }, { order: orderB = Infinity }) => {
         return orderB < orderA ? 1 : orderB > orderA ? -1 : 0;
       });
+    return {
+      toolbarData,
+      hasVisibleToolbarItems: toolbarData.some((data) => data.glyph),
+    };
   }, [drawerSectionItems]);
   return (
     <DrawerLayout
@@ -239,7 +274,7 @@ export const DrawerAnchor: React.FunctionComponent<{
       toolbarData={toolbarData}
       className={cx(
         drawerLayoutFixesStyles,
-        toolbarData.length === 0 && emptyDrawerLayoutFixesStyles,
+        !hasVisibleToolbarItems && emptyDrawerLayoutFixesStyles,
         // classname is the only property leafygreen passes over to the drawer
         // wrapper component that would allow us to target it
         'compass-drawer-anchor'
@@ -317,6 +352,9 @@ export function useDrawerActions() {
     },
     closeDrawer: () => {
       actions.current.closeDrawer();
+    },
+    toggleDrawer: (id: string) => {
+      actions.current.toggleDrawer(id);
     },
   });
   return stableActions.current;

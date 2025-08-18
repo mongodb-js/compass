@@ -1,12 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  Button,
   DrawerAnchor,
   ErrorBoundary,
+  Icon,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
+  palette,
   spacing,
   useDarkMode,
+  useDrawerActions,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import type {
@@ -64,6 +68,58 @@ const workspacesContentStyles = css({
   display: 'flex',
   minHeight: 0,
 });
+
+const workspaceTabBarStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+});
+
+const workspaceTabBarTabsStyles = css({
+  flex: 1,
+  minWidth: 0,
+});
+
+const workspaceTabBarAssistantButtonStyles = css({
+  flex: 'none',
+  height: '100%',
+});
+
+const assistantButtonStyles = css({
+  border: 'none',
+  width: '100%',
+  height: '100%',
+  paddingRight: spacing[100],
+  paddingLeft: spacing[100],
+  borderRadius: 0,
+  boxShadow: `inset 1px -1px 0 0 ${palette.gray.light2}`,
+  ':hover': {
+    border: 'none',
+    boxShadow: 'none',
+    background: palette.gray.light2,
+  },
+});
+
+function AssistantButton() {
+  const { toggleDrawer } = useDrawerActions();
+  return (
+    <Button
+      variant="default"
+      size="small"
+      //
+      leftGlyph={
+        // TODO: This will be replaced with the gradient Sparkle icon once Leafygreen is updated
+        <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+      }
+      className={assistantButtonStyles}
+      onClick={() => {
+        toggleDrawer('compass-assistant-drawer');
+      }}
+    >
+      Assistant
+    </Button>
+  );
+}
 
 type CompassWorkspacesProps = {
   tabs: WorkspaceTab[];
@@ -201,20 +257,26 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       className={workspacesContainerStyles}
       data-testid="workspace-tabs-container"
     >
-      <WorkspaceTabs
-        aria-label="Workspace Tabs"
-        onSelectTab={onSelectTab}
-        onSelectNextTab={onSelectNextTab}
-        onSelectPrevTab={onSelectPrevTab}
-        onMoveTab={onMoveTab}
-        onCreateNewTab={onCreateNewTab}
-        onDuplicateTab={onDuplicateTab}
-        onCloseTab={onCloseTab}
-        onCloseAllOtherTabs={onCloseAllOtherTabs}
-        tabs={workspaceTabs}
-        selectedTabIndex={activeTabIndex}
-      ></WorkspaceTabs>
-
+      <div className={workspaceTabBarStyles}>
+        <div className={workspaceTabBarTabsStyles}>
+          <WorkspaceTabs
+            aria-label="Workspace Tabs"
+            onSelectTab={onSelectTab}
+            onSelectNextTab={onSelectNextTab}
+            onSelectPrevTab={onSelectPrevTab}
+            onMoveTab={onMoveTab}
+            onCreateNewTab={onCreateNewTab}
+            onDuplicateTab={onDuplicateTab}
+            onCloseTab={onCloseTab}
+            onCloseAllOtherTabs={onCloseAllOtherTabs}
+            tabs={workspaceTabs}
+            selectedTabIndex={activeTabIndex}
+          ></WorkspaceTabs>
+        </div>
+        <div className={workspaceTabBarAssistantButtonStyles}>
+          <AssistantButton />
+        </div>
+      </div>
       <div className={workspacesContentStyles}>
         <DrawerAnchor>
           {activeTab && workspaceTabContent ? (

@@ -60,6 +60,10 @@ export const ToolbarIconButton = React.forwardRef<
       if (isFocusable && shouldFocus) ref.current?.focus();
     }, [isFocusable, ref, shouldFocus]);
 
+    if (!glyph) {
+      return null;
+    }
+
     return (
       <Tooltip
         data-testid={`${lgIds.iconButtonTooltip}-${index}`}

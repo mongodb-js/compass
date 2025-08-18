@@ -59,14 +59,32 @@ export const DrawerToolbarProvider = ({
     return content;
   }, [content]);
 
+  const toggleDrawer = useCallback(
+    (id: DataId) => {
+      if (content?.id === id) {
+        closeDrawer();
+      } else {
+        openDrawer(id);
+      }
+    },
+    [closeDrawer, openDrawer, content]
+  );
+
   const value = useMemo(
     () => ({
       openDrawer,
       closeDrawer,
+      toggleDrawer,
       getActiveDrawerContent,
       isDrawerOpen,
     }),
-    [openDrawer, closeDrawer, getActiveDrawerContent, isDrawerOpen]
+    [
+      openDrawer,
+      closeDrawer,
+      toggleDrawer,
+      getActiveDrawerContent,
+      isDrawerOpen,
+    ]
   );
 
   return (
