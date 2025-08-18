@@ -56,14 +56,8 @@ export const ViewVersionIncompatibleBanner = ({
         {atlasMetadata && (
           <Button
             size="xsmall"
-            onClick={() => {
-              window.open(
-                getAtlasUpgradeClusterLink({
-                  clusterName: atlasMetadata.clusterName,
-                }),
-                '_blank'
-              );
-            }}
+            href={getAtlasUpgradeClusterLink({ clusterName: atlasMetadata.clusterName })}
+            target="_blank"
           >
             Upgrade Cluster
           </Button>
