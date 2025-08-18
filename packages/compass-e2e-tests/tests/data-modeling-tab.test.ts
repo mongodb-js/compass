@@ -748,6 +748,10 @@ describe('Data Modeling tab', function () {
       // Click on the add collection button.
       await browser.clickVisible(Selectors.DataModelAddCollectionBtn);
 
+      // Verify that the new collection is added to the diagram.
+      const nodes = await getDiagramNodes(browser, 3);
+      expect(nodes[2].id).to.equal('test.new-collection');
+
       // Verify that the drawer is opened.
       const drawer = browser.$(Selectors.SideDrawer);
       await drawer.waitForDisplayed();
@@ -760,9 +764,9 @@ describe('Data Modeling tab', function () {
       );
       await drawer.click(); // Unfocus the input.
 
-      // Verify that the new collection is added to the diagram.
-      const nodes = await getDiagramNodes(browser, 3);
-      expect(nodes[2].id).to.equal('test.testCollection-newOne');
+      // Verify that the new collection is named in the diagram.
+      const nodesAfterNaming = await getDiagramNodes(browser, 3);
+      expect(nodesAfterNaming[2].id).to.equal(`test.${collectionName}`);
 
       // Undo once - verify that the collection is removed
       // This is to ensure that the initial edit of the collection name wasn't a separate edit

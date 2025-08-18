@@ -10,11 +10,11 @@ import {
 import { DataModelingWorkspaceTab } from '../../index';
 import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
+  addCollection,
   openDiagram,
   selectCollection,
   selectCurrentModelFromState,
   selectRelationship,
-  startCreatingCollection,
 } from '../../store/diagram';
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
@@ -338,7 +338,7 @@ describe('DiagramEditorSidePanel', function () {
 
     it('should handle new collection creation', async function () {
       const result = renderDrawer();
-      result.plugin.store.dispatch(startCreatingCollection());
+      result.plugin.store.dispatch(addCollection());
 
       await waitForDrawerToOpen();
 
@@ -349,19 +349,11 @@ describe('DiagramEditorSidePanel', function () {
       const activeElement = document.activeElement;
       expect(activeElement).to.equal(nameInput);
 
-      // The other controls are not usable in this state
-      expect(screen.getByRole('textbox', { name: 'Notes' })).to.have.attribute(
-        'aria-disabled',
-        'true'
-      );
-      expect(screen.queryByRole('button', { name: 'Delete Collection' })).not.to
-        .exist;
-
       // Update the name.
       userEvent.clear(nameInput);
       userEvent.type(nameInput, 'pineapple');
 
-      // Blur/unfocus the input - now the collection should be created
+      // Blur/unfocus the input - now the collection should be names
       userEvent.click(document.body);
 
       // Check the name in the model.
@@ -372,17 +364,8 @@ describe('DiagramEditorSidePanel', function () {
       });
       expect(newCollection).to.exist;
 
-      // The name appears and controls are enabled
+      // See the name in the input
       expect(screen.getByText('flights.pineapple')).to.be.visible;
-      expect(screen.getByRole('textbox', { name: 'Notes' })).to.have.attribute(
-        'aria-disabled',
-        'false'
-      );
-      expect(screen.getByRole('button', { name: 'Delete Collection' })).to.be
-        .visible;
-      expect(
-        screen.getByRole('button', { name: 'Delete Collection' })
-      ).to.have.attribute('aria-disabled', 'false');
     });
 
     it('should prevent editing to an empty collection name', async function () {
