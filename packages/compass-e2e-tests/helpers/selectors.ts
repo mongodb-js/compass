@@ -603,6 +603,7 @@ export const ImportFileOption =
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const DocumentExpandButton = '[data-testid="expand-document-button"]';
+export const DocumentList = '[data-testid="document-list"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';
 export const SelectListView = '[data-testid="toolbar-view-list"]';

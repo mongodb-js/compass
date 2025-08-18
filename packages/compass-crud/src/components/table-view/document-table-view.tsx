@@ -1005,6 +1005,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
           'document-table-view-container',
           this.props.darkMode && 'document-table-view-container-darkmode'
         )}
+        data-testid="document-list"
       >
         <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
