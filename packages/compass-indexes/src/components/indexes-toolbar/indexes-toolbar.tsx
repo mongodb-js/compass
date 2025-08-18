@@ -31,6 +31,8 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
+import { CollectionStats } from '../../modules/collection-stats';
+import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -88,6 +90,7 @@ type IndexesToolbarProps = {
   isSearchIndexesSupported: boolean;
   // via withPreferences:
   readOnly?: boolean;
+  collectionStats: CollectionStats;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -107,6 +110,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onIndexViewChanged,
   serverVersion,
   readOnly, // preferences readOnly.
+  collectionStats,
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
@@ -122,7 +126,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
-
+  const isViewPipelineSearchQueryable =
+    isReadonlyView &&
+    collectionStats?.pipeline &&
+    isPipelineSearchQueryable(
+      collectionStats.pipeline as Array<Record<string, any>>
+    );
+  const pipelineNotSearchQueryableDescription =
+    'Search indexes can only be created on  views containing $addFields, $set or $match stages with the $expr operator.';
   return (
     <div
       className={indexesToolbarContainerStyles}
@@ -135,7 +146,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
               <Tooltip
-                enabled={!isWritable}
+                enabled={!isWritable || !isViewPipelineSearchQueryable}
                 align="top"
                 justify="middle"
                 trigger={
@@ -148,11 +159,16 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       onCreateSearchIndexClick={onCreateSearchIndexClick}
                       isReadonlyView={isReadonlyView}
                       indexView={indexView}
+                      isViewPipelineSearchQueryable={
+                        isViewPipelineSearchQueryable
+                      }
                     />
                   </div>
                 }
               >
-                {writeStateDescription}
+                {(!isWritable && writeStateDescription) ||
+                  (!isViewPipelineSearchQueryable &&
+                    pipelineNotSearchQueryableDescription)}
               </Tooltip>
             )}
             <Button
@@ -286,6 +302,7 @@ type CreateIndexButtonProps = {
   onCreateSearchIndexClick: () => void;
   isReadonlyView: boolean;
   indexView: IndexView;
+  isViewPipelineSearchQueryable: boolean;
 };
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
@@ -300,6 +317,7 @@ export const CreateIndexButton: React.FunctionComponent<
   onCreateSearchIndexClick,
   isReadonlyView,
   indexView,
+  isViewPipelineSearchQueryable,
 }) => {
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
@@ -317,7 +335,7 @@ export const CreateIndexButton: React.FunctionComponent<
     if (indexView === 'search-indexes') {
       return (
         <Button
-          disabled={!isWritable}
+          disabled={!isWritable || !isViewPipelineSearchQueryable}
           onClick={onCreateSearchIndexClick}
           variant="primary"
           size="small"
@@ -371,6 +389,7 @@ const mapState = ({
   serverVersion,
   searchIndexes,
   indexView,
+  collectionStats,
 }: RootState) => ({
   namespace,
   isWritable,
@@ -380,6 +399,7 @@ const mapState = ({
   indexView,
   serverVersion,
   searchIndexes,
+  collectionStats,
 });
 
 const mapDispatch = {

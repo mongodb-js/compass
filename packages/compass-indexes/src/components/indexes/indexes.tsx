@@ -36,6 +36,9 @@ import CreateIndexModal from '../create-index-modal/create-index-modal';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
 import semver from 'semver';
+import type { SearchIndex } from 'mongodb-data-service';
+import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
+import type { CollectionStats } from '../../modules/collection-stats';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -100,6 +103,30 @@ const ViewVersionIncompatibleEmptyState = ({
   );
 };
 
+const ViewNotSearchCompatibleBanner = ({
+  searchIndexes,
+}: {
+  searchIndexes: SearchIndex[];
+}) => {
+  const hasNoSearchIndexes = searchIndexes.length === 0;
+  const variant = hasNoSearchIndexes ? 'warning' : 'danger';
+  return (
+    <Banner variant={variant}>
+      {hasNoSearchIndexes && (
+        <>
+          <b>Looking for search indexes?</b> <br />
+        </>
+      )}
+      This view is incompatible with search indexes. Only views containing
+      $addFields, $set or $match stages with the $expr operator are compatible
+      with search indexes. Edit the view to rebuild search indexes.{' '}
+      <Link href={''} hideExternalIcon>
+        Learn more.
+      </Link>
+    </Banner>
+  );
+};
+
 const AtlasIndexesBanner = ({
   namespace,
   dismissed,
@@ -145,6 +172,7 @@ type IndexesProps = {
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
   serverVersion: string;
+  collectionStats: CollectionStats;
 };
 
 function isRefreshingStatus(status: FetchStatus) {
@@ -171,6 +199,7 @@ export function Indexes({
   refreshRegularIndexes,
   refreshSearchIndexes,
   serverVersion,
+  collectionStats,
 }: IndexesProps) {
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
@@ -198,6 +227,11 @@ export function Indexes({
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
+  const isViewPipelineSearchQueryable =
+    collectionStats?.pipeline &&
+    isPipelineSearchQueryable(
+      collectionStats.pipeline as Array<Record<string, any>>
+    );
 
   return (
     <div className={containerStyles}>
@@ -224,16 +258,22 @@ export function Indexes({
               atlasMetadata={atlasMetadata}
             />
           )}
-          {(!isReadonlyView ||
-            (isVersionSearchCompatibleForViewsDataExplorer(serverVersion) &&
-              !enableAtlasSearchIndexes)) && (
-            <AtlasIndexesBanner // cta to Atlas Search Indexes Page
-              namespace={namespace}
-              dismissed={atlasBannerDismissed}
-              onDismissClick={() => {
-                setDismissed(true);
-              }}
+          {isReadonlyView && !isViewPipelineSearchQueryable ? (
+            <ViewNotSearchCompatibleBanner
+              searchIndexes={searchIndexes.indexes}
             />
+          ) : (
+            (!isReadonlyView ||
+              (isVersionSearchCompatibleForViewsDataExplorer(serverVersion) &&
+                !enableAtlasSearchIndexes)) && (
+              <AtlasIndexesBanner // cta to Atlas Search Indexes Page
+                namespace={namespace}
+                dismissed={atlasBannerDismissed}
+                onDismissClick={() => {
+                  setDismissed(true);
+                }}
+              />
+            )
           )}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
@@ -264,6 +304,7 @@ const mapState = ({
   searchIndexes,
   indexView,
   serverVersion,
+  collectionStats,
 }: RootState) => ({
   namespace,
   isReadonlyView,
@@ -271,6 +312,7 @@ const mapState = ({
   searchIndexes,
   currentIndexesView: indexView,
   serverVersion,
+  collectionStats,
 });
 
 const mapDispatch = {

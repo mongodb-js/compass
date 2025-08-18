@@ -11,16 +11,17 @@ function isAction<A extends AnyAction>(
 export function extractCollectionStats(
   collection: Collection
 ): CollectionStats {
-  const { index_count, index_size } = collection.toJSON();
+  const { index_count, index_size, pipeline } = collection.toJSON();
   return {
     index_count,
     index_size,
+    pipeline,
   };
 }
 
 export type CollectionStats = Pick<
   Collection,
-  'index_count' | 'index_size'
+  'index_count' | 'index_size' | 'pipeline'
 > | null;
 
 enum StatsActions {
