@@ -60,12 +60,12 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onHideIndexClick,
   onUnhideIndexClick,
 }) => {
-  const progressPercentage = (index.buildProgress ?? 0) * 100;
-
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [];
+    const buildProgress = index.buildProgress ?? 0;
+    const isBuilding = buildProgress > 0 && buildProgress < 1;
 
-    if (progressPercentage < 100 && progressPercentage > 0) {
+    if (isBuilding) {
       // partially built
       actions.push({
         action: 'delete',
@@ -101,7 +101,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     }
 
     return actions;
-  }, [index.name, index.extra?.hidden, serverVersion, progressPercentage]);
+  }, [index.name, index.extra?.hidden, index.buildProgress, serverVersion]);
 
   const onAction = useCallback(
     (action: IndexAction) => {
@@ -116,14 +116,15 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
   );
 
-  if (progressPercentage > 0 && progressPercentage < 100) {
+  const buildProgress = index.buildProgress ?? 0;
+  if (buildProgress > 0 && buildProgress < 1) {
     return (
       <div
         className={combinedContainerStyles}
         data-testid="index-building-spinner"
       >
         <Body className={progressTextStyles}>
-          Building... {progressPercentage | 0}%
+          Building... {(buildProgress * 100) | 0}%
         </Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>
