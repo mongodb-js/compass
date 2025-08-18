@@ -47,7 +47,7 @@ export type DiagramState =
       };
       editErrors?: string[];
       selectedItems: SelectedItems | null;
-      draftCollection?: string | null;
+      draftCollection?: string;
     })
   | null; // null when no diagram is currently open
 

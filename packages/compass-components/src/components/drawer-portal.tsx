@@ -321,3 +321,14 @@ export function useDrawerActions() {
   });
   return stableActions.current;
 }
+
+export const useDrawerState = () => {
+  const drawerToolbarContext = useDrawerToolbarContext();
+  const drawerState = useContext(DrawerStateContext);
+  return {
+    isOpen:
+      drawerToolbarContext.isDrawerOpen &&
+      // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
+      drawerState.length > 0,
+  };
+};

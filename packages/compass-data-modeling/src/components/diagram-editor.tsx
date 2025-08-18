@@ -26,6 +26,7 @@ import {
   Button,
   useDarkMode,
   useDrawerActions,
+  useDrawerState,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -108,6 +109,7 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
+  newCollection?: string;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
@@ -119,6 +121,7 @@ const DiagramContent: React.FunctionComponent<{
   diagramLabel,
   model,
   isInRelationshipDrawingMode,
+  newCollection,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
@@ -130,6 +133,7 @@ const DiagramContent: React.FunctionComponent<{
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
+  const { isOpen: isDrawerOpen } = useDrawerState();
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -183,6 +187,31 @@ const DiagramContent: React.FunctionComponent<{
       void diagram.current.fitView();
     });
   }, []);
+
+  // Center on a new collection when it is added
+  const previouslyOpenedDrawer = useRef<boolean>(false);
+  useEffect(() => {
+    if (newCollection) {
+      const node = nodes.find((n) => n.id === newCollection);
+      if (node) {
+        const zoom = diagram.current.getViewport().zoom;
+        const drawerOffset = previouslyOpenedDrawer.current ? 0 : 240;
+        const newNodeWidth = 244;
+        const newNodeHeight = 64;
+        return rafraf(() => {
+          void diagram.current.setCenter(
+            ((node.position.x + newNodeWidth / 2) * zoom + drawerOffset) / zoom,
+            node.position.y + newNodeHeight / 2,
+            {
+              duration: 500,
+              zoom,
+            }
+          );
+        });
+      }
+    }
+    previouslyOpenedDrawer.current = !!isDrawerOpen;
+  }, [newCollection, nodes, isDrawerOpen]);
 
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
@@ -242,6 +271,7 @@ const ConnectedDiagramContent = connect(
       model: diagram ? selectCurrentModelFromState(state) : null,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
+      newCollection: diagram?.draftCollection,
     };
   },
   {
