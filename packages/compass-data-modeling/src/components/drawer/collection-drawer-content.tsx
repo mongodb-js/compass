@@ -127,7 +127,7 @@ const CollectionDrawerContent: React.FunctionComponent<
   const namespaces = useMemo(() => {
     return collections.map((c) => c.ns);
   }, [collections]);
-  const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO: what if there are no namespaces?
+  const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO(COMPASS-9718) use diagram.database
 
   const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
     toNS(namespace).collection,

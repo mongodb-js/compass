@@ -1452,9 +1452,9 @@ export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Ico
 export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
-  `${DataModelPreview} [data-id="${collectionId}"]`; // TODO: add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
+  `${DataModelPreview} [data-id="${collectionId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
 export const DataModelPreviewRelationship = (relationshipId: string) =>
-  `${DataModelPreview} [data-id="${relationshipId}"]`; // TODO: add once we upgrade reactflow again in diagramming: [aria-roleDescription="edge"]
+  `${DataModelPreview} [data-id="${relationshipId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="edge"]
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
