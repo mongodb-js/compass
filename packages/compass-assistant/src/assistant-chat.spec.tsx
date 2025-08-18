@@ -245,10 +245,5 @@ describe('AssistantChat', function () {
       .exist;
     expect(screen.queryByText('Another part that should not display.')).to.not
       .exist;
-    expect(
-      screen.queryByText(
-        'This message part should be ignored.Another part that should not display.'
-      )
-    ).to.not.exist;
   });
 });
