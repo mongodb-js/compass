@@ -32,7 +32,6 @@ export type SchemaAnalysisErrorState = {
 export interface FieldInfo {
   type: string; // MongoDB type (eg. String, Double, Array, Document)
   sample_values: unknown[]; // Real sample values (empty array if none)
-  isArray?: boolean; // For arrays. Denotes that the type field refers to the type of the array elements
   probability?: number; // 0.0 - 1.0 field frequency
 }
 

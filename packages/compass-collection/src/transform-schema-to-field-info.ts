@@ -19,6 +19,63 @@ import type { FieldInfo } from './schema-analysis-types';
 export function processSchema(schema: Schema): Record<string, FieldInfo> {
   const result: Record<string, FieldInfo> = {};
 
+  // Helper to recursively process element types (for arrays and documents)
+  function processElementType(
+    elementType: SchemaType,
+    fieldPath: string,
+    arrayType?: ArraySchemaType,
+    fieldProbability?: number
+  ): void {
+    if (
+      elementType.name === 'Document' ||
+      elementType.bsonType === 'Document'
+    ) {
+      // Create entry for document (leaf level)
+      if (arrayType) {
+        result[fieldPath] = {
+          type: elementType.name || elementType.bsonType || 'Mixed',
+          sample_values: extractSampleValues(arrayType),
+          probability: fieldProbability || 1.0,
+        };
+      }
+
+      // Process document fields
+      const docType = elementType as DocumentSchemaType;
+      if (docType.fields) {
+        docType.fields.forEach((nestedField) => {
+          processField(nestedField, fieldPath);
+        });
+      }
+    } else if (
+      elementType.name === 'Array' ||
+      elementType.bsonType === 'Array'
+    ) {
+      // Process nested arrays recursively with bracket notation
+      const nestedArrayType = elementType as ArraySchemaType;
+      const innerElementType = getMostFrequentType(nestedArrayType.types || []);
+
+      if (innerElementType) {
+        // Add [] to the field path for nested arrays
+        const nestedArrayPath = `${fieldPath}[]`;
+        processElementType(
+          innerElementType,
+          nestedArrayPath,
+          nestedArrayType,
+          fieldProbability
+        );
+      }
+    } else {
+      // Primitive type - create entry (leaf level)
+      if (arrayType) {
+        result[fieldPath] = {
+          type: elementType.name || elementType.bsonType || 'Mixed',
+          sample_values: extractSampleValues(arrayType),
+          probability: fieldProbability || 1.0,
+        };
+      }
+    }
+  }
+
   function processField(field: SchemaField, pathPrefix = ''): void {
     const fieldPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
@@ -33,25 +90,16 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
       const elementType = getMostFrequentType(arrayType.types || []);
 
       if (elementType) {
-        result[fieldPath] = {
-          type: elementType.name || elementType.bsonType || 'Mixed',
-          sample_values: extractSampleValues(arrayType),
-          isArray: true,
-          probability: field.probability,
-        };
+        // Create bracket notation path for array elements
+        const arrayElementPath = `${fieldPath}[]`;
 
-        // Process nested fields if the array contains documents
-        if (
-          elementType.name === 'Document' ||
-          elementType.bsonType === 'Document'
-        ) {
-          const docType = elementType as DocumentSchemaType;
-          if (docType.fields) {
-            docType.fields.forEach((nestedField) => {
-              processField(nestedField, fieldPath);
-            });
-          }
-        }
+        // Recursively process nested structures
+        processElementType(
+          elementType,
+          arrayElementPath,
+          arrayType,
+          field.probability
+        );
       }
     }
     // Handle documents (nested objects)
@@ -63,12 +111,7 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
       // We can infer its presence from its children.
 
       // Process nested fields (children):
-      const docType = primaryType as DocumentSchemaType;
-      if (docType.fields) {
-        docType.fields.forEach((nestedField) => {
-          processField(nestedField, fieldPath);
-        });
-      }
+      processElementType(primaryType, fieldPath);
     }
     // Handle primitive types
     else {

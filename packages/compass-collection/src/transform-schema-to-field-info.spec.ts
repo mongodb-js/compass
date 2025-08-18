@@ -149,10 +149,9 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      tags: {
+      'tags[]': {
         type: 'String',
         sample_values: [['red', 'blue'], ['green']],
-        isArray: true,
         probability: 1.0,
       },
     });
@@ -327,13 +326,12 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      items: {
+      'items[]': {
         type: 'Document',
         sample_values: [], // no sample values for Documents
-        isArray: true,
         probability: 1.0,
       },
-      'items.id': {
+      'items[].id': {
         type: 'Number',
         sample_values: [1, 2],
         probability: 1.0,
@@ -390,6 +388,211 @@ describe('processSchema', function () {
 
     expect(result.field.sample_values).to.have.length(10);
     expect(result.field.sample_values).to.deep.equal(manyValues.slice(0, 10));
+  });
+
+  it('handles arrays of arrays of documents', function () {
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'matrix',
+          path: ['matrix'],
+          count: 1,
+          type: ['Array'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Array',
+              bsonType: 'Array',
+              path: ['matrix'],
+              count: 1,
+              probability: 1.0,
+              lengths: [2],
+              averageLength: 2,
+              totalCount: 2,
+              types: [
+                {
+                  name: 'Array',
+                  bsonType: 'Array',
+                  path: ['matrix'],
+                  count: 2,
+                  probability: 1.0,
+                  lengths: [1],
+                  averageLength: 1,
+                  totalCount: 2,
+                  types: [
+                    {
+                      name: 'Document',
+                      bsonType: 'Document',
+                      path: ['matrix'],
+                      count: 2,
+                      probability: 1.0,
+                      fields: [
+                        {
+                          name: 'x',
+                          path: ['matrix', 'x'],
+                          count: 2,
+                          type: ['Number'],
+                          probability: 1.0,
+                          hasDuplicates: false,
+                          types: [
+                            {
+                              name: 'Number',
+                              bsonType: 'Number',
+                              path: ['matrix', 'x'],
+                              count: 2,
+                              probability: 1.0,
+                              values: [1, 3],
+                            } as SchemaType,
+                          ],
+                        } as SchemaField,
+                        {
+                          name: 'y',
+                          path: ['matrix', 'y'],
+                          count: 2,
+                          type: ['Number'],
+                          probability: 1.0,
+                          hasDuplicates: false,
+                          types: [
+                            {
+                              name: 'Number',
+                              bsonType: 'Number',
+                              path: ['matrix', 'y'],
+                              count: 2,
+                              probability: 1.0,
+                              values: [2, 4],
+                            } as SchemaType,
+                          ],
+                        } as SchemaField,
+                      ],
+                    } as DocumentSchemaType,
+                  ],
+                } as ArraySchemaType,
+              ],
+            } as ArraySchemaType,
+          ],
+        } as SchemaField,
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result).to.deep.equal({
+      'matrix[][]': {
+        type: 'Document',
+        sample_values: [],
+        probability: 1.0,
+      },
+      'matrix[][].x': {
+        type: 'Number',
+        sample_values: [1, 3],
+        probability: 1.0,
+      },
+      'matrix[][].y': {
+        type: 'Number',
+        sample_values: [2, 4],
+        probability: 1.0,
+      },
+    });
+  });
+
+  it('handles deeply nested arrays (infinite recursion)', function () {
+    // Test case: matrix: [[[{ value: 42 }]]]
+    // Array -> Array -> Array -> Document -> value field
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'deepMatrix',
+          path: ['deepMatrix'],
+          count: 1,
+          type: ['Array'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Array',
+              bsonType: 'Array',
+              path: ['deepMatrix'],
+              count: 1,
+              probability: 1.0,
+              lengths: [1],
+              averageLength: 1,
+              totalCount: 1,
+              types: [
+                {
+                  name: 'Array',
+                  bsonType: 'Array',
+                  path: ['deepMatrix'],
+                  count: 1,
+                  probability: 1.0,
+                  lengths: [1],
+                  averageLength: 1,
+                  totalCount: 1,
+                  types: [
+                    {
+                      name: 'Array',
+                      bsonType: 'Array',
+                      path: ['deepMatrix'],
+                      count: 1,
+                      probability: 1.0,
+                      lengths: [1],
+                      averageLength: 1,
+                      totalCount: 1,
+                      types: [
+                        {
+                          name: 'Document',
+                          bsonType: 'Document',
+                          path: ['deepMatrix'],
+                          count: 1,
+                          probability: 1.0,
+                          fields: [
+                            {
+                              name: 'value',
+                              path: ['deepMatrix', 'value'],
+                              count: 1,
+                              type: ['Number'],
+                              probability: 1.0,
+                              hasDuplicates: false,
+                              types: [
+                                {
+                                  name: 'Number',
+                                  bsonType: 'Number',
+                                  path: ['deepMatrix', 'value'],
+                                  count: 1,
+                                  probability: 1.0,
+                                  values: [42],
+                                } as SchemaType,
+                              ],
+                            } as SchemaField,
+                          ],
+                        } as DocumentSchemaType,
+                      ],
+                    } as ArraySchemaType,
+                  ],
+                } as ArraySchemaType,
+              ],
+            } as ArraySchemaType,
+          ],
+        } as SchemaField,
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result).to.deep.equal({
+      'deepMatrix[][][]': {
+        type: 'Document',
+        sample_values: [],
+        probability: 1.0,
+      },
+      'deepMatrix[][][].value': {
+        type: 'Number',
+        sample_values: [42],
+        probability: 1.0,
+      },
+    });
   });
 
   it('selects most probable type when multiple types exist', function () {
@@ -496,13 +699,12 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      coordinates: {
+      'coordinates[]': {
         type: 'Double',
         sample_values: [
           [-18.568, -66.281],
           [93.074, 37.075],
         ],
-        isArray: true,
         probability: 1.0,
       },
       _id: {
