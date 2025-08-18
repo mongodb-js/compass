@@ -69,8 +69,7 @@ export function ContextMenuProvider({
 
     function handleContextMenu(event: MouseEvent) {
       const itemGroups = getContextMenuContent(event as EnhancedMouseEvent);
-
-      if (itemGroups.length === 0) {
+      if (itemGroups.length === 0 || event.shiftKey) {
         return;
       }
 
