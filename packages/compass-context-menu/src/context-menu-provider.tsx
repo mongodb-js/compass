@@ -68,14 +68,13 @@ export function ContextMenuProvider({
     if (parentContext || disabled || !container) return;
 
     function handleContextMenu(event: MouseEvent) {
-      event.preventDefault();
-
       const itemGroups = getContextMenuContent(event as EnhancedMouseEvent);
 
       if (itemGroups.length === 0) {
         return;
       }
 
+      event.preventDefault();
       onContextMenuOpenRef.current?.(itemGroups);
 
       setMenu({
