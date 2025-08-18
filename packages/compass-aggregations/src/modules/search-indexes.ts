@@ -80,13 +80,17 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
+export const fetchIndexes = (
+  viewNamespace?: string
+): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
-      namespace,
+      namespace: collectionNamespace,
       dataService: { dataService },
       searchIndexes: { status },
     } = getState();
+
+    const namespace = viewNamespace || collectionNamespace; // fetch indexes for view if passed in
 
     if (
       !dataService ||

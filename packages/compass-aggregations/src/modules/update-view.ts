@@ -8,6 +8,9 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
+import { showConfirmation } from '@mongodb-js/compass-components';
+import { fetchIndexes } from './search-indexes';
+import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
 
 export type UpdateViewState = null | string;
 
@@ -107,6 +110,24 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       getState(),
       pipelineBuilder
     );
+
+    await dispatch(fetchIndexes(viewNamespace));
+    if (state.searchIndexes.indexes.length > 0) {
+      const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
+      const confirmed = await showConfirmation({
+        title: `Are you sure you want to update the view?`,
+        description: pipelineIsSearchQueryable
+          ? 'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
+          : 'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.',
+        buttonText: 'Update',
+        variant: pipelineIsSearchQueryable ? 'primary' : 'danger',
+      });
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline,
