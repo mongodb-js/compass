@@ -27,15 +27,14 @@ export async function runFind(
       return resultId !== initialResultId;
     });
 
-    // Wait for animations to finish on the documents or schema page.
-    // Because we're virtualizing the list on crud, the query results may
-    // change after the resultId has changed.
-    if (tabName === 'Documents') {
+    if (
+      tabName === 'Documents' &&
+      (await browser.$(Selectors.DocumentList).isDisplayed())
+    ) {
+      // Wait for animations to finish on the document page.
+      // Because we're virtualizing the list on crud, the query results may
+      // change after the resultId has changed.
       await browser.waitForAnimations(Selectors.DocumentList);
-    } else if (tabName === 'Schema') {
-      /* not virtualized */
-    } else {
-      throw new Error(`Unknown tab name ${tabName}`);
     }
   }
 }
