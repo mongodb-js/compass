@@ -48,7 +48,7 @@ describe('CompassAuthServiceMain', function () {
   };
 
   const defaultConfig = {
-    wsBaseUrl: 'ws://example.com',
+    ccsBaseUrl: 'ws://example.com',
     cloudBaseUrl: 'ws://example.com/cloud',
     atlasApiBaseUrl: 'http://example.com/api',
     atlasLogin: {
@@ -56,6 +56,7 @@ describe('CompassAuthServiceMain', function () {
       clientId: '1234abcd',
     },
     authPortalUrl: 'http://example.com',
+    assistantApiBaseUrl: 'http://example.com/assistant',
   };
 
   const fetch = CompassAuthService['fetch'];

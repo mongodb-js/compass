@@ -9,6 +9,7 @@ import {
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
 import {
+  deleteCollection,
   deleteRelationship,
   selectCurrentModelFromState,
 } from '../../store/diagram';
@@ -36,11 +37,13 @@ type DiagramEditorSidePanelProps = {
     type: 'relationship' | 'collection';
     label: string;
   } | null;
+  onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
 };
 
 function DiagramEditorSidePanel({
   selectedItems,
+  onDeleteCollection,
   onDeleteRelationship,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, handleAction } = useMemo(() => {
@@ -53,8 +56,18 @@ function DiagramEditorSidePanel({
             namespace={selectedItems.id}
           ></CollectionDrawerContent>
         ),
-        actions: [],
-        handleAction: () => {},
+        actions: [
+          {
+            action: 'delete',
+            label: 'Delete Collection',
+            icon: 'Trash' as const,
+          },
+        ],
+        handleAction: (actionName: string) => {
+          if (actionName === 'delete') {
+            onDeleteCollection(selectedItems.id);
+          }
+        },
       };
     }
 
@@ -79,7 +92,7 @@ function DiagramEditorSidePanel({
     }
 
     return { content: null };
-  }, [selectedItems, onDeleteRelationship]);
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship]);
 
   if (!content) {
     return null;
@@ -97,6 +110,7 @@ function DiagramEditorSidePanel({
           <ItemActionControls
             actions={actions}
             iconSize="small"
+            data-testid="data-modeling-drawer-actions"
             onAction={handleAction}
             className={drawerTitleActionGroupStyles}
             // Because the close button here is out of our control, we have do
@@ -127,7 +141,21 @@ export default connect(
       };
     }
 
+    const model = selectCurrentModelFromState(state);
+
     if (selected.type === 'collection') {
+      const doesCollectionExist = model.collections.find((collection) => {
+        return collection.ns === selected.id;
+      });
+
+      if (!doesCollectionExist) {
+        // TODO(COMPASS-9680): When the selected collection doesn't exist then we
+        // don't show any selection. We can get into this state with undo/redo.
+        return {
+          selectedItems: null,
+        };
+      }
+
       return {
         selectedItems: {
           ...selected,
@@ -137,15 +165,16 @@ export default connect(
     }
 
     if (selected.type === 'relationship') {
-      const model = selectCurrentModelFromState(state);
       const relationship = model.relationships.find((relationship) => {
         return relationship.id === selected.id;
       });
 
       if (!relationship) {
-        throw new Error(
-          'Can not find corresponding relationship when rendering DiagramEditorSidePanel'
-        );
+        // TODO(COMPASS-9680): When the selected relationship doesn't exist we don't
+        // show any selection. We can get into this state with undo/redo.
+        return {
+          selectedItems: null,
+        };
       }
 
       return {
@@ -157,6 +186,7 @@ export default connect(
     }
   },
   {
+    onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
   }
 )(DiagramEditorSidePanel);

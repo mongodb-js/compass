@@ -6,8 +6,7 @@ import type { PipelineStorage } from './pipeline-storage';
 export class CompassPipelineStorage implements PipelineStorage {
   private readonly userData: FileUserData<typeof PipelineSchema>;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(PipelineSchema, {
-      subdir: 'SavedPipelines',
+    this.userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
       basePath,
     });
   }
@@ -42,24 +41,32 @@ export class CompassPipelineStorage implements PipelineStorage {
       : this.create(attributes));
   }
 
-  private async create(data: Omit<SavedPipeline, 'lastModified'>) {
-    await this.userData.write(data.id, {
-      ...data,
-      lastModified: Date.now(),
-    });
-    return await this.loadOne(data.id);
+  async create(data: Omit<SavedPipeline, 'lastModified'>): Promise<boolean> {
+    try {
+      await this.userData.write(data.id, {
+        ...data,
+        lastModified: Date.now(),
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async updateAttributes(
     id: string,
     attributes: Partial<SavedPipeline>
-  ): Promise<SavedPipeline> {
-    await this.userData.write(id, {
-      ...(await this.loadOne(id)),
-      ...attributes,
-      lastModified: Date.now(),
-    });
-    return await this.loadOne(id);
+  ): Promise<boolean> {
+    try {
+      await this.userData.write(id, {
+        ...(await this.userData.readOne(id)),
+        ...attributes,
+        lastModified: Date.now(),
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async delete(id: string) {
