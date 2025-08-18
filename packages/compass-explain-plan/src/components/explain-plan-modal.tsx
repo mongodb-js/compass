@@ -9,11 +9,16 @@ import {
   spacing,
   css,
   Link,
+  Icon,
+  palette,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export type ExplainPlanModalProps = Partial<
   Pick<
@@ -48,6 +53,27 @@ const explainPlanModalBodyStyles = css({
   overflow: 'hidden',
 });
 
+const headerWithButtonStyles = css({
+  display: 'flex',
+  alignItems: 'flex-end',
+  justifyContent: 'space-between',
+  paddingRight: spacing[800],
+});
+
+const headerContentStyles = css({
+  flex: 1,
+});
+
+const headerButtonSectionStyles = css({
+  marginTop: spacing[800],
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const tooltipTriggerStyles = css({});
+
 const loaderContainerStyles = css({
   height: '100%',
   display: 'flex',
@@ -74,6 +100,9 @@ export const ExplainPlanModal: React.FunctionComponent<
   error,
   onModalClose,
 }) => {
+  const isAiAssistantEnabled = usePreference('enableAIAssistant');
+  const { interpretExplainPlan } = useAssistantActions();
+
   return (
     <Modal
       data-testid="explain-plan-modal"
@@ -82,21 +111,54 @@ export const ExplainPlanModal: React.FunctionComponent<
       setOpen={onModalClose}
       fullScreen={true}
     >
-      <ModalHeader
-        title="Explain Plan"
-        subtitle={
-          <>
-            Explain provides key execution metrics that help diagnose slow
-            queries and optimize index usage.&nbsp;
-            <Link
-              href="https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats"
-              target="_blank"
+      <div className={headerWithButtonStyles}>
+        <div className={headerContentStyles}>
+          <ModalHeader
+            title="Explain Plan"
+            subtitle={
+              <div>
+                Explain provides key execution metrics that help diagnose slow
+                queries and optimize index usage.&nbsp;
+                <Link
+                  href="https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </div>
+            }
+          />
+        </div>
+        {isAiAssistantEnabled && (
+          <div className={headerButtonSectionStyles}>
+            <Button
+              size="small"
+              variant="default"
+              leftGlyph={
+                <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+              }
+              data-testid="interpret-for-me-button"
+              onClick={() => {
+                onModalClose();
+                interpretExplainPlan(JSON.stringify(explainPlan));
+              }}
             >
-              Learn more
-            </Link>
-          </>
-        }
-      ></ModalHeader>
+              Interpret for me
+            </Button>
+            <Tooltip
+              triggerEvent="hover"
+              trigger={
+                <span className={tooltipTriggerStyles}>
+                  <Icon color={palette.gray.dark1} glyph="InfoWithCircle" />
+                </span>
+              }
+            >
+              Understand Explain output in natural language and get suggestions
+              to improve performance
+            </Tooltip>
+          </div>
+        )}
+      </div>
 
       <div className={explainPlanModalBodyStyles}>
         {status === 'loading' && (

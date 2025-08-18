@@ -10,10 +10,19 @@ import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
 
-function render(props: Partial<ExplainPlanModalProps>) {
+function render(
+  props: Partial<ExplainPlanModalProps>,
+  { preferences }: { preferences: { enableAIAssistant: boolean } } = {
+    preferences: { enableAIAssistant: false },
+  }
+) {
   const { store } = activatePlugin(
     { namespace: 'test.test', isDataLake: false },
-    { dataService: {}, localAppRegistry: {}, preferences: {} } as any,
+    {
+      dataService: {},
+      localAppRegistry: {},
+      preferences: { enableAIAssistant: preferences?.enableAIAssistant },
+    } as any,
     { on() {}, cleanup() {} } as any
   );
 
@@ -50,5 +59,15 @@ describe('ExplainPlanModal', function () {
   it('should render ready state', function () {
     render({ status: 'ready' });
     expect(screen.getByText('Query Performance Summary')).to.exist;
+  });
+
+  it('should show "Interpret for me" button when AI assistant is enabled', function () {
+    render({ status: 'ready' }, { preferences: { enableAIAssistant: true } });
+    expect(screen.getByTestId('interpret-for-me-button')).to.exist;
+  });
+
+  it('should not show "Interpret for me" button when AI assistant is disabled', function () {
+    render({ status: 'ready' }, { preferences: { enableAIAssistant: false } });
+    expect(screen.queryByTestId('interpret-for-me-button')).to.not.exist;
   });
 });
