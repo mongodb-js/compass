@@ -11,7 +11,7 @@ import type {
   Edit,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
-import compassComponents from '@mongodb-js/compass-components';
+import diagramming from '@mongodb-js/diagramming';
 import sinon from 'sinon';
 import { DiagramProvider } from '@mongodb-js/compass-components';
 import { DataModelingWorkspaceTab } from '..';
@@ -156,11 +156,14 @@ describe('DiagramEditor', function () {
   let store: DataModelingStore;
 
   before(function () {
-    // We need to tub the Diagram import because it has problems with ESM/CJS interop
-    sinon.stub(compassComponents, 'Diagram').callsFake(mockDiagramming.Diagram);
+    sinon.stub(diagramming, 'Diagram').callsFake(mockDiagramming.Diagram);
     sinon
-      .stub(compassComponents, 'applyLayout')
+      .stub(diagramming, 'applyLayout')
       .callsFake(mockDiagramming.applyLayout as any);
+  });
+
+  after(function () {
+    sinon.restore();
   });
 
   context('with existing diagram', function () {
