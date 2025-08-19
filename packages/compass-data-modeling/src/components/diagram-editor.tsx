@@ -191,26 +191,30 @@ const DiagramContent: React.FunctionComponent<{
   // Center on a new collection when it is added
   const previouslyOpenedDrawer = useRef<boolean>(false);
   useEffect(() => {
-    if (newCollection) {
-      const node = nodes.find((n) => n.id === newCollection);
-      if (node) {
-        const zoom = diagram.current.getViewport().zoom;
-        const drawerOffset = previouslyOpenedDrawer.current ? 0 : 240;
-        const newNodeWidth = 244;
-        const newNodeHeight = 64;
-        return rafraf(() => {
-          void diagram.current.setCenter(
-            ((node.position.x + newNodeWidth / 2) * zoom + drawerOffset) / zoom,
-            node.position.y + newNodeHeight / 2,
-            {
-              duration: 500,
-              zoom,
-            }
-          );
-        });
-      }
-    }
+    const wasDrawerPreviouslyOpened = previouslyOpenedDrawer.current;
     previouslyOpenedDrawer.current = !!isDrawerOpen;
+
+    if (!newCollection) return;
+    const node = nodes.find((n) => n.id === newCollection);
+    if (!node) return;
+
+    // For calculating the center, we're taking into account the drawer,
+    // so that the new node is centered in the visible part.
+    const drawerOffset = wasDrawerPreviouslyOpened ? 0 : 240;
+    const zoom = diagram.current.getViewport().zoom;
+    const drawerOffsetInDiagramCoords = drawerOffset / zoom;
+    const newNodeWidth = 244;
+    const newNodeHeight = 64;
+    return rafraf(() => {
+      void diagram.current.setCenter(
+        node.position.x + newNodeWidth / 2 + drawerOffsetInDiagramCoords,
+        node.position.y + newNodeHeight / 2,
+        {
+          duration: 500,
+          zoom,
+        }
+      );
+    });
   }, [newCollection, nodes, isDrawerOpen]);
 
   const handleNodesConnect = useCallback(
