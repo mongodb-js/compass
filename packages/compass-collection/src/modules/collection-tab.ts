@@ -10,6 +10,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -24,11 +26,11 @@ import {
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -65,6 +67,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    atlasAiService: AtlasAiService;
   },
   A
 >;
@@ -91,6 +94,7 @@ enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  AiDisclaimerModalShown = 'compass-collection/AiDisclaimerModalShown',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -104,6 +108,10 @@ interface SchemaAnalysisResetAction {
 
 interface SchemaAnalysisStartedAction {
   type: CollectionActions.SchemaAnalysisStarted;
+}
+
+interface AiDisclaimerModalShownAction {
+  type: CollectionActions.AiDisclaimerModalShown;
 }
 
 interface SchemaAnalysisFinishedAction {
@@ -148,7 +156,7 @@ const reducer: Reducer<CollectionState, Action> = (
     },
     mockDataGenerator: {
       isModalOpen: false,
-      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
     },
   },
   action
@@ -236,7 +244,7 @@ const reducer: Reducer<CollectionState, Action> = (
       mockDataGenerator: {
         ...state.mockDataGenerator,
         isModalOpen: true,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
     };
   }
@@ -361,6 +369,10 @@ export const mockDataGeneratorPreviousButtonClicked =
     return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
   };
 
+export const aIDisclaimerModalOpened = (): AiDisclaimerModalShownAction => {
+  return { type: CollectionActions.AiDisclaimerModalShown };
+};
+
 export const selectTab = (
   tabName: CollectionSubtab
 ): CollectionThunkAction<void> => {
@@ -369,6 +381,32 @@ export const selectTab = (
       getState().workspaceTabId,
       tabName
     );
+  };
+};
+
+export const openMockDataGeneratorModal = (): CollectionThunkAction<
+  Promise<void>
+> => {
+  return async (
+    dispatch,
+    _getState,
+    { atlasAiService, preferences, logger }
+  ) => {
+    try {
+      if (preferences.getPreferences().optInGenAIFeatures) {
+        // If the user has already opted in, we can directly open the modal
+        dispatch(mockDataGeneratorModalOpened());
+      } else if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasAiService.ensureAiFeatureAccess();
+      }
+    } catch (error) {
+      logger.log.error(
+        mongoLogId(1_001_000_364),
+        'Collections',
+        'Failed to ensure AI feature access',
+        error
+      );
+    }
   };
 };
 

@@ -7,6 +7,7 @@ import reducer, {
   selectTab,
   collectionMetadataFetched,
   analyzeCollectionSchema,
+  openMockDataGeneratorModal,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
@@ -20,8 +21,12 @@ import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
-import { ExperimentTestName } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestGroup,
+  ExperimentTestName,
+} from '@mongodb-js/compass-telemetry/provider';
 import { SCHEMA_ANALYSIS_STATE_INITIAL } from '../schema-analysis-types';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 export type CollectionTabOptions = {
   /**
@@ -48,6 +53,7 @@ export type CollectionTabServices = {
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
   preferences: PreferencesAccess;
+  atlasAiService: AtlasAiService;
 };
 
 export function activatePlugin(
@@ -67,6 +73,7 @@ export function activatePlugin(
     connectionInfoRef,
     logger,
     preferences,
+    atlasAiService,
   } = services;
 
   if (!collectionModel) {
@@ -87,7 +94,7 @@ export function activatePlugin(
       },
       mockDataGenerator: {
         isModalOpen: false,
-        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+        currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
       },
     },
     applyMiddleware(
@@ -98,6 +105,7 @@ export function activatePlugin(
         experimentationServices,
         logger,
         preferences,
+        atlasAiService,
       })
     )
   );
@@ -116,6 +124,28 @@ export function activatePlugin(
 
   on(localAppRegistry, 'menu-share-schema-json', () => {
     store.dispatch(selectTab('Schema'));
+  });
+
+  on(localAppRegistry, 'open-mock-data-generator-modal', () => {
+    void experimentationServices
+      .getAssignment(ExperimentTestName.mockDataGenerator, {
+        team: 'Atlas Growth',
+      })
+      .then((mockDataGeneratorAssignment) => {
+        if (
+          mockDataGeneratorAssignment?.assignmentData?.variant ===
+          ExperimentTestGroup.mockDataGeneratorVariant
+        ) {
+          void store.dispatch(openMockDataGeneratorModal());
+        }
+      })
+      .catch((error) => {
+        logger.debug('Mock Data Generator get experiment assignment', {
+          experiment: ExperimentTestName.mockDataGenerator,
+          namespace: namespace,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      });
   });
 
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {

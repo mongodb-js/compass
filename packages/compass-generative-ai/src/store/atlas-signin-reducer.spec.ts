@@ -13,6 +13,9 @@ import {
 import { configureStore } from './atlas-ai-store';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { AppRegistry } from '@mongodb-js/compass-app-registry';
+
+const mockLocalAppRegistry = new AppRegistry();
 
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -35,6 +38,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       expect(store.getState().signIn).to.have.nested.property(
@@ -58,6 +62,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       expect(store.getState().signIn).to.have.nested.property(
@@ -81,6 +86,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
       void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
       const signInPromise = store.dispatch(signIn());
@@ -98,6 +104,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: {} as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
       expect(store.getState().signIn).to.have.nested.property(
         'state',
@@ -126,6 +133,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
@@ -150,6 +158,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
@@ -167,6 +176,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
@@ -190,6 +200,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
@@ -213,6 +224,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
         atlasAiService: mockAtlasService as any,
         preferences: mockPreferences,
+        localAppRegistry: mockLocalAppRegistry,
       });
 
       const c = new AbortController();
