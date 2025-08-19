@@ -7,6 +7,7 @@ import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
 import { buildExplainPlanPrompt } from './prompts';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -31,8 +32,15 @@ export const AssistantActionsContext =
     interpretExplainPlan: () => {},
   });
 
-export function useAssistantActions(): AssistantActionsContextType {
-  return useContext(AssistantActionsContext);
+export function useAssistantActions(): AssistantActionsContextType & {
+  isAssistantEnabled: boolean;
+} {
+  const isAssistantEnabled = usePreference('enableAIAssistant');
+
+  return {
+    ...useContext(AssistantActionsContext),
+    isAssistantEnabled,
+  };
 }
 
 export const AssistantProvider: React.FunctionComponent<

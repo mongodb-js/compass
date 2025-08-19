@@ -18,7 +18,6 @@ import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import { usePreference } from 'compass-preferences-model/provider';
 
 export type ExplainPlanModalProps = Partial<
   Pick<
@@ -105,8 +104,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   error,
   onModalClose,
 }) => {
-  const isAiAssistantEnabled = usePreference('enableAIAssistant');
-  const { interpretExplainPlan } = useAssistantActions();
+  const { interpretExplainPlan, isAssistantEnabled } = useAssistantActions();
 
   return (
     <Modal
@@ -134,7 +132,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             }
           />
         </div>
-        {isAiAssistantEnabled && (
+        {isAssistantEnabled && (
           <div className={headerButtonSectionStyles}>
             <Button
               size="small"
@@ -148,6 +146,7 @@ export const ExplainPlanModal: React.FunctionComponent<
                 onModalClose();
                 interpretExplainPlan(JSON.stringify(explainPlan));
               }}
+              disabled={status !== 'ready'}
             >
               Interpret for me
             </Button>
