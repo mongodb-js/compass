@@ -32,7 +32,7 @@ import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
 import type { CollectionStats } from '../../modules/collection-stats';
-import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
+import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 
 const toolbarButtonsContainer = css({
   display: 'flex',

@@ -79,6 +79,7 @@
     "@mongodb-js/mongodb-constants": "^0.12.2",
     "@mongodb-js/shell-bson-parser": "^1.2.0",
     "@mongodb-js/connection-info": "^0.17.1",
+    "@mongodb-js/compass-utils": "^0.9.10",
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.50.0",
     "lodash": "^4.17.21",

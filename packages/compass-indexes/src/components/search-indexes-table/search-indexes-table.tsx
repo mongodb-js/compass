@@ -40,7 +40,7 @@ import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionStats } from '../../modules/collection-stats';
-import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
+import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 
 type SearchIndexesTableProps = {
   namespace: string;

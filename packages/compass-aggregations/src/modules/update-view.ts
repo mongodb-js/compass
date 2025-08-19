@@ -10,7 +10,7 @@ import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
 import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 import { fetchIndexes } from './search-indexes';
-import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
+import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 
 export type UpdateViewState = null | string;
 

@@ -37,8 +37,8 @@ import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
 import semver from 'semver';
 import type { SearchIndex } from 'mongodb-data-service';
-import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
 import type { CollectionStats } from '../../modules/collection-stats';
+import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
