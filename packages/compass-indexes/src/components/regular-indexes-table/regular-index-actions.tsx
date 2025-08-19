@@ -14,6 +14,13 @@ const styles = css({
   justifyContent: 'flex-end',
 });
 
+const buildProgressStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  gap: '8px',
+});
+
 type IndexActionsProps = {
   index: RegularIndex;
   serverVersion: string;
@@ -100,15 +107,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const buildProgress = index.buildProgress;
   if (buildProgress > 0 && buildProgress < 1) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: '8px',
-        }}
-        data-testid="index-building-spinner"
-      >
+      <div className={buildProgressStyles} data-testid="index-building-spinner">
         <Body>Building... {(buildProgress * 100) | 0}%</Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>

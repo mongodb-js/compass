@@ -4,6 +4,7 @@ import {
   ItemActionGroup,
   SpinLoader,
   Body,
+  css,
 } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
@@ -12,6 +13,13 @@ type Index = {
   status: InProgressIndex['status'];
   buildProgress: number;
 };
+
+const styles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  gap: '8px',
+});
 
 type IndexActionsProps = {
   index: Index;
@@ -52,14 +60,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const isBuilding = progress > 0 && progress < 100;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: '8px',
-      }}
-    >
+    <div className={styles}>
       {isBuilding && (
         <>
           <Body>Building... {progress | 0}%</Body>
