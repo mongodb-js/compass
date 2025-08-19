@@ -23,7 +23,7 @@ describe('MockDataGeneratorModal', () => {
 
   function renderModal({
     isOpen = true,
-    currentStep = MockDataGeneratorStep.AI_DISCLAIMER,
+    currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
   } = {}) {
     return render(
       <MockDataGeneratorModal

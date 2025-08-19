@@ -9,6 +9,14 @@ type UseAssignmentHook = (
   options?: typesReact.UseAssignmentOptions<types.TypeData>
 ) => typesReact.UseAssignmentResponse<types.TypeData>;
 
+type GetAssignmentFn = (
+  experimentName: ExperimentTestName,
+  options?: types.GetAssignmentOptions<types.TypeData>
+) => Promise<types.SDKAssignment<
+  types.TypeData['experimentName'],
+  types.TypeData['experimentVariantName']
+> | null>;
+
 type AssignExperimentFn = (
   experimentName: ExperimentTestName,
   options?: types.AssignOptions<string>
@@ -17,6 +25,7 @@ type AssignExperimentFn = (
 interface CompassExperimentationProviderContextValue {
   useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
+  getAssignment: GetAssignmentFn;
 }
 
 const initialContext: CompassExperimentationProviderContextValue = {
@@ -33,6 +42,9 @@ const initialContext: CompassExperimentationProviderContextValue = {
   assignExperiment() {
     return Promise.resolve(null);
   },
+  getAssignment() {
+    return Promise.resolve(null);
+  },
 };
 
 export const ExperimentationContext =
@@ -43,12 +55,18 @@ export const CompassExperimentationProvider: React.FC<{
   children: React.ReactNode;
   useAssignment: UseAssignmentHook;
   assignExperiment: AssignExperimentFn;
-}> = ({ children, useAssignment, assignExperiment }) => {
+  getAssignment: GetAssignmentFn;
+}> = ({ children, useAssignment, assignExperiment, getAssignment }) => {
   // Use useRef to keep the functions up-to-date; Use mutation pattern to maintain the
   // same object reference to prevent unnecessary re-renders of consuming components
-  const { current: contextValue } = useRef({ useAssignment, assignExperiment });
+  const { current: contextValue } = useRef({
+    useAssignment,
+    assignExperiment,
+    getAssignment,
+  });
   contextValue.useAssignment = useAssignment;
   contextValue.assignExperiment = assignExperiment;
+  contextValue.getAssignment = getAssignment;
 
   return (
     <ExperimentationContext.Provider value={contextValue}>

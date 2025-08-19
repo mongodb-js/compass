@@ -31,11 +31,11 @@ describe('AIOptInModal Component', function () {
     );
     expect(
       screen.getByRole('heading', {
-        name: 'Use natural language to generate queries and pipelines',
+        name: 'Use AI Features in Data Explorer',
       })
     ).to.exist;
   });
-  it('should show the cancel button', function () {
+  it('should show the Not now link', function () {
     render(
       <PreferencesProvider value={mockPreferences}>
         <AIOptInModal
@@ -49,11 +49,11 @@ describe('AIOptInModal Component', function () {
         </AIOptInModal>
       </PreferencesProvider>
     );
-    const button = screen.getByText('Cancel').closest('button');
-    expect(button).to.not.match('disabled');
+    expect(screen.getByText('Not now')).to.exist;
   });
 
-  it('should show the opt in button enabled when project AI setting is enabled', async function () {
+  // TODO: Re-enable this test once the LG-5416 is released
+  it.skip('should show the opt in button enabled when project AI setting is enabled', async function () {
     await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: true,
     });
@@ -74,7 +74,8 @@ describe('AIOptInModal Component', function () {
     expect(button?.getAttribute('aria-disabled')).to.equal('false');
   });
 
-  it('should disable the opt in button if project AI setting is disabled ', async function () {
+  // TODO: Re-enable this test once the LG-5416 is released
+  it.skip('should disable the opt in button if project AI setting is disabled ', async function () {
     await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: false,
     });

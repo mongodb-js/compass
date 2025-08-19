@@ -4,11 +4,9 @@ import {
   Banner,
   Body,
   Link,
-  ConfirmationModal,
-  SpinLoader,
+  MarketingModal,
   css,
   spacing,
-  H3,
   palette,
 } from '@mongodb-js/compass-components';
 import { AiImageBanner } from './ai-image-banner';
@@ -26,14 +24,6 @@ type OptInModalProps = {
   onOptInClick: () => void;
   projectId?: string;
 };
-
-const titleStyles = css({
-  marginBottom: spacing[400],
-  marginTop: spacing[400],
-  marginLeft: spacing[500],
-  marginRight: spacing[500],
-  textAlign: 'center',
-});
 
 const bodyStyles = css({
   marginBottom: spacing[400],
@@ -58,19 +48,6 @@ const bannerStyles = css({
   marginTop: spacing[400],
   textAlign: 'left',
 });
-const getButtonText = (isOptInInProgress: boolean) => {
-  return (
-    <>
-      &nbsp;Use Natural Language
-      {isOptInInProgress && (
-        <>
-          &nbsp;
-          <SpinLoader darkMode={true}></SpinLoader>
-        </>
-      )}
-    </>
-  );
-};
 
 export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInModalVisible,
@@ -104,25 +81,33 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   }, [track, onOptInModalClose]);
 
   return (
-    <ConfirmationModal
+    <MarketingModal
+      className={css({
+        zIndex: '99999',
+      })}
+      title="Use AI Features in Data Explorer"
       open={isOptInModalVisible}
-      title=""
-      confirmButtonProps={{
-        children: getButtonText(isOptInInProgress),
-        disabled: !isProjectAIEnabled,
-        onClick: onConfirmClick,
-      }}
-      cancelButtonProps={{
-        onClick: handleModalClose,
-      }}
+      onClose={handleModalClose}
+      // TODO: replace with buttonProps and add disabled state once LG-5416 is released
+      buttonText="Use AI Features"
+      onButtonClick={onConfirmClick}
+      linkText="Not now"
+      onLinkClick={onOptInModalClose}
+      graphic={<AiImageBanner />}
+      disclaimer={
+        <div className={disclaimerStyles}>
+          This is a feature powered by generative AI, and may give inaccurate
+          responses. Please see our{' '}
+          <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
+            FAQ
+          </Link>{' '}
+          for more information.
+        </div>
+      }
     >
       <Body className={bodyStyles}>
-        <AiImageBanner></AiImageBanner>
-        <H3 className={titleStyles}>
-          Use natural language to generate queries and pipelines
-        </H3>
-        Atlas users can now quickly create queries and aggregations with
-        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today.
+        AI-powered features in Data Explorer supply users with an intelligent
+        toolset to build faster and smarter with MongoDB.
         <Banner
           variant={isProjectAIEnabled ? 'info' : 'warning'}
           className={bannerStyles}
@@ -141,16 +126,8 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           )}
           .
         </Banner>
-        <div className={disclaimerStyles}>
-          This is a feature powered by generative AI, and may give inaccurate
-          responses. Please see our{' '}
-          <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
-            FAQ
-          </Link>{' '}
-          for more information.
-        </div>
       </Body>
-    </ConfirmationModal>
+    </MarketingModal>
   );
 };
 

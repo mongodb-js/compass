@@ -10,7 +10,10 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasAiPluginProps } from '../components/plugin';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type {
+  ActivateHelpers,
+  AppRegistry,
+} from '@mongodb-js/compass-app-registry';
 
 export let store: CompassGenerativeAIServiceStore;
 
@@ -50,17 +53,24 @@ export type CompassGenerativeAIExtraArgs = {
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   preferences: PreferencesAccess;
+  localAppRegistry: AppRegistry;
 };
 
 export function configureStore({
   atlasAuthService,
   atlasAiService,
   preferences,
+  localAppRegistry,
 }: CompassGenerativeAIExtraArgs) {
   const store = createStore(
     reducer,
     applyMiddleware(
-      thunk.withExtraArgument({ atlasAuthService, atlasAiService, preferences })
+      thunk.withExtraArgument({
+        atlasAuthService,
+        atlasAiService,
+        preferences,
+        localAppRegistry,
+      })
     )
   );
   return store;
