@@ -33,6 +33,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -56,6 +57,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -78,6 +80,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
+    buildProgress: 0,
   },
   {
     ns: 'db.coll',
@@ -100,6 +103,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
+    buildProgress: 0,
   },
 ];
 
@@ -118,6 +122,7 @@ const inProgressIndexes: InProgressIndex[] = [
       },
     ],
     status: 'inprogress',
+    buildProgress: 0,
   },
   {
     id: 'in-progress-2',
@@ -130,6 +135,7 @@ const inProgressIndexes: InProgressIndex[] = [
     ],
     status: 'inprogress',
     error: 'this is an error',
+    buildProgress: 0,
   },
 ];
 
@@ -328,6 +334,7 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
+        buildProgress: 0,
       },
     ];
 
