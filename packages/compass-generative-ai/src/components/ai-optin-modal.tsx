@@ -85,6 +85,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       className={css({
         zIndex: '99999',
       })}
+      showBlob
       title="Use AI Features in Data Explorer"
       open={isOptInModalVisible}
       onClose={handleModalClose}
