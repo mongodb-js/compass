@@ -80,7 +80,7 @@
     "@mongodb-js/connection-info": "^0.17.1",
     "@mongodb-js/devtools-connect": "^3.9.3",
     "@mongodb-js/devtools-proxy-support": "^0.5.2",
-    "@mongodb-js/oidc-plugin": "^2.0.3",
+    "@mongodb-js/oidc-plugin": "mongodb-js/oidc-plugin#2498-dev",
     "compass-preferences-model": "^2.50.0",
     "electron": "^37.2.6",
     "hadron-ipc": "^3.5.10",
@@ -88,5 +88,8 @@
     "react": "^17.0.2",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2"
+  },
+  "overrides": {
+    "@mongodb-js/oidc-plugin": "mongodb-js/oidc-plugin#2498-dev"
   }
 }
