@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
@@ -181,15 +180,6 @@ class ReadonlyDocument extends React.Component<
   }
 
   static displayName = 'ReadonlyDocument';
-
-  static propTypes = {
-    copyToClipboard: PropTypes.func,
-    doc: PropTypes.object.isRequired,
-    openInsertDocumentDialog: PropTypes.func,
-    showInsights: PropTypes.bool,
-    onUpdateQuery: PropTypes.func,
-    query: PropTypes.object,
-  };
 }
 
 export default withPreferences(ReadonlyDocument, ['showInsights']);
