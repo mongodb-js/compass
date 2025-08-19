@@ -90,7 +90,7 @@ export const fetchIndexes = (
       searchIndexes: { status },
     } = getState();
 
-    const namespace = viewNamespace || collectionNamespace; // fetch indexes for view if passed in
+    const namespace = viewNamespace || collectionNamespace;
 
     if (
       !dataService ||

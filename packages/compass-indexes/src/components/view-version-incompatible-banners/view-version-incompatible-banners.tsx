@@ -43,7 +43,10 @@ export const ViewVersionIncompatibleBanner = ({
       ? 'Upgrade your cluster or manage search indexes on views in the Atlas UI.'
       : 'Upgrade your cluster to create search indexes on views.';
   return (
-    <Banner variant={BannerVariant.Warning}>
+    <Banner
+      variant={BannerVariant.Warning}
+      data-testid="view-version-incompatible-banner"
+    >
       <b>Looking for search indexes?</b>
       <br />
       <div className={viewContentStyles}>

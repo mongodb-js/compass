@@ -128,6 +128,26 @@ describe('SearchIndexesTable Component', function () {
     expect(openCreateSpy.callCount).to.equal(1);
   });
 
+  it('renders the zero state with button disabled if there are no indexes and isReadOnlyView with non searchable pipeline', function () {
+    const pipelineMock: Document[] = [{ $project: { newField: 'testValue' } }];
+    const mockCollectionStats = { pipeline: pipelineMock };
+    renderIndexList({
+      indexes: [],
+      isReadonlyView: true,
+      collectionStats: mockCollectionStats,
+    });
+
+    expect(() => {
+      screen.getByTestId('search-indexes-list');
+    }).to.throw;
+
+    const button = screen.getByTestId('create-atlas-search-index-button');
+    expect(button).to.exist;
+    expect(button.closest('button')?.getAttribute('aria-disabled')).to.equal(
+      'true'
+    );
+  });
+
   context('renders list with action', function () {
     it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();

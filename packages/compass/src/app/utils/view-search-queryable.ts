@@ -1,6 +1,6 @@
-export const isPipelineSearchQueryable = (
-  pipeline: Array<Record<string, any>>
-): boolean => {
+import type { Document } from 'mongodb';
+
+export const isPipelineSearchQueryable = (pipeline: Document[]): boolean => {
   for (const stage of pipeline) {
     const stageKey = Object.keys(stage)[0];
 
@@ -15,10 +15,10 @@ export const isPipelineSearchQueryable = (
       return false;
     }
 
-    // If the stage is $match, check if uses $expr
+    // If the stage is $match, check if it uses $expr
     if (stageKey === '$match') {
-      const matchStage = stage['$match'];
-      const matchKeys = Object.keys(matchStage);
+      const matchStage = stage['$match'] as Document;
+      const matchKeys = Object.keys(matchStage || {});
 
       if (!(matchKeys.length === 1 && matchKeys.includes('$expr'))) {
         return false;

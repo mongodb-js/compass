@@ -8,7 +8,7 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 import { fetchIndexes } from './search-indexes';
 import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
 
@@ -76,6 +76,8 @@ export const dismissViewError = (): DismissViewUpdateErrorAction => ({
   type: DISMISS_VIEW_UPDATE_ERROR,
 });
 
+//Exporting this for test only to stub it and set its value
+export const showConfirmation = showConfirmationModal;
 /**
  * Updates a view.
  *

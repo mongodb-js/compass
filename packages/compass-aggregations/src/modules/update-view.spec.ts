@@ -10,6 +10,9 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
 
+// Importing this to stub showConfirmation
+import * as updateViewSlice from './update-view';
+
 const TEST_CONNECTION_INFO = { ...createDefaultConnectionInfo(), title: '' };
 
 describe('update-view module', function () {
@@ -48,15 +51,18 @@ describe('update-view module', function () {
     let stateMock: any;
     let getStateMock: () => any;
     let updateCollectionFake = sinon.fake();
+    let showConfirmationStub: sinon.SinonStub;
 
     beforeEach(async function () {
       dispatchFake = sinon.fake();
       updateCollectionFake = sinon.fake.resolves(undefined);
+      showConfirmationStub = sinon.stub(updateViewSlice, 'showConfirmation');
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
         focusMode: { isEnabled: false },
         namespace: 'aa.bb',
         editViewName: 'aa.bb',
+        searchIndexes: { indexes: [{ name: 'index1' }] },
         dataService: {
           dataService: {
             updateCollection: updateCollectionFake,
@@ -69,10 +75,37 @@ describe('update-view module', function () {
       await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
     });
 
+    afterEach(function () {
+      showConfirmationStub.restore();
+    });
+
     it('first it calls to dismiss any existing error', function () {
       expect(dispatchFake.firstCall.args[0]).to.deep.equal({
         type: 'aggregations/update-view/DISMISS_VIEW_UPDATE_ERROR',
       });
+    });
+
+    it('shows confirmation banner when search indexes are present', async function () {
+      showConfirmationStub.resolves(true);
+
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(showConfirmationStub.calledOnce).to.be.true;
+      expect(showConfirmationStub.firstCall.args[0]).to.deep.include({
+        title: `Are you sure you want to update the view?`,
+        buttonText: 'Update',
+      });
+    });
+
+    it('does not update view if not confirmed', async function () {
+      getStateMock = () => stateMock;
+      showConfirmationStub.resolves(false);
+
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(updateCollectionFake.calledOnce).to.be.false;
     });
 
     it('calls the data service to update the view for the provided ns', function () {

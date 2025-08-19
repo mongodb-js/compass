@@ -114,7 +114,7 @@ const ViewNotSearchCompatibleBanner = ({
   const variant =
     hasNoSearchIndexes || !enableAtlasSearchIndexes ? 'warning' : 'danger';
   return (
-    <Banner variant={variant}>
+    <Banner variant={variant} data-testid="view-not-search-compatible-banner">
       {!enableAtlasSearchIndexes && (
         <>
           <b>Looking for search indexes?</b> <br />
@@ -234,9 +234,7 @@ export function Indexes({
   const isViewPipelineSearchQueryable =
     (isReadonlyView &&
       collectionStats?.pipeline &&
-      isPipelineSearchQueryable(
-        collectionStats.pipeline as Array<Record<string, any>>
-      )) ??
+      isPipelineSearchQueryable(collectionStats.pipeline as Document[])) ??
     true;
 
   const getBanner = () => {
