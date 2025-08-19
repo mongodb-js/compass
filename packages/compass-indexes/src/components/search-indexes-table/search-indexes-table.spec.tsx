@@ -29,6 +29,7 @@ const renderIndexList = (
       status="READY"
       isWritable={true}
       readOnly={false}
+      isReadonlyView={false}
       onDropIndexClick={noop}
       onEditIndexClick={noop}
       onOpenCreateModalClick={noop}
@@ -130,7 +131,11 @@ describe('SearchIndexesTable Component', function () {
 
   it('renders the zero state with button disabled if there are no indexes and isReadOnlyView with non searchable pipeline', function () {
     const pipelineMock: Document[] = [{ $project: { newField: 'testValue' } }];
-    const mockCollectionStats = { pipeline: pipelineMock };
+    const mockCollectionStats = {
+      index_count: 0,
+      index_size: 0,
+      pipeline: pipelineMock,
+    };
     renderIndexList({
       indexes: [],
       isReadonlyView: true,

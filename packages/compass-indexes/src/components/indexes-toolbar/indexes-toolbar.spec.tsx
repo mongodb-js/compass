@@ -41,6 +41,7 @@ describe('IndexesToolbar Component', function () {
           onRefreshIndexes={() => {}}
           isSearchIndexesSupported={false}
           isRefreshing={false}
+          collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
           onIndexViewChanged={() => {}}
           onCreateRegularIndexClick={() => {}}
           onCreateSearchIndexClick={() => {}}
@@ -165,7 +166,11 @@ describe('IndexesToolbar Component', function () {
         const pipelineMock: Document[] = [
           { $project: { newField: 'testValue' } },
         ];
-        const mockCollectionStats = { pipeline: pipelineMock };
+        const mockCollectionStats = {
+          index_count: 0,
+          index_size: 0,
+          pipeline: pipelineMock,
+        };
 
         renderIndexesToolbar({
           isReadonlyView: true,
