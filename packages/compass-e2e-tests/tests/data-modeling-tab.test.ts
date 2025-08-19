@@ -589,7 +589,6 @@ describe('Data Modeling tab', function () {
       expect(await relationshipItem.getText()).to.include('testCollection-one');
 
       // Edit the relationship
-      await relationshipItem.waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .waitForDisplayed();
