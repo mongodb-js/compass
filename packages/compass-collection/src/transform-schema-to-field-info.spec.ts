@@ -170,6 +170,51 @@ describe('processSchema', function () {
             } as SchemaType,
           ],
         } as SchemaField,
+        {
+          name: 'age',
+          path: ['age'],
+          probability: 0.9,
+          types: [
+            {
+              name: 'Number',
+              bsonType: 'Number',
+              path: ['age'],
+              count: 3,
+              probability: 1.0,
+              values: [25, 30, 35],
+            } as SchemaType,
+          ],
+        } as SchemaField,
+        {
+          name: 'isActive',
+          path: ['isActive'],
+          probability: 0.8,
+          types: [
+            {
+              name: 'Boolean',
+              bsonType: 'Boolean',
+              path: ['isActive'],
+              count: 3,
+              probability: 1.0,
+              values: [true, false, true],
+            } as SchemaType,
+          ],
+        } as SchemaField,
+        {
+          name: 'createdAt',
+          path: ['createdAt'],
+          probability: 0.7,
+          types: [
+            {
+              name: 'Date',
+              bsonType: 'Date',
+              path: ['createdAt'],
+              count: 2,
+              probability: 1.0,
+              values: [new Date('2023-01-01'), new Date('2023-06-15')],
+            } as SchemaType,
+          ],
+        } as SchemaField,
       ],
       count: 3,
     };
@@ -181,6 +226,21 @@ describe('processSchema', function () {
         type: 'String',
         sample_values: ['John', 'Jane', 'Bob'],
         probability: 1.0,
+      },
+      age: {
+        type: 'Number',
+        sample_values: [25, 30, 35],
+        probability: 0.9,
+      },
+      isActive: {
+        type: 'Boolean',
+        sample_values: [true, false, true],
+        probability: 0.8,
+      },
+      createdAt: {
+        type: 'Date',
+        sample_values: [new Date('2023-01-01'), new Date('2023-06-15')],
+        probability: 0.7,
       },
     });
   });
@@ -294,7 +354,8 @@ describe('processSchema', function () {
     expect(result).to.deep.equal({
       'tags[]': {
         type: 'String',
-        sample_values: [['red', 'blue'], ['green']],
+        sample_values: ['red', 'blue', 'green'],
+        array_sample_values: [['red', 'blue'], ['green']],
         probability: 1.0,
       },
     });
@@ -382,6 +443,12 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
+              values: [
+                [
+                  { id: 1, cost: 10.5 },
+                  { id: 2, cost: 25.0 },
+                ],
+              ],
               types: [
                 {
                   name: 'Document',
@@ -405,6 +472,21 @@ describe('processSchema', function () {
                         } as SchemaType,
                       ],
                     } as SchemaField,
+                    {
+                      name: 'cost',
+                      path: ['items', 'cost'],
+                      probability: 1.0,
+                      types: [
+                        {
+                          name: 'Double',
+                          bsonType: 'Double',
+                          path: ['items', 'cost'],
+                          count: 2,
+                          probability: 1.0,
+                          values: [10.5, 25.0],
+                        } as SchemaType,
+                      ],
+                    } as SchemaField,
                   ],
                 } as DocumentSchemaType,
               ],
@@ -421,6 +503,23 @@ describe('processSchema', function () {
       'items[].id': {
         type: 'Number',
         sample_values: [1, 2],
+        array_sample_values: [
+          [
+            { id: 1, cost: 10.5 },
+            { id: 2, cost: 25.0 },
+          ],
+        ],
+        probability: 1.0,
+      },
+      'items[].cost': {
+        type: 'Double',
+        sample_values: [10.5, 25.0],
+        array_sample_values: [
+          [
+            { id: 1, cost: 10.5 },
+            { id: 2, cost: 25.0 },
+          ],
+        ],
         probability: 1.0,
       },
     });
@@ -521,7 +620,8 @@ describe('processSchema', function () {
     expect(result).to.deep.equal({
       'cube[][][]': {
         type: 'Number',
-        sample_values: [
+        sample_values: [1, 2, 3, 4, 5, 6, 7, 8],
+        array_sample_values: [
           [
             [
               [1, 2],
@@ -558,6 +658,7 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
+              values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
               types: [
                 {
                   name: 'Array',
@@ -568,6 +669,7 @@ describe('processSchema', function () {
                   lengths: [1],
                   averageLength: 1,
                   totalCount: 2,
+                  values: [[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]],
                   types: [
                     {
                       name: 'Document',
@@ -630,11 +732,13 @@ describe('processSchema', function () {
       'matrix[][].x': {
         type: 'Number',
         sample_values: [1, 3],
+        array_sample_values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
         probability: 1.0,
       },
       'matrix[][].y': {
         type: 'Number',
         sample_values: [2, 4],
+        array_sample_values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
         probability: 1.0,
       },
     });
@@ -740,11 +844,23 @@ describe('processSchema', function () {
       'teams[].name': {
         type: 'String',
         sample_values: ['Team A', 'Team B'],
+        array_sample_values: [
+          [
+            { name: 'Team A', members: ['Alice', 'Bob'] },
+            { name: 'Team B', members: ['Charlie'] },
+          ],
+        ],
         probability: 1.0,
       },
       'teams[].members[]': {
         type: 'String',
-        sample_values: [['Alice', 'Bob'], ['Charlie']],
+        sample_values: ['Alice', 'Bob', 'Charlie'],
+        array_sample_values: [
+          [
+            { name: 'Team A', members: ['Alice', 'Bob'] },
+            { name: 'Team B', members: ['Charlie'] },
+          ],
+        ],
         probability: 1.0,
       },
     });

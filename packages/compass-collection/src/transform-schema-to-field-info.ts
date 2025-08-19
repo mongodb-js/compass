@@ -39,7 +39,7 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
 
   // Process each top-level field
   for (const field of schema.fields) {
-    processNamedField(field, [], result);
+    processNamedField(field, '', result);
   }
 
   return result;
@@ -50,8 +50,9 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
  */
 function processNamedField(
   field: SchemaField,
-  pathPrefix: string[],
-  result: Record<string, FieldInfo>
+  pathPrefix: string,
+  result: Record<string, FieldInfo>,
+  arraySampleValues?: unknown[]
 ): void {
   if (!field.types || field.types.length === 0) {
     return;
@@ -63,10 +64,16 @@ function processNamedField(
     return;
   }
 
-  const currentPath = [...pathPrefix, field.name];
+  const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
   // Process based on the type
-  processType(primaryType, currentPath, result, field.probability);
+  processType(
+    primaryType,
+    currentPath,
+    result,
+    field.probability,
+    arraySampleValues
+  );
 }
 
 /**
@@ -74,7 +81,7 @@ function processNamedField(
  */
 function processType(
   type: SchemaType,
-  currentPath: string[],
+  currentPath: string,
   result: Record<string, FieldInfo>,
   fieldProbability?: number,
   arraySampleValues?: unknown[]
@@ -88,67 +95,33 @@ function processType(
       return;
     }
 
-    const arrayPath = [...currentPath, '[]'];
+    const arrayPath = `${currentPath}[]`;
     const sampleValues = arraySampleValues || getSampleValues(arrayType);
-
     processType(elementType, arrayPath, result, fieldProbability, sampleValues);
   } else if (type.name === 'Document' || type.bsonType === 'Document') {
-    // Process nested document fields (and clear array sample values for nested processing)
-
-    // TODO: Consider
-    // if (arraySampleValues) {
-    //   // We're in an array of documents - create the array entry
-    //   const fieldPath = buildFieldPath(currentPath);
-    //   result[fieldPath] = {
-    //     type: type.name || type.bsonType || 'Document',
-    //     sample_values: arraySampleValues,
-    //     probability: fieldProbability || 1.0,
-    //   };
-    // }
+    // Process nested document fields
 
     const docType = type as DocumentSchemaType;
     if (docType.fields) {
       for (const nestedField of docType.fields) {
-        processNamedField(nestedField, currentPath, result);
+        processNamedField(nestedField, currentPath, result, arraySampleValues);
       }
     }
   } else {
     // Primitive: create entry (with passed-down array sample values if we have them)
-    const fieldPath = buildFieldPath(currentPath);
-    result[fieldPath] = {
+    const fieldInfo: FieldInfo = {
       type: type.name || type.bsonType || 'Mixed',
-      sample_values: arraySampleValues || getSampleValues(type),
+      sample_values: getSampleValues(type),
       probability:
         fieldProbability || (type as PrimitiveSchemaType).probability || 1.0,
     };
-  }
-}
 
-/**
- * Builds a field path from path segments, handling bracket notation correctly
- */
-function buildFieldPath(pathSegments: string[]): string {
-  let result = '';
-
-  for (let i = 0; i < pathSegments.length; i++) {
-    const segment = pathSegments[i];
-
-    if (segment === '[]') {
-      // Bracket notation - append directly
-      result += '[]';
-    } else {
-      // Regular field name
-      if (result && !result.endsWith('[]')) {
-        result += '.';
-      } else if (result && result.endsWith('[]')) {
-        // Add dot after brackets for nested fields
-        result += '.';
-      }
-      result += segment;
+    if (arraySampleValues !== undefined && arraySampleValues.length > 0) {
+      fieldInfo.array_sample_values = arraySampleValues;
     }
-  }
 
-  return result;
+    result[currentPath] = fieldInfo;
+  }
 }
 
 /**
