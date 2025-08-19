@@ -51,8 +51,7 @@ export function processSchema(schema: Schema): Record<string, FieldInfo> {
 function processNamedField(
   field: SchemaField,
   pathPrefix: string,
-  result: Record<string, FieldInfo>,
-  arraySampleValues?: unknown[]
+  result: Record<string, FieldInfo>
 ): void {
   if (!field.types || field.types.length === 0) {
     return;
@@ -67,13 +66,7 @@ function processNamedField(
   const currentPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
 
   // Process based on the type
-  processType(
-    primaryType,
-    currentPath,
-    result,
-    field.probability,
-    arraySampleValues
-  );
+  processType(primaryType, currentPath, result, field.probability);
 }
 
 /**
@@ -83,11 +76,14 @@ function processType(
   type: SchemaType,
   currentPath: string,
   result: Record<string, FieldInfo>,
-  fieldProbability?: number,
-  arraySampleValues?: unknown[]
+  fieldProbability: number
 ): void {
+  if (type.name === 'Null' || type.name === 'Undefined') {
+    return;
+  }
+
   if (type.name === 'Array' || type.bsonType === 'Array') {
-    // Array: add [] to path and recurse into element type (while passing down array sample values)
+    // Array: add [] to path and recurse into element type
     const arrayType = type as ArraySchemaType;
     const elementType = getMostFrequentType(arrayType.types || []);
 
@@ -96,37 +92,40 @@ function processType(
     }
 
     const arrayPath = `${currentPath}[]`;
-    const sampleValues =
-      arraySampleValues || getSampleValues(arrayType).slice(0, 3); // Limit full-context array sample values to 3
-    processType(elementType, arrayPath, result, fieldProbability, sampleValues);
+    processType(elementType, arrayPath, result, fieldProbability);
   } else if (type.name === 'Document' || type.bsonType === 'Document') {
-    // Process nested document fields
+    // Document: Process nested document fields
 
     const docType = type as DocumentSchemaType;
     if (docType.fields) {
       for (const nestedField of docType.fields) {
-        processNamedField(nestedField, currentPath, result, arraySampleValues);
+        processNamedField(nestedField, currentPath, result);
       }
     }
   } else {
-    // Primitive: create entry (with passed-down array sample values if we have them)
+    // Primitive: Create entry
+    const primitiveType = type as PrimitiveSchemaType;
     const fieldInfo: FieldInfo = {
-      type: type.name || type.bsonType || 'Mixed',
-      sample_values: getSampleValues(type),
-      probability:
-        fieldProbability || (type as PrimitiveSchemaType).probability || 1.0,
+      type: primitiveType.name,
+      sample_values: primitiveType.values.slice(0, 10).map((value) => {
+        // Convert BSON values to their primitive equivalents, but keep Date objects as-is
+        if (value instanceof Date) {
+          return value;
+        }
+        if (value && typeof value === 'object' && 'valueOf' in value) {
+          return value.valueOf();
+        }
+        return value;
+      }),
+      probability: fieldProbability,
     };
-
-    if (arraySampleValues !== undefined && arraySampleValues.length > 0) {
-      fieldInfo.array_sample_values = arraySampleValues;
-    }
 
     result[currentPath] = fieldInfo;
   }
 }
 
 /**
- * Gets the most probable type from a list of types, excluding 'Undefined'
+ * Gets the most probable type from a list of types, excluding 'Undefined' and 'Null'
  */
 function getMostFrequentType(types: SchemaType[]): SchemaType | null {
   if (!types || types.length === 0) {
@@ -135,20 +134,8 @@ function getMostFrequentType(types: SchemaType[]): SchemaType | null {
 
   // Filter out undefined types and sort by probability
   const validTypes = types
-    .filter((type) => type.name !== 'Undefined')
+    .filter((type) => type.name !== 'Undefined' && type.name !== 'Null')
     .sort((a, b) => (b.probability || 0) - (a.probability || 0));
 
   return validTypes[0] || null;
-}
-
-/**
- * Extracts sample values from a schema type, limiting to 10 items
- */
-function getSampleValues(type: SchemaType): unknown[] {
-  // Only PrimitiveSchemaType and ArraySchemaType have values
-  if ('values' in type && type.values && type.values.length > 0) {
-    return type.values.slice(0, 10);
-  }
-
-  return [];
 }

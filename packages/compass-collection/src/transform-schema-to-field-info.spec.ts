@@ -1,12 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from 'chai';
+import { Int32, Double } from 'bson';
 import { processSchema } from './transform-schema-to-field-info';
-import type {
-  Schema,
-  SchemaField,
-  SchemaType,
-  ArraySchemaType,
-  DocumentSchemaType,
-} from 'mongodb-schema';
+import type { Schema } from 'mongodb-schema';
 
 describe('processSchema', function () {
   it('selects most probable type when multiple types exist', function () {
@@ -15,7 +11,10 @@ describe('processSchema', function () {
         {
           name: 'mixed',
           path: ['mixed'],
+          count: 10,
+          type: ['String', 'Number'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'String',
@@ -24,17 +23,17 @@ describe('processSchema', function () {
               count: 8,
               probability: 0.8,
               values: ['text'],
-            } as SchemaType,
+            },
             {
               name: 'Number',
               bsonType: 'Number',
               path: ['mixed'],
               count: 2,
               probability: 0.2,
-              values: [42],
-            } as SchemaType,
+              values: [new Int32(42)],
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 10,
     };
@@ -56,7 +55,10 @@ describe('processSchema', function () {
         {
           name: 'optional',
           path: ['optional'],
+          count: 2,
+          type: ['String', 'Undefined'],
           probability: 0.5,
+          hasDuplicates: false,
           types: [
             {
               name: 'String',
@@ -65,16 +67,16 @@ describe('processSchema', function () {
               count: 1,
               probability: 0.5,
               values: ['value'],
-            } as SchemaType,
+            },
             {
               name: 'Undefined',
               bsonType: 'Undefined',
               path: ['optional'],
               count: 1,
               probability: 0.5,
-            } as SchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 2,
     };
@@ -101,7 +103,7 @@ describe('processSchema', function () {
           hasDuplicates: false,
           probability: 0.0,
           types: [],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -130,7 +132,10 @@ describe('processSchema', function () {
         {
           name: 'field',
           path: ['field'],
+          count: 20,
+          type: ['String'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'String',
@@ -139,9 +144,9 @@ describe('processSchema', function () {
               count: 20,
               probability: 1.0,
               values: manyValues,
-            } as SchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -158,7 +163,10 @@ describe('processSchema', function () {
         {
           name: 'name',
           path: ['name'],
+          count: 3,
+          type: ['String'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'String',
@@ -167,13 +175,16 @@ describe('processSchema', function () {
               count: 3,
               probability: 1.0,
               values: ['John', 'Jane', 'Bob'],
-            } as SchemaType,
+            },
           ],
-        } as SchemaField,
+        },
         {
           name: 'age',
           path: ['age'],
+          count: 3,
+          type: ['Number'],
           probability: 0.9,
+          hasDuplicates: false,
           types: [
             {
               name: 'Number',
@@ -181,14 +192,17 @@ describe('processSchema', function () {
               path: ['age'],
               count: 3,
               probability: 1.0,
-              values: [25, 30, 35],
-            } as SchemaType,
+              values: [new Int32(25), new Int32(30), new Int32(35)],
+            },
           ],
-        } as SchemaField,
+        },
         {
           name: 'isActive',
           path: ['isActive'],
+          count: 3,
+          type: ['Boolean'],
           probability: 0.8,
+          hasDuplicates: false,
           types: [
             {
               name: 'Boolean',
@@ -197,13 +211,16 @@ describe('processSchema', function () {
               count: 3,
               probability: 1.0,
               values: [true, false, true],
-            } as SchemaType,
+            },
           ],
-        } as SchemaField,
+        },
         {
           name: 'createdAt',
           path: ['createdAt'],
+          count: 2,
+          type: ['Date'],
           probability: 0.7,
+          hasDuplicates: false,
           types: [
             {
               name: 'Date',
@@ -212,9 +229,9 @@ describe('processSchema', function () {
               count: 2,
               probability: 1.0,
               values: [new Date('2023-01-01'), new Date('2023-06-15')],
-            } as SchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 3,
     };
@@ -251,7 +268,10 @@ describe('processSchema', function () {
         {
           name: 'user',
           path: ['user'],
+          count: 2,
+          type: ['Document'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'Document',
@@ -263,7 +283,10 @@ describe('processSchema', function () {
                 {
                   name: 'name',
                   path: ['user', 'name'],
+                  count: 1,
+                  type: ['String'],
                   probability: 1.0,
+                  hasDuplicates: false,
                   types: [
                     {
                       name: 'String',
@@ -272,13 +295,16 @@ describe('processSchema', function () {
                       count: 1,
                       probability: 1.0,
                       values: ['John'],
-                    } as SchemaType,
+                    },
                   ],
-                } as SchemaField,
+                },
                 {
                   name: 'age',
                   path: ['user', 'age'],
+                  count: 2,
+                  type: ['Number'],
                   probability: 0.8,
+                  hasDuplicates: false,
                   types: [
                     {
                       name: 'Number',
@@ -286,14 +312,14 @@ describe('processSchema', function () {
                       path: ['user', 'age'],
                       count: 2,
                       probability: 1.0,
-                      values: [25, 30],
-                    } as SchemaType,
+                      values: [new Int32(25), new Int32(30)],
+                    },
                   ],
-                } as SchemaField,
+                },
               ],
-            } as DocumentSchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 2,
     };
@@ -320,7 +346,10 @@ describe('processSchema', function () {
         {
           name: 'tags',
           path: ['tags'],
+          count: 2,
+          type: ['Array'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'Array',
@@ -328,7 +357,7 @@ describe('processSchema', function () {
               path: ['tags'],
               count: 2,
               probability: 1.0,
-              values: [['red', 'blue'], ['green']],
+
               lengths: [2, 1],
               averageLength: 1.5,
               totalCount: 3,
@@ -340,11 +369,11 @@ describe('processSchema', function () {
                   count: 3,
                   probability: 1.0,
                   values: ['red', 'blue', 'green'],
-                } as SchemaType,
+                },
               ],
-            } as ArraySchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 2,
     };
@@ -355,7 +384,6 @@ describe('processSchema', function () {
       'tags[]': {
         type: 'String',
         sample_values: ['red', 'blue', 'green'],
-        array_sample_values: [['red', 'blue'], ['green']],
         probability: 1.0,
       },
     });
@@ -367,7 +395,10 @@ describe('processSchema', function () {
         {
           name: 'level1',
           path: ['level1'],
+          count: 1,
+          type: ['Document'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'Document',
@@ -379,7 +410,10 @@ describe('processSchema', function () {
                 {
                   name: 'level2',
                   path: ['level1', 'level2'],
+                  count: 1,
+                  type: ['Document'],
                   probability: 1.0,
+                  hasDuplicates: false,
                   types: [
                     {
                       name: 'Document',
@@ -391,7 +425,10 @@ describe('processSchema', function () {
                         {
                           name: 'value',
                           path: ['level1', 'level2', 'value'],
+                          count: 1,
+                          type: ['String'],
                           probability: 1.0,
+                          hasDuplicates: false,
                           types: [
                             {
                               name: 'String',
@@ -400,17 +437,17 @@ describe('processSchema', function () {
                               count: 1,
                               probability: 1.0,
                               values: ['deep'],
-                            } as SchemaType,
+                            },
                           ],
-                        } as SchemaField,
+                        },
                       ],
-                    } as DocumentSchemaType,
+                    },
                   ],
-                } as SchemaField,
+                },
               ],
-            } as DocumentSchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -432,7 +469,10 @@ describe('processSchema', function () {
         {
           name: 'items',
           path: ['items'],
+          count: 1,
+          type: ['Array'],
           probability: 1.0,
+          hasDuplicates: false,
           types: [
             {
               name: 'Array',
@@ -443,12 +483,6 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
-              values: [
-                [
-                  { id: 1, cost: 10.5 },
-                  { id: 2, cost: 25.0 },
-                ],
-              ],
               types: [
                 {
                   name: 'Document',
@@ -460,7 +494,10 @@ describe('processSchema', function () {
                     {
                       name: 'id',
                       path: ['items', 'id'],
+                      count: 2,
+                      type: ['Number'],
                       probability: 1.0,
+                      hasDuplicates: false,
                       types: [
                         {
                           name: 'Number',
@@ -468,31 +505,34 @@ describe('processSchema', function () {
                           path: ['items', 'id'],
                           count: 2,
                           probability: 1.0,
-                          values: [1, 2],
-                        } as SchemaType,
+                          values: [new Int32(1), new Int32(2)],
+                        },
                       ],
-                    } as SchemaField,
+                    },
                     {
                       name: 'cost',
                       path: ['items', 'cost'],
+                      count: 2,
+                      type: ['Double'],
                       probability: 1.0,
+                      hasDuplicates: false,
                       types: [
                         {
-                          name: 'Double',
-                          bsonType: 'Double',
+                          name: 'Number',
+                          bsonType: 'Number',
                           path: ['items', 'cost'],
                           count: 2,
                           probability: 1.0,
-                          values: [10.5, 25.0],
-                        } as SchemaType,
+                          values: [new Double(10.5), new Double(25.0)],
+                        },
                       ],
-                    } as SchemaField,
+                    },
                   ],
-                } as DocumentSchemaType,
+                },
               ],
-            } as ArraySchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -503,23 +543,11 @@ describe('processSchema', function () {
       'items[].id': {
         type: 'Number',
         sample_values: [1, 2],
-        array_sample_values: [
-          [
-            { id: 1, cost: 10.5 },
-            { id: 2, cost: 25.0 },
-          ],
-        ],
         probability: 1.0,
       },
       'items[].cost': {
-        type: 'Double',
+        type: 'Number',
         sample_values: [10.5, 25.0],
-        array_sample_values: [
-          [
-            { id: 1, cost: 10.5 },
-            { id: 2, cost: 25.0 },
-          ],
-        ],
         probability: 1.0,
       },
     });
@@ -546,18 +574,6 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
-              values: [
-                [
-                  [
-                    [1, 2],
-                    [3, 4],
-                  ],
-                  [
-                    [5, 6],
-                    [7, 8],
-                  ],
-                ],
-              ],
               types: [
                 {
                   name: 'Array',
@@ -568,16 +584,6 @@ describe('processSchema', function () {
                   lengths: [2],
                   averageLength: 2,
                   totalCount: 4,
-                  values: [
-                    [
-                      [1, 2],
-                      [3, 4],
-                    ],
-                    [
-                      [5, 6],
-                      [7, 8],
-                    ],
-                  ],
                   types: [
                     {
                       name: 'Array',
@@ -588,12 +594,6 @@ describe('processSchema', function () {
                       lengths: [2],
                       averageLength: 2,
                       totalCount: 8,
-                      values: [
-                        [1, 2],
-                        [3, 4],
-                        [5, 6],
-                        [7, 8],
-                      ],
                       types: [
                         {
                           name: 'Number',
@@ -601,16 +601,25 @@ describe('processSchema', function () {
                           path: ['cube'],
                           count: 8,
                           probability: 1.0,
-                          values: [1, 2, 3, 4, 5, 6, 7, 8],
-                        } as SchemaType,
+                          values: [
+                            new Int32(1),
+                            new Int32(2),
+                            new Int32(3),
+                            new Int32(4),
+                            new Int32(5),
+                            new Int32(6),
+                            new Int32(7),
+                            new Int32(8),
+                          ],
+                        },
                       ],
-                    } as ArraySchemaType,
+                    },
                   ],
-                } as ArraySchemaType,
+                },
               ],
-            } as ArraySchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -621,18 +630,6 @@ describe('processSchema', function () {
       'cube[][][]': {
         type: 'Number',
         sample_values: [1, 2, 3, 4, 5, 6, 7, 8],
-        array_sample_values: [
-          [
-            [
-              [1, 2],
-              [3, 4],
-            ],
-            [
-              [5, 6],
-              [7, 8],
-            ],
-          ],
-        ],
         probability: 1.0,
       },
     });
@@ -658,7 +655,7 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
-              values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
+
               types: [
                 {
                   name: 'Array',
@@ -669,7 +666,7 @@ describe('processSchema', function () {
                   lengths: [1],
                   averageLength: 1,
                   totalCount: 2,
-                  values: [[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]],
+
                   types: [
                     {
                       name: 'Document',
@@ -692,10 +689,10 @@ describe('processSchema', function () {
                               path: ['matrix', 'x'],
                               count: 2,
                               probability: 1.0,
-                              values: [1, 3],
-                            } as SchemaType,
+                              values: [new Int32(1), new Int32(3)],
+                            },
                           ],
-                        } as SchemaField,
+                        },
                         {
                           name: 'y',
                           path: ['matrix', 'y'],
@@ -710,18 +707,18 @@ describe('processSchema', function () {
                               path: ['matrix', 'y'],
                               count: 2,
                               probability: 1.0,
-                              values: [2, 4],
-                            } as SchemaType,
+                              values: [new Int32(2), new Int32(4)],
+                            },
                           ],
-                        } as SchemaField,
+                        },
                       ],
-                    } as DocumentSchemaType,
+                    },
                   ],
-                } as ArraySchemaType,
+                },
               ],
-            } as ArraySchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -732,13 +729,11 @@ describe('processSchema', function () {
       'matrix[][].x': {
         type: 'Number',
         sample_values: [1, 3],
-        array_sample_values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
         probability: 1.0,
       },
       'matrix[][].y': {
         type: 'Number',
         sample_values: [2, 4],
-        array_sample_values: [[[{ x: 1, y: 2 }], [{ x: 3, y: 4 }]]],
         probability: 1.0,
       },
     });
@@ -765,12 +760,7 @@ describe('processSchema', function () {
               lengths: [2],
               averageLength: 2,
               totalCount: 2,
-              values: [
-                [
-                  { name: 'Team A', members: ['Alice', 'Bob'] },
-                  { name: 'Team B', members: ['Charlie'] },
-                ],
-              ],
+
               types: [
                 {
                   name: 'Document',
@@ -794,9 +784,9 @@ describe('processSchema', function () {
                           count: 2,
                           probability: 1.0,
                           values: ['Team A', 'Team B'],
-                        } as SchemaType,
+                        },
                       ],
-                    } as SchemaField,
+                    },
                     {
                       name: 'members',
                       path: ['teams', 'members'],
@@ -814,7 +804,6 @@ describe('processSchema', function () {
                           lengths: [2, 1],
                           averageLength: 1.5,
                           totalCount: 3,
-                          values: [['Alice', 'Bob'], ['Charlie']],
                           types: [
                             {
                               name: 'String',
@@ -823,17 +812,17 @@ describe('processSchema', function () {
                               count: 3,
                               probability: 1.0,
                               values: ['Alice', 'Bob', 'Charlie'],
-                            } as SchemaType,
+                            },
                           ],
-                        } as ArraySchemaType,
+                        },
                       ],
-                    } as SchemaField,
+                    },
                   ],
-                } as DocumentSchemaType,
+                },
               ],
-            } as ArraySchemaType,
+            },
           ],
-        } as SchemaField,
+        },
       ],
       count: 1,
     };
@@ -844,23 +833,11 @@ describe('processSchema', function () {
       'teams[].name': {
         type: 'String',
         sample_values: ['Team A', 'Team B'],
-        array_sample_values: [
-          [
-            { name: 'Team A', members: ['Alice', 'Bob'] },
-            { name: 'Team B', members: ['Charlie'] },
-          ],
-        ],
         probability: 1.0,
       },
       'teams[].members[]': {
         type: 'String',
         sample_values: ['Alice', 'Bob', 'Charlie'],
-        array_sample_values: [
-          [
-            { name: 'Team A', members: ['Alice', 'Bob'] },
-            { name: 'Team B', members: ['Charlie'] },
-          ],
-        ],
         probability: 1.0,
       },
     });
