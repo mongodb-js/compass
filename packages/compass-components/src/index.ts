@@ -1,3 +1,4 @@
+export * from './components/diagramming';
 export * from './components/leafygreen';
 
 export {

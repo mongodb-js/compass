@@ -19,21 +19,18 @@ import {
 import {
   Banner,
   CancelLoader,
+  Diagram,
   WorkspaceContainer,
   css,
   spacing,
   Button,
   useDarkMode,
+  useDiagram,
   useDrawerActions,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
-import {
-  Diagram,
-  type NodeProps,
-  type EdgeProps,
-  useDiagram,
-} from '@mongodb-js/diagramming';
+import type { NodeProps, EdgeProps } from '@mongodb-js/compass-components';
 import type { StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';

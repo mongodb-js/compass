@@ -1,15 +1,16 @@
 import React from 'react';
 import {
-  getNodesBounds,
-  getViewportForBounds,
   DiagramProvider,
   Diagram,
-} from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
+  getNodesBounds,
+  getViewportForBounds,
+  rafraf,
+  spacing,
+} from '@mongodb-js/compass-components';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
-import { rafraf, spacing } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 
 function moveSvgDefsToViewportElement(

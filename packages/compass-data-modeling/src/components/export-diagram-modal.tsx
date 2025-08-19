@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Button,
-  css,
   Icon,
   Label,
   Modal,
@@ -13,7 +12,10 @@ import {
   spacing,
   SpinLoader,
   PngIcon,
+  css,
+  useDiagram,
 } from '@mongodb-js/compass-components';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
   closeExportModal,
@@ -22,8 +24,6 @@ import {
 } from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { useDiagram } from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
