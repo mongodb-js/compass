@@ -26,5 +26,15 @@ export async function runFind(
       const resultId = await browser.getQueryId(tabName);
       return resultId !== initialResultId;
     });
+
+    if (
+      tabName === 'Documents' &&
+      (await browser.$(Selectors.DocumentList).isDisplayed())
+    ) {
+      // Wait for animations to finish on the document page.
+      // Because we're virtualizing the list on crud, the query results may
+      // change after the resultId has changed.
+      await browser.waitForAnimations(Selectors.DocumentList);
+    }
   }
 }
