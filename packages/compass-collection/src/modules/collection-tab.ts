@@ -94,7 +94,6 @@ enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
-  AiDisclaimerModalShown = 'compass-collection/AiDisclaimerModalShown',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -108,10 +107,6 @@ interface SchemaAnalysisResetAction {
 
 interface SchemaAnalysisStartedAction {
   type: CollectionActions.SchemaAnalysisStarted;
-}
-
-interface AiDisclaimerModalShownAction {
-  type: CollectionActions.AiDisclaimerModalShown;
 }
 
 interface SchemaAnalysisFinishedAction {
@@ -369,10 +364,6 @@ export const mockDataGeneratorPreviousButtonClicked =
     return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
   };
 
-export const aIDisclaimerModalOpened = (): AiDisclaimerModalShownAction => {
-  return { type: CollectionActions.AiDisclaimerModalShown };
-};
-
 export const selectTab = (
   tabName: CollectionSubtab
 ): CollectionThunkAction<void> => {
@@ -387,23 +378,18 @@ export const selectTab = (
 export const openMockDataGeneratorModal = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (
-    dispatch,
-    _getState,
-    { atlasAiService, preferences, logger }
-  ) => {
+  return async (dispatch, _getState, { atlasAiService, logger }) => {
     try {
-      if (preferences.getPreferences().optInGenAIFeatures) {
-        // If the user has already opted in, we can directly open the modal
-        dispatch(mockDataGeneratorModalOpened());
-      } else if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
+      dispatch(mockDataGeneratorModalOpened());
     } catch (error) {
+      // if failed or user canceled we just don't show the modal
       logger.log.error(
         mongoLogId(1_001_000_364),
         'Collections',
-        'Failed to ensure AI feature access',
+        'Failed to ensure AI feature access and open mock data generator modal',
         error
       );
     }

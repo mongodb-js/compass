@@ -20,7 +20,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
 import { connect } from 'react-redux';
-import { mockDataGeneratorModalOpened } from '../../modules/collection-tab';
+import { openMockDataGeneratorModal } from '../../modules/collection-tab';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -182,7 +182,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
 };
 
 const ConnectedCollectionHeader = connect(undefined, {
-  onOpenMockDataModal: mockDataGeneratorModalOpened,
+  onOpenMockDataModal: openMockDataGeneratorModal,
 })(CollectionHeader);
 
 export default ConnectedCollectionHeader;
