@@ -105,21 +105,25 @@ const ViewVersionIncompatibleEmptyState = ({
 
 const ViewNotSearchCompatibleBanner = ({
   searchIndexes,
+  enableAtlasSearchIndexes,
 }: {
   searchIndexes: SearchIndex[];
+  enableAtlasSearchIndexes: boolean;
 }) => {
   const hasNoSearchIndexes = searchIndexes.length === 0;
-  const variant = hasNoSearchIndexes ? 'warning' : 'danger';
+  const variant =
+    hasNoSearchIndexes || !enableAtlasSearchIndexes ? 'warning' : 'danger';
   return (
     <Banner variant={variant}>
-      {hasNoSearchIndexes && (
+      {!enableAtlasSearchIndexes && (
         <>
           <b>Looking for search indexes?</b> <br />
         </>
       )}
       This view is incompatible with search indexes. Only views containing
       $addFields, $set or $match stages with the $expr operator are compatible
-      with search indexes. Edit the view to rebuild search indexes.{' '}
+      with search indexes.{' '}
+      {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
       <Link href={''} hideExternalIcon>
         Learn more.
       </Link>
@@ -228,10 +232,47 @@ export function Indexes({
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
   const isViewPipelineSearchQueryable =
-    collectionStats?.pipeline &&
-    isPipelineSearchQueryable(
-      collectionStats.pipeline as Array<Record<string, any>>
-    );
+    (isReadonlyView &&
+      collectionStats?.pipeline &&
+      isPipelineSearchQueryable(
+        collectionStats.pipeline as Array<Record<string, any>>
+      )) ??
+    true;
+
+  const getBanner = () => {
+    if (isReadonlyView) {
+      if (!isVersionSearchCompatibleForViews(serverVersion)) {
+        return (
+          <ViewVersionIncompatibleBanner
+            serverVersion={serverVersion}
+            enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+            atlasMetadata={atlasMetadata}
+          />
+        );
+      }
+      if (!isViewPipelineSearchQueryable) {
+        return (
+          <ViewNotSearchCompatibleBanner
+            searchIndexes={searchIndexes.indexes}
+            enableAtlasSearchIndexes={enableAtlasSearchIndexes}
+          />
+        );
+      }
+    }
+
+    if (!isReadonlyView || !enableAtlasSearchIndexes) {
+      return (
+        <AtlasIndexesBanner
+          namespace={namespace}
+          dismissed={atlasBannerDismissed}
+          onDismissClick={() => {
+            setDismissed(true);
+          }}
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <div className={containerStyles}>
@@ -251,30 +292,7 @@ export function Indexes({
         }
       >
         <div className={indexesContainersStyles}>
-          {isReadonlyView && (
-            <ViewVersionIncompatibleBanner
-              serverVersion={serverVersion}
-              enableAtlasSearchIndexes={enableAtlasSearchIndexes}
-              atlasMetadata={atlasMetadata}
-            />
-          )}
-          {isReadonlyView && !isViewPipelineSearchQueryable ? (
-            <ViewNotSearchCompatibleBanner
-              searchIndexes={searchIndexes.indexes}
-            />
-          ) : (
-            (!isReadonlyView ||
-              (isVersionSearchCompatibleForViewsDataExplorer(serverVersion) &&
-                !enableAtlasSearchIndexes)) && (
-              <AtlasIndexesBanner // cta to Atlas Search Indexes Page
-                namespace={namespace}
-                dismissed={atlasBannerDismissed}
-                onDismissClick={() => {
-                  setDismissed(true);
-                }}
-              />
-            )
-          )}
+          {getBanner()}
           {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
             <RegularIndexesTable />
           )}

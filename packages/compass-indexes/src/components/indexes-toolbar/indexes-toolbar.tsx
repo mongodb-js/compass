@@ -127,11 +127,12 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
   const isViewPipelineSearchQueryable =
-    isReadonlyView &&
-    collectionStats?.pipeline &&
-    isPipelineSearchQueryable(
-      collectionStats.pipeline as Array<Record<string, any>>
-    );
+    (isReadonlyView &&
+      collectionStats?.pipeline &&
+      isPipelineSearchQueryable(
+        collectionStats.pipeline as Array<Record<string, any>>
+      )) ??
+    true;
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on  views containing $addFields, $set or $match stages with the $expr operator.';
   return (

@@ -111,6 +111,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       pipelineBuilder
     );
 
+    // confirmation banner if indexes present
     await dispatch(fetchIndexes(viewNamespace));
     if (state.searchIndexes.indexes.length > 0) {
       const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
