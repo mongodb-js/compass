@@ -10,6 +10,6 @@ export const buildExplainPlanPrompt = ({
 If a clear optimization should be made, please suggest the optimization and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
 Explain output: 
 ${explainPlan}`,
-    displayText: `Given this MongoDB explain plan for ${namespace}, provide a concise human readable explanation that explains the query execution plan and highlights aspects of the plan that might impact query performance.`,
+    displayText: `Given this MongoDB explain plan for **${namespace}**, provide a concise human readable explanation that explains the query execution plan and highlights aspects of the plan that might impact query performance.`,
   };
 };
