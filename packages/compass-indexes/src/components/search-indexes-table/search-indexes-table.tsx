@@ -41,13 +41,13 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionStats } from '../../modules/collection-stats';
 import { isPipelineSearchQueryable } from 'mongodb-compass/src/app/utils/view-search-queryable';
-import { CreateIndexButton } from '../indexes-toolbar/indexes-toolbar';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
+  isReadonlyView: boolean;
   collectionStats?: CollectionStats;
   status: FetchStatus;
   onDropIndexClick: (name: string) => void;
@@ -308,6 +308,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onDropIndexClick,
   onSearchIndexesOpened,
   onSearchIndexesClosed,
+  isReadonlyView,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
@@ -321,7 +322,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     };
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
   const isViewPipelineSearchQueryable =
-    (readOnly &&
+    (isReadonlyView &&
       collectionStats?.pipeline &&
       isPipelineSearchQueryable(
         collectionStats.pipeline as Array<Record<string, any>>
@@ -433,10 +434,12 @@ const mapState = ({
   isWritable,
   namespace,
   collectionStats,
+  isReadonlyView,
 }: RootState) => ({
   namespace,
   isWritable,
   collectionStats,
+  isReadonlyView,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,
 });
