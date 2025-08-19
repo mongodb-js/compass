@@ -62,17 +62,43 @@ describe('ExplainPlanModal', function () {
   });
 
   it('should show "Interpret for me" button when AI assistant is enabled', function () {
-    render({ status: 'ready' }, { preferences: { enableAIAssistant: true } });
+    render(
+      {
+        status: 'ready',
+        explainPlan: {
+          namespace: 'test',
+          usedIndexes: [],
+        },
+      },
+      { preferences: { enableAIAssistant: true } }
+    );
     expect(screen.getByTestId('interpret-for-me-button')).to.exist;
   });
 
   it('should not show "Interpret for me" button when AI assistant is disabled', function () {
-    render({ status: 'ready' }, { preferences: { enableAIAssistant: false } });
+    render(
+      {
+        status: 'ready',
+        explainPlan: {
+          namespace: 'test',
+          usedIndexes: [],
+        },
+      },
+      { preferences: { enableAIAssistant: false } }
+    );
     expect(screen.queryByTestId('interpret-for-me-button')).to.not.exist;
   });
 
   it('should disable the "Interpret for me" button when the status is not ready', function () {
-    render({ status: 'loading' }, { preferences: { enableAIAssistant: true } });
+    render(
+      {
+        status: 'loading',
+        explainPlan: {
+          usedIndexes: [],
+        },
+      },
+      { preferences: { enableAIAssistant: true } }
+    );
     expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
       'aria-disabled',
       'true'
