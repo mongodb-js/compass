@@ -22,22 +22,15 @@ import CollectionHeaderActions from '../collection-header-actions';
 describe('CollectionHeaderActions [Component]', function () {
   let preferences: PreferencesAccess;
   let mockUseAssignment: sinon.SinonStub;
-  let mockGetAssignment: sinon.SinonStub;
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
     mockUseAssignment = sinon.stub();
-    mockGetAssignment = sinon.stub();
     mockUseAssignment.returns({
       assignment: {
         assignmentData: {
           variant: 'mockDataGeneratorControl',
         },
-      },
-    });
-    mockGetAssignment.returns({
-      assignmentData: {
-        variant: 'mockDataGeneratorControl',
       },
     });
   });
@@ -55,7 +48,6 @@ describe('CollectionHeaderActions [Component]', function () {
       <CompassExperimentationProvider
         useAssignment={mockUseAssignment}
         assignExperiment={sinon.stub()}
-        getAssignment={mockGetAssignment}
       >
         <WorkspacesServiceProvider
           value={workspaceService as WorkspacesService}

@@ -5,7 +5,6 @@ import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { RootState } from './atlas-ai-store';
 import { isAction } from '../utils/util';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 type AttemptState = {
   id: number;
@@ -31,7 +30,6 @@ export type GenAIAtlasOptInThunkAction<
   {
     atlasAiService: AtlasAiService;
     preferences: PreferencesAccess;
-    localAppRegistry: AppRegistry;
   },
   A
 >;
@@ -251,7 +249,7 @@ export const optIntoGenAIWithModalPrompt = ({
 };
 
 export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAiService, localAppRegistry }) => {
+  return async (dispatch, getState, { atlasAiService }) => {
     if (['in-progress', 'optin-success'].includes(getState().optIn.state)) {
       return;
     }
@@ -273,7 +271,6 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
       await atlasAiService.optIntoGenAIFeatures();
       dispatch(atlasAiServiceOptedIn());
       resolve();
-      localAppRegistry.emit('open-mock-data-generator-modal');
     } catch (err) {
       if (signal.aborted) {
         return;

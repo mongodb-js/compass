@@ -12,19 +12,16 @@ import {
   optIn,
   optIntoGenAIWithModalPrompt,
 } from './atlas-optin-reducer';
-import AppRegistry from '@mongodb-js/compass-app-registry';
 
 describe('atlasOptInReducer', function () {
   const sandbox = Sinon.createSandbox();
   let mockPreferences: PreferencesAccess;
-  let mockAppRegistry: AppRegistry;
 
   beforeEach(async function () {
     mockPreferences = await createSandboxFromDefaultPreferences();
     await mockPreferences.savePreferences({
       optInGenAIFeatures: false,
     });
-    mockAppRegistry = new AppRegistry();
   });
 
   afterEach(function () {
@@ -40,7 +37,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       expect(store.getState().optIn).to.have.nested.property(
@@ -64,7 +60,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       expect(store.getState().optIn).to.have.nested.property(
@@ -96,7 +91,6 @@ describe('atlasOptInReducer', function () {
           atlasAuthService: {} as any,
           atlasAiService: mockAtlasAiService as any,
           preferences: mockPreferences,
-          localAppRegistry: mockAppRegistry,
         });
 
         expect(store.getState().optIn).to.have.nested.property(
@@ -121,7 +115,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
@@ -140,7 +133,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: {} as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
       expect(store.getState().optIn).to.have.nested.property(
         'state',
@@ -170,7 +162,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       void store.dispatch(optIntoGenAIWithModalPrompt()).catch(() => {});
@@ -195,7 +186,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
@@ -213,7 +203,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
@@ -237,7 +226,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       const optInPromise = store.dispatch(optIntoGenAIWithModalPrompt());
@@ -261,7 +249,6 @@ describe('atlasOptInReducer', function () {
         atlasAuthService: {} as any,
         atlasAiService: mockAtlasAiService as any,
         preferences: mockPreferences,
-        localAppRegistry: mockAppRegistry,
       });
 
       const c = new AbortController();
