@@ -9,6 +9,8 @@ import {
   DrawerContentProvider,
   DrawerSection,
   DrawerAnchor,
+  useDrawerState,
+  useDrawerActions,
 } from './drawer-portal';
 import { expect } from 'chai';
 
@@ -161,5 +163,69 @@ describe('DrawerSection', function () {
       // drawer with toolbar
       screen.getByTestId('lg-drawer')
     ).to.have.attribute('aria-hidden', 'true');
+  });
+
+  it('can control drawer state via the hooks', async function () {
+    const ControlElement = () => {
+      const { isDrawerOpen } = useDrawerState();
+      const { openDrawer, closeDrawer } = useDrawerActions();
+      return (
+        <div>
+          <span data-testid="drawer-state">
+            {isDrawerOpen ? 'open' : 'closed'}
+          </span>
+          <button
+            data-testid="toggle-drawer"
+            onClick={
+              isDrawerOpen
+                ? () => closeDrawer()
+                : () => openDrawer('controlled-section')
+            }
+          >
+            {isDrawerOpen ? 'Close drawer' : 'Open drawer'}
+          </button>
+        </div>
+      );
+    };
+    render(
+      <DrawerContentProvider>
+        <ControlElement />
+        <DrawerAnchor>
+          <DrawerSection
+            id="unrelated-section"
+            label="Test section 1"
+            title="Test section 1"
+            glyph="Trash"
+          >
+            This is an unrelated section
+          </DrawerSection>
+          <DrawerSection
+            id="controlled-section"
+            label="Test section 2"
+            title="Test section 2"
+            glyph="Bell"
+          >
+            This is the controlled section
+          </DrawerSection>
+        </DrawerAnchor>
+      </DrawerContentProvider>
+    );
+
+    // Drawer is closed by default
+    expect(screen.getByTestId('drawer-state')).to.have.text('closed');
+
+    // Open the drawer
+    userEvent.click(screen.getByTestId('toggle-drawer'));
+    await waitFor(() => {
+      expect(screen.getByTestId('drawer-state')).to.have.text('open');
+      expect(screen.getByText('This is the controlled section')).to.be.visible;
+    });
+
+    // Close the drawer
+    userEvent.click(screen.getByTestId('toggle-drawer'));
+    await waitFor(() => {
+      expect(screen.getByTestId('drawer-state')).to.have.text('closed');
+      expect(screen.queryByText('This is the controlled section')).not.to.exist;
+    });
   });
 });
