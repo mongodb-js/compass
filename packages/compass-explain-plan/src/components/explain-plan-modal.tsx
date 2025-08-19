@@ -132,7 +132,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             }
           />
         </div>
-        {isAssistantEnabled && (
+        {isAssistantEnabled && explainPlan && (
           <div className={headerButtonSectionStyles}>
             <Button
               size="small"
@@ -144,7 +144,10 @@ export const ExplainPlanModal: React.FunctionComponent<
               data-testid="interpret-for-me-button"
               onClick={() => {
                 onModalClose();
-                interpretExplainPlan(JSON.stringify(explainPlan));
+                interpretExplainPlan({
+                  namespace: explainPlan.namespace,
+                  explainPlan: JSON.stringify(explainPlan),
+                });
               }}
               disabled={status !== 'ready'}
             >

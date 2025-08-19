@@ -25,7 +25,13 @@ export const AssistantContext = createContext<AssistantContextType | null>(
 );
 
 type AssistantActionsContextType = {
-  interpretExplainPlan: (explainPlan: string) => void;
+  interpretExplainPlan: ({
+    namespace,
+    explainPlan,
+  }: {
+    namespace: string;
+    explainPlan: string;
+  }) => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
@@ -49,9 +55,12 @@ export const AssistantProvider: React.FunctionComponent<
   }>
 > = ({ chat, children }) => {
   const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: (explainPlan: string) => {
+    interpretExplainPlan: ({ namespace, explainPlan }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
-      const { prompt, displayText } = buildExplainPlanPrompt(explainPlan);
+      const { prompt, displayText } = buildExplainPlanPrompt({
+        namespace,
+        explainPlan,
+      });
       void chat.sendMessage(
         {
           text: prompt,
