@@ -59,7 +59,11 @@ module.exports = (_env, args) => {
 
   const snapshot = {
     unmanagedPaths: [
+      // Dependencies we would like to have able to be updated while
+      // we are running Compass locally. This is useful for the `sync-to-compass`
+      // scripts in these projects work.
       path.resolve('..', '..', 'node_modules', '@mongosh', 'browser-repl'),
+      path.resolve('..', '..', 'node_modules', '@mongodb-js', 'diagramming'),
     ],
   };
 

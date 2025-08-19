@@ -67,7 +67,7 @@ For contributing, please refer to
 
 Is there anything else you’d like to see in Compass? Let us know by submitting
 suggestions in out [feedback
-forum](https://feedback.mongodb.com/forums/924283-compass).
+forum](https://feedback.mongodb.com/).
 
 # License
 
