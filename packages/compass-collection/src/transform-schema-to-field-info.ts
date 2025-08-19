@@ -96,7 +96,8 @@ function processType(
     }
 
     const arrayPath = `${currentPath}[]`;
-    const sampleValues = arraySampleValues || getSampleValues(arrayType);
+    const sampleValues =
+      arraySampleValues || getSampleValues(arrayType).slice(0, 3); // Limit full-context array sample values to 3
     processType(elementType, arrayPath, result, fieldProbability, sampleValues);
   } else if (type.name === 'Document' || type.bsonType === 'Document') {
     // Process nested document fields
