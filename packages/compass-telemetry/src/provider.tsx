@@ -56,7 +56,7 @@ export interface ExperimentationServices {
   ) => Promise<types.AsyncStatus | null>;
 }
 
-// Service locator for expexrimentation services (non-component access)
+// Service locator for experimentation services (non-component access)
 export const experimentationServiceLocator = createServiceLocator(
   function useExperimentationServices(): ExperimentationServices {
     const { assignExperiment } = useContext(ExperimentationContext);

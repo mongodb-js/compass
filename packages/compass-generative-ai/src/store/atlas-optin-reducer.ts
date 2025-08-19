@@ -27,10 +27,7 @@ export type GenAIAtlasOptInThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  {
-    atlasAiService: AtlasAiService;
-    preferences: PreferencesAccess;
-  },
+  { atlasAiService: AtlasAiService; preferences: PreferencesAccess },
   A
 >;
 

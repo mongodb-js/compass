@@ -60,11 +60,7 @@ export function configureStore({
   const store = createStore(
     reducer,
     applyMiddleware(
-      thunk.withExtraArgument({
-        atlasAuthService,
-        atlasAiService,
-        preferences,
-      })
+      thunk.withExtraArgument({ atlasAuthService, atlasAiService, preferences })
     )
   );
   return store;
