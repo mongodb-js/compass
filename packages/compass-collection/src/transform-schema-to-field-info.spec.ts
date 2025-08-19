@@ -326,11 +326,6 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      'items[]': {
-        type: 'Document',
-        sample_values: [], // no sample values for Documents
-        probability: 1.0,
-      },
       'items[].id': {
         type: 'Number',
         sample_values: [1, 2],
@@ -479,11 +474,6 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      'matrix[][]': {
-        type: 'Document',
-        sample_values: [],
-        probability: 1.0,
-      },
       'matrix[][].x': {
         type: 'Number',
         sample_values: [1, 3],
@@ -582,11 +572,6 @@ describe('processSchema', function () {
     const result = processSchema(schema);
 
     expect(result).to.deep.equal({
-      'deepMatrix[][][]': {
-        type: 'Document',
-        sample_values: [],
-        probability: 1.0,
-      },
       'deepMatrix[][][].value': {
         type: 'Number',
         sample_values: [42],
@@ -710,6 +695,228 @@ describe('processSchema', function () {
       _id: {
         type: 'ObjectId',
         sample_values: ['507f1f77bcf86cd799439011'],
+        probability: 1.0,
+      },
+    });
+  });
+
+  it('handles array of documents with nested arrays', function () {
+    // teams: [{ name: "Team A", members: ["Alice", "Bob"] }, { name: "Team B", members: ["Charlie"] }]
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'teams',
+          path: ['teams'],
+          count: 1,
+          type: ['Array'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Array',
+              bsonType: 'Array',
+              path: ['teams'],
+              count: 1,
+              probability: 1.0,
+              lengths: [2],
+              averageLength: 2,
+              totalCount: 2,
+              values: [
+                [
+                  { name: 'Team A', members: ['Alice', 'Bob'] },
+                  { name: 'Team B', members: ['Charlie'] },
+                ],
+              ],
+              types: [
+                {
+                  name: 'Document',
+                  bsonType: 'Document',
+                  path: ['teams'],
+                  count: 2,
+                  probability: 1.0,
+                  fields: [
+                    {
+                      name: 'name',
+                      path: ['teams', 'name'],
+                      count: 2,
+                      type: ['String'],
+                      probability: 1.0,
+                      hasDuplicates: false,
+                      types: [
+                        {
+                          name: 'String',
+                          bsonType: 'String',
+                          path: ['teams', 'name'],
+                          count: 2,
+                          probability: 1.0,
+                          values: ['Team A', 'Team B'],
+                        } as SchemaType,
+                      ],
+                    } as SchemaField,
+                    {
+                      name: 'members',
+                      path: ['teams', 'members'],
+                      count: 2,
+                      type: ['Array'],
+                      probability: 1.0,
+                      hasDuplicates: false,
+                      types: [
+                        {
+                          name: 'Array',
+                          bsonType: 'Array',
+                          path: ['teams', 'members'],
+                          count: 2,
+                          probability: 1.0,
+                          lengths: [2, 1],
+                          averageLength: 1.5,
+                          totalCount: 3,
+                          values: [['Alice', 'Bob'], ['Charlie']],
+                          types: [
+                            {
+                              name: 'String',
+                              bsonType: 'String',
+                              path: ['teams', 'members'],
+                              count: 3,
+                              probability: 1.0,
+                              values: ['Alice', 'Bob', 'Charlie'],
+                            } as SchemaType,
+                          ],
+                        } as ArraySchemaType,
+                      ],
+                    } as SchemaField,
+                  ],
+                } as DocumentSchemaType,
+              ],
+            } as ArraySchemaType,
+          ],
+        } as SchemaField,
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result).to.deep.equal({
+      'teams[].name': {
+        type: 'String',
+        sample_values: ['Team A', 'Team B'],
+        probability: 1.0,
+      },
+      'teams[].members[]': {
+        type: 'String',
+        sample_values: [['Alice', 'Bob'], ['Charlie']],
+        probability: 1.0,
+      },
+    });
+  });
+
+  it('handles triple nested arrays (3D matrix)', function () {
+    // cube: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'cube',
+          path: ['cube'],
+          count: 1,
+          type: ['Array'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Array',
+              bsonType: 'Array',
+              path: ['cube'],
+              count: 1,
+              probability: 1.0,
+              lengths: [2],
+              averageLength: 2,
+              totalCount: 2,
+              values: [
+                [
+                  [
+                    [1, 2],
+                    [3, 4],
+                  ],
+                  [
+                    [5, 6],
+                    [7, 8],
+                  ],
+                ],
+              ],
+              types: [
+                {
+                  name: 'Array',
+                  bsonType: 'Array',
+                  path: ['cube'],
+                  count: 2,
+                  probability: 1.0,
+                  lengths: [2],
+                  averageLength: 2,
+                  totalCount: 4,
+                  values: [
+                    [
+                      [1, 2],
+                      [3, 4],
+                    ],
+                    [
+                      [5, 6],
+                      [7, 8],
+                    ],
+                  ],
+                  types: [
+                    {
+                      name: 'Array',
+                      bsonType: 'Array',
+                      path: ['cube'],
+                      count: 4,
+                      probability: 1.0,
+                      lengths: [2],
+                      averageLength: 2,
+                      totalCount: 8,
+                      values: [
+                        [1, 2],
+                        [3, 4],
+                        [5, 6],
+                        [7, 8],
+                      ],
+                      types: [
+                        {
+                          name: 'Number',
+                          bsonType: 'Number',
+                          path: ['cube'],
+                          count: 8,
+                          probability: 1.0,
+                          values: [1, 2, 3, 4, 5, 6, 7, 8],
+                        } as SchemaType,
+                      ],
+                    } as ArraySchemaType,
+                  ],
+                } as ArraySchemaType,
+              ],
+            } as ArraySchemaType,
+          ],
+        } as SchemaField,
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result).to.deep.equal({
+      'cube[][][]': {
+        type: 'Number',
+        sample_values: [
+          [
+            [
+              [1, 2],
+              [3, 4],
+            ],
+            [
+              [5, 6],
+              [7, 8],
+            ],
+          ],
+        ],
         probability: 1.0,
       },
     });
