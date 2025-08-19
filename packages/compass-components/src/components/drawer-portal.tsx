@@ -146,6 +146,20 @@ const drawerLayoutFixesStyles = css({
   '& > div:nth-child(2)': {
     marginTop: -1, // hiding the top border as we already have one in the place where the Anchor is currently rendered
   },
+
+  // We're stretching the title container to all available width so that we can
+  // layout the controls there better. Doing our best to target the section
+  // title here, leafygreen really doesn't give us anything else to try.
+  //
+  // TODO(ticket): This is obviously a horrible selector and we should make sure
+  // that LG team provides a better one for us to achieve this behavior when
+  // we're removing the vendored version of the drawer
+  '& > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child > div:first-child > div:first-child':
+    {
+      flex: 'none',
+      width: 'calc(100% - 28px)', // disallow going over the title size (100 - close button width)
+      overflow: 'hidden',
+    },
 });
 
 const emptyDrawerLayoutFixesStyles = css({
@@ -173,6 +187,7 @@ const emptyDrawerLayoutFixesStyles = css({
 const drawerSectionPortalStyles = css({
   minWidth: '100%',
   minHeight: '100%',
+  height: '100%',
 });
 
 /**
@@ -207,6 +222,7 @@ export const DrawerAnchor: React.FunctionComponent<{
           ...data,
           content: (
             <div
+              key={data.id}
               data-drawer-section={data.id}
               className={drawerSectionPortalStyles}
             ></div>

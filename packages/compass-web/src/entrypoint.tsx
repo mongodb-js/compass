@@ -58,6 +58,10 @@ import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welc
 import { useCompassWebPreferences } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderInMemory } from '@mongodb-js/compass-data-modeling/web';
+import {
+  CompassAssistantDrawer,
+  CompassAssistantProvider,
+} from '@mongodb-js/compass-assistant';
 
 export type TrackFunction = (
   event: string,
@@ -218,6 +222,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CompassAssistantDrawer />
                 </>
               );
             }}
@@ -337,6 +342,19 @@ const CompassWeb = ({
               });
             }
           }}
+          onContextMenuOpen={(itemGroups) => {
+            if (itemGroups.length > 0) {
+              onTrackRef.current?.('Context Menu Opened', {
+                item_groups: itemGroups.map((group) => group.telemetryLabel),
+              });
+            }
+          }}
+          onContextMenuItemClick={(itemGroup, item) => {
+            onTrackRef.current?.('Context Menu Item Clicked', {
+              item_group: itemGroup.telemetryLabel,
+              item_label: item.label,
+            });
+          }}
           onSignalMount={(id) => {
             onTrackRef.current?.('Signal Shown', { id });
           }}
@@ -397,20 +415,22 @@ const CompassWeb = ({
                         }}
                       >
                         <CompassInstanceStorePlugin>
-                          <FieldStorePlugin>
-                            <WithConnectionsStore>
-                              <CompassWorkspace
-                                initialWorkspaceTabs={
-                                  initialWorkspaceTabsRef.current
-                                }
-                                onActiveWorkspaceTabChange={
-                                  onActiveWorkspaceTabChange
-                                }
-                                onOpenConnectViaModal={onOpenConnectViaModal}
-                              ></CompassWorkspace>
-                            </WithConnectionsStore>
-                          </FieldStorePlugin>
-                          <CompassGenerativeAIPlugin projectId={projectId} />
+                          <CompassAssistantProvider>
+                            <FieldStorePlugin>
+                              <WithConnectionsStore>
+                                <CompassWorkspace
+                                  initialWorkspaceTabs={
+                                    initialWorkspaceTabsRef.current
+                                  }
+                                  onActiveWorkspaceTabChange={
+                                    onActiveWorkspaceTabChange
+                                  }
+                                  onOpenConnectViaModal={onOpenConnectViaModal}
+                                ></CompassWorkspace>
+                              </WithConnectionsStore>
+                            </FieldStorePlugin>
+                            <CompassGenerativeAIPlugin projectId={projectId} />
+                          </CompassAssistantProvider>
                         </CompassInstanceStorePlugin>
                       </CompassConnections>
                     </AtlasCloudConnectionStorageProvider>

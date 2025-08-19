@@ -18,6 +18,7 @@ import {
 } from '../helpers/downloads';
 import { readFileSync } from 'fs';
 import { recognize } from 'tesseract.js';
+import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
@@ -27,8 +28,18 @@ interface Node {
   position: { x: number; y: number };
 }
 
+interface Edge {
+  id: string;
+  source: string;
+  target: string;
+  markerStart: string;
+  markerEnd: string;
+  selected: boolean;
+}
+
 type DiagramInstance = {
   getNodes: () => Array<Node>;
+  getEdges: () => Array<Edge>;
 };
 
 async function setupDiagram(
@@ -52,17 +63,17 @@ async function setupDiagram(
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select existing connection
-  await browser.selectOption(
-    Selectors.CreateDataModelConnectionSelector,
-    options.connectionName
-  );
+  await browser.selectOption({
+    selectSelector: Selectors.CreateDataModelConnectionSelector,
+    optionText: options.connectionName,
+  });
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select a database
-  await browser.selectOption(
-    Selectors.CreateDataModelDatabaseSelector,
-    options.databaseName
-  );
+  await browser.selectOption({
+    selectSelector: Selectors.CreateDataModelDatabaseSelector,
+    optionText: options.databaseName,
+  });
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Ensure that all the collections are selected by default
@@ -75,6 +86,35 @@ async function setupDiagram(
   // Wait for the diagram editor to load
   const dataModelEditor = browser.$(Selectors.DataModelEditor);
   await dataModelEditor.waitForDisplayed();
+}
+
+async function selectCollectionOnTheDiagram(
+  browser: CompassBrowser,
+  ns: string
+) {
+  // If the drawer is open, close it
+  // Otherwise the drawer or the minimap can cover the collection node
+  const drawer = browser.$(Selectors.SideDrawer);
+  if (
+    (await drawer.isDisplayed()) &&
+    (await drawer.$(Selectors.SideDrawerCloseButton).isClickable())
+  ) {
+    await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    await drawer.waitForDisplayed({ reverse: true });
+  }
+
+  // Click on the collection node to open the drawer
+  const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
+  await collectionNode.waitForClickable();
+
+  await collectionNode.click();
+
+  await drawer.waitForDisplayed();
+
+  const collectionName = await browser.getInputByLabel(
+    browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
+  );
+  expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
 }
 
 async function getDiagramNodes(
@@ -97,13 +137,37 @@ async function getDiagramNodes(
   return nodes;
 }
 
+async function getDiagramEdges(
+  browser: CompassBrowser,
+  expectedCount: number
+): Promise<Edge[]> {
+  let edges: Edge[] = [];
+  await browser.waitUntil(async () => {
+    edges = await browser.execute(function (selector) {
+      const node = document.querySelector(selector);
+      if (!node) {
+        throw new Error(`Element with selector ${selector} not found`);
+      }
+      return (
+        node as Element & { _diagram: DiagramInstance }
+      )._diagram.getEdges();
+    }, Selectors.DataModelEditor);
+    return edges.length === expectedCount;
+  });
+  return edges;
+}
+
 /**
  * Moves a node to the specified coordinates and returns its original position.
  */
-async function moveNode(
+async function dragNode(
   browser: CompassBrowser,
   selector: string,
-  coordinates: { x: number; y: number }
+  pointerActionMoveParams: {
+    x: number;
+    y: number;
+    origin?: 'pointer' | 'viewport';
+  }
 ) {
   const node = browser.$(selector);
 
@@ -117,9 +181,9 @@ async function moveNode(
       y: Math.round(startPosition.y + nodeSize.height / 2),
     })
     .down({ button: 0 }) // Left mouse button
-    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
     .pause(1000)
-    .move({ ...coordinates, duration: 1000, origin: 'pointer' })
+    .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
     .up({ button: 0 }) // Release the left mouse button
     .perform();
   await browser.waitForAnimations(node);
@@ -191,7 +255,7 @@ describe('Data Modeling tab', function () {
     const testCollection1 = browser.$(
       Selectors.DataModelPreviewCollection('test.testCollection-one')
     );
-    const startPosition = await moveNode(
+    const startPosition = await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -250,7 +314,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    await moveNode(
+    await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -378,8 +442,6 @@ describe('Data Modeling tab', function () {
 
     const text = data.text.toLowerCase();
 
-    console.log(`Recognized PNG export text:`, text);
-
     expect(text).to.include('testCollection-one'.toLowerCase());
     expect(text).to.include('testCollection-two'.toLowerCase());
 
@@ -405,7 +467,7 @@ describe('Data Modeling tab', function () {
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    await moveNode(
+    await dragNode(
       browser,
       Selectors.DataModelPreviewCollection('test.testCollection-one'),
       { x: 100, y: 0 }
@@ -462,5 +524,214 @@ describe('Data Modeling tab', function () {
     expect(titles).to.include(dataModelName);
     // The second one is the one we just opened
     expect(titles).to.include(`${dataModelName} (1)`);
+  });
+
+  context('Drawer and Diagram interactions', function () {
+    it('allows relationship management via the sidebar', async function () {
+      const dataModelName = 'Test Add Relationship Manually';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // There are no edges initially
+      await getDiagramEdges(browser, 0);
+
+      // Click on the collection to open the drawer
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+
+      // Click the add relationship button
+      const drawer = browser.$(Selectors.SideDrawer);
+
+      const addRelationshipBtn = browser.$(
+        Selectors.DataModelAddRelationshipBtn
+      );
+      await addRelationshipBtn.waitForClickable();
+      await addRelationshipBtn.click();
+
+      // Verify that the local collection is pre-selected
+      const localCollectionSelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
+      );
+      expect(await localCollectionSelect.getValue()).to.equal(
+        'testCollection-one'
+      );
+
+      // Select the foreign collection
+      await browser.selectOption({
+        selectSelector: await browser.getInputByLabel(
+          drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
+        ),
+        optionText: 'testCollection-two',
+      });
+
+      // See the relationship on the diagram
+      const edges = await getDiagramEdges(browser, 1);
+      expect(edges).to.have.lengthOf(1);
+      expect(edges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'one',
+      });
+      const relationshipId = edges[0].id;
+
+      // Select the other collection and see that the new relationship is listed
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
+      const relationshipItem = drawer.$(
+        Selectors.DataModelCollectionRelationshipItem(relationshipId)
+      );
+      expect(await relationshipItem.isDisplayed()).to.be.true;
+      expect(await relationshipItem.getText()).to.include('testCollection-one');
+
+      // Edit the relationship
+      await relationshipItem.waitForDisplayed();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .click();
+
+      await browser.selectOption({
+        selectSelector: await browser.getInputByLabel(
+          drawer.$(Selectors.DataModelRelationshipForeignCardinalitySelect)
+        ),
+        optionSelector: Selectors.DataModelRelationshipCardinalityOption('100'),
+      });
+
+      // See the updated relationship on the diagram
+      const updatedEdges = await getDiagramEdges(browser, 1);
+      expect(updatedEdges).to.have.lengthOf(1);
+      expect(updatedEdges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'many',
+      });
+
+      // Select the first collection again and delete the relationship
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+      await relationshipItem.waitForDisplayed();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemDelete)
+        .click();
+
+      // Verify that the relationship is removed from the list and the diagram
+      expect(await relationshipItem.isExisting()).to.be.false;
+      await getDiagramEdges(browser, 0);
+    });
+
+    it('adding relationship by drawing opens it in the sidebar', async function () {
+      const dataModelName = 'Test Relationship By Drawing';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      await browser.clickVisible(
+        Selectors.DataModelRelationshipDrawingButton()
+      );
+
+      const targetNode = browser.$(
+        Selectors.DataModelPreviewCollection('test.testCollection-two')
+      );
+
+      const targetPosition = await targetNode.getLocation();
+      const targetSize = await targetNode.getSize();
+
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        {
+          x: Math.round(targetPosition.x + targetSize.width / 2),
+          y: Math.round(targetPosition.y + targetSize.height / 2),
+          origin: 'viewport',
+        }
+      );
+
+      const edges = await getDiagramEdges(browser, 1);
+      expect(edges).to.have.lengthOf(1);
+      expect(edges[0]).to.deep.include({
+        source: 'test.testCollection-one',
+        target: 'test.testCollection-two',
+        markerStart: 'one',
+        markerEnd: 'one',
+      });
+
+      // Verify that the relationship is opened in the sidebar
+      const drawer = browser.$(Selectors.SideDrawer);
+      const localCollectionSelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
+      );
+      expect(await localCollectionSelect.getValue()).to.equal(
+        'testCollection-one'
+      );
+      const foreignCollectionSelect = await browser.getInputByLabel(
+        drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
+      );
+      expect(await foreignCollectionSelect.getValue()).to.equal(
+        'testCollection-two'
+      );
+    });
+
+    it('allows collection management via the sidebar', async function () {
+      const dataModelName = 'Test Edit Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+      await dataModelEditor.waitForDisplayed();
+
+      // Click on the collection to open the drawer.
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+
+      const drawer = browser.$(Selectors.SideDrawer);
+
+      // Rename the collection (it submits on unfocus).
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        'testCollection-renamedOne'
+      );
+      await drawer.click(); // Unfocus the input.
+
+      // Verify that the renamed collection is still selected.
+      await browser.waitUntil(async () => {
+        const collectionName = await browser.getInputByLabel(
+          browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
+        );
+        return (
+          (await collectionName.getValue()) === 'testCollection-renamedOne'
+        );
+      });
+
+      // Select the second collection and verify that the new name is in the diagram.
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
+      const nodes = await getDiagramNodes(browser, 2);
+      expect(nodes).to.have.lengthOf(2);
+      expect(nodes[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodes[1].id).to.equal('test.testCollection-two');
+
+      // Remove the collection.
+      await drawer
+        .$(Selectors.DataModelCollectionSidebarItemDeleteButton)
+        .click();
+      // Ensure the drawer closed.
+      if (await drawer.$(Selectors.DataModelNameInputLabel).isDisplayed()) {
+        await drawer
+          .$(Selectors.DataModelNameInputLabel)
+          .waitForDisplayed({ reverse: true });
+      }
+
+      // Verify that the collection is removed from the list and the diagram.
+      const nodesPostDelete = await getDiagramNodes(browser, 1);
+      expect(nodesPostDelete).to.have.lengthOf(1);
+      expect(nodesPostDelete[0].id).to.equal('test.testCollection-renamedOne');
+    });
   });
 });

@@ -102,7 +102,7 @@ function pickCollectionInfo({
   validation,
   clustered,
   fle2,
-  is_non_existent,
+  inferred_from_privileges,
 }) {
   return {
     type,
@@ -113,7 +113,7 @@ function pickCollectionInfo({
     validation,
     clustered,
     fle2,
-    is_non_existent,
+    inferred_from_privileges,
   };
 }
 
@@ -134,8 +134,8 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     status: { type: 'string', default: 'initial' },
     statusError: { type: 'string', default: null },
 
-    // Normalized values from collectionInfo command
-    is_non_existent: 'boolean',
+    // Normalized values from collectionInfo method
+    inferred_from_privileges: 'boolean',
     readonly: 'boolean',
     clustered: 'boolean',
     fle2: 'boolean',
@@ -269,7 +269,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     const shouldFetchDbAndCollStats = getParentByType(
       this,
       'Instance'
-    ).shouldFetchDbAndCollStats;
+    ).shouldFetchDbAndCollStats();
 
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
@@ -286,14 +286,14 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         ...collStats,
         ...(collectionInfo && pickCollectionInfo(collectionInfo)),
       });
-      // If the collection is not unprovisioned `is_non_existent` anymore,
-      // let's update the parent database model to reflect the change.
-      // This happens when a user tries to insert first document into a
-      // collection that doesn't exist yet or creates a new collection
-      // for an unprovisioned database.
-      if (!this.is_non_existent) {
+      // If the collection is not `inferred_from_privileges` anymore, let's
+      // update the parent database model to reflect the change.  This happens
+      // when a user tries to insert first document into a collection that
+      // doesn't exist yet or creates a new collection for an unprovisioned
+      // database.
+      if (!this.inferred_from_privileges) {
         getParentByType(this, 'Database').set({
-          is_non_existent: false,
+          inferred_from_privileges: false,
         });
       }
     } catch (err) {
@@ -385,6 +385,11 @@ const CollectionCollection = AmpersandCollection.extend(
     async fetch({ dataService }) {
       const databaseName = getParentByType(this, 'Database')?.getId();
 
+      const shouldFetchNamespacesFromPrivileges = getParentByType(
+        this,
+        'Instance'
+      ).shouldFetchNamespacesFromPrivileges();
+
       if (!databaseName) {
         throw new Error(
           `Trying to fetch ${this.modelType} that doesn't have the Database parent model`
@@ -405,6 +410,7 @@ const CollectionCollection = AmpersandCollection.extend(
         {
           // Always fetch collections with info
           nameOnly: false,
+          fetchNamespacesFromPrivileges: shouldFetchNamespacesFromPrivileges,
           privileges: instanceModel.auth.privileges,
         }
       );

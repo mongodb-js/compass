@@ -5,3 +5,4 @@ export type {
   ContextMenuItemGroup,
   ContextMenuWrapperProps,
 } from './types';
+export { contextMenuClassName } from './consts';

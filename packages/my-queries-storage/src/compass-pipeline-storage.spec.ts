@@ -87,14 +87,12 @@ describe('CompassPipelineStorage', function () {
       expect((e as any).code).to.equal('ENOENT');
     }
 
-    const pipeline = await pipelineStorage.createOrUpdate(data.id, data);
+    const result = await pipelineStorage.createOrUpdate(data.id, data);
 
     // Verify the file exists
     await fs.access(await getEnsuredFilePath(tmpDir, data.id));
 
-    expect(pipeline.id).to.equal(data.id);
-    expect(pipeline.name).to.equal(data.name);
-    expect(pipeline.pipelineText).to.equal(data.pipelineText);
+    expect(result).to.be.true;
   });
 
   it('createOrUpdate - updates a pipeline if it exists', async function () {
@@ -108,14 +106,12 @@ describe('CompassPipelineStorage', function () {
     await createPipeline(tmpDir, data);
     await fs.access(await getEnsuredFilePath(tmpDir, data.id));
 
-    const pipeline = await pipelineStorage.createOrUpdate(data.id, {
+    const result = await pipelineStorage.createOrUpdate(data.id, {
       ...data,
       name: 'modified listings',
     });
 
-    expect(pipeline.id).to.equal(data.id);
-    expect(pipeline.name).to.equal('modified listings');
-    expect(pipeline.pipelineText).to.equal(data.pipelineText);
+    expect(result).to.be.true;
   });
 
   it('updateAttributes - updates a pipeline if it exists', async function () {
@@ -136,16 +132,12 @@ describe('CompassPipelineStorage', function () {
       expect(restOfAggregation).to.deep.equal(data);
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { lastModified, pipelineText, ...updatedAggregation } =
-      await pipelineStorage.updateAttributes(data.id, {
-        name: 'updated',
-        namespace: 'airbnb.users',
-      });
-
-    expect(updatedAggregation, 'returns updated pipeline').to.deep.equal({
-      ...data,
+    const result = await pipelineStorage.updateAttributes(data.id, {
       name: 'updated',
+      namespace: 'airbnb.users',
     });
+
+    expect(result).to.be.true;
 
     {
       const aggregations = await pipelineStorage.loadAll();

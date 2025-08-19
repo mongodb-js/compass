@@ -104,24 +104,28 @@ export function activateWorkspacePlugin(
       store.dispatch(collectionRenamed(from, collection.ns));
     });
 
-    on(instance, 'change:databases.is_non_existent', (database: Database) => {
-      const namespaceId = `${connectionId}.${database._id}`;
-      const databaseInfo = {
-        isNonExistent: database.is_non_existent,
-      };
-      store.dispatch(updateDatabaseInfo(namespaceId, databaseInfo));
-    });
+    on(
+      instance,
+      'change:databases.inferred_from_privileges',
+      (database: Database) => {
+        const namespaceId = `${connectionId}.${database._id}`;
+        const databaseInfo = {
+          inferredFromPrivileges: database.inferred_from_privileges,
+        };
+        store.dispatch(updateDatabaseInfo(namespaceId, databaseInfo));
+      }
+    );
 
     on(
       instance,
-      'change:collections.is_non_existent',
+      'change:collections.inferred_from_privileges',
       (collection: Collection) => {
         const namespaceId = `${connectionId}.${collection._id}`;
         const collectionInfo = {
           isTimeSeries: collection.isTimeSeries,
           isReadonly: collection.readonly ?? collection.isView,
           sourceName: collection.sourceName,
-          isNonExistent: collection.is_non_existent,
+          inferredFromPrivileges: collection.inferred_from_privileges,
         };
         store.dispatch(updateCollectionInfo(namespaceId, collectionInfo));
       }

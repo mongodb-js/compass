@@ -55,7 +55,7 @@ export function useCompassWebPreferences(
       enableShell: false,
       enableCreatingNewConnections: false,
       enableGlobalWrites: false,
-      optInDataExplorerGenAIFeatures: false,
+      optInGenAIFeatures: false,
       enableConnectInNewWindow: false,
       ...initialPreferences,
     })

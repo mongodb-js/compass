@@ -1,3 +1,5 @@
+import { getDrawerIds } from '@mongodb-js/compass-components';
+
 export type WorkspaceTabSelectorOptions = {
   id?: string;
   connectionName?: string;
@@ -730,6 +732,8 @@ export const HadronDocumentClickableKey =
   '[data-testid="hadron-document-clickable-key"]';
 export const HadronDocumentKeyEditor =
   '[data-testid="hadron-document-key-editor"]';
+export const HadronDocumentTypeEditor =
+  '[data-testid="hadron-document-type-editor"]';
 export const HadronDocumentValue =
   '[data-testid="hadron-document-element-value"]';
 export const HadronDocumentValueEditor =
@@ -1442,13 +1446,21 @@ export const CreateDataModelCollectionCheckbox = (
 ): string =>
   `${CreateDataModelModal} [data-testid="new-diagram-collection-checkbox-${collectionName}"]`;
 export const DataModelEditor = '[data-testid="diagram-editor-container"]';
+export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Icon"]`;
+export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
-  `${DataModelPreview} [data-nodeid="${collectionId}"]`;
+  `${DataModelPreview} [aria-roleDescription="node"][data-id="${collectionId}"]`;
+export const DataModelPreviewRelationship = (relationshipId: string) =>
+  `${DataModelPreview} [aria-roleDescription="edge"][data-id="${relationshipId}"]`;
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
 export const DataModelRedoButton = 'button[aria-label="Redo"]';
+export const DataModelRelationshipDrawingButton = (isActive: boolean = false) =>
+  `button[aria-label="${
+    isActive ? 'Exit Relationship Drawing Mode' : 'Add Relationship'
+  }"]`;
 export const DataModelExportButton = 'button[aria-label="Export"]';
 export const DataModelExportModal = '[data-testid="export-diagram-modal"]';
 export const DataModelExportPngOption = `${DataModelExportModal} input[aria-label="PNG"]`;
@@ -1466,3 +1478,33 @@ export const DataModelsListItem = (diagramName?: string) => {
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
+export const DataModelAddRelationshipBtn = 'aria/Add relationship';
+export const DataModelNameInputLabel = '//label[text()="Name"]';
+export const DataModelNameInput =
+  'input[data-testid="data-model-collection-drawer-name-input"]';
+export const DataModelRelationshipLocalCollectionSelect =
+  '//label[text()="Local collection"]';
+export const DataModelRelationshipLocalFieldSelect =
+  '//label[text()="Local field"]';
+export const DataModelRelationshipLocalCardinalitySelect =
+  '//label[text()="Local cardinality"]';
+export const DataModelRelationshipForeignCollectionSelect =
+  '//label[text()="Foreign collection"]';
+export const DataModelRelationshipForeignFieldSelect =
+  '//label[text()="Foreign field"]';
+export const DataModelRelationshipForeignCardinalitySelect =
+  '//label[text()="Foreign cardinality"]';
+export const DataModelRelationshipCardinalityOption = (value: string) =>
+  `[role="option"][value="${value}"]`;
+export const DataModelCollectionRelationshipItem = (relationshipId: string) =>
+  `li[data-relationship-id="${relationshipId}"]`;
+export const DataModelCollectionRelationshipItemEdit = `[aria-label="Edit relationship"]`;
+export const DataModelCollectionRelationshipItemDelete = `[aria-label="Delete relationship"]`;
+export const DataModelCollectionSidebarItemDelete = `[aria-label="Delete collection"]`;
+export const DataModelCollectionSidebarItemDeleteButton = `[data-action="delete"]`;
+
+// Side drawer
+export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
+export const SideDrawerCloseButton = `[data-testid="${
+  getDrawerIds().closeButton
+}"]`;
