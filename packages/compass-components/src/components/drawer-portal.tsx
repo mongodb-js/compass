@@ -32,6 +32,12 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
   order?: number;
 };
 
+type DrawerOpenStateContextValue = {
+  current: {
+    isDrawerOpen: boolean;
+  };
+};
+
 type DrawerActionsContextValue = {
   current: {
     openDrawer: (id: string) => void;
@@ -42,6 +48,14 @@ type DrawerActionsContextValue = {
 };
 
 const DrawerStateContext = React.createContext<DrawerSectionProps[]>([]);
+
+const DrawerOpenStateContext = React.createContext<DrawerOpenStateContextValue>(
+  {
+    current: {
+      isDrawerOpen: false,
+    },
+  }
+);
 
 const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
@@ -126,8 +140,10 @@ export const DrawerContentProvider: React.FunctionComponent = ({
 const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
   const actions = useContext(DrawerActionsContext);
+  const state = useContext(DrawerOpenStateContext);
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
+  state.current.isDrawerOpen = drawerToolbarContext.isDrawerOpen;
   return <>{children}</>;
 };
 
@@ -323,11 +339,11 @@ export function useDrawerActions() {
 }
 
 export const useDrawerState = () => {
-  const drawerToolbarContext = useDrawerToolbarContext();
+  const drawerToolbarContext = useContext(DrawerOpenStateContext);
   const drawerState = useContext(DrawerStateContext);
   return {
     isOpen:
-      drawerToolbarContext.isDrawerOpen &&
+      drawerToolbarContext.current.isDrawerOpen &&
       // the second check is a workaround, because LG doesn't set isDrawerOpen to false when it's empty
       drawerState.length > 0,
   };

@@ -19,7 +19,6 @@ import {
 import {
   createNewRelationship,
   deleteRelationship,
-  nameDraftCollection,
   renameCollection,
   selectCurrentModelFromState,
   selectRelationship,
@@ -44,7 +43,6 @@ type CollectionDrawerContentProps = {
   onDeleteRelationshipClick: (rId: string) => void;
   onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
-  onCreateCollection: (ns: string, position?: [number, number]) => void;
 };
 
 const titleBtnStyles = css({
@@ -122,13 +120,10 @@ const CollectionDrawerContent: React.FunctionComponent<
   onDeleteRelationshipClick,
   onNoteChange,
   onRenameCollection,
-  onCreateCollection,
 }) => {
   const namespaces = useMemo(() => {
     return collections.map((c) => c.ns);
   }, [collections]);
-  const database = useMemo(() => toNS(namespaces[0]).database, [namespaces]); // TODO(COMPASS-9718) use diagram.database
-
   const { value: collectionName, ...nameInputProps } = useChangeOnBlur(
     toNS(namespace).collection,
     (collectionName) => {
@@ -136,11 +131,7 @@ const CollectionDrawerContent: React.FunctionComponent<
       if (!isCollectionNameValid) {
         return;
       }
-      if (isDraftCollection) {
-        onCreateCollection(`${database}.${trimmedName}`);
-        return;
-      }
-      if (trimmedName === toNS(namespace).collection) {
+      if (!isDraftCollection && trimmedName === toNS(namespace).collection) {
         return;
       }
       onRenameCollection(
@@ -290,6 +281,5 @@ export default connect(
     onDeleteRelationshipClick: deleteRelationship,
     onNoteChange: updateCollectionNote,
     onRenameCollection: renameCollection,
-    onCreateCollection: nameDraftCollection,
   }
 )(CollectionDrawerContent);

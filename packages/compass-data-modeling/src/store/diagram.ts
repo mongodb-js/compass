@@ -197,22 +197,23 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
-  if (isAction(action, DiagramActionTypes.DRAFT_COLLECTION_NAMED)) {
-    if (!state.draftCollection) {
-      throw new Error('There is no draft collection to name');
-    }
+  if (
+    isAction(action, DiagramActionTypes.APPLY_EDIT) &&
+    state.draftCollection &&
+    action.edit.type === 'RenameCollection'
+  ) {
     return {
       ...state,
       edits: getEditsAfterDraftCollectionNamed(
         state.edits,
         state.draftCollection,
-        action.namespace
+        action.edit.toNS
       ),
       editErrors: undefined,
       updatedAt: new Date().toISOString(),
       selectedItems: {
         type: 'collection',
-        id: action.namespace,
+        id: action.edit.toNS,
       },
       draftCollection: undefined,
     };
@@ -341,12 +342,11 @@ const updateSelectedItemsFromAppliedEdit = (
   currentSelection: SelectedItems | null,
   edit: Edit
 ): SelectedItems | null => {
-  if (!currentSelection) {
-    return currentSelection;
-  }
-
   switch (edit.type) {
     case 'RenameCollection': {
+      if (!currentSelection) {
+        return currentSelection;
+      }
       if (
         currentSelection?.type === 'collection' &&
         currentSelection.id === edit.fromNS
@@ -357,6 +357,12 @@ const updateSelectedItemsFromAppliedEdit = (
         };
       }
       break;
+    }
+    case 'AddCollection': {
+      return {
+        type: 'collection',
+        id: edit.ns,
+      };
     }
   }
 
@@ -464,15 +470,6 @@ export function renameCollection(
     };
 
     dispatch(applyEdit(edit));
-  };
-}
-
-export function nameDraftCollection(
-  namespace: string
-): DataModelingThunkAction<void, DraftCollectionNamedAction> {
-  return (dispatch, getState, { dataModelStorage }) => {
-    dispatch({ type: DiagramActionTypes.DRAFT_COLLECTION_NAMED, namespace });
-    void dataModelStorage.save(getCurrentDiagramFromState(getState()));
   };
 }
 
@@ -694,7 +691,6 @@ export function addCollection(
       position,
     };
     dispatch(applyEdit(edit));
-    dispatch(selectCollection(ns));
     return true;
   };
 }

@@ -9,7 +9,7 @@ import {
   undoEdit,
   selectFieldsForCurrentModel,
   addCollection,
-  nameDraftCollection,
+  renameCollection,
 } from './diagram';
 import type {
   Edit,
@@ -260,7 +260,9 @@ describe('Data Modeling store', function () {
 
       // name the new collection
       const newCollectionNs = 'db.myCollection';
-      store.dispatch(nameDraftCollection(newCollectionNs));
+      store.dispatch(
+        renameCollection(firstCollectionDraftName, newCollectionNs)
+      );
 
       // now the collection is added to the edit history
       const diagramAfterCreation = getCurrentDiagramFromState(store.getState());
