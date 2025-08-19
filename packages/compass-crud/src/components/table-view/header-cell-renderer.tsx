@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { cx } from '@mongodb-js/compass-components';
 import type { TableHeaderType } from '../../stores/grid-store';
 
@@ -41,13 +40,6 @@ class HeaderCellRenderer extends React.Component<HeaderCellRendererProps> {
       </div>
     );
   }
-
-  static propTypes = {
-    displayName: PropTypes.any,
-    bsonType: PropTypes.string,
-    hide: PropTypes.bool,
-    subtable: PropTypes.bool,
-  };
 
   static displayName = 'HeaderCellRenderer';
 }
