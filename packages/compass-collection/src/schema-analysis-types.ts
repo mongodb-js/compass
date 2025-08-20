@@ -1,4 +1,14 @@
 import type { Document } from 'mongodb';
+import type { PrimitiveSchemaType } from 'mongodb-schema';
+import type {
+  ObjectId,
+  Binary,
+  BSONRegExp,
+  Code,
+  Timestamp,
+  MaxKey,
+  MinKey,
+} from 'bson';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -29,9 +39,36 @@ export type SchemaAnalysisErrorState = {
   error: SchemaAnalysisError;
 };
 
+/**
+ * MongoDB schema type
+ */
+export type MongoDBFieldType = PrimitiveSchemaType['name'];
+
+/**
+ * Primitive values that can appear in sample_values after BSON-to-primitive conversion.
+ * These are the JavaScript primitive equivalents of BSON values.
+ */
+export type SampleValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | ObjectId
+  | Binary
+  | BSONRegExp
+  | Code
+  | Timestamp
+  | MaxKey
+  | MinKey
+  | null
+  | undefined;
+
+/**
+ * Schema field information (for LLM processing)
+ */
 export interface FieldInfo {
-  type: string; // MongoDB type (eg. String, Double, Array, Document)
-  sample_values?: unknown[]; // Primitive sample values (flattened for arrays)
+  type: MongoDBFieldType; // MongoDB primitive type
+  sample_values?: SampleValue[]; // Primitive sample values (limited to 10)
   probability?: number; // 0.0 - 1.0 field frequency
 }
 

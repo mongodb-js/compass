@@ -7,7 +7,7 @@ import type {
   PrimitiveSchemaType,
   ConstantSchemaType,
 } from 'mongodb-schema';
-import type { FieldInfo } from './schema-analysis-types';
+import type { FieldInfo, SampleValue } from './schema-analysis-types';
 
 /**
  * This module transforms mongodb-schema output into a flat, LLM-friendly format using
@@ -139,7 +139,7 @@ function processType(
           return value.valueOf();
         }
         return value;
-      }),
+      }) as SampleValue[],
       probability: fieldProbability,
     };
 
