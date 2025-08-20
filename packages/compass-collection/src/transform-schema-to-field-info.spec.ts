@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from 'chai';
-import { Int32, Double } from 'bson';
+import {
+  Int32,
+  Double,
+  ObjectId,
+  Binary,
+  BSONRegExp,
+  Code,
+  BSONSymbol,
+  Timestamp,
+  MaxKey,
+  MinKey,
+  Long,
+  Decimal128,
+} from 'bson';
 import { processSchema } from './transform-schema-to-field-info';
 import type { Schema } from 'mongodb-schema';
 
@@ -49,15 +62,15 @@ describe('processSchema', function () {
     });
   });
 
-  it('filters out undefined types', function () {
+  it('filters out undefined and null types', function () {
     const schema: Schema = {
       fields: [
         {
           name: 'optional',
           path: ['optional'],
-          count: 2,
-          type: ['String', 'Undefined'],
-          probability: 0.5,
+          count: 3,
+          type: ['String', 'Undefined', 'Null'],
+          probability: 0.67,
           hasDuplicates: false,
           types: [
             {
@@ -65,7 +78,7 @@ describe('processSchema', function () {
               bsonType: 'String',
               path: ['optional'],
               count: 1,
-              probability: 0.5,
+              probability: 0.33,
               values: ['value'],
             },
             {
@@ -73,12 +86,19 @@ describe('processSchema', function () {
               bsonType: 'Undefined',
               path: ['optional'],
               count: 1,
-              probability: 0.5,
+              probability: 0.33,
+            },
+            {
+              name: 'Null',
+              bsonType: 'Null',
+              path: ['optional'],
+              count: 1,
+              probability: 0.33,
             },
           ],
         },
       ],
-      count: 2,
+      count: 3,
     };
 
     const result = processSchema(schema);
@@ -87,7 +107,7 @@ describe('processSchema', function () {
       optional: {
         type: 'String',
         sample_values: ['value'],
-        probability: 0.5,
+        probability: 0.67,
       },
     });
   });
@@ -157,7 +177,7 @@ describe('processSchema', function () {
     expect(result.field.sample_values).to.deep.equal(manyValues.slice(0, 10));
   });
 
-  it('transforms simple primitive field', function () {
+  it('transforms simple primitive fields', function () {
     const schema: Schema = {
       fields: [
         {
@@ -258,6 +278,249 @@ describe('processSchema', function () {
         type: 'Date',
         sample_values: [new Date('2023-01-01'), new Date('2023-06-15')],
         probability: 0.7,
+      },
+    });
+  });
+
+  it('handles various BSON types', function () {
+    const schema: Schema = {
+      fields: [
+        {
+          name: 'objectId',
+          path: ['objectId'],
+          count: 1,
+          type: ['ObjectId'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'ObjectId',
+              bsonType: 'ObjectId',
+              path: ['objectId'],
+              count: 1,
+              probability: 1.0,
+              values: [new ObjectId('642d766b7300158b1f22e972')],
+            },
+          ],
+        },
+        {
+          name: 'binary',
+          path: ['binary'],
+          count: 1,
+          type: ['Binary'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Binary',
+              bsonType: 'Binary',
+              path: ['binary'],
+              count: 1,
+              probability: 1.0,
+              values: [new Binary(Buffer.from('test'))],
+            },
+          ],
+        },
+        {
+          name: 'regex',
+          path: ['regex'],
+          count: 1,
+          type: ['RegExp'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'RegExp',
+              bsonType: 'BSONRegExp',
+              path: ['regex'],
+              count: 1,
+              probability: 1.0,
+              values: [new BSONRegExp('pattern', 'i')],
+            },
+          ],
+        },
+        {
+          name: 'code',
+          path: ['code'],
+          count: 1,
+          type: ['Code'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Code',
+              bsonType: 'Code',
+              path: ['code'],
+              count: 1,
+              probability: 1.0,
+              values: [new Code('function() {}')],
+            },
+          ],
+        },
+        {
+          name: 'long',
+          path: ['long'],
+          count: 1,
+          type: ['Long'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Long',
+              bsonType: 'Long',
+              path: ['long'],
+              count: 1,
+              probability: 1.0,
+              values: [Long.fromNumber(123456789)],
+            },
+          ],
+        },
+        {
+          name: 'decimal',
+          path: ['decimal'],
+          count: 1,
+          type: ['Decimal128'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Decimal128',
+              bsonType: 'Decimal128',
+              path: ['decimal'],
+              count: 1,
+              probability: 1.0,
+              values: [Decimal128.fromString('123.456')],
+            },
+          ],
+        },
+        {
+          name: 'timestamp',
+          path: ['timestamp'],
+          count: 1,
+          type: ['Timestamp'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Timestamp',
+              bsonType: 'Timestamp',
+              path: ['timestamp'],
+              count: 1,
+              probability: 1.0,
+              values: [new Timestamp({ t: 1, i: 1 })],
+            },
+          ],
+        },
+        {
+          name: 'maxKey',
+          path: ['maxKey'],
+          count: 1,
+          type: ['MaxKey'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'MaxKey',
+              bsonType: 'MaxKey',
+              path: ['maxKey'],
+              count: 1,
+              probability: 1.0,
+              values: [new MaxKey()],
+            },
+          ],
+        },
+        {
+          name: 'minKey',
+          path: ['minKey'],
+          count: 1,
+          type: ['MinKey'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'MinKey',
+              bsonType: 'MinKey',
+              path: ['minKey'],
+              count: 1,
+              probability: 1.0,
+              values: [new MinKey()],
+            },
+          ],
+        },
+        {
+          name: 'symbol',
+          path: ['symbol'],
+          count: 1,
+          type: ['Symbol'],
+          probability: 1.0,
+          hasDuplicates: false,
+          types: [
+            {
+              name: 'Symbol',
+              bsonType: 'BSONSymbol',
+              path: ['symbol'],
+              count: 1,
+              probability: 1.0,
+              values: [new BSONSymbol('symbol')],
+            },
+          ],
+        },
+      ],
+      count: 1,
+    };
+
+    const result = processSchema(schema);
+
+    expect(result).to.deep.equal({
+      objectId: {
+        type: 'ObjectId',
+        sample_values: [new ObjectId('642d766b7300158b1f22e972')],
+        probability: 1.0,
+      },
+      binary: {
+        type: 'Binary',
+        sample_values: [new Binary(Buffer.from('test'))],
+        probability: 1.0,
+      },
+      regex: {
+        type: 'RegExp',
+        sample_values: [new BSONRegExp('pattern', 'i')],
+        probability: 1.0,
+      },
+      code: {
+        type: 'Code',
+        sample_values: [new Code('function() {}')],
+        probability: 1.0,
+      },
+      long: {
+        type: 'Long',
+        sample_values: [Long.fromNumber(123456789)],
+        probability: 1.0,
+      },
+      decimal: {
+        type: 'Decimal128',
+        sample_values: [Decimal128.fromString('123.456')],
+        probability: 1.0,
+      },
+      timestamp: {
+        type: 'Timestamp',
+        sample_values: [new Timestamp({ t: 1, i: 1 })],
+        probability: 1.0,
+      },
+      maxKey: {
+        type: 'MaxKey',
+        sample_values: [new MaxKey()],
+        probability: 1.0,
+      },
+      minKey: {
+        type: 'MinKey',
+        sample_values: [new MinKey()],
+        probability: 1.0,
+      },
+      symbol: {
+        type: 'Symbol',
+        sample_values: ['symbol'],
+        probability: 1.0,
       },
     });
   });
