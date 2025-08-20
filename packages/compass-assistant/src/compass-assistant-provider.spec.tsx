@@ -8,10 +8,10 @@ import {
 import {
   AssistantProvider,
   CompassAssistantProvider,
+  type AssistantMessage,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 
 import {
@@ -24,7 +24,7 @@ import { createMockChat } from '../test/utils';
 
 // Test component that renders AssistantProvider with children
 const TestComponent: React.FunctionComponent<{
-  chat: Chat<UIMessage>;
+  chat: Chat<AssistantMessage>;
   autoOpen?: boolean;
 }> = ({ chat, autoOpen }) => {
   return (
@@ -78,7 +78,7 @@ describe('AssistantProvider', function () {
     });
 
     async function renderOpenAssistantDrawer(
-      mockChat: Chat<UIMessage>
+      mockChat: Chat<AssistantMessage>
     ): Promise<ReturnType<typeof render>> {
       const result = render(<TestComponent chat={mockChat} autoOpen={true} />, {
         preferences: { enableAIAssistant: true },
@@ -92,7 +92,7 @@ describe('AssistantProvider', function () {
     }
 
     it('displays messages in the chat feed', async function () {
-      const mockMessages: UIMessage[] = [
+      const mockMessages: AssistantMessage[] = [
         {
           id: '1',
           role: 'user',
@@ -120,7 +120,7 @@ describe('AssistantProvider', function () {
     });
 
     it('handles message sending with custom chat when drawer is open', async function () {
-      const mockChat = new Chat<UIMessage>({
+      const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
             id: 'assistant',
@@ -149,7 +149,7 @@ describe('AssistantProvider', function () {
     });
 
     it('new messages are added to the chat feed when the send button is clicked', async function () {
-      const mockChat = new Chat<UIMessage>({
+      const mockChat = new Chat<AssistantMessage>({
         messages: [
           {
             id: 'assistant',
