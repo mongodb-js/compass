@@ -68,7 +68,7 @@ describe('ExplainPlanModal', function () {
         explainPlan: {
           namespace: 'test',
           usedIndexes: [],
-        },
+        } as any,
       },
       { preferences: { enableAIAssistant: true } }
     );
@@ -82,7 +82,7 @@ describe('ExplainPlanModal', function () {
         explainPlan: {
           namespace: 'test',
           usedIndexes: [],
-        },
+        } as any,
       },
       { preferences: { enableAIAssistant: false } }
     );
@@ -95,7 +95,7 @@ describe('ExplainPlanModal', function () {
         status: 'loading',
         explainPlan: {
           usedIndexes: [],
-        },
+        } as any,
       },
       { preferences: { enableAIAssistant: true } }
     );
