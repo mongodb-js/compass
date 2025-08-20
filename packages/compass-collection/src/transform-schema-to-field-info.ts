@@ -7,6 +7,30 @@ import type {
   PrimitiveSchemaType,
   ConstantSchemaType,
 } from 'mongodb-schema';
+import type { FieldInfo } from './schema-analysis-types';
+
+/**
+ * This module transforms mongodb-schema output into a flat, LLM-friendly format using
+ * dot notation for nested fields and bracket notation for arrays.
+ *
+ * Algorithm Overview:
+ * - Start with top-level fields.
+ * - For each field (processNamedField), process based on type (processType):
+ *   - Primitives: Create result entry
+ *   - Documents: Add parent field name to path using dot notation, recurse into nested fields (processNamedField)
+ *   - Arrays: Add [] to path, recurse into element type (processType)
+ *
+ * Notation examples:
+ * - Nested documents: user.profile.name (dot notation)
+ * - Array: users[] (bracket notation)
+ * - Nested arrays: matrix[][] (multiple brackets)
+ * - Nested array of documents fields: users[].name (brackets + dots)
+ */
+
+/**
+ * Maximum number of sample values to include for each field
+ */
+const MAX_SAMPLE_VALUES = 10;
 
 // Type guards for mongodb-schema types
 function isConstantSchemaType(type: SchemaType): type is ConstantSchemaType {
@@ -28,25 +52,6 @@ function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
     !isDocumentSchemaType(type)
   );
 }
-import type { FieldInfo } from './schema-analysis-types';
-
-/**
- * This module transforms mongodb-schema output into a flat, LLM-friendly format using
- * dot notation for nested fields and bracket notation for arrays.
- *
- * Algorithm Overview:
- * - Start with top-level fields.
- * - For each field (processNamedField), process based on type (processType):
- *   - Primitives: Create result entry
- *   - Documents: Add parent field name to path using dot notation, recurse into nested fields (processNamedField)
- *   - Arrays: Add [] to path, recurse into element type (processType)
- *
- * Notation examples:
- * - Nested documents: user.profile.name (dot notation)
- * - Array: users[] (bracket notation)
- * - Nested arrays: matrix[][] (multiple brackets)
- * - Nested array of documents fields: users[].name (brackets + dots)
- */
 
 /**
  * Transforms a raw mongodb-schema Schema into a flat Record<string, FieldInfo>
@@ -125,7 +130,7 @@ function processType(
     // Primitive: Create entry
     const fieldInfo: FieldInfo = {
       type: type.name,
-      sample_values: type.values.slice(0, 10).map((value) => {
+      sample_values: type.values.slice(0, MAX_SAMPLE_VALUES).map((value) => {
         // Convert BSON values to their primitive equivalents, but keep Date objects as-is
         if (value instanceof Date) {
           return value;
