@@ -6,6 +6,19 @@ import type {
   DocumentSchemaType,
   PrimitiveSchemaType,
 } from 'mongodb-schema';
+
+// Type guards for mongodb-schema types
+function isArraySchemaType(type: SchemaType): type is ArraySchemaType {
+  return type.name === 'Array';
+}
+
+function isDocumentSchemaType(type: SchemaType): type is DocumentSchemaType {
+  return type.name === 'Document';
+}
+
+function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
+  return !isArraySchemaType(type) && !isDocumentSchemaType(type);
+}
 import type { FieldInfo } from './schema-analysis-types';
 
 /**
@@ -82,10 +95,9 @@ function processType(
     return;
   }
 
-  if (type.name === 'Array' || type.bsonType === 'Array') {
+  if (isArraySchemaType(type)) {
     // Array: add [] to path and recurse into element type
-    const arrayType = type as ArraySchemaType;
-    const elementType = getMostFrequentType(arrayType.types || []);
+    const elementType = getMostFrequentType(type.types || []);
 
     if (!elementType) {
       return;
@@ -93,21 +105,18 @@ function processType(
 
     const arrayPath = `${currentPath}[]`;
     processType(elementType, arrayPath, result, fieldProbability);
-  } else if (type.name === 'Document' || type.bsonType === 'Document') {
+  } else if (isDocumentSchemaType(type)) {
     // Document: Process nested document fields
-
-    const docType = type as DocumentSchemaType;
-    if (docType.fields) {
-      for (const nestedField of docType.fields) {
+    if (type.fields) {
+      for (const nestedField of type.fields) {
         processNamedField(nestedField, currentPath, result);
       }
     }
-  } else {
+  } else if (isPrimitiveSchemaType(type)) {
     // Primitive: Create entry
-    const primitiveType = type as PrimitiveSchemaType;
     const fieldInfo: FieldInfo = {
-      type: primitiveType.name,
-      sample_values: primitiveType.values.slice(0, 10).map((value) => {
+      type: type.name,
+      sample_values: type.values.slice(0, 10).map((value) => {
         // Convert BSON values to their primitive equivalents, but keep Date objects as-is
         if (value instanceof Date) {
           return value;
