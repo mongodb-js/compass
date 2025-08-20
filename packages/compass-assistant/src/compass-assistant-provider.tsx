@@ -55,10 +55,9 @@ export const AssistantProvider: React.FunctionComponent<
   }>
 > = ({ chat, children }) => {
   const assistantActionsContext = useRef<AssistantActionsContextType>({
-    interpretExplainPlan: ({ namespace, explainPlan }) => {
+    interpretExplainPlan: ({ explainPlan }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
       const { prompt, displayText } = buildExplainPlanPrompt({
-        namespace,
         explainPlan,
       });
       void chat.sendMessage(
