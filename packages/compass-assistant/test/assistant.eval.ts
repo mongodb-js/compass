@@ -1,26 +1,27 @@
+/* eslint-disable no-console */
 import { Eval } from 'braintrust';
 import type { EvalCase, EvalScorer } from 'braintrust';
 import { Levenshtein } from 'autoevals';
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { evalCases } from './eval-cases';
+
+export type SimpleEvalCase = {
+  name?: string;
+  input: string;
+  expected: string;
+};
+
+type Message = {
+  text: string;
+};
 
 type ConversationEvalCaseInput = {
-  // TODO: we could also make this an array of messages so you can have a whole
-  // conversation. but each message could then also be an object for
-  // future-proofing so we can have things like the prompt type and any other
-  // hidden metadata we might be passing to the chatbot along with the message
-  message: string;
-  // TODO: not implemented on our side yet, but apparently the chatbot supports
-  // this?  I'm including this here as an example of why we'd probably have more
-  // than just prompt text and expected results in our eval cases
-  customSystemPrompt?: string;
+  messages: Message[];
 };
 
 type ConversationEvalCaseExpected = {
-  // TODO: similarly we could make this an array of messages and each message
-  // could be an object and...
-  role: 'user' | 'assistant' | 'system';
-  message: string;
+  messages: Message[];
 };
 
 type ConversationEvalCase = EvalCase<
@@ -28,16 +29,14 @@ type ConversationEvalCase = EvalCase<
   ConversationEvalCaseExpected,
   unknown
 > & {
-  // TODO: thought of having an optional way to name the eval case in case the
-  // prompt text is large. Not sure how to pass name to braintrust, though
-  name?: string; // defaults to the prompt
+  name: string; // defaults to the prompt
 };
 
 type ConversationTaskOutput = {
   // again this could also be an array of messages and each message could be an
   // object for future-proofing. But we're probably just going to be taking the
   // result from the chatbot as a block of text for test purposes
-  message: string;
+  messages: Message[];
 };
 
 type ConversationEvalScorer = EvalScorer<
@@ -46,20 +45,23 @@ type ConversationEvalScorer = EvalScorer<
   ConversationEvalCaseExpected
 >;
 
-async function makeEvalCases(): Promise<ConversationEvalCase[]> {
-  return Promise.resolve([
-    {
+function allText(messages: Message[]): string {
+  return messages.map((m) => m.text).join('\n');
+}
+
+function makeEvalCases(): ConversationEvalCase[] {
+  return evalCases.map((c) => {
+    return {
+      name: c.name ?? c.input,
       input: {
-        message: 'How can I filter docs before running a $search query?',
+        messages: [{ text: c.input }],
       },
       expected: {
-        role: 'assistant',
-        message:
-          'Because the $search stage must be the first stage in an aggregation pipeline, you cannot pre-filter documents with a preceding $match stage. Instead, filtering should be performed within the $search stage using the filter clause of the compound operator. This allows you to apply predicate queries (e.g., on ranges, dates, or specific terms) to narrow down the dataset before the main query clauses (must or should) are executed. Alternatively, you can filter documents by creating a View—a partial index of your collection that pre-queries and filters out unwanted documents. Note that users need createCollection privileges to build views.',
+        messages: [{ text: c.expected }],
       },
       metadata: {},
-    },
-  ]);
+    };
+  });
 }
 
 async function makeAssistantCall(
@@ -72,30 +74,33 @@ async function makeAssistantCall(
       'User-Agent': 'mongodb-compass/x.x.x',
     },
   });
+  const prompt = allText(input.messages);
+
   const result = streamText({
     model: openai.responses('mongodb-chat-latest'),
-    prompt: input.message,
+    prompt,
   });
 
   const chunks: string[] = [];
 
-  // TODO: is there no one-line way to just get all the text for these cases
-  // where you don't care about streaming?
   for await (const chunk of result.toUIMessageStream()) {
-    const text = (chunk as any).delta || '';
-    if (text) {
-      chunks.push(text);
-      process.stdout.write(text);
+    const t = ((chunk as any).delta as string) || '';
+    if (t) {
+      chunks.push(t);
     }
   }
+  const text = chunks.join('');
   return {
-    message: chunks.join(''),
+    messages: [{ text }],
   };
 }
 
 function makeLevenshtein(): ConversationEvalScorer {
   return ({ output, expected }) => {
-    return Levenshtein({ output: output.message, expected: expected.message });
+    return Levenshtein({
+      output: allText(output.messages),
+      expected: allText(expected.messages),
+    });
   };
 }
 
