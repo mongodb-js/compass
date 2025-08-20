@@ -6,6 +6,7 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
   DataModelCollection,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 
@@ -74,7 +75,8 @@ export const getSelectedFields = (
 export const getFieldsFromSchema = (
   jsonSchema: MongoDBJSONSchema,
   highlightedFields: string[][] = [],
-  depth = 0
+  depth = 0,
+  parentFieldPath: FieldPath = []
 ): NodeProps['fields'] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
@@ -109,11 +111,15 @@ export const getFieldsFromSchema = (
       }
     }
 
+    const newFieldPath = [...parentFieldPath, name];
+
     fields.push({
       name,
+      id: newFieldPath,
       type: getFieldTypeDisplay(types.flat()),
       depth: depth,
       glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
+      selectable: true,
       variant:
         highlightedFields.length &&
         highlightedFields.some(
@@ -132,7 +138,8 @@ export const getFieldsFromSchema = (
             highlightedFields
               .filter((field) => field[0] === name)
               .map((field) => field.slice(1)),
-            depth + 1
+            depth + 1,
+            newFieldPath
           )
         ),
       ];

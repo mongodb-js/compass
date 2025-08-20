@@ -1,21 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
-import type {
-  Relationship,
-  DataModelCollection,
-} from '../../services/data-model-storage';
-import {
-  Badge,
-  Button,
-  IconButton,
-  css,
-  palette,
-  spacing,
-  TextInput,
-  Icon,
-  TextArea,
-} from '@mongodb-js/compass-components';
+import type { DataModelCollection, Relationship } from '../../services/data-model-storage';
+import { TextInput, TextArea } from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
   deleteRelationship,
@@ -31,6 +18,7 @@ import {
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
+import { RelationshipsSection } from './relationships-section';
 
 type CollectionDrawerContentProps = {
   namespace: string;
@@ -44,39 +32,6 @@ type CollectionDrawerContentProps = {
   onNoteChange: (namespace: string, note: string) => void;
   onRenameCollection: (fromNS: string, toNS: string) => void;
 };
-
-const titleBtnStyles = css({
-  marginLeft: 'auto',
-  maxHeight: 20, // To match accordion line height
-});
-
-const emptyRelationshipMessageStyles = css({
-  color: palette.gray.dark1,
-});
-
-const relationshipsListStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[200],
-});
-
-const relationshipItemStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-});
-
-const relationshipNameStyles = css({
-  flexGrow: 1,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  minWidth: 0,
-  paddingRight: spacing[200],
-});
-
-const relationshipContentStyles = css({
-  marginTop: spacing[400],
-});
 
 export function getIsCollectionNameValid(
   collectionName: string,
@@ -176,73 +131,15 @@ const CollectionDrawerContent: React.FunctionComponent<
           />
         </DMFormFieldContainer>
       </DMDrawerSection>
-
-      <DMDrawerSection
-        label={
-          <>
-            Relationships&nbsp;
-            <Badge>{relationships.length}</Badge>
-            <Button
-              className={titleBtnStyles}
-              size="xsmall"
-              onClick={() => {
-                onCreateNewRelationshipClick(namespace);
-              }}
-            >
-              Add Relationship
-            </Button>
-          </>
-        }
-      >
-        <div className={relationshipContentStyles}>
-          {!relationships.length ? (
-            <div className={emptyRelationshipMessageStyles}>
-              This collection does not have any relationships yet.
-            </div>
-          ) : (
-            <ul className={relationshipsListStyles}>
-              {relationships.map((r) => {
-                const relationshipLabel = getDefaultRelationshipName(
-                  r.relationship
-                );
-
-                return (
-                  <li
-                    key={r.id}
-                    data-relationship-id={r.id}
-                    className={relationshipItemStyles}
-                  >
-                    <span
-                      className={relationshipNameStyles}
-                      title={relationshipLabel}
-                    >
-                      {relationshipLabel}
-                    </span>
-                    <IconButton
-                      aria-label="Edit relationship"
-                      title="Edit relationship"
-                      onClick={() => {
-                        onEditRelationshipClick(r.id);
-                      }}
-                    >
-                      <Icon glyph="Edit" />
-                    </IconButton>
-                    <IconButton
-                      aria-label="Delete relationship"
-                      title="Delete relationship"
-                      onClick={() => {
-                        onDeleteRelationshipClick(r.id);
-                      }}
-                    >
-                      <Icon glyph="Trash" />
-                    </IconButton>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </DMDrawerSection>
+      <RelationshipsSection
+        relationships={relationships}
+        getRelationshipLabel={getDefaultRelationshipName}
+        onCreateNewRelationshipClick={() => {
+          onCreateNewRelationshipClick(namespace);
+        }}
+        onEditRelationshipClick={onEditRelationshipClick}
+        onDeleteRelationshipClick={onDeleteRelationshipClick}
+      />
 
       <DMDrawerSection label="Notes">
         <DMFormFieldContainer>

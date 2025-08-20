@@ -12,8 +12,11 @@ import {
   deleteCollection,
   deleteRelationship,
   selectCurrentModelFromState,
+  type SelectedItems,
 } from '../../store/diagram';
 import { getDefaultRelationshipName } from '../../utils';
+import FieldDrawerContent from './field-drawer-content';
+import type { FieldPath } from '../../services/data-model-storage';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -32,19 +35,17 @@ const drawerTitleTextStyles = css({
 const drawerTitleActionGroupStyles = css({});
 
 type DiagramEditorSidePanelProps = {
-  selectedItems: {
-    id: string;
-    type: 'relationship' | 'collection';
-    label: string;
-  } | null;
+  selectedItems: (SelectedItems & { label: string }) | null;
   onDeleteCollection: (ns: string) => void;
   onDeleteRelationship: (rId: string) => void;
+  onDeleteField: (ns: string, fieldPath: FieldPath) => void;
 };
 
 function DiagramEditorSidePanel({
   selectedItems,
   onDeleteCollection,
   onDeleteRelationship,
+  onDeleteField,
 }: DiagramEditorSidePanelProps) {
   const { content, label, actions, handleAction } = useMemo(() => {
     if (selectedItems?.type === 'collection') {
@@ -91,8 +92,31 @@ function DiagramEditorSidePanel({
       };
     }
 
+    if (selectedItems?.type === 'field') {
+      return {
+        label: selectedItems.label,
+        content: (
+          <FieldDrawerContent
+            key={`${selectedItems.namespace}.${JSON.stringify(
+              selectedItems.fieldPath
+            )}`}
+            namespace={selectedItems.namespace}
+            fieldPath={selectedItems.fieldPath}
+          ></FieldDrawerContent>
+        ),
+        actions: [
+          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+        ],
+        handleAction: (actionName: string) => {
+          if (actionName === 'delete') {
+            onDeleteField(selectedItems.namespace, selectedItems.fieldPath);
+          }
+        },
+      };
+    }
+
     return { content: null };
-  }, [selectedItems, onDeleteCollection, onDeleteRelationship]);
+  }, [selectedItems, onDeleteCollection, onDeleteRelationship, onDeleteField]);
 
   if (!content) {
     return null;
@@ -184,9 +208,30 @@ export default connect(
         },
       };
     }
+
+    if (selected.type === 'field') {
+      // const collection = model.collections.find((collection) => (collection.ns === selected.namespace));
+      // const field =
+
+      // if (!field) {
+      //   // TODO(COMPASS-9680): When the selected field doesn't exist we don't
+      //   // show any selection.
+      //   return {
+      //     selectedItems: null,
+      //   };
+      // }
+
+      return {
+        selectedItems: {
+          ...selected,
+          label: selected.fieldPath.join('.'),
+        },
+      };
+    }
   },
   {
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
+    onDeleteField: () => {}, // TODO onDeleteField,
   }
 )(DiagramEditorSidePanel);

@@ -4,6 +4,7 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import {
@@ -33,10 +34,16 @@ function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
-export type SelectedItems = {
-  type: 'collection' | 'relationship';
-  id: string;
-};
+export type SelectedItems =
+  | {
+      type: 'collection' | 'relationship';
+      id: string;
+    }
+  | {
+      type: 'field';
+      namespace: string;
+      fieldPath: FieldPath;
+    };
 
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
@@ -62,6 +69,7 @@ export enum DiagramActionTypes {
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
 
@@ -109,6 +117,12 @@ export type RelationSelectedAction = {
   relationshipId: string;
 };
 
+export type FieldSelectedAction = {
+  type: DiagramActionTypes.FIELD_SELECTED;
+  namespace: string;
+  fieldPath: FieldPath;
+};
+
 export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
@@ -123,6 +137,7 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
+  | FieldSelectedAction
   | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
@@ -280,6 +295,16 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
+  if (isAction(action, DiagramActionTypes.FIELD_SELECTED)) {
+    return {
+      ...state,
+      selectedItems: {
+        type: 'field',
+        namespace: action.namespace,
+        fieldPath: action.fieldPath,
+      },
+    };
+  }
   if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
@@ -375,6 +400,17 @@ export function selectRelationship(
       relationshipId,
     });
     track('Data Modeling Relationship Form Opened', {});
+  };
+}
+
+export function selectField(
+  namespace: string,
+  fieldPath: FieldPath
+): FieldSelectedAction {
+  return {
+    type: DiagramActionTypes.FIELD_SELECTED,
+    namespace,
+    fieldPath,
   };
 }
 
