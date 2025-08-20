@@ -32,7 +32,6 @@ import type { FieldInfo, SampleValue } from './schema-analysis-types';
  */
 const MAX_SAMPLE_VALUES = 10;
 
-// Type guards for mongodb-schema types
 function isConstantSchemaType(type: SchemaType): type is ConstantSchemaType {
   return type.name === 'Null' || type.name === 'Undefined';
 }
