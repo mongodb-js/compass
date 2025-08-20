@@ -34,9 +34,7 @@ type DrawerSectionProps = Omit<SectionData, 'content' | 'onClick'> & {
 
 type DrawerOpenStateContextValue = boolean;
 
-type DrawerSetOpenStateContextValue = {
-  setIsDrawerOpen: (isOpen: boolean) => void;
-};
+type DrawerSetOpenStateContextValue = (isOpen: boolean) => void;
 
 type DrawerActionsContextValue = {
   current: {
@@ -53,9 +51,7 @@ const DrawerOpenStateContext =
   React.createContext<DrawerOpenStateContextValue>(false);
 
 const DrawerSetOpenStateContext =
-  React.createContext<DrawerSetOpenStateContextValue>({
-    setIsDrawerOpen: () => {},
-  });
+  React.createContext<DrawerSetOpenStateContextValue>(() => {});
 
 const DrawerActionsContext = React.createContext<DrawerActionsContextValue>({
   current: {
@@ -133,9 +129,7 @@ export const DrawerContentProvider: React.FunctionComponent = ({
   return (
     <DrawerStateContext.Provider value={drawerState}>
       <DrawerOpenStateContext.Provider value={drawerOpenState}>
-        <DrawerSetOpenStateContext.Provider
-          value={{ setIsDrawerOpen: setDrawerOpenState }}
-        >
+        <DrawerSetOpenStateContext.Provider value={setDrawerOpenState}>
           <DrawerActionsContext.Provider value={drawerActions}>
             {children}
           </DrawerActionsContext.Provider>
@@ -152,7 +146,7 @@ const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
   actions.current.openDrawer = drawerToolbarContext.openDrawer;
   actions.current.closeDrawer = drawerToolbarContext.closeDrawer;
   useEffect(() => {
-    openStateSetter.setIsDrawerOpen(drawerToolbarContext.isDrawerOpen);
+    openStateSetter(drawerToolbarContext.isDrawerOpen);
   }, [drawerToolbarContext.isDrawerOpen, openStateSetter]);
   return <>{children}</>;
 };

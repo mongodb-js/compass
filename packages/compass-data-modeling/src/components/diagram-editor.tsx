@@ -133,7 +133,7 @@ const DiagramContent: React.FunctionComponent<{
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
-  const { isOpen: isDrawerOpen } = useDrawerState();
+  const { isDrawerOpen } = useDrawerState();
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
