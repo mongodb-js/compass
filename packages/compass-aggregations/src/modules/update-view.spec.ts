@@ -53,7 +53,7 @@ describe('update-view module', function () {
     let updateCollectionFake = sinon.fake();
     let showConfirmationStub: sinon.SinonStub;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       dispatchFake = sinon.fake();
       updateCollectionFake = sinon.fake.resolves(undefined);
       showConfirmationStub = sinon
