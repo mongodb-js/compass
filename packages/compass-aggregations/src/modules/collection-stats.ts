@@ -4,6 +4,7 @@ import { isAction } from '../utils/is-action';
 
 export type CollectionStats = {
   document_count?: number;
+  pipeline?: unknown[];
 };
 
 export const INITIAL_STATE: CollectionStats = {
@@ -11,9 +12,10 @@ export const INITIAL_STATE: CollectionStats = {
 };
 
 export function pickCollectionStats(collection: Collection): CollectionStats {
-  const { document_count } = collection.toJSON();
+  const { document_count, pipeline } = collection.toJSON();
   return {
     document_count,
+    pipeline,
   };
 }
 

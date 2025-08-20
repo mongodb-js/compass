@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model/provider';
+import {
+  usePreference,
+  withPreferences,
+} from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 
 import {
@@ -16,40 +19,43 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { filterStageOperators, isSearchStage } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
+import type { CollectionStats } from '../../modules/collection-stats';
+import semver from 'semver'; //import from mongodb-js/constants
 
 const inputWidth = spacing[1400] * 3;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 10;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
+const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE = '8.0.0';
+const isVersionSearchCompatibleForViewsDataExplorer = (
+  serverVersion: string
+) => {
+  try {
+    return semver.gte(
+      serverVersion,
+      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE
+    );
+  } catch {
+    return false;
+  }
+};
 
-const comboboxStyles = css({
-  width: inputWidth,
-  '> :popover-open': {
-    width: comboxboxOptionsWidth,
-    whiteSpace: 'normal',
-    // -4px to count for the input focus outline.
-    marginLeft: `${comboboxOptionsLeft - 4}px`,
-  },
-});
-
-type StageOperatorSelectProps = {
-  onChange: (index: number, name: string | null, snippet?: string) => void;
-  index: number;
-  selectedStage: string | null;
-  isDisabled: boolean;
-  stages: {
-    name: string;
-    env: ServerEnvironment[];
-    description: string;
-  }[];
-  serverVersion: string;
-  isReadonlyView: boolean;
-  pipeline: any;
-  fetchEffectivePipeline: () => void;
+// START: ALL OF THESE WILL BE IMPORTED FROM mongodb-constants
+const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
+const isVersionSearchCompatibleForViews = (serverVersion: string) => {
+  try {
+    return semver.gte(
+      serverVersion,
+      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+    );
+  } catch {
+    return false;
+  }
 };
 
 const isPipelineSearchQueryable = (
+  //import from mongodb-js/constants
   pipeline: Array<Record<string, any>>
 ): boolean => {
   for (const stage of pipeline) {
@@ -77,6 +83,70 @@ const isPipelineSearchQueryable = (
 
   return true;
 };
+// END: ALL OF THESE WILL BE IMPORTED FROM mongodb-constants
+
+const comboboxStyles = css({
+  width: inputWidth,
+  '> :popover-open': {
+    width: comboxboxOptionsWidth,
+    whiteSpace: 'normal',
+    // -4px to count for the input focus outline.
+    marginLeft: `${comboboxOptionsLeft - 4}px`,
+  },
+});
+
+type StageOperatorSelectProps = {
+  onChange: (index: number, name: string | null, snippet?: string) => void;
+  index: number;
+  selectedStage: string | null;
+  isDisabled: boolean;
+  stages: {
+    name: string;
+    env: ServerEnvironment[];
+    description: string;
+  }[];
+  serverVersion: string;
+  isReadonlyView: boolean;
+  collectionStats: CollectionStats;
+};
+
+type Stage = {
+  name: string;
+  env: ServerEnvironment[];
+  description: string;
+};
+
+export const getStageDescription = (
+  stage: Stage,
+  isReadonlyView: boolean,
+  versionIncompatibleCompass: boolean,
+  versionIncompatibleDE: boolean,
+  isPipelineSearchQueryable: boolean
+) => {
+  if (isReadonlyView && isSearchStage(stage.name)) {
+    if (!isPipelineSearchQueryable) {
+      return (
+        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.` +
+        stage.description
+      );
+    }
+
+    const minViewCompatibilityVersion = versionIncompatibleCompass
+      ? MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+      : MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
+    const minMajorMinorVersion = minViewCompatibilityVersion
+      .split('.')
+      .slice(0, 2)
+      .join('.');
+    if (versionIncompatibleCompass || versionIncompatibleDE) {
+      return (
+        `Atlas only. Requires MongoDB ${minMajorMinorVersion}+ to run on a view. ` +
+        stage.description
+      );
+    }
+  }
+  return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
+};
 
 // exported for tests
 export const StageOperatorSelect = ({
@@ -86,6 +156,7 @@ export const StageOperatorSelect = ({
   isDisabled,
   serverVersion,
   isReadonlyView,
+  collectionStats,
   stages,
 }: StageOperatorSelectProps) => {
   const onStageOperatorSelected = useCallback(
@@ -95,26 +166,21 @@ export const StageOperatorSelect = ({
     [onChange, index]
   );
 
-  const getStageDescription = (stage: {
-    name: string;
-    env: ServerEnvironment[];
-    description: string;
-  }) => {
-    if (isSearchStage(stage.name)) {
-      // check if server version>8.0 and isReadonlyView after editing stages file
-      if (isPipelineSearchQueryable([])) {
-        return (
-          `Atlas only. Requires MongoDB 8.1+ to run on a view. ` +
-          stage.description
-        );
-      }
-      return (
-        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.` +
-        stage.description
-      );
-    }
-    return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
-  };
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+  const versionIncompatibleCompass =
+    enableAtlasSearchIndexes &&
+    !isVersionSearchCompatibleForViews(serverVersion);
+  const versionIncompatibleDE =
+    !enableAtlasSearchIndexes &&
+    !isVersionSearchCompatibleForViewsDataExplorer(serverVersion);
+  const pipelineIsSearchQueryable = collectionStats?.pipeline
+    ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+    : true;
+  const disableSearchStage =
+    isReadonlyView &&
+    (!pipelineIsSearchQueryable ||
+      versionIncompatibleCompass ||
+      versionIncompatibleDE);
 
   return (
     <Combobox
@@ -127,13 +193,19 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {stages.map((stage, index) => (
+      {stages.map((stage: Stage, index) => (
         <ComboboxOption
           data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
           value={stage.name}
-          disabled={isSearchStage(stage.name)}
-          description={getStageDescription(stage)}
+          disabled={isSearchStage(stage.name) && disableSearchStage}
+          description={getStageDescription(
+            stage,
+            isReadonlyView,
+            versionIncompatibleCompass,
+            versionIncompatibleDE,
+            pipelineIsSearchQueryable
+          )}
         />
       ))}
     </Combobox>
@@ -171,6 +243,7 @@ export default withPreferences(
         stages: stages,
         serverVersion: state.serverVersion,
         isReadonlyView: !!state.sourceName,
+        collectionStats: state.collectionStats,
       };
     },
     (dispatch: any, ownProps) => {
