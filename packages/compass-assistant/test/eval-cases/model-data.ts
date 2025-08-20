@@ -9,6 +9,10 @@ Map relationships: Identify the relationships in your application's data and dec
 Apply design patterns: Apply schema design patterns to optimize reads and writes.
 Create indexes: Create indexes to support common query patterns.
 `,
+  expectedSources: [
+    'https://www.mongodb.com/docs/manual/data-modeling/#plan-your-schema',
+    'https://www.mongodb.com/docs/manual/data-modeling/schema-design-process/#designing-your-schema',
+  ],
 };
 
 export default evalCase;

@@ -30,6 +30,10 @@ db.orders.aggregate([
    { $unset: ["_id"] }
 ])
 `,
+  expectedSources: [
+    'https://www.mongodb.com/docs/manual/core/aggregation-pipeline/',
+    'https://www.mongodb.com/docs/compass/create-agg-pipeline/',
+  ],
 };
 
 export default evalCase;
