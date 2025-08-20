@@ -56,13 +56,15 @@ describe('update-view module', function () {
     beforeEach(async function () {
       dispatchFake = sinon.fake();
       updateCollectionFake = sinon.fake.resolves(undefined);
-      showConfirmationStub = sinon.stub(updateViewSlice, 'showConfirmation');
+      showConfirmationStub = sinon
+        .stub(updateViewSlice, 'showConfirmation')
+        .resolves(true);
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
+        searchIndexes: { indexes: [{ name: 'index1' }] },
         focusMode: { isEnabled: false },
         namespace: 'aa.bb',
         editViewName: 'aa.bb',
-        searchIndexes: { indexes: [{ name: 'index1' }] },
         dataService: {
           dataService: {
             updateCollection: updateCollectionFake,
@@ -70,24 +72,22 @@ describe('update-view module', function () {
         },
       };
       getStateMock = () => stateMock;
-
-      const runUpdateView = updateView();
-      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
     });
 
     afterEach(function () {
       showConfirmationStub.restore();
     });
 
-    it('first it calls to dismiss any existing error', function () {
+    it('first it calls to dismiss any existing error', async function () {
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
       expect(dispatchFake.firstCall.args[0]).to.deep.equal({
         type: 'aggregations/update-view/DISMISS_VIEW_UPDATE_ERROR',
       });
     });
 
     it('shows confirmation banner when search indexes are present', async function () {
-      showConfirmationStub.resolves(true);
-
       const runUpdateView = updateView();
       await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
 
@@ -99,7 +99,6 @@ describe('update-view module', function () {
     });
 
     it('does not update view if not confirmed', async function () {
-      getStateMock = () => stateMock;
       showConfirmationStub.resolves(false);
 
       const runUpdateView = updateView();
@@ -108,7 +107,10 @@ describe('update-view module', function () {
       expect(updateCollectionFake.calledOnce).to.be.false;
     });
 
-    it('calls the data service to update the view for the provided ns', function () {
+    it('calls the data service to update the view for the provided ns', async function () {
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
       expect(updateCollectionFake.firstCall.args[0]).to.equal('aa.bb');
       expect(updateCollectionFake.firstCall.args[1]).to.deep.equal({
         viewOn: 'bb',
