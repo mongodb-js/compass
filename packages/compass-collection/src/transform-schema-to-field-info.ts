@@ -5,9 +5,14 @@ import type {
   ArraySchemaType,
   DocumentSchemaType,
   PrimitiveSchemaType,
+  ConstantSchemaType,
 } from 'mongodb-schema';
 
 // Type guards for mongodb-schema types
+function isConstantSchemaType(type: SchemaType): type is ConstantSchemaType {
+  return type.name === 'Null' || type.name === 'Undefined';
+}
+
 function isArraySchemaType(type: SchemaType): type is ArraySchemaType {
   return type.name === 'Array';
 }
@@ -17,7 +22,11 @@ function isDocumentSchemaType(type: SchemaType): type is DocumentSchemaType {
 }
 
 function isPrimitiveSchemaType(type: SchemaType): type is PrimitiveSchemaType {
-  return !isArraySchemaType(type) && !isDocumentSchemaType(type);
+  return (
+    !isConstantSchemaType(type) &&
+    !isArraySchemaType(type) &&
+    !isDocumentSchemaType(type)
+  );
 }
 import type { FieldInfo } from './schema-analysis-types';
 
@@ -91,7 +100,7 @@ function processType(
   result: Record<string, FieldInfo>,
   fieldProbability: number
 ): void {
-  if (type.name === 'Null' || type.name === 'Undefined') {
+  if (isConstantSchemaType(type)) {
     return;
   }
 
@@ -134,16 +143,16 @@ function processType(
 }
 
 /**
- * Gets the most probable type from a list of types, excluding 'Undefined' and 'Null'
+ * Gets the most probable type from a list of types, excluding constant types (Null/Undefined)
  */
 function getMostFrequentType(types: SchemaType[]): SchemaType | null {
   if (!types || types.length === 0) {
     return null;
   }
 
-  // Filter out undefined types and sort by probability
+  // Filter out constant types (Null/Undefined) and sort by probability
   const validTypes = types
-    .filter((type) => type.name !== 'Undefined' && type.name !== 'Null')
+    .filter((type) => !isConstantSchemaType(type))
     .sort((a, b) => (b.probability || 0) - (a.probability || 0));
 
   return validTypes[0] || null;
