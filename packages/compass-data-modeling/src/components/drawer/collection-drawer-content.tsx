@@ -26,7 +26,11 @@ type CollectionDrawerContentProps = {
   note?: string;
   relationships: Relationship[];
   isDraftCollection?: boolean;
-  onCreateNewRelationshipClick: (namespace: string) => void;
+  onCreateNewRelationshipClick: ({
+    localNamespace,
+  }: {
+    localNamespace: string;
+  }) => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
   onNoteChange: (namespace: string, note: string) => void;
@@ -133,9 +137,10 @@ const CollectionDrawerContent: React.FunctionComponent<
       </DMDrawerSection>
       <RelationshipsSection
         relationships={relationships}
+        emptyMessage="This collection does not have any relationships yet."
         getRelationshipLabel={getDefaultRelationshipName}
         onCreateNewRelationshipClick={() => {
-          onCreateNewRelationshipClick(namespace);
+          onCreateNewRelationshipClick({ localNamespace: namespace });
         }}
         onEditRelationshipClick={onEditRelationshipClick}
         onDeleteRelationshipClick={onDeleteRelationshipClick}

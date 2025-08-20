@@ -420,10 +420,17 @@ export function selectBackground(): DiagramBackgroundSelectedAction {
   };
 }
 
-export function createNewRelationship(
-  localNamespace: string,
-  foreignNamespace: string | null = null
-): DataModelingThunkAction<void, RelationSelectedAction> {
+export function createNewRelationship({
+  localNamespace,
+  foreignNamespace = null,
+  localFields = null,
+  foreignFields = null,
+}: {
+  localNamespace: string;
+  foreignNamespace?: string | null;
+  localFields?: FieldPath | null;
+  foreignFields?: FieldPath | null;
+}): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
     const currentNumberOfRelationships = getCurrentNumberOfRelationships(
@@ -435,8 +442,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: localNamespace, cardinality: 1, fields: null },
-            { ns: foreignNamespace, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: localFields },
+            { ns: foreignNamespace, cardinality: 1, fields: foreignFields },
           ],
           isInferred: false,
         },

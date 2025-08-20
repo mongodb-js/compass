@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import toNS from 'mongodb-ns';
 import type { DataModelingState } from '../../store/reducer';
 import {
   css,
@@ -40,6 +41,8 @@ type DiagramEditorSidePanelProps = {
   onDeleteRelationship: (rId: string) => void;
   onDeleteField: (ns: string, fieldPath: FieldPath) => void;
 };
+
+const getCollection = (namespace: string) => toNS(namespace).collection;
 
 function DiagramEditorSidePanel({
   selectedItems,
@@ -183,7 +186,7 @@ export default connect(
       return {
         selectedItems: {
           ...selected,
-          label: selected.id,
+          label: getCollection(selected.id),
         },
       };
     }
@@ -224,7 +227,9 @@ export default connect(
       return {
         selectedItems: {
           ...selected,
-          label: selected.fieldPath.join('.'),
+          label: `${getCollection(
+            selected.namespace
+          )}.${selected.fieldPath.join('.')}`,
         },
       };
     }

@@ -43,7 +43,7 @@ import ExportDiagramModal from './export-diagram-modal';
 import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import {
   collectionToDiagramNode,
-  getSelectedFields,
+  getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 
@@ -117,7 +117,13 @@ const DiagramContent: React.FunctionComponent<{
   onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
-  onCreateNewRelationship: (source: string, target: string) => void;
+  onCreateNewRelationship: ({
+    localNamespace,
+    foreignNamespace,
+  }: {
+    localNamespace: string;
+    foreignNamespace: string;
+  }) => void;
   onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
@@ -156,7 +162,7 @@ const DiagramContent: React.FunctionComponent<{
   }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
-    const selectedFields = getSelectedFields(
+    const highlightedFields = getHighlightedFields(
       selectedItems,
       model?.relationships
     );
@@ -166,7 +172,11 @@ const DiagramContent: React.FunctionComponent<{
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
       return collectionToDiagramNode(coll, {
-        selectedFields,
+        highlightedFields,
+        selectedField:
+          selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
+            ? selectedItems.fieldPath
+            : undefined,
         selected,
         isInRelationshipDrawingMode,
       });
@@ -222,7 +232,10 @@ const DiagramContent: React.FunctionComponent<{
 
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
-      onCreateNewRelationship(source, target);
+      onCreateNewRelationship({
+        localNamespace: source,
+        foreignNamespace: target,
+      });
       onRelationshipDrawn();
     },
     [onRelationshipDrawn, onCreateNewRelationship]

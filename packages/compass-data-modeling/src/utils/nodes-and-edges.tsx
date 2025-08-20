@@ -52,7 +52,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
   );
 }
 
-export const getSelectedFields = (
+export const getHighlightedFields = (
   selectedItems: SelectedItems | null,
   relationships?: Relationship[]
 ): Record<string, string[][] | undefined> => {
@@ -72,12 +72,19 @@ export const getSelectedFields = (
   return selection;
 };
 
-export const getFieldsFromSchema = (
-  jsonSchema: MongoDBJSONSchema,
-  highlightedFields: string[][] = [],
+export const getFieldsFromSchema = ({
+  jsonSchema,
+  highlightedFields = [],
+  selectedField,
   depth = 0,
-  parentFieldPath: FieldPath = []
-): NodeProps['fields'] => {
+  parentFieldPath = [],
+}: {
+  jsonSchema: MongoDBJSONSchema;
+  highlightedFields?: FieldPath[];
+  selectedField?: FieldPath;
+  depth?: number;
+  parentFieldPath?: FieldPath;
+}): NodeProps['fields'] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
@@ -120,6 +127,7 @@ export const getFieldsFromSchema = (
       depth: depth,
       glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
       selectable: true,
+      selected: selectedField?.length === 1 && selectedField[0] === name,
       variant:
         highlightedFields.length &&
         highlightedFields.some(
@@ -133,14 +141,18 @@ export const getFieldsFromSchema = (
       fields = [
         ...fields,
         ...children.flat().flatMap((child) =>
-          getFieldsFromSchema(
-            child,
-            highlightedFields
+          getFieldsFromSchema({
+            jsonSchema: child,
+            highlightedFields: highlightedFields
               .filter((field) => field[0] === name)
               .map((field) => field.slice(1)),
-            depth + 1,
-            newFieldPath
-          )
+            selectedField:
+              selectedField && selectedField[0] === name
+                ? selectedField.slice(1)
+                : undefined,
+            depth: depth + 1,
+            parentFieldPath: newFieldPath,
+          })
         ),
       ];
     }
@@ -152,16 +164,19 @@ export const getFieldsFromSchema = (
 export function collectionToDiagramNode(
   coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
   options: {
-    selectedFields?: Record<string, string[][] | undefined>;
+    highlightedFields?: Record<string, FieldPath[] | undefined>;
+    selectedField?: FieldPath;
     selected?: boolean;
     isInRelationshipDrawingMode?: boolean;
   } = {}
 ): NodeProps {
   const {
-    selectedFields = {},
+    highlightedFields = {},
+    selectedField,
     selected = false,
     isInRelationshipDrawingMode = false,
   } = options;
+  console.log('collection level', { selectedField });
 
   return {
     id: coll.ns,
@@ -171,11 +186,12 @@ export function collectionToDiagramNode(
       y: coll.displayPosition[1],
     },
     title: toNS(coll.ns).collection,
-    fields: getFieldsFromSchema(
-      coll.jsonSchema,
-      selectedFields[coll.ns] ?? undefined,
-      0
-    ),
+    fields: getFieldsFromSchema({
+      jsonSchema: coll.jsonSchema,
+      highlightedFields: highlightedFields[coll.ns] ?? undefined,
+      selectedField,
+      depth: 0,
+    }),
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
