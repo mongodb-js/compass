@@ -68,6 +68,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-assistant": "^1.0.0",
     "@mongodb-js/compass-app-registry": "^9.4.19",
     "@mongodb-js/compass-collection": "^4.69.0",
     "@mongodb-js/compass-components": "^1.48.0",
