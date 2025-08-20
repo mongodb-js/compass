@@ -73,6 +73,10 @@ describe('ExplainPlanModal', function () {
       { preferences: { enableAIAssistant: true } }
     );
     expect(screen.getByTestId('interpret-for-me-button')).to.exist;
+    expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
+      'aria-disabled',
+      'false'
+    );
   });
 
   it('should not show "Interpret for me" button when AI assistant is disabled', function () {
