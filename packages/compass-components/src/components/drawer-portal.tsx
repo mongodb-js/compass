@@ -187,6 +187,7 @@ const emptyDrawerLayoutFixesStyles = css({
 const drawerSectionPortalStyles = css({
   minWidth: '100%',
   minHeight: '100%',
+  height: '100%',
 });
 
 /**
@@ -221,6 +222,7 @@ export const DrawerAnchor: React.FunctionComponent<{
           ...data,
           content: (
             <div
+              key={data.id}
               data-drawer-section={data.id}
               className={drawerSectionPortalStyles}
             ></div>

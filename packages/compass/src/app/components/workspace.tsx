@@ -40,6 +40,7 @@ import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
+import { CompassAssistantDrawer } from '@mongodb-js/compass-assistant';
 
 export default function Workspace({
   appName,
@@ -111,6 +112,7 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
+              <CompassAssistantDrawer />
             </>
           )}
         ></WorkspacesPlugin>
