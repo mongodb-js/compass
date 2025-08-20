@@ -1,14 +1,5 @@
 import type { Document } from 'mongodb';
 import type { PrimitiveSchemaType } from 'mongodb-schema';
-import type {
-  ObjectId,
-  Binary,
-  BSONRegExp,
-  Code,
-  Timestamp,
-  MaxKey,
-  MinKey,
-} from 'bson';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -49,17 +40,10 @@ export type MongoDBFieldType = PrimitiveSchemaType['name'];
  * These are the JavaScript primitive equivalents of BSON values.
  */
 export type SampleValue =
-  | string
-  | number
+  | string // String, Symbol, ObjectId, Binary, RegExp, Code, etc. (converted to string)
+  | number // Number, Int32, Long, Double, Decimal128, Timestamp (converted via valueOf())
   | boolean
   | Date
-  | ObjectId
-  | Binary
-  | BSONRegExp
-  | Code
-  | Timestamp
-  | MaxKey
-  | MinKey
   | null
   | undefined;
 

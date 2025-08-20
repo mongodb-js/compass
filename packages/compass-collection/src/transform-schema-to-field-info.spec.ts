@@ -474,47 +474,47 @@ describe('processSchema', function () {
     expect(result).to.deep.equal({
       objectId: {
         type: 'ObjectId',
-        sample_values: [new ObjectId('642d766b7300158b1f22e972')],
+        sample_values: ['642d766b7300158b1f22e972'],
         probability: 1.0,
       },
       binary: {
         type: 'Binary',
-        sample_values: [new Binary(Buffer.from('test'))],
+        sample_values: ['dGVzdA=='],
         probability: 1.0,
       },
       regex: {
         type: 'RegExp',
-        sample_values: [new BSONRegExp('pattern', 'i')],
+        sample_values: ['pattern'],
         probability: 1.0,
       },
       code: {
         type: 'Code',
-        sample_values: [new Code('function() {}')],
+        sample_values: ['function() {}'],
         probability: 1.0,
       },
       long: {
         type: 'Long',
-        sample_values: [Long.fromNumber(123456789)],
+        sample_values: [123456789],
         probability: 1.0,
       },
       decimal: {
         type: 'Decimal128',
-        sample_values: [Decimal128.fromString('123.456')],
+        sample_values: [123.456],
         probability: 1.0,
       },
       timestamp: {
         type: 'Timestamp',
-        sample_values: [new Timestamp({ t: 1, i: 1 })],
+        sample_values: [4294967297],
         probability: 1.0,
       },
       maxKey: {
         type: 'MaxKey',
-        sample_values: [new MaxKey()],
+        sample_values: ['MaxKey'],
         probability: 1.0,
       },
       minKey: {
         type: 'MinKey',
-        sample_values: [new MinKey()],
+        sample_values: ['MinKey'],
         probability: 1.0,
       },
       symbol: {

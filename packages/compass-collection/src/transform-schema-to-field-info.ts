@@ -8,6 +8,18 @@ import type {
   ConstantSchemaType,
 } from 'mongodb-schema';
 import type { FieldInfo, SampleValue } from './schema-analysis-types';
+import {
+  ObjectId,
+  Binary,
+  BSONRegExp,
+  Code,
+  Timestamp,
+  MaxKey,
+  MinKey,
+  BSONSymbol,
+  Long,
+  Decimal128,
+} from 'bson';
 
 /**
  * This module transforms mongodb-schema output into a flat, LLM-friendly format using
@@ -31,6 +43,61 @@ import type { FieldInfo, SampleValue } from './schema-analysis-types';
  * Maximum number of sample values to include for each field
  */
 const MAX_SAMPLE_VALUES = 10;
+
+/**
+ * Converts a BSON value to its primitive JavaScript equivalent
+ */
+function convertBSONToPrimitive(value: unknown): SampleValue {
+  // Handle null/undefined
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  // Keep Date as-is
+  if (value instanceof Date) {
+    return value;
+  }
+
+  // Convert BSON objects to primitives
+  if (value instanceof ObjectId) {
+    return value.toString();
+  }
+  if (value instanceof Binary) {
+    return value.toString('base64');
+  }
+  if (value instanceof BSONRegExp) {
+    return value.pattern;
+  }
+  if (value instanceof Code) {
+    return value.code;
+  }
+  if (value instanceof Timestamp) {
+    return value.toNumber();
+  }
+  if (value instanceof MaxKey) {
+    return 'MaxKey';
+  }
+  if (value instanceof MinKey) {
+    return 'MinKey';
+  }
+  if (value instanceof BSONSymbol) {
+    return value.toString();
+  }
+  if (value instanceof Long) {
+    return value.toNumber();
+  }
+  if (value instanceof Decimal128) {
+    return parseFloat(value.toString());
+  }
+
+  // Handle objects with valueOf method (numeric types)
+  if (value && typeof value === 'object' && 'valueOf' in value) {
+    const result = (value as { valueOf(): unknown }).valueOf();
+    return result as SampleValue;
+  }
+
+  return value as SampleValue;
+}
 
 function isConstantSchemaType(type: SchemaType): type is ConstantSchemaType {
   return type.name === 'Null' || type.name === 'Undefined';
@@ -129,16 +196,9 @@ function processType(
     // Primitive: Create entry
     const fieldInfo: FieldInfo = {
       type: type.name,
-      sample_values: type.values.slice(0, MAX_SAMPLE_VALUES).map((value) => {
-        // Convert BSON values to their primitive equivalents, but keep Date objects as-is
-        if (value instanceof Date) {
-          return value;
-        }
-        if (value && typeof value === 'object' && 'valueOf' in value) {
-          return value.valueOf();
-        }
-        return value;
-      }) as SampleValue[],
+      sample_values: type.values
+        .slice(0, MAX_SAMPLE_VALUES)
+        .map(convertBSONToPrimitive),
       probability: fieldProbability,
     };
 
