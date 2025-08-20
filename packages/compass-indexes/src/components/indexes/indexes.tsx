@@ -39,6 +39,7 @@ import semver from 'semver';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { CollectionStats } from '../../modules/collection-stats';
 import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
+import type { Document } from 'mongodb';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -232,10 +233,9 @@ export function Indexes({
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { atlasMetadata } = useConnectionInfo();
   const isViewPipelineSearchQueryable =
-    (isReadonlyView &&
-      collectionStats?.pipeline &&
-      isPipelineSearchQueryable(collectionStats.pipeline as Document[])) ??
-    true;
+    isReadonlyView && collectionStats?.pipeline
+      ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+      : true;
 
   const getBanner = () => {
     if (isReadonlyView) {

@@ -33,6 +33,7 @@ import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
 import type { CollectionStats } from '../../modules/collection-stats';
 import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
+import type { Document } from 'mongodb';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -127,10 +128,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
   const isViewPipelineSearchQueryable =
-    (isReadonlyView &&
-      collectionStats?.pipeline &&
-      isPipelineSearchQueryable(collectionStats.pipeline as Document[])) ??
-    true;
+    isReadonlyView && collectionStats?.pipeline
+      ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+      : true;
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on  views containing $addFields, $set or $match stages with the $expr operator.';
   return (

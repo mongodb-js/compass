@@ -322,12 +322,10 @@ export const SearchIndexesTable: React.FunctionComponent<
     };
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
   const isViewPipelineSearchQueryable =
-    (isReadonlyView &&
-      collectionStats?.pipeline &&
-      isPipelineSearchQueryable(
-        collectionStats.pipeline as Array<Record<string, any>>
-      )) ??
-    true;
+    isReadonlyView && collectionStats?.pipeline
+      ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+      : true;
+
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
       indexes.map((index) => {
