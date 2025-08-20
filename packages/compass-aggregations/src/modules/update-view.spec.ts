@@ -87,6 +87,15 @@ describe('update-view module', function () {
       });
     });
 
+    it('does not shows confirmation banner if search indexes are not present', async function () {
+      stateMock.searchIndexes.indexes = [];
+
+      const runUpdateView = updateView();
+      await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
+
+      expect(showConfirmationStub.calledOnce).to.be.false;
+    });
+
     it('shows confirmation banner when search indexes are present', async function () {
       const runUpdateView = updateView();
       await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
