@@ -10,10 +10,18 @@ import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
 
-function render(props: Partial<ExplainPlanModalProps>) {
+function render(
+  props: Partial<ExplainPlanModalProps>,
+  { preferences }: { preferences: { enableAIAssistant: boolean } } = {
+    preferences: { enableAIAssistant: false },
+  }
+) {
   const { store } = activatePlugin(
     { namespace: 'test.test', isDataLake: false },
-    { dataService: {}, localAppRegistry: {}, preferences: {} } as any,
+    {
+      dataService: {},
+      localAppRegistry: {},
+    } as any,
     { on() {}, cleanup() {} } as any
   );
 
@@ -26,7 +34,8 @@ function render(props: Partial<ExplainPlanModalProps>) {
         onModalClose={() => {}}
         {...props}
       ></ExplainPlanModal>
-    </Provider>
+    </Provider>,
+    { preferences: { enableAIAssistant: preferences?.enableAIAssistant } }
   );
 }
 
@@ -50,5 +59,53 @@ describe('ExplainPlanModal', function () {
   it('should render ready state', function () {
     render({ status: 'ready' });
     expect(screen.getByText('Query Performance Summary')).to.exist;
+  });
+
+  it('should show "Interpret for me" button when AI assistant is enabled', function () {
+    render(
+      {
+        status: 'ready',
+        explainPlan: {
+          namespace: 'test',
+          usedIndexes: [],
+        } as any,
+      },
+      { preferences: { enableAIAssistant: true } }
+    );
+    expect(screen.getByTestId('interpret-for-me-button')).to.exist;
+    expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
+      'aria-disabled',
+      'false'
+    );
+  });
+
+  it('should not show "Interpret for me" button when AI assistant is disabled', function () {
+    render(
+      {
+        status: 'ready',
+        explainPlan: {
+          namespace: 'test',
+          usedIndexes: [],
+        } as any,
+      },
+      { preferences: { enableAIAssistant: false } }
+    );
+    expect(screen.queryByTestId('interpret-for-me-button')).to.not.exist;
+  });
+
+  it('should disable the "Interpret for me" button when the status is not ready', function () {
+    render(
+      {
+        status: 'loading',
+        explainPlan: {
+          usedIndexes: [],
+        } as any,
+      },
+      { preferences: { enableAIAssistant: true } }
+    );
+    expect(screen.getByTestId('interpret-for-me-button')).to.have.attr(
+      'aria-disabled',
+      'true'
+    );
   });
 });

@@ -3,7 +3,7 @@ import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from './types';
-import { ExperimentTestName } from './growth-experiments';
+import type { ExperimentTestName } from './growth-experiments';
 import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 
@@ -154,4 +154,5 @@ export const useFireExperimentViewed = ({
 };
 
 export type { TrackFunction };
-export { ExperimentTestName };
+export { ExperimentTestName, ExperimentTestGroup } from './growth-experiments';
+export { useAssignment } from './experimentation-provider';
