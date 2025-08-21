@@ -72,23 +72,29 @@ export const getHighlightedFields = (
   return selection;
 };
 
-export const getFieldsFromSchema = ({
+// TODO: add support for update
+// renaming fields, deleting fields, adding fields...
+// or maybe we can have two traverses? one for parsing, one for updating?
+export const traverseSchema = ({
   jsonSchema,
-  highlightedFields = [],
-  selectedField,
-  depth = 0,
   parentFieldPath = [],
+  visitor,
 }: {
   jsonSchema: MongoDBJSONSchema;
-  highlightedFields?: FieldPath[];
-  selectedField?: FieldPath;
-  depth?: number;
+  visitor: ({
+    fieldPath,
+    fieldName,
+    fieldTypes,
+  }: {
+    fieldPath: FieldPath;
+    fieldName: string;
+    fieldTypes: string[];
+  }) => void;
   parentFieldPath?: FieldPath;
-}): NodeProps['fields'] => {
+}): void => {
   if (!jsonSchema || !jsonSchema.properties) {
-    return [];
+    return;
   }
-  let fields: NodeProps['fields'] = [];
   for (const [name, field] of Object.entries(jsonSchema.properties)) {
     // field has types, properties and (optional) children
     // types are either direct, or from anyof
@@ -120,43 +126,61 @@ export const getFieldsFromSchema = ({
 
     const newFieldPath = [...parentFieldPath, name];
 
-    fields.push({
-      name,
-      id: newFieldPath,
-      type: getFieldTypeDisplay(types.flat()),
-      depth: depth,
-      glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
-      selectable: true,
-      selected: selectedField?.length === 1 && selectedField[0] === name,
-      variant:
-        highlightedFields.length &&
-        highlightedFields.some(
-          (field) => field.length === 1 && field[0] === name
-        )
-          ? 'preview'
-          : undefined,
+    visitor({
+      fieldPath: newFieldPath,
+      fieldName: name,
+      fieldTypes: types.flat(),
     });
 
-    if (children.length > 0) {
-      fields = [
-        ...fields,
-        ...children.flat().flatMap((child) =>
-          getFieldsFromSchema({
-            jsonSchema: child,
-            highlightedFields: highlightedFields
-              .filter((field) => field[0] === name)
-              .map((field) => field.slice(1)),
-            selectedField:
-              selectedField && selectedField[0] === name
-                ? selectedField.slice(1)
-                : undefined,
-            depth: depth + 1,
-            parentFieldPath: newFieldPath,
-          })
-        ),
-      ];
-    }
+    children.flat().forEach((child) =>
+      traverseSchema({
+        jsonSchema: child,
+        visitor,
+        parentFieldPath: newFieldPath,
+      })
+    );
   }
+};
+
+export const getFieldsFromSchema = ({
+  jsonSchema,
+  highlightedFields = [],
+  selectedField,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+  highlightedFields?: FieldPath[];
+  selectedField?: FieldPath;
+}): NodeProps['fields'] => {
+  if (!jsonSchema || !jsonSchema.properties) {
+    return [];
+  }
+  const fields: NodeProps['fields'] = [];
+
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath, fieldName, fieldTypes }) => {
+      fields.push({
+        name: fieldName,
+        id: fieldPath,
+        type: getFieldTypeDisplay(fieldTypes),
+        depth: fieldPath.length - 1,
+        glyphs:
+          fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
+            ? ['key']
+            : [],
+        selectable: true,
+        selected: JSON.stringify(fieldPath) === JSON.stringify(selectedField),
+        variant:
+          highlightedFields.length &&
+          highlightedFields.some(
+            (highlightedField) =>
+              JSON.stringify(fieldPath) === JSON.stringify(highlightedField)
+          )
+            ? 'preview'
+            : undefined,
+      });
+    },
+  });
 
   return fields;
 };
@@ -176,7 +200,6 @@ export function collectionToDiagramNode(
     selected = false,
     isInRelationshipDrawingMode = false,
   } = options;
-  console.log('collection level', { selectedField });
 
   return {
     id: coll.ns,
@@ -190,7 +213,6 @@ export function collectionToDiagramNode(
       jsonSchema: coll.jsonSchema,
       highlightedFields: highlightedFields[coll.ns] ?? undefined,
       selectedField,
-      depth: 0,
     }),
     selected,
     connectable: isInRelationshipDrawingMode,
