@@ -128,7 +128,11 @@ export function ContextMenuProvider({
 
   return (
     <ContextMenuContext.Provider value={value}>
-      <div ref={containerRef} style={{ display: 'contents' }}>
+      <div
+        ref={containerRef}
+        data-testid="context-menu-children-container"
+        style={{ display: 'contents' }}
+      >
         {children}
       </div>
       <Wrapper menu={{ ...menu, close }} />
