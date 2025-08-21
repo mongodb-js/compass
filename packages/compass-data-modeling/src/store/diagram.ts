@@ -61,7 +61,6 @@ export enum DiagramActionTypes {
   UNDO_EDIT = 'data-modeling/diagram/UNDO_EDIT',
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
-  DRAFT_COLLECTION_NAMED = 'data-modeling/diagram/DRAFT_COLLECTION_NAMED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
@@ -105,11 +104,6 @@ export type CollectionSelectedAction = {
   namespace: string;
 };
 
-export type DraftCollectionNamedAction = {
-  type: DiagramActionTypes.DRAFT_COLLECTION_NAMED;
-  namespace: string;
-};
-
 export type RelationSelectedAction = {
   type: DiagramActionTypes.RELATIONSHIP_SELECTED;
   relationshipId: string;
@@ -128,7 +122,6 @@ export type DiagramActions =
   | UndoEditAction
   | RedoEditAction
   | CollectionSelectedAction
-  | DraftCollectionNamedAction
   | RelationSelectedAction
   | DiagramBackgroundSelectedAction;
 
