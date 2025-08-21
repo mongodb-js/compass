@@ -547,7 +547,7 @@ describe('Data Modeling tab', function () {
       // Click the add relationship button
       const drawer = browser.$(Selectors.SideDrawer);
 
-      const addRelationshipBtn = browser.$(
+      const addRelationshipBtn = drawer.$(
         Selectors.DataModelAddRelationshipBtn
       );
       await addRelationshipBtn.waitForClickable();

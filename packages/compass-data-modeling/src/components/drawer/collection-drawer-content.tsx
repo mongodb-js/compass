@@ -189,7 +189,7 @@ const CollectionDrawerContent: React.FunctionComponent<
                 onCreateNewRelationshipClick(namespace);
               }}
             >
-              Add relationship
+              Add Relationship
             </Button>
           </>
         }
