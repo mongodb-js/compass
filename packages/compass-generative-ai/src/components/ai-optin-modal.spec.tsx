@@ -11,6 +11,18 @@ let mockPreferences: PreferencesAccess;
 describe('AIOptInModal Component', function () {
   beforeEach(async function () {
     mockPreferences = await createSandboxFromDefaultPreferences();
+
+    // Mock showModal for MarketingModal v8.0.0 which uses HTML dialog element
+    if (!HTMLDialogElement.prototype.showModal) {
+      HTMLDialogElement.prototype.showModal = function () {
+        this.open = true;
+      };
+    }
+    if (!HTMLDialogElement.prototype.close) {
+      HTMLDialogElement.prototype.close = function () {
+        this.open = false;
+      };
+    }
   });
 
   afterEach(function () {
@@ -52,8 +64,7 @@ describe('AIOptInModal Component', function () {
     expect(screen.getByText('Not now')).to.exist;
   });
 
-  // TODO: Re-enable this test once the LG-5416 is released
-  it.skip('should show the opt in button enabled when project AI setting is enabled', async function () {
+  it('should show the opt in button enabled when project AI setting is enabled', async function () {
     await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: true,
     });
@@ -70,12 +81,11 @@ describe('AIOptInModal Component', function () {
         </AIOptInModal>
       </PreferencesProvider>
     );
-    const button = screen.getByText('Use Natural Language').closest('button');
+    const button = screen.getByText('Use AI Features').closest('button');
     expect(button?.getAttribute('aria-disabled')).to.equal('false');
   });
 
-  // TODO: Re-enable this test once the LG-5416 is released
-  it.skip('should disable the opt in button if project AI setting is disabled ', async function () {
+  it('should disable the opt in button if project AI setting is disabled', async function () {
     await mockPreferences.savePreferences({
       enableGenAIFeaturesAtlasProject: false,
     });
@@ -92,7 +102,137 @@ describe('AIOptInModal Component', function () {
         </AIOptInModal>
       </PreferencesProvider>
     );
-    const button = screen.getByText('Use Natural Language').closest('button');
+    const button = screen.getByText('Use AI Features').closest('button');
     expect(button?.getAttribute('aria-disabled')).to.equal('true');
+  });
+
+  describe('conditional banner messages', function () {
+    it('should show warning banner when AI features are disabled', async function () {
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: false,
+        enableGenAISampleDocumentPassingOnAtlasProject: false,
+      });
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal
+            projectId="ab123"
+            isOptInModalVisible={true}
+            isOptInInProgress={false}
+            onOptInModalClose={() => {}}
+            onOptInClick={() => {}}
+          />
+        </PreferencesProvider>
+      );
+      expect(
+        screen.getByText(
+          /AI features are disabled for project users with data access/
+        )
+      ).to.exist;
+      expect(
+        screen.getByText(/Project Owners can enable Data Explorer AI features/)
+      ).to.exist;
+    });
+
+    it('should show info banner with correct copy when only the "Sending Sample Field Values in DE Gen AI Features" setting is disabled', async function () {
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: true,
+        enableGenAISampleDocumentPassingOnAtlasProject: false,
+      });
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal
+            projectId="ab123"
+            isOptInModalVisible={true}
+            isOptInInProgress={false}
+            onOptInModalClose={() => {}}
+            onOptInClick={() => {}}
+          />
+        </PreferencesProvider>
+      );
+      expect(
+        screen.getByText(
+          /AI features are enabled for project users with data access/
+        )
+      ).to.exist;
+      expect(
+        screen.getByText(
+          /enable sending sample field values in Data Explorer AI features/
+        )
+      ).to.exist;
+    });
+
+    it('should show info banner with correct copy when both project settings are enabled', async function () {
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: true,
+        enableGenAISampleDocumentPassingOnAtlasProject: true,
+      });
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal
+            projectId="ab123"
+            isOptInModalVisible={true}
+            isOptInInProgress={false}
+            onOptInModalClose={() => {}}
+            onOptInClick={() => {}}
+          />
+        </PreferencesProvider>
+      );
+      expect(
+        screen.getByText(
+          /AI features are enabled for project users with data access/
+        )
+      ).to.exist;
+      expect(
+        screen.getByText(/Project Owners can disable Data Explorer AI features/)
+      ).to.exist;
+    });
+  });
+
+  describe('button click behavior', function () {
+    it('should not call onOptInClick when main AI features are disabled', async function () {
+      let onOptInClickCalled = false;
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: false,
+      });
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal
+            projectId="ab123"
+            isOptInModalVisible={true}
+            isOptInInProgress={false}
+            onOptInModalClose={() => {}}
+            onOptInClick={() => {
+              onOptInClickCalled = true;
+            }}
+          />
+        </PreferencesProvider>
+      );
+      const button = screen.getByText('Use AI Features');
+      button.click();
+      expect(onOptInClickCalled).to.be.false;
+    });
+
+    it('should call onOptInClick when main AI features are enabled', async function () {
+      let onOptInClickCalled = false;
+      await mockPreferences.savePreferences({
+        enableGenAIFeaturesAtlasProject: true,
+      });
+      render(
+        <PreferencesProvider value={mockPreferences}>
+          <AIOptInModal
+            projectId="ab123"
+            isOptInModalVisible={true}
+            isOptInInProgress={false}
+            onOptInModalClose={() => {}}
+            onOptInClick={() => {
+              onOptInClickCalled = true;
+            }}
+          />
+        </PreferencesProvider>
+      );
+      const button = screen.getByText('Use AI Features');
+      button.click();
+      expect(onOptInClickCalled).to.be.true;
+    });
   });
 });

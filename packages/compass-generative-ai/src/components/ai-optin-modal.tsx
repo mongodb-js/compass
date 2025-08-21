@@ -4,11 +4,11 @@ import {
   Banner,
   Body,
   Link,
-  MarketingModal,
   css,
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
+import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
@@ -57,6 +57,9 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   projectId,
 }) => {
   const isProjectAIEnabled = usePreference('enableGenAIFeaturesAtlasProject');
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassingOnAtlasProject'
+  );
   const track = useTelemetry();
   const PROJECT_SETTINGS_LINK = projectId
     ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
@@ -89,9 +92,11 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       title="Use AI Features in Data Explorer"
       open={isOptInModalVisible}
       onClose={handleModalClose}
-      // TODO: replace with buttonProps and add disabled state once LG-5416 is released
-      buttonText="Use AI Features"
-      onButtonClick={onConfirmClick}
+      buttonProps={{
+        children: 'Use AI Features',
+        onClick: onConfirmClick,
+        disabled: !isProjectAIEnabled,
+      }}
       linkText="Not now"
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}
@@ -113,19 +118,59 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           variant={isProjectAIEnabled ? 'info' : 'warning'}
           className={bannerStyles}
         >
-          {isProjectAIEnabled
-            ? 'AI features are enabled for project users with data access.'
-            : 'AI features are disabled for project users.'}{' '}
-          Project Owners can {isProjectAIEnabled ? 'disable' : 'enable'} Data
-          Explorer AI features in the{' '}
-          {PROJECT_SETTINGS_LINK !== null ? (
-            <Link href={PROJECT_SETTINGS_LINK} target="_blank">
-              Project Settings
-            </Link>
-          ) : (
-            'Project Settings'
-          )}
-          .
+          {(() => {
+            if (!isProjectAIEnabled) {
+              // Both disabled case (main AI features disabled)
+              return (
+                <>
+                  AI features are disabled for project users with data access.
+                  Project Owners can enable Data Explorer AI features in{' '}
+                  {PROJECT_SETTINGS_LINK !== null ? (
+                    <Link href={PROJECT_SETTINGS_LINK} target="_blank">
+                      Project Settings
+                    </Link>
+                  ) : (
+                    'Project Settings'
+                  )}
+                  .
+                </>
+              );
+            } else if (!isSampleDocumentPassingEnabled) {
+              // Only sample values disabled case
+              return (
+                <>
+                  AI features are enabled for project users with data access.
+                  Project Owners can disable these features or enable sending
+                  sample field values in Data Explorer AI features to improve
+                  their accuracy in{' '}
+                  {PROJECT_SETTINGS_LINK !== null ? (
+                    <Link href={PROJECT_SETTINGS_LINK} target="_blank">
+                      Project Settings
+                    </Link>
+                  ) : (
+                    'Project Settings'
+                  )}
+                  .
+                </>
+              );
+            } else {
+              // Both enabled case
+              return (
+                <>
+                  AI features are enabled for project users with data access.
+                  Project Owners can disable Data Explorer AI features in{' '}
+                  {PROJECT_SETTINGS_LINK !== null ? (
+                    <Link href={PROJECT_SETTINGS_LINK} target="_blank">
+                      Project Settings
+                    </Link>
+                  ) : (
+                    'Project Settings'
+                  )}
+                  .
+                </>
+              );
+            }
+          })()}
         </Banner>
       </Body>
     </MarketingModal>
