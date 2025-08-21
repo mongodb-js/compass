@@ -1,6 +1,11 @@
 import React from 'react';
 import toNS from 'mongodb-ns';
-import { InlineDefinition, Body, css } from '@mongodb-js/compass-components';
+import {
+  Body,
+  IconButton,
+  InlineDefinition,
+  css,
+} from '@mongodb-js/compass-components';
 import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
@@ -11,6 +16,7 @@ import type {
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
 import { areFieldPathsEqual } from './utils';
+import PlusWithSquare from '../components/icons/plus-with-square';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -20,6 +26,10 @@ function getBsonTypeName(bsonType: string) {
       return bsonType;
   }
 }
+
+const addNewFieldStyles = css({
+  marginLeft: 'auto',
+});
 
 const mixedTypeTooltipContentStyles = css({
   overflowWrap: 'anywhere',
@@ -121,6 +131,7 @@ export function collectionToDiagramNode(
   options: {
     highlightedFields?: Record<string, FieldPath[] | undefined>;
     selectedField?: FieldPath;
+    onClickAddNewFieldToCollection?: () => void;
     selected?: boolean;
     isInRelationshipDrawingMode?: boolean;
   } = {}
@@ -128,6 +139,7 @@ export function collectionToDiagramNode(
   const {
     highlightedFields = {},
     selectedField,
+    onClickAddNewFieldToCollection,
     selected = false,
     isInRelationshipDrawingMode = false,
   } = options;
@@ -145,6 +157,19 @@ export function collectionToDiagramNode(
       highlightedFields: highlightedFields[coll.ns] ?? undefined,
       selectedField,
     }),
+    actions: onClickAddNewFieldToCollection ? (
+      <IconButton
+        aria-label="Add Field"
+        className={addNewFieldStyles}
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          onClickAddNewFieldToCollection();
+        }}
+        title="Add Field"
+      >
+        <PlusWithSquare />
+      </IconButton>
+    ) : undefined,
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
