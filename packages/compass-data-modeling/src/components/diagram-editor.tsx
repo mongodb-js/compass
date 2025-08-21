@@ -8,6 +8,7 @@ import React, {
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import {
+  addNewFieldToCollection,
   moveCollection,
   selectCollection,
   selectRelationship,
@@ -107,6 +108,7 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
+  onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
@@ -118,6 +120,7 @@ const DiagramContent: React.FunctionComponent<{
   diagramLabel,
   model,
   isInRelationshipDrawingMode,
+  onAddNewFieldToCollection,
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
@@ -158,12 +161,15 @@ const DiagramContent: React.FunctionComponent<{
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
       return collectionToDiagramNode(coll, {
+        onClickAddNewFieldToCollection: () =>
+          onAddNewFieldToCollection(coll.ns),
         selectedFields,
         selected,
         isInRelationshipDrawingMode,
       });
     });
   }, [
+    onAddNewFieldToCollection,
     model?.collections,
     model?.relationships,
     selectedItems,
@@ -244,6 +250,7 @@ const ConnectedDiagramContent = connect(
     };
   },
   {
+    onAddNewFieldToCollection: addNewFieldToCollection,
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,

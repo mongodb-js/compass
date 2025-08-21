@@ -50,6 +50,12 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     model: StaticModelSchema,
   }),
   z.object({
+    type: z.literal('AddField'),
+    ns: z.string(),
+    field: z.array(z.string()),
+    jsonSchema: z.custom<MongoDBJSONSchema>(),
+  }),
+  z.object({
     type: z.literal('AddRelationship'),
     relationship: RelationshipSchema,
   }),

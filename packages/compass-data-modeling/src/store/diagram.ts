@@ -21,6 +21,7 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { addFieldToJSONSchema, getNewUnusedFieldName } from '../utils/schema';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -354,6 +355,34 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   };
 }
 
+export function addNewFieldToCollection(
+  ns: string
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const modelState = selectCurrentModelFromState(getState());
+
+    const collection = modelState.collections.find((c) => c.ns === ns);
+    if (!collection) {
+      throw new Error('Collection to add field to not found');
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddField',
+      ns,
+      // Use the first unique field name we can use.
+      field: [getNewUnusedFieldName(collection.jsonSchema)],
+      jsonSchema: {
+        bsonType: 'string',
+      },
+    };
+
+    return dispatch(applyEdit(edit));
+  };
+}
+
 export function moveCollection(
   ns: string,
   newPosition: [number, number]
@@ -376,18 +405,16 @@ export function renameCollection(
   void,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch) => {
-    const edit: Omit<
-      Extract<Edit, { type: 'RenameCollection' }>,
-      'id' | 'timestamp'
-    > = {
-      type: 'RenameCollection',
-      fromNS,
-      toNS,
-    };
-
-    dispatch(applyEdit(edit));
+  const edit: Omit<
+    Extract<Edit, { type: 'RenameCollection' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'RenameCollection',
+    fromNS,
+    toNS,
   };
+
+  return applyEdit(edit);
 }
 
 export function applyEdit(
@@ -546,6 +573,24 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
     throw new Error('Editing a model that has not been initialized');
   }
   switch (edit.type) {
+    case 'AddField': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              jsonSchema: addFieldToJSONSchema(
+                collection.jsonSchema,
+                edit.field,
+                edit.jsonSchema
+              ),
+            };
+          }
+          return collection;
+        }),
+      };
+    }
     case 'AddRelationship': {
       return {
         ...model,

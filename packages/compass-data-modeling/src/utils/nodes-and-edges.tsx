@@ -1,6 +1,11 @@
 import React from 'react';
 import toNS from 'mongodb-ns';
-import { InlineDefinition, Body, css } from '@mongodb-js/compass-components';
+import {
+  Body,
+  IconButton,
+  InlineDefinition,
+  css,
+} from '@mongodb-js/compass-components';
 import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
@@ -8,6 +13,7 @@ import type {
   DataModelCollection,
   Relationship,
 } from '../services/data-model-storage';
+import PlusWithSquare from '../components/icons/plus-with-square';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -17,6 +23,10 @@ function getBsonTypeName(bsonType: string) {
       return bsonType;
   }
 }
+
+const addNewFieldStyles = css({
+  marginLeft: 'auto',
+});
 
 const mixedTypeTooltipContentStyles = css({
   overflowWrap: 'anywhere',
@@ -145,12 +155,14 @@ export const getFieldsFromSchema = (
 export function collectionToDiagramNode(
   coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
   options: {
+    onClickAddNewFieldToCollection?: () => void;
     selectedFields?: Record<string, string[][] | undefined>;
     selected?: boolean;
     isInRelationshipDrawingMode?: boolean;
   } = {}
 ): NodeProps {
   const {
+    onClickAddNewFieldToCollection,
     selectedFields = {},
     selected = false,
     isInRelationshipDrawingMode = false,
@@ -169,6 +181,19 @@ export function collectionToDiagramNode(
       selectedFields[coll.ns] ?? undefined,
       0
     ),
+    actions: onClickAddNewFieldToCollection ? (
+      <IconButton
+        aria-label="Add Field"
+        className={addNewFieldStyles}
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          onClickAddNewFieldToCollection();
+        }}
+        title="Add Field"
+      >
+        <PlusWithSquare />
+      </IconButton>
+    ) : undefined,
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
