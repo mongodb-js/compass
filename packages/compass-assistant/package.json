@@ -77,6 +77,7 @@
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
+    "openai": "^4.104.0",
     "sinon": "^17.0.1",
     "typescript": "^5.8.3",
     "xvfb-maybe": "^0.2.1"
