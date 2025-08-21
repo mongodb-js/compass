@@ -8,6 +8,7 @@ import {
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
+// eslint-disable-next-line @mongodb-js/compass/no-leafygreen-outside-compass-components
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
@@ -85,9 +86,6 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
 
   return (
     <MarketingModal
-      className={css({
-        zIndex: '99999',
-      })}
       showBlob
       title="Use AI Features in Data Explorer"
       open={isOptInModalVisible}
