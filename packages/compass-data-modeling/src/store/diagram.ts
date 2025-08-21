@@ -714,32 +714,52 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFields(
-  parentSchema: MongoDBJSONSchema,
-  parentKey?: string[],
-  fields: string[][] = []
+/**
+ * A very simplistic depth-first traversing function that only handles a subset
+ * of real JSON schema keywords that is applicable to our MongoDB JSON schema
+ * format
+ */
+export function traverseMongoDBJSONSchema(
+  schema: MongoDBJSONSchema,
+  visitor: (schema: MongoDBJSONSchema, path: string[]) => void,
+  path: string[] = []
 ) {
-  if ('anyOf' in parentSchema && parentSchema.anyOf) {
-    for (const schema of parentSchema.anyOf) {
-      extractFields(schema, parentKey, fields);
+  if (schema.anyOf) {
+    for (const s of schema.anyOf) {
+      traverseMongoDBJSONSchema(s, visitor, path);
+    }
+    return;
+  }
+
+  visitor(schema, path);
+
+  if (schema.items) {
+    for (const s of Array.isArray(schema.items)
+      ? schema.items
+      : [schema.items]) {
+      traverseMongoDBJSONSchema(s, visitor, path);
+    }
+  } else if (schema.properties) {
+    for (const [key, s] of Object.entries(schema.properties)) {
+      traverseMongoDBJSONSchema(s, visitor, [...path, key]);
     }
   }
-  if ('items' in parentSchema && parentSchema.items) {
-    const items = Array.isArray(parentSchema.items)
-      ? parentSchema.items
-      : [parentSchema.items];
-    for (const schema of items) {
-      extractFields(schema, parentKey, fields);
+}
+
+function extractFields(schema: MongoDBJSONSchema) {
+  // Keeping fields stringified in a set to make sure that we don't include
+  // duplicates
+  const fields = new Set<string>();
+  traverseMongoDBJSONSchema(schema, (_schema, path) => {
+    // Skip the root path
+    if (path.length === 0) {
+      return;
     }
-  }
-  if ('properties' in parentSchema && parentSchema.properties) {
-    for (const [key, value] of Object.entries(parentSchema.properties)) {
-      const fullKey = parentKey ? [...parentKey, key] : [key];
-      fields.push(fullKey);
-      extractFields(value, fullKey, fields);
-    }
-  }
-  return fields;
+    fields.add(path.join('__FIELD_PATH_SEPARATOR__'));
+  });
+  return Array.from(fields.values(), (pathStr) => {
+    return pathStr.split('__FIELD_PATH_SEPARATOR__');
+  });
 }
 
 function getFieldsForCurrentModel(

@@ -314,7 +314,9 @@ describe('Data Modeling store', function () {
                 jsonSchema: {
                   bsonType: 'object',
                   properties: {
-                    field1: { bsonType: 'string' },
+                    field1: {
+                      anyOf: [{ bsonType: 'string' }, { bsonType: 'int' }],
+                    },
                     field2: { bsonType: 'int' },
                     field3: { bsonType: 'int' },
                   },
