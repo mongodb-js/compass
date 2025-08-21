@@ -1,7 +1,13 @@
 import React, { useContext, forwardRef, useMemo } from 'react';
 import { Link as LGLink } from '@leafygreen-ui/typography';
-import LGButton from '@leafygreen-ui/button';
-import LGIconButton from '@leafygreen-ui/icon-button';
+import LGButton, { type BaseButtonProps } from '@leafygreen-ui/button';
+import LGIconButton, {
+  type AccessibleIconButtonProps,
+} from '@leafygreen-ui/icon-button';
+import type {
+  InferredPolymorphicProps,
+  PolymorphicAs,
+} from '@leafygreen-ui/polymorphic';
 
 type RequiredURLSearchParamsContextValue = {
   utmSource?: string;
@@ -72,13 +78,24 @@ export const Link = (({ href, children, ...rest }: LeafygreenLinkProps) => {
   );
 }) as unknown as typeof LGLink;
 
+function extractHref<T extends Record<string, unknown>>(
+  props: T
+): { href: string | undefined; rest: Omit<T, 'href'> } {
+  if ('href' in props && typeof props.href === 'string') {
+    const { href, ...rest } = props;
+    return { href, rest };
+  }
+  return { href: undefined, rest: props };
+}
+
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
   (
-    { href, children, ...rest }: React.ComponentProps<typeof LGButton>,
+    props: InferredPolymorphicProps<'button', BaseButtonProps>,
     ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
+    const { href, rest } = extractHref(props);
 
     const hrefWithParams = useMemo(() => {
       if (href) {
@@ -87,21 +104,18 @@ export const Button = forwardRef(
       return undefined;
     }, [href, utmSource, utmMedium]);
 
-    return (
-      <LGButton href={hrefWithParams} {...rest} ref={ref}>
-        {children}
-      </LGButton>
-    );
+    return <LGButton href={hrefWithParams} {...rest} ref={ref} />;
   }
-) as unknown as typeof LGButton;
+) as typeof LGButton;
 
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
   (
-    { href, children, ...rest }: React.ComponentProps<typeof LGIconButton>,
+    props: InferredPolymorphicProps<'button', AccessibleIconButtonProps>,
     ref: React.ForwardedRef<HTMLAnchorElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
+    const { href, rest } = extractHref(props);
 
     const hrefWithParams = useMemo(() => {
       if (href) {
@@ -110,10 +124,6 @@ export const IconButton = forwardRef(
       return undefined;
     }, [href, utmSource, utmMedium]);
 
-    return (
-      <LGIconButton href={hrefWithParams} {...rest} ref={ref}>
-        {children}
-      </LGIconButton>
-    );
+    return <LGIconButton href={hrefWithParams} {...rest} ref={ref} />;
   }
-) as unknown as typeof LGIconButton;
+) as typeof LGIconButton;
