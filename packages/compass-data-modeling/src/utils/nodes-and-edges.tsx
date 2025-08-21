@@ -83,11 +83,9 @@ export const traverseSchema = ({
   jsonSchema: MongoDBJSONSchema;
   visitor: ({
     fieldPath,
-    fieldName,
     fieldTypes,
   }: {
     fieldPath: FieldPath;
-    fieldName: string;
     fieldTypes: string[];
   }) => void;
   parentFieldPath?: FieldPath;
@@ -128,7 +126,6 @@ export const traverseSchema = ({
 
     visitor({
       fieldPath: newFieldPath,
-      fieldName: name,
       fieldTypes: types.flat(),
     });
 
@@ -158,9 +155,9 @@ export const getFieldsFromSchema = ({
 
   traverseSchema({
     jsonSchema,
-    visitor: ({ fieldPath, fieldName, fieldTypes }) => {
+    visitor: ({ fieldPath, fieldTypes }) => {
       fields.push({
-        name: fieldName,
+        name: fieldPath[fieldPath.length - 1],
         id: fieldPath,
         type: getFieldTypeDisplay(fieldTypes),
         depth: fieldPath.length - 1,

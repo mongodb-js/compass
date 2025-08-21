@@ -29,6 +29,7 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { traverseSchema } from '../utils/nodes-and-edges';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -509,6 +510,29 @@ export function renameCollection(
   };
 }
 
+export function renameField(
+  ns: string,
+  from: FieldPath,
+  to: FieldPath
+): DataModelingThunkAction<
+  void,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch) => {
+    const edit: Omit<
+      Extract<Edit, { type: 'RenameField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'RenameField',
+      ns,
+      from,
+      to,
+    };
+
+    dispatch(applyEdit(edit));
+  };
+}
+
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
@@ -835,6 +859,44 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         })),
       };
     }
+    case 'RenameField': {
+      return {
+        ...model,
+        // Update relationships to point to the renamed field.
+        relationships: model.relationships.map((relationship) => {
+          const [local, foreign] = relationship.relationship;
+
+          return {
+            ...relationship,
+            relationship: [
+              {
+                ...local,
+                fields:
+                  local.ns === edit.ns &&
+                  JSON.stringify(local.fields) === JSON.stringify(edit.from)
+                    ? edit.to
+                    : local.fields,
+              },
+              {
+                ...foreign,
+                fields:
+                  local.ns === edit.ns &&
+                  JSON.stringify(local.fields) === JSON.stringify(edit.from)
+                    ? edit.to
+                    : local.fields,
+              },
+            ],
+          };
+        }),
+        collections: model.collections.map((collection) => ({
+          ...collection,
+          // TODO: Rename the field.
+          // jsonSchema: collection.ns !== edit.ns
+          //   ? collection.jsonSchema
+          //   : renameFieldInSchema(collection.jsonSchema, edit.from, edit.to)
+        })),
+      };
+    }
     case 'UpdateCollectionNote': {
       return {
         ...model,
@@ -919,31 +981,14 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFields(
-  parentSchema: MongoDBJSONSchema,
-  parentKey?: string[],
-  fields: string[][] = []
-) {
-  if ('anyOf' in parentSchema && parentSchema.anyOf) {
-    for (const schema of parentSchema.anyOf) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('items' in parentSchema && parentSchema.items) {
-    const items = Array.isArray(parentSchema.items)
-      ? parentSchema.items
-      : [parentSchema.items];
-    for (const schema of items) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('properties' in parentSchema && parentSchema.properties) {
-    for (const [key, value] of Object.entries(parentSchema.properties)) {
-      const fullKey = parentKey ? [...parentKey, key] : [key];
-      fields.push(fullKey);
-      extractFields(value, fullKey, fields);
-    }
-  }
+function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
+  const fields: FieldPath[] = [];
+  traverseSchema({
+    jsonSchema: parentSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(fieldPath);
+    },
+  });
   return fields;
 }
 
@@ -953,7 +998,7 @@ function getFieldsForCurrentModel(
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
-      return [collection.ns, extractFields(collection.jsonSchema)];
+      return [collection.ns, extractFieldsFromSchema(collection.jsonSchema)];
     })
   );
   return fields;

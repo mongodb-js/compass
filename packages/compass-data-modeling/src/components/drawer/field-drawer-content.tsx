@@ -10,6 +10,7 @@ import toNS from 'mongodb-ns';
 import {
   createNewRelationship,
   deleteRelationship,
+  renameField,
   selectCurrentModelFromState,
   selectRelationship,
 } from '../../store/diagram';
@@ -98,10 +99,15 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
       const trimmedName = fieldName.trim();
-      if (trimmedName === fieldName) {
+      console.log(
+        `[Rename] ${fieldPath[fieldPath.length - 1]} -> ${trimmedName}`
+      );
+      if (trimmedName === fieldPath[fieldPath.length - 1]) {
+        console.log('[Rename] No change in field name, skipping');
         return;
       }
       if (!isFieldNameValid) {
+        console.log('[Rename] Invalid field name, skipping');
         return;
       }
       onRenameField(namespace, fieldPath, [
@@ -123,6 +129,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <TextInput
             label="Field name"
+            disabled={true} // TODO: enable when field renaming is implemented
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={fieldName}
@@ -186,7 +193,7 @@ export default connect(
     onCreateNewRelationshipClick: createNewRelationship,
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
-    onRenameField: () => {}, // TODO: renameField,
+    onRenameField: renameField,
     onChangeFieldType: () => {}, // TODO: updateFieldSchema,
   }
 )(FieldDrawerContent);

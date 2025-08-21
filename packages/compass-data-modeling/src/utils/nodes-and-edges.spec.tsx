@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { getFieldsFromSchema } from '../utils/nodes-and-edges';
 
-describe.only('getFieldsFromSchema', function () {
+describe('getFieldsFromSchema', function () {
   const validateMixedType = async (
     type: React.ReactNode,
     expectedTooltip: RegExp
