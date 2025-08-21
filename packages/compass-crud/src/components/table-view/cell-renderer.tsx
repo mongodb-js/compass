@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   BSONValue,
   css,
@@ -363,21 +362,6 @@ class CellRenderer
       </LeafyGreenProvider>
     );
   }
-
-  static propTypes = {
-    api: PropTypes.any,
-    value: PropTypes.any,
-    node: PropTypes.any,
-    column: PropTypes.any,
-    context: PropTypes.any,
-    parentType: PropTypes.any.isRequired,
-    elementAdded: PropTypes.func.isRequired,
-    elementRemoved: PropTypes.func.isRequired,
-    elementTypeChanged: PropTypes.func.isRequired,
-    drillDown: PropTypes.func.isRequired,
-    tz: PropTypes.string.isRequired,
-    darkMode: PropTypes.bool,
-  };
 
   static displayName = 'CellRenderer';
 }

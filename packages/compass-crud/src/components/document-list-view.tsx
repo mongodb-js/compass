@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';
@@ -88,18 +87,6 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
       </ol>
     );
   }
-
-  static propTypes = {
-    docs: PropTypes.array.isRequired,
-    isEditable: PropTypes.bool,
-    isTimeSeries: PropTypes.bool,
-    removeDocument: PropTypes.func,
-    replaceDocument: PropTypes.func,
-    updateDocument: PropTypes.func,
-    openInsertDocumentDialog: PropTypes.func,
-    copyToClipboard: PropTypes.func,
-    className: PropTypes.string,
-  };
 
   static displayName = 'DocumentListView';
 }

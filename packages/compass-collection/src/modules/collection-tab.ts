@@ -26,6 +26,7 @@ import type { Document, MongoError } from 'mongodb';
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -72,6 +73,10 @@ export type CollectionState = {
   metadata: CollectionMetadata | null;
   editViewName?: string;
   schemaAnalysis: SchemaAnalysisState;
+  mockDataGenerator: {
+    isModalOpen: boolean;
+    currentStep: MockDataGeneratorStep;
+  };
 };
 
 enum CollectionActions {
@@ -80,6 +85,10 @@ enum CollectionActions {
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
   SchemaAnalysisFailed = 'compass-collection/SchemaAnalysisFailed',
   SchemaAnalysisReset = 'compass-collection/SchemaAnalysisReset',
+  MockDataGeneratorModalOpened = 'compass-collection/MockDataGeneratorModalOpened',
+  MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
+  MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
+  MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -110,6 +119,22 @@ interface SchemaAnalysisFailedAction {
   error: Error;
 }
 
+interface MockDataGeneratorModalOpenedAction {
+  type: CollectionActions.MockDataGeneratorModalOpened;
+}
+
+interface MockDataGeneratorModalClosedAction {
+  type: CollectionActions.MockDataGeneratorModalClosed;
+}
+
+interface MockDataGeneratorNextButtonClickedAction {
+  type: CollectionActions.MockDataGeneratorNextButtonClicked;
+}
+
+interface MockDataGeneratorPreviousButtonClickedAction {
+  type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
+}
+
 const reducer: Reducer<CollectionState, Action> = (
   state = {
     // TODO(COMPASS-7782): use hook to get the workspace tab id instead
@@ -118,6 +143,10 @@ const reducer: Reducer<CollectionState, Action> = (
     metadata: null,
     schemaAnalysis: {
       status: SCHEMA_ANALYSIS_STATE_INITIAL,
+    },
+    mockDataGenerator: {
+      isModalOpen: false,
+      currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
     },
   },
   action
@@ -194,6 +223,113 @@ const reducer: Reducer<CollectionState, Action> = (
     };
   }
 
+  if (
+    isAction<MockDataGeneratorModalOpenedAction>(
+      action,
+      CollectionActions.MockDataGeneratorModalOpened
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        isModalOpen: true,
+        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorModalClosedAction>(
+      action,
+      CollectionActions.MockDataGeneratorModalClosed
+    )
+  ) {
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        isModalOpen: false,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorNextButtonClickedAction>(
+      action,
+      CollectionActions.MockDataGeneratorNextButtonClicked
+    )
+  ) {
+    const currentStep = state.mockDataGenerator.currentStep;
+    let nextStep: MockDataGeneratorStep;
+
+    switch (currentStep) {
+      case MockDataGeneratorStep.AI_DISCLAIMER:
+        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
+        break;
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
+        break;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        nextStep = MockDataGeneratorStep.DOCUMENT_COUNT;
+        break;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        nextStep = MockDataGeneratorStep.PREVIEW_DATA;
+        break;
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        nextStep = MockDataGeneratorStep.GENERATE_DATA;
+        break;
+      default:
+        nextStep = currentStep; // Stay on current step if at end
+    }
+
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: nextStep,
+      },
+    };
+  }
+
+  if (
+    isAction<MockDataGeneratorPreviousButtonClickedAction>(
+      action,
+      CollectionActions.MockDataGeneratorPreviousButtonClicked
+    )
+  ) {
+    const currentStep = state.mockDataGenerator.currentStep;
+    let previousStep: MockDataGeneratorStep;
+
+    switch (currentStep) {
+      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        break;
+      case MockDataGeneratorStep.SCHEMA_EDITOR:
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
+        break;
+      case MockDataGeneratorStep.DOCUMENT_COUNT:
+        previousStep = MockDataGeneratorStep.SCHEMA_EDITOR;
+        break;
+      case MockDataGeneratorStep.PREVIEW_DATA:
+        previousStep = MockDataGeneratorStep.DOCUMENT_COUNT;
+        break;
+      case MockDataGeneratorStep.GENERATE_DATA:
+        previousStep = MockDataGeneratorStep.PREVIEW_DATA;
+        break;
+      default:
+        previousStep = currentStep; // Stay on current step if at beginning
+    }
+
+    return {
+      ...state,
+      mockDataGenerator: {
+        ...state.mockDataGenerator,
+        currentStep: previousStep,
+      },
+    };
+  }
+
   return state;
 };
 
@@ -202,6 +338,26 @@ export const collectionMetadataFetched = (
 ): CollectionMetadataFetchedAction => {
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
 };
+
+export const mockDataGeneratorModalOpened =
+  (): MockDataGeneratorModalOpenedAction => {
+    return { type: CollectionActions.MockDataGeneratorModalOpened };
+  };
+
+export const mockDataGeneratorModalClosed =
+  (): MockDataGeneratorModalClosedAction => {
+    return { type: CollectionActions.MockDataGeneratorModalClosed };
+  };
+
+export const mockDataGeneratorNextButtonClicked =
+  (): MockDataGeneratorNextButtonClickedAction => {
+    return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
+  };
+
+export const mockDataGeneratorPreviousButtonClicked =
+  (): MockDataGeneratorPreviousButtonClickedAction => {
+    return { type: CollectionActions.MockDataGeneratorPreviousButtonClicked };
+  };
 
 export const selectTab = (
   tabName: CollectionSubtab
