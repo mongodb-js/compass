@@ -29,7 +29,7 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
-import { traverseSchema } from '../utils/nodes-and-edges';
+import { traverseSchema } from '../utils/schema-traversal';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;

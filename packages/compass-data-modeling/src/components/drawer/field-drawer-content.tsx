@@ -99,15 +99,10 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
       const trimmedName = fieldName.trim();
-      console.log(
-        `[Rename] ${fieldPath[fieldPath.length - 1]} -> ${trimmedName}`
-      );
       if (trimmedName === fieldPath[fieldPath.length - 1]) {
-        console.log('[Rename] No change in field name, skipping');
         return;
       }
       if (!isFieldNameValid) {
-        console.log('[Rename] Invalid field name, skipping');
         return;
       }
       onRenameField(namespace, fieldPath, [

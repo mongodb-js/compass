@@ -9,6 +9,7 @@ import type {
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
+import { traverseSchema } from './schema-traversal';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -70,73 +71,6 @@ export const getHighlightedFields = (
     selection[relationship[1].ns]!.push(relationship[1].fields);
   }
   return selection;
-};
-
-// TODO: add support for update
-// renaming fields, deleting fields, adding fields...
-// or maybe we can have two traverses? one for parsing, one for updating?
-export const traverseSchema = ({
-  jsonSchema,
-  parentFieldPath = [],
-  visitor,
-}: {
-  jsonSchema: MongoDBJSONSchema;
-  visitor: ({
-    fieldPath,
-    fieldTypes,
-  }: {
-    fieldPath: FieldPath;
-    fieldTypes: string[];
-  }) => void;
-  parentFieldPath?: FieldPath;
-}): void => {
-  if (!jsonSchema || !jsonSchema.properties) {
-    return;
-  }
-  for (const [name, field] of Object.entries(jsonSchema.properties)) {
-    // field has types, properties and (optional) children
-    // types are either direct, or from anyof
-    // children are either direct (properties), from anyOf, items or items.anyOf
-    const types: (string | string[])[] = [];
-    const children: (MongoDBJSONSchema | MongoDBJSONSchema[])[] = [];
-    if (field.bsonType) {
-      types.push(field.bsonType);
-    }
-    if (field.properties) {
-      children.push(field);
-    }
-    if (field.items) {
-      children.push((field.items as MongoDBJSONSchema).anyOf || field.items);
-    }
-    if (field.anyOf) {
-      for (const variant of field.anyOf) {
-        if (variant.bsonType) {
-          types.push(variant.bsonType);
-        }
-        if (variant.properties) {
-          children.push(variant);
-        }
-        if (variant.items) {
-          children.push(variant.items);
-        }
-      }
-    }
-
-    const newFieldPath = [...parentFieldPath, name];
-
-    visitor({
-      fieldPath: newFieldPath,
-      fieldTypes: types.flat(),
-    });
-
-    children.flat().forEach((child) =>
-      traverseSchema({
-        jsonSchema: child,
-        visitor,
-        parentFieldPath: newFieldPath,
-      })
-    );
-  }
 };
 
 export const getFieldsFromSchema = ({
