@@ -60,6 +60,23 @@ function allText(messages: Message[]): string {
   return messages.map((m) => m.text).join('\n');
 }
 
+function getChatTemperature(): number | undefined {
+  if (process.env.CHAT_TEMPERATURE) {
+    return parseFloat(process.env.CHAT_TEMPERATURE);
+  }
+  // if it is not set return undefined for the implicit default
+  return undefined;
+}
+
+function getScorerTemperature(): number | undefined {
+  if (process.env.SCORER_TEMPERATURE) {
+    return parseFloat(process.env.SCORER_TEMPERATURE);
+  }
+
+  // if it is not set return undefined for the implicit default
+  return undefined;
+}
+
 function makeEvalCases(): ConversationEvalCase[] {
   return evalCases.map((c) => {
     return {
@@ -79,7 +96,9 @@ async function makeAssistantCall(
   input: ConversationEvalCaseInput
 ): Promise<ConversationTaskOutput> {
   const openai = createOpenAI({
-    baseURL: 'https://knowledge.staging.corp.mongodb.com/api/v1',
+    baseURL:
+      process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE ??
+      'https://knowledge.staging.corp.mongodb.com/api/v1',
     apiKey: '',
     headers: {
       'User-Agent': 'mongodb-compass/x.x.x',
@@ -89,7 +108,7 @@ async function makeAssistantCall(
 
   const result = streamText({
     model: openai.responses('mongodb-chat-latest'),
-    temperature: 0,
+    temperature: getChatTemperature(),
     prompt,
   });
 
@@ -124,7 +143,7 @@ const Factuality: ConversationEvalScorer = ({ input, output, expected }) => {
     output: allText(output.messages),
     expected: allText(expected.messages),
     model: 'gpt-4.1',
-    temperature: 0,
+    temperature: getScorerTemperature(),
   });
 };
 
@@ -140,7 +159,7 @@ const BinaryNdcgAt5: ConversationEvalScorer = ({ output, expected }) => {
     };
   }
 
-  // If there are no expected links, just return null
+  // if there are no expected links, just return null
   return {
     name,
     score: null,
