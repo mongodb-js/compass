@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
 import type { InsertCSFLEState } from '../stores/crud-store';
 
@@ -82,9 +81,5 @@ function InsertCSFLEWarningBanner({
 }
 
 (InsertCSFLEWarningBanner as any).displayName = 'InsertCSFLEWarningBanner';
-
-(InsertCSFLEWarningBanner as any).propTypes = {
-  csfleState: PropTypes.object.isRequired,
-};
 
 export default InsertCSFLEWarningBanner;

@@ -1,6 +1,5 @@
 import type { ChangeEvent } from 'react';
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -22,17 +21,6 @@ export interface SavingPipelineModalProps {
  */
 class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
   static displayName = 'SavingPipelineModalComponent';
-
-  static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    isSaveAs: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
-    savingPipelineCancel: PropTypes.func.isRequired,
-    savingPipelineApply: PropTypes.func.isRequired,
-    savingPipelineNameChanged: PropTypes.func.isRequired,
-    saveCurrentPipeline: PropTypes.func.isRequired,
-    clonePipeline: PropTypes.func.isRequired,
-  };
 
   componentDidUpdate(prevProps: SavingPipelineModalProps) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {

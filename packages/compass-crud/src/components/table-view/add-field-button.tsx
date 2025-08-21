@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   BSONValue,
   Button,
@@ -341,18 +340,6 @@ class AddFieldButton extends React.Component<
   }
 
   static displayName = 'AddFieldButton';
-
-  static propTypes = {
-    value: PropTypes.object,
-    displace: PropTypes.number.isRequired,
-    columnApi: PropTypes.any.isRequired,
-    api: PropTypes.any.isRequired,
-    context: PropTypes.any.isRequired,
-    column: PropTypes.any.isRequired,
-    node: PropTypes.any.isRequired,
-    addColumn: PropTypes.func.isRequired,
-    drillDown: PropTypes.func.isRequired,
-  };
 }
 
 export default AddFieldButton;

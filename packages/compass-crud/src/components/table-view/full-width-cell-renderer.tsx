@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   DocumentList,
   LeafyGreenProvider,
@@ -160,19 +159,6 @@ class FullWidthCellRenderer extends React.Component<
       </LeafyGreenProvider>
     );
   }
-
-  static propTypes = {
-    api: PropTypes.any,
-    data: PropTypes.any,
-    context: PropTypes.any,
-    node: PropTypes.any,
-    updateDocument: PropTypes.func.isRequired,
-    removeDocument: PropTypes.func.isRequired,
-    replaceDocument: PropTypes.func.isRequired,
-    replaceDoc: PropTypes.func.isRequired,
-    cleanCols: PropTypes.func.isRequired,
-    darkMode: PropTypes.bool,
-  };
 
   static displayName = 'FullWidthCellRenderer';
 }

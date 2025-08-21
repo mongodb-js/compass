@@ -111,6 +111,7 @@ const VirtualizedDocumentJsonView: React.FC<
       renderItem={renderItem}
       estimateItemInitialHeight={estimateDocumentInitialHeight}
       rowGap={spacing[200]}
+      dataTestId="document-list"
       itemDataTestId="document-json-item"
       // Keeping the overscanCount low here helps us avoid scroll dangling
       // issues

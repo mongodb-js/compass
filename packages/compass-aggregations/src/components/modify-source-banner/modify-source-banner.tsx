@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Badge, BadgeVariant, css } from '@mongodb-js/compass-components';
 
 const modifySourceBannerStyles = css({
@@ -24,10 +23,6 @@ const ModifySourceBanner = (props: { editViewName: string }) => {
       {bannerText}
     </Badge>
   );
-};
-
-ModifySourceBanner.propTypes = {
-  editViewName: PropTypes.string.isRequired,
 };
 
 export default ModifySourceBanner;

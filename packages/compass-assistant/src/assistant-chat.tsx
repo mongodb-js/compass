@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import type { UIMessage } from './@ai-sdk/react/use-chat';
+import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
 
 interface AssistantChatProps {
-  chat: Chat<UIMessage>;
+  chat: Chat<AssistantMessage>;
 }
 
 /**
@@ -69,10 +69,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               whiteSpace: 'pre-wrap',
             }}
           >
-            {message.parts
-              ?.filter((part) => part.type === 'text')
-              .map((part) => part.text)
-              .join('') || ''}
+            {message.metadata?.displayText ||
+              message.parts
+                ?.filter((part) => part.type === 'text')
+                .map((part) => part.text)
+                .join('') ||
+              ''}
           </div>
         ))}
       </div>

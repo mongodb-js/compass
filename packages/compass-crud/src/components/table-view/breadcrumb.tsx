@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Icon } from '@mongodb-js/compass-components';
 import type { TableHeaderType } from '../../stores/grid-store';
 
@@ -75,13 +74,6 @@ class BreadcrumbComponent extends React.PureComponent<BreadcrumbComponentProps> 
       </div>
     );
   }
-
-  static propTypes = {
-    collection: PropTypes.string.isRequired,
-    pathChanged: PropTypes.func.isRequired,
-    path: PropTypes.array.isRequired,
-    types: PropTypes.array.isRequired,
-  };
 
   static defaultPropTypes = {
     collection: '',

@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import type { UIMessage } from './@ai-sdk/react/use-chat';
 import { createMockChat } from '../test/utils';
+import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('AssistantChat', function () {
-  const mockMessages: UIMessage[] = [
+  const mockMessages: AssistantMessage[] = [
     {
       id: 'user',
       role: 'user',
@@ -24,7 +24,7 @@ describe('AssistantChat', function () {
     },
   ];
 
-  function renderWithChat(messages: UIMessage[]) {
+  function renderWithChat(messages: AssistantMessage[]) {
     const chat = createMockChat({ messages });
     return {
       result: render(<AssistantChat chat={chat} />),
@@ -181,7 +181,7 @@ describe('AssistantChat', function () {
   });
 
   it('handles messages with multiple text parts', function () {
-    const messagesWithMultipleParts: UIMessage[] = [
+    const messagesWithMultipleParts: AssistantMessage[] = [
       {
         id: '1',
         role: 'assistant',
@@ -198,7 +198,7 @@ describe('AssistantChat', function () {
   });
 
   it('handles messages with mixed part types (filters to text only)', function () {
-    const messagesWithMixedParts: UIMessage[] = [
+    const messagesWithMixedParts: AssistantMessage[] = [
       {
         id: '1',
         role: 'assistant',
@@ -216,5 +216,34 @@ describe('AssistantChat', function () {
     expect(screen.getByText('This is text content. More text content.')).to
       .exist;
     expect(screen.queryByText('This should be filtered out.')).to.not.exist;
+  });
+
+  it('displays displayText instead of message parts when displayText is set', function () {
+    const messagesWithDisplayText: AssistantMessage[] = [
+      {
+        id: '1',
+        role: 'assistant',
+        parts: [
+          { type: 'text', text: 'This message part should be ignored.' },
+          { type: 'text', text: 'Another part that should not display.' },
+        ],
+        metadata: {
+          displayText: 'This is the custom display text that should show.',
+        },
+      },
+    ];
+
+    renderWithChat(messagesWithDisplayText);
+
+    // Should display the displayText
+    expect(
+      screen.getByText('This is the custom display text that should show.')
+    ).to.exist;
+
+    // Should NOT display the message parts
+    expect(screen.queryByText('This message part should be ignored.')).to.not
+      .exist;
+    expect(screen.queryByText('Another part that should not display.')).to.not
+      .exist;
   });
 });

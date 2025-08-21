@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import type { EditableDocumentProps } from './editable-document';
 import EditableDocument from './editable-document';
@@ -69,18 +68,6 @@ const Document = (props: DocumentProps) => {
       query={query}
     />
   );
-};
-
-Document.propTypes = {
-  doc: PropTypes.object.isRequired,
-  editable: PropTypes.bool,
-  isTimeSeries: PropTypes.bool,
-  removeDocument: PropTypes.func,
-  replaceDocument: PropTypes.func,
-  updateDocument: PropTypes.func,
-  openInsertDocumentDialog: PropTypes.func,
-  copyToClipboard: PropTypes.func,
-  isExpanded: PropTypes.bool,
 };
 
 export default React.memo(Document);
