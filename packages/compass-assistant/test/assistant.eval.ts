@@ -8,6 +8,7 @@ import { OpenAI } from 'openai';
 import { evalCases } from './eval-cases';
 import { fuzzyLinkMatch } from './fuzzylinkmatch';
 import { binaryNdcgAtK } from './binaryndcgatk';
+import { makeEntrypointCases } from './entrypoints';
 
 const client = new OpenAI({
   baseURL: 'https://api.braintrust.dev/v1/proxy',
@@ -78,7 +79,9 @@ function getScorerTemperature(): number | undefined {
 }
 
 function makeEvalCases(): ConversationEvalCase[] {
-  return evalCases.map((c) => {
+  const entrypointCases: ConversationEvalCase[] = makeEntrypointCases();
+
+  const userCases: ConversationEvalCase[] = evalCases.map((c) => {
     return {
       name: c.name ?? c.input,
       input: {
@@ -90,6 +93,8 @@ function makeEvalCases(): ConversationEvalCase[] {
       metadata: {},
     };
   });
+
+  return [...entrypointCases, ...userCases];
 }
 
 async function makeAssistantCall(
