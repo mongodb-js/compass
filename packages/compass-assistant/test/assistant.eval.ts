@@ -43,13 +43,10 @@ type ConversationEvalCase = EvalCase<
   ConversationEvalCaseExpected,
   unknown
 > & {
-  name: string; // defaults to the prompt
+  name: string;
 };
 
 type ConversationTaskOutput = {
-  // again this could also be an array of messages and each message could be an
-  // object for future-proofing. But we're probably just going to be taking the
-  // result from the chatbot as a block of text for test purposes
   messages: ExpectedMessage[];
 };
 
@@ -106,7 +103,7 @@ async function makeAssistantCall(
   }
   const text = chunks.join('');
 
-  // TODO: something up with this type
+  // TODO: something's up with this type. url does exist on it.
   const resolvedSources = (await result.sources) as { url: string }[];
 
   const sources = resolvedSources
@@ -141,13 +138,13 @@ const BinaryNdcgAt5: ConversationEvalScorer = ({ output, expected }) => {
       name,
       score: binaryNdcgAtK(expectedLinks, outputLinks, fuzzyLinkMatch, k),
     };
-  } else {
-    // If there are no expected links, return null
-    return {
-      name,
-      score: null,
-    };
   }
+
+  // If there are no expected links, just return null
+  return {
+    name,
+    score: null,
+  };
 };
 
 void Eval<
