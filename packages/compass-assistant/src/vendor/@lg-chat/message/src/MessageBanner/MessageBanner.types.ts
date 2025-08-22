@@ -1,5 +1,5 @@
-import { Variant } from '@mongodb-js/compass-components';
 import {
+  BannerVariant,
   DarkModeProps,
   HTMLElementProps,
 } from '@mongodb-js/compass-components';
@@ -11,7 +11,7 @@ export interface MessageBannerProps
    * Determines the color and glyph of the MessageBanner.
    * @default Variant.Info
    */
-  variant?: Variant;
+  variant?: BannerVariant;
 
   /**
    * The content inside of the MessageBanner.

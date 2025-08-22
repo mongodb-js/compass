@@ -1,7 +1,7 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 import { useLeafyGreenChatContext } from '@lg-chat/leafygreen-chat-provider';
 
-import { Avatar, Format, getInitials } from '@mongodb-js/compass-components';
+import { Avatar, Format, getInitials } from '../../../../leafygreen-ui/avatar';
 import { cx } from '@mongodb-js/compass-components';
 import { useDarkMode } from '@mongodb-js/compass-components';
 import { breakpoints } from '@mongodb-js/compass-components';

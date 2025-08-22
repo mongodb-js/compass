@@ -10,6 +10,7 @@ import {
 import { Message } from './vendor/@lg-chat/message/src/Message';
 import { MessageFeed } from './vendor/@lg-chat/message-feed/src/MessageFeed';
 import { InputBar } from './vendor/@lg-chat/input-bar/src/InputBar';
+import { InputBarFeedback } from './vendor/@lg-chat/input-bar/src/InputBar/InputBarFeedback';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;

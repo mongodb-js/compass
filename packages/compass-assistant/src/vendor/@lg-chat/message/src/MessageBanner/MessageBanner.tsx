@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import Banner from '@mongodb-js/compass-components';
+import { Banner } from '@mongodb-js/compass-components';
 import { useBaseFontSize } from '@mongodb-js/compass-components';
 
 import { getMessageBannerStyles } from './MessageBanner.styles';
@@ -8,7 +8,6 @@ import { MessageBannerProps } from './MessageBanner.types';
 
 export function MessageBanner({
   className,
-  darkMode: darkModeProp,
   children,
   variant = 'info',
   ...divProps

@@ -94,7 +94,7 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 
 export { openToast, closeToast, ToastArea } from './hooks/use-toast';
 
-export { breakpoints, spacing } from '@leafygreen-ui/tokens';
+export { breakpoints, spacing, borderRadius } from '@leafygreen-ui/tokens';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
@@ -228,5 +228,10 @@ export { FileSelector } from './components/file-selector';
 /**
  * TODO(COMPASS-9715): Used by compass-assistant. Remove after Leafygreen Provider is updated.
  */
-export type { HTMLElementProps, DarkModeProps } from '@leafygreen-ui/lib';
+export type {
+  HTMLElementProps,
+  DarkModeProps,
+  isComponentType,
+} from '@leafygreen-ui/lib';
+export { createUniqueClassName } from '@leafygreen-ui/lib';
 export type { ButtonProps as BaseButtonProps } from '@leafygreen-ui/button';

@@ -4,7 +4,7 @@ import {
   Variant as ChatVariant,
 } from '@lg-chat/leafygreen-chat-provider';
 
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { Theme, useDarkMode } from '@mongodb-js/compass-components';
 
 import { getMessageContainerStyles } from './MessageContainer.styles';
 import { MessageContainerProps } from './MessageContainer.types';
@@ -17,7 +17,8 @@ export function MessageContainer({
   darkMode: darkModeProp,
   ...rest
 }: MessageContainerProps) {
-  const { theme } = useDarkMode(darkModeProp);
+  const darkMode = useDarkMode(darkModeProp);
+  const theme = darkMode ? Theme.Dark : Theme.Light;
   const { variant: chatVariant } = useLeafyGreenChatContext();
   const isCompact = chatVariant === ChatVariant.Compact;
 

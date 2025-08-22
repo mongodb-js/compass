@@ -18,7 +18,8 @@ export function MessageLinks({
   onLinkClick,
   ...divProps
 }: MessageLinksProps) {
-  const { theme } = useDarkMode(darkModeProp);
+  const darkMode = useDarkMode(darkModeProp);
+  const theme = darkMode ? Theme.Dark : Theme.Light;
   return (
     <div className={containerStyles} {...divProps}>
       <hr className={getDividerStyles(theme)} />

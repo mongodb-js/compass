@@ -4,26 +4,8 @@
   "description": "lg-chat LGMarkdown",
   "main": "src/index.ts",
   "typesVersions": {},
-  "scripts": {
-    "build": "lg-build bundle",
-    "tsc": "lg-build tsc"
-  },
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@leafygreen-ui/code": "workspace:^",
-    "@leafygreen-ui/emotion": "workspace:^",
-    "@leafygreen-ui/lib": "workspace:^",
-    "@leafygreen-ui/tokens": "workspace:^",
-    "@leafygreen-ui/typography": "workspace:^",
-    "react-markdown": "^8.0.7"
-  },
-  "peerDependencies": {
-    "@leafygreen-ui/leafygreen-provider": "workspace:^"
-  },
-  "devDependencies": {
-    "@lg-tools/build": "workspace:^"
   }
 }

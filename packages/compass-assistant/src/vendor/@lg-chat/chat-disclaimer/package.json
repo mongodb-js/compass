@@ -4,25 +4,8 @@
   "description": "LeafyGreen UI Kit Chat Disclaimer",
   "main": "src/index.ts",
   "license": "Apache-2.0",
-  "scripts": {
-    "build": "lg-build bundle",
-    "tsc": "lg-build tsc",
-    "docs": "lg-build docs"
-  },
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@leafygreen-ui/emotion": "workspace:^",
-    "@leafygreen-ui/lib": "workspace:^",
-    "@leafygreen-ui/marketing-modal": "workspace:^",
-    "@leafygreen-ui/tokens": "workspace:^",
-    "@leafygreen-ui/typography": "workspace:^"
-  },
-  "devDependencies": {
-    "@leafygreen-ui/button": "workspace:^",
-    "@leafygreen-ui/modal": "workspace:^",
-    "@lg-tools/build": "workspace:^"
   },
   "homepage": "https://github.com/mongodb/leafygreen-ui/tree/main/packages/chat-disclaimer",
   "repository": {

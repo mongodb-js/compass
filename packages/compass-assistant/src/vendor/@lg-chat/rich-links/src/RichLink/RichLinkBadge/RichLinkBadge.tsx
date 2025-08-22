@@ -14,8 +14,8 @@ export const RichLinkBadge = ({
   color = 'gray',
   label,
 }: RichLinkBadgeProps) => {
-  const { theme } = useDarkMode(darkModeProp);
-
+  const darkMode = useDarkMode(darkModeProp);
+  const theme = darkMode ? Theme.Dark : Theme.Light;
   return (
     <div className={cx(baseStyles, badgeVariants[theme][color])}>
       {glyphName ? <Icon glyph={glyphName} /> : null}

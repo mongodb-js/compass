@@ -1,7 +1,7 @@
 {
-  "name": "@lg-chat/avatar",
-  "version": "6.0.0",
-  "description": "lg-chat Avatar",
+  "name": "@leafygreen-ui/avatar",
+  "version": "3.1.0",
+  "description": "LeafyGreen UI Avatar",
   "main": "src/index.ts",
   "typesVersions": {},
   "license": "Apache-2.0",

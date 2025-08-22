@@ -4,23 +4,8 @@
   "description": "LeafyGreen UI Kit Message Prompts",
   "main": "src/index.ts",
   "license": "Apache-2.0",
-  "scripts": {
-    "build": "lg-build bundle",
-    "tsc": "lg-build tsc",
-    "docs": "lg-build docs"
-  },
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@leafygreen-ui/emotion": "workspace:^",
-    "@leafygreen-ui/lib": "workspace:^",
-    "@leafygreen-ui/palette": "workspace:^",
-    "@leafygreen-ui/tokens": "workspace:^",
-    "@leafygreen-ui/typography": "workspace:^"
-  },
-  "peerDependencies": {
-    "@leafygreen-ui/leafygreen-provider": "workspace:^"
   },
   "homepage": "https://github.com/mongodb/leafygreen-ui/tree/main/packages/message-prompts",
   "repository": {
@@ -29,8 +14,5 @@
   },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/PD/summary"
-  },
-  "devDependencies": {
-    "@lg-tools/build": "workspace:^"
   }
 }
