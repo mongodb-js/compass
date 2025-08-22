@@ -14,7 +14,7 @@ type Index = {
   buildProgress: number;
 };
 
-const styles = css({
+const indexActionsContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
@@ -60,7 +60,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const isBuilding = progress > 0 && progress < 100;
 
   return (
-    <div className={styles}>
+    <div className={indexActionsContainerStyles}>
       {isBuilding && (
         <>
           <Body>Building... {progress | 0}%</Body>
