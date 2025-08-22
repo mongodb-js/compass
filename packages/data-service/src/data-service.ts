@@ -2137,7 +2137,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private async _indexProgress(ns: string): Promise<Record<string, number>> {
     type IndexProgressResult = {
       _id: string;
-      progress: { done: number; total: number };
+      progress: number;
     };
 
     const currentOps: IndexProgressResult[] = await this._database(
@@ -2157,7 +2157,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
         {
           $group: {
             _id: '$command.indexes.name',
-            progress: { $first: '$progress' },
+            progress: {
+              $first: {
+                $cond: {
+                  if: { $gt: ['$progress.total', 0] },
+                  then: { $divide: ['$progress.done', '$progress.total'] },
+                  else: 0,
+                },
+              },
+            },
           },
         }, // group on index name
       ])
@@ -2166,7 +2174,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     const indexToProgress = Object.create(null);
     for (const { _id, progress } of currentOps) {
-      indexToProgress[_id] = progress.done / progress.total;
+      indexToProgress[_id] = progress;
     }
 
     return indexToProgress;
