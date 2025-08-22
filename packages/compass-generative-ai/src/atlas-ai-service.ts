@@ -266,7 +266,7 @@ export type MockDataSchemaResponse = z.infer<
 >;
 
 /**
- * The type from the natural language query REST API
+ * The type of resource from the natural language query REST API
  */
 type AIResourceType = 'query' | 'aggregation' | 'mock-data-schema';
 

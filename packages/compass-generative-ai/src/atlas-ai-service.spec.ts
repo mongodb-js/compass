@@ -96,7 +96,6 @@ describe('AtlasAiService', function () {
         'mql-aggregation':
           '/cloud/ai/v1/groups/testProject/mql-aggregation?request_id=abc',
         'mql-query': '/cloud/ai/v1/groups/testProject/mql-query?request_id=abc',
-        // unused request id
         'mock-data-schema':
           '/cloud/ai/v1/groups/testProject/mock-data-schema?request_id=abc',
       },
@@ -431,9 +430,6 @@ describe('AtlasAiService', function () {
           });
         }
 
-        /**
-         * need more illustrative input
-         */
         if (apiURLPreset === 'cloud') {
           it('makes a post request to the correct endpoint', async function () {
             const mockResponse = {
