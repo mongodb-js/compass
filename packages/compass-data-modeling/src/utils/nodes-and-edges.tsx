@@ -6,7 +6,7 @@ import {
   InlineDefinition,
   css,
 } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
+import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
@@ -126,37 +126,64 @@ export const getFieldsFromSchema = ({
   return fields;
 };
 
-export function collectionToDiagramNode(
-  coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
-  options: {
-    highlightedFields?: Record<string, FieldPath[] | undefined>;
-    selectedField?: FieldPath;
-    onClickAddNewFieldToCollection?: () => void;
-    selected?: boolean;
-    isInRelationshipDrawingMode?: boolean;
-  } = {}
-): NodeProps {
-  const {
-    highlightedFields = {},
-    selectedField,
-    onClickAddNewFieldToCollection,
-    selected = false,
-    isInRelationshipDrawingMode = false,
-  } = options;
-
+/**
+ * Create a base node to be used for positioning and measuring in node layouts.
+ */
+export function collectionToBaseNodeForLayout({
+  ns,
+  jsonSchema,
+  displayPosition,
+}: Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+>): BaseNode & Pick<NodeProps, 'fields'> {
   return {
-    id: coll.ns,
+    id: ns,
+    position: {
+      x: displayPosition[0],
+      y: displayPosition[1],
+    },
+    fields: getFieldsFromSchema({ jsonSchema }),
+  };
+}
+
+type CollectionWithRenderOptions = Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+> & {
+  highlightedFields: Record<string, FieldPath[] | undefined>;
+  selectedField?: FieldPath;
+  selected: boolean;
+  isInRelationshipDrawingMode: boolean;
+  onClickAddNewFieldToCollection: () => void;
+};
+
+export function collectionToDiagramNode({
+  ns,
+  jsonSchema,
+  displayPosition,
+  selectedField,
+  highlightedFields,
+  selected,
+  isInRelationshipDrawingMode,
+  onClickAddNewFieldToCollection,
+}: CollectionWithRenderOptions): NodeProps {
+  return {
+    id: ns,
     type: 'collection',
     position: {
-      x: coll.displayPosition[0],
-      y: coll.displayPosition[1],
+      x: displayPosition[0],
+      y: displayPosition[1],
     },
-    title: toNS(coll.ns).collection,
+    title: toNS(ns).collection,
     fields: getFieldsFromSchema({
-      jsonSchema: coll.jsonSchema,
-      highlightedFields: highlightedFields[coll.ns] ?? undefined,
+      jsonSchema: jsonSchema,
+      highlightedFields: highlightedFields[ns] ?? undefined,
       selectedField,
     }),
+    selected,
+    connectable: isInRelationshipDrawingMode,
+    draggable: !isInRelationshipDrawingMode,
     actions: onClickAddNewFieldToCollection ? (
       <IconButton
         aria-label="Add Field"
@@ -170,9 +197,6 @@ export function collectionToDiagramNode(
         <PlusWithSquare />
       </IconButton>
     ) : undefined,
-    selected,
-    connectable: isInRelationshipDrawingMode,
-    draggable: !isInRelationshipDrawingMode,
   };
 }
 
