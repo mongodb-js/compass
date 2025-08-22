@@ -2,14 +2,19 @@ import React, { useCallback } from 'react';
 import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { useChat } from './@ai-sdk/react/use-chat';
-import { ChatWindow } from '@lg-chat/chat-window';
 import {
-  LeafyGreenChatProvider,
-  Variant,
-} from '@lg-chat/leafygreen-chat-provider';
-import { Message } from '@lg-chat/message';
-import { MessageFeed } from '@lg-chat/message-feed';
-import { InputBar } from '@lg-chat/input-bar';
+  LgChatChatWindow,
+  LgChatLeafygreenChatProvider,
+  LgChatMessage,
+  LgChatMessageFeed,
+  LgChatInputBar,
+} from '@mongodb-js/compass-components';
+
+const { ChatWindow } = LgChatChatWindow;
+const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
+const { Message } = LgChatMessage;
+const { MessageFeed } = LgChatMessageFeed;
+const { InputBar } = LgChatInputBar;
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
