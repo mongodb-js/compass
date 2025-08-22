@@ -83,6 +83,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
 export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
+      namespace,
       dataService: { dataService },
       searchIndexes: { status },
     } = getState();
