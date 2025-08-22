@@ -16,6 +16,7 @@ import {
   type DiagramState,
   selectCurrentModelFromState,
   createNewRelationship,
+  addCollection,
 } from '../store/diagram';
 import {
   Banner,
@@ -26,6 +27,7 @@ import {
   Button,
   useDarkMode,
   useDrawerActions,
+  useDrawerState,
   rafraf,
 } from '@mongodb-js/compass-components';
 import { cancelAnalysis, retryAnalysis } from '../store/analysis-process';
@@ -108,6 +110,7 @@ const DiagramContent: React.FunctionComponent<{
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
   editErrors?: string[];
+  newCollection?: string;
   onAddNewFieldToCollection: (ns: string) => void;
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
@@ -119,6 +122,7 @@ const DiagramContent: React.FunctionComponent<{
 }> = ({
   diagramLabel,
   model,
+  newCollection,
   isInRelationshipDrawingMode,
   onAddNewFieldToCollection,
   onMoveCollection,
@@ -132,6 +136,7 @@ const DiagramContent: React.FunctionComponent<{
   const isDarkMode = useDarkMode();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
+  const { isDrawerOpen } = useDrawerState();
 
   const setDiagramContainerRef = useCallback((ref: HTMLDivElement | null) => {
     if (ref) {
@@ -189,6 +194,35 @@ const DiagramContent: React.FunctionComponent<{
       void diagram.current.fitView();
     });
   }, []);
+
+  // Center on a new collection when it is added
+  const previouslyOpenedDrawer = useRef<boolean>(false);
+  useEffect(() => {
+    const wasDrawerPreviouslyOpened = previouslyOpenedDrawer.current;
+    previouslyOpenedDrawer.current = !!isDrawerOpen;
+
+    if (!newCollection) return;
+    const node = nodes.find((n) => n.id === newCollection);
+    if (!node) return;
+
+    // For calculating the center, we're taking into account the drawer,
+    // so that the new node is centered in the visible part.
+    const drawerOffset = wasDrawerPreviouslyOpened ? 0 : 240;
+    const zoom = diagram.current.getViewport().zoom;
+    const drawerOffsetInDiagramCoords = drawerOffset / zoom;
+    const newNodeWidth = 244;
+    const newNodeHeight = 64;
+    return rafraf(() => {
+      void diagram.current.setCenter(
+        node.position.x + newNodeWidth / 2 + drawerOffsetInDiagramCoords,
+        node.position.y + newNodeHeight / 2,
+        {
+          duration: 500,
+          zoom,
+        }
+      );
+    });
+  }, [newCollection, nodes, isDrawerOpen]);
 
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
@@ -248,6 +282,7 @@ const ConnectedDiagramContent = connect(
       model: diagram ? selectCurrentModelFromState(state) : null,
       diagramLabel: diagram?.name || 'Schema Preview',
       selectedItems: state.diagram?.selectedItems ?? null,
+      newCollection: diagram?.draftCollection,
     };
   },
   {
@@ -265,7 +300,15 @@ const DiagramEditor: React.FunctionComponent<{
   diagramId?: string;
   onRetryClick: () => void;
   onCancelClick: () => void;
-}> = ({ step, diagramId, onRetryClick, onCancelClick }) => {
+  onAddCollectionClick: () => void;
+}> = ({
+  step,
+  diagramId,
+  onRetryClick,
+  onCancelClick,
+  onAddCollectionClick,
+}) => {
+  const { openDrawer } = useDrawerActions();
   let content;
 
   const [isInRelationshipDrawingMode, setIsInRelationshipDrawingMode] =
@@ -278,6 +321,11 @@ const DiagramEditor: React.FunctionComponent<{
   const onRelationshipDrawn = useCallback(() => {
     setIsInRelationshipDrawingMode(false);
   }, []);
+
+  const handleAddCollectionClick = useCallback(() => {
+    onAddCollectionClick();
+    openDrawer(DATA_MODELING_DRAWER_ID);
+  }, [openDrawer, onAddCollectionClick]);
 
   if (step === 'NO_DIAGRAM_SELECTED') {
     return null;
@@ -328,6 +376,7 @@ const DiagramEditor: React.FunctionComponent<{
         <DiagramEditorToolbar
           onRelationshipDrawingToggle={handleRelationshipDrawingToggle}
           isInRelationshipDrawingMode={isInRelationshipDrawingMode}
+          onAddCollectionClick={handleAddCollectionClick}
         />
       }
     >
@@ -349,5 +398,6 @@ export default connect(
   {
     onRetryClick: retryAnalysis,
     onCancelClick: cancelAnalysis,
+    onAddCollectionClick: addCollection,
   }
 )(DiagramEditor);

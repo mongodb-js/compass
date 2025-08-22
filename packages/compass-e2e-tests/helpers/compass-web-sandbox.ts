@@ -19,7 +19,7 @@ const debug = Debug('compass-e2e-tests:compass-web-sandbox');
  * with webdriver will get the values
  */
 process.env.OPEN_BROWSER = 'false'; // tell webpack dev server not to open the default browser
-process.env.DISABLE_DEVSERVER_OVERLAY = 'false';
+process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
 process.env.APP_ENV = 'webdriverio';
 
 const wait = (ms: number) => {

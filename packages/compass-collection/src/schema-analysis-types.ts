@@ -1,5 +1,5 @@
 import type { Document } from 'mongodb';
-import { type Schema } from 'mongodb-schema';
+import type { PrimitiveSchemaType } from 'mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
@@ -30,9 +30,35 @@ export type SchemaAnalysisErrorState = {
   error: SchemaAnalysisError;
 };
 
+/**
+ * MongoDB schema type
+ */
+export type MongoDBFieldType = PrimitiveSchemaType['name'];
+
+/**
+ * Primitive values that can appear in sample_values after BSON-to-primitive conversion.
+ * These are the JavaScript primitive equivalents of BSON values.
+ */
+export type SampleValue =
+  | string // String, Symbol, ObjectId, Binary, RegExp, Code, etc. (converted to string)
+  | number // Number, Int32, Long, Double, Decimal128, Timestamp (converted via valueOf())
+  | boolean
+  | Date
+  | null
+  | undefined;
+
+/**
+ * Schema field information (for LLM processing)
+ */
+export interface FieldInfo {
+  type: MongoDBFieldType; // MongoDB primitive type
+  sample_values?: SampleValue[]; // Primitive sample values (limited to 10)
+  probability?: number; // 0.0 - 1.0 field frequency
+}
+
 export type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
-  schema: Schema;
+  processedSchema: Record<string, FieldInfo>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;

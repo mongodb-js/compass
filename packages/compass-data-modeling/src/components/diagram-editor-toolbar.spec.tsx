@@ -17,6 +17,7 @@ function renderDiagramEditorToolbar(
       onRedoClick={() => {}}
       onExportClick={() => {}}
       onRelationshipDrawingToggle={() => {}}
+      onAddCollectionClick={() => {}}
       {...props}
     />
   );
@@ -62,6 +63,16 @@ describe('DiagramEditorToolbar', function () {
       expect(redoButton).to.have.attribute('aria-disabled', 'false');
       userEvent.click(redoButton);
       expect(redoSpy).to.have.been.calledOnce;
+    });
+  });
+
+  context('add collection button', function () {
+    it('starts adding collection', function () {
+      const addCollectionSpy = sinon.spy();
+      renderDiagramEditorToolbar({ onAddCollectionClick: addCollectionSpy });
+      const addButton = screen.getByRole('button', { name: 'Add Collection' });
+      userEvent.click(addButton);
+      expect(addCollectionSpy).to.have.been.calledOnce;
     });
   });
 

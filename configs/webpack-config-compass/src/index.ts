@@ -276,10 +276,10 @@ export function createElectronRendererConfig(
               writeToDisk: true,
             },
             client: {
-              overlay: {
-                errors: true,
-                warnings: false,
-              },
+              overlay:
+                process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
+                  ? false
+                  : { warnings: false, errors: true, runtimeErrors: true },
             },
             https: false,
             hot: opts.hot,
