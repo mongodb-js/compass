@@ -160,12 +160,13 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
-      return collectionToDiagramNode(coll, {
-        onClickAddNewFieldToCollection: () =>
-          onAddNewFieldToCollection(coll.ns),
+      return collectionToDiagramNode({
+        ...coll,
         selectedFields,
         selected,
         isInRelationshipDrawingMode,
+        onClickAddNewFieldToCollection: () =>
+          onAddNewFieldToCollection(coll.ns),
       });
     });
   }, [
