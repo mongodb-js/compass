@@ -1,12 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
-import {
-  ItemActionGroup,
-  SpinLoader,
-  Body,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { ItemActionGroup, css, spacing } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
 type Index = {
@@ -57,21 +51,8 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     [onDeleteFailedIndexClick, index]
   );
 
-  const progress = index.buildProgress * 100;
-  const isBuilding = progress > 0 && progress < 100;
-
   return (
     <div className={indexActionsContainerStyles}>
-      {isBuilding && (
-        <>
-          <Body>Building… {progress | 0}%</Body>
-          <SpinLoader
-            size={spacing[400]}
-            title="Index build in progress"
-            data-testid="index-building-spinner"
-          />
-        </>
-      )}
       <ItemActionGroup<IndexAction>
         data-testid="index-actions"
         actions={indexActions}
