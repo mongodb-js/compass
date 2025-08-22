@@ -1,5 +1,5 @@
 import type { Reducer, AnyAction, Action } from 'redux';
-import { analyzeDocuments, type Schema } from 'mongodb-schema';
+import { analyzeDocuments } from 'mongodb-schema';
 
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -19,8 +19,10 @@ import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   type SchemaAnalysisError,
   type SchemaAnalysisState,
+  type FieldInfo,
 } from '../schema-analysis-types';
 import { calculateSchemaDepth } from '../calculate-schema-depth';
+import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -106,7 +108,7 @@ interface SchemaAnalysisStartedAction {
 
 interface SchemaAnalysisFinishedAction {
   type: CollectionActions.SchemaAnalysisFinished;
-  schema: Schema;
+  processedSchema: Record<string, FieldInfo>;
   sampleDocument: Document;
   schemaMetadata: {
     maxNestingDepth: number;
@@ -201,7 +203,7 @@ const reducer: Reducer<CollectionState, Action> = (
       ...state,
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_COMPLETE,
-        schema: action.schema,
+        processedSchema: action.processedSchema,
         sampleDocument: action.sampleDocument,
         schemaMetadata: action.schemaMetadata,
       },
@@ -420,7 +422,9 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       schema.fields = schema.fields.filter(
         ({ path }) => !isInternalFieldPath(path[0])
       );
-      // TODO: Transform schema to structure that will be used by the LLM.
+
+      // Transform schema to structure that will be used by the LLM
+      const processedSchema = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
       const { database, collection } = toNS(namespace);
@@ -432,7 +436,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       };
       dispatch({
         type: CollectionActions.SchemaAnalysisFinished,
-        schema,
+        processedSchema,
         sampleDocument: sampleDocuments[0],
         schemaMetadata,
       });
