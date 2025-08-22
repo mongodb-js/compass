@@ -11,3 +11,22 @@ ${explainPlan}`,
     displayText: 'Provide an explanation of this explain plan.',
   };
 };
+
+export const buildConnectionErrorPrompt = ({
+  connectionString,
+  connectionError,
+}: {
+  connectionString: string;
+  connectionError: string;
+}) => {
+  return {
+    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used:
+
+Connection string (password redacted):
+${connectionString}
+
+Error message:
+${connectionError}`,
+    displayText: 'Provide an explanation of this connection error.',
+  };
+};

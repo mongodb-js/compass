@@ -83,6 +83,37 @@ function ConnectionErrorToastBody({
   );
 }
 
+type ConnectionDebugToastBodyProps = {
+  info?: ConnectionInfo | null;
+  onDebug: () => void;
+};
+
+function ConnectionDebugToastBody({
+  info,
+  onDebug,
+}: ConnectionDebugToastBodyProps): React.ReactElement {
+  return (
+    <span className={connectionErrorToastBodyStyles}>
+      <span
+        data-testid="connection-debug-text"
+        className={connectionErrorTextStyles}
+      >
+        Diagnose the issue and explore solutions with the assistant
+      </span>
+      {info && (
+        <Link
+          className={connectionErrorToastActionMessageStyles}
+          hideExternalIcon={true}
+          onClick={onDebug}
+          data-testid="connection-error-debug"
+        >
+          DEBUG FOR ME
+        </Link>
+      )}
+    </span>
+  );
+}
+
 const deviceAuthModalContentStyles = css({
   textAlign: 'center',
   '& > *:not(:last-child)': {
@@ -134,6 +165,8 @@ const openConnectionFailedToast = (
 ) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
+  // TODO: close the existing connection toast and make a new one for the
+  // failure so that the debug toast will appear below the failure one
   openToast(`connection-status--${failedToastId}`, {
     title: error.message,
     description: (
@@ -147,6 +180,26 @@ const openConnectionFailedToast = (
       />
     ),
     variant: 'warning',
+  });
+};
+
+const openDebugConnectionErrorToast = (
+  connectionInfo: ConnectionInfo,
+  error: Error,
+  onDebugClick: () => void
+) => {
+  openToast(`debug-connetion-error--${connectionInfo.id}`, {
+    title: 'Need help debugging your connection error?',
+    description: (
+      <ConnectionDebugToastBody
+        info={connectionInfo}
+        onDebug={() => {
+          closeToast(`debug-connetion-error--${connectionInfo.id}`);
+          onDebugClick();
+        }}
+      />
+    ),
+    variant: 'note',
   });
 };
 
@@ -214,6 +267,7 @@ export function getNotificationTriggers() {
     openConnectionStartedToast,
     openConnectionSucceededToast,
     openConnectionFailedToast,
+    openDebugConnectionErrorToast,
     openMaximumConnectionsReachedToast,
     closeConnectionStatusToast: (connectionId: string) => {
       return closeToast(`connection-status--${connectionId}`);
