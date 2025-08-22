@@ -645,6 +645,7 @@ async function startCompassElectron(
   const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
+  process.env.DISABLE_DEVSERVER_OVERLAY = 'true';
   // For webdriverio env we are changing appName so that keychain records do not
   // overlap with anything else. But leave it alone when testing auto-update.
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
