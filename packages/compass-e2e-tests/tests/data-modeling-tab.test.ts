@@ -696,7 +696,7 @@ describe('Data Modeling tab', function () {
       // Rename the collection (it submits on unfocus).
       await browser.setValueVisible(
         browser.$(Selectors.DataModelNameInput),
-        'testCollection-renamedOne'
+        'renamedOne'
       );
       await drawer.click(); // Unfocus the input.
 
@@ -705,16 +705,14 @@ describe('Data Modeling tab', function () {
         const collectionName = await browser.getInputByLabel(
           browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
         );
-        return (
-          (await collectionName.getValue()) === 'testCollection-renamedOne'
-        );
+        return (await collectionName.getValue()) === 'renamedOne';
       });
 
       // Select the second collection and verify that the new name is in the diagram.
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
       const nodes = await getDiagramNodes(browser, 2);
       expect(nodes).to.have.lengthOf(2);
-      expect(nodes[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodes[0].id).to.equal('test.renamedOne');
       expect(nodes[1].id).to.equal('test.testCollection-two');
 
       // Remove the collection.
@@ -731,7 +729,7 @@ describe('Data Modeling tab', function () {
       // Verify that the collection is removed from the list and the diagram.
       const nodesPostDelete = await getDiagramNodes(browser, 1);
       expect(nodesPostDelete).to.have.lengthOf(1);
-      expect(nodesPostDelete[0].id).to.equal('test.testCollection-renamedOne');
+      expect(nodesPostDelete[0].id).to.equal('test.renamedOne');
     });
 
     it('adding a new collection from the toolbar', async function () {
