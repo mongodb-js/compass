@@ -32,10 +32,12 @@ type AssistantActionsContextType = {
     namespace: string;
     explainPlan: string;
   }) => void;
+  clearChat: () => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
+    clearChat: () => {},
   });
 
 export function useAssistantActions(): AssistantActionsContextType & {
@@ -69,6 +71,9 @@ export const AssistantProvider: React.FunctionComponent<
         },
         {}
       );
+    },
+    clearChat: () => {
+      chat.messages = [];
     },
   });
   const { openDrawer } = useDrawerActions();

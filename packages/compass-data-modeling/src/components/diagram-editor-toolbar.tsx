@@ -15,7 +15,7 @@ import {
   transparentize,
   Tooltip,
 } from '@mongodb-js/compass-components';
-
+import AddCollection from './icons/add-collection';
 const containerStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
@@ -50,6 +50,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onRedoClick: () => void;
   onExportClick: () => void;
   onRelationshipDrawingToggle: () => void;
+  onAddCollectionClick: () => void;
 }> = ({
   step,
   hasUndo,
@@ -58,6 +59,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   onRedoClick,
   onExportClick,
   onRelationshipDrawingToggle,
+  onAddCollectionClick,
   isInRelationshipDrawingMode,
 }) => {
   const darkmode = useDarkMode();
@@ -70,6 +72,15 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
       data-testid="diagram-editor-toolbar"
     >
       <div className={toolbarGroupStyles}>
+        <IconButton aria-label="Undo" disabled={!hasUndo} onClick={onUndoClick}>
+          <Icon glyph="Undo"></Icon>
+        </IconButton>
+        <IconButton aria-label="Redo" disabled={!hasRedo} onClick={onRedoClick}>
+          <Icon glyph="Redo"></Icon>
+        </IconButton>
+        <IconButton aria-label="Add Collection" onClick={onAddCollectionClick}>
+          <AddCollection />
+        </IconButton>
         <Tooltip
           trigger={
             <IconButton
@@ -88,12 +99,6 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
         >
           Drag from one collection to another to create a relationship.
         </Tooltip>
-        <IconButton aria-label="Undo" disabled={!hasUndo} onClick={onUndoClick}>
-          <Icon glyph="Undo"></Icon>
-        </IconButton>
-        <IconButton aria-label="Redo" disabled={!hasRedo} onClick={onRedoClick}>
-          <Icon glyph="Redo"></Icon>
-        </IconButton>
       </div>
       <div className={toolbarGroupStyles}>
         <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
