@@ -91,7 +91,7 @@ describe('AIOptInModal Component', function () {
       </PreferencesProvider>
     );
     const button = screen.getByText('Use AI Features').closest('button');
-    expect(button?.getAttribute('aria-disabled')).to.equal('true');
+    expect(button?.style.cursor).to.equal('not-allowed');
   });
 
   describe('conditional banner messages', function () {
