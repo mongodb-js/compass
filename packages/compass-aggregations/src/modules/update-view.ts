@@ -10,7 +10,7 @@ import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
 import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 import { namespaceHasSearchIndexes } from './search-indexes';
-import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 export type UpdateViewState = null | string;
 
@@ -114,7 +114,8 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     );
 
     if (ds && (await namespaceHasSearchIndexes(viewNamespace, ds))) {
-      const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
+      const pipelineIsSearchQueryable =
+        VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(viewPipeline);
       const confirmed = await showConfirmation({
         title: `Are you sure you want to update the view?`,
         description: pipelineIsSearchQueryable

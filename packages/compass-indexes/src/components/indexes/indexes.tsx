@@ -36,7 +36,6 @@ import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-bann
 import semver from 'semver';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { CollectionStats } from '../../modules/collection-stats';
-import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 import type { Document } from 'mongodb';
 
 // This constant is used as a trigger to show an insight whenever number of
@@ -220,7 +219,9 @@ export function Indexes({
   const { atlasMetadata } = useConnectionInfo();
   const isViewPipelineSearchQueryable =
     isReadonlyView && collectionStats?.pipeline
-      ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats.pipeline as Document[]
+        )
       : true;
 
   const getBanner = () => {
