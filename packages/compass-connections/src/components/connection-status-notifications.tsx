@@ -84,12 +84,10 @@ function ConnectionErrorToastBody({
 }
 
 type ConnectionDebugToastBodyProps = {
-  info?: ConnectionInfo | null;
   onDebug: () => void;
 };
 
 function ConnectionDebugToastBody({
-  info,
   onDebug,
 }: ConnectionDebugToastBodyProps): React.ReactElement {
   return (
@@ -100,16 +98,14 @@ function ConnectionDebugToastBody({
       >
         Diagnose the issue and explore solutions with the assistant
       </span>
-      {info && (
-        <Link
-          className={connectionErrorToastActionMessageStyles}
-          hideExternalIcon={true}
-          onClick={onDebug}
-          data-testid="connection-error-debug"
-        >
-          DEBUG FOR ME
-        </Link>
-      )}
+      <Link
+        className={connectionErrorToastActionMessageStyles}
+        hideExternalIcon={true}
+        onClick={onDebug}
+        data-testid="connection-error-debug"
+      >
+        DEBUG FOR ME
+      </Link>
     </span>
   );
 }
@@ -192,7 +188,6 @@ const openDebugConnectionErrorToast = (
     title: 'Need help debugging your connection error?',
     description: (
       <ConnectionDebugToastBody
-        info={connectionInfo}
         onDebug={() => {
           closeToast(`debug-connetion-error--${connectionInfo.id}`);
           onDebugClick();
