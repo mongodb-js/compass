@@ -76,6 +76,7 @@ describe('update-view module', function () {
             updateCollection: updateCollectionFake,
           },
         },
+        serverVersion: '8.1.0',
       };
       getStateMock = () => stateMock;
     });
