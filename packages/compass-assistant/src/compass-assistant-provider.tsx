@@ -1,6 +1,6 @@
 import React, { type PropsWithChildren, useRef } from 'react';
-import { type UIMessage } from './@ai-sdk/react/use-chat';
-import { Chat } from './@ai-sdk/react/chat-react';
+import { type UIMessage } from './vendor/@ai-sdk/react/use-chat';
+import { Chat } from './vendor/@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
