@@ -10,7 +10,6 @@ import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import { lowerFirst } from 'lodash';
 
 const maxWidth = css({
   maxWidth: '100%',

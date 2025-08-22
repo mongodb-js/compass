@@ -1,9 +1,6 @@
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { FieldPath } from '../services/data-model-storage';
 
-// TODO: add support for update
-// renaming fields, deleting fields, adding fields...
-// or maybe we can have two traverses? one for parsing, one for updating?
 /**
  * Traverses a MongoDB JSON schema and calls the visitor for each field.
  *
