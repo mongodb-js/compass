@@ -6,6 +6,7 @@ import {
   ItemActionGroup,
   SpinLoader,
   Body,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 
@@ -18,7 +19,7 @@ const buildProgressStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: '8px',
+  gap: spacing[200],
 });
 
 type IndexActionsProps = {

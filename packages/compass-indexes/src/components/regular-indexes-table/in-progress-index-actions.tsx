@@ -5,6 +5,7 @@ import {
   SpinLoader,
   Body,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
@@ -18,7 +19,7 @@ const indexActionsContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  gap: '8px',
+  gap: spacing[200],
 });
 
 type IndexActionsProps = {
@@ -65,7 +66,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
         <>
           <Body>Building… {progress | 0}%</Body>
           <SpinLoader
-            size={16}
+            size={spacing[400]}
             title="Index build in progress"
             data-testid="index-building-spinner"
           />
