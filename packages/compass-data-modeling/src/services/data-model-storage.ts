@@ -80,6 +80,12 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     ns: z.string(),
     note: z.string(),
   }),
+  z.object({
+    type: z.literal('AddCollection'),
+    ns: z.string(),
+    position: z.tuple([z.number(), z.number()]),
+    initialSchema: z.custom<MongoDBJSONSchema>(),
+  }),
 ]);
 
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
