@@ -141,7 +141,7 @@ export const namespaceHasSearchIndexes = async (
     const indexes = await dataService.getSearchIndexes(namespace);
     return indexes.length > 0;
   } catch {
-    throw new Error('Error occured fetching indexes');
+    return false;
   }
 };
 
