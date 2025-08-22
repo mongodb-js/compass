@@ -101,6 +101,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
+    const serverVersion = state.serverVersion;
 
     if (!viewNamespace) {
       return;
@@ -113,7 +114,13 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       pipelineBuilder
     );
 
-    if (ds && (await namespaceHasSearchIndexes(viewNamespace, ds))) {
+    if (
+      VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+        serverVersion
+      ) &&
+      ds &&
+      (await namespaceHasSearchIndexes(viewNamespace, ds))
+    ) {
       const pipelineIsSearchQueryable =
         VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(viewPipeline);
       const confirmed = await showConfirmation({
