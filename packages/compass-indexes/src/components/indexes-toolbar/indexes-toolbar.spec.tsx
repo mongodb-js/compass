@@ -13,6 +13,7 @@ import { IndexesToolbar } from './indexes-toolbar';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { Document } from 'mongodb';
 
 describe('IndexesToolbar Component', function () {
   before(cleanup);
@@ -39,6 +40,7 @@ describe('IndexesToolbar Component', function () {
           onRefreshIndexes={() => {}}
           isSearchIndexesSupported={false}
           isRefreshing={false}
+          collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
           onIndexViewChanged={() => {}}
           onCreateRegularIndexClick={() => {}}
           onCreateSearchIndexClick={() => {}}
@@ -153,8 +155,36 @@ describe('IndexesToolbar Component', function () {
         expect(screen.getByText('Create Search Index')).to.be.visible;
       });
 
-      it('should not render the refresh button', function () {
+      it('should render the refresh button', function () {
         expect(screen.queryByText('Refresh')).to.be.visible;
+      });
+    });
+
+    describe('and pipeline is not queryable', function () {
+      it('should disable the create search index button', function () {
+        const pipelineMock: Document[] = [
+          { $project: { newField: 'testValue' } },
+        ];
+        const mockCollectionStats = {
+          index_count: 0,
+          index_size: 0,
+          pipeline: pipelineMock,
+        };
+
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+          indexView: 'search-indexes',
+          collectionStats: mockCollectionStats,
+        });
+
+        expect(screen.getByText('Create Search Index')).to.be.visible;
+        expect(
+          screen
+            .getByText('Create Search Index')
+            .closest('button')
+            ?.getAttribute('aria-disabled')
+        ).to.equal('true');
       });
     });
   });
