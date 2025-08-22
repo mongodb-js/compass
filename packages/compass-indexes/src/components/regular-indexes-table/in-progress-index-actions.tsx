@@ -63,7 +63,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     <div className={indexActionsContainerStyles}>
       {isBuilding && (
         <>
-          <Body>Building... {progress | 0}%</Body>
+          <Body>Building… {progress | 0}%</Body>
           <SpinLoader
             size={16}
             title="Index build in progress"
