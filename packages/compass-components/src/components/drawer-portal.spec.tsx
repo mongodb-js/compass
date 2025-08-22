@@ -182,7 +182,7 @@ describe('DrawerSection', function () {
                 : () => openDrawer('controlled-section')
             }
           >
-            {isDrawerOpen ? 'Close drawer' : 'Open drawer'}
+            {isDrawerOpen ? 'Hook Close drawer' : 'Hook Open drawer'}
           </button>
         </div>
       );
@@ -215,14 +215,14 @@ describe('DrawerSection', function () {
     expect(screen.getByTestId('drawer-state')).to.have.text('closed');
 
     // Open the drawer
-    userEvent.click(screen.getByRole('button', { name: 'Open drawer' }));
+    userEvent.click(screen.getByRole('button', { name: 'Hook Open drawer' }));
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('open');
       expect(screen.getByText('This is the controlled section')).to.be.visible;
     });
 
     // Close the drawer
-    userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+    userEvent.click(screen.getByRole('button', { name: 'Hook Close drawer' }));
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
