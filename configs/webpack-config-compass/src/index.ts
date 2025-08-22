@@ -102,6 +102,17 @@ const sharedResolveOptions = (
         'index.js'
       ),
 
+      // TODO: document what's going on here
+      '@leafygreen-ui/button/constants': path.resolve(
+        __dirname,
+        '..',
+        'polyfills',
+        '@leafygreen-ui',
+        'button',
+        'constants',
+        'index.js'
+      ),
+
       // This is an optional dependency of the AWS SDK that doesn't look like
       // an optional dependency to webpack because it's not wrapped in try/catch.
       '@aws-sdk/client-sso-oidc': false,
@@ -276,10 +287,10 @@ export function createElectronRendererConfig(
               writeToDisk: true,
             },
             client: {
-              overlay:
-                process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
-                  ? false
-                  : { warnings: false, errors: true, runtimeErrors: true },
+              overlay: {
+                errors: true,
+                warnings: false,
+              },
             },
             https: false,
             hot: opts.hot,
