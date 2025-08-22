@@ -8,6 +8,8 @@ import {
   spacing,
   palette,
   MarketingModal,
+  Theme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
@@ -49,6 +51,49 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+// TODO: The LG MarketingModal does not provide a way to disable the button
+// so this is a temporary workaround to make the button look disabled.
+const focusSelector = `&:focus-visible, &[data-focus="true"]`;
+const hoverSelector = `&:hover, &[data-hover="true"]`;
+const activeSelector = `&:active, &[data-active="true"]`;
+const focusBoxShadow = (color: string) => `
+    0 0 0 2px ${color}, 
+    0 0 0 4px ${palette.blue.light1};
+`;
+const disabledButtonStyles: Record<Theme, string> = {
+  [Theme.Light]: css`
+    &,
+    ${hoverSelector}, ${activeSelector} {
+      background-color: ${palette.gray.light2};
+      border-color: ${palette.gray.light1};
+      color: ${palette.gray.base};
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    ${focusSelector} {
+      color: ${palette.gray.base};
+      box-shadow: ${focusBoxShadow(palette.white)};
+    }
+  `,
+
+  [Theme.Dark]: css`
+    &,
+    ${hoverSelector}, ${activeSelector} {
+      background-color: ${palette.gray.dark3};
+      border-color: ${palette.gray.dark2};
+      color: ${palette.gray.dark1};
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    ${focusSelector} {
+      color: ${palette.gray.dark1};
+      box-shadow: ${focusBoxShadow(palette.black)};
+    }
+  `,
+};
+
 export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   isOptInModalVisible,
   isOptInInProgress,
@@ -61,6 +106,9 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
     'enableGenAISampleDocumentPassingOnAtlasProject'
   );
   const track = useTelemetry();
+  const darkMode = useDarkMode();
+  const currentDisabledButtonStyles =
+    disabledButtonStyles[darkMode ? Theme.Dark : Theme.Light];
   const PROJECT_SETTINGS_LINK = projectId
     ? window.location.origin + '/v2/' + projectId + '#/settings/groupSettings'
     : null;
@@ -90,6 +138,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       open={isOptInModalVisible}
       onClose={handleModalClose}
       // TODO Button Disabling
+      className={!isProjectAIEnabled ? currentDisabledButtonStyles : undefined}
       buttonText="Use AI Features"
       onButtonClick={onConfirmClick}
       linkText="Not now"
