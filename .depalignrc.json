@@ -7,7 +7,6 @@
     "@babel/core": ["7.16.0"],
     "@babel/parser": ["7.16.0"],
     "js-yaml": ["^3.13.1"],
-    "yargs": ["^4.8.1"],
-    "@leafygreen-ui/marketing-modal": ["^5.0.2", "^8.0.0"]
+    "yargs": ["^4.8.1"]
   }
 }

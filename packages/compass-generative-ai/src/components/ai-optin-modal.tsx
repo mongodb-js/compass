@@ -7,9 +7,8 @@ import {
   css,
   spacing,
   palette,
+  MarketingModal,
 } from '@mongodb-js/compass-components';
-// eslint-disable-next-line @mongodb-js/compass/no-leafygreen-outside-compass-components
-import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
 import type { RootState } from '../store/atlas-ai-store';
@@ -73,7 +72,7 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   }, [isOptInModalVisible, track]);
 
   const onConfirmClick = () => {
-    if (isOptInInProgress) {
+    if (isOptInInProgress || !isProjectAIEnabled) {
       return;
     }
     onOptInClick();
@@ -90,11 +89,9 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
       title="Use AI Features in Data Explorer"
       open={isOptInModalVisible}
       onClose={handleModalClose}
-      buttonProps={{
-        children: 'Use AI Features',
-        onClick: onConfirmClick,
-        disabled: !isProjectAIEnabled,
-      }}
+      // TODO Button Disabling
+      buttonText="Use AI Features"
+      onButtonClick={onConfirmClick}
       linkText="Not now"
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}

@@ -11,18 +11,6 @@ let mockPreferences: PreferencesAccess;
 describe('AIOptInModal Component', function () {
   beforeEach(async function () {
     mockPreferences = await createSandboxFromDefaultPreferences();
-
-    // Mock showModal for MarketingModal v8.0.0 which uses HTML dialog element
-    if (!HTMLDialogElement.prototype.showModal) {
-      HTMLDialogElement.prototype.showModal = function () {
-        this.open = true;
-      };
-    }
-    if (!HTMLDialogElement.prototype.close) {
-      HTMLDialogElement.prototype.close = function () {
-        this.open = false;
-      };
-    }
   });
 
   afterEach(function () {
