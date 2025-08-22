@@ -9,9 +9,15 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
+import { z } from 'zod';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
+import {
+  AtlasAiServiceInvalidInputError,
+  AtlasAiServiceApiResponseParseError,
+} from './atlas-ai-errors';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -204,9 +210,65 @@ const aiURLConfig = {
   cloud: {
     aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
     query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
+    'mock-data-schema': (groupId: string) =>
+      `ai/v1/groups/${groupId}/mock-data-schema`,
   },
 } as const;
-type AIEndpoint = 'query' | 'aggregation';
+
+export const MockDataSchemaRawFieldMappingShape = z.record(
+  z.string(),
+  z.object({
+    type: z.string(),
+    sampleValues: z.array(z.unknown()).optional(),
+    probability: z.number().min(0).max(1).optional(),
+  })
+);
+
+export const MockDataSchemaRequestShape = z.object({
+  collectionName: z.string(),
+  databaseName: z.string(),
+  schema: MockDataSchemaRawFieldMappingShape,
+  validationRules: z.record(z.string(), z.unknown()).optional(),
+  includeSampleValues: z.boolean().default(false),
+});
+
+export const MockDataSchemaResponseShape = z.object({
+  content: z.object({
+    fields: z.array(
+      z.object({
+        fieldPath: z.string(),
+        mongoType: z.string(),
+        fakerMethod: z.string(),
+        fakerArgs: z.array(
+          z.union([
+            z.object({
+              json: z.string(),
+            }),
+            z.string(),
+            z.number(),
+            z.boolean(),
+          ])
+        ),
+        isArray: z.boolean(),
+        probability: z.number(),
+      })
+    ),
+  }),
+});
+
+export type MockDataSchemaRawFieldMapping = z.infer<
+  typeof MockDataSchemaRawFieldMappingShape
+>;
+export type MockDataSchemaRawField = MockDataSchemaRawFieldMapping[string];
+export type MockDataSchemaRequest = z.infer<typeof MockDataSchemaRequestShape>;
+export type MockDataSchemaResponse = z.infer<
+  typeof MockDataSchemaResponseShape
+>;
+
+/**
+ * The type from the natural language query REST API
+ */
+type AIResourceType = 'query' | 'aggregation' | 'mock-data-schema';
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -235,23 +297,33 @@ export class AtlasAiService {
     this.initPromise = this.setupAIAccess();
   }
 
+  /**
+   * @throws {AtlasAiServiceInvalidInputError} when given invalid arguments
+   */
   private getUrlForEndpoint(
-    urlId: AIEndpoint,
+    resourceType: AIResourceType,
     connectionInfo?: ConnectionInfo
   ) {
     if (this.apiURLPreset === 'cloud') {
       const atlasMetadata = connectionInfo?.atlasMetadata;
       if (!atlasMetadata) {
-        throw new Error(
+        throw new AtlasAiServiceInvalidInputError(
           "Can't perform generative ai request: atlasMetadata is not available"
         );
       }
 
       return this.atlasService.cloudEndpoint(
-        aiURLConfig[this.apiURLPreset][urlId](atlasMetadata.projectId)
+        aiURLConfig[this.apiURLPreset][resourceType](atlasMetadata.projectId)
       );
     }
-    const urlPath = aiURLConfig[this.apiURLPreset][urlId];
+
+    if (resourceType === 'mock-data-schema') {
+      throw new AtlasAiServiceInvalidInputError(
+        "Can't perform generative ai request: mock-data-schema is not available for admin-api"
+      );
+    }
+
+    const urlPath = aiURLConfig[this.apiURLPreset][resourceType];
     return this.atlasService.adminApiEndpoint(urlPath);
   }
 
@@ -393,6 +465,60 @@ export class AtlasAiService {
       },
       validateAIQueryResponse
     );
+  }
+
+  /**
+   * @returns {MockDataSchemaResponse} which contains faker.js mappings used to produce a
+   * faker.js factory function for the purposes of generating mock document data.
+   *
+   * @throws {AtlasAiServiceApiResponseParseError} when the response cannot be parsed into the expected schema.
+   */
+  async getMockDataSchema(
+    input: MockDataSchemaRequest,
+    connectionInfo: ConnectionInfo
+  ): Promise<MockDataSchemaResponse> {
+    const { collectionName, databaseName } = input;
+    let schema = input.schema;
+
+    const url = `${this.getUrlForEndpoint('mock-data-schema', connectionInfo)}`;
+
+    if (!input.includeSampleValues) {
+      const newSchema: Record<
+        string,
+        Omit<MockDataSchemaRawField, 'sampleValues'>
+      > = {};
+      for (const [k, v] of Object.entries(schema)) {
+        newSchema[k] = { type: v.type, probability: v.probability };
+      }
+      schema = newSchema;
+    }
+
+    const res = await this.atlasService.authenticatedFetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        collectionName,
+        databaseName,
+        schema,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    try {
+      const data = await res.json();
+      return MockDataSchemaResponseShape.parse(data);
+    } catch (error) {
+      this.logger.log.error(
+        mongoLogId(1_001_000_311),
+        'AtlasAiService',
+        'Failed to parse mock data schema response with expected schema'
+      );
+      throw new AtlasAiServiceApiResponseParseError(
+        'Response does not match expected schema'
+      );
+    }
   }
 
   async optIntoGenAIFeatures() {
