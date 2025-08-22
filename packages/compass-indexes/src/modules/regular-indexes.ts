@@ -244,9 +244,6 @@ export default function reducer(
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
-      // Keep in-progress indexes that are still actively building, but remove:
-      // 1. Failed indexes (status: 'failed')
-      // 2. Completed indexes (real index exists and progress >= 100%)
       inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
         // Always keep indexes with explicit errors
         if (inProgress.error) {
