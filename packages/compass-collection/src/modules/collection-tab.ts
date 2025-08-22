@@ -4,12 +4,18 @@ import { analyzeDocuments } from 'mongodb-schema';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  MockDataSchemaRequestShape,
+  type MockDataSchemaResponse,
+} from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
 import {
@@ -24,11 +30,18 @@ import {
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
+import {
+  MOCK_DATA_GENERATOR_STATE_IDLE,
+  MOCK_DATA_GENERATOR_STATE_GENERATING,
+  MOCK_DATA_GENERATOR_STATE_COMPLETED,
+  MOCK_DATA_GENERATOR_STATE_ERROR,
+} from '../mock-data-generator-types';
+import type { MockDataGeneratorState } from '../mock-data-generator-types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -61,6 +74,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   {
     localAppRegistry: AppRegistry;
     dataService: DataService;
+    atlasAiService: AtlasAiService;
     workspaces: ReturnType<typeof workspacesServiceLocator>;
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
@@ -79,6 +93,7 @@ export type CollectionState = {
     isModalOpen: boolean;
     currentStep: MockDataGeneratorStep;
   };
+  fakerSchemaGeneration: MockDataGeneratorState;
 };
 
 enum CollectionActions {
@@ -91,6 +106,9 @@ enum CollectionActions {
   MockDataGeneratorModalClosed = 'compass-collection/MockDataGeneratorModalClosed',
   MockDataGeneratorNextButtonClicked = 'compass-collection/MockDataGeneratorNextButtonClicked',
   MockDataGeneratorPreviousButtonClicked = 'compass-collection/MockDataGeneratorPreviousButtonClicked',
+  FakerMappingGenerationStarted = 'compass-collection/FakerMappingGenerationStarted',
+  FakerMappingGenerationCompleted = 'compass-collection/FakerMappingGenerationCompleted',
+  FakerMappingGenerationFailed = 'compass-collection/FakerMappingGenerationFailed',
 }
 
 interface CollectionMetadataFetchedAction {
@@ -137,6 +155,23 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
+interface FakerMappingGenerationStartedAction {
+  type: CollectionActions.FakerMappingGenerationStarted;
+  requestId: string;
+}
+
+interface FakerMappingGenerationCompletedAction {
+  type: CollectionActions.FakerMappingGenerationCompleted;
+  fakerSchema: MockDataSchemaResponse;
+  requestId: string;
+}
+
+interface FakerMappingGenerationFailedAction {
+  type: CollectionActions.FakerMappingGenerationFailed;
+  error: string;
+  requestId: string;
+}
+
 const reducer: Reducer<CollectionState, Action> = (
   state = {
     // TODO(COMPASS-7782): use hook to get the workspace tab id instead
@@ -149,6 +184,9 @@ const reducer: Reducer<CollectionState, Action> = (
     mockDataGenerator: {
       isModalOpen: false,
       currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+    },
+    fakerSchemaGeneration: {
+      status: MOCK_DATA_GENERATOR_STATE_IDLE,
     },
   },
   action
@@ -332,6 +370,53 @@ const reducer: Reducer<CollectionState, Action> = (
     };
   }
 
+  if (
+    isAction<FakerMappingGenerationStartedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationStarted
+    )
+  ) {
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        status: MOCK_DATA_GENERATOR_STATE_GENERATING,
+        requestId: action.requestId,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerMappingGenerationCompletedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationCompleted
+    )
+  ) {
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        status: MOCK_DATA_GENERATOR_STATE_COMPLETED,
+        fakerSchema: action.fakerSchema,
+        requestId: action.requestId,
+      },
+    };
+  }
+
+  if (
+    isAction<FakerMappingGenerationFailedAction>(
+      action,
+      CollectionActions.FakerMappingGenerationFailed
+    )
+  ) {
+    return {
+      ...state,
+      fakerSchemaGeneration: {
+        status: MOCK_DATA_GENERATOR_STATE_ERROR,
+        error: action.error,
+        requestId: action.requestId,
+      },
+    };
+  }
+
   return state;
 };
 
@@ -453,6 +538,65 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       dispatch({
         type: CollectionActions.SchemaAnalysisFailed,
         error: err as Error,
+      });
+    }
+  };
+};
+
+export const generateFakerMappings = (
+  connectionInfo: ConnectionInfo
+): CollectionThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { logger, atlasAiService }) => {
+    const { schemaAnalysis, fakerSchemaGeneration } = getState();
+    if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
+      logger.log.error(
+        mongoLogId(1_001_000_305),
+        'Collection',
+        'Cannot call `generateFakeMappings` unless schema analysis is complete'
+      );
+      return;
+    }
+
+    if (fakerSchemaGeneration.status === MOCK_DATA_GENERATOR_STATE_GENERATING) {
+      logger.debug(
+        'Faker mapping generation is already in progress, skipping new generation.'
+      );
+      return;
+    }
+
+    // todo: dedup/abort around requestId
+    const requestId = 'some-request-id';
+    try {
+      logger.debug('Generating faker mappings');
+
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationStarted,
+        requestId: requestId,
+      });
+
+      const mockDataSchemaRequest = MockDataSchemaRequestShape.parse(
+        schemaAnalysis.processedSchema
+      );
+
+      const response = await atlasAiService.getMockDataSchema(
+        mockDataSchemaRequest,
+        connectionInfo
+      );
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationCompleted,
+        fakerSchema: response,
+        requestId: requestId,
+      });
+    } catch {
+      logger.log.error(
+        mongoLogId(1_001_000_312),
+        'Collection',
+        'Failed to generate faker mappings'
+      );
+      dispatch({
+        type: CollectionActions.FakerMappingGenerationFailed,
+        error: 'Failed to generate faker mappings',
+        requestId: requestId,
       });
     }
   };
