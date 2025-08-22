@@ -12,6 +12,7 @@ import { useDrawerActions } from '@mongodb-js/compass-components';
 import { buildConnectionErrorPrompt, buildExplainPlanPrompt } from './prompts';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -103,11 +104,10 @@ export const AssistantProvider: React.FunctionComponent<
     interpretConnectionError: ({ connectionInfo, error }) => {
       openDrawer(ASSISTANT_DRAWER_ID);
 
-      // TODO: redact the connection string
-      const connectionString =
-        connectionInfo.connectionOptions.connectionString;
-      const connectionError = error.toString(); // TODO
-      console.log({ connectionString, connectionError });
+      const connectionString = redactConnectionString(
+        connectionInfo.connectionOptions.connectionString
+      );
+      const connectionError = error.toString();
 
       const { prompt, displayText } = buildConnectionErrorPrompt({
         connectionString,

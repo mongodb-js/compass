@@ -1276,7 +1276,6 @@ const connectionAttemptError = (
     const isAssistanceEnabled = compassAssistant.getIsAssistantEnabled();
     if (isAssistanceEnabled && connectionInfo) {
       openDebugConnectionErrorToast(connectionInfo, err, () => {
-        console.log('compassAssistant.interpretConnectionError()');
         compassAssistant.interpretConnectionError({
           connectionInfo,
           error: err,
