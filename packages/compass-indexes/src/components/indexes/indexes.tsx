@@ -15,10 +15,8 @@ import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
-import {
-  isVersionSearchCompatibleForViews,
-  refreshSearchIndexes,
-} from '../../modules/search-indexes';
+import { refreshSearchIndexes } from '../../modules/search-indexes';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { FetchStatuses } from '../../utils/fetch-status';
@@ -59,20 +57,6 @@ const linkTitle = 'Search and Vector Search.';
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
-export const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE = '8.0.0';
-export const isVersionSearchCompatibleForViewsDataExplorer = (
-  serverVersion: string
-) => {
-  try {
-    return semver.gte(
-      serverVersion,
-      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE
-    );
-  } catch {
-    return false;
-  }
-};
-
 const ViewVersionIncompatibleEmptyState = ({
   serverVersion,
   enableAtlasSearchIndexes,
@@ -81,7 +65,9 @@ const ViewVersionIncompatibleEmptyState = ({
   enableAtlasSearchIndexes: boolean;
 }) => {
   if (
-    isVersionSearchCompatibleForViews(serverVersion) &&
+    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+      serverVersion
+    ) &&
     enableAtlasSearchIndexes
   ) {
     return null;
@@ -239,7 +225,11 @@ export function Indexes({
 
   const getBanner = () => {
     if (isReadonlyView) {
-      if (!isVersionSearchCompatibleForViews(serverVersion)) {
+      if (
+        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+          serverVersion
+        )
+      ) {
         return (
           <ViewVersionIncompatibleBanner
             serverVersion={serverVersion}
@@ -295,7 +285,9 @@ export function Indexes({
             <RegularIndexesTable />
           )}
           {(!isReadonlyView ||
-            (isVersionSearchCompatibleForViews(serverVersion) &&
+            (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+              serverVersion
+            ) &&
               enableAtlasSearchIndexes)) &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && searchIndexes.indexes.length === 0 && (

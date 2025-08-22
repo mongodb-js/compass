@@ -12,6 +12,7 @@ import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass
 
 // Importing this to stub showConfirmation
 import * as updateViewSlice from './update-view';
+import * as searchIndexesSlice from './search-indexes';
 
 const TEST_CONNECTION_INFO = { ...createDefaultConnectionInfo(), title: '' };
 
@@ -52,6 +53,7 @@ describe('update-view module', function () {
     let getStateMock: () => any;
     let updateCollectionFake = sinon.fake();
     let showConfirmationStub: sinon.SinonStub;
+    let namespaceHasSearchIndexesStub: sinon.SinonStub;
 
     beforeEach(function () {
       dispatchFake = sinon.fake();
@@ -59,9 +61,13 @@ describe('update-view module', function () {
       showConfirmationStub = sinon
         .stub(updateViewSlice, 'showConfirmation')
         .resolves(true);
+
+      namespaceHasSearchIndexesStub = sinon
+        .stub(searchIndexesSlice, 'namespaceHasSearchIndexes')
+        .resolves(true);
+
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
-        searchIndexes: { indexes: [{ name: 'index1' }] },
         focusMode: { isEnabled: false },
         namespace: 'aa.bb',
         editViewName: 'aa.bb',
@@ -76,6 +82,7 @@ describe('update-view module', function () {
 
     afterEach(function () {
       showConfirmationStub.restore();
+      namespaceHasSearchIndexesStub.restore();
     });
 
     it('first it calls to dismiss any existing error', async function () {
@@ -88,8 +95,7 @@ describe('update-view module', function () {
     });
 
     it('does not shows confirmation banner if search indexes are not present', async function () {
-      stateMock.searchIndexes.indexes = [];
-
+      namespaceHasSearchIndexesStub.resolves(false);
       const runUpdateView = updateView();
       await runUpdateView(dispatchFake, getStateMock, thunkArg as any);
 

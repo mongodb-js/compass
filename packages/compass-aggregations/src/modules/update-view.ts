@@ -9,7 +9,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
 import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
-import { fetchIndexes } from './search-indexes';
+import { namespaceHasSearchIndexes } from './search-indexes';
 import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
 
 export type UpdateViewState = null | string;
@@ -113,9 +113,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       pipelineBuilder
     );
 
-    // confirmation banner if indexes present
-    await dispatch(fetchIndexes(viewNamespace));
-    if (state.searchIndexes.indexes.length > 0) {
+    if (ds && (await namespaceHasSearchIndexes(viewNamespace, ds))) {
       const pipelineIsSearchQueryable = isPipelineSearchQueryable(viewPipeline);
       const confirmed = await showConfirmation({
         title: `Are you sure you want to update the view?`,

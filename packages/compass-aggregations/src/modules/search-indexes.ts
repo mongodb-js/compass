@@ -80,11 +80,10 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const fetchIndexes = (
-  viewNamespace?: string
-): PipelineBuilderThunkAction<Promise<void>> => {
+export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
+      editViewName: viewNamespace,
       namespace: collectionNamespace,
       dataService: { dataService },
       searchIndexes: { status },
@@ -125,6 +124,28 @@ export const createSearchIndex = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, _getState, { localAppRegistry }) => {
     localAppRegistry.emit('open-create-search-index-modal');
   };
+};
+
+/**
+ * Checks whether a namespace has existing search indexes
+ *
+ * @param namespace - collection/view namespace
+ * @param dataService - dataService instance
+ * @returns whether namespace has existing search indexes
+ */
+export const namespaceHasSearchIndexes = async (
+  namespace: string,
+  dataService: { getSearchIndexes?: (ns: string) => Promise<SearchIndex[]> }
+): Promise<boolean> => {
+  try {
+    if (!dataService.getSearchIndexes) {
+      throw new Error('Cannot get search indexes in this environment');
+    }
+    const indexes = await dataService.getSearchIndexes(namespace);
+    return indexes.length > 0;
+  } catch {
+    throw new Error('Error occured fetching indexes');
+  }
 };
 
 export default reducer;

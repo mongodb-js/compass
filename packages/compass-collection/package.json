@@ -56,7 +56,7 @@
     "@mongodb-js/compass-telemetry": "^1.13.0",
     "@mongodb-js/compass-workspaces": "^0.51.0",
     "@mongodb-js/connection-info": "^0.17.1",
-    "@mongodb-js/mongodb-constants": "^0.12.2",
+    "@mongodb-js/mongodb-constants": "^0.14.0",
     "compass-preferences-model": "^2.50.0",
     "hadron-document": "^8.9.5",
     "mongodb": "^6.17.0",

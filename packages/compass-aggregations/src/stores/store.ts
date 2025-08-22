@@ -22,7 +22,10 @@ import {
   setCollections,
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
-import { INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE } from '../modules/search-indexes';
+import {
+  fetchIndexes,
+  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
+} from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
@@ -195,6 +198,8 @@ export function activateAggregationsPlugin(
   const refreshInput = () => {
     void store.dispatch(refreshInputDocuments());
   };
+
+  void store.dispatch(fetchIndexes());
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
     store.dispatch(generateAggregationFromQuery(data));
