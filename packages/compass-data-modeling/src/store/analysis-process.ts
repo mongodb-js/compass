@@ -6,7 +6,7 @@ import { getCurrentDiagramFromState } from './diagram';
 import type { Document } from 'bson';
 import type { AggregationCursor } from 'mongodb';
 import type { Relationship } from '../services/data-model-storage';
-import { applyLayout } from '@mongodb-js/diagramming';
+import { applyLayout } from '@mongodb-js/compass-components';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 
 export type AnalysisProcessState = {

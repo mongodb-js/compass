@@ -78,6 +78,7 @@
     "@leafygreen-ui/tooltip": "^13.0.13",
     "@leafygreen-ui/typography": "^20.0.2",
     "@mongodb-js/compass-context-menu": "^0.2.5",
+    "@mongodb-js/diagramming": "^1.3.3",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",

@@ -1,7 +1,7 @@
 import React from 'react';
 import toNS from 'mongodb-ns';
 import { InlineDefinition, Body, css } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
+import type { NodeProps, EdgeProps } from '@mongodb-js/compass-components';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
