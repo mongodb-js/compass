@@ -1,13 +1,19 @@
 import React from 'react';
 import toNS from 'mongodb-ns';
-import { InlineDefinition, Body, css } from '@mongodb-js/compass-components';
-import type { NodeProps, EdgeProps } from '@mongodb-js/diagramming';
+import {
+  Body,
+  IconButton,
+  InlineDefinition,
+  css,
+} from '@mongodb-js/compass-components';
+import type { NodeProps, EdgeProps, BaseNode } from '@mongodb-js/diagramming';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
   DataModelCollection,
   Relationship,
 } from '../services/data-model-storage';
+import PlusWithSquare from '../components/icons/plus-with-square';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -17,6 +23,10 @@ function getBsonTypeName(bsonType: string) {
       return bsonType;
   }
 }
+
+const addNewFieldStyles = css({
+  marginLeft: 'auto',
+});
 
 const mixedTypeTooltipContentStyles = css({
   overflowWrap: 'anywhere',
@@ -142,33 +152,68 @@ export const getFieldsFromSchema = (
   return fields;
 };
 
-export function collectionToDiagramNode(
-  coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
-  options: {
-    selectedFields?: Record<string, string[][] | undefined>;
-    selected?: boolean;
-    isInRelationshipDrawingMode?: boolean;
-  } = {}
-): NodeProps {
-  const {
-    selectedFields = {},
-    selected = false,
-    isInRelationshipDrawingMode = false,
-  } = options;
-
+/**
+ * Create a base node to be used for positioning and measuring in node layouts.
+ */
+export function collectionToBaseNodeForLayout({
+  ns,
+  jsonSchema,
+  displayPosition,
+}: Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+>): BaseNode & Pick<NodeProps, 'fields'> {
   return {
-    id: coll.ns,
+    id: ns,
+    position: {
+      x: displayPosition[0],
+      y: displayPosition[1],
+    },
+    fields: getFieldsFromSchema(jsonSchema),
+  };
+}
+
+type CollectionWithRenderOptions = Pick<
+  DataModelCollection,
+  'ns' | 'jsonSchema' | 'displayPosition'
+> & {
+  selectedFields: Record<string, string[][] | undefined>;
+  selected: boolean;
+  isInRelationshipDrawingMode: boolean;
+  onClickAddNewFieldToCollection: () => void;
+};
+
+export function collectionToDiagramNode({
+  ns,
+  jsonSchema,
+  displayPosition,
+  selectedFields,
+  selected,
+  isInRelationshipDrawingMode,
+  onClickAddNewFieldToCollection,
+}: CollectionWithRenderOptions): NodeProps {
+  return {
+    id: ns,
     type: 'collection',
     position: {
-      x: coll.displayPosition[0],
-      y: coll.displayPosition[1],
+      x: displayPosition[0],
+      y: displayPosition[1],
     },
-    title: toNS(coll.ns).collection,
-    fields: getFieldsFromSchema(
-      coll.jsonSchema,
-      selectedFields[coll.ns] ?? undefined,
-      0
-    ),
+    title: toNS(ns).collection,
+    fields: getFieldsFromSchema(jsonSchema, selectedFields[ns], 0),
+    actions: onClickAddNewFieldToCollection ? (
+      <IconButton
+        aria-label="Add Field"
+        className={addNewFieldStyles}
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          event.stopPropagation();
+          onClickAddNewFieldToCollection();
+        }}
+        title="Add Field"
+      >
+        <PlusWithSquare />
+      </IconButton>
+    ) : undefined,
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,

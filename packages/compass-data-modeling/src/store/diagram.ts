@@ -25,8 +25,9 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { addFieldToJSONSchema, getNewUnusedFieldName } from '../utils/schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
-import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
@@ -430,6 +431,34 @@ export function redoEdit(): DataModelingThunkAction<void, RedoEditAction> {
   };
 }
 
+export function addNewFieldToCollection(
+  ns: string
+): DataModelingThunkAction<void, ApplyEditAction | ApplyEditFailedAction> {
+  return (dispatch, getState) => {
+    const modelState = selectCurrentModelFromState(getState());
+
+    const collection = modelState.collections.find((c) => c.ns === ns);
+    if (!collection) {
+      throw new Error('Collection to add field to not found');
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddField' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddField',
+      ns,
+      // Use the first unique field name we can use.
+      field: [getNewUnusedFieldName(collection.jsonSchema)],
+      jsonSchema: {
+        bsonType: 'string',
+      },
+    };
+
+    return dispatch(applyEdit(edit));
+  };
+}
+
 export function moveCollection(
   ns: string,
   newPosition: [number, number]
@@ -452,18 +481,16 @@ export function renameCollection(
   void,
   ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
 > {
-  return (dispatch) => {
-    const edit: Omit<
-      Extract<Edit, { type: 'RenameCollection' }>,
-      'id' | 'timestamp'
-    > = {
-      type: 'RenameCollection',
-      fromNS,
-      toNS,
-    };
-
-    dispatch(applyEdit(edit));
+  const edit: Omit<
+    Extract<Edit, { type: 'RenameCollection' }>,
+    'id' | 'timestamp'
+  > = {
+    type: 'RenameCollection',
+    fromNS,
+    toNS,
   };
+
+  return applyEdit(edit);
 }
 
 export function applyEdit(
@@ -619,9 +646,9 @@ function getPositionForNewCollection(
   newCollection: Omit<DataModelCollection, 'displayPosition'>
 ): [number, number] {
   const existingNodes = existingCollections.map((collection) =>
-    collectionToDiagramNode(collection)
+    collectionToBaseNodeForLayout(collection)
   );
-  const newNode = collectionToDiagramNode({
+  const newNode = collectionToBaseNodeForLayout({
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],
@@ -706,6 +733,24 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
       return {
         ...model,
         collections: [...model.collections, newCollection],
+      };
+    }
+    case 'AddField': {
+      return {
+        ...model,
+        collections: model.collections.map((collection) => {
+          if (collection.ns === edit.ns) {
+            return {
+              ...collection,
+              jsonSchema: addFieldToJSONSchema(
+                collection.jsonSchema,
+                edit.field,
+                edit.jsonSchema
+              ),
+            };
+          }
+          return collection;
+        }),
       };
     }
     case 'AddRelationship': {
