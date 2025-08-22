@@ -27,6 +27,7 @@ export {
 export {
   MockDataSchemaRequestShape,
   MockDataSchemaRawFieldMappingShape,
+  MockDataSchemaResponseShape,
 } from './atlas-ai-service';
 
 export {
@@ -38,4 +39,5 @@ export type {
   MockDataSchemaRequest,
   MockDataSchemaRawFieldMapping,
   MockDataSchemaRawField,
+  MockDataSchemaResponse,
 } from './atlas-ai-service';
