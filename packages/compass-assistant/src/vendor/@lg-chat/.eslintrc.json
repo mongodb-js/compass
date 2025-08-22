@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "files": ["*"],
+      "rules": {
+        "@typescript-eslint/naming-convention": "off",
+        "filename-rules/match": "off",
+        "@typescript-eslint/consistent-type-imports": "off"
+      }
+    }
+  ]
+}

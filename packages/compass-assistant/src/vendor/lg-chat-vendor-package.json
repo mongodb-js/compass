@@ -1,0 +1,41 @@
+{
+  "name": "@lg-chat/vendor-flattened",
+  "version": "1.0.0",
+  "description": "Flattened dependencies from all @lg-chat vendor packages",
+  "private": true,
+  "dependencies": {
+    "@mongodb-js/compass-components": "^1.48.0",
+    "react-keyed-flatten-children": "^2.2.1",
+    "react-transition-group": "^4.4.5",
+    "lodash": "^4.17.21",
+    "react-textarea-autosize": "^8.3.2",
+    "use-resize-observer": "^9.1.0",
+    "react-markdown": "^8.0.7",
+    "react-intersection-observer": "^8.25.1"
+  },
+  "peerDependencies": {
+    "@mongodb-js/compass-components": "^1.48.0"
+  },
+  "_meta": {
+    "generated": "2025-08-22T09:00:47.236Z",
+    "sourcePackages": [
+      "@lg-chat/avatar",
+      "@lg-chat/chat-disclaimer",
+      "@lg-chat/chat-window",
+      "@lg-chat/fixed-chat-window",
+      "@lg-chat/input-bar",
+      "@lg-chat/leafygreen-chat-provider",
+      "@lg-chat/lg-markdown",
+      "@lg-chat/message",
+      "@lg-chat/message-actions",
+      "@lg-chat/message-feed",
+      "@lg-chat/message-feedback",
+      "@lg-chat/message-prompts",
+      "@lg-chat/message-rating",
+      "@lg-chat/rich-links",
+      "@lg-chat/suggestions",
+      "@lg-chat/title-bar"
+    ],
+    "script": "scripts/flatten-lg-chat-dependencies.js"
+  }
+}
