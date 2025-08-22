@@ -215,14 +215,14 @@ describe('DrawerSection', function () {
     expect(screen.getByTestId('drawer-state')).to.have.text('closed');
 
     // Open the drawer
-    userEvent.click(screen.getByTestId('toggle-drawer'));
+    userEvent.click(screen.getByRole('button', { name: 'Open drawer' }));
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('open');
       expect(screen.getByText('This is the controlled section')).to.be.visible;
     });
 
     // Close the drawer
-    userEvent.click(screen.getByTestId('toggle-drawer'));
+    userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
