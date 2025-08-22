@@ -204,3 +204,6 @@ export {
   ComboboxGroup,
   ComboboxOption,
 };
+
+export * as Avatar from '@leafygreen-ui/avatar';
+export * as InputOption from '@leafygreen-ui/input-option';
