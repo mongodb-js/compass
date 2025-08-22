@@ -44,11 +44,13 @@ type AssistantActionsContextType = {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
+  clearChat: () => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
+    clearChat: () => {},
   });
 
 export function useAssistantActions(): AssistantActionsContextType & {
@@ -122,6 +124,9 @@ export const AssistantProvider: React.FunctionComponent<
         },
         {}
       );
+    },
+    clearChat: () => {
+      chat.messages = [];
     },
   });
   const { openDrawer } = useDrawerActions();
