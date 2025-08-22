@@ -2,10 +2,13 @@ import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
-  FieldSchema,
   Relationship,
 } from '../../services/data-model-storage';
-import { TextInput } from '@mongodb-js/compass-components';
+import {
+  Combobox,
+  ComboboxOption,
+  TextInput,
+} from '@mongodb-js/compass-components';
 import toNS from 'mongodb-ns';
 import {
   createNewRelationship,
@@ -21,12 +24,14 @@ import {
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
+import { getFieldFromSchema } from '../../utils/schema-traversal';
+import { lowerFirst } from 'lodash';
 
 type FieldDrawerContentProps = {
   namespace: string;
   fieldPath: FieldPath;
   fieldPaths: FieldPath[];
-  jsonSchema: FieldSchema;
+  types: string[];
   relationships: Relationship[];
   onCreateNewRelationshipClick: ({
     localNamespace,
@@ -49,6 +54,17 @@ type FieldDrawerContentProps = {
     toBsonType: string
   ) => void;
 };
+
+const TYPES = [
+  'objectId',
+  'string',
+  'int',
+  'bool',
+  'date',
+  'object',
+  'array',
+] as const;
+// TODO: get the full list from somewhere
 
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
@@ -87,7 +103,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   namespace,
   fieldPath,
   fieldPaths,
-  jsonSchema,
+  types,
   relationships,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
@@ -95,6 +111,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   onRenameField,
   onChangeFieldType,
 }) => {
+  console.log({ TYPES, types });
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
@@ -133,6 +150,24 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             errorMessage={fieldNameEditErrorMessage}
           />
         </DMFormFieldContainer>
+
+        <DMFormFieldContainer>
+          <Combobox
+            aria-label="Datatype"
+            disabled={true} // TODO: enable when field type change is implemented
+            value={types}
+            multiselect={true}
+            clearable={false}
+          >
+            {TYPES.map((type) => (
+              <ComboboxOption
+                key={type}
+                value={lowerFirst(type)}
+                displayName={type}
+              />
+            ))}
+          </Combobox>
+        </DMFormFieldContainer>
       </DMDrawerSection>
 
       <RelationshipsSection
@@ -169,8 +204,15 @@ export default connect(
   ) => {
     const model = selectCurrentModelFromState(state);
     return {
-      jsonSchema: {}, // TODO get field schema
-      fieldPaths: [], // TODO get field paths
+      types:
+        getFieldFromSchema({
+          jsonSchema:
+            model.collections.find(
+              (collection) => collection.ns === ownProps.namespace
+            )?.jsonSchema ?? {},
+          fieldPath: ownProps.fieldPath,
+        })?.fieldTypes ?? [],
+      fieldPaths: [], // TODO get existing field paths
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
