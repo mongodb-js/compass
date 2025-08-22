@@ -509,7 +509,7 @@ export class AtlasAiService {
     try {
       const data = await res.json();
       return MockDataSchemaResponseShape.parse(data);
-    } catch (error) {
+    } catch {
       this.logger.log.error(
         mongoLogId(1_001_000_311),
         'AtlasAiService',
