@@ -1,9 +1,9 @@
-import { DarkModeProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { PopoverProps } from '@mongodb-js/compass-components';
 
 import { InlineMessageFeedbackProps } from '../InlineMessageFeedback';
 
-export type PopoverMessageFeedbackProps = DarkModeProps &
+export type PopoverMessageFeedbackProps = shim_lib.DarkModeProps &
   Omit<InlineMessageFeedbackProps, 'isSubmitted' | 'submittedMessage'> &
   Omit<PopoverProps, 'children'> & {
     /**

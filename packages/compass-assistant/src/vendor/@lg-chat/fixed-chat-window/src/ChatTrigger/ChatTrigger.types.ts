@@ -1,6 +1,4 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
-export type ChatTriggerProps = DarkModeProps & HTMLElementProps<'button'> & {};
+export type ChatTriggerProps = shim_lib.DarkModeProps &
+  shim_lib.HTMLElementProps<'button'> & {};

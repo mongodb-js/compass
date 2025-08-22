@@ -1,12 +1,9 @@
 import { MouseEventHandler, PropsWithChildren } from 'react';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { type shim_lib } from '@mongodb-js/compass-components';
 
-export type MessagePromptProps = HTMLElementProps<'button'> &
-  DarkModeProps &
+export type MessagePromptProps = shim_lib.HTMLElementProps<'button'> &
+  shim_lib.DarkModeProps &
   PropsWithChildren<{
     /**
      * Specifies that the MessagePrompt is selected. When one message prompt is selected, the others are disabled by default.

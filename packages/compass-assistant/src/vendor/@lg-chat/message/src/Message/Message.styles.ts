@@ -1,22 +1,22 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { createUniqueClassName, Theme } from '@mongodb-js/compass-components';
+import { shim_lib, shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import {
   breakpoints,
-  color,
-  InteractionState,
   spacing,
-  Variant,
+  shim_tokens,
 } from '@mongodb-js/compass-components';
+const { color, InteractionState, Variant } = shim_tokens;
 
-export const messageClassName = createUniqueClassName('lg-message');
-export const senderClassName = createUniqueClassName('lg-message');
+export const messageClassName = shim_lib.createUniqueClassName('lg-message');
+export const senderClassName = shim_lib.createUniqueClassName('lg-message');
 /** @deprecated */
-export const avatarClassName = createUniqueClassName('lg-message-avatar');
+export const avatarClassName =
+  shim_lib.createUniqueClassName('lg-message-avatar');
 
 // Unless otherwise indicated, styles are defined as left-aligned and mobile-first by default
 
-const getBaseContainerStyles = (theme: Theme) => css`
+const getBaseContainerStyles = (theme: shim_Theme) => css`
   display: flex;
   gap: ${spacing[200]}px;
   align-items: flex-end;
@@ -58,7 +58,7 @@ export const getContainerStyles = ({
   isMobile: boolean;
   isRightAligned: boolean;
   isSender: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(
     messageClassName,
@@ -111,13 +111,13 @@ const sharedMessageContainerWedgeStyles = css`
 `;
 
 const messageContainerWedgeStyles = {
-  [Theme.Dark]: css`
+  [shim_Theme.Dark]: css`
     ${sharedMessageContainerWedgeStyles}
     &::before {
       background-color: ${palette.green.base};
     }
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     ${sharedMessageContainerWedgeStyles}
     &::before {
       background-color: ${palette.green.dark2};
@@ -130,7 +130,7 @@ export const getMessageContainerWedgeStyles = ({
   theme,
 }: {
   showVerified: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx({
     [messageContainerWedgeStyles[theme]]: showVerified,

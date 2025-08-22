@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 
 import Card from '@mongodb-js/compass-components';
 import { cx } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { PolymorphicAs } from '@mongodb-js/compass-components';
 import { Body } from '@mongodb-js/compass-components';
 
@@ -19,7 +19,7 @@ import { richLinkVariants } from './richLinkVariants';
 
 export const RichLink = forwardRef<HTMLAnchorElement, RichLinkProps>(
   ({ darkMode: darkModeProp, onLinkClick, ...props }, ref) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const { darkMode, theme } = shim_useDarkMode(darkModeProp);
 
     const richLinkVariantProps =
       'variant' in props && props.variant !== undefined

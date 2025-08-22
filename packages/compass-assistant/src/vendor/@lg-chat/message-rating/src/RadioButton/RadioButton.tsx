@@ -1,6 +1,6 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 
 import { getContainerStyles, labelStyles } from './RadioButton.styles';
 import { RadioButtonProps } from './RadioButton.types';
@@ -18,8 +18,7 @@ export const RadioButton = forwardRef(
     }: RadioButtonProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const darkMode = useDarkMode(darkModeProp);
-    const theme = darkMode ? Theme.Dark : Theme.Light;
+    const { theme } = shim_useDarkMode(darkModeProp);
     return (
       <div
         className={getContainerStyles({

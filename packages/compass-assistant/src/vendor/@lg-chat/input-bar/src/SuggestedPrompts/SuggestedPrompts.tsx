@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { InputOption } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { validateChildren } from '@mongodb-js/compass-components';
 import { Overline } from '@mongodb-js/compass-components';
 
@@ -22,7 +22,7 @@ export const SuggestedPrompts = ({
     'SuggestedPrompts',
   ]);
 
-  const { theme } = useDarkMode();
+  const { theme } = shim_useDarkMode();
 
   return (
     <div className={themeStyles[theme]}>

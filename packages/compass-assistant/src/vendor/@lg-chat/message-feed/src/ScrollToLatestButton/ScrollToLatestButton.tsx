@@ -1,8 +1,10 @@
 import React from 'react';
 
-import Button, { Size as ButtonSize } from '@mongodb-js/compass-components';
-import ArrowDownIcon from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { Button, shim_button, Icon } from '@mongodb-js/compass-components';
+
+const { Size: ButtonSize } = shim_button;
+
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 
 import {
   scrollButtonContainerStyles,
@@ -15,7 +17,7 @@ export const ScrollToLatestButton = ({
   onClick,
   visible,
 }: ScrollToLatestButtonProps) => {
-  const darkMode = useDarkMode(darkModeProp);
+  const { darkMode } = shim_useDarkMode(darkModeProp);
 
   if (!visible) {
     return null;
@@ -28,7 +30,7 @@ export const ScrollToLatestButton = ({
         className={scrollButtonStyles}
         darkMode={darkMode}
         onClick={onClick}
-        rightGlyph={<ArrowDownIcon />}
+        rightGlyph={<Icon glyph="ArrowDown" />}
         size={ButtonSize.Small}
       >
         Scroll to latest

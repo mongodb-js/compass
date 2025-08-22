@@ -1,11 +1,11 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import {
-  focusRing,
+  shim_focusRing,
   hoverRing,
   spacing,
-  transitionDuration,
+  shim_transitionDuration,
 } from '@mongodb-js/compass-components';
 
 export const baseStyles = css`
@@ -14,11 +14,11 @@ export const baseStyles = css`
   outline: none;
   border-style: solid;
   cursor: pointer;
-  transition: box-shadow ${transitionDuration.slower}ms ease-in-out;
+  transition: box-shadow ${shim_transitionDuration.slower}ms ease-in-out;
 `;
 
-export const themeStyles: Record<Theme, string> = {
-  [Theme.Dark]: css`
+export const themeStyles: Record<string> = {
+  [shim_Theme.Dark]: css`
     border-color: ${palette.green.dark1};
     background-color: ${palette.black};
     color: ${palette.green.light1};
@@ -27,10 +27,10 @@ export const themeStyles: Record<Theme, string> = {
     }
 
     &:focus-visible {
-      box-shadow: ${focusRing.dark.default};
+      box-shadow: ${shim_focusRing.dark.default};
     }
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     border-color: ${palette.green.dark1};
     background-color: ${palette.white};
     color: ${palette.green.dark2};
@@ -40,7 +40,7 @@ export const themeStyles: Record<Theme, string> = {
     }
 
     &:focus-visible {
-      box-shadow: ${focusRing.light.default};
+      box-shadow: ${shim_focusRing.light.default};
     }
   `,
 };

@@ -1,10 +1,11 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
-import { createUniqueClassName } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { spacing } from '@mongodb-js/compass-components';
 
-export const richLinkTextClassName = createUniqueClassName('lg-chat-rich-link');
+export const richLinkTextClassName =
+  shim_lib.createUniqueClassName('lg-chat-rich-link');
 
 export const baseStyles = css`
   box-shadow: none;
@@ -22,14 +23,14 @@ export const baseStyles = css`
 `;
 
 export const themeStyles = {
-  [Theme.Dark]: css`
+  [shim_Theme.Dark]: css`
     background-color: ${palette.gray.dark4};
 
     &:hover {
       box-shadow: 0 0 0 3px ${palette.gray.dark2};
     }
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     background-color: ${palette.gray.light3};
 
     &:hover {

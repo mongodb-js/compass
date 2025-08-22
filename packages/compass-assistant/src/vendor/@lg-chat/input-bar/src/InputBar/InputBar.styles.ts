@@ -1,11 +1,16 @@
-import { css, cx, keyframes } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
-import { palette } from '@mongodb-js/compass-components';
 import {
+  css,
+  cx,
+  keyframes,
+  shim_Theme,
+  shim_tokens,
+} from '@mongodb-js/compass-components';
+import { palette } from '@mongodb-js/compass-components';
+
+const {
   BaseFontSize,
   borderRadius,
   color,
-  focusRing,
   fontFamilies,
   fontWeights,
   InteractionState,
@@ -13,7 +18,8 @@ import {
   transitionDuration,
   typeScales,
   Variant,
-} from '@mongodb-js/compass-components';
+  focusRing,
+} = shim_tokens;
 
 /**
  * "adornment" refers to any element added to user interface (UI) primarily for
@@ -126,7 +132,7 @@ const getBaseContentWrapperStyles = ({
   theme,
 }: {
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) => css`
   overflow: hidden;
   width: 100%;
@@ -151,7 +157,7 @@ const getBaseContentWrapperStyles = ({
   }
 `;
 
-const getDisabledThemeStyles = (theme: Theme) => css`
+const getDisabledThemeStyles = (theme: shim_Theme) => css`
   background-color: ${color[theme].background[Variant.Disabled][
     InteractionState.Default
   ]};
@@ -174,7 +180,7 @@ export const getContentWrapperStyles = ({
   disabled: boolean;
   isCompact: boolean;
   isFocused: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(getBaseContentWrapperStyles({ isCompact, theme }), {
     [getDisabledThemeStyles(theme)]: disabled,
@@ -195,7 +201,7 @@ const getBaseTextAreaStyles = ({
   theme,
 }: {
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) => css`
   flex: ${isCompact ? 'initial' : 1};
   font-size: ${BaseFontSize.Body1}px;
@@ -243,7 +249,7 @@ export const getTextAreaStyles = ({
 }: {
   className?: string;
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) => cx(getBaseTextAreaStyles({ isCompact, theme }), className);
 
 export const actionContainerStyles = css`
@@ -266,12 +272,12 @@ const baseHotkeyIndicatorStyles = css`
 `;
 
 const hotkeyIndicatorThemeStyles = {
-  [Theme.Dark]: css`
+  [shim_Theme.Dark]: css`
     background-color: ${palette.gray.dark4};
     border: 1px solid ${palette.gray.dark2};
     color: ${palette.gray.light2};
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     background-color: ${palette.gray.light2};
     border: 1px solid ${palette.gray.light2};
     color: ${palette.green.dark2};
@@ -315,7 +321,7 @@ export const getHotkeyIndicatorStyles = ({
   theme,
 }: {
   isFocused: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(baseHotkeyIndicatorStyles, hotkeyIndicatorThemeStyles[theme], {
     [hotkeyIndicatorFocusedStyles]: isFocused,

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Code, { Language } from '@mongodb-js/compass-components';
-import { HTMLElementProps } from '@mongodb-js/compass-components';
+import { Language, Code } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import {
   Body,
   H1,
@@ -14,7 +14,7 @@ import {
 import { LGMarkdownProps, MarkdownCodeProps } from './LGMarkdown.types';
 
 const componentsMap: LGMarkdownProps['components'] = {
-  a: ({ children, href }: HTMLElementProps<'a'>) => {
+  a: ({ children, href }: shim_lib.HTMLElementProps<'a'>) => {
     return <Link href={href}>{children}</Link>;
   },
   code: ({ inline, children, className }: MarkdownCodeProps) => {
@@ -29,24 +29,24 @@ const componentsMap: LGMarkdownProps['components'] = {
     const supportedLanguages = Object.values(Language);
 
     if (!supportedLanguages.includes(language as Language)) {
-      console.warn(
-        `Unknown code language: ${language}. Using the default language of "none" instead.`
-      );
+      // console.warn(
+      //   `Unknown code language: ${language}. Using the default language of "none" instead.`
+      // );
       language = 'none';
     }
 
     return <Code language={language as Language}>{codeString}</Code>;
   },
-  h1: ({ children }: HTMLElementProps<'h1'>) => {
+  h1: ({ children }: shim_lib.HTMLElementProps<'h1'>) => {
     return <H1>{children}</H1>;
   },
-  h2: ({ children }: HTMLElementProps<'h2'>) => {
+  h2: ({ children }: shim_lib.HTMLElementProps<'h2'>) => {
     return <H2>{children}</H2>;
   },
-  h3: ({ children }: HTMLElementProps<'h3'>) => {
+  h3: ({ children }: shim_lib.HTMLElementProps<'h3'>) => {
     return <H3>{children}</H3>;
   },
-  p: ({ children, ...rest }: HTMLElementProps<'p'>) => {
+  p: ({ children, ...rest }: shim_lib.HTMLElementProps<'p'>) => {
     return <Body {...rest}>{children}</Body>;
   },
 } as LGMarkdownProps['components'];

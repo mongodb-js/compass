@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // A lot of logic to handle the dropdown behavior is abstracted from the SearchInput component.
 // This should be replaced in the future with more reusable logic.
 // https://jira.mongodb.org/browse/LG-3554
@@ -22,9 +23,10 @@ import {
 } from '@lg-chat/leafygreen-chat-provider';
 import isUndefined from 'lodash/isUndefined';
 
-import { AssistantAvatar } from '@mongodb-js/compass-components';
-import Badge from '@mongodb-js/compass-components';
-import {
+import { shim_Theme } from '@mongodb-js/compass-components';
+import { Badge } from '@mongodb-js/compass-components';
+import { shim_hooks } from '@mongodb-js/compass-components';
+const {
   useAutoScroll,
   useBackdropClick,
   useControlledValue,
@@ -33,16 +35,14 @@ import {
   useForwardedRef,
   useMergeRefs,
   usePrevious,
-} from '@mongodb-js/compass-components';
-import LeafyGreenProvider, {
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+} = shim_hooks;
 import {
-  consoleOnce,
-  getNodeTextContent,
-  isComponentType,
+  LeafyGreenProvider,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
-import { SearchResultsMenu } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+const { getNodeTextContent } = shim_lib;
+import { shim_SearchResultsMenu as SearchResultsMenu } from '@mongodb-js/compass-components';
 import { breakpoints } from '@mongodb-js/compass-components';
 
 import { setReactTextAreaValue } from '../utils/setReactTextAreaValue';
@@ -61,6 +61,7 @@ import { type InputBarProps } from './InputBar.types';
 import { InputBarFeedback } from './InputBarFeedback';
 import { InputBarSendButton } from './InputBarSendButton';
 import { State } from './shared.types';
+import { AssistantAvatar } from '@vendor-leafygreen-ui/avatar';
 
 export const InputBar = forwardRef<HTMLFormElement, InputBarProps>(
   (
@@ -85,24 +86,24 @@ export const InputBar = forwardRef<HTMLFormElement, InputBarProps>(
     }: InputBarProps,
     forwardedRef: ForwardedRef<HTMLFormElement>
   ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const { darkMode, theme } = shim_useDarkMode(darkModeProp);
     const { containerWidth, variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 
-    if (
-      isCompact &&
-      (shouldRenderHotkeyIndicator || shouldRenderGradientProp || badgeText)
-    ) {
-      consoleOnce.warn(
-        `@lg-chat/input-bar: The InputBar component's props 'shouldRenderHotkeyIndicator', 'shouldRenderGradient', and 'badgeText' are only used in the 'spacious' variant. They will not be rendered in the 'compact' variant set by the provider.`
-      );
-    }
+    // if (
+    //   isCompact &&
+    //   (shouldRenderHotkeyIndicator || shouldRenderGradientProp || badgeText)
+    // ) {
+    //   consoleOnce.warn(
+    //     `@lg-chat/input-bar: The InputBar component's props 'shouldRenderHotkeyIndicator', 'shouldRenderGradient', and 'badgeText' are only used in the 'spacious' variant. They will not be rendered in the 'compact' variant set by the provider.`
+    //   );
+    // }
 
-    if (!isCompact && (errorMessage || state)) {
-      consoleOnce.warn(
-        `@lg-chat/input-bar: The InputBar component's props 'errorMessage' and 'state' are only used in the 'compact' variant. They will not be rendered in the 'spacious' variant set by the provider.`
-      );
-    }
+    // if (!isCompact && (errorMessage || state)) {
+    //   consoleOnce.warn(
+    //     `@lg-chat/input-bar: The InputBar component's props 'errorMessage' and 'state' are only used in the 'compact' variant. They will not be rendered in the 'spacious' variant set by the provider.`
+    //   );
+    // }
 
     const formRef = useForwardedRef(forwardedRef, null);
     const focusContainerRef = useRef<HTMLDivElement>(null);
@@ -158,7 +159,7 @@ export const InputBar = forwardRef<HTMLFormElement, InputBarProps>(
       const processChild = (
         child: React.ReactNode
       ): JSX.Element | undefined => {
-        if (isComponentType(child, 'SuggestedPrompt')) {
+        if (shim_lib.isComponentType(child, 'SuggestedPrompt')) {
           resultsCount += 1;
           const index = resultsCount - 1;
 
@@ -185,7 +186,7 @@ export const InputBar = forwardRef<HTMLFormElement, InputBarProps>(
             highlighted: index === highlightIndex,
             onClick: onElementClick,
           });
-        } else if (isComponentType(child, 'SuggestedPrompts')) {
+        } else if (shim_lib.isComponentType(child, 'SuggestedPrompts')) {
           const nestedChildren = React.Children.map(
             child.props.children,
             processChild
@@ -349,6 +350,7 @@ export const InputBar = forwardRef<HTMLFormElement, InputBarProps>(
           }
 
           default: {
+            // eslint-disable-next-line chai-friendly/no-unused-expressions
             textareaProps?.onKeyDown && textareaProps?.onKeyDown?.(e);
             closeMenu();
           }

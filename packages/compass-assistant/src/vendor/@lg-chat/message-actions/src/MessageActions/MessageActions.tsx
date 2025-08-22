@@ -14,12 +14,11 @@ import { useMessageContext } from '@lg-chat/message';
 import { InlineMessageFeedback } from '@lg-chat/message-feedback';
 import { MessageRating, MessageRatingValue } from '@lg-chat/message-rating';
 
-import CheckmarkIcon from '@mongodb-js/compass-components';
-import CopyIcon from '@mongodb-js/compass-components';
-import RefreshIcon from '@mongodb-js/compass-components';
-import IconButton from '@mongodb-js/compass-components';
-import LeafyGreenProvider, {
-  useDarkMode,
+import { Icon } from '@mongodb-js/compass-components';
+import { IconButton } from '@mongodb-js/compass-components';
+import {
+  LeafyGreenProvider,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { FEEDBACK_TEXTAREA_TEST_ID } from '../constants';
@@ -33,7 +32,6 @@ import {
 import { MessageActionsProps } from './MessageActions.types';
 
 export function MessageActions({
-  children: _children,
   className,
   darkMode: darkModeProp,
   onClickCopy,
@@ -45,7 +43,7 @@ export function MessageActions({
   submittedMessage = 'Thanks for your feedback!',
   ...rest
 }: MessageActionsProps) {
-  const { darkMode, theme } = useDarkMode(darkModeProp);
+  const { darkMode, theme } = shim_useDarkMode(darkModeProp);
   const { variant } = useLeafyGreenChatContext();
   const isCompact = variant === Variant.Compact;
   const { messageBody } = useMessageContext();
@@ -69,6 +67,7 @@ export function MessageActions({
         onClickCopy?.(e);
         // reset copied state after 1.5 seconds
         setTimeout(() => setCopied(false), 1500);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_err) {
         onClickCopy?.(e);
       }
@@ -150,10 +149,11 @@ export function MessageActions({
           <div className={primaryActionsContainerStyles}>
             <IconButton
               aria-label="Copy message"
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={handleCopy}
               title="Copy"
             >
-              {copied ? <CheckmarkIcon /> : <CopyIcon />}
+              {copied ? <Icon glyph="Checkmark" /> : <Icon glyph="Copy" />}
             </IconButton>
             {onClickRetry && (
               <IconButton
@@ -161,7 +161,7 @@ export function MessageActions({
                 onClick={onClickRetry}
                 title="Retry"
               >
-                <RefreshIcon />
+                <Icon glyph="Refresh" />
               </IconButton>
             )}
           </div>

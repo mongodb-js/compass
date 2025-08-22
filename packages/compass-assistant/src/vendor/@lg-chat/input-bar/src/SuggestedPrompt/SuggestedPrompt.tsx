@@ -1,25 +1,25 @@
 import React from 'react';
 
 import {
-  InputOption,
-  InputOptionContent,
+  shim_input_option,
+  shim_polymorphic,
 } from '@mongodb-js/compass-components';
-import { getNodeTextContent } from '@mongodb-js/compass-components';
-import {
-  InferredPolymorphic,
-  PolymorphicAs,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+const { InputOption, InputOptionContent } = shim_input_option;
+const { getNodeTextContent } = shim_lib;
 
 import { SuggestedPromptProps } from './SuggestedPrompt.types';
 
-export const SuggestedPrompt = InferredPolymorphic<SuggestedPromptProps, 'li'>(
+export const SuggestedPrompt = shim_polymorphic.InferredPolymorphic<
+  SuggestedPromptProps,
+  'li'
+>(
   (
     {
-      as = 'li' as PolymorphicAs,
+      as = 'li' as shim_polymorphic.PolymorphicAs,
       children,
       disabled,
       className,
-      darkMode,
       ...rest
     },
     ref

@@ -1,13 +1,11 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 import { Avatar, Variant as ChatAvatarVariant } from '@lg-chat/avatar';
 
-import Badge from '@mongodb-js/compass-components';
+import { Badge } from '@mongodb-js/compass-components';
 import { cx } from '@mongodb-js/compass-components';
-import XIcon from '@mongodb-js/compass-components';
-import IconButton from '@mongodb-js/compass-components';
-import LeafyGreenProvider, {
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
+import { LeafyGreenProvider } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { Body } from '@mongodb-js/compass-components';
 
 import {
@@ -32,7 +30,7 @@ export const TitleBar = forwardRef(
     }: TitleBarProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const { darkMode, theme } = shim_useDarkMode(darkModeProp);
     return (
       <LeafyGreenProvider darkMode={darkMode}>
         <div
@@ -53,7 +51,7 @@ export const TitleBar = forwardRef(
           </div>
           {!!onClose && (
             <IconButton aria-label="Close chat" onClick={onClose}>
-              {iconSlot ? iconSlot : <XIcon />}
+              {iconSlot ? iconSlot : <Icon glyph="X" />}
             </IconButton>
           )}
         </div>

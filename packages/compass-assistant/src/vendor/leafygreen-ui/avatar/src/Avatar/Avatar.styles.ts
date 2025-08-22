@@ -1,14 +1,14 @@
-import { css } from '@leafygreen-ui/emotion';
-import { Theme } from '@leafygreen-ui/lib';
-import { palette } from '@leafygreen-ui/palette';
-import { spacing } from '@leafygreen-ui/tokens';
+import { css } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
+import { palette } from '@mongodb-js/compass-components';
+import { spacing } from '@mongodb-js/compass-components';
 
 import { avatarColors, avatarSizeMap } from './Avatar.constants';
 import { AvatarSize, AvatarStyleArgs, Format } from './Avatar.types';
 
 export const getAvatarStyles = ({
   format,
-  theme = Theme.Light,
+  theme = shim_Theme.Light,
   size = AvatarSize.Default,
   sizeOverride,
 }: AvatarStyleArgs) => {
@@ -32,7 +32,7 @@ export const getAvatarStyles = ({
 
     ${format === Format.MongoDB &&
     css`
-      background-color: ${theme === Theme.Dark
+      background-color: ${theme === shim_Theme.Dark
         ? palette.green.dark3
         : palette.black};
       color: ${palette.green.base};

@@ -12,19 +12,16 @@ import {
   Variant,
 } from '@lg-chat/leafygreen-chat-provider';
 
-import Button, {
-  Size as ButtonSize,
-  Variant as ButtonVariant,
+import { shim_button, Button, Icon } from '@mongodb-js/compass-components';
+const { Size: ButtonSize, Variant: ButtonVariant } = shim_button;
+import { shim_hooks } from '@mongodb-js/compass-components';
+const { useIdAllocator } = shim_hooks;
+import { IconButton } from '@mongodb-js/compass-components';
+import {
+  LeafyGreenProvider,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useIdAllocator } from '@mongodb-js/compass-components';
-// @ts-ignore LG icons don't currently support TS
-import XIcon from '@mongodb-js/compass-components';
-import IconButton from '@mongodb-js/compass-components';
-import LeafyGreenProvider, {
-  useDarkMode,
-} from '@mongodb-js/compass-components';
-import { consoleOnce } from '@mongodb-js/compass-components';
-import TextArea from '@mongodb-js/compass-components';
+import { TextArea } from '@mongodb-js/compass-components';
 import { Label } from '@mongodb-js/compass-components';
 
 import { SubmittedState } from './SubmittedState/SubmittedState';
@@ -58,15 +55,15 @@ export const InlineMessageFeedback = forwardRef(
     }: InlineMessageFeedbackProps,
     forwardedRef: ForwardedRef<HTMLDivElement>
   ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const { darkMode, theme } = shim_useDarkMode(darkModeProp);
     const { variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 
-    if (isCompact && (cancelButtonProps || cancelButtonText || onCancel)) {
-      consoleOnce.warn(
-        `@lg-chat/message-rating: The MessageRating component's props 'cancelButtonProps', 'cancelButtonText', and 'onCancel' are only used in the 'spacious' variant. It will not be rendered in the 'compact' variant set by the provider.`
-      );
-    }
+    // if (isCompact && (cancelButtonProps || cancelButtonText || onCancel)) {
+    //   consoleOnce.warn(
+    //     `@lg-chat/message-rating: The MessageRating component's props 'cancelButtonProps', 'cancelButtonText', and 'onCancel' are only used in the 'spacious' variant. It will not be rendered in the 'compact' variant set by the provider.`
+    //   );
+    // }
 
     const textareaId = useIdAllocator({ prefix: 'lg-chat-imf-input' });
     const labelId = useIdAllocator({ prefix: 'lg-chat-imf-label' });
@@ -114,7 +111,7 @@ export const InlineMessageFeedback = forwardRef(
                     aria-label="Close feedback window"
                     onClick={onClose}
                   >
-                    <XIcon />
+                    <Icon glyph="X" />
                   </IconButton>
                 )}
               </div>

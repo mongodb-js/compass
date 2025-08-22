@@ -1,7 +1,7 @@
 import React from 'react';
 import { RichLinksArea } from '@lg-chat/rich-links';
 
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { Subtitle } from '@mongodb-js/compass-components';
 
 import {
@@ -18,8 +18,7 @@ export function MessageLinks({
   onLinkClick,
   ...divProps
 }: MessageLinksProps) {
-  const darkMode = useDarkMode(darkModeProp);
-  const theme = darkMode ? Theme.Dark : Theme.Light;
+  const { theme } = shim_useDarkMode(darkModeProp);
   return (
     <div className={containerStyles} {...divProps}>
       <hr className={getDividerStyles(theme)} />

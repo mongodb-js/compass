@@ -1,10 +1,7 @@
 import React, { forwardRef } from 'react';
 
-import Button from '@mongodb-js/compass-components';
-import ArrowUpIcon from '@mongodb-js/compass-components';
-import StopIcon from '@mongodb-js/compass-components';
-import IconButton from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { Button, Icon, IconButton } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 
 import { getIconButtonStyles, getIconFill } from './InputBarSendButton.styles';
 import { InputBarSendButtonProps } from './InputBarSendButton.types';
@@ -15,7 +12,7 @@ export const InputBarSendButton = forwardRef<
   HTMLButtonElement,
   InputBarSendButtonProps
 >(({ disabled, isCompact, shouldRenderButtonText, state, ...rest }, fwdRef) => {
-  const { theme } = useDarkMode();
+  const { theme } = shim_useDarkMode();
 
   const isLoading = state === State.Loading;
 
@@ -41,7 +38,7 @@ export const InputBarSendButton = forwardRef<
       type="submit"
       {...rest}
     >
-      {isLoading ? <StopIcon /> : <ArrowUpIcon />}
+      {isLoading ? <Icon glyph="Stop" /> : <Icon glyph="ArrowUp" />}
     </IconButton>
   );
 });

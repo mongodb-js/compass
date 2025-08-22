@@ -1,4 +1,4 @@
-import { Chat } from '../src/@ai-sdk/react/chat-react';
+import { Chat } from '../src/vendor/@ai-sdk/react/chat-react';
 import sinon from 'sinon';
 import type { AssistantMessage } from '../src/compass-assistant-provider';
 

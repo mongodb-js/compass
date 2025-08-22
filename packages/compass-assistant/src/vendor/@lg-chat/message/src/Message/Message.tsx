@@ -4,10 +4,10 @@ import {
   Variant,
 } from '@lg-chat/leafygreen-chat-provider';
 
-import LeafyGreenProvider, {
-  useDarkMode,
+import {
+  LeafyGreenProvider,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
-import { consoleOnce } from '@mongodb-js/compass-components';
 
 import { MessageContext } from '../MessageContext';
 
@@ -32,25 +32,25 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
     },
     fwdRef
   ) => {
-    const { darkMode } = useDarkMode(darkModeProp);
+    const { darkMode } = shim_useDarkMode(darkModeProp);
     const { variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 
-    if (
-      isCompact &&
-      (align ||
-        avatar ||
-        baseFontSize ||
-        componentOverrides ||
-        links ||
-        linksHeading ||
-        onLinkClick ||
-        verified)
-    ) {
-      consoleOnce.warn(
-        `@lg-chat/message: The Message component's props 'align', 'avatar', 'baseFontSize', 'componentOverrides', 'links', 'linksHeading', 'onLinkClick', and 'verified' are only used in the 'spacious' variant. They will not be rendered in the 'compact' variant set by the provider.`
-      );
-    }
+    // if (
+    //   isCompact &&
+    //   (align ||
+    //     avatar ||
+    //     baseFontSize ||
+    //     componentOverrides ||
+    //     links ||
+    //     linksHeading ||
+    //     onLinkClick ||
+    //     verified)
+    // ) {
+    //   consoleOnce.warn(
+    //     `@lg-chat/message: The Message component's props 'align', 'avatar', 'baseFontSize', 'componentOverrides', 'links', 'linksHeading', 'onLinkClick', and 'verified' are only used in the 'spacious' variant. They will not be rendered in the 'compact' variant set by the provider.`
+    //   );
+    // }
 
     const contextValue = useMemo(
       () => ({

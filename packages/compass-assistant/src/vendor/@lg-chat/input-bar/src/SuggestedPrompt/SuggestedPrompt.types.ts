@@ -1,10 +1,12 @@
 import React from 'react';
 
-import { BaseInputOptionProps } from '@mongodb-js/compass-components';
-import { DarkModeProps } from '@mongodb-js/compass-components';
+import { shim_lib, shim_input_option } from '@mongodb-js/compass-components';
 
-export type SuggestedPromptProps = DarkModeProps &
-  Omit<BaseInputOptionProps, 'showWedge' | 'active' | 'isInteractive'> & {
+export type SuggestedPromptProps = shim_lib.DarkModeProps &
+  Omit<
+    shim_input_option.BaseInputOptionProps,
+    'showWedge' | 'active' | 'isInteractive'
+  > & {
     /**
      * The value of the result
      */

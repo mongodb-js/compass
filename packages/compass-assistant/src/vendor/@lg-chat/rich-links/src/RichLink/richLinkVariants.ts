@@ -41,7 +41,7 @@ export const richLinkVariants = {
     badgeLabel: 'Website',
     badgeGlyph: 'Laptop',
   },
-} as const satisfies Record<string, RichLinkBadgeControlProps>;
+} as const as Record<string, RichLinkBadgeControlProps>;
 
 export type RichLinkVariantName = keyof typeof richLinkVariants;
 

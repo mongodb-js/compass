@@ -1,7 +1,7 @@
 import { LGMarkdownProps } from '@lg-chat/lg-markdown';
 
-import { HTMLElementProps } from '@mongodb-js/compass-components';
-import { BaseFontSize } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
 
 export const MessageSourceType = {
   Markdown: 'markdown',
@@ -12,11 +12,11 @@ export type MessageSourceType =
   typeof MessageSourceType[keyof typeof MessageSourceType];
 
 export interface MessageContentProps
-  extends Omit<HTMLElementProps<'div'>, 'children'> {
+  extends Omit<shim_lib.HTMLElementProps<'div'>, 'children'> {
   /**
    * Base font size
    */
-  baseFontSize?: BaseFontSize;
+  baseFontSize?: shim_tokens.BaseFontSize;
 
   /**
    * Rendered children; only string children are supported.

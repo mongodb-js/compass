@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
 
-import { cx } from '@leafygreen-ui/emotion';
-import { useDarkMode } from '@leafygreen-ui/leafygreen-provider';
-import { Size } from '@leafygreen-ui/tokens';
+import { cx } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
+import { Size } from '@mongodb-js/compass-components';
 
 import { getAvatarStyles } from './Avatar.styles';
 import { AvatarProps } from './Avatar.types';
@@ -21,7 +21,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
       className,
       ...rest
     } = props;
-    const { theme } = useDarkMode(darkMode);
+    const { theme } = shim_useDarkMode(darkMode);
 
     return (
       <div

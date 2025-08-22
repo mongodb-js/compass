@@ -1,5 +1,5 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { spacing } from '@mongodb-js/compass-components';
 
@@ -12,12 +12,12 @@ export const baseStyles = css`
   border-bottom: 1px solid;
 `;
 
-export const themeStyles: Record<Theme, string> = {
-  [Theme.Dark]: css`
+export const themeStyles: Record<string> = {
+  [shim_Theme.Dark]: css`
     background-color: ${palette.black};
     border-color: ${palette.gray.dark2};
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     background-color: ${palette.white};
     border-color: ${palette.gray.light2};
   `,

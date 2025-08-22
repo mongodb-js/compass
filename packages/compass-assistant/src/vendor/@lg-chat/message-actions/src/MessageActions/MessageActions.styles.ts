@@ -1,5 +1,5 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import {
   color,
   InteractionState,
@@ -50,7 +50,7 @@ export const primaryActionsContainerStyles = css`
   gap: ${spacing[100]}px;
 `;
 
-export const getDividerStyles = (theme: Theme) => css`
+export const getDividerStyles = (theme: shim_Theme) => css`
   height: ${dividerSizes.height}px;
   width: ${dividerSizes.width}px;
   background-color: ${color[theme].border[Variant.Secondary][

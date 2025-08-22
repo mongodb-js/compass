@@ -1,17 +1,17 @@
 import { FormEventHandler, MouseEventHandler } from 'react';
 
-import { BaseButtonProps } from '@mongodb-js/compass-components';
 import {
-  DarkModeProps,
-  HTMLElementProps,
+  shim_lib,
+  shim_button,
+  shim_textarea,
 } from '@mongodb-js/compass-components';
-import { TextAreaProps } from '@mongodb-js/compass-components';
 
 export type InlineMessageFeedbackProps = Required<
-  Pick<TextAreaProps, 'label'>
+  Pick<shim_textarea.TextAreaProps, 'label'>
 > &
-  DarkModeProps &
-  Omit<HTMLElementProps<'div'>, 'children' | 'onSubmit'> & {
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  shim_lib.DarkModeProps &
+  Omit<shim_lib.HTMLElementProps<'div'>, 'children' | 'onSubmit'> & {
     /**
      * Text displayed inside the cancel Button
      *
@@ -30,7 +30,7 @@ export type InlineMessageFeedbackProps = Required<
      * Override props for the cancel Button
      * @remarks This prop is only considered when the parent `LeafyGreenChatProvider` has `variant="spacious"`.
      */
-    cancelButtonProps?: BaseButtonProps;
+    cancelButtonProps?: shim_button.ButtonProps;
 
     /**
      * Text displayed inside the submit Button
@@ -42,7 +42,7 @@ export type InlineMessageFeedbackProps = Required<
     /**
      * Override props for the submit Button
      */
-    submitButtonProps?: BaseButtonProps;
+    submitButtonProps?: shim_button.ButtonProps;
 
     /**
      * Event handler called when the form is submitted
@@ -52,7 +52,7 @@ export type InlineMessageFeedbackProps = Required<
     /**
      * Props passed directly to the textarea
      */
-    textareaProps?: Omit<TextAreaProps, 'label'>;
+    textareaProps?: Omit<shim_textarea.TextAreaProps, 'label'>;
 
     /**
      * Indicates if the component should render in its submitted state

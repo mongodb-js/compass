@@ -1,7 +1,4 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export const MessageRatingValue = {
   Liked: 'liked',
@@ -13,8 +10,8 @@ export type MessageRatingValue =
   typeof MessageRatingValue[keyof typeof MessageRatingValue];
 
 export interface MessageRatingProps
-  extends HTMLElementProps<'div'>,
-    DarkModeProps {
+  extends shim_lib.HTMLElementProps<'div'>,
+    shim_lib.DarkModeProps {
   /**
    * Custom description text
    * @default "How was the response?"

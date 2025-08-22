@@ -1,13 +1,9 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
-import {
-  color,
-  InteractionState,
-  spacing,
-  Variant,
-} from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { color, InteractionState, Variant, spacing } = shim_tokens;
 
-const getBaseContainerStyles = (theme: Theme) => css`
+const getBaseContainerStyles = (theme: shim_Theme) => css`
   display: flex;
   flex-direction: column;
   gap: ${spacing[150]}px;
@@ -26,7 +22,7 @@ export const getContainerStyles = ({
 }: {
   className?: string;
   isSender: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(
     getBaseContainerStyles(theme),

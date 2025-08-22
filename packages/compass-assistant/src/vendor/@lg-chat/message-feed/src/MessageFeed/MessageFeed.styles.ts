@@ -1,7 +1,8 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
-import { addOverflowShadow, Side } from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { addOverflowShadow, Side } = shim_tokens;
 
 const DEFAULT_MESSAGE_FEED_HEIGHT = 500;
 
@@ -14,11 +15,11 @@ const baseWrapperStyles = css`
   overflow: hidden;
 `;
 
-const wrapperThemeStyles: Record<Theme, string> = {
-  [Theme.Dark]: css`
+const wrapperThemeStyles: Record<shim_Theme, string> = {
+  [shim_Theme.Dark]: css`
     background-color: ${palette.black};
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     background-color: ${palette.gray.light3};
   `,
 };
@@ -34,7 +35,7 @@ export const getWrapperStyles = ({
   hasBottomShadow: boolean;
   hasTopShadow: boolean;
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(
     baseWrapperStyles,

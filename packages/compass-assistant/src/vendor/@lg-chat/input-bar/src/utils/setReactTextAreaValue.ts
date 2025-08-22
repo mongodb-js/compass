@@ -15,7 +15,7 @@ export function setReactTextAreaValue(
 
   input.value = value;
 
-  // @ts-ignore custom field
+  // @ts-expect-error custom field
   const tracker = input?._valueTracker;
 
   if (tracker) {

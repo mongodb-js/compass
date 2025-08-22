@@ -1,9 +1,6 @@
 import React from 'react';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export const Align = {
   Center: 'center',
@@ -13,8 +10,8 @@ export const Align = {
 export type Align = typeof Align[keyof typeof Align];
 
 export interface TitleBarProps
-  extends Omit<HTMLElementProps<'div'>, 'children'>,
-    DarkModeProps {
+  extends Omit<shim_lib.HTMLElementProps<'div'>, 'children'>,
+    shim_lib.DarkModeProps {
   /**
    * Title text
    */

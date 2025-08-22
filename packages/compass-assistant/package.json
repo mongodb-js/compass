@@ -65,7 +65,7 @@
     "@lg-chat/input-bar": "file:src/vendor/@lg-chat/input-bar",
     "@lg-chat/leafygreen-chat-provider": "file:src/vendor/@lg-chat/leafygreen-chat-provider",
     "@lg-chat/lg-markdown": "file:src/vendor/@lg-chat/lg-markdown",
-    "@leafygreen-ui/avatar": "file:src/vendor/leafygreen-ui/avatar",
+    "@vendor-leafygreen-ui/avatar": "file:src/vendor/leafygreen-ui/avatar",
     "@lg-chat/message-actions": "file:src/vendor/@lg-chat/message-actions",
     "@lg-chat/message-feed": "file:src/vendor/@lg-chat/message-feed",
     "@lg-chat/message-feedback": "file:src/vendor/@lg-chat/message-feedback",

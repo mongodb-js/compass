@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import flattenChildren from 'react-keyed-flatten-children';
 import { useLeafyGreenChatContext } from '@lg-chat/leafygreen-chat-provider';
 
-import { isComponentType } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { breakpoints } from '@mongodb-js/compass-components';
 
 import { type MessageFeedProps } from './MessageFeed.types';
@@ -21,13 +21,13 @@ export const SpaciousMessageFeed = forwardRef<HTMLDivElement, MessageFeedProps>(
 
     const flattenedChildren = flattenChildren(children);
     const renderedChildren = flattenedChildren.map((child) => {
-      if (isComponentType(child, 'DisclaimerText')) {
+      if (shim_lib.isComponentType(child, 'DisclaimerText')) {
         return (
           <div className={disclaimerTextStyles} key="disclaimer-text">
             {child}
           </div>
         );
-      } else if (isComponentType(child, 'MessagePrompts')) {
+      } else if (shim_lib.isComponentType(child, 'MessagePrompts')) {
         return (
           <div
             key="message-prompts"

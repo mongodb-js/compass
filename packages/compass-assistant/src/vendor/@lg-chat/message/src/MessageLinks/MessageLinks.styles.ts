@@ -1,5 +1,5 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import {
   color,
   InteractionState,
@@ -12,7 +12,7 @@ export const containerStyles = css`
   margin-bottom: ${spacing[200]}px;
 `;
 
-export const getDividerStyles = (theme: Theme) => css`
+export const getDividerStyles = (theme: shim_Theme) => css`
   border: 1px solid
     ${color[theme].border[Variant.Secondary][InteractionState.Default]};
 `;

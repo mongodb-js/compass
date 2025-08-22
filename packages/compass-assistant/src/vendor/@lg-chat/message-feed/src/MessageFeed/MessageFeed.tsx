@@ -14,8 +14,7 @@ import {
 
 import {
   LeafyGreenProvider,
-  Theme,
-  useDarkMode,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { ScrollToLatestButton } from '../ScrollToLatestButton';
@@ -30,8 +29,7 @@ export const MessageFeed = forwardRef(
     { children, darkMode: darkModeProp, className, ...rest }: MessageFeedProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const darkMode = useDarkMode(darkModeProp);
-    const theme = darkMode ? Theme.Dark : Theme.Light;
+    const { theme, darkMode } = shim_useDarkMode(darkModeProp);
     const { variant } = useLeafyGreenChatContext();
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);

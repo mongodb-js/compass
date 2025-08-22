@@ -1,6 +1,6 @@
-import { BaseButtonProps } from '@mongodb-js/compass-components';
+import { shim_button } from '@mongodb-js/compass-components';
 
-export interface ScrollToLatestButtonProps extends BaseButtonProps {
+export interface ScrollToLatestButtonProps extends shim_button.ButtonProps {
   /**
    * Whether the button is visible
    */

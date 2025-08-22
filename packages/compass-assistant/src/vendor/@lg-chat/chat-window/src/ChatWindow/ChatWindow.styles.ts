@@ -1,15 +1,13 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import {
   borderRadius,
   breakpoints,
-  color,
-  InteractionState,
   spacing,
-  Variant,
+  shim_tokens,
 } from '@mongodb-js/compass-components';
-
+const { color, InteractionState, Variant } = shim_tokens;
 const baseContainerStyles = css`
   width: 100%;
   display: flex;
@@ -18,13 +16,13 @@ const baseContainerStyles = css`
   position: relative;
 `;
 
-const getSpaciousContainerStyles = (theme: Theme) => css`
+const getSpaciousContainerStyles = (theme: shim_Theme) => css`
   border-radius: ${borderRadius[200]}px;
   overflow: hidden;
   border: 1px solid
     ${color[theme].border[Variant.Secondary][InteractionState.Default]};
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.05);
-  background-color: ${theme === Theme.Dark
+  background-color: ${theme === shim_Theme.Dark
     ? palette.black
     : palette.gray.light3};
 `;
@@ -36,7 +34,7 @@ export const getContainerStyles = ({
 }: {
   className?: string;
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(
     baseContainerStyles,

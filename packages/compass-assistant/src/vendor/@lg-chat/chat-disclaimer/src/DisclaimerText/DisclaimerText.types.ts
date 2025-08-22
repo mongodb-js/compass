@@ -1,6 +1,6 @@
-import { HTMLElementProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
-export interface DisclaimerTextProps extends HTMLElementProps<'div'> {
+export interface DisclaimerTextProps extends shim_lib.HTMLElementProps<'div'> {
   /**
    * Heading text
    */

@@ -1,12 +1,8 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
-import {
-  focusRing,
-  hoverRing,
-  spacing,
-  transitionDuration,
-} from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { spacing, hoverRing, focusRing, transitionDuration } = shim_tokens;
 
 export const baseStyles = css`
   display: block;
@@ -26,8 +22,8 @@ export const baseStyles = css`
   }
 `;
 
-export const themeStyles: Record<Theme, string> = {
-  [Theme.Dark]: css`
+export const themeStyles: Record<shim_Theme, string> = {
+  [shim_Theme.Dark]: css`
     background: ${palette.black};
     color: ${palette.gray.light2};
 
@@ -39,7 +35,7 @@ export const themeStyles: Record<Theme, string> = {
       box-shadow: ${focusRing.dark.default};
     }
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     background: ${palette.white};
     color: ${palette.gray.dark3};
 
@@ -53,13 +49,13 @@ export const themeStyles: Record<Theme, string> = {
   `,
 };
 
-export const disabledStyles: Record<Theme, string> = {
-  [Theme.Dark]: css`
+export const disabledStyles: Record<shim_Theme, string> = {
+  [shim_Theme.Dark]: css`
     border-color: ${palette.gray.dark1};
     color: ${palette.gray.dark1};
     background: ${palette.gray.dark3};
   `,
-  [Theme.Light]: css`
+  [shim_Theme.Light]: css`
     border-color: ${palette.gray.base};
     color: ${palette.gray.base};
   `,

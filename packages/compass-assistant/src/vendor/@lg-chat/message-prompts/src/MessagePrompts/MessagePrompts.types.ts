@@ -1,12 +1,9 @@
 import { PropsWithChildren } from 'react';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
-export type MessagePromptsProps = HTMLElementProps<'div'> &
-  DarkModeProps &
+export type MessagePromptsProps = shim_lib.HTMLElementProps<'div'> &
+  shim_lib.DarkModeProps &
   PropsWithChildren<{
     label?: string;
   }>;

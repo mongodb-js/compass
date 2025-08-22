@@ -1,4 +1,4 @@
-import { DarkModeProps } from '@mongodb-js/compass-components';
+import { type shim_lib } from '@mongodb-js/compass-components';
 
 export const ChatAvatarVariant = {
   /**
@@ -25,7 +25,7 @@ export const ChatAvatarSize = {
 
 export type ChatAvatarSize = typeof ChatAvatarSize[keyof typeof ChatAvatarSize];
 
-export interface ChatAvatarProps extends DarkModeProps {
+export interface ChatAvatarProps extends shim_lib.DarkModeProps {
   /**
    * If provided, overrides the size prop to a customizable number (in px)
    */

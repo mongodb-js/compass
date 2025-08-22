@@ -1,14 +1,11 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 import { RichLinkBadgeProps } from './RichLinkBadge/RichLinkBadge.types';
 import { RichLinkVariantName } from './richLinkVariants';
 
 export interface BaseRichLinkProps
-  extends DarkModeProps,
-    HTMLElementProps<'a', never> {
+  extends shim_lib.DarkModeProps,
+    shim_lib.HTMLElementProps<'a', never> {
   /**
    * The text that shows on the rich link
    */

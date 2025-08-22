@@ -1,17 +1,16 @@
 import ReactMarkdown from 'react-markdown';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { BaseFontSize } from '@mongodb-js/compass-components';
 
 type ReactMarkdownProps = Parameters<typeof ReactMarkdown>[0];
 
-export interface LGMarkdownProps extends ReactMarkdownProps, DarkModeProps {
+export interface LGMarkdownProps
+  extends ReactMarkdownProps,
+    shim_lib.DarkModeProps {
   baseFontSize?: BaseFontSize;
 }
 
-export type MarkdownCodeProps = HTMLElementProps<'code'> & {
+export type MarkdownCodeProps = shim_lib.HTMLElementProps<'code'> & {
   inline?: boolean;
 };

@@ -3,10 +3,10 @@ import { MouseEventHandler } from 'react';
 import { ChatWindowProps } from '@lg-chat/chat-window';
 import { TitleBarProps } from '@lg-chat/title-bar';
 
-import { DarkModeProps } from '@mongodb-js/compass-components';
-import { PopoverProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+import { shim_popover } from '@mongodb-js/compass-components';
 
-export type FixedChatWindowProps = DarkModeProps &
+export type FixedChatWindowProps = shim_lib.DarkModeProps &
   ChatWindowProps &
   TitleBarProps &
   PropsWithChildren<{
@@ -44,7 +44,7 @@ export type FixedChatWindowProps = DarkModeProps &
      * Props passed to the ChatWindow Popover
      */
     popoverProps?: Omit<
-      PopoverProps,
+      shim_popover.PopoverProps,
       'dismissMode' | 'onToggle' | 'renderMode'
     >;
   }>;

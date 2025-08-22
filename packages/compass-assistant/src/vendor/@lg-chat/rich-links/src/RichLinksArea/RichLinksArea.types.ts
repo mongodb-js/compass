@@ -1,11 +1,11 @@
-import { DarkModeProps } from '@mongodb-js/compass-components';
-import { HTMLElementProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 import { type RichLinkProps } from '..';
 
 export interface RichLinksAreaProps
-  extends HTMLElementProps<'div', never>,
-    DarkModeProps {
+  extends shim_lib.HTMLElementProps<'div', never>,
+    shim_lib.DarkModeProps {
   links: Array<RichLinkProps>;
 
   /**

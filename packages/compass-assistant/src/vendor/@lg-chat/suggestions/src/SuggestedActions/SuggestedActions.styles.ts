@@ -1,11 +1,8 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
-import {
-  borderRadius,
-  color,
-  spacing,
-  typeScales,
-} from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
+
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { borderRadius, color, spacing, typeScales } = shim_tokens;
 
 export const baseContainerStyles = css`
   width: 100%;
@@ -17,7 +14,7 @@ export const baseContainerStyles = css`
 export const getContainerStyles = (className?: string) =>
   cx(baseContainerStyles, className);
 
-export const getSuggestedActionsWrapperStyles = (theme: Theme) => css`
+export const getSuggestedActionsWrapperStyles = (theme: shim_Theme) => css`
   background-color: ${color[theme].background.secondary.default};
   border: 1px solid ${color[theme].border.secondary.default};
   border-radius: ${borderRadius[300]}px;

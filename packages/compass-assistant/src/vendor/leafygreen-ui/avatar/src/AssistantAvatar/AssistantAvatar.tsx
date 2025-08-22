@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { createGlyphComponent } from '@leafygreen-ui/icon';
-import { getTheme } from '@leafygreen-ui/lib';
+import { createGlyphComponent } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
+const { getTheme } = shim_lib;
 
 import { getDisabledFill } from './AssistantAvatar.styles';
 import { AssistantAvatarProps } from './AssistantAvatar.types';

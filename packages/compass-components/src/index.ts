@@ -226,6 +226,7 @@ export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
 
 /**
+/**
  * TODO(COMPASS-9715): Used by compass-assistant. Remove after Leafygreen Provider is updated.
  */
 export type {
@@ -233,5 +234,24 @@ export type {
   DarkModeProps,
   isComponentType,
 } from '@leafygreen-ui/lib';
-export { createUniqueClassName } from '@leafygreen-ui/lib';
-export type { ButtonProps as BaseButtonProps } from '@leafygreen-ui/button';
+export * as shim_lib from '@leafygreen-ui/lib';
+export * as shim_button from '@leafygreen-ui/button';
+export * as shim_tokens from '@leafygreen-ui/tokens';
+export * as shim_hooks from '@leafygreen-ui/hooks';
+export * as shim_polymorphic from '@leafygreen-ui/polymorphic';
+export * as shim_textarea from '@leafygreen-ui/text-area';
+export * as shim_popover from '@leafygreen-ui/popover';
+export * as shim_typography from '@leafygreen-ui/typography';
+export * as shim_input_option from '@leafygreen-ui/input-option';
+import { Theme as shim_Theme } from '@leafygreen-ui/lib';
+export { shim_Theme };
+import { useDarkMode } from './hooks/use-theme';
+export function shim_useDarkMode(darkMode?: boolean) {
+  const isDarkMode = useDarkMode(darkMode);
+  return {
+    darkMode: isDarkMode,
+    theme: isDarkMode ? shim_Theme.Dark : shim_Theme.Light,
+  };
+}
+export { SearchResultsMenu as shim_SearchResultsMenu } from '@leafygreen-ui/search-input';
+/** END OF TODO(COMPASS-9715) */

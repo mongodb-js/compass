@@ -1,16 +1,13 @@
 import { FormEvent, ReactElement, RefObject } from 'react';
 import { TextareaAutosizeProps } from 'react-textarea-autosize';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { PopoverRenderModeProps } from '@mongodb-js/compass-components';
 
 import { SharedInputBarProps } from './shared.types';
 
-export type InputBarProps = HTMLElementProps<'form'> &
-  DarkModeProps &
+export type InputBarProps = shim_lib.HTMLElementProps<'form'> &
+  shim_lib.DarkModeProps &
   SharedInputBarProps & {
     /**
      * Props passed to the TextareaAutosize component.

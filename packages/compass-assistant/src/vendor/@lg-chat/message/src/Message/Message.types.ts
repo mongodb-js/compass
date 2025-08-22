@@ -1,12 +1,8 @@
 import { ReactElement } from 'react';
 import { type RichLinkProps } from '@lg-chat/rich-links';
 
-import {
-  type DarkModeProps,
-  type HTMLElementProps,
-} from '@mongodb-js/compass-components';
-import { BaseFontSize } from '@mongodb-js/compass-components';
-
+import { type shim_lib } from '@mongodb-js/compass-components';
+import { type shim_tokens } from '@mongodb-js/compass-components';
 import { type MessageContainerProps } from '../MessageContainer';
 import { type MessageContentProps } from '../MessageContent';
 import { type MessageLinksProps } from '../MessageLinks';
@@ -26,8 +22,8 @@ export interface ComponentOverrides {
 
 export interface MessageProps
   extends Omit<MessageContentProps, 'children'>,
-    HTMLElementProps<'div'>,
-    DarkModeProps {
+    shim_lib.HTMLElementProps<'div'>,
+    shim_lib.DarkModeProps {
   /**
    * Determines whether the message is aligned to the left or right
    *
@@ -46,7 +42,7 @@ export interface MessageProps
    * Base font size
    * @remarks This prop is only considered when the parent `LeafyGreenChatProvider` has `variant="spacious"`.
    */
-  baseFontSize?: BaseFontSize;
+  baseFontSize?: shim_tokens.BaseFontSize;
 
   /**
    * Component overrides for any subcomponents

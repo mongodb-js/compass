@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 
 import { cx } from '@mongodb-js/compass-components';
 import LeafyGreenProvider, {
-  useDarkMode,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useUpdatedBaseFontSize } from '@mongodb-js/compass-components';
 
@@ -19,7 +19,7 @@ export const LGMarkdown = ({
   baseFontSize: baseFontSizeProp,
   ...rest
 }: LGMarkdownProps) => {
-  const { darkMode } = useDarkMode(darkModeProp);
+  const { darkMode } = shim_useDarkMode(darkModeProp);
   const baseFontSize = useUpdatedBaseFontSize(baseFontSizeProp); // get context base font size
   const providerBaseFontSize: 14 | 16 = baseFontSize === 13 ? 14 : 16; // todo: update when LGProvider switches to 13/16
   return (

@@ -6,9 +6,12 @@ import {
 } from '../../../leafygreen-chat-provider/src/index';
 import { TitleBar } from '../../../title-bar/src/index';
 
-import { Theme, useDarkMode } from '@mongodb-js/compass-components';
-import { isComponentType } from '@mongodb-js/compass-components';
-import { breakpoints } from '@mongodb-js/compass-components';
+import {
+  shim_useDarkMode,
+  shim_lib,
+  breakpoints,
+} from '@mongodb-js/compass-components';
+const { isComponentType } = shim_lib;
 
 import {
   contentContainerStyles,
@@ -32,8 +35,7 @@ export const ChatWindowContents = forwardRef(
     }: ChatWindowProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const darkMode = useDarkMode(darkModeProp);
-    const theme = darkMode ? Theme.Dark : Theme.Light;
+    const { theme } = shim_useDarkMode(darkModeProp);
     const { containerWidth, variant } = useLeafyGreenChatContext();
 
     const isCompact = variant === Variant.Compact;

@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
 
-import { AssistantAvatar } from '@mongodb-js/compass-components';
-import Banner from '@mongodb-js/compass-components';
-import Button from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
-import { Body, Error } from '@mongodb-js/compass-components';
+import { Banner } from '@mongodb-js/compass-components';
+import { Button } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
+import { Body, shim_typography } from '@mongodb-js/compass-components';
+const { Error } = shim_typography;
 
 import {
   bannerContentContainerStyles,
@@ -15,6 +15,7 @@ import {
 } from './InputBarFeedback.styles';
 import { InputBarFeedbackProps } from './InputBarFeedback.types';
 import { State } from './shared.types';
+import { AssistantAvatar } from '@vendor-leafygreen-ui/avatar';
 
 const messages = {
   defaultError: 'Oops... Something went wrong.',
@@ -25,50 +26,38 @@ const messages = {
 export const InputBarFeedback = forwardRef<
   HTMLDivElement,
   InputBarFeedbackProps
->(
-  (
-    {
-      children,
-      className,
-      darkMode: darkModeProp,
-      errorMessage,
-      state,
-      ...rest
-    },
-    fwdRef
-  ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+>(({ darkMode: darkModeProp, errorMessage, state, ...rest }, fwdRef) => {
+  const { darkMode, theme } = shim_useDarkMode(darkModeProp);
 
-    return (
-      <div
-        aria-live="polite"
-        aria-relevant="all"
-        className={statusContainerStyles}
-        ref={fwdRef}
-        {...rest}
-      >
-        {state === State.Loading && (
-          <div className={loadingContainerStyles}>
-            <AssistantAvatar darkMode={darkMode} size={20} />
-            <Body className={getLoadingTextStyles(theme)}>
-              {messages.loading}
-            </Body>
+  return (
+    <div
+      aria-live="polite"
+      aria-relevant="all"
+      className={statusContainerStyles}
+      ref={fwdRef}
+      {...rest}
+    >
+      {state === State.Loading && (
+        <div className={loadingContainerStyles}>
+          <AssistantAvatar darkMode={darkMode} size={20} />
+          <Body className={getLoadingTextStyles(theme)}>
+            {messages.loading}
+          </Body>
+        </div>
+      )}
+
+      {state === State.Error && (
+        <Banner variant="danger" className={bannerStyles}>
+          <div className={bannerContentContainerStyles}>
+            <Error>{errorMessage || messages.defaultError}</Error>
+            <Button size="xsmall" type="submit">
+              {messages.retryButton}
+            </Button>
           </div>
-        )}
-
-        {state === State.Error && (
-          <Banner variant="danger" className={bannerStyles}>
-            <div className={bannerContentContainerStyles}>
-              <Error>{errorMessage || messages.defaultError}</Error>
-              <Button size="xsmall" type="submit">
-                {messages.retryButton}
-              </Button>
-            </div>
-          </Banner>
-        )}
-      </div>
-    );
-  }
-);
+        </Banner>
+      )}
+    </div>
+  );
+});
 
 InputBarFeedback.displayName = 'InputBarFeedback';

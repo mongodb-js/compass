@@ -1,9 +1,9 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 import { useLeafyGreenChatContext } from '@lg-chat/leafygreen-chat-provider';
 
-import { Avatar, Format, getInitials } from '../../../../leafygreen-ui/avatar';
+import { Avatar, Format, getInitials } from '@vendor-leafygreen-ui/avatar';
 import { cx } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { breakpoints } from '@mongodb-js/compass-components';
 
 import {
@@ -60,8 +60,7 @@ export const ChatAvatar = forwardRef(
     }: ChatAvatarProps,
     fwdRef: ForwardedRef<HTMLDivElement>
   ) => {
-    const darkMode = useDarkMode(darkModeProp);
-    const theme = darkMode ? Theme.Dark : Theme.Light;
+    const { theme } = shim_useDarkMode(darkModeProp);
     const { containerWidth } = useLeafyGreenChatContext();
     const size =
       sizeProp || (containerWidth && containerWidth < breakpoints.Tablet)

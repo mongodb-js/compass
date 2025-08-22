@@ -1,9 +1,9 @@
 import React, { forwardRef } from 'react';
 import { useLeafyGreenChatContext } from '@lg-chat/leafygreen-chat-provider';
 
-import { AssistantAvatar } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
-import { BaseFontSize } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { BaseFontSize } = shim_tokens;
 import { Body } from '@mongodb-js/compass-components';
 
 import {
@@ -17,6 +17,7 @@ import {
   getContainerStyles,
 } from './CompactMessage.styles';
 import { type MessageProps } from './Message.types';
+import { AssistantAvatar } from '@vendor-leafygreen-ui/avatar';
 
 export const CompactMessage = forwardRef<HTMLDivElement, MessageProps>(
   (
@@ -31,7 +32,7 @@ export const CompactMessage = forwardRef<HTMLDivElement, MessageProps>(
     },
     fwdRef
   ) => {
-    const { darkMode, theme } = useDarkMode();
+    const { theme, darkMode } = shim_useDarkMode();
     const { assistantName } = useLeafyGreenChatContext();
 
     return (
@@ -47,7 +48,7 @@ export const CompactMessage = forwardRef<HTMLDivElement, MessageProps>(
         {!isSender && (
           <div className={avatarContainerStyles}>
             <AssistantAvatar darkMode={darkMode} size={20} />
-            <Body weight="semiBold">{assistantName}</Body>
+            <Body weight="medium">{assistantName}</Body>
           </div>
         )}
         <MessageContainer

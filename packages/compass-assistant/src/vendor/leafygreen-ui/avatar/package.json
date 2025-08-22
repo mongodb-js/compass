@@ -1,5 +1,5 @@
 {
-  "name": "@leafygreen-ui/avatar",
+  "name": "@vendor-leafygreen-ui/avatar",
   "version": "3.1.0",
   "description": "LeafyGreen UI Avatar",
   "main": "src/index.ts",

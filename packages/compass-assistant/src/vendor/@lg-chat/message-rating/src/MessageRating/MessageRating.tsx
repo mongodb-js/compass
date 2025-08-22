@@ -12,7 +12,7 @@ import ThumbsDown from '@mongodb-js/compass-components';
 import ThumbsUp from '@mongodb-js/compass-components';
 import IconButton from '@mongodb-js/compass-components';
 import LeafyGreenProvider, {
-  useDarkMode,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 import { consoleOnce } from '@mongodb-js/compass-components';
 import { Description } from '@mongodb-js/compass-components';
@@ -45,7 +45,7 @@ export const MessageRating = forwardRef(
     }: MessageRatingProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { darkMode } = useDarkMode(darkModeProp);
+    const { darkMode } = shim_useDarkMode(darkModeProp);
     const { variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 

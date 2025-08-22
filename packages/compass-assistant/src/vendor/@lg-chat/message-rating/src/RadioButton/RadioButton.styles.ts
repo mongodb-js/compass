@@ -1,16 +1,11 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
-import {
-  color,
-  focusRing,
-  hoverRing,
-  InteractionState,
-  spacing,
-  Variant,
-} from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { color, hoverRing, focusRing, InteractionState, Variant, spacing } =
+  shim_tokens;
 
-const getBaseContainerStyles = (theme: Theme) => css`
+const getBaseContainerStyles = (theme: shim_Theme) => css`
   display: flex;
   height: 22px; // Matches X-Small Button height
   justify-content: center;
@@ -29,20 +24,24 @@ const getBaseContainerStyles = (theme: Theme) => css`
 
   &:hover {
     box-shadow: ${hoverRing[theme].gray};
-    ${theme === Theme.Dark ? `background-color: ${palette.gray.dark1}` : ''};
+    ${theme === shim_Theme.Dark
+      ? `background-color: ${palette.gray.dark1}`
+      : ''};
   }
 
   &:focus-visible {
     box-shadow: ${focusRing[theme].default};
-    ${theme === Theme.Dark ? `background-color: ${palette.gray.dark1}` : ''};
+    ${theme === shim_Theme.Dark
+      ? `background-color: ${palette.gray.dark1}`
+      : ''};
   }
 `;
 
-const getCheckedStyles = (theme: Theme) => css`
+const getCheckedStyles = (theme: shim_Theme) => css`
   background-color: ${color[theme].background[Variant.InversePrimary][
     InteractionState.Default
   ]};
-  border-color: ${theme === Theme.Dark ? palette.white : 'initial'};
+  border-color: ${theme === shim_Theme.Dark ? palette.white : 'initial'};
 
   &:hover {
     background-color: ${color[theme].background[Variant.InversePrimary][
@@ -66,7 +65,7 @@ export const getContainerStyles = ({
 }: {
   checked?: boolean;
   className?: string;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(
     getBaseContainerStyles(theme),

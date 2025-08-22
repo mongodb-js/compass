@@ -1,5 +1,5 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import {
   color,
   InteractionState,
@@ -13,9 +13,9 @@ export const containerStyles = css`
   align-items: center;
 `;
 
-export const getIconFill = (theme: Theme) =>
+export const getIconFill = (theme: shim_Theme) =>
   color[theme].icon[Variant.Success][InteractionState.Default];
 
-export const getTextStyles = (theme: Theme) => css`
+export const getTextStyles = (theme: shim_Theme) => css`
   color: ${color[theme].text[Variant.Secondary][InteractionState.Default]};
 `;

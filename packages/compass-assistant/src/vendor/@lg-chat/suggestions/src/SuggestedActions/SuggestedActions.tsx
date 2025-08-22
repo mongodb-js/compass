@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import Button from '@mongodb-js/compass-components';
 import ArrowLeftIcon from '@mongodb-js/compass-components';
 import LeafyGreenProvider, {
-  useDarkMode,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 import { FontWeight } from '@mongodb-js/compass-components';
 import { Body } from '@mongodb-js/compass-components';
@@ -32,7 +32,7 @@ const SuggestedActions = forwardRef<HTMLDivElement, SuggestedActionsProps>(
     },
     fwdRef
   ) => {
-    const { theme, darkMode } = useDarkMode(darkModeProp);
+    const { theme, darkMode } = shim_useDarkMode(darkModeProp);
 
     // Filter parameters by state
     const successParameters = configurationParameters.filter(

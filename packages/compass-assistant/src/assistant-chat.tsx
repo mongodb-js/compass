@@ -7,10 +7,10 @@ import {
   LeafyGreenChatProvider,
   Variant,
 } from '@lg-chat/leafygreen-chat-provider';
-import { Message } from './vendor/@lg-chat/message/src/Message';
-import { MessageFeed } from './vendor/@lg-chat/message-feed/src/MessageFeed';
-import { InputBar } from './vendor/@lg-chat/input-bar/src/InputBar';
-import { InputBarFeedback } from './vendor/@lg-chat/input-bar/src/InputBar/InputBarFeedback';
+import { Message } from '@lg-chat/message';
+import { MessageFeed } from '@lg-chat/message-feed';
+import { InputBar } from '@lg-chat/input-bar';
+import { InputBarFeedback } from '@lg-chat/input-bar/src/InputBar/InputBarFeedback';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;

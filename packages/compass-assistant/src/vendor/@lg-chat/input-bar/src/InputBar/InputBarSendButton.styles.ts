@@ -1,19 +1,17 @@
-import { PRIMARY_BUTTON_INTERACTIVE_GREEN } from '@mongodb-js/compass-components';
+export const PRIMARY_BUTTON_INTERACTIVE_GREEN = '#00593F';
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
-import {
-  color,
-  InteractionState,
-  Variant,
-} from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+
+const { color, InteractionState, Variant } = shim_tokens;
 
 export const getIconFill = ({
   disabled,
   theme,
 }: {
   disabled: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) => {
   if (disabled) {
     return color[theme].icon[Variant.Disabled][InteractionState.Default];
@@ -22,8 +20,8 @@ export const getIconFill = ({
   return color[theme].icon[Variant.Primary][InteractionState.Default];
 };
 
-const getBaseIconButtonStyles = ({ theme }: { theme: Theme }) => {
-  const darkMode = theme === Theme.Dark;
+const getBaseIconButtonStyles = ({ theme }: { theme: shim_Theme }) => {
+  const darkMode = theme === shim_Theme.Dark;
   return css`
     background-color: ${palette.green.dark2};
     border: 1px solid ${palette.green[darkMode ? 'base' : 'dark2']};
@@ -43,7 +41,7 @@ const getBaseIconButtonStyles = ({ theme }: { theme: Theme }) => {
   `;
 };
 
-const getDisabledIconButtonStyles = (theme: Theme) => css`
+const getDisabledIconButtonStyles = (theme: shim_Theme) => css`
   background-color: ${color[theme].background[Variant.Disabled][
     InteractionState.Default
   ]};
@@ -74,7 +72,7 @@ export const getIconButtonStyles = ({
   theme,
 }: {
   disabled: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(getBaseIconButtonStyles({ theme }), {
     [getDisabledIconButtonStyles(theme)]: disabled,

@@ -1,5 +1,5 @@
 import { css, cx, keyframes } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import {
   color,
   InteractionState,
@@ -21,7 +21,7 @@ export const loadingContainerStyles = css`
   margin-bottom: ${spacing[150]}px;
 `;
 
-const getBaseLoadingTextStyles = (theme: Theme) => css`
+const getBaseLoadingTextStyles = (theme: shim_Theme) => css`
   color: ${color[theme].text[Variant.Secondary][InteractionState.Default]};
 `;
 
@@ -42,7 +42,7 @@ export const loadingEllipsisStyles = css`
   }
 `;
 
-export const getLoadingTextStyles = (theme: Theme) =>
+export const getLoadingTextStyles = (theme: shim_Theme) =>
   cx(getBaseLoadingTextStyles(theme), loadingEllipsisStyles);
 
 export const bannerStyles = css`

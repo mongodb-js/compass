@@ -1,9 +1,10 @@
 import { ComponentProps } from 'react';
 import omit from 'lodash/omit';
 
-import { GlyphName } from '@leafygreen-ui/icon';
-import { DarkModeProps, Theme } from '@leafygreen-ui/lib';
-import { Size } from '@leafygreen-ui/tokens';
+import { GlyphName, shim_lib } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { Size } = shim_tokens;
 
 export const Format = {
   /** Renders a MongoDB logo mark */
@@ -26,7 +27,9 @@ export const AvatarSize = {
 } as const;
 export type AvatarSize = typeof AvatarSize[keyof typeof AvatarSize];
 
-export interface BaseAvatarProps extends ComponentProps<'div'>, DarkModeProps {
+export interface BaseAvatarProps
+  extends ComponentProps<'div'>,
+    shim_lib.DarkModeProps {
   /**
    * The relative Size of tha Avatar
    *
@@ -110,7 +113,7 @@ export type AvatarProps = BaseAvatarProps & DiscriminatedAvatarProps;
 
 export interface AvatarStyleArgs {
   size?: AvatarSize;
-  theme?: Theme;
+  theme?: shim_Theme;
   format?: Format;
   sizeOverride?: number;
 }

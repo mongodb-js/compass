@@ -4,9 +4,14 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./assistant": "./lib/shim-assistant.js"
+  },
   "compass:main": "src/index.ts",
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./assistant": "./src/shim-assistant.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [

@@ -1,7 +1,4 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export const Variant = {
   Primary: 'primary',
@@ -10,8 +7,8 @@ export const Variant = {
 export type Variant = typeof Variant[keyof typeof Variant];
 
 export interface MessageContainerProps
-  extends HTMLElementProps<'div'>,
-    DarkModeProps {
+  extends shim_lib.HTMLElementProps<'div'>,
+    shim_lib.DarkModeProps {
   /**
    * Determines the styles of the message container
    * @default Variant.Primary

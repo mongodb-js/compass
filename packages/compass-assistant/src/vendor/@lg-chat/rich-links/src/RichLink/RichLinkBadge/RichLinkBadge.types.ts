@@ -1,5 +1,5 @@
 import { GlyphName } from '@mongodb-js/compass-components';
-import { DarkModeProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 import { BaseFontSize } from '@mongodb-js/compass-components';
 
 export { BaseFontSize };
@@ -15,7 +15,7 @@ export const RichLinkBadgeColors = {
 export type RichLinkBadgeColor =
   typeof RichLinkBadgeColors[keyof typeof RichLinkBadgeColors];
 
-export interface RichLinkBadgeProps extends DarkModeProps {
+export interface RichLinkBadgeProps extends shim_lib.DarkModeProps {
   /**
    * The badge's label text
    */

@@ -1,13 +1,10 @@
 import { type RichLinkProps } from '@lg-chat/rich-links';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export interface MessageLinksProps
-  extends DarkModeProps,
-    Omit<HTMLElementProps<'div'>, 'children'> {
+  extends shim_lib.DarkModeProps,
+    Omit<shim_lib.HTMLElementProps<'div'>, 'children'> {
   /**
    * The text to display as the heading of the links section.
    */

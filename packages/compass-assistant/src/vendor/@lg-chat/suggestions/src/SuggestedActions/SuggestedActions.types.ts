@@ -1,13 +1,10 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 import { ConfigurationParameters, State } from '../shared.types';
 
 export interface SuggestedActionsProps
-  extends HTMLElementProps<'div'>,
-    DarkModeProps {
+  extends shim_lib.HTMLElementProps<'div'>,
+    shim_lib.DarkModeProps {
   /**
    * Configuration parameters with their individual state values.
    * Each parameter includes a key, value, and state (unset/apply/success/error).

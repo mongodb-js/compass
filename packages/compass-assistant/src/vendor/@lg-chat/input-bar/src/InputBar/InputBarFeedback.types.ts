@@ -1,11 +1,8 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 import { SharedInputBarProps } from './shared.types';
 
 export interface InputBarFeedbackProps
-  extends DarkModeProps,
-    HTMLElementProps<'div'>,
+  extends shim_lib.DarkModeProps,
+    shim_lib.HTMLElementProps<'div'>,
     SharedInputBarProps {}

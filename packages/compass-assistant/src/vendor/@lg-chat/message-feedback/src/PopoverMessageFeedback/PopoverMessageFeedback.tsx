@@ -5,9 +5,8 @@ import {
 } from '@lg-chat/leafygreen-chat-provider';
 
 import { cx } from '@mongodb-js/compass-components';
-import LeafyGreenProvider, {
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { LeafyGreenProvider } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import Popover from '@mongodb-js/compass-components';
 import { spacing } from '@mongodb-js/compass-components';
 
@@ -37,8 +36,7 @@ export const PopoverMessageFeedback = forwardRef(
     }: PopoverMessageFeedbackProps,
     forwardedRef: ForwardedRef<HTMLDivElement>
   ) => {
-    const darkMode = useDarkMode(darkModeProp);
-    const theme = darkMode ? Theme.Dark : Theme.Light;
+    const { theme } = shim_useDarkMode(darkModeProp);
     const { variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 

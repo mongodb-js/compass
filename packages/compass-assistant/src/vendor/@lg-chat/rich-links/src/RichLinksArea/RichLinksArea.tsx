@@ -2,7 +2,7 @@ import React from 'react';
 
 import { cx } from '@mongodb-js/compass-components';
 import LeafygreenProvider, {
-  useDarkMode,
+  shim_useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { RichLink } from '..';
@@ -16,7 +16,7 @@ export function RichLinksArea({
   onLinkClick,
   ...props
 }: RichLinksAreaProps) {
-  const { darkMode } = useDarkMode(darkModeProp);
+  const { darkMode } = shim_useDarkMode(darkModeProp);
   return (
     <LeafygreenProvider darkMode={darkMode}>
       <div className={cx(baseStyles)} {...props}>

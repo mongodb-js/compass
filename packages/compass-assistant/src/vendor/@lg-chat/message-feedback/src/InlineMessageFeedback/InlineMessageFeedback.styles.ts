@@ -1,5 +1,5 @@
 import { css, cx } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import {
   borderRadius,
   color,
@@ -18,7 +18,7 @@ const baseFormContainerStyles = css`
   gap: ${spacing[200]}px;
 `;
 
-const getCompactFormContainerStyles = (theme: Theme) => css`
+const getCompactFormContainerStyles = (theme: shim_Theme) => css`
   border: 1px solid
     ${color[theme].border[Variant.Primary][InteractionState.Default]};
   border-radius: ${borderRadius[200]}px;
@@ -30,7 +30,7 @@ export const getFormContainerStyles = ({
   theme,
 }: {
   isCompact: boolean;
-  theme: Theme;
+  theme: shim_Theme;
 }) =>
   cx(baseFormContainerStyles, {
     [getCompactFormContainerStyles(theme)]: isCompact,

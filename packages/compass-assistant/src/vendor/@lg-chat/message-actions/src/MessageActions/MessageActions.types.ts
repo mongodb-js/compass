@@ -2,14 +2,11 @@ import { ChangeEvent, FormEvent, MouseEventHandler } from 'react';
 import { InlineMessageFeedbackProps } from '@lg-chat/message-feedback';
 import { MessageRatingValue } from '@lg-chat/message-rating';
 
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export interface MessageActionsProps
-  extends DarkModeProps,
-    HTMLElementProps<'div'> {
+  extends shim_lib.DarkModeProps,
+    shim_lib.HTMLElementProps<'div'> {
   /**
    * Optional callback fired when the copy button is clicked.
    */

@@ -1,8 +1,5 @@
-import {
-  DarkModeProps,
-  HTMLElementProps,
-} from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export interface MessageFeedProps
-  extends HTMLElementProps<'div'>,
-    DarkModeProps {}
+  extends shim_lib.HTMLElementProps<'div'>,
+    shim_lib.DarkModeProps {}

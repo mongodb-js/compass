@@ -1,7 +1,7 @@
-import { LGGlyph } from '@leafygreen-ui/icon';
-import { DarkModeProps } from '@leafygreen-ui/lib';
+import { LGGlyph } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
 export type AssistantAvatarProps = LGGlyph.ComponentProps &
-  DarkModeProps & {
+  shim_lib.DarkModeProps & {
     disabled?: boolean;
   };

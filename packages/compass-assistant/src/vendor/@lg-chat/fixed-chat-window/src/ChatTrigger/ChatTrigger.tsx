@@ -2,7 +2,7 @@ import React, { ForwardedRef, forwardRef } from 'react';
 
 import { AssistantAvatar } from '@mongodb-js/compass-components';
 import { cx } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
 import { BaseFontSize } from '@mongodb-js/compass-components';
 import { Body } from '@mongodb-js/compass-components';
 
@@ -19,7 +19,7 @@ export const ChatTrigger = forwardRef(
     { className, children, darkMode: darkModeProp, ...rest }: ChatTriggerProps,
     ref: ForwardedRef<HTMLButtonElement>
   ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const { darkMode, theme } = shim_useDarkMode(darkModeProp);
     return (
       <button
         className={cx(baseStyles, themeStyles[theme], className)}

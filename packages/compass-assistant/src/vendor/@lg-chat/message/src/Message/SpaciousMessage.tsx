@@ -1,10 +1,14 @@
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useLeafyGreenChatContext } from '@lg-chat/leafygreen-chat-provider';
 
-import { useForwardedRef } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
-import { Polymorph } from '@mongodb-js/compass-components';
-import { BaseFontSize, breakpoints } from '@mongodb-js/compass-components';
+import { shim_useDarkMode } from '@mongodb-js/compass-components';
+import { shim_hooks } from '@mongodb-js/compass-components';
+const { useForwardedRef } = shim_hooks;
+import { shim_polymorphic } from '@mongodb-js/compass-components';
+const { Polymorph } = shim_polymorphic;
+import { shim_tokens } from '@mongodb-js/compass-components';
+const { BaseFontSize } = shim_tokens;
+import { breakpoints } from '@mongodb-js/compass-components';
 
 import { VerifiedAnswerBanner } from '../MessageBanner';
 import {
@@ -46,7 +50,7 @@ export const SpaciousMessage = forwardRef<HTMLDivElement, MessageProps>(
     fwdRef
   ) => {
     const [isRenderingAvatar, setIsRenderingAvatar] = useState<boolean>(true);
-    const { theme } = useDarkMode();
+    const { theme } = shim_useDarkMode();
     const { containerWidth } = useLeafyGreenChatContext();
 
     const ref = useForwardedRef(fwdRef, null);
@@ -83,7 +87,7 @@ export const SpaciousMessage = forwardRef<HTMLDivElement, MessageProps>(
       () => !!containerWidth && containerWidth >= breakpoints.Desktop,
       [containerWidth]
     );
-    const baseFontSize: BaseFontSize =
+    const baseFontSize: shim_tokens.BaseFontSize =
       baseFontSizeProp ?? (isMobile ? BaseFontSize.Body1 : BaseFontSize.Body2);
 
     return (

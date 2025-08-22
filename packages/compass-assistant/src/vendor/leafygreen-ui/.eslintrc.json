@@ -7,7 +7,7 @@
         "filename-rules/match": "off",
         "@typescript-eslint/consistent-type-imports": "off",
         "@typescript-eslint/no-redundant-type-constituents": "off",
-        "@typescript-eslint/ban-ts-comment": "off"
+        "@typescript-eslint/no-unused-vars": "off"
       }
     }
   ]

@@ -1,0 +1,182 @@
+[
+  {
+    "tags": {},
+    "description": "",
+    "methods": [],
+    "displayName": "MessagePrompt",
+    "props": {
+      "ButtonHTMLAttributes": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
+      "DOMAttributes": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes",
+      "HTMLAttributes": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes",
+      "shim_lib.DarkModeProps": {
+        "darkMode": {
+          "name": "darkMode",
+          "defaultValue": {
+            "value": "false"
+          },
+          "description": "Renders the component with dark mode styles.",
+          "required": false,
+          "type": {
+            "name": "enum",
+            "raw": "boolean",
+            "value": [
+              {
+                "value": "false"
+              },
+              {
+                "value": "true"
+              }
+            ]
+          },
+          "tags": {
+            "default": "false"
+          }
+        }
+      },
+      "AriaAttributes": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
+      "MessagePromptProps": {
+        "selected": {
+          "name": "selected",
+          "defaultValue": null,
+          "description": "Specifies that the MessagePrompt is selected. When one message prompt is selected, the others are disabled by default.",
+          "required": false,
+          "type": {
+            "name": "enum",
+            "raw": "boolean",
+            "value": [
+              {
+                "value": "false"
+              },
+              {
+                "value": "true"
+              }
+            ]
+          },
+          "tags": {}
+        }
+      }
+    }
+  },
+  {
+    "tags": {},
+    "description": "",
+    "methods": [],
+    "displayName": "MessagePrompts",
+    "props": {
+      "DOMAttributes": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes",
+      "MessagePromptsProps": {
+        "label": {
+          "name": "label",
+          "defaultValue": null,
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "tags": {}
+        }
+      },
+      "HTMLAttributes": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes",
+      "shim_lib.DarkModeProps": {
+        "darkMode": {
+          "name": "darkMode",
+          "defaultValue": {
+            "value": "false"
+          },
+          "description": "Renders the component with dark mode styles.",
+          "required": false,
+          "type": {
+            "name": "enum",
+            "raw": "boolean",
+            "value": [
+              {
+                "value": "false"
+              },
+              {
+                "value": "true"
+              }
+            ]
+          },
+          "tags": {
+            "default": "false"
+          }
+        }
+      },
+      "AriaAttributes": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes"
+    }
+  },
+  {
+    "tags": {},
+    "description": "",
+    "methods": [],
+    "displayName": "MessagePromptsProvider",
+    "props": {
+      "MessagePromptsContextProps": {
+        "hasSelectedPrompt": {
+          "name": "hasSelectedPrompt",
+          "defaultValue": null,
+          "description": "",
+          "required": true,
+          "type": {
+            "name": "enum",
+            "raw": "boolean",
+            "value": [
+              {
+                "value": "false"
+              },
+              {
+                "value": "true"
+              }
+            ]
+          },
+          "tags": {}
+        }
+      },
+      "MessagePromptsProviderProps": {
+        "children": {
+          "name": "children",
+          "defaultValue": null,
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "enum",
+            "raw": "ReactNode",
+            "value": [
+              {
+                "value": "string"
+              },
+              {
+                "value": "number"
+              },
+              {
+                "value": "false"
+              },
+              {
+                "value": "true"
+              },
+              {
+                "value": "ReactElement<any, string | JSXElementConstructor<any>>",
+                "description": "",
+                "fullComment": "",
+                "tags": {}
+              },
+              {
+                "value": "Iterable<ReactNode>",
+                "description": "",
+                "fullComment": "",
+                "tags": {}
+              },
+              {
+                "value": "ReactPortal",
+                "description": "",
+                "fullComment": "",
+                "tags": {}
+              }
+            ]
+          },
+          "tags": {}
+        }
+      }
+    }
+  }
+]

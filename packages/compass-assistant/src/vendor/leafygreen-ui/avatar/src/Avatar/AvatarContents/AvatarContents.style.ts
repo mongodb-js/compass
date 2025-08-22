@@ -1,4 +1,4 @@
-import { css } from '@leafygreen-ui/emotion';
+import { css } from '@mongodb-js/compass-components';
 
 import {
   avatarFontSizeMap,

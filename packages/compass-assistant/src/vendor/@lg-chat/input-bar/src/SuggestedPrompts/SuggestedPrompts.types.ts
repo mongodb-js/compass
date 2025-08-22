@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
 
-import { HTMLElementProps } from '@mongodb-js/compass-components';
+import { shim_lib } from '@mongodb-js/compass-components';
 
-export interface SuggestedPromptsProps extends HTMLElementProps<'div'> {
+export interface SuggestedPromptsProps
+  extends shim_lib.HTMLElementProps<'div'> {
   /**
    * Title for the group of options
    */

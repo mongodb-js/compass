@@ -1,5 +1,5 @@
 import { css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
+import { shim_Theme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { spacing } from '@mongodb-js/compass-components';
 
@@ -20,10 +20,10 @@ export const baseStyles = css`
 `;
 
 export const badgeVariants: Record<
-  Theme,
+  shim_Theme,
   Record<RichLinkBadgeColor, string>
 > = {
-  [Theme.Dark]: {
+  [shim_Theme.Dark]: {
     [RichLinkBadgeColors.Gray]: css`
       background-color: ${palette.gray.dark1};
       & svg {
@@ -79,7 +79,7 @@ export const badgeVariants: Record<
       }
     `,
   },
-  [Theme.Light]: {
+  [shim_Theme.Light]: {
     [RichLinkBadgeColors.Gray]: css`
       background-color: ${palette.gray.light2};
       & svg {
