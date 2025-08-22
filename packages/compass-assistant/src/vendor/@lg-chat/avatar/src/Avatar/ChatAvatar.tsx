@@ -60,7 +60,8 @@ export const ChatAvatar = forwardRef(
     }: ChatAvatarProps,
     fwdRef: ForwardedRef<HTMLDivElement>
   ) => {
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const { containerWidth } = useLeafyGreenChatContext();
     const size =
       sizeProp || (containerWidth && containerWidth < breakpoints.Tablet)

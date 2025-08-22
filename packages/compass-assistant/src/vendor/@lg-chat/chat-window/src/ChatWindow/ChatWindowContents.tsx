@@ -3,10 +3,10 @@ import flattenChildren from 'react-keyed-flatten-children';
 import {
   useLeafyGreenChatContext,
   Variant,
-} from '@lg-chat/leafygreen-chat-provider';
-import { TitleBar } from '@lg-chat/title-bar';
+} from '../../../leafygreen-chat-provider/src/index';
+import { TitleBar } from '../../../title-bar/src/index';
 
-import { useDarkMode } from '@mongodb-js/compass-components';
+import { Theme, useDarkMode } from '@mongodb-js/compass-components';
 import { isComponentType } from '@mongodb-js/compass-components';
 import { breakpoints } from '@mongodb-js/compass-components';
 
@@ -32,7 +32,8 @@ export const ChatWindowContents = forwardRef(
     }: ChatWindowProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const { containerWidth, variant } = useLeafyGreenChatContext();
 
     const isCompact = variant === Variant.Compact;

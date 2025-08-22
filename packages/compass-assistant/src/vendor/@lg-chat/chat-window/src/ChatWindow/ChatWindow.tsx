@@ -2,7 +2,7 @@ import React, { ForwardedRef, forwardRef } from 'react';
 import {
   LeafyGreenChatProvider,
   useLeafyGreenChatContext,
-} from '@lg-chat/leafygreen-chat-provider';
+} from '../../../leafygreen-chat-provider/src/index';
 
 import { ChatWindowContents } from './ChatWindowContents';
 import { ChatWindowProps } from '.';

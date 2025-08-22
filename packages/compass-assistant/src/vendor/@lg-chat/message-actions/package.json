@@ -1,0 +1,50 @@
+{
+  "name": "@lg-chat/message-actions",
+  "version": "0.1.0",
+  "description": "LeafyGreen UI Kit Message Actions",
+  "main": "src/index.ts",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "require": "./dist/umd/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./testing": {
+      "require": "./dist/umd/testing/index.js",
+      "import": "./dist/esm/testing/index.js",
+      "types": "./dist/types/testing/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "lg-build bundle",
+    "tsc": "lg-build tsc",
+    "docs": "lg-build docs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@leafygreen-ui/emotion": "workspace:^",
+    "@leafygreen-ui/icon": "workspace:^",
+    "@leafygreen-ui/icon-button": "workspace:^",
+    "@leafygreen-ui/lib": "workspace:^",
+    "@leafygreen-ui/tokens": "workspace:^",
+    "@lg-chat/message": "workspace:^",
+    "@lg-chat/message-feedback": "workspace:^",
+    "@lg-chat/message-rating": "workspace:^",
+    "@lg-tools/test-harnesses": "workspace:^"
+  },
+  "peerDependencies": {
+    "@leafygreen-ui/leafygreen-provider": "workspace:^",
+    "@lg-chat/leafygreen-chat-provider": "workspace:^"
+  },
+  "homepage": "https://github.com/mongodb/leafygreen-ui/tree/main/packages/message-actions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb/leafygreen-ui"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/LG/summary"
+  }
+}

@@ -79,7 +79,10 @@ export {
 } from '@leafygreen-ui/button';
 export { SplitButton } from '@leafygreen-ui/split-button';
 
-export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
+export {
+  default as LeafyGreenProvider,
+  useBaseFontSize,
+} from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
 export { rgba, lighten, transparentize } from 'polished';
@@ -221,3 +224,9 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+
+/**
+ * TODO(COMPASS-9715): Used by compass-assistant. Remove after Leafygreen Provider is updated.
+ */
+export type { HTMLElementProps, DarkModeProps } from '@leafygreen-ui/lib';
+export type { ButtonProps as BaseButtonProps } from '@leafygreen-ui/button';

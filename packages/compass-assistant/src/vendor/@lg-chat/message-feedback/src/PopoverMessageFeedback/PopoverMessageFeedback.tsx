@@ -37,7 +37,8 @@ export const PopoverMessageFeedback = forwardRef(
     }: PopoverMessageFeedbackProps,
     forwardedRef: ForwardedRef<HTMLDivElement>
   ) => {
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const { variant } = useLeafyGreenChatContext();
     const isCompact = variant === Variant.Compact;
 

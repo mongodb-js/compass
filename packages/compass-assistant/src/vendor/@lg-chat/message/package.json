@@ -1,0 +1,37 @@
+{
+  "name": "@lg-chat/message",
+  "version": "7.2.0",
+  "description": "lg-chat Message",
+  "main": "src/index.ts",
+  "typesVersions": {},
+  "scripts": {
+    "build": "lg-build bundle",
+    "tsc": "lg-build tsc"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@leafygreen-ui/avatar": "workspace:^",
+    "@leafygreen-ui/banner": "workspace:^",
+    "@leafygreen-ui/emotion": "workspace:^",
+    "@leafygreen-ui/hooks": "workspace:^",
+    "@leafygreen-ui/lib": "workspace:^",
+    "@leafygreen-ui/palette": "workspace:^",
+    "@leafygreen-ui/polymorphic": "workspace:^",
+    "@leafygreen-ui/tokens": "workspace:^",
+    "@leafygreen-ui/typography": "workspace:^",
+    "@lg-chat/lg-markdown": "workspace:^",
+    "@lg-chat/rich-links": "workspace:^"
+  },
+  "devDependencies": {
+    "@lg-chat/avatar": "workspace:^",
+    "@lg-chat/message-feedback": "workspace:^",
+    "@lg-tools/build": "workspace:^"
+  },
+  "peerDependencies": {
+    "@leafygreen-ui/leafygreen-provider": "workspace:^",
+    "@lg-chat/leafygreen-chat-provider": "workspace:^"
+  }
+}

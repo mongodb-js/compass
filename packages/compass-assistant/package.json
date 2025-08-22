@@ -73,7 +73,15 @@
     "@lg-chat/message": "file:src/vendor/@lg-chat/message",
     "@lg-chat/rich-links": "file:src/vendor/@lg-chat/rich-links",
     "@lg-chat/suggestions": "file:src/vendor/@lg-chat/suggestions",
-    "@lg-chat/title-bar": "file:src/vendor/@lg-chat/title-bar"
+    "@lg-chat/title-bar": "file:src/vendor/@lg-chat/title-bar",
+    "react-keyed-flatten-children": "^2.2.1",
+    "react-transition-group": "^4.4.5",
+    "lodash": "^4.17.21",
+    "react-textarea-autosize": "^8.3.2",
+    "use-resize-observer": "^9.1.0",
+    "react-markdown": "^8.0.7",
+    "react-intersection-observer": "^8.25.1",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.6",

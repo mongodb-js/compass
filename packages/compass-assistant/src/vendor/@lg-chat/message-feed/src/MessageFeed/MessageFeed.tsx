@@ -12,7 +12,9 @@ import {
   Variant,
 } from '@lg-chat/leafygreen-chat-provider';
 
-import LeafyGreenProvider, {
+import {
+  LeafyGreenProvider,
+  Theme,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
@@ -28,7 +30,8 @@ export const MessageFeed = forwardRef(
     { children, darkMode: darkModeProp, className, ...rest }: MessageFeedProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { darkMode, theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const { variant } = useLeafyGreenChatContext();
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);

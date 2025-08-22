@@ -1,6 +1,6 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 
-import { cx } from '@mongodb-js/compass-components';
+import { cx, Theme } from '@mongodb-js/compass-components';
 import { useDarkMode } from '@mongodb-js/compass-components';
 import { Body } from '@mongodb-js/compass-components';
 
@@ -27,7 +27,8 @@ export const MessagePrompt = forwardRef(
     ref: ForwardedRef<HTMLButtonElement>
   ) => {
     const { hasSelectedPrompt } = useMessagePromptsContext();
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const disabled = disabledProp ?? (!selected && hasSelectedPrompt);
 
     return (

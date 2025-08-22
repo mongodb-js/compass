@@ -1,0 +1,21 @@
+{
+  "name": "@lg-chat/leafygreen-chat-provider",
+  "version": "4.1.0",
+  "description": "lg-chat LeafyGreen Chat Context",
+  "main": "src/index.ts",
+  "typesVersions": {},
+  "scripts": {
+    "build": "lg-build bundle",
+    "tsc": "lg-build tsc"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "use-resize-observer": "^9.1.0"
+  },
+  "devDependencies": {
+    "@lg-tools/build": "workspace:^"
+  }
+}

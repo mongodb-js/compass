@@ -18,7 +18,8 @@ export const RadioButton = forwardRef(
     }: RadioButtonProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     return (
       <div
         className={getContainerStyles({

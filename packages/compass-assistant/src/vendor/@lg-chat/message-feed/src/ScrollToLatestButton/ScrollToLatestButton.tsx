@@ -15,7 +15,7 @@ export const ScrollToLatestButton = ({
   onClick,
   visible,
 }: ScrollToLatestButtonProps) => {
-  const { darkMode } = useDarkMode(darkModeProp);
+  const darkMode = useDarkMode(darkModeProp);
 
   if (!visible) {
     return null;

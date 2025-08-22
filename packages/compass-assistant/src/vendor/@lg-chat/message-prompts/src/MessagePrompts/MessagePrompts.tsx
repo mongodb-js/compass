@@ -19,7 +19,8 @@ export const MessagePrompts = forwardRef(
     { children, label, darkMode: darkModeProp, ...rest }: MessagePromptsProps,
     ref: ForwardedRef<HTMLDivElement>
   ) => {
-    const { theme } = useDarkMode(darkModeProp);
+    const darkMode = useDarkMode(darkModeProp);
+    const theme = darkMode ? Theme.Dark : Theme.Light;
     const hasSelectedPrompt: boolean = React.Children.toArray(children).some(
       (child) => isComponentType(child, 'MessagePrompt') && child.props.selected
     );
