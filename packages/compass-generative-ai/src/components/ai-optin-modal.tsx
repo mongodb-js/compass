@@ -62,34 +62,38 @@ const focusBoxShadow = (color: string) => `
 `;
 const disabledButtonStyles: Record<Theme, string> = {
   [Theme.Light]: css`
-    &,
-    ${hoverSelector}, ${activeSelector} {
-      background-color: ${palette.gray.light2};
-      border-color: ${palette.gray.light1};
-      color: ${palette.gray.base};
-      box-shadow: none;
-      cursor: not-allowed;
-    }
+    button {
+      &,
+      ${hoverSelector}, ${activeSelector} {
+        background-color: ${palette.gray.light2};
+        border-color: ${palette.gray.light1};
+        color: ${palette.gray.base};
+        box-shadow: none;
+        cursor: not-allowed;
+      }
 
-    ${focusSelector} {
-      color: ${palette.gray.base};
-      box-shadow: ${focusBoxShadow(palette.white)};
+      ${focusSelector} {
+        color: ${palette.gray.base};
+        box-shadow: ${focusBoxShadow(palette.white)};
+      }
     }
   `,
 
   [Theme.Dark]: css`
-    &,
-    ${hoverSelector}, ${activeSelector} {
-      background-color: ${palette.gray.dark3};
-      border-color: ${palette.gray.dark2};
-      color: ${palette.gray.dark1};
-      box-shadow: none;
-      cursor: not-allowed;
-    }
+    button {
+      &,
+      ${hoverSelector}, ${activeSelector} {
+        background-color: ${palette.gray.dark3};
+        border-color: ${palette.gray.dark2};
+        color: ${palette.gray.dark1};
+        box-shadow: none;
+        cursor: not-allowed;
+      }
 
-    ${focusSelector} {
-      color: ${palette.gray.dark1};
-      box-shadow: ${focusBoxShadow(palette.black)};
+      ${focusSelector} {
+        color: ${palette.gray.dark1};
+        box-shadow: ${focusBoxShadow(palette.black)};
+      }
     }
   `,
 };

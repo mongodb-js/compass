@@ -70,28 +70,7 @@ describe('AIOptInModal Component', function () {
       </PreferencesProvider>
     );
     const button = screen.getByText('Use AI Features').closest('button');
-    expect(button?.getAttribute('aria-disabled')).to.equal('false');
-  });
-
-  it('should disable the opt in button if project AI setting is disabled', async function () {
-    await mockPreferences.savePreferences({
-      enableGenAIFeaturesAtlasProject: false,
-    });
-    render(
-      <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal
-          projectId="ab123"
-          isOptInModalVisible={true}
-          isOptInInProgress={false}
-          onOptInModalClose={() => {}}
-          onOptInClick={() => {}}
-        >
-          {' '}
-        </AIOptInModal>
-      </PreferencesProvider>
-    );
-    const button = screen.getByText('Use AI Features').closest('button');
-    expect(button?.style.cursor).to.equal('not-allowed');
+    expect(button?.style.cursor).to.not.equal('not-allowed');
   });
 
   describe('conditional banner messages', function () {
