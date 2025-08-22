@@ -269,9 +269,6 @@ const reducer: Reducer<CollectionState, Action> = (
     let nextStep: MockDataGeneratorStep;
 
     switch (currentStep) {
-      case MockDataGeneratorStep.AI_DISCLAIMER:
-        nextStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
-        break;
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
         nextStep = MockDataGeneratorStep.SCHEMA_EDITOR;
         break;
@@ -308,7 +305,8 @@ const reducer: Reducer<CollectionState, Action> = (
 
     switch (currentStep) {
       case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
-        previousStep = MockDataGeneratorStep.AI_DISCLAIMER;
+        // TODO: Decide with product what we want behavior to be: close modal? Re-open disclaimer modal, if possible?
+        previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
         break;
       case MockDataGeneratorStep.SCHEMA_EDITOR:
         previousStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION;
