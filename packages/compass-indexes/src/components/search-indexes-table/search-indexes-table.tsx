@@ -40,7 +40,7 @@ import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import type { CollectionStats } from '../../modules/collection-stats';
-import { isPipelineSearchQueryable } from '@mongodb-js/compass-utils';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -323,7 +323,9 @@ export const SearchIndexesTable: React.FunctionComponent<
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
   const isViewPipelineSearchQueryable =
     isReadonlyView && collectionStats?.pipeline
-      ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+          collectionStats.pipeline as Document[]
+        )
       : true;
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(

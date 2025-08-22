@@ -33,7 +33,6 @@ import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import { ZeroGraphic } from '../search-indexes-table/zero-graphic';
 import { ViewVersionIncompatibleBanner } from '../view-version-incompatible-banners/view-version-incompatible-banners';
-import semver from 'semver';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { CollectionStats } from '../../modules/collection-stats';
 import type { Document } from 'mongodb';
@@ -79,7 +78,7 @@ const ViewVersionIncompatibleEmptyState = ({
            cannot create, drop or re-build indexes on a standard view directly, nor get a list of indexes on the view."
       callToActionLink={
         <Link
-          href="https://www.mongodb.com/docs/atlas/atlas-search/" // PLACEHOLDER LINK
+          href="https://www.mongodb.com/docs/manual/core/views/"
           target="_blank"
         >
           Learn more about views
@@ -110,7 +109,10 @@ const ViewNotSearchCompatibleBanner = ({
       $addFields, $set or $match stages with the $expr operator are compatible
       with search indexes.{' '}
       {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
-      <Link href={''} hideExternalIcon>
+      <Link
+        href={'https://www.mongodb.com/docs/atlas/atlas-search/view-support/'}
+        hideExternalIcon
+      >
         Learn more.
       </Link>
     </Banner>

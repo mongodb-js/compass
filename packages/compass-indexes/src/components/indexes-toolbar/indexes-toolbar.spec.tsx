@@ -14,7 +14,6 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { Document } from 'mongodb';
-//import type {Document} from "mongodb";
 
 describe('IndexesToolbar Component', function () {
   before(cleanup);
