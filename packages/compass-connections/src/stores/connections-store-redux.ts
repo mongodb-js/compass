@@ -1581,7 +1581,11 @@ const connectWithOptions = (
           mongoLogId(1_001_000_004),
           'Connection UI',
           'Initiating connection attempt',
-          { isAutoconnectAttempt }
+          {
+            isAutoconnectAttempt,
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
         );
 
         // Connection form allows to start connecting with invalid connection
@@ -1819,6 +1823,16 @@ const connectWithOptions = (
         debug(
           'connection attempt succeeded with connection info',
           connectionInfo
+        );
+
+        log.info(
+          mongoLogId(1_001_000_006),
+          'Compass Connection Attempt Succeeded',
+          'Connection attempt succeeded',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
         );
 
         connectionProgress.openConnectionSucceededToast(connectionInfo);
