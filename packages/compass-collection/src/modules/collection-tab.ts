@@ -547,7 +547,7 @@ export const generateFakerMappings = (
   connectionInfo: ConnectionInfo
 ): CollectionThunkAction<Promise<void>> => {
   return async (dispatch, getState, { logger, atlasAiService }) => {
-    const { schemaAnalysis, fakerSchemaGeneration } = getState();
+    const { schemaAnalysis, fakerSchemaGeneration, namespace } = getState();
     if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
       logger.log.error(
         mongoLogId(1_001_000_305),
@@ -566,17 +566,23 @@ export const generateFakerMappings = (
 
     // todo: dedup/abort around requestId
     const requestId = 'some-request-id';
+    var what = 'what';
     try {
       logger.debug('Generating faker mappings');
+
+      const { database, collection } = toNS(namespace);
 
       dispatch({
         type: CollectionActions.FakerMappingGenerationStarted,
         requestId: requestId,
       });
 
-      const mockDataSchemaRequest = MockDataSchemaRequestShape.parse(
-        schemaAnalysis.processedSchema
-      );
+      const mockDataSchemaRequest = MockDataSchemaRequestShape.parse({
+        databaseName: database,
+        collectionName: collection,
+        schema: schemaAnalysis.processedSchema,
+        validationRules: schemaAnalysis.schemaMetadata.validationRules,
+      });
 
       const response = await atlasAiService.getMockDataSchema(
         mockDataSchemaRequest,
@@ -595,7 +601,9 @@ export const generateFakerMappings = (
       );
       dispatch({
         type: CollectionActions.FakerMappingGenerationFailed,
-        error: 'Failed to generate faker mappings',
+        error:
+          'Failed to generate faker mappings' +
+          String(e instanceof Error ? e.message : e),
         requestId: requestId,
       });
     }

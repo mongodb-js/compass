@@ -228,7 +228,7 @@ export const MockDataSchemaRequestShape = z.object({
   collectionName: z.string(),
   databaseName: z.string(),
   schema: MockDataSchemaRawFieldMappingShape,
-  validationRules: z.record(z.string(), z.unknown()).optional(),
+  validationRules: z.record(z.string(), z.unknown()).nullable().optional(),
   includeSampleValues: z.boolean().default(false),
 });
 

@@ -291,28 +291,29 @@ describe('Collection Tab Content store', function () {
     it('can complete successfully', async function () {
       const dispatch = sandbox.spy();
       const getState = sandbox.stub().returns({
+        namespace: 'some_db.some_collection',
         schemaAnalysis: {
           status: SCHEMA_ANALYSIS_STATE_COMPLETE,
           processedSchema: {
-            collectionName: 'foo',
-            databaseName: 'test',
-            schema: {
-              name: {
-                type: 'String',
-                sampleValues: ['John', 'Jane', 'Bob'],
-                probability: 1.0,
-              },
-              age: {
-                type: 'Number',
-                sampleValues: [25, 30, 35],
-                probability: 0.9,
-              },
-              isActive: {
-                type: 'Boolean',
-                sampleValues: [true, false],
-                probability: 0.8,
-              },
+            name: {
+              type: 'String',
+              probability: 1.0,
+              sampleValues: ['John', 'Jane', 'Bob'],
             },
+            age: {
+              type: 'Number',
+              probability: 0.9,
+              sampleValues: [25, 30],
+            },
+            isActive: {
+              type: 'Boolean',
+              probability: 0.8,
+              sampleValues: [true, false],
+            },
+          },
+          schemaMetadata: {
+            maxNestingDepth: 1,
+            validationRules: null,
           },
         },
         fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_STATE_IDLE },
@@ -353,9 +354,7 @@ describe('Collection Tab Content store', function () {
         },
       };
       const atlasAiService = {
-        getMockDataSchema: sandbox
-          .stub()
-          .returns(Promise.resolve(mockDataSchemaResponse)),
+        getMockDataSchema: sandbox.stub().resolves(mockDataSchemaResponse),
       };
 
       // Act
@@ -386,6 +385,7 @@ describe('Collection Tab Content store', function () {
     it('can dispatch a failure', async function () {
       const dispatch = sandbox.spy();
       const getState = sandbox.stub().returns({
+        namespace: 'some_db.some_collection',
         schemaAnalysis: {
           status: SCHEMA_ANALYSIS_STATE_COMPLETE,
           processedSchema: undefined,
@@ -398,7 +398,7 @@ describe('Collection Tab Content store', function () {
       };
 
       const atlasAiService = {
-        getMockDataSchema: sandbox.stub().returns(Promise.resolve({})),
+        getMockDataSchema: sandbox.stub().resolves({}),
       };
 
       // Act
