@@ -566,7 +566,7 @@ export const generateFakerMappings = (
 
     // todo: dedup/abort around requestId
     const requestId = 'some-request-id';
-    var what = 'what';
+
     try {
       logger.debug('Generating faker mappings');
 
