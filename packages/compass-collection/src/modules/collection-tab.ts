@@ -96,7 +96,7 @@ export type CollectionState = {
   fakerSchemaGeneration: MockDataGeneratorState;
 };
 
-enum CollectionActions {
+export enum CollectionActions {
   CollectionMetadataFetched = 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted = 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished = 'compass-collection/SchemaAnalysisFinished',
@@ -587,7 +587,7 @@ export const generateFakerMappings = (
         fakerSchema: response,
         requestId: requestId,
       });
-    } catch {
+    } catch (e) {
       logger.log.error(
         mongoLogId(1_001_000_312),
         'Collection',
