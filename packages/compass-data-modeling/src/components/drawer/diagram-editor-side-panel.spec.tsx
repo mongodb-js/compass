@@ -220,7 +220,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
 
       // Click on add relationship button
-      userEvent.click(screen.getByRole('button', { name: 'Add relationship' }));
+      userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
       // Collection is pre-selected
       expect(screen.getByLabelText('Local collection')).to.be.visible;
@@ -329,7 +329,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByLabelText('Field name')).to.have.value('name');
 
       // Click on add relationship button
-      userEvent.click(screen.getByRole('button', { name: 'Add relationship' }));
+      userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
       // Collection and field are pre-selected
       expect(screen.getByLabelText('Local collection')).to.be.visible;

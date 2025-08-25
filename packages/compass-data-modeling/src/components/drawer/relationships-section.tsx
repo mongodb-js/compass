@@ -73,7 +73,7 @@ export const RelationshipsSection: React.FunctionComponent<
             size="xsmall"
             onClick={onCreateNewRelationshipClick}
           >
-            Add relationship
+            Add Relationship
           </Button>
         </>
       }
