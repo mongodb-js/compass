@@ -22,7 +22,7 @@ import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
 
-const inputWidth = spacing[1400] * 5;
+const inputWidth = spacing[1400] * 3;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 10;
 // left position of options popover wrt input. this aligns it with the start of input

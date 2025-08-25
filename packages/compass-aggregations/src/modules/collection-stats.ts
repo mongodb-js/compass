@@ -9,6 +9,7 @@ export type CollectionStats = {
 
 export const INITIAL_STATE: CollectionStats = {
   document_count: undefined,
+  pipeline: undefined,
 };
 
 export function pickCollectionStats(collection: Collection): CollectionStats {
