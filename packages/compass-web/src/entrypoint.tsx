@@ -91,7 +91,7 @@ type CompassWorkspaceProps = Pick<
     'onOpenConnectViaModal'
   >;
 
-type CompassWebProps = {
+export type CompassWebProps = {
   /**
    * App name to be passed with the connection string when connection to a
    * cluster (default: "Compass Web")

@@ -1,4 +1,5 @@
 export { CompassWeb } from './entrypoint';
+export type { CompassWebProps } from './entrypoint';
 export * from './url-builder';
 export type {
   OpenWorkspaceOptions,

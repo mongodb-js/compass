@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "./dist/index.d.ts",
+  "bundledPackages": [
+    "@mongodb-js/compass-workspaces",
+    "@mongodb-js/compass-telemetry",
+    "@mongodb-js/compass-connections",
+    "@mongodb-js/compass-app-registry",
+    "@mongodb-js/connection-info",
+    "@mongodb-js/connection-storage",
+    "@mongodb-js/compass-logging",
+    "@mongodb-js/compass-app-stores",
+    "@mongodb-js/compass-user-data",
+    "@mongodb-js/compass-utils",
+    "@mongodb-js/devtools-connect",
+    "@mongodb-js/devtools-proxy-support",
+    "@mongodb-js/oidc-plugin",
+    "@mongodb-js/mdb-experiment-js",
+    "compass-preferences-model",
+    "mongodb-data-service",
+    "mongodb-instance-model",
+    "mongodb-log-writer",
+    "mongodb-collection-model",
+    "mongodb-database-model",
+    "mongodb",
+    "bson",
+    "mongodb-connection-string-url",
+    "zod"
+  ],
+  "compiler": {
+    "tsconfigFilePath": "./tsconfig-build.json"
+  },
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": {
+    "enabled": false
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "untrimmedFilePath": "./dist/index.bundled.d.ts",
+    "publicTrimmedFilePath": "./dist/index.bundled.d.ts",
+    "omitTrimmingComments": true,
+    "betaTrimmedFilePath": "./dist/index.bundled.d.ts"
+  },
+  "tsdocMetadata": {
+    "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      }
+    },
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning"
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      },
+      "ae-unresolved-link": {
+        "logLevel": "none"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      }
+    },
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "none"
+      }
+    }
+  }
+}
