@@ -161,8 +161,8 @@ const openConnectionFailedToast = (
 ) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
-  // TODO: close the existing connection toast and make a new one for the
-  // failure so that the debug toast will appear below the failure one
+  // TODO(COMPASS-9746): close the existing connection toast and make a new one
+  // for the failure so that the debug toast will appear below the failure one
   openToast(`connection-status--${failedToastId}`, {
     title: error.message,
     description: (
