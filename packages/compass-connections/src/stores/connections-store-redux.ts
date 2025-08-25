@@ -1584,11 +1584,7 @@ const connectWithOptions = (
           mongoLogId(1_001_000_004),
           'Connection UI',
           'Initiating connection attempt',
-          {
-            isAutoconnectAttempt,
-            clusterName: connectionInfo.atlasMetadata?.clusterName,
-            connectionId: connectionInfo.id,
-          }
+          { isAutoconnectAttempt }
         );
 
         // Connection form allows to start connecting with invalid connection
