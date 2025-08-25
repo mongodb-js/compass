@@ -72,7 +72,7 @@ function ListEditor<ItemType>({
           {!disableAddButton?.(item, itemIndex, items) ? (
             <IconButton
               aria-label="Add"
-              type="button"
+              as="button"
               data-testid={addButtonTestId}
               disabled={disableAddButton?.(item, itemIndex, items)}
               onClick={() => onAddItem(itemIndex)}
@@ -84,7 +84,7 @@ function ListEditor<ItemType>({
           items.length !== 1 ? (
             <IconButton
               aria-label="Remove"
-              type="button"
+              as="button"
               data-testid={removeButtonTestId}
               disabled={disableRemoveButton?.(item, itemIndex, items)}
               onClick={() => onRemoveItem(itemIndex)}
