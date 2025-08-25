@@ -23,3 +23,21 @@ export {
   GenerativeAIInput,
   createAIPlaceholderHTMLPlaceholder,
 } from './components';
+
+export {
+  MockDataSchemaRequestShape,
+  MockDataSchemaRawFieldMappingShape,
+  MockDataSchemaResponseShape,
+} from './atlas-ai-service';
+
+export {
+  AtlasAiServiceInvalidInputError,
+  AtlasAiServiceApiResponseParseError,
+} from './atlas-ai-errors';
+
+export type {
+  MockDataSchemaRequest,
+  MockDataSchemaRawFieldMapping,
+  MockDataSchemaRawField,
+  MockDataSchemaResponse,
+} from './atlas-ai-service';
