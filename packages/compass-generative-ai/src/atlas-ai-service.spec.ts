@@ -82,8 +82,8 @@ describe('AtlasAiService', function () {
     {
       apiURLPreset: 'admin-api',
       expectedEndpoints: {
-        'mql-aggregation': `http://example.com/ai/api/v1/mql-aggregation?request_id=abc`,
-        'mql-query': `http://example.com/ai/api/v1/mql-query?request_id=abc`,
+        'mql-aggregation': `http://example.com/unauth/ai/api/v1/mql-aggregation?request_id=abc`,
+        'mql-query': `http://example.com/unauth/ai/api/v1/mql-query?request_id=abc`,
       },
     },
     {
@@ -327,13 +327,6 @@ describe('AtlasAiService', function () {
           // Reset preferences
           await preferences.savePreferences({
             optInGenAIFeatures: false,
-            enableUnauthenticatedGenAI: true,
-          });
-        });
-
-        afterEach(async function () {
-          await preferences.savePreferences({
-            enableUnauthenticatedGenAI: false,
           });
         });
 
