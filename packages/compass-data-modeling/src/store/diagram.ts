@@ -1,7 +1,11 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type { EditAction, Relationship } from '../services/data-model-storage';
+import type {
+  DataModelCollection,
+  EditAction,
+  Relationship,
+} from '../services/data-model-storage';
 import {
   validateEdit,
   type Edit,
@@ -21,12 +25,18 @@ import {
   getDiagramName,
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
+import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
+import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import toNS from 'mongodb-ns';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
-export type SelectedItems = { type: 'collection' | 'relationship'; id: string };
+export type SelectedItems = {
+  type: 'collection' | 'relationship';
+  id: string;
+};
 
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
@@ -37,6 +47,7 @@ export type DiagramState =
       };
       editErrors?: string[];
       selectedItems: SelectedItems | null;
+      draftCollection?: string;
     })
   | null; // null when no diagram is currently open
 
@@ -179,6 +190,27 @@ export const diagramReducer: Reducer<DiagramState> = (
       updatedAt: new Date().toISOString(),
     };
   }
+  if (
+    isAction(action, DiagramActionTypes.APPLY_EDIT) &&
+    state.draftCollection &&
+    action.edit.type === 'RenameCollection'
+  ) {
+    return {
+      ...state,
+      edits: getEditsAfterDraftCollectionNamed(
+        state.edits,
+        state.draftCollection,
+        action.edit.toNS
+      ),
+      editErrors: undefined,
+      updatedAt: new Date().toISOString(),
+      selectedItems: {
+        type: 'collection',
+        id: action.edit.toNS,
+      },
+      draftCollection: undefined,
+    };
+  }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT)) {
     return {
       ...state,
@@ -193,6 +225,8 @@ export const diagramReducer: Reducer<DiagramState> = (
         state.selectedItems,
         action.edit
       ),
+      draftCollection:
+        action.edit.type === 'AddCollection' ? action.edit.ns : undefined,
     };
   }
   if (isAction(action, DiagramActionTypes.APPLY_EDIT_FAILED)) {
@@ -256,6 +290,43 @@ export const diagramReducer: Reducer<DiagramState> = (
 };
 
 /**
+ * When the collection is created, it gets a draft name
+ * If the user renames it, we update the addCollection edit
+ * instead of appending a renameCollection edit, for cleaner history.
+ * @param edits
+ * @param draftNamespace
+ * @param newNamespace
+ * @returns
+ */
+const getEditsAfterDraftCollectionNamed = (
+  edits: NonNullable<DiagramState>['edits'],
+  draftNamespace: string,
+  newNamespace: string
+) => {
+  if (draftNamespace === newNamespace) {
+    return edits;
+  }
+
+  const { current } = edits;
+  const originalEditIndex = current.findIndex(
+    (edit) => edit.type === 'AddCollection' && edit.ns === draftNamespace
+  );
+  const newEdit = {
+    ...current[originalEditIndex],
+    ns: newNamespace,
+  };
+  return {
+    prev: edits.prev,
+    current: [
+      ...current.slice(0, originalEditIndex),
+      newEdit,
+      ...current.slice(originalEditIndex + 1),
+    ] as [Edit, ...Edit[]],
+    next: [],
+  };
+};
+
+/**
  * When an edit impacts the selected item we sometimes need to update
  * the selection to reflect that, for instance when renaming a
  * collection we update the selection `id` to the new name.
@@ -264,12 +335,11 @@ const updateSelectedItemsFromAppliedEdit = (
   currentSelection: SelectedItems | null,
   edit: Edit
 ): SelectedItems | null => {
-  if (!currentSelection) {
-    return currentSelection;
-  }
-
   switch (edit.type) {
     case 'RenameCollection': {
+      if (!currentSelection) {
+        return currentSelection;
+      }
       if (
         currentSelection?.type === 'collection' &&
         currentSelection.id === edit.fromNS
@@ -280,6 +350,12 @@ const updateSelectedItemsFromAppliedEdit = (
         };
       }
       break;
+    }
+    case 'AddCollection': {
+      return {
+        type: 'collection',
+        id: edit.ns,
+      };
     }
   }
 
@@ -538,6 +614,80 @@ export function updateCollectionNote(
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
+function getPositionForNewCollection(
+  existingCollections: DataModelCollection[],
+  newCollection: Omit<DataModelCollection, 'displayPosition'>
+): [number, number] {
+  const existingNodes = existingCollections.map((collection) =>
+    collectionToDiagramNode(collection)
+  );
+  const newNode = collectionToDiagramNode({
+    ns: newCollection.ns,
+    jsonSchema: newCollection.jsonSchema,
+    displayPosition: [0, 0],
+  });
+  const xyposition = getCoordinatesForNewNode(existingNodes, newNode);
+  return [xyposition.x, xyposition.y];
+}
+
+function getNameForNewCollection(
+  existingCollections: DataModelCollection[]
+): string {
+  const database = toNS(existingCollections[0]?.ns).database; // TODO: again, what if there just isn't anything
+  const baseName = `${database}.new-collection`;
+  let counter = 1;
+  let newName = baseName;
+
+  while (existingCollections.some((collection) => collection.ns === newName)) {
+    newName = `${baseName}-${counter}`;
+    counter++;
+  }
+
+  return newName;
+}
+
+export function addCollection(
+  ns?: string,
+  position?: [number, number]
+): DataModelingThunkAction<
+  boolean,
+  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
+> {
+  return (dispatch, getState) => {
+    const existingCollections = selectCurrentModelFromState(
+      getState()
+    ).collections;
+    if (!ns) ns = getNameForNewCollection(existingCollections);
+    if (!position) {
+      position = getPositionForNewCollection(existingCollections, {
+        ns,
+        jsonSchema: {} as MongoDBJSONSchema,
+        indexes: [],
+      });
+    }
+
+    const edit: Omit<
+      Extract<Edit, { type: 'AddCollection' }>,
+      'id' | 'timestamp'
+    > = {
+      type: 'AddCollection',
+      ns,
+      initialSchema: {
+        bsonType: 'object',
+        properties: {
+          _id: {
+            bsonType: 'objectId',
+          },
+        },
+        required: ['_id'],
+      },
+      position,
+    };
+    dispatch(applyEdit(edit));
+    return true;
+  };
+}
+
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -546,6 +696,18 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
     throw new Error('Editing a model that has not been initialized');
   }
   switch (edit.type) {
+    case 'AddCollection': {
+      const newCollection: DataModelCollection = {
+        ns: edit.ns,
+        jsonSchema: edit.initialSchema,
+        displayPosition: edit.position,
+        indexes: [],
+      };
+      return {
+        ...model,
+        collections: [...model.collections, newCollection],
+      };
+    }
     case 'AddRelationship': {
       return {
         ...model,
