@@ -18,7 +18,7 @@ console.log('Adding @leafygreen-ui/button/constants export...');
 
 fs.writeFileSync(
   path.join(leafygreenButtonPackage, 'constants.js'),
-  "export const PRIMARY_BUTTON_INTERACTIVE_GREEN = '#00593F';"
+  "module.exports = { PRIMARY_BUTTON_INTERACTIVE_GREEN: '#00593F' };"
 );
 fs.writeFileSync(
   path.join(leafygreenButtonPackage, 'constants.d.ts'),
