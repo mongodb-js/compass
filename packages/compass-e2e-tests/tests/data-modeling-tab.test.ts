@@ -585,11 +585,13 @@ describe('Data Modeling tab', function () {
       const relationshipItem = drawer.$(
         Selectors.DataModelCollectionRelationshipItem(relationshipId)
       );
-      expect(await relationshipItem.isDisplayed()).to.be.true;
+      await relationshipItem.waitForDisplayed();
       expect(await relationshipItem.getText()).to.include('testCollection-one');
 
       // Edit the relationship
-      await relationshipItem.waitForDisplayed();
+      await relationshipItem
+        .$(Selectors.DataModelCollectionRelationshipItemEdit)
+        .waitForDisplayed();
       await relationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
@@ -619,7 +621,7 @@ describe('Data Modeling tab', function () {
         .click();
 
       // Verify that the relationship is removed from the list and the diagram
-      expect(await relationshipItem.isExisting()).to.be.false;
+      await relationshipItem.waitForDisplayed({ reverse: true });
       await getDiagramEdges(browser, 0);
     });
 
