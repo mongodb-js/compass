@@ -27,6 +27,5 @@ ${connectionString}
 
 Error message:
 ${connectionError}`,
-    displayText: 'Provide an explanation of this connection error.',
   };
 };

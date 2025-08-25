@@ -111,16 +111,13 @@ export const AssistantProvider: React.FunctionComponent<
       );
       const connectionError = error.toString();
 
-      const { prompt, displayText } = buildConnectionErrorPrompt({
+      const { prompt } = buildConnectionErrorPrompt({
         connectionString,
         connectionError,
       });
       void chat.sendMessage(
         {
           text: prompt,
-          metadata: {
-            displayText,
-          },
         },
         {}
       );
