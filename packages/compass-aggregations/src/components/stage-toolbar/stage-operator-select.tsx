@@ -1,6 +1,10 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model/provider';
+import {
+  usePreference,
+  withPreferences,
+} from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import {
   Combobox,
@@ -13,9 +17,10 @@ import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-import { filterStageOperators } from '../../utils/stage';
+import { filterStageOperators, isSearchStage } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
+import type { CollectionStats } from '../../modules/collection-stats';
 
 const inputWidth = spacing[1400] * 3;
 // width of options popover
@@ -43,6 +48,48 @@ type StageOperatorSelectProps = {
     env: ServerEnvironment[];
     description: string;
   }[];
+  serverVersion: string;
+  isReadonlyView: boolean;
+  collectionStats: CollectionStats;
+};
+
+type Stage = {
+  name: string;
+  env: ServerEnvironment[];
+  description: string;
+};
+
+export const getStageDescription = (
+  stage: Stage,
+  isReadonlyView: boolean,
+  versionIncompatibleCompass: boolean,
+  versionIncompatibleDE: boolean,
+  isPipelineSearchQueryable: boolean
+) => {
+  if (isReadonlyView && isSearchStage(stage.name)) {
+    // Users can create search indexes on views for de via atlas 8.0+ while compass requires 8.1+
+    const minViewCompatibilityVersion = versionIncompatibleCompass
+      ? VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+      : VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
+    const minMajorMinorVersion = minViewCompatibilityVersion
+      .split('.')
+      .slice(0, 2)
+      .join('.');
+    if (versionIncompatibleCompass || versionIncompatibleDE) {
+      return (
+        `Atlas only. Requires MongoDB ${minMajorMinorVersion}+ to run on a view. ` +
+        stage.description
+      );
+    }
+
+    if (!isPipelineSearchQueryable) {
+      return (
+        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes. ` +
+        stage.description
+      );
+    }
+  }
+  return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
 };
 
 // exported for tests
@@ -51,6 +98,9 @@ export const StageOperatorSelect = ({
   index,
   selectedStage,
   isDisabled,
+  serverVersion,
+  isReadonlyView,
+  collectionStats,
   stages,
 }: StageOperatorSelectProps) => {
   const onStageOperatorSelected = useCallback(
@@ -59,6 +109,29 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+  const versionIncompatibleCompass =
+    enableAtlasSearchIndexes &&
+    !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+      serverVersion
+    );
+  const versionIncompatibleDE =
+    !enableAtlasSearchIndexes &&
+    !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+      serverVersion
+    );
+  const pipelineIsSearchQueryable = collectionStats?.pipeline
+    ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+        collectionStats.pipeline as Document[]
+      )
+    : true;
+  const disableSearchStage =
+    isReadonlyView &&
+    (!pipelineIsSearchQueryable ||
+      versionIncompatibleCompass ||
+      versionIncompatibleDE);
+
   return (
     <Combobox
       value={selectedStage}
@@ -70,14 +143,19 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {stages.map((stage, index) => (
+      {stages.map((stage: Stage, index) => (
         <ComboboxOption
           data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
           value={stage.name}
-          description={
-            (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description
-          }
+          disabled={isSearchStage(stage.name) && disableSearchStage}
+          description={getStageDescription(
+            stage,
+            isReadonlyView,
+            versionIncompatibleCompass,
+            versionIncompatibleDE,
+            pipelineIsSearchQueryable
+          )}
         />
       ))}
     </Combobox>
@@ -113,6 +191,9 @@ export default withPreferences(
         selectedStage: stage.stageOperator,
         isDisabled: stage.disabled,
         stages: stages,
+        serverVersion: state.serverVersion,
+        isReadonlyView: !!state.sourceName,
+        collectionStats: state.collectionStats,
       };
     },
     (dispatch: any, ownProps) => {
