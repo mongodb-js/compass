@@ -111,7 +111,13 @@ delete (Checkbox as React.ComponentType<any>).propTypes;
 
 // We wrap these so that we can add the utm_source and utm_medium parameters to
 // all hrefs.
-export { Link, Button, IconButton } from './links/link';
+export {
+  Link,
+  Button,
+  type ButtonProps,
+  IconButton,
+  type IconButtonProps,
+} from './links/link';
 
 // Working around leafygreen lack of support for `defaultValue` property
 const TextInput: typeof LeafyGreenTextInput = React.forwardRef(

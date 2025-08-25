@@ -85,12 +85,12 @@ function extractHref<T extends object>(
   return { href: undefined, rest: props };
 }
 
+export type ButtonProps = BaseButtonProps &
+  React.HTMLProps<HTMLButtonElement> & { as?: PolymorphicAs };
+
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
-  (
-    props: BaseButtonProps & { as?: PolymorphicAs },
-    ref: React.ForwardedRef<HTMLButtonElement>
-  ) => {
+  (props: ButtonProps, ref: React.ForwardedRef<HTMLButtonElement>) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
 
@@ -105,12 +105,12 @@ export const Button = forwardRef(
   }
 );
 
+export type IconButtonProps = AccessibleIconButtonProps &
+  React.HTMLProps<HTMLButtonElement> & { as?: PolymorphicAs };
+
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
-  (
-    props: AccessibleIconButtonProps & { as?: PolymorphicAs },
-    ref: React.ForwardedRef<HTMLButtonElement>
-  ) => {
+  (props: IconButtonProps, ref: React.ForwardedRef<HTMLButtonElement>) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
 
