@@ -67,6 +67,7 @@ export const getStageDescription = (
   isPipelineSearchQueryable: boolean
 ) => {
   if (isReadonlyView && isSearchStage(stage.name)) {
+    // Users can create search indexes on views for de via atlas 8.0+ while compass requires 8.1+
     const minViewCompatibilityVersion = versionIncompatibleCompass
       ? VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
       : VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
