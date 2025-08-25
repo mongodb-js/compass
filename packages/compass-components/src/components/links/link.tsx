@@ -5,8 +5,9 @@ import LGIconButton, {
   type AccessibleIconButtonProps,
 } from '@leafygreen-ui/icon-button';
 import type {
-  InferredPolymorphicProps,
+  InferredPolymorphicPropsWithRef,
   PolymorphicAs,
+  PolymorphicRef,
 } from '@leafygreen-ui/polymorphic';
 
 type RequiredURLSearchParamsContextValue = {
@@ -90,9 +91,9 @@ function extractHref<T extends Record<string, unknown>>(
 
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
-  (
-    props: InferredPolymorphicProps<'button', BaseButtonProps>,
-    ref: React.ForwardedRef<HTMLButtonElement>
+  <TAsProp extends PolymorphicAs = 'button'>(
+    props: InferredPolymorphicPropsWithRef<TAsProp, BaseButtonProps>,
+    ref: PolymorphicRef<TAsProp>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
@@ -110,9 +111,9 @@ export const Button = forwardRef(
 
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
-  (
-    props: InferredPolymorphicProps<'button', AccessibleIconButtonProps>,
-    ref: React.ForwardedRef<HTMLAnchorElement>
+  <TAsProp extends PolymorphicAs = 'button'>(
+    props: InferredPolymorphicPropsWithRef<TAsProp, AccessibleIconButtonProps>,
+    ref: PolymorphicRef<TAsProp>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
