@@ -18,6 +18,7 @@ import {
 import { getDefaultRelationshipName } from '../../utils';
 import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
+import { getFieldFromSchema } from '../../utils/schema-traversal';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';
 
@@ -213,16 +214,19 @@ export default connect(
     }
 
     if (selected.type === 'field') {
-      // const collection = model.collections.find((collection) => (collection.ns === selected.namespace));
-      // const field =
-
-      // if (!field) {
-      //   // TODO(COMPASS-9680): When the selected field doesn't exist we don't
-      //   // show any selection.
-      //   return {
-      //     selectedItems: null,
-      //   };
-      // }
+      // TODO(COMPASS-9680): Can be cleaned up after COMPASS-9680 is done (the selection updates with undo/redo)
+      const collection = model.collections.find(
+        (collection) => collection.ns === selected.namespace
+      );
+      const field = getFieldFromSchema({
+        jsonSchema: collection?.jsonSchema ?? {},
+        fieldPath: selected.fieldPath,
+      });
+      if (!field) {
+        return {
+          selectedItems: null,
+        };
+      }
 
       return {
         selectedItems: {
@@ -237,6 +241,6 @@ export default connect(
   {
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
-    onDeleteField: () => {}, // TODO onDeleteField,
+    onDeleteField: () => {}, // TODO(COMPASS-9659) part 2 - implement onDeleteField,
   }
 )(DiagramEditorSidePanel);

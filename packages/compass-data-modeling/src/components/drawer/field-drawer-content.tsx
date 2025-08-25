@@ -144,6 +144,8 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
 
         <DMFormFieldContainer>
           <Combobox
+            data-testid="lg-combobox-datatype"
+            label="Datatype"
             aria-label="Datatype"
             disabled={true} // TODO: enable when field type change is implemented
             value={types}
