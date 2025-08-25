@@ -210,39 +210,37 @@ describe('traverseSchema', function () {
 describe('getFieldFromSchema', function () {
   describe('field not found', function () {
     it('empty schema', function () {
-      expect(() =>
-        getFieldFromSchema({
-          fieldPath: ['name'],
-          jsonSchema: {},
-        })
-      ).to.throw('Field not found in schema');
+      const result = getFieldFromSchema({
+        fieldPath: ['name'],
+        jsonSchema: {},
+      });
+      expect(result).to.be.undefined;
     });
 
     it('wrong path', function () {
-      expect(() =>
-        getFieldFromSchema({
-          fieldPath: ['address', 'age'],
-          jsonSchema: {
-            bsonType: 'object',
-            properties: {
-              person: {
-                bsonType: 'object',
-                properties: {
-                  age: { bsonType: 'int' },
-                  name: { bsonType: 'string' },
-                },
+      const result = getFieldFromSchema({
+        fieldPath: ['address', 'age'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              properties: {
+                age: { bsonType: 'int' },
+                name: { bsonType: 'string' },
               },
-              address: {
-                bsonType: 'object',
-                properties: {
-                  street: { bsonType: 'string' },
-                  city: { bsonType: 'string' },
-                },
+            },
+            address: {
+              bsonType: 'object',
+              properties: {
+                street: { bsonType: 'string' },
+                city: { bsonType: 'string' },
               },
             },
           },
-        })
-      ).to.throw('Field not found in schema');
+        },
+      });
+      expect(result).to.be.undefined;
     });
   });
 

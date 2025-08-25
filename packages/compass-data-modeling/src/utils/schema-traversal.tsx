@@ -3,16 +3,11 @@ import type { FieldPath } from '../services/data-model-storage';
 
 /**
  * Traverses a MongoDB JSON schema and calls the visitor for each field.
- *
- * @param {Object} params - The parameters object.
- * @param {MongoDBJSONSchema} params.jsonSchema - The JSON schema to traverse.
- * @param {function} params.visitor - Function called for each field.
- * @returns {void}
  */
 export const traverseSchema = ({
   jsonSchema,
-  parentFieldPath = [],
   visitor,
+  parentFieldPath = [],
 }: {
   jsonSchema: MongoDBJSONSchema;
   visitor: ({
@@ -103,15 +98,6 @@ function searchItemsForChild(
 
 /**
  * Finds a single field in a MongoDB JSON schema.
- *
- * @param {Object} params - The parameters object.
- * @param {MongoDBJSONSchema} params.jsonSchema - The JSON schema to traverse.
- * @param {FieldPath} params.fieldPath - The field path to find.
- * @returns {Object} result - The field information.
- * @returns {FieldPath[]} result.fieldPath - The full path to the found field.
- * @returns {string[]} result.fieldTypes - Flat list of BSON types for the found field.
- * @returns {MongoDBJSONSchema} result.jsonSchema - The JSON schema node for the found field.
- 
  */
 export const getFieldFromSchema = ({
   jsonSchema,
@@ -149,7 +135,7 @@ export const getFieldFromSchema = ({
     }
   }
   if (!nextStep) {
-    throw new Error('Field not found in schema');
+    return;
   }
 
   // Reached the end of path, return the field information
