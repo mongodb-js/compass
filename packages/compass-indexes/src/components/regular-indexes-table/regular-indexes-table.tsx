@@ -248,19 +248,32 @@ function mergeIndexes(
   const rollingIndexNames = new Set(
     rollingIndexes.map((index) => index.indexName)
   );
+  const inProgressIndexNames = new Set(
+    inProgressIndexes.map(({ name }) => name)
+  );
+
+  const regularIndexesByName = new Map<string, RegularIndex>(
+    indexes.map((index) => [index.name, index])
+  );
 
   const mappedIndexes: MappedRegularIndex[] = indexes
     // exclude partially-built indexes so that we don't include indexes that
     // only exist on the primary node and then duplicate those as rolling
     // builds in the same table
     .filter((index) => !rollingIndexNames.has(index.name))
+    .filter((index) => !inProgressIndexNames.has(index.name))
     .map((index) => {
       return { ...index, compassIndexType: 'regular-index' };
     });
 
+  // For in-progress indexes, merge in buildProgress from regular indexes if available
   const mappedInProgressIndexes: MappedInProgressIndex[] =
     inProgressIndexes.map((index) => {
-      return { ...index, compassIndexType: 'in-progress-index' };
+      return {
+        ...index,
+        buildProgress: regularIndexesByName.get(index.name)?.buildProgress ?? 0,
+        compassIndexType: 'in-progress-index',
+      };
     });
 
   const mappedRollingIndexes: MappedRollingIndex[] = rollingIndexes.map(
@@ -304,7 +317,7 @@ function getInProgressIndexInfo(
       <InProgressIndexActions
         index={index}
         onDeleteFailedIndexClick={onDeleteFailedIndexClick}
-      ></InProgressIndexActions>
+      />
     ),
   };
 }
