@@ -21,6 +21,7 @@ export const traverseSchema = ({
   }: {
     fieldPath: FieldPath;
     fieldTypes: string[];
+    fieldSchema: MongoDBJSONSchema;
   }) => void;
   parentFieldPath?: FieldPath;
 }): void => {
@@ -61,6 +62,7 @@ export const traverseSchema = ({
     visitor({
       fieldPath: newFieldPath,
       fieldTypes: types.flat(),
+      fieldSchema: field,
     });
 
     children.flat().forEach((child) =>

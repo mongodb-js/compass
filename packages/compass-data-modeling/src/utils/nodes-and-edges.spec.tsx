@@ -6,7 +6,7 @@ import {
   render,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { getFieldsFromSchema } from '../utils/nodes-and-edges';
+import { getFieldsFromSchema } from './nodes-and-edges';
 
 describe('getFieldsFromSchema', function () {
   const validateMixedType = async (
