@@ -10,6 +10,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
+import { getDefaultRelationshipName } from '../../utils';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
@@ -47,7 +48,6 @@ const relationshipContentStyles = css({
 type RelationshipsSectionProps = {
   relationships: Relationship[];
   emptyMessage: string;
-  getRelationshipLabel: (relationship: Relationship['relationship']) => string;
   onCreateNewRelationshipClick: () => void;
   onEditRelationshipClick: (rId: string) => void;
   onDeleteRelationshipClick: (rId: string) => void;
@@ -58,7 +58,6 @@ export const RelationshipsSection: React.FunctionComponent<
 > = ({
   relationships,
   emptyMessage,
-  getRelationshipLabel,
   onCreateNewRelationshipClick,
   onEditRelationshipClick,
   onDeleteRelationshipClick,
@@ -85,7 +84,9 @@ export const RelationshipsSection: React.FunctionComponent<
         ) : (
           <ul className={relationshipsListStyles}>
             {relationships.map((r) => {
-              const relationshipLabel = getRelationshipLabel(r.relationship);
+              const relationshipLabel = getDefaultRelationshipName(
+                r.relationship
+              );
 
               return (
                 <li

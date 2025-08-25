@@ -15,7 +15,6 @@ import {
   updateCollectionNote,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
-import { getDefaultRelationshipName } from '../../utils';
 import {
   DMDrawerSection,
   DMFormFieldContainer,
@@ -141,7 +140,6 @@ const CollectionDrawerContent: React.FunctionComponent<
       <RelationshipsSection
         relationships={relationships}
         emptyMessage="This collection does not have any relationships yet."
-        getRelationshipLabel={getDefaultRelationshipName}
         onCreateNewRelationshipClick={() => {
           onCreateNewRelationshipClick({ localNamespace: namespace });
         }}

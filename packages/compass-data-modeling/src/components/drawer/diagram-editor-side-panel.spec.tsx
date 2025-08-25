@@ -350,7 +350,7 @@ describe('DiagramEditorSidePanel', function () {
 
       // Open relationshipt editing form
       const relationshipItem = screen
-        .getByText('airports.Country')
+        .getByText('countries.name → airports.Country')
         .closest('li');
       expect(relationshipItem).to.be.visible;
       userEvent.click(
@@ -374,7 +374,7 @@ describe('DiagramEditorSidePanel', function () {
 
       // Find the relationhip item
       const relationshipItem = screen
-        .getByText('airports.Country')
+        .getByText('countries.name → airports.Country')
         .closest('li');
       expect(relationshipItem).to.be.visible;
 

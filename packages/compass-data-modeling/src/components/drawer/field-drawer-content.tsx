@@ -164,18 +164,6 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       <RelationshipsSection
         relationships={relationships}
         emptyMessage="This field does not have any relationships yet."
-        getRelationshipLabel={([local, foreign]) => {
-          const labelField =
-            local.ns === namespace &&
-            local.fields &&
-            areFieldPathsEqual(local.fields, fieldPath)
-              ? foreign
-              : local;
-          return [
-            labelField.ns ? toNS(labelField.ns).collection : '',
-            labelField.fields?.join('.'),
-          ].join('.');
-        }}
         onCreateNewRelationshipClick={() => {
           onCreateNewRelationshipClick({
             localNamespace: namespace,
