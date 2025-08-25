@@ -107,9 +107,7 @@ export const StageOperatorSelect = ({
     [onChange, index]
   );
 
-  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const versionIncompatibleCompass =
-    enableAtlasSearchIndexes &&
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
     );
@@ -176,6 +174,7 @@ export default withPreferences(
         isTimeSeries: state.isTimeSeries,
         sourceName: state.sourceName,
         preferencesReadOnly: ownProps.readOnly,
+        enableAtlasSearchIndexes: usePreference('enableAtlasSearchIndexes'),
       });
       return {
         selectedStage: stage.stageOperator,

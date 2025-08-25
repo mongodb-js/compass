@@ -47,12 +47,14 @@ export const filterStageOperators = ({
   isTimeSeries,
   sourceName,
   preferencesReadOnly,
+  enableAtlasSearchIndexes,
 }: {
   serverVersion: string;
   env: ServerEnvironment;
   isTimeSeries: boolean;
   sourceName: string | null;
   preferencesReadOnly: boolean;
+  enableAtlasSearchIndexes: boolean;
 }): FilteredStageOperators => {
   const namespaceType = isTimeSeries
     ? TIME_SERIES
@@ -66,6 +68,7 @@ export const filterStageOperators = ({
     env,
     namespaceType,
     preferencesReadOnly,
+    enableAtlasSearchIndexes,
   });
 
   if (FilteredStagesCache.has(cacheKey)) {
@@ -85,9 +88,14 @@ export const filterStageOperators = ({
             [env, ATLAS]
           : env,
     },
-  }).filter((op) => {
-    return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
-  });
+  })
+    .filter((op) => {
+      return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
+    })
+    .filter((op) => {
+      // if enableAtlasSearchIndexes is false, only allow non search stages
+      return enableAtlasSearchIndexes || !isSearchStage(op.value);
+    });
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 
