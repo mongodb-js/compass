@@ -4,6 +4,7 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import {
   Combobox,
@@ -20,70 +21,12 @@ import { filterStageOperators, isSearchStage } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
-import semver from 'semver'; //import from mongodb-js/constants
 
-const inputWidth = spacing[1400] * 3;
+const inputWidth = spacing[1400] * 5;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 10;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
-const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE = '8.0.0';
-const isVersionSearchCompatibleForViewsDataExplorer = (
-  serverVersion: string
-) => {
-  try {
-    return semver.gte(
-      serverVersion,
-      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE
-    );
-  } catch {
-    return false;
-  }
-};
-
-// START: ALL OF THESE WILL BE IMPORTED FROM mongodb-constants
-const MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS = '8.1.0';
-const isVersionSearchCompatibleForViews = (serverVersion: string) => {
-  try {
-    return semver.gte(
-      serverVersion,
-      MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
-    );
-  } catch {
-    return false;
-  }
-};
-
-const isPipelineSearchQueryable = (
-  //import from mongodb-js/constants
-  pipeline: Array<Record<string, any>>
-): boolean => {
-  for (const stage of pipeline) {
-    const stageKey = Object.keys(stage)[0];
-
-    if (
-      !(
-        stageKey === '$addFields' ||
-        stageKey === '$set' ||
-        stageKey === '$match'
-      )
-    ) {
-      return false;
-    }
-
-    if (stageKey === '$match') {
-      const matchStage = stage['$match'];
-      const allKeys = Object.keys(matchStage);
-
-      if (!(allKeys.length === 1 && allKeys.includes('$expr'))) {
-        return false; // Not searchable
-      }
-    }
-  }
-
-  return true;
-};
-// END: ALL OF THESE WILL BE IMPORTED FROM mongodb-constants
 
 const comboboxStyles = css({
   width: inputWidth,
@@ -124,16 +67,9 @@ export const getStageDescription = (
   isPipelineSearchQueryable: boolean
 ) => {
   if (isReadonlyView && isSearchStage(stage.name)) {
-    if (!isPipelineSearchQueryable) {
-      return (
-        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.` +
-        stage.description
-      );
-    }
-
     const minViewCompatibilityVersion = versionIncompatibleCompass
-      ? MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
-      : MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
+      ? VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
+      : VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
     const minMajorMinorVersion = minViewCompatibilityVersion
       .split('.')
       .slice(0, 2)
@@ -141,6 +77,13 @@ export const getStageDescription = (
     if (versionIncompatibleCompass || versionIncompatibleDE) {
       return (
         `Atlas only. Requires MongoDB ${minMajorMinorVersion}+ to run on a view. ` +
+        stage.description
+      );
+    }
+
+    if (!isPipelineSearchQueryable) {
+      return (
+        `Atlas only. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes. ` +
         stage.description
       );
     }
@@ -169,12 +112,18 @@ export const StageOperatorSelect = ({
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const versionIncompatibleCompass =
     enableAtlasSearchIndexes &&
-    !isVersionSearchCompatibleForViews(serverVersion);
+    !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+      serverVersion
+    );
   const versionIncompatibleDE =
     !enableAtlasSearchIndexes &&
-    !isVersionSearchCompatibleForViewsDataExplorer(serverVersion);
+    !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+      serverVersion
+    );
   const pipelineIsSearchQueryable = collectionStats?.pipeline
-    ? isPipelineSearchQueryable(collectionStats.pipeline as Document[])
+    ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
+        collectionStats.pipeline as Document[]
+      )
     : true;
   const disableSearchStage =
     isReadonlyView &&
