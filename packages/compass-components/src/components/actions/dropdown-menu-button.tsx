@@ -1,9 +1,15 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import type { ButtonProps } from '@leafygreen-ui/button';
 import type { RenderMode } from '@leafygreen-ui/popover';
 
-import { Button, Icon, Menu, MenuItem, MenuSeparator } from '../leafygreen';
+import {
+  Button,
+  type ButtonProps,
+  Icon,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+} from '../leafygreen';
 import { WorkspaceContainer } from '../workspace-container';
 
 import { ItemActionButtonSize } from './constants';
@@ -28,7 +34,7 @@ export type DropdownMenuButtonProps<Action extends string> = {
   activeAction?: Action;
   'data-testid'?: string;
   buttonText: string;
-  buttonProps: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
+  buttonProps: Omit<ButtonProps, 'ref'>;
   hideOnNarrow?: boolean;
   narrowBreakpoint?: string;
 };
