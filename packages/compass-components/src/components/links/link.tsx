@@ -4,11 +4,7 @@ import LGButton, { type BaseButtonProps } from '@leafygreen-ui/button';
 import LGIconButton, {
   type AccessibleIconButtonProps,
 } from '@leafygreen-ui/icon-button';
-import type {
-  InferredPolymorphicPropsWithRef,
-  PolymorphicAs,
-  PolymorphicRef,
-} from '@leafygreen-ui/polymorphic';
+import type { PolymorphicAs } from '@leafygreen-ui/polymorphic';
 
 type RequiredURLSearchParamsContextValue = {
   utmSource?: string;
@@ -79,7 +75,7 @@ export const Link = (({ href, children, ...rest }: LeafygreenLinkProps) => {
   );
 }) as unknown as typeof LGLink;
 
-function extractHref<T extends Record<string, unknown>>(
+function extractHref<T extends object>(
   props: T
 ): { href: string | undefined; rest: Omit<T, 'href'> } {
   if ('href' in props && typeof props.href === 'string') {
@@ -91,9 +87,9 @@ function extractHref<T extends Record<string, unknown>>(
 
 // eslint-disable-next-line react/display-name
 export const Button = forwardRef(
-  <TAsProp extends PolymorphicAs = 'button'>(
-    props: InferredPolymorphicPropsWithRef<TAsProp, BaseButtonProps>,
-    ref: PolymorphicRef<TAsProp>
+  (
+    props: BaseButtonProps & { as?: PolymorphicAs },
+    ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
@@ -107,13 +103,13 @@ export const Button = forwardRef(
 
     return <LGButton href={hrefWithParams} {...rest} ref={ref} />;
   }
-) as typeof LGButton;
+);
 
 // eslint-disable-next-line react/display-name
 export const IconButton = forwardRef(
-  <TAsProp extends PolymorphicAs = 'button'>(
-    props: InferredPolymorphicPropsWithRef<TAsProp, AccessibleIconButtonProps>,
-    ref: PolymorphicRef<TAsProp>
+  (
+    props: AccessibleIconButtonProps & { as?: PolymorphicAs },
+    ref: React.ForwardedRef<HTMLButtonElement>
   ) => {
     const { utmSource, utmMedium } = useRequiredURLSearchParams();
     const { href, rest } = extractHref(props);
@@ -127,4 +123,4 @@ export const IconButton = forwardRef(
 
     return <LGIconButton href={hrefWithParams} {...rest} ref={ref} />;
   }
-) as typeof LGIconButton;
+);
