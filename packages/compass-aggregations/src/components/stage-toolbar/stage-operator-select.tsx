@@ -63,19 +63,16 @@ export const getStageDescription = (
   stage: Stage,
   isReadonlyView: boolean,
   versionIncompatibleCompass: boolean,
-  versionIncompatibleDE: boolean,
   isPipelineSearchQueryable: boolean
 ) => {
   if (isReadonlyView && isSearchStage(stage.name)) {
-    // Users can create search indexes on views for de via atlas 8.0+ while compass requires 8.1+
-    const minViewCompatibilityVersion = versionIncompatibleCompass
-      ? VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS
-      : VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_DE;
-    const minMajorMinorVersion = minViewCompatibilityVersion
-      .split('.')
-      .slice(0, 2)
-      .join('.');
-    if (versionIncompatibleCompass || versionIncompatibleDE) {
+    const minMajorMinorVersion =
+      VIEW_PIPELINE_UTILS.MIN_VERSION_FOR_VIEW_SEARCH_COMPATIBILITY_COMPASS.split(
+        '.'
+      )
+        .slice(0, 2)
+        .join('.');
+    if (versionIncompatibleCompass) {
       return (
         `Atlas only. Requires MongoDB ${minMajorMinorVersion}+ to run on a view. ` +
         stage.description
@@ -116,11 +113,7 @@ export const StageOperatorSelect = ({
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
     );
-  const versionIncompatibleDE =
-    !enableAtlasSearchIndexes &&
-    !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
-      serverVersion
-    );
+
   const pipelineIsSearchQueryable = collectionStats?.pipeline
     ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
         collectionStats.pipeline as Document[]
@@ -128,9 +121,7 @@ export const StageOperatorSelect = ({
     : true;
   const disableSearchStage =
     isReadonlyView &&
-    (!pipelineIsSearchQueryable ||
-      versionIncompatibleCompass ||
-      versionIncompatibleDE);
+    (!pipelineIsSearchQueryable || versionIncompatibleCompass);
 
   return (
     <Combobox
@@ -153,7 +144,6 @@ export const StageOperatorSelect = ({
             stage,
             isReadonlyView,
             versionIncompatibleCompass,
-            versionIncompatibleDE,
             pipelineIsSearchQueryable
           )}
         />
