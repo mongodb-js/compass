@@ -150,6 +150,30 @@ describe('CompassConnections store', function () {
       }
     });
 
+    it('should show debug toast in addition to the connection error toast if connection fails and the assistant is enabled', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        preferences: {
+          enableAIAssistant: true,
+        },
+        connectFn: sinon
+          .stub()
+          .rejects(new Error('Failed to connect to cluster')),
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+
+      void connectionsStore.actions.connect(connectionInfo);
+
+      await waitFor(() => {
+        expect(screen.getByText('Failed to connect to cluster')).to.exist;
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Need help debugging your connection error?'))
+          .to.exist;
+      });
+    });
+
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {
       const { connectionsStore } = renderCompassConnections({});
 

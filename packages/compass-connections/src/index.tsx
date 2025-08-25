@@ -24,6 +24,7 @@ import {
 } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
+import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 
 const ConnectionsComponent: React.FunctionComponent<{
   /**
@@ -82,7 +83,14 @@ const CompassConnectionsPlugin = registerCompassPlugin(
     component: ConnectionsComponent,
     activate(
       initialProps,
-      { logger, preferences, connectionStorage, track, globalAppRegistry },
+      {
+        logger,
+        preferences,
+        connectionStorage,
+        track,
+        globalAppRegistry,
+        compassAssistant,
+      },
       { addCleanup, cleanup }
     ) {
       const store = configureStore(initialProps.preloadStorageConnectionInfos, {
@@ -95,6 +103,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         connectFn: initialProps.connectFn,
         globalAppRegistry,
         onFailToLoadConnections: initialProps.onFailToLoadConnections,
+        compassAssistant,
       });
 
       setTimeout(() => {
@@ -128,6 +137,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
     preferences: preferencesLocator,
     connectionStorage: connectionStorageLocator,
     track: telemetryLocator,
+    compassAssistant: compassAssistantServiceLocator,
   }
 );
 

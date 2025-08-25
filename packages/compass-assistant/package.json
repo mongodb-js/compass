@@ -53,6 +53,8 @@
     "@mongodb-js/atlas-service": "^0.55.0",
     "@mongodb-js/compass-app-registry": "^9.4.19",
     "@mongodb-js/compass-components": "^1.48.0",
+    "@mongodb-js/connection-info": "^0.17.1",
+    "mongodb-connection-string-url": "^3.0.1",
     "ai": "^5.0.5",
     "compass-preferences-model": "^2.50.0",
     "react": "^17.0.2",
