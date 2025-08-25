@@ -6,8 +6,11 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import type { SelectedItems } from '../store/diagram';
 import type {
   DataModelCollection,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
+import { traverseSchema } from './schema-traversal';
+import { areFieldPathsEqual } from './utils';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -51,7 +54,7 @@ function getFieldTypeDisplay(bsonTypes: string[]) {
   );
 }
 
-export const getSelectedFields = (
+export const getHighlightedFields = (
   selectedItems: SelectedItems | null,
   relationships?: Relationship[]
 ): Record<string, string[][] | undefined> => {
@@ -71,73 +74,44 @@ export const getSelectedFields = (
   return selection;
 };
 
-export const getFieldsFromSchema = (
-  jsonSchema: MongoDBJSONSchema,
-  highlightedFields: string[][] = [],
-  depth = 0
-): NodeProps['fields'] => {
+export const getFieldsFromSchema = ({
+  jsonSchema,
+  highlightedFields = [],
+  selectedField,
+}: {
+  jsonSchema: MongoDBJSONSchema;
+  highlightedFields?: FieldPath[];
+  selectedField?: FieldPath;
+}): NodeProps['fields'] => {
   if (!jsonSchema || !jsonSchema.properties) {
     return [];
   }
-  let fields: NodeProps['fields'] = [];
-  for (const [name, field] of Object.entries(jsonSchema.properties)) {
-    // field has types, properties and (optional) children
-    // types are either direct, or from anyof
-    // children are either direct (properties), from anyOf, items or items.anyOf
-    const types: (string | string[])[] = [];
-    const children: (MongoDBJSONSchema | MongoDBJSONSchema[])[] = [];
-    if (field.bsonType) {
-      types.push(field.bsonType);
-    }
-    if (field.properties) {
-      children.push(field);
-    }
-    if (field.items) {
-      children.push((field.items as MongoDBJSONSchema).anyOf || field.items);
-    }
-    if (field.anyOf) {
-      for (const variant of field.anyOf) {
-        if (variant.bsonType) {
-          types.push(variant.bsonType);
-        }
-        if (variant.properties) {
-          children.push(variant);
-        }
-        if (variant.items) {
-          children.push(variant.items);
-        }
-      }
-    }
+  const fields: NodeProps['fields'] = [];
 
-    fields.push({
-      name,
-      type: getFieldTypeDisplay(types.flat()),
-      depth: depth,
-      glyphs: types.length === 1 && types[0] === 'objectId' ? ['key'] : [],
-      variant:
-        highlightedFields.length &&
-        highlightedFields.some(
-          (field) => field.length === 1 && field[0] === name
-        )
-          ? 'preview'
-          : undefined,
-    });
-
-    if (children.length > 0) {
-      fields = [
-        ...fields,
-        ...children.flat().flatMap((child) =>
-          getFieldsFromSchema(
-            child,
-            highlightedFields
-              .filter((field) => field[0] === name)
-              .map((field) => field.slice(1)),
-            depth + 1
+  traverseSchema({
+    jsonSchema,
+    visitor: ({ fieldPath, fieldTypes }) => {
+      fields.push({
+        name: fieldPath[fieldPath.length - 1],
+        id: fieldPath,
+        type: getFieldTypeDisplay(fieldTypes),
+        depth: fieldPath.length - 1,
+        glyphs:
+          fieldTypes.length === 1 && fieldTypes[0] === 'objectId'
+            ? ['key']
+            : [],
+        selectable: true,
+        selected: areFieldPathsEqual(fieldPath, selectedField ?? []),
+        variant:
+          highlightedFields.length &&
+          highlightedFields.some((highlightedField) =>
+            areFieldPathsEqual(fieldPath, highlightedField)
           )
-        ),
-      ];
-    }
-  }
+            ? 'preview'
+            : undefined,
+      });
+    },
+  });
 
   return fields;
 };
@@ -145,13 +119,15 @@ export const getFieldsFromSchema = (
 export function collectionToDiagramNode(
   coll: Pick<DataModelCollection, 'ns' | 'jsonSchema' | 'displayPosition'>,
   options: {
-    selectedFields?: Record<string, string[][] | undefined>;
+    highlightedFields?: Record<string, FieldPath[] | undefined>;
+    selectedField?: FieldPath;
     selected?: boolean;
     isInRelationshipDrawingMode?: boolean;
   } = {}
 ): NodeProps {
   const {
-    selectedFields = {},
+    highlightedFields = {},
+    selectedField,
     selected = false,
     isInRelationshipDrawingMode = false,
   } = options;
@@ -164,11 +140,11 @@ export function collectionToDiagramNode(
       y: coll.displayPosition[1],
     },
     title: toNS(coll.ns).collection,
-    fields: getFieldsFromSchema(
-      coll.jsonSchema,
-      selectedFields[coll.ns] ?? undefined,
-      0
-    ),
+    fields: getFieldsFromSchema({
+      jsonSchema: coll.jsonSchema,
+      highlightedFields: highlightedFields[coll.ns] ?? undefined,
+      selectedField,
+    }),
     selected,
     connectable: isInRelationshipDrawingMode,
     draggable: !isInRelationshipDrawingMode,
