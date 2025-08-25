@@ -1,0 +1,456 @@
+import { expect } from 'chai';
+import { traverseSchema, getFieldFromSchema } from './schema-traversal';
+import Sinon from 'sinon';
+
+describe('traverseSchema', function () {
+  let sandbox: Sinon.SinonSandbox;
+  let visitor: Sinon.SinonSpy;
+
+  beforeEach(function () {
+    sandbox = Sinon.createSandbox();
+    visitor = sandbox.spy();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    sandbox.resetHistory();
+  });
+
+  describe('flat schema', function () {
+    it('empty schema', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {},
+      });
+      expect(visitor).not.to.have.been.called;
+    });
+
+    it('simple schema', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+            age: { bsonType: ['string', 'int'] },
+          },
+        },
+      });
+      expect(visitor.callCount).to.equal(2);
+      expect(visitor.getCall(0).args[0]).to.deep.equal({
+        fieldPath: ['name'],
+        fieldTypes: ['string'],
+        fieldSchema: { bsonType: 'string' },
+      });
+      expect(visitor.getCall(1).args[0]).to.deep.equal({
+        fieldPath: ['age'],
+        fieldTypes: ['string', 'int'],
+        fieldSchema: { bsonType: ['string', 'int'] },
+      });
+    });
+  });
+
+  describe('nested schema', function () {
+    it('nested objects', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+                address: {
+                  bsonType: 'object',
+                  properties: {
+                    street: { bsonType: 'string' },
+                    city: { bsonType: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(visitor.callCount).to.equal(5);
+      expect(visitor.getCall(0).args[0]).to.deep.include({
+        fieldPath: ['person'],
+        fieldTypes: ['object'],
+      });
+      expect(visitor.getCall(1).args[0]).to.deep.include({
+        fieldPath: ['person', 'name'],
+        fieldTypes: ['string'],
+      });
+      expect(visitor.getCall(2).args[0]).to.deep.include({
+        fieldPath: ['person', 'address'],
+        fieldTypes: ['object'],
+      });
+      expect(visitor.getCall(3).args[0]).to.deep.include({
+        fieldPath: ['person', 'address', 'street'],
+        fieldTypes: ['string'],
+      });
+      expect(visitor.getCall(4).args[0]).to.deep.include({
+        fieldPath: ['person', 'address', 'city'],
+        fieldTypes: ['string'],
+      });
+    });
+
+    it('a mixed type with objects', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            names: {
+              anyOf: [
+                { bsonType: 'string' },
+                {
+                  bsonType: 'object',
+                  properties: {
+                    first: { bsonType: 'string' },
+                    last: { bsonType: 'string' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+      expect(visitor.callCount).to.equal(3);
+      expect(visitor.getCall(0).args[0]).to.deep.include({
+        fieldPath: ['names'],
+        fieldTypes: ['string', 'object'],
+      });
+      expect(visitor.getCall(1).args[0]).to.deep.include({
+        fieldPath: ['names', 'first'],
+        fieldTypes: ['string'],
+      });
+      expect(visitor.getCall(2).args[0]).to.deep.include({
+        fieldPath: ['names', 'last'],
+        fieldTypes: ['string'],
+      });
+    });
+
+    it('array of objects', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            addresses: {
+              bsonType: 'array',
+              items: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(visitor.callCount).to.equal(3);
+      expect(visitor.getCall(0).args[0]).to.deep.include({
+        fieldPath: ['addresses'],
+        fieldTypes: ['array'],
+      });
+      expect(visitor.getCall(1).args[0]).to.deep.include({
+        fieldPath: ['addresses', 'street'],
+        fieldTypes: ['string'],
+      });
+      expect(visitor.getCall(2).args[0]).to.deep.include({
+        fieldPath: ['addresses', 'city'],
+        fieldTypes: ['string'],
+      });
+    });
+
+    it('an array of mixed items (including objects)', function () {
+      traverseSchema({
+        visitor,
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            todos: {
+              bsonType: 'array',
+              items: {
+                anyOf: [
+                  {
+                    bsonType: 'object',
+                    properties: {
+                      title: { bsonType: 'string' },
+                      completed: { bsonType: 'bool' },
+                    },
+                  },
+                  { bsonType: 'string' },
+                ],
+              },
+            },
+          },
+        },
+      });
+      expect(visitor.callCount).to.equal(3);
+      expect(visitor.getCall(0).args[0]).to.deep.include({
+        fieldPath: ['todos'],
+        fieldTypes: ['array'],
+      });
+      expect(visitor.getCall(1).args[0]).to.deep.include({
+        fieldPath: ['todos', 'title'],
+        fieldTypes: ['string'],
+      });
+      expect(visitor.getCall(2).args[0]).to.deep.include({
+        fieldPath: ['todos', 'completed'],
+        fieldTypes: ['bool'],
+      });
+    });
+  });
+});
+
+describe('getFieldFromSchema', function () {
+  describe('field not found', function () {
+    it('empty schema', function () {
+      expect(() =>
+        getFieldFromSchema({
+          fieldPath: ['name'],
+          jsonSchema: {},
+        })
+      ).to.throw('Field not found in schema');
+    });
+
+    it('wrong path', function () {
+      expect(() =>
+        getFieldFromSchema({
+          fieldPath: ['address', 'age'],
+          jsonSchema: {
+            bsonType: 'object',
+            properties: {
+              person: {
+                bsonType: 'object',
+                properties: {
+                  age: { bsonType: 'int' },
+                  name: { bsonType: 'string' },
+                },
+              },
+              address: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        })
+      ).to.throw('Field not found in schema');
+    });
+  });
+
+  describe('flat schema', function () {
+    it('single type', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['name'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+            age: { bsonType: ['string', 'int'] },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['string'],
+        jsonSchema: { bsonType: 'string' },
+      });
+    });
+    it('simple mixed type', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['age'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            name: { bsonType: 'string' },
+            age: { bsonType: ['string', 'int'] },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['string', 'int'],
+        jsonSchema: { bsonType: ['string', 'int'] },
+      });
+    });
+  });
+
+  describe('nested schema', function () {
+    it('nested objects - parent', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['person', 'address'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+                address: {
+                  bsonType: 'object',
+                  properties: {
+                    street: { bsonType: 'string' },
+                    city: { bsonType: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['object'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            street: { bsonType: 'string' },
+            city: { bsonType: 'string' },
+          },
+        },
+      });
+    });
+
+    it('nested objects - leaf', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['person', 'address', 'city'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            person: {
+              bsonType: 'object',
+              properties: {
+                name: { bsonType: 'string' },
+                address: {
+                  bsonType: 'object',
+                  properties: {
+                    street: { bsonType: 'string' },
+                    city: { bsonType: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['string'],
+        jsonSchema: { bsonType: 'string' },
+      });
+    });
+
+    it('nested in a mixed type', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['names', 'first'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            names: {
+              anyOf: [
+                { bsonType: 'string' },
+                {
+                  bsonType: 'object',
+                  properties: {
+                    first: { bsonType: 'string' },
+                    last: { bsonType: 'string' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['string'],
+        jsonSchema: { bsonType: 'string' },
+      });
+    });
+
+    it('has a mixed type', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['names'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            names: {
+              anyOf: [
+                { bsonType: 'string' },
+                {
+                  bsonType: 'object',
+                  properties: {
+                    first: { bsonType: 'string' },
+                    last: { bsonType: 'string' },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+      expect(result).to.deep.include({
+        fieldTypes: ['string', 'object'],
+      });
+    });
+
+    it('nested in an array of objects', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['addresses', 'streetNumber'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            addresses: {
+              bsonType: 'array',
+              items: {
+                bsonType: 'object',
+                properties: {
+                  street: { bsonType: 'string' },
+                  streetNumber: { bsonType: ['int', 'string'] },
+                  city: { bsonType: 'string' },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['int', 'string'],
+        jsonSchema: { bsonType: ['int', 'string'] },
+      });
+    });
+
+    it('nested in an array of mixed items (including objects)', function () {
+      const result = getFieldFromSchema({
+        fieldPath: ['todos', 'completed'],
+        jsonSchema: {
+          bsonType: 'object',
+          properties: {
+            todos: {
+              bsonType: 'array',
+              items: {
+                anyOf: [
+                  {
+                    bsonType: 'object',
+                    properties: {
+                      title: { bsonType: 'string' },
+                      completed: { bsonType: 'bool' },
+                    },
+                  },
+                  { bsonType: 'string' },
+                ],
+              },
+            },
+          },
+        },
+      });
+      expect(result).to.deep.equal({
+        fieldTypes: ['bool'],
+        jsonSchema: { bsonType: 'bool' },
+      });
+    });
+  });
+});
