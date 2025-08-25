@@ -170,11 +170,6 @@ export const getFieldFromSchema = ({
       jsonSchema: nextStep,
     };
   }
-  console.log('Search lower', {
-    jsonSchema: nextStep,
-    fieldPath: remainingFieldPath,
-    parentFieldPath: [...parentFieldPath, nextInPath],
-  });
   // Continue searching in the next step
   return getFieldFromSchema({
     jsonSchema: nextStep,

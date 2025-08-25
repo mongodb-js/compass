@@ -10,6 +10,7 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import toNS from 'mongodb-ns';
+import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
   deleteRelationship,
@@ -55,16 +56,7 @@ type FieldDrawerContentProps = {
   ) => void;
 };
 
-const TYPES = [
-  'objectId',
-  'string',
-  'int',
-  'bool',
-  'date',
-  'object',
-  'array',
-] as const;
-// TODO: get the full list from somewhere
+const BSON_TYPES = Object.keys(BSONType);
 
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
@@ -111,7 +103,6 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   onRenameField,
   onChangeFieldType,
 }) => {
-  console.log({ TYPES, types });
   const { value: fieldName, ...nameInputProps } = useChangeOnBlur(
     fieldPath[fieldPath.length - 1],
     (fieldName) => {
@@ -156,10 +147,11 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             aria-label="Datatype"
             disabled={true} // TODO: enable when field type change is implemented
             value={types}
+            size="small"
             multiselect={true}
             clearable={false}
           >
-            {TYPES.map((type) => (
+            {BSON_TYPES.map((type) => (
               <ComboboxOption
                 key={type}
                 value={lowerFirst(type)}
