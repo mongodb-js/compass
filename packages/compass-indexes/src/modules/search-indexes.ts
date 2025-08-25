@@ -17,6 +17,7 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -602,11 +603,18 @@ const fetchIndexes = (
       isReadonlyView,
       isWritable,
       namespace,
+      serverVersion,
       searchIndexes: { status },
     } = getState();
 
-    if (isReadonlyView || !isWritable) {
-      return;
+    if (
+      (isReadonlyView &&
+        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+          serverVersion
+        )) ||
+      !isWritable
+    ) {
+      return; // return if view is not search compatible
     }
 
     // If we are already fetching indexes, we will wait for that

@@ -603,6 +603,8 @@ export const ImportFileOption =
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const DocumentExpandButton = '[data-testid="expand-document-button"]';
+export const DocumentList =
+  '[data-testid="document-list"] [data-testid="virtual-list-inner-container"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';
 export const SelectListView = '[data-testid="toolbar-view-list"]';
@@ -1450,9 +1452,9 @@ export const DataModelZoomOutButton = `${DataModelEditor} [aria-label="Minus Ico
 export const DataModelZoomInButton = `${DataModelEditor} [aria-label="Plus Icon"]`;
 export const DataModelPreview = `${DataModelEditor} [data-testid="model-preview"]`;
 export const DataModelPreviewCollection = (collectionId: string) =>
-  `${DataModelPreview} [aria-roleDescription="node"][data-id="${collectionId}"]`;
+  `${DataModelPreview} [data-id="${collectionId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="node"]
 export const DataModelPreviewRelationship = (relationshipId: string) =>
-  `${DataModelPreview} [aria-roleDescription="edge"][data-id="${relationshipId}"]`;
+  `${DataModelPreview} [data-id="${relationshipId}"]`; // TODO(COMPASS-9719): add once we upgrade reactflow again in diagramming: [aria-roleDescription="edge"]
 export const DataModelApplyEditor = `${DataModelEditor} [data-testid="apply-editor"]`;
 export const DataModelEditorApplyButton = `${DataModelApplyEditor} [data-testid="apply-button"]`;
 export const DataModelUndoButton = 'button[aria-label="Undo"]';
@@ -1478,7 +1480,8 @@ export const DataModelsListItem = (diagramName?: string) => {
 export const DataModelsListItemActions = (diagramName: string) =>
   `${DataModelsListItem(diagramName)} [aria-label="Show actions"]`;
 export const DataModelsListItemDeleteButton = `[data-action="delete"]`;
-export const DataModelAddRelationshipBtn = 'aria/Add relationship';
+export const DataModelAddRelationshipBtn = 'aria/Add Relationship';
+export const DataModelAddCollectionBtn = 'aria/Add Collection';
 export const DataModelNameInputLabel = '//label[text()="Name"]';
 export const DataModelNameInput =
   'input[data-testid="data-model-collection-drawer-name-input"]';

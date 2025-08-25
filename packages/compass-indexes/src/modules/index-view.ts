@@ -18,10 +18,11 @@ export type IndexViewChangedAction = {
   view: IndexView;
 };
 
-export const INITIAL_STATE: IndexView = 'regular-indexes';
+export const COLL_INITIAL_STATE: IndexView = 'regular-indexes';
+export const VIEW_INITIAL_STATE: IndexView = 'search-indexes';
 
 export default function reducer(
-  state = INITIAL_STATE,
+  state = COLL_INITIAL_STATE,
   action: AnyAction
 ): IndexView {
   // The create index button has a dropdown where you can select regular or

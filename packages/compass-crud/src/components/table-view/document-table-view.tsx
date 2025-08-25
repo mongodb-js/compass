@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import type { AgGridReactProps } from 'ag-grid-react';
 import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
@@ -1005,6 +1004,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
           'document-table-view-container',
           this.props.darkMode && 'document-table-view-container-darkmode'
         )}
+        data-testid="document-list"
       >
         <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
@@ -1018,37 +1018,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
       </div>
     );
   }
-
-  static propTypes = {
-    addColumn: PropTypes.func.isRequired,
-    cleanCols: PropTypes.func.isRequired,
-    docs: PropTypes.array.isRequired,
-    drillDown: PropTypes.func.isRequired,
-    elementAdded: PropTypes.func.isRequired,
-    elementMarkRemoved: PropTypes.func.isRequired,
-    elementRemoved: PropTypes.func.isRequired,
-    elementTypeChanged: PropTypes.func.isRequired,
-    error: PropTypes.object,
-    isEditable: PropTypes.bool.isRequired,
-    ns: PropTypes.string.isRequired,
-    version: PropTypes.string.isRequired,
-    openInsertDocumentDialog: PropTypes.func,
-    pathChanged: PropTypes.func.isRequired,
-    removeColumn: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired,
-    renameColumn: PropTypes.func.isRequired,
-    replaceDoc: PropTypes.func.isRequired,
-    resetColumns: PropTypes.func.isRequired,
-    removeDocument: PropTypes.func.isRequired,
-    replaceDocument: PropTypes.func.isRequired,
-    updateDocument: PropTypes.func.isRequired,
-    start: PropTypes.number.isRequired,
-    store: PropTypes.object.isRequired as any,
-    table: PropTypes.object.isRequired as any,
-    tz: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    darkMode: PropTypes.bool,
-  };
 
   static displayName = 'DocumentTableView';
 }
