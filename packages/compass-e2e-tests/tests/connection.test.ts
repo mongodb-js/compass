@@ -273,6 +273,9 @@ describe('Connection string', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    // TODO(COMPASS-9746) the debug toast obscures the connection toast which
+    // breaks the connect custom commands and who knows what else
+    //await browser.setFeature('enableAIAssistant', true)
   });
 
   beforeEach(async function () {
@@ -326,6 +329,29 @@ describe('Connection string', function () {
       .$(Selectors.ConnectionFormErrorMessage)
       .getText();
     expect(errorText).to.equal('Authentication failed.');
+
+    // close the modal
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+    await browser
+      .$(Selectors.ConnectionModal)
+      .waitForDisplayed({ reverse: true });
+
+    // TODO(COMPASS-9746) the toasts should be swapped around before this can work
+    /*
+    await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
+    const messagesElement = browser.$(Selectors.AssistantChatMessages)
+    await messagesElement.waitForDisplayed();
+    // TODO(COMPASS-9744) check the response from the chatbot too
+    
+    await browser.waitUntil(async () => {
+      return (await messagesElement.getText()).includes('Given the error message below,');
+    });
+
+    // clear the chat so that a broken message doesn't break every future message
+    await browser.clickVisible(Selectors.AssistantClearChatButton);
+    await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
+    await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    */
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
