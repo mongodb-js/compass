@@ -269,8 +269,8 @@ const DiagramContent: React.FunctionComponent<{
             openDrawer(DATA_MODELING_DRAWER_ID);
           }}
           onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
-            _evt.stopPropagation(); // TODO: should this be handled by the diagramming package?
-            if (!Array.isArray(fieldPath)) return; // TODO: could be avoided with generics in the diagramming package
+            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
             onFieldSelect(namespace, fieldPath);
             openDrawer(DATA_MODELING_DRAWER_ID);
           }}

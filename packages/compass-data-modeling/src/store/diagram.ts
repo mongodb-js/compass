@@ -510,29 +510,6 @@ export function renameCollection(
   };
 }
 
-export function renameField(
-  ns: string,
-  from: FieldPath,
-  to: FieldPath
-): DataModelingThunkAction<
-  void,
-  ApplyEditAction | ApplyEditFailedAction | CollectionSelectedAction
-> {
-  return (dispatch) => {
-    const edit: Omit<
-      Extract<Edit, { type: 'RenameField' }>,
-      'id' | 'timestamp'
-    > = {
-      type: 'RenameField',
-      ns,
-      from,
-      to,
-    };
-
-    dispatch(applyEdit(edit));
-  };
-}
-
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
@@ -856,44 +833,6 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
           ...collection,
           // Rename the collection.
           ns: collection.ns === edit.fromNS ? edit.toNS : collection.ns,
-        })),
-      };
-    }
-    case 'RenameField': {
-      return {
-        ...model,
-        // Update relationships to point to the renamed field.
-        relationships: model.relationships.map((relationship) => {
-          const [local, foreign] = relationship.relationship;
-
-          return {
-            ...relationship,
-            relationship: [
-              {
-                ...local,
-                fields:
-                  local.ns === edit.ns &&
-                  JSON.stringify(local.fields) === JSON.stringify(edit.from)
-                    ? edit.to
-                    : local.fields,
-              },
-              {
-                ...foreign,
-                fields:
-                  local.ns === edit.ns &&
-                  JSON.stringify(local.fields) === JSON.stringify(edit.from)
-                    ? edit.to
-                    : local.fields,
-              },
-            ],
-          };
-        }),
-        collections: model.collections.map((collection) => ({
-          ...collection,
-          // TODO: Rename the field.
-          // jsonSchema: collection.ns !== edit.ns
-          //   ? collection.jsonSchema
-          //   : renameFieldInSchema(collection.jsonSchema, edit.from, edit.to)
         })),
       };
     }

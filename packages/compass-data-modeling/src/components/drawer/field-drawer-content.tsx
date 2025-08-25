@@ -14,7 +14,6 @@ import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
   deleteRelationship,
-  renameField,
   selectCurrentModelFromState,
   selectRelationship,
 } from '../../store/diagram';
@@ -26,7 +25,6 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
-import { lowerFirst } from 'lodash';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -51,8 +49,8 @@ type FieldDrawerContentProps = {
   onChangeFieldType: (
     namespace: string,
     fieldPath: FieldPath,
-    fromBsonType: string,
-    toBsonType: string
+    fromBsonType: string | string[],
+    toBsonType: string | string[]
   ) => void;
 };
 
@@ -126,6 +124,10 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
       [fieldPath, fieldPaths, fieldName]
     );
 
+  const handleTypeChange = (newTypes: string | string[]) => {
+    onChangeFieldType(namespace, fieldPath, types, newTypes);
+  };
+
   return (
     <>
       <DMDrawerSection label="Field properties">
@@ -147,18 +149,15 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
             data-testid="lg-combobox-datatype"
             label="Datatype"
             aria-label="Datatype"
-            disabled={true} // TODO: enable when field type change is implemented
+            disabled={true} // TODO(COMPASS-9659): enable when field type change is implemented
             value={types}
             size="small"
             multiselect={true}
             clearable={false}
+            onChange={handleTypeChange}
           >
             {BSON_TYPES.map((type) => (
-              <ComboboxOption
-                key={type}
-                value={lowerFirst(type)}
-                displayName={type}
-              />
+              <ComboboxOption key={type} value={type} />
             ))}
           </Combobox>
         </DMFormFieldContainer>
@@ -206,7 +205,7 @@ export default connect(
             )?.jsonSchema ?? {},
           fieldPath: ownProps.fieldPath,
         })?.fieldTypes ?? [],
-      fieldPaths: [], // TODO get existing field paths
+      fieldPaths: [], // TODO(COMPASS-9659): get existing field paths
       relationships: model.relationships.filter((r) => {
         const [local, foreign] = r.relationship;
         return (
@@ -224,7 +223,7 @@ export default connect(
     onCreateNewRelationshipClick: createNewRelationship,
     onEditRelationshipClick: selectRelationship,
     onDeleteRelationshipClick: deleteRelationship,
-    onRenameField: renameField,
-    onChangeFieldType: () => {}, // TODO: updateFieldSchema,
+    onRenameField: () => {}, // TODO(COMPASS-9659): renameField,
+    onChangeFieldType: () => {}, // TODO(COMPASS-9659): updateFieldSchema,
   }
 )(FieldDrawerContent);
