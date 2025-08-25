@@ -184,12 +184,12 @@ const openDebugConnectionErrorToast = (
   error: Error,
   onDebugClick: () => void
 ) => {
-  openToast(`debug-connetion-error--${connectionInfo.id}`, {
+  openToast(`debug-connection-error--${connectionInfo.id}`, {
     title: 'Need help debugging your connection error?',
     description: (
       <ConnectionDebugToastBody
         onDebug={() => {
-          closeToast(`debug-connetion-error--${connectionInfo.id}`);
+          closeToast(`debug-connection-error--${connectionInfo.id}`);
           onDebugClick();
         }}
       />
