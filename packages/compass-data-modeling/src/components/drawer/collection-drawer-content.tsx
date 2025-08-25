@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
-import type { DataModelCollection, Relationship } from '../../services/data-model-storage';
+import type {
+  DataModelCollection,
+  Relationship,
+} from '../../services/data-model-storage';
 import { TextInput, TextArea } from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
