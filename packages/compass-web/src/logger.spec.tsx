@@ -59,4 +59,25 @@ describe('useCompassWebLogger', function () {
       },
     ]);
   });
+
+  it('should call onLog hook synchronously', function () {
+    let callbackExecuted = false;
+    const onLog = Sinon.stub().callsFake(() => {
+      callbackExecuted = true;
+    });
+
+    const {
+      result: { current: logger },
+    } = renderLoggerHook({ onLog });
+
+    // Callback should not have been called yet
+    expect(callbackExecuted).to.be.false;
+
+    // Call the logger
+    logger.log.info(mongoLogId(456), 'Test', 'sync test');
+
+    // Callback should have been called synchronously before this assertion
+    expect(callbackExecuted).to.be.true;
+    expect(onLog).to.have.been.calledOnce;
+  });
 });

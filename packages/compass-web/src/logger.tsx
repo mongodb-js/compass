@@ -1,6 +1,6 @@
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
-import { PassThrough } from 'stream';
+import type { Writable } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { useRef } from 'react';
 
@@ -62,13 +62,17 @@ export class CompassWebLogger implements Logger {
       };
     }
   ) {
-    const passThrough = new PassThrough({ objectMode: true });
-    this.log = new MongoLogWriter('', '', passThrough).bindComponent(
-      this.component
-    );
-    passThrough.on('data', (line) => {
-      callbackRef.current.onLog?.(JSON.parse(line));
-    });
+    const target = {
+      write(line: string, callback: () => void) {
+        callbackRef.current.onLog?.(JSON.parse(line));
+        callback();
+      },
+      end(callback: () => void) {
+        callback();
+      },
+    } as Writable;
+
+    this.log = new MongoLogWriter('', '', target).bindComponent(this.component);
 
     this.debug = createCompassWebDebugger(this.component, this.callbackRef);
   }

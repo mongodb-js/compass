@@ -1521,6 +1521,9 @@ const connectWithOptions = (
     inflightConnection = (async () => {
       const deviceAuthAbortController = new AbortController();
 
+      let cancelled = false;
+      let started = false;
+      let succeeded = false;
       try {
         if (
           getCurrentConnectionStatus(getState(), connectionInfo.id) ===
@@ -1581,7 +1584,11 @@ const connectWithOptions = (
           mongoLogId(1_001_000_004),
           'Connection UI',
           'Initiating connection attempt',
-          { isAutoconnectAttempt }
+          {
+            isAutoconnectAttempt,
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
         );
 
         // Connection form allows to start connecting with invalid connection
@@ -1635,6 +1642,17 @@ const connectWithOptions = (
           );
         }
 
+        started = true;
+        log.info(
+          mongoLogId(1_001_000_005),
+          'Compass Connection Attempt Started',
+          'Connection attempt started',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
           proxyOptions: proxyPreferenceToProxyOptions(
@@ -1655,6 +1673,16 @@ const connectWithOptions = (
         // This is how connection attempt indicates that the connection was
         // aborted
         if (!dataService || connectionAttempt.isClosed()) {
+          cancelled = true;
+          log.info(
+            mongoLogId(1_001_000_007),
+            'Compass Connection Attempt Cancelled',
+            'Connection attempt cancelled',
+            {
+              clusterName: connectionInfo.atlasMetadata?.clusterName,
+              connectionId: connectionInfo.id,
+            }
+          );
           dispatch({
             type: ActionTypes.ConnectionAttemptCancelled,
             connectionId: connectionInfo.id,
@@ -1821,6 +1849,17 @@ const connectWithOptions = (
           connectionInfo
         );
 
+        succeeded = true;
+        log.info(
+          mongoLogId(1_001_000_006),
+          'Compass Connection Attempt Succeeded',
+          'Connection attempt succeeded',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         connectionProgress.openConnectionSucceededToast(connectionInfo);
 
         // Emit before changing state because some plugins rely on this
@@ -1856,6 +1895,18 @@ const connectWithOptions = (
           );
         }
       } catch (err) {
+        if (started && !succeeded && !cancelled) {
+          log.info(
+            mongoLogId(1_001_000_008),
+            'Compass Connection Attempt Failed',
+            'Connection attempt failed',
+            {
+              clusterName: connectionInfo.atlasMetadata?.clusterName,
+              connectionId: connectionInfo.id,
+              error: (err as Error).message,
+            }
+          );
+        }
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
         deviceAuthAbortController.abort();

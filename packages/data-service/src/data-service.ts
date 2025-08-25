@@ -53,6 +53,8 @@ import type {
   ClientEncryptionCreateDataKeyProviderOptions,
   SearchIndexDescription,
   ReadPreferenceMode,
+  CommandStartedEvent,
+  ConnectionCreatedEvent,
 } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -1605,6 +1607,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     this._isConnecting = true;
 
     this._logger.info(mongoLogId(1_001_000_014), 'Connecting Started', {
+      clusterName: this._connectionOptions.lookup?.().clusterName,
       connectionId: this._id,
       url: redactConnectionString(this._connectionOptions.connectionString),
       csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
@@ -1626,6 +1629,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       const attr = {
         connectionId: this._id,
+        clusterName: this._connectionOptions.lookup?.().clusterName,
         isWritable: this.isWritable(),
         isMongos: this.isMongos(),
       };
@@ -1660,6 +1664,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     } catch (error) {
       this._logger.info(mongoLogId(1_001_000_359), 'Connecting Failed', {
         connectionId: this._id,
+        clusterName: this._connectionOptions.lookup?.().clusterName,
         error:
           error && typeof error === 'object' && 'message' in error
             ? error?.message
@@ -2474,6 +2479,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   private _setupListeners(client: MongoClient): void {
     if (client) {
+      client.on('connectionCreated', (evt: ConnectionCreatedEvent) => {
+        const { address, connectionId } = evt;
+        this._logger.info(
+          mongoLogId(1_001_000_027),
+          'Driver connection created',
+          {
+            address,
+            serverConnectionId: connectionId,
+          }
+        );
+      });
+
       client.on(
         'serverDescriptionChanged',
         (evt: ServerDescriptionChangedEvent) => {
@@ -2595,13 +2612,30 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._emitter.emit('serverHeartbeatFailed', evt);
       });
 
+      client.on('commandStarted', (evt: CommandStartedEvent) => {
+        const { address, connectionId, requestId, commandName, databaseName } =
+          evt;
+        this._logger.debug(
+          mongoLogId(1_001_000_028),
+          'Driver command started',
+          {
+            address,
+            databaseName,
+            serverConnectionId: connectionId,
+            requestId,
+            commandName,
+          }
+        );
+      });
+
       client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
-        const { address, connectionId, duration, commandName } = evt;
+        const { address, connectionId, duration, requestId, commandName } = evt;
         this._logger.debug(
           mongoLogId(1_001_000_029),
           'Driver command succeeded',
           {
             address,
+            requestId,
             serverConnectionId: connectionId,
             duration,
             commandName,
@@ -2610,11 +2644,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
       });
 
       client.on('commandFailed', (evt: CommandFailedEvent) => {
-        const { address, connectionId, duration, commandName, failure } = evt;
+        const {
+          address,
+          connectionId,
+          duration,
+          requestId,
+          commandName,
+          failure,
+        } = evt;
         this._logger.debug(mongoLogId(1_001_000_030), 'Driver command failed', {
           address,
           serverConnectionId: connectionId,
           duration,
+          requestId,
           commandName,
           failure: failure.message,
         });
