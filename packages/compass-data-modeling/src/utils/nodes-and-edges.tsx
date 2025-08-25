@@ -10,6 +10,7 @@ import type {
   Relationship,
 } from '../services/data-model-storage';
 import { traverseSchema } from './schema-traversal';
+import { areFieldPathsEqual } from './utils';
 
 function getBsonTypeName(bsonType: string) {
   switch (bsonType) {
@@ -100,12 +101,11 @@ export const getFieldsFromSchema = ({
             ? ['key']
             : [],
         selectable: true,
-        selected: JSON.stringify(fieldPath) === JSON.stringify(selectedField),
+        selected: areFieldPathsEqual(fieldPath, selectedField ?? []),
         variant:
           highlightedFields.length &&
-          highlightedFields.some(
-            (highlightedField) =>
-              JSON.stringify(fieldPath) === JSON.stringify(highlightedField)
+          highlightedFields.some((highlightedField) =>
+            areFieldPathsEqual(fieldPath, highlightedField)
           )
             ? 'preview'
             : undefined,

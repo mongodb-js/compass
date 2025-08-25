@@ -25,6 +25,7 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
+import { areFieldPathsEqual } from '../../utils/utils';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -73,10 +74,7 @@ export function getIsFieldNameValid(
   }
 
   const fieldsNamesWithoutCurrent = existingFields
-    .filter(
-      (fieldPath) =>
-        JSON.stringify(fieldPath) !== JSON.stringify(currentFieldPath)
-    )
+    .filter((fieldPath) => !areFieldPathsEqual(fieldPath, currentFieldPath))
     .map((fieldPath) => fieldPath[fieldPath.length - 1]);
 
   const isDuplicate = fieldsNamesWithoutCurrent.some(
@@ -169,7 +167,8 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         getRelationshipLabel={([local, foreign]) => {
           const labelField =
             local.ns === namespace &&
-            JSON.stringify(local.fields) === JSON.stringify(fieldPath)
+            local.fields &&
+            areFieldPathsEqual(local.fields, fieldPath)
               ? foreign
               : local;
           return [
@@ -210,11 +209,11 @@ export default connect(
         const [local, foreign] = r.relationship;
         return (
           (local.ns === ownProps.namespace &&
-            JSON.stringify(local.fields) ===
-              JSON.stringify(ownProps.fieldPath)) ||
+            local.fields &&
+            areFieldPathsEqual(local.fields, ownProps.fieldPath)) ||
           (foreign.ns === ownProps.namespace &&
-            JSON.stringify(foreign.fields) ===
-              JSON.stringify(ownProps.fieldPath))
+            foreign.fields &&
+            areFieldPathsEqual(foreign.fields, ownProps.fieldPath))
         );
       }),
     };
