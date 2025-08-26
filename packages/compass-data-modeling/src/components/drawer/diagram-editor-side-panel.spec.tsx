@@ -36,6 +36,15 @@ const waitForDrawerToOpen = async () => {
   });
 };
 
+const updateInputWithBlur = (label: string, text: string) => {
+  const input = screen.getByLabelText(label);
+  userEvent.clear(input);
+  userEvent.type(input, text);
+
+  // Blur/unfocus the input.
+  userEvent.click(document.body);
+};
+
 async function comboboxSelectItem(
   label: string,
   value: string,
@@ -136,8 +145,8 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
   });
 
-  describe('Field context drawer', function () {
-    it('should render a field context drawer when field is clicked', async function () {
+  describe('When a field is selected', function () {
+    it('should render a field context drawer', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(selectField('flights.airlines', ['alias']));
 
@@ -154,7 +163,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(selectedTypes).to.include('int');
     });
 
-    it('should render a nested field context drawer when field is clicked', async function () {
+    it('should render a nested field context drawer', async function () {
       const result = renderDrawer();
       result.plugin.store.dispatch(
         selectField('flights.routes', ['airline', 'id'])
@@ -170,6 +179,53 @@ describe('DiagramEditorSidePanel', function () {
       const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
       expect(selectedTypes).to.have.lengthOf(1);
       expect(selectedTypes).to.include('string');
+    });
+
+    it('should delete a field', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', 'id'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
+
+      userEvent.click(screen.getByLabelText(/delete field/i));
+
+      await waitFor(() => {
+        expect(screen.queryByText('routes.airline.id')).not.to.exist;
+      });
+      expect(screen.queryByLabelText('Name')).to.not.exist;
+
+      const modifiedCollection = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).collections.find((coll) => {
+        return coll.ns === 'flights.routes';
+      });
+
+      expect(
+        modifiedCollection.jsonSchema.properties.airline.properties
+      ).to.not.have.property('id'); // deleted field
+      expect(
+        modifiedCollection.jsonSchema.properties.airline.properties
+      ).to.have.property('name'); // sibling field remains
+    });
+
+    it('should rename a field and keep it selected', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', 'name'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline.name')).to.be.visible;
+
+      updateInputWithBlur('Field name', 'new_name');
+
+      await waitFor(() => {
+        expect(screen.queryByText('routes.airline.name')).not.to.exist;
+        expect(screen.queryByText('routes.airline.new_name')).to.exist;
+      });
     });
   });
 
@@ -486,11 +542,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(activeElement).to.equal(nameInput);
 
       // Update the name.
-      userEvent.clear(nameInput);
-      userEvent.type(nameInput, 'pineapple');
-
-      // Blur/unfocus the input - now the collection should be names
-      userEvent.click(document.body);
+      updateInputWithBlur('Name', 'pineapple');
 
       // Check the name in the model.
       const newCollection = selectCurrentModelFromState(

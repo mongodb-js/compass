@@ -387,6 +387,13 @@ const updateSelectedItemsFromAppliedEdit = (
         id: edit.ns,
       };
     }
+    case 'RenameField': {
+      return {
+        type: 'field',
+        namespace: edit.ns,
+        fieldPath: [...edit.from.slice(0, edit.from.length - 1), edit.to],
+      };
+    }
   }
 
   return currentSelection;
