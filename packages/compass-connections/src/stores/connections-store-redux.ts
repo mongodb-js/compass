@@ -1521,9 +1521,6 @@ const connectWithOptions = (
     inflightConnection = (async () => {
       const deviceAuthAbortController = new AbortController();
 
-      let cancelled = false;
-      let started = false;
-      let succeeded = false;
       try {
         if (
           getCurrentConnectionStatus(getState(), connectionInfo.id) ===
@@ -1638,7 +1635,6 @@ const connectWithOptions = (
           );
         }
 
-        started = true;
         // This is used for Data Explorer connection latency tracing
         log.info(
           mongoLogId(1_001_000_005),
@@ -1670,7 +1666,6 @@ const connectWithOptions = (
         // This is how connection attempt indicates that the connection was
         // aborted
         if (!dataService || connectionAttempt.isClosed()) {
-          cancelled = true;
           // This is used for Data Explorer connection latency tracing
           log.info(
             mongoLogId(1_001_000_007),
@@ -1847,7 +1842,6 @@ const connectWithOptions = (
           connectionInfo
         );
 
-        succeeded = true;
         // This is used for Data Explorer connection latency tracing
         log.info(
           mongoLogId(1_001_000_006),
@@ -1894,18 +1888,16 @@ const connectWithOptions = (
           );
         }
       } catch (err) {
-        if (started && !succeeded && !cancelled) {
-          log.info(
-            mongoLogId(1_001_000_008),
-            'Compass Connection Attempt Failed',
-            'Connection attempt failed',
-            {
-              clusterName: connectionInfo.atlasMetadata?.clusterName,
-              connectionId: connectionInfo.id,
-              error: (err as Error).message,
-            }
-          );
-        }
+        log.info(
+          mongoLogId(1_001_000_008),
+          'Compass Connection Attempt Failed',
+          'Connection attempt failed',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+            error: (err as Error).message,
+          }
+        );
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
         deviceAuthAbortController.abort();
