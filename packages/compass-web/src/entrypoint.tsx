@@ -3,7 +3,7 @@ import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type {
@@ -166,9 +166,7 @@ export type CompassWebProps = {
    * when the action is selected from the sidebar actions. Should be used to
    * show the Atlas Cloud "Connect" modal
    */
-  onOpenConnectViaModal?: (
-    atlasMetadata: ConnectionInfo['atlasMetadata']
-  ) => void;
+  onOpenConnectViaModal?: (atlasMetadata?: AtlasClusterMetadata) => void;
 
   /**
    * Callback prop called when connections fail to load

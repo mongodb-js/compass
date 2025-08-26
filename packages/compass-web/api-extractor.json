@@ -3,6 +3,8 @@
   "mainEntryPointFilePath": "./dist/index.d.ts",
   "bundledPackages": [
     "@mongodb-js/*",
+    "@mongodb-js/mdb-experiment-js",
+    "@mongodb-js/connection-info",
     "bson-transpilers",
     "compass-e2e-tests",
     "compass-preferences-model",
@@ -23,8 +25,7 @@
   },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "./dist/index.untrimmed.d.ts",
-    "publicTrimmedFilePath": "./dist/index.public.d.ts"
+    "untrimmedFilePath": "./dist/index.untrimmed.d.ts"
   },
   "apiReport": {
     "enabled": false
