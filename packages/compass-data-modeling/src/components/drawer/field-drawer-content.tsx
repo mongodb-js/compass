@@ -9,7 +9,6 @@ import {
   ComboboxOption,
   TextInput,
 } from '@mongodb-js/compass-components';
-import toNS from 'mongodb-ns';
 import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
