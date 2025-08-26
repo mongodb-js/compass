@@ -39,7 +39,7 @@ const waitForDrawerToOpen = async () => {
 const updateInputWithBlur = (label: string, text: string) => {
   const input = screen.getByLabelText(label);
   userEvent.clear(input);
-  userEvent.type(input, text);
+  if (text.length) userEvent.type(input, text);
 
   // Blur/unfocus the input.
   userEvent.click(document.body);
@@ -225,6 +225,40 @@ describe('DiagramEditorSidePanel', function () {
       await waitFor(() => {
         expect(screen.queryByText('routes.airline.name')).not.to.exist;
         expect(screen.queryByText('routes.airline.new_name')).to.exist;
+      });
+    });
+
+    it('should not rename a field to an empty string', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', 'name'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline.name')).to.be.visible;
+
+      updateInputWithBlur('Field name', '');
+
+      await waitFor(() => {
+        expect(screen.queryByText('Field name cannot be empty.')).to.exist;
+        expect(screen.queryByText('routes.airline.name')).to.exist;
+      });
+    });
+
+    it('should not rename a field to a duplicate', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', 'name'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline.name')).to.be.visible;
+
+      updateInputWithBlur('Field name', 'id');
+
+      await waitFor(() => {
+        expect(screen.queryByText('Field already exists.')).to.exist;
+        expect(screen.queryByText('routes.airline.name')).to.exist;
       });
     });
   });
