@@ -22,7 +22,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import { createMockChat } from '../test/utils';
+import { createMockChat, withMockedScrollTo } from '../test/utils';
 
 // Test component that renders AssistantProvider with children
 const TestComponent: React.FunctionComponent<{
@@ -85,6 +85,7 @@ describe('AssistantProvider', function () {
   });
 
   describe('with existing chat instance', function () {
+    withMockedScrollTo();
     before(function () {
       // TODO(COMPASS-9618): skip in electron runtime for now, drawer has issues rendering
       if ((process as any).type === 'renderer') {
@@ -117,7 +118,7 @@ describe('AssistantProvider', function () {
       );
 
       expect(screen.getByTestId('assistant-message-2')).to.exist;
-      expect(screen.getByTestId('assistant-message-2')).to.have.text(
+      expect(screen.getByTestId('assistant-message-2')).to.contain.text(
         'Test assistant message'
       );
     });

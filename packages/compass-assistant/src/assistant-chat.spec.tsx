@@ -7,18 +7,22 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import { createMockChat } from '../test/utils';
+import { createMockChat, withMockedScrollTo } from '../test/utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('AssistantChat', function () {
+  withMockedScrollTo();
+
+  let originalScrollTo: typeof Element.prototype.scrollTo;
   // Mock scrollTo method for DOM elements to prevent test failures
   before(function () {
-    if (!Element.prototype.scrollTo) {
-      Element.prototype.scrollTo = function () {
-        // No-op implementation for testing
-      };
-    }
+    originalScrollTo = Element.prototype.scrollTo.bind(Element.prototype);
+    Element.prototype.scrollTo = () => {};
   });
+  after(function () {
+    Element.prototype.scrollTo = originalScrollTo;
+  });
+
   const mockMessages: AssistantMessage[] = [
     {
       id: 'user',
