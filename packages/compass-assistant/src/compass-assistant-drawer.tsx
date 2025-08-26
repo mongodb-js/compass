@@ -33,7 +33,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         'The current chat will be cleared, and chat history will not be retrievable.',
       buttonText: 'Clear chat',
       variant: 'danger',
-      'data-testid': 'confirm-clear-chat-modal',
+      'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
       clearChat();

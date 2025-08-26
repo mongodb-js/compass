@@ -1517,5 +1517,6 @@ export const SideDrawerCloseButton = `[data-testid="${
 // Assistant
 export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
 export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
-export const ConfirmClearChatModal = '[data-testid="confirm-clear-chat-modal"]';
+export const ConfirmClearChatModal =
+  '[data-testid="assistant-confirm-clear-chat-modal"]';
 export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
