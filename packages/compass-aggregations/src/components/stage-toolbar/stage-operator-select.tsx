@@ -100,13 +100,19 @@ export const StageOperatorSelect = ({
   collectionStats,
   stages,
 }: StageOperatorSelectProps) => {
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
+  // filter out search stages for data explorer
+  const filteredStages =
+    isReadonlyView && enableAtlasSearchIndexes
+      ? stages
+      : stages.filter((stage) => !isSearchStage(stage.name));
+
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
       onChange(index, name);
     },
     [onChange, index]
   );
-
   const versionIncompatibleCompass =
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
@@ -132,7 +138,7 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {stages.map((stage: Stage, index) => (
+      {filteredStages.map((stage: Stage, index) => (
         <ComboboxOption
           data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
@@ -174,7 +180,6 @@ export default withPreferences(
         isTimeSeries: state.isTimeSeries,
         sourceName: state.sourceName,
         preferencesReadOnly: ownProps.readOnly,
-        enableAtlasSearchIndexes: usePreference('enableAtlasSearchIndexes'),
       });
       return {
         selectedStage: stage.stageOperator,
