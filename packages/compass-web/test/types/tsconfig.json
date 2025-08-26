@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
-    "noEmit": true
+    "noEmit": true,
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": ["**/*.test-d.ts"]
 }

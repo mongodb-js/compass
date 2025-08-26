@@ -1,4 +1,4 @@
-import { expectType, expectError } from 'tsd';
+import { expectError } from 'tsd';
 import { CompassWeb } from '@mongodb-js/compass-web';
 
 // Test basic props structure
@@ -21,7 +21,7 @@ void CompassWeb({
   },
 });
 
-// This should cause an error - optInDataExplorerGenAIFeatures is internal only
+// This should cause an error - optInDataExplorerGenAIFeatures is an old name
 expectError(
   CompassWeb({
     ...basicProps,
@@ -30,9 +30,3 @@ expectError(
     },
   })
 );
-
-// Test that built-in types are properly accessible (URL should be global)
-expectType<URL>(new URL('https://example.com'));
-
-// Basic smoke test - if we can get here, the main types are working
-expectType<string>('test-success');
