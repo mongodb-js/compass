@@ -9,6 +9,7 @@ import {
   Link,
   Icon,
   palette,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import {
   useConnectionIds,
@@ -72,17 +73,6 @@ const connectionItemStyles = css({
   fontSize: '14px',
 });
 
-const greenSpinnerStyles = css({
-  border: '2px solid transparent',
-  borderTop: `2px solid ${palette.green.dark2}`, // Use darker green
-  borderRadius: '50%',
-  animation: 'spin 700ms ease infinite',
-  '@keyframes spin': {
-    '0%': { transform: 'rotate(0deg)' },
-    '100%': { transform: 'rotate(360deg)' },
-  },
-});
-
 const greenIconStyles = css({
   color: palette.green.dark2, // Use darker green
 });
@@ -97,18 +87,6 @@ const subItemStyles = css({
   paddingBottom: spacing[100],
   color: palette.gray.dark1,
 });
-
-function GreenSpinner({ size = 12 }: { size?: number }) {
-  return (
-    <div
-      className={greenSpinnerStyles}
-      style={{
-        width: size,
-        height: size,
-      }}
-    />
-  );
-}
 
 function ConnectionStatus({
   connectionId,
@@ -131,7 +109,7 @@ function ConnectionStatus({
         {isConnected ? (
           <Icon glyph="Checkmark" size="small" className={greenIconStyles} />
         ) : (
-          <GreenSpinner size={12} />
+          <SpinLoader size={12} />
         )}
         <span>
           {isConnected
@@ -139,19 +117,18 @@ function ConnectionStatus({
             : `Connecting to ${connectionName}`}
         </span>
       </div>
-      {/* Placeholder for subsections - will be populated with actual operations */}
       {!isConnected && (
         <div>
           <div className={subItemStyles}>
-            <GreenSpinner size={10} />
+            <SpinLoader size={10} />
             <span>Discovering Topology...</span>
           </div>
           <div className={subItemStyles}>
-            <GreenSpinner size={10} />
+            <SpinLoader size={10} />
             <span>Authenticating...</span>
           </div>
           <div className={subItemStyles}>
-            <GreenSpinner size={10} />
+            <SpinLoader size={10} />
             <span>Listing Databases...</span>
           </div>
         </div>
