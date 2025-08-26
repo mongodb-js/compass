@@ -24,11 +24,11 @@ import {
 import { calculateSchemaDepth } from '../calculate-schema-depth';
 import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
-import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const NO_DOCUMENTS_ERROR = 'No documents found in the collection to analyze.';
+import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,

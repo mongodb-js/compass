@@ -16,7 +16,6 @@ import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/pr
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-
 import {
   isAIFeatureEnabled,
   type PreferencesAccess,

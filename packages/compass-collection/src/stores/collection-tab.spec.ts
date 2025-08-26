@@ -63,7 +63,6 @@ describe('Collection Tab Content store', function () {
     .stub(collectionTabModule, 'analyzeCollectionSchema')
     .returns(async () => {});
   const dataService = {} as any;
-
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -100,7 +99,6 @@ describe('Collection Tab Content store', function () {
       },
       {
         dataService,
-        atlasAiService,
         localAppRegistry,
         collection: mockCollection as any,
         workspaces: workspaces as any,
