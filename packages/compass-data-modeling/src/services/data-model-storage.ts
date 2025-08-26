@@ -99,7 +99,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
     type: z.literal('RenameField'),
     ns: z.string(),
     from: FieldPathSchema,
-    to: FieldPathSchema,
+    to: z.string(),
   }),
   z.object({
     type: z.literal('RemoveField'),
