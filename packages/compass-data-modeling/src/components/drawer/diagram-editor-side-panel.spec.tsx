@@ -546,11 +546,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByLabelText('Name')).to.have.value('countries');
 
       // Update the name.
-      userEvent.clear(screen.getByLabelText('Name'));
-      userEvent.type(screen.getByLabelText('Name'), 'pineapple');
-
-      // Blur/unfocus the input.
-      userEvent.click(document.body);
+      updateInputWithBlur('Name', 'pineapple');
 
       // Check the name in the model.
       const modifiedCollection = selectCurrentModelFromState(
@@ -602,7 +598,7 @@ describe('DiagramEditorSidePanel', function () {
         'false'
       );
 
-      userEvent.clear(screen.getByLabelText('Name'));
+      updateInputWithBlur('Name', '');
 
       await waitFor(() => {
         expect(screen.getByLabelText('Name')).to.have.attribute(
@@ -610,9 +606,6 @@ describe('DiagramEditorSidePanel', function () {
           'true'
         );
       });
-
-      // Blur/unfocus the input.
-      userEvent.click(document.body);
 
       const notModifiedCollection = selectCurrentModelFromState(
         result.plugin.store.getState()
@@ -635,8 +628,7 @@ describe('DiagramEditorSidePanel', function () {
         'false'
       );
 
-      userEvent.clear(screen.getByLabelText('Name'));
-      userEvent.type(screen.getByLabelText('Name'), 'airlines');
+      updateInputWithBlur('Name', 'airlines');
 
       await waitFor(() => {
         expect(screen.getByLabelText('Name')).to.have.attribute(
@@ -644,9 +636,6 @@ describe('DiagramEditorSidePanel', function () {
           'true'
         );
       });
-
-      // Blur/unfocus the input.
-      userEvent.click(document.body);
 
       const notModifiedCollection = selectCurrentModelFromState(
         result.plugin.store.getState()
