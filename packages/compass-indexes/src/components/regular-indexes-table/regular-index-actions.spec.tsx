@@ -55,8 +55,12 @@ describe('IndexActions Component', function () {
       );
 
       // Should not show building spinner or percentage
-      expect(() => screen.getByTestId('index-building-spinner')).to.throw;
-      expect(() => screen.getByText(/Building\.\.\. \d+%/)).to.throw;
+      expect(() => screen.getByTestId('index-building-spinner')).to.throw(
+        /Unable to find/
+      );
+      expect(() => screen.getByText(/Building\.\.\. \d+%/)).to.throw(
+        /Unable to find/
+      );
     });
 
     it('displays progress percentage when buildProgress is 50% (0.5)', function () {
