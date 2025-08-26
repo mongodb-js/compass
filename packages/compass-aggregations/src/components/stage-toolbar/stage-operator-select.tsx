@@ -43,17 +43,13 @@ type StageOperatorSelectProps = {
   index: number;
   selectedStage: string | null;
   isDisabled: boolean;
-  stages: {
-    name: string;
-    env: ServerEnvironment[];
-    description: string;
-  }[];
+  stages: Stage[];
   serverVersion: string;
   isReadonlyView: boolean;
   collectionStats: CollectionStats;
 };
 
-type Stage = {
+export type Stage = {
   name: string;
   env: ServerEnvironment[];
   description: string;

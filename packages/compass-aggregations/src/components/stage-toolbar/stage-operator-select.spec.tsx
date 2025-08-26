@@ -1,12 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
+import { Stage, StageOperatorSelect } from './stage-operator-select';
 import Sinon from 'sinon';
-import * as stageSlice from '../../utils/stage';
-import { StageOperatorSelect } from './stage-operator-select';
 
 describe('StageOperatorSelect', () => {
-  const mockStages = [
+  const mockStages: Stage[] = [
     {
       name: 'basicStage',
       env: ['on-prem'],
@@ -26,7 +25,7 @@ describe('StageOperatorSelect', () => {
 
   const defaultMockProps = {
     index: 0,
-    onChange: () => {},
+    onChange: Sinon.stub(),
     selectedStage: null,
     isDisabled: false,
     stages: mockStages,
@@ -36,27 +35,15 @@ describe('StageOperatorSelect', () => {
       pipeline: [{ $addFields: { field: 'value' } }],
     },
   };
-  let filterStageOperatorsStub;
-  beforeEach(() => {
-    filterStageOperatorsStub = Sinon.stub(
-      stageSlice,
-      'filterStageOperators'
-    ).returns(mockStages);
-  });
 
-  afterEach(() => {
-    filterStageOperatorsStub.restore();
-  });
-
-  const renderCombobox = (props) => render(<StageOperatorSelect {...props} />);
+  const renderCombobox = (
+    props: Partial<React.ComponentProps<typeof StageOperatorSelect>> = {}
+  ) => {
+    return render(<StageOperatorSelect {...defaultMockProps} {...props} />);
+  };
 
   it('renders the correct descriptions if not in readonly view', () => {
-    const mockProps = {
-      ...defaultMockProps,
-      isReadonlyView: false,
-    };
-
-    renderCombobox(mockProps);
+    renderCombobox({ isReadonlyView: false });
     fireEvent.click(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox');
 
@@ -68,8 +55,7 @@ describe('StageOperatorSelect', () => {
   });
 
   it('renders the correct descriptions if in readonly view with non queryable pipeline', () => {
-    const mockProps = {
-      ...defaultMockProps,
+    renderCombobox({
       isReadonlyView: true,
       collectionStats: {
         pipeline: [
@@ -77,9 +63,7 @@ describe('StageOperatorSelect', () => {
           { project: { newField: 1 } },
         ],
       },
-    };
-
-    renderCombobox(mockProps);
+    });
     fireEvent.click(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox'); // Target the dropdown
 
@@ -94,13 +78,7 @@ describe('StageOperatorSelect', () => {
   });
 
   it('renders the correct descriptions for $search stage in readonly view with incompatible version', () => {
-    const mockProps = {
-      ...defaultMockProps,
-      serverVersion: '7.0.0',
-      isReadonlyView: true,
-    };
-
-    renderCombobox(mockProps);
+    renderCombobox({ serverVersion: '7.0.0', isReadonlyView: true });
     fireEvent.click(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox');
 
