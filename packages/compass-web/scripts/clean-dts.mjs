@@ -3,7 +3,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const distDir = path.join(import.meta.dirname, '..', 'dist');
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const distDir = path.join(__dirname, '..', 'dist');
 
 await Promise.all(
   (
