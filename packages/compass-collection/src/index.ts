@@ -14,7 +14,6 @@ import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provide
 import { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import {
   CollectionWorkspaceTitle,
   CollectionPluginTitleComponent,
@@ -33,7 +32,6 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
     {
       dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
       collection: collectionModelLocator,
-      atlasAiService: atlasAiServiceLocator,
       workspaces: workspacesServiceLocator,
       experimentationServices: experimentationServiceLocator,
       connectionInfoRef: connectionInfoRefLocator,
