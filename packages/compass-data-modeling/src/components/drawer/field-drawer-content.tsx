@@ -13,6 +13,7 @@ import { BSONType } from 'mongodb';
 import {
   createNewRelationship,
   deleteRelationship,
+  extractFieldsFromSchema,
   renameField,
   selectCurrentModelFromState,
   selectRelationship,
@@ -74,7 +75,15 @@ export function getIsFieldNameValid(
   }
 
   const fieldsNamesWithoutCurrent = existingFields
-    .filter((fieldPath) => !areFieldPathsEqual(fieldPath, currentFieldPath))
+    .filter(
+      (fieldPath) =>
+        fieldPath.length === currentFieldPath.length &&
+        areFieldPathsEqual(
+          fieldPath.slice(0, fieldPath.length - 1),
+          currentFieldPath.slice(0, fieldPath.length - 1)
+        ) &&
+        !areFieldPathsEqual(fieldPath, currentFieldPath)
+    )
     .map((fieldPath) => fieldPath[fieldPath.length - 1]);
 
   const isDuplicate = fieldsNamesWithoutCurrent.some(
@@ -179,16 +188,19 @@ export default connect(
     ownProps: { namespace: string; fieldPath: FieldPath }
   ) => {
     const model = selectCurrentModelFromState(state);
+    const collectionSchema = model.collections.find(
+      (collection) => collection.ns === ownProps.namespace
+    )?.jsonSchema;
+    if (!collectionSchema) {
+      throw new Error('Collection not found');
+    }
     return {
       types:
         getFieldFromSchema({
-          jsonSchema:
-            model.collections.find(
-              (collection) => collection.ns === ownProps.namespace
-            )?.jsonSchema ?? {},
+          jsonSchema: collectionSchema,
           fieldPath: ownProps.fieldPath,
         })?.fieldTypes ?? [],
-      fieldPaths: [], // TODO(COMPASS-9659): get existing field paths
+      fieldPaths: extractFieldsFromSchema(collectionSchema),
       relationships: model.relationships.filter(({ relationship }) =>
         isRelationshipOfAField(
           relationship,

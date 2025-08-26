@@ -14,7 +14,7 @@ import {
   type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
-import { memoize, update } from 'lodash';
+import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
   openToast,
@@ -31,9 +31,7 @@ import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { traverseSchema, updateSchema } from '../utils/schema-traversal';
 import {
-  areFieldPathsEqual,
   isRelationshipInvolvingField,
-  isRelationshipOfAField,
   isSameFieldOrChild,
 } from '../utils/utils';
 
@@ -1018,7 +1016,9 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
+export function extractFieldsFromSchema(
+  parentSchema: MongoDBJSONSchema
+): FieldPath[] {
   const fields: FieldPath[] = [];
   traverseSchema({
     jsonSchema: parentSchema,
