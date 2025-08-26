@@ -15,17 +15,3 @@ export const createMockChat = ({
     sendMessage: sinon.SinonStub;
   };
 };
-
-export function withMockedScrollTo() {
-  let originalScrollTo: typeof Element.prototype.scrollTo;
-  // Mock scrollTo method for DOM elements to prevent test failures
-  before(function () {
-    originalScrollTo = Element.prototype.scrollTo;
-    if (!Element.prototype.scrollTo) {
-      Element.prototype.scrollTo = () => {};
-    }
-  });
-  after(function () {
-    Element.prototype.scrollTo = originalScrollTo;
-  });
-}
