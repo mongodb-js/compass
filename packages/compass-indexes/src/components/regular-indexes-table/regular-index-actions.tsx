@@ -109,7 +109,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   if (buildProgress > 0 && buildProgress < 1) {
     return (
       <div className={buildProgressStyles} data-testid="index-building-spinner">
-        <Body>Building... {(buildProgress * 100) | 0}%</Body>
+        <Body>Building... {Math.trunc(buildProgress * 100)}%</Body>
         <SpinLoader size={16} title="Index build in progress" />
         <ItemActionGroup<IndexAction>
           data-testid="index-actions"
