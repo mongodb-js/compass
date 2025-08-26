@@ -1,6 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
   "mainEntryPointFilePath": "./dist/index.d.ts",
+  "newlineKind": "lf",
   "bundledPackages": [
     "@mongodb-js/*",
     "@mongodb-js/mdb-experiment-js",
@@ -25,7 +26,8 @@
   },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "./dist/index.untrimmed.d.ts"
+    "untrimmedFilePath": "",
+    "publicTrimmedFilePath": "./dist/<unscopedPackageName>.d.ts"
   },
   "apiReport": {
     "enabled": false

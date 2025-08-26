@@ -67,6 +67,7 @@ import {
   CompassAssistantProvider,
 } from '@mongodb-js/compass-assistant';
 
+/** @public */
 export type TrackFunction = (
   event: string,
   properties: Record<string, any>
@@ -95,6 +96,7 @@ type CompassWorkspaceProps = Pick<
     'onOpenConnectViaModal'
   >;
 
+/** @public */
 export type CompassWebProps = {
   /**
    * App name to be passed with the connection string when connection to a
@@ -264,6 +266,7 @@ const connectedContainerStyles = css({
   display: 'flex',
 });
 
+/** @public */
 const CompassWeb = ({
   appName,
   orgId,
