@@ -84,8 +84,7 @@ describe('AssistantProvider', function () {
     );
   });
 
-  // TODO: some internal logic in lg-chat breaks all these tests, re-enable the tests
-  describe.skip('with existing chat instance', function () {
+  describe('with existing chat instance', function () {
     before(function () {
       // TODO(COMPASS-9618): skip in electron runtime for now, drawer has issues rendering
       if ((process as any).type === 'renderer') {
@@ -118,7 +117,7 @@ describe('AssistantProvider', function () {
       );
 
       expect(screen.getByTestId('assistant-message-2')).to.exist;
-      expect(screen.getByTestId('assistant-message-2')).to.have.text(
+      expect(screen.getByTestId('assistant-message-2')).to.contain.text(
         'Test assistant message'
       );
     });
@@ -138,8 +137,10 @@ describe('AssistantProvider', function () {
 
       await renderOpenAssistantDrawer(mockChat);
 
-      const input = screen.getByTestId('assistant-chat-input');
-      const sendButton = screen.getByTestId('assistant-chat-send-button');
+      const input = screen.getByPlaceholderText(
+        'Ask MongoDB Assistant a question'
+      );
+      const sendButton = screen.getByLabelText('Send message');
 
       userEvent.type(input, 'Hello assistant');
       userEvent.click(sendButton);
@@ -176,10 +177,10 @@ describe('AssistantProvider', function () {
       await renderOpenAssistantDrawer(mockChat);
 
       userEvent.type(
-        screen.getByTestId('assistant-chat-input'),
+        screen.getByPlaceholderText('Ask MongoDB Assistant a question'),
         'Hello assistant!'
       );
-      userEvent.click(screen.getByTestId('assistant-chat-send-button'));
+      userEvent.click(screen.getByLabelText('Send message'));
 
       expect(sendMessageSpy.calledOnce).to.be.true;
       expect(sendMessageSpy.firstCall.args[0]).to.deep.include({

@@ -51,3 +51,6 @@ globalThis.CustomEvent = window.CustomEvent;
 globalThis.Event = window.Event;
 globalThis.Blob = window.Blob;
 globalThis.File = window.File;
+
+// jsdom doesn't support scrollTo on the Element, so make it a no-op
+globalThis.Element.prototype.scrollTo = () => {};
