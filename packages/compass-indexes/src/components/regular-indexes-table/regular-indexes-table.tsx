@@ -260,8 +260,11 @@ function mergeIndexes(
     // exclude partially-built indexes so that we don't include indexes that
     // only exist on the primary node and then duplicate those as rolling
     // builds in the same table
-    .filter((index) => !rollingIndexNames.has(index.name))
-    .filter((index) => !inProgressIndexNames.has(index.name))
+    .filter(
+      (index) =>
+        !rollingIndexNames.has(index.name) &&
+        !inProgressIndexNames.has(index.name)
+    )
     .map((index) => {
       return { ...index, compassIndexType: 'regular-index' };
     });
