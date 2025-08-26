@@ -1,20 +1,15 @@
 #!/usr/bin/env node
 
-//@ts-check
-
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import process from 'node:process';
 
-const distDir = path.join(process.cwd(), 'dist');
-const keepFiles = new Set(['compass-web.d.ts', 'compass-web.d.ts.map']);
+const distDir = path.join(import.meta.dirname, '..', 'dist');
 
-for (const file of fs.readdirSync(distDir)) {
-  if (
-    (file.endsWith('.d.ts') || file.endsWith('.d.ts.map')) &&
-    !keepFiles.has(file)
-  ) {
-    fs.unlinkSync(path.join(distDir, file));
-    console.log(`Deleted: ${file}`);
-  }
-}
+await Promise.all(
+  (
+    await fs.readdir(distDir)
+  )
+    .filter((file) => file.endsWith('.d.ts') || file.endsWith('.d.ts.map'))
+    .filter((file) => file !== 'compass-web.d.ts')
+    .map((file) => fs.unlink(path.join(distDir, file)))
+);
