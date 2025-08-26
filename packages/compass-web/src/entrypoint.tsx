@@ -3,10 +3,14 @@ import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
-import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
+import type {
+  CollectionTabInfo,
+  OpenWorkspaceOptions,
+  WorkspaceTab,
+} from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -131,9 +135,12 @@ export type CompassWebProps = {
    * communicate current workspace back to the parent component for example to
    * sync router with the current active workspace
    */
-  onActiveWorkspaceTabChange: React.ComponentProps<
-    typeof WorkspacesPlugin
-  >['onActiveWorkspaceTabChange'];
+  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
+    ws: WS | null,
+    collectionInfo: WS extends { type: 'Collection' }
+      ? CollectionTabInfo | null
+      : never
+  ): void;
 
   /**
    * Set of initial preferences to override default values
