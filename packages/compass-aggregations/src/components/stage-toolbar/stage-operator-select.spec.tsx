@@ -1,7 +1,13 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { Stage, StageOperatorSelect } from './stage-operator-select';
+import type { Stage } from './stage-operator-select';
+import { StageOperatorSelect } from './stage-operator-select';
 import Sinon from 'sinon';
 
 describe('StageOperatorSelect', () => {
@@ -65,7 +71,7 @@ describe('StageOperatorSelect', () => {
       },
     });
     fireEvent.click(screen.getByRole('combobox'));
-    const listbox = screen.getByRole('listbox'); // Target the dropdown
+    const listbox = screen.getByRole('listbox');
 
     expect(within(listbox).getByText('basicStage description.')).to.exist;
     expect(within(listbox).getByText('Atlas only. atlasOnlyStage description.'))
