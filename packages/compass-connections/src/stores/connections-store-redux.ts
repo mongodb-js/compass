@@ -1639,6 +1639,7 @@ const connectWithOptions = (
         }
 
         started = true;
+        // This is used for Data Explorer connection latency tracing
         log.info(
           mongoLogId(1_001_000_005),
           'Compass Connection Attempt Started',
@@ -1670,6 +1671,7 @@ const connectWithOptions = (
         // aborted
         if (!dataService || connectionAttempt.isClosed()) {
           cancelled = true;
+          // This is used for Data Explorer connection latency tracing
           log.info(
             mongoLogId(1_001_000_007),
             'Compass Connection Attempt Cancelled',
@@ -1846,6 +1848,7 @@ const connectWithOptions = (
         );
 
         succeeded = true;
+        // This is used for Data Explorer connection latency tracing
         log.info(
           mongoLogId(1_001_000_006),
           'Compass Connection Attempt Succeeded',
