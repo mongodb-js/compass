@@ -1651,6 +1651,17 @@ const connectWithOptions = (
           );
         }
 
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_005),
+          'Compass Connection Attempt Started',
+          'Connection attempt started',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
           proxyOptions: proxyPreferenceToProxyOptions(
@@ -1671,6 +1682,16 @@ const connectWithOptions = (
         // This is how connection attempt indicates that the connection was
         // aborted
         if (!dataService || connectionAttempt.isClosed()) {
+          // This is used for Data Explorer connection latency tracing
+          log.info(
+            mongoLogId(1_001_000_007),
+            'Compass Connection Attempt Cancelled',
+            'Connection attempt cancelled',
+            {
+              clusterName: connectionInfo.atlasMetadata?.clusterName,
+              connectionId: connectionInfo.id,
+            }
+          );
           dispatch({
             type: ActionTypes.ConnectionAttemptCancelled,
             connectionId: connectionInfo.id,
@@ -1837,6 +1858,17 @@ const connectWithOptions = (
           connectionInfo
         );
 
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_006),
+          'Compass Connection Attempt Succeeded',
+          'Connection attempt succeeded',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+
         connectionProgress.openConnectionSucceededToast(connectionInfo);
 
         // Emit before changing state because some plugins rely on this
@@ -1872,6 +1904,16 @@ const connectWithOptions = (
           );
         }
       } catch (err) {
+        log.info(
+          mongoLogId(1_001_000_008),
+          'Compass Connection Attempt Failed',
+          'Connection attempt failed',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+            error: (err as Error).message,
+          }
+        );
         dispatch(connectionAttemptError(connectionInfo, err));
       } finally {
         deviceAuthAbortController.abort();
