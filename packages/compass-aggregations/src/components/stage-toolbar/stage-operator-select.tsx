@@ -103,9 +103,9 @@ export const StageOperatorSelect = ({
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   // filter out search stages for data explorer
   const filteredStages =
-    isReadonlyView && enableAtlasSearchIndexes
-      ? stages
-      : stages.filter((stage) => !isSearchStage(stage.name));
+    isReadonlyView && !enableAtlasSearchIndexes
+      ? stages.filter((stage) => !isSearchStage(stage.name))
+      : stages;
 
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
