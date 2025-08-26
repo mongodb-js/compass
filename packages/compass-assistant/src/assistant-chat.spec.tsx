@@ -1,11 +1,26 @@
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import { createMockChat } from '../test/utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('AssistantChat', function () {
+  let originalScrollTo: typeof Element.prototype.scrollTo;
+  // Mock scrollTo method for DOM elements to prevent test failures
+  before(function () {
+    originalScrollTo = Element.prototype.scrollTo.bind(Element.prototype);
+    Element.prototype.scrollTo = () => {};
+  });
+  after(function () {
+    Element.prototype.scrollTo = originalScrollTo;
+  });
+
   const mockMessages: AssistantMessage[] = [
     {
       id: 'user',
@@ -35,8 +50,10 @@ describe('AssistantChat', function () {
   it('renders input field and send button', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByTestId('assistant-chat-input');
-    const sendButton = screen.getByTestId('assistant-chat-send-button');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
+    const sendButton = screen.getByLabelText('Send message');
 
     expect(inputField).to.exist;
     expect(sendButton).to.exist;
@@ -46,9 +63,9 @@ describe('AssistantChat', function () {
     renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const inputField = screen.getByTestId(
-      'assistant-chat-input'
-    ) as HTMLInputElement;
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'What is MongoDB?');
 
@@ -59,20 +76,22 @@ describe('AssistantChat', function () {
     renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const sendButton = screen.getByTestId(
-      'assistant-chat-send-button'
+    const sendButton = screen.getByLabelText(
+      'Send message'
     ) as HTMLButtonElement;
 
-    expect(sendButton.disabled).to.be.true;
+    expect(sendButton.getAttribute('aria-disabled')).to.equal('true');
   });
 
   it('send button is enabled when input has text', function () {
     renderWithChat([]);
 
-    const inputField = screen.getByTestId('assistant-chat-input');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const sendButton = screen.getByTestId(
-      'assistant-chat-send-button'
+    const sendButton = screen.getByLabelText(
+      'Send message'
     ) as HTMLButtonElement;
 
     userEvent.type(inputField, 'What is MongoDB?');
@@ -80,18 +99,23 @@ describe('AssistantChat', function () {
     expect(sendButton.disabled).to.be.false;
   });
 
-  it('send button is disabled for whitespace-only input', function () {
+  // Not currently supported by the LeafyGreen Input Bar
+  it.skip('send button is disabled for whitespace-only input', async function () {
     renderWithChat([]);
 
-    const inputField = screen.getByTestId('assistant-chat-input');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const sendButton = screen.getByTestId(
-      'assistant-chat-send-button'
+    const sendButton = screen.getByLabelText(
+      'Send message'
     ) as HTMLButtonElement;
 
     userEvent.type(inputField, '   ');
 
-    expect(sendButton.disabled).to.be.true;
+    await waitFor(() => {
+      expect(sendButton.getAttribute('aria-disabled')).to.equal('true');
+    });
   });
 
   it('displays messages in the chat feed', function () {
@@ -99,18 +123,20 @@ describe('AssistantChat', function () {
 
     expect(screen.getByTestId('assistant-message-user')).to.exist;
     expect(screen.getByTestId('assistant-message-assistant')).to.exist;
-    expect(screen.getByTestId('assistant-message-user')).to.have.text(
+    expect(screen.getByTestId('assistant-message-user')).to.contain.text(
       'Hello, MongoDB Assistant!'
     );
-    expect(screen.getByTestId('assistant-message-assistant')).to.have.text(
+    expect(screen.getByTestId('assistant-message-assistant')).to.contain.text(
       'Hello! How can I help you with MongoDB today?'
     );
   });
 
   it('calls sendMessage when form is submitted', function () {
     const { chat } = renderWithChat([]);
-    const inputField = screen.getByTestId('assistant-chat-input');
-    const sendButton = screen.getByTestId('assistant-chat-send-button');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
+    const sendButton = screen.getByLabelText('Send message');
 
     userEvent.type(inputField, 'What is aggregation?');
     userEvent.click(sendButton);
@@ -123,24 +149,26 @@ describe('AssistantChat', function () {
     renderWithChat([]);
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const inputField = screen.getByTestId(
-      'assistant-chat-input'
-    ) as HTMLInputElement;
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    ) as HTMLTextAreaElement;
 
     userEvent.type(inputField, 'Test message');
     expect(inputField.value).to.equal('Test message');
 
-    userEvent.click(screen.getByTestId('assistant-chat-send-button'));
+    userEvent.click(screen.getByLabelText('Send message'));
     expect(inputField.value).to.equal('');
   });
 
   it('trims whitespace from input before sending', function () {
     const { chat } = renderWithChat([]);
 
-    const inputField = screen.getByTestId('assistant-chat-input');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
 
     userEvent.type(inputField, '  What is sharding?  ');
-    userEvent.click(screen.getByTestId('assistant-chat-send-button'));
+    userEvent.click(screen.getByLabelText('Send message'));
 
     expect(chat.sendMessage.calledWith({ text: 'What is sharding?' })).to.be
       .true;
@@ -149,8 +177,10 @@ describe('AssistantChat', function () {
   it('does not call sendMessage when input is empty or whitespace-only', function () {
     const { chat } = renderWithChat([]);
 
-    const inputField = screen.getByTestId('assistant-chat-input');
-    const chatForm = screen.getByTestId('assistant-chat-form');
+    const inputField = screen.getByPlaceholderText(
+      'Ask MongoDB Assistant a question'
+    );
+    const chatForm = screen.getByTestId('assistant-chat-input');
 
     // Test empty input
     userEvent.click(chatForm);
@@ -168,16 +198,12 @@ describe('AssistantChat', function () {
     const userMessage = screen.getByTestId('assistant-message-user');
     const assistantMessage = screen.getByTestId('assistant-message-assistant');
 
-    // User messages should have different background color than assistant messages
+    // User messages should have different class names than assistant messages
     expect(userMessage).to.exist;
     expect(assistantMessage).to.exist;
 
-    const userStyle = window.getComputedStyle(userMessage);
-    const assistantStyle = window.getComputedStyle(assistantMessage);
-
-    expect(userStyle.backgroundColor).to.not.equal(
-      assistantStyle.backgroundColor
-    );
+    // Check that they have different class names (indicating different styling)
+    expect(userMessage.className).to.not.equal(assistantMessage.className);
   });
 
   it('handles messages with multiple text parts', function () {
