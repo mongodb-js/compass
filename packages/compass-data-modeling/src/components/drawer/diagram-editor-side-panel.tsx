@@ -12,6 +12,7 @@ import RelationshipDrawerContent from './relationship-drawer-content';
 import {
   deleteCollection,
   deleteRelationship,
+  removeField,
   selectCurrentModelFromState,
   type SelectedItems,
 } from '../../store/diagram';
@@ -241,6 +242,6 @@ export default connect(
   {
     onDeleteCollection: deleteCollection,
     onDeleteRelationship: deleteRelationship,
-    onDeleteField: () => {}, // TODO(COMPASS-9659) part 2 - implement onDeleteField,
+    onDeleteField: removeField,
   }
 )(DiagramEditorSidePanel);

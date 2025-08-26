@@ -29,7 +29,15 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
-import { traverseSchema } from '../utils/schema-traversal';
+import {
+  removeFieldFromSchema,
+  traverseSchema,
+  updateSchema,
+} from '../utils/schema-traversal';
+import {
+  areFieldPathsEqual,
+  isRelationshipInvolvingField,
+} from '../utils/utils';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
@@ -658,6 +666,21 @@ export function updateCollectionNote(
   return applyEdit({ type: 'UpdateCollectionNote', ns, note });
 }
 
+export function removeField(
+  ns: string,
+  field: FieldPath
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RemoveField', ns, field });
+}
+
+export function renameField(
+  ns: string,
+  field: FieldPath,
+  newName: string
+): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
+  return applyEdit({ type: 'RenameField', ns, from: field, to: newName });
+}
+
 function getPositionForNewCollection(
   existingCollections: DataModelCollection[],
   newCollection: Omit<DataModelCollection, 'displayPosition'>
@@ -847,6 +870,52 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             };
           }
           return collection;
+        }),
+      };
+    }
+    case 'RemoveField': {
+      return {
+        ...model,
+        // Remove any relationships involving the field being removed.
+        relationships: model.relationships.filter(({ relationship }) => {
+          return !isRelationshipInvolvingField(
+            relationship,
+            edit.ns,
+            edit.field
+          );
+        }),
+        collections: model.collections.map((collection) => {
+          if (collection.ns !== edit.ns) return collection;
+          return {
+            ...collection,
+            jsonSchema: updateSchema({
+              jsonSchema: collection.jsonSchema,
+              fieldPath: edit.field,
+              update: 'removeField',
+            }),
+          };
+        }),
+      };
+    }
+    case 'RenameField': {
+      return {
+        ...model,
+        // Update any relationships involving the field being renamed.
+        relationships: model.relationships.map((r) => {
+          // TODO
+          return r;
+        }),
+        collections: model.collections.map((collection) => {
+          if (collection.ns !== edit.ns) return collection;
+          return {
+            ...collection,
+            jsonSchema: updateSchema({
+              jsonSchema: collection.jsonSchema,
+              fieldPath: edit.from,
+              update: 'renameField',
+              newFieldName: edit.to,
+            }),
+          };
         }),
       };
     }
