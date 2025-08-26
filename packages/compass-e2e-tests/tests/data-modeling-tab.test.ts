@@ -212,7 +212,7 @@ async function dragNode(
     .action('pointer')
     .move({
       x: Math.round(startPosition.x + nodeSize.width / 2),
-      y: 15, // we're aiming for the header area (top of the node)
+      y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
     .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })
