@@ -25,10 +25,7 @@ import {
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
-import {
-  areFieldPathsEqual,
-  isRelationshipInvolvingField,
-} from '../../utils/utils';
+import { areFieldPathsEqual, isRelationshipOfAField } from '../../utils/utils';
 
 type FieldDrawerContentProps = {
   namespace: string;
@@ -193,7 +190,7 @@ export default connect(
         })?.fieldTypes ?? [],
       fieldPaths: [], // TODO(COMPASS-9659): get existing field paths
       relationships: model.relationships.filter(({ relationship }) =>
-        isRelationshipInvolvingField(
+        isRelationshipOfAField(
           relationship,
           ownProps.namespace,
           ownProps.fieldPath

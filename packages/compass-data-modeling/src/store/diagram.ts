@@ -14,7 +14,7 @@ import {
   type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
-import { memoize } from 'lodash';
+import { memoize, update } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
   openToast,
@@ -29,14 +29,12 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
-import {
-  removeFieldFromSchema,
-  traverseSchema,
-  updateSchema,
-} from '../utils/schema-traversal';
+import { traverseSchema, updateSchema } from '../utils/schema-traversal';
 import {
   areFieldPathsEqual,
   isRelationshipInvolvingField,
+  isRelationshipOfAField,
+  isSameFieldOrChild,
 } from '../utils/utils';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
@@ -755,6 +753,27 @@ export function addCollection(
   };
 }
 
+function renameFieldInRelationshipSide(
+  side: Relationship['relationship'][0],
+  edit: Extract<Edit, { type: 'RenameField' }>
+): Relationship['relationship'][0] {
+  if (
+    side.ns !== edit.ns ||
+    !side.fields ||
+    !isSameFieldOrChild(side.fields, edit.from)
+  ) {
+    return side;
+  }
+  return {
+    ...side,
+    fields: [
+      ...side.fields.slice(0, edit.from.length - 1),
+      edit.to,
+      ...side.fields.slice(edit.from.length),
+    ],
+  };
+}
+
 function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
   if (edit.type === 'SetModel') {
     return edit.model;
@@ -902,8 +921,18 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         ...model,
         // Update any relationships involving the field being renamed.
         relationships: model.relationships.map((r) => {
-          // TODO
-          return r;
+          if (
+            !isRelationshipInvolvingField(r.relationship, edit.ns, edit.from)
+          ) {
+            return r;
+          }
+          return {
+            ...r,
+            relationship: [
+              renameFieldInRelationshipSide(r.relationship[0], edit),
+              renameFieldInRelationshipSide(r.relationship[1], edit),
+            ] as const,
+          };
         }),
         collections: model.collections.map((collection) => {
           if (collection.ns !== edit.ns) return collection;
