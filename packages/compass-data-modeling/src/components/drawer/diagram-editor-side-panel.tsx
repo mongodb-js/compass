@@ -110,7 +110,11 @@ function DiagramEditorSidePanel({
           ></FieldDrawerContent>
         ),
         actions: [
-          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+          {
+            action: 'delete',
+            label: 'Delete Field',
+            icon: 'Trash' as const,
+          },
         ],
         handleAction: (actionName: string) => {
           if (actionName === 'delete') {
