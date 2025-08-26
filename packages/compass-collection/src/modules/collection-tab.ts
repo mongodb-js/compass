@@ -594,17 +594,21 @@ export const generateFakerMappings = (
         requestId: requestId,
       });
     } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+
       logger.log.error(
         mongoLogId(1_001_000_312),
         'Collection',
-        'Failed to generate faker mappings'
+        'Failed to generate faker.js mappings',
+        {
+          error: errorMessage,
+          namespace,
+        }
       );
       dispatch({
         type: CollectionActions.FakerMappingGenerationFailed,
-        error:
-          'Failed to generate faker mappings' +
-          String(e instanceof Error ? e.message : e),
-        requestId: requestId,
+        error: 'Experienced an issue generating faker.js mappings',
+        requestId,
       });
     }
   };
