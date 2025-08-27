@@ -320,7 +320,7 @@ function getInProgressIndexInfo(
       <InProgressIndexActions
         index={index}
         onDeleteFailedIndexClick={onDeleteFailedIndexClick}
-      />
+      ></InProgressIndexActions>
     ),
   };
 }
