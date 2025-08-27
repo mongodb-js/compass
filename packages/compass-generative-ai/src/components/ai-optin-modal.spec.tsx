@@ -1,32 +1,39 @@
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { AIOptInModal } from './ai-optin-modal';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import Sinon from 'sinon';
 
 let mockPreferences: PreferencesAccess;
 
 describe('AIOptInModal Component', function () {
+  const sandbox = Sinon.createSandbox();
+  const onOptInClickStub = sandbox.stub();
+
+  const baseProps = {
+    projectId: 'ab123',
+    isCloudOptIn: true,
+    isOptInModalVisible: true,
+    isOptInInProgress: false,
+    onOptInModalClose: () => {},
+    onOptInClick: onOptInClickStub,
+  };
+
   beforeEach(async function () {
     mockPreferences = await createSandboxFromDefaultPreferences();
   });
 
   afterEach(function () {
-    cleanup();
+    sandbox.restore();
   });
 
-  it('should show the modal title', function () {
+  it('should show the correct modal title when in a cloud opt-in environment', function () {
     render(
       <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal
-          projectId="ab123"
-          isOptInModalVisible={true}
-          isOptInInProgress={false}
-          onOptInModalClose={() => {}}
-          onOptInClick={() => {}}
-        ></AIOptInModal>
+        <AIOptInModal {...baseProps} />
       </PreferencesProvider>
     );
     expect(
@@ -35,21 +42,52 @@ describe('AIOptInModal Component', function () {
       })
     ).to.exist;
   });
+
+  it('should show the correct modal title when not in a cloud opt-in environment', function () {
+    render(
+      <PreferencesProvider value={mockPreferences}>
+        <AIOptInModal {...baseProps} isCloudOptIn={false} />
+      </PreferencesProvider>
+    );
+    expect(
+      screen.getByRole('heading', {
+        name: 'Use AI Features in Compass',
+      })
+    ).to.exist;
+  });
+
   it('should show the Not now link', function () {
     render(
       <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal
-          projectId="ab123"
-          isOptInModalVisible={true}
-          isOptInInProgress={false}
-          onOptInModalClose={() => {}}
-          onOptInClick={() => {}}
-        >
-          {' '}
-        </AIOptInModal>
+        <AIOptInModal {...baseProps} />
       </PreferencesProvider>
     );
     expect(screen.getByText('Not now')).to.exist;
+  });
+
+  it('should show an info banner when in a cloud opt-in environment', async function () {
+    await mockPreferences.savePreferences({
+      enableGenAIFeaturesAtlasProject: true,
+    });
+
+    render(
+      <PreferencesProvider value={mockPreferences}>
+        <AIOptInModal {...baseProps} />
+      </PreferencesProvider>
+    );
+
+    const banner = screen.getByTestId('ai-optin-cloud-banner');
+    expect(banner).to.exist;
+  });
+
+  it('should not show a banner when in non-cloud environment', function () {
+    render(
+      <PreferencesProvider value={mockPreferences}>
+        <AIOptInModal {...baseProps} isCloudOptIn={false} />
+      </PreferencesProvider>
+    );
+    const banner = screen.queryByTestId('ai-optin-cloud-banner');
+    expect(banner).to.not.exist;
   });
 
   it('should show the opt in button enabled when project AI setting is enabled', async function () {
@@ -58,15 +96,7 @@ describe('AIOptInModal Component', function () {
     });
     render(
       <PreferencesProvider value={mockPreferences}>
-        <AIOptInModal
-          projectId="ab123"
-          isOptInModalVisible={true}
-          isOptInInProgress={false}
-          onOptInModalClose={() => {}}
-          onOptInClick={() => {}}
-        >
-          {' '}
-        </AIOptInModal>
+        <AIOptInModal {...baseProps} />
       </PreferencesProvider>
     );
     const button = screen.getByText('Use AI Features').closest('button');
@@ -81,13 +111,7 @@ describe('AIOptInModal Component', function () {
       });
       render(
         <PreferencesProvider value={mockPreferences}>
-          <AIOptInModal
-            projectId="ab123"
-            isOptInModalVisible={true}
-            isOptInInProgress={false}
-            onOptInModalClose={() => {}}
-            onOptInClick={() => {}}
-          />
+          <AIOptInModal {...baseProps} />
         </PreferencesProvider>
       );
       expect(
@@ -107,13 +131,7 @@ describe('AIOptInModal Component', function () {
       });
       render(
         <PreferencesProvider value={mockPreferences}>
-          <AIOptInModal
-            projectId="ab123"
-            isOptInModalVisible={true}
-            isOptInInProgress={false}
-            onOptInModalClose={() => {}}
-            onOptInClick={() => {}}
-          />
+          <AIOptInModal {...baseProps} />
         </PreferencesProvider>
       );
       expect(
@@ -135,13 +153,7 @@ describe('AIOptInModal Component', function () {
       });
       render(
         <PreferencesProvider value={mockPreferences}>
-          <AIOptInModal
-            projectId="ab123"
-            isOptInModalVisible={true}
-            isOptInInProgress={false}
-            onOptInModalClose={() => {}}
-            onOptInClick={() => {}}
-          />
+          <AIOptInModal {...baseProps} />
         </PreferencesProvider>
       );
       expect(
@@ -157,49 +169,31 @@ describe('AIOptInModal Component', function () {
 
   describe('button click behavior', function () {
     it('should not call onOptInClick when main AI features are disabled', async function () {
-      let onOptInClickCalled = false;
       await mockPreferences.savePreferences({
         enableGenAIFeaturesAtlasProject: false,
       });
       render(
         <PreferencesProvider value={mockPreferences}>
-          <AIOptInModal
-            projectId="ab123"
-            isOptInModalVisible={true}
-            isOptInInProgress={false}
-            onOptInModalClose={() => {}}
-            onOptInClick={() => {
-              onOptInClickCalled = true;
-            }}
-          />
+          <AIOptInModal {...baseProps} />
         </PreferencesProvider>
       );
       const button = screen.getByText('Use AI Features');
       button.click();
-      expect(onOptInClickCalled).to.be.false;
+      expect(onOptInClickStub).not.to.have.been.called;
     });
 
     it('should call onOptInClick when main AI features are enabled', async function () {
-      let onOptInClickCalled = false;
       await mockPreferences.savePreferences({
         enableGenAIFeaturesAtlasProject: true,
       });
       render(
         <PreferencesProvider value={mockPreferences}>
-          <AIOptInModal
-            projectId="ab123"
-            isOptInModalVisible={true}
-            isOptInInProgress={false}
-            onOptInModalClose={() => {}}
-            onOptInClick={() => {
-              onOptInClickCalled = true;
-            }}
-          />
+          <AIOptInModal {...baseProps} />
         </PreferencesProvider>
       );
       const button = screen.getByText('Use AI Features');
       button.click();
-      expect(onOptInClickCalled).to.be.true;
+      expect(onOptInClickStub).to.have.been.calledOnce;
     });
   });
 });

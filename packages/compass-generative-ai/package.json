@@ -52,7 +52,6 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@leafygreen-ui/marketing-modal": "^8.0.0",
     "@mongodb-js/atlas-service": "^0.56.0",
     "@mongodb-js/compass-app-registry": "^9.4.20",
     "@mongodb-js/compass-components": "^1.49.0",
