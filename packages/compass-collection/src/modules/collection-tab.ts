@@ -155,18 +155,18 @@ interface MockDataGeneratorPreviousButtonClickedAction {
   type: CollectionActions.MockDataGeneratorPreviousButtonClicked;
 }
 
-interface FakerMappingGenerationStartedAction {
+export interface FakerMappingGenerationStartedAction {
   type: CollectionActions.FakerMappingGenerationStarted;
   requestId: string;
 }
 
-interface FakerMappingGenerationCompletedAction {
+export interface FakerMappingGenerationCompletedAction {
   type: CollectionActions.FakerMappingGenerationCompleted;
   fakerSchema: MockDataSchemaResponse;
   requestId: string;
 }
 
-interface FakerMappingGenerationFailedAction {
+export interface FakerMappingGenerationFailedAction {
   type: CollectionActions.FakerMappingGenerationFailed;
   error: string;
   requestId: string;
@@ -370,12 +370,30 @@ const reducer: Reducer<CollectionState, Action> = (
     };
   }
 
+  // todo: reset `fakerSchemaGeneration` state when modal flow restarts
+
   if (
     isAction<FakerMappingGenerationStartedAction>(
       action,
       CollectionActions.FakerMappingGenerationStarted
     )
   ) {
+    if (
+      state.mockDataGenerator.currentStep !==
+      MockDataGeneratorStep.SCHEMA_CONFIRMATION
+    ) {
+      return state;
+    }
+
+    if (
+      state.fakerSchemaGeneration.status ===
+        MOCK_DATA_GENERATOR_REQUEST_GENERATING ||
+      state.fakerSchemaGeneration.status ===
+        MOCK_DATA_GENERATOR_REQUEST_COMPLETED
+    ) {
+      return state;
+    }
+
     return {
       ...state,
       fakerSchemaGeneration: {
@@ -391,6 +409,13 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationCompleted
     )
   ) {
+    if (
+      state.fakerSchemaGeneration.status !==
+      MOCK_DATA_GENERATOR_REQUEST_GENERATING
+    ) {
+      return state;
+    }
+
     return {
       ...state,
       fakerSchemaGeneration: {
@@ -407,6 +432,13 @@ const reducer: Reducer<CollectionState, Action> = (
       CollectionActions.FakerMappingGenerationFailed
     )
   ) {
+    if (
+      state.fakerSchemaGeneration.status !==
+      MOCK_DATA_GENERATOR_REQUEST_GENERATING
+    ) {
+      return state;
+    }
+
     return {
       ...state,
       fakerSchemaGeneration: {

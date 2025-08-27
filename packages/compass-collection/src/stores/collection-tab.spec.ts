@@ -1,6 +1,15 @@
 import type { CollectionTabOptions } from './collection-tab';
+import type {
+  CollectionState,
+  FakerMappingGenerationStartedAction,
+  FakerMappingGenerationCompletedAction,
+  FakerMappingGenerationFailedAction,
+} from '../modules/collection-tab';
 import { activatePlugin } from './collection-tab';
-import { selectTab } from '../modules/collection-tab';
+import {
+  selectTab,
+  default as collectionTabReducer,
+} from '../modules/collection-tab';
 import * as collectionTabModule from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
@@ -16,10 +25,15 @@ import { type CollectionMetadata } from 'mongodb-collection-model';
 import {
   SCHEMA_ANALYSIS_STATE_COMPLETE,
   SCHEMA_ANALYSIS_STATE_INITIAL,
+  SchemaAnalysisState,
 } from '../schema-analysis-types';
 import {
+  MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
   MOCK_DATA_GENERATOR_REQUEST_GENERATING,
   MOCK_DATA_GENERATOR_REQUEST_IDLE,
+  MOCK_DATA_GENERATOR_REQUEST_ERROR,
+  MockDataGeneratorState,
+  MockDataGeneratorStep,
 } from '../components/mock-data-generator-modal/types';
 import { CollectionActions } from '../modules/collection-tab';
 import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
@@ -476,6 +490,276 @@ describe('Collection Tab Content store', function () {
       // Assert
       expect(dispatch).to.not.have.been.called;
       expect(logger.debug).to.have.been.calledOnce;
+    });
+  });
+
+  describe('reducer handles fakerSchemaGeneration state transitions', function () {
+    const baseState: CollectionState = {
+      workspaceTabId: 'test_tab_id',
+      namespace: 'test_db.test_collection',
+      metadata: null,
+      schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_INITIAL },
+      mockDataGenerator: {
+        isModalOpen: false,
+        currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
+      },
+      fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+    };
+
+    const completeSchemaState: SchemaAnalysisState = {
+      status: SCHEMA_ANALYSIS_STATE_COMPLETE,
+      processedSchema: {
+        name: {
+          type: 'String' as const,
+          probability: 1.0,
+          sample_values: ['John', 'Jane'],
+        },
+      },
+      sampleDocument: { name: 'John' },
+      schemaMetadata: { maxNestingDepth: 1, validationRules: null },
+    };
+
+    const fakerMappingGenerationStartedAction: FakerMappingGenerationStartedAction =
+      {
+        type: CollectionActions.FakerMappingGenerationStarted,
+        requestId: 'some_request_id',
+      };
+
+    describe('on FakerMappingGenerationStarted', function () {
+      it('should not change state when analyis is incomplete; or schema generation request in progress or completed', function () {
+        const noOpStates: CollectionState[] = [
+          { ...baseState },
+          {
+            ...baseState,
+            schemaAnalysis: completeSchemaState,
+            mockDataGenerator: {
+              isModalOpen: false,
+              currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            },
+            fakerSchemaGeneration: {
+              status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+              requestId: 'existing_id',
+            },
+          },
+          {
+            ...baseState,
+            schemaAnalysis: completeSchemaState,
+            mockDataGenerator: {
+              isModalOpen: false,
+              currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+            },
+            fakerSchemaGeneration: {
+              status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+              fakerSchema: {
+                content: {
+                  fields: [
+                    {
+                      fieldPath: 'name',
+                      probability: 1.0,
+                      mongoType: 'string' as const,
+                      fakerMethod: 'person.firstName',
+                      fakerArgs: [],
+                      isArray: false,
+                    },
+                  ],
+                },
+              },
+              requestId: 'existing_id',
+            },
+          },
+        ];
+
+        noOpStates.forEach((state) => {
+          const action = fakerMappingGenerationStartedAction;
+          expect(collectionTabReducer(state, action)).to.deep.equal(state);
+        });
+      });
+
+      it('should update status to generating when conditions are met', function () {
+        const state: CollectionState = {
+          ...baseState,
+          schemaAnalysis: completeSchemaState,
+          mockDataGenerator: {
+            isModalOpen: false,
+            currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+          },
+          fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+        };
+        const action = fakerMappingGenerationStartedAction;
+        const newState = collectionTabReducer(state, action);
+
+        expect(newState.fakerSchemaGeneration).to.deep.equal({
+          status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+          requestId: 'some_request_id',
+        });
+
+        // Ensure other parts of state are unchanged
+        expect(newState.schemaAnalysis).to.deep.equal(state.schemaAnalysis);
+        expect(newState.mockDataGenerator).to.deep.equal(
+          state.mockDataGenerator
+        );
+      });
+    });
+
+    describe('on FakerMappingGenerationCompleted', function () {
+      const fakerMappingGenerationCompletedAction: FakerMappingGenerationCompletedAction =
+        {
+          type: CollectionActions.FakerMappingGenerationCompleted,
+          fakerSchema: {
+            content: {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  probability: 1.0,
+                  mongoType: 'string' as const,
+                  fakerMethod: 'person.firstName',
+                  fakerArgs: [],
+                  isArray: false,
+                },
+              ],
+            },
+          },
+          requestId: 'test_request_id',
+        };
+
+      it('should not transition to completed if in idle, completed, or error state', function () {
+        const noOpStates: MockDataGeneratorState[] = [
+          { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+          {
+            status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+            fakerSchema: {
+              content: {
+                fields: [
+                  {
+                    fieldPath: 'name',
+                    probability: 1.0,
+                    mongoType: 'string' as const,
+                    fakerMethod: 'person.firstName',
+                    fakerArgs: [],
+                    isArray: false,
+                  },
+                ],
+              },
+            },
+            requestId: 'existing_id',
+          },
+          {
+            status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+            error: 'Some error',
+            requestId: 'error_request_id',
+          },
+        ];
+
+        noOpStates.forEach((fakerSchemaGeneration) => {
+          const state: CollectionState = {
+            ...baseState,
+            fakerSchemaGeneration,
+          };
+          const action = fakerMappingGenerationCompletedAction;
+
+          expect(collectionTabReducer(state, action)).to.deep.equal(state);
+        });
+      });
+
+      it('should update status to completed when generation is in progress', function () {
+        const state: CollectionState = {
+          ...baseState,
+          fakerSchemaGeneration: {
+            status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+            requestId: 'generating_request_id',
+          },
+        };
+        const action = fakerMappingGenerationCompletedAction;
+        const newState = collectionTabReducer(state, action);
+
+        expect(newState.fakerSchemaGeneration).to.deep.equal({
+          status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+          fakerSchema: action.fakerSchema,
+          requestId: action.requestId,
+        });
+
+        // Ensure other parts of state are unchanged
+        expect(newState.schemaAnalysis).to.deep.equal(state.schemaAnalysis);
+        expect(newState.mockDataGenerator).to.deep.equal(
+          state.mockDataGenerator
+        );
+        expect(newState.namespace).to.deep.equal(state.namespace);
+        expect(newState.metadata).to.deep.equal(state.metadata);
+      });
+    });
+
+    describe('on FakerMappingGenerationFailed', function () {
+      const fakerMappingGenerationFailedAction: FakerMappingGenerationFailedAction =
+        {
+          type: CollectionActions.FakerMappingGenerationFailed,
+          error: 'Generation failed',
+          requestId: 'test_request_id',
+        };
+
+      it('should not transition to error if in idle, completed, or error state', function () {
+        const noOpStates: MockDataGeneratorState[] = [
+          { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
+          {
+            status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+            fakerSchema: {
+              content: {
+                fields: [
+                  {
+                    fieldPath: 'name',
+                    probability: 1.0,
+                    mongoType: 'string' as const,
+                    fakerMethod: 'person.firstName',
+                    fakerArgs: [],
+                    isArray: false,
+                  },
+                ],
+              },
+            },
+            requestId: 'existing_id',
+          },
+          {
+            status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+            error: 'Previous error',
+            requestId: 'error_request_id',
+          },
+        ];
+
+        noOpStates.forEach((fakerSchemaGeneration) => {
+          const state: CollectionState = {
+            ...baseState,
+            fakerSchemaGeneration,
+          };
+          const action = fakerMappingGenerationFailedAction;
+
+          expect(collectionTabReducer(state, action)).to.deep.equal(state);
+        });
+      });
+
+      it('should update status to error when generation is in progress', function () {
+        const state: CollectionState = {
+          ...baseState,
+          fakerSchemaGeneration: {
+            status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+            requestId: 'generating_request_id',
+          },
+        };
+        const action = fakerMappingGenerationFailedAction;
+        const newState = collectionTabReducer(state, action);
+
+        expect(newState.fakerSchemaGeneration).to.deep.equal({
+          status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
+          error: action.error,
+          requestId: action.requestId,
+        });
+
+        // Ensure other parts of state are unchanged
+        expect(newState.schemaAnalysis).to.deep.equal(state.schemaAnalysis);
+        expect(newState.mockDataGenerator).to.deep.equal(
+          state.mockDataGenerator
+        );
+        expect(newState.namespace).to.deep.equal(state.namespace);
+        expect(newState.metadata).to.deep.equal(state.metadata);
+      });
     });
   });
 });
