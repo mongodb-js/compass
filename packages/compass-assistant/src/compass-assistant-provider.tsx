@@ -8,6 +8,7 @@ import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
 import { buildExplainPlanPrompt } from './prompts';
 import { usePreference } from 'compass-preferences-model/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -101,18 +102,19 @@ export const CompassAssistantProvider = registerCompassPlugin(
       }
       return <AssistantProvider chat={chat}>{children}</AssistantProvider>;
     },
-    activate: (initialProps, { atlasService }) => {
+    activate: (initialProps, { atlasService, logger }) => {
       const chat = new Chat({
         transport: new DocsProviderTransport({
           baseUrl: atlasService.assistantApiEndpoint(),
         }),
-        /*
-        onError: () => {
-          // best we can do is assume it was the last message that caused it
-          // because there's nothing on the error object this function receives
-          chat.messages = chat.messages.slice(0, -1);
+        onError: (err: any) => {
+          logger.log.error(
+            logger.mongoLogId(1_001_000_370),
+            'Assistant',
+            'Failed to send a message',
+            { err }
+          );
         },
-        */
       });
       return {
         store: { state: { chat } },
@@ -122,5 +124,6 @@ export const CompassAssistantProvider = registerCompassPlugin(
   },
   {
     atlasService: atlasServiceLocator,
+    logger: createLoggerLocator('COMPASS-ASSISTANT'),
   }
 );
