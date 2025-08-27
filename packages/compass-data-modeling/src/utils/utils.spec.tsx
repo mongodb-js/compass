@@ -1,0 +1,105 @@
+import { expect } from 'chai';
+import {
+  isRelationshipInvolvingField,
+  isRelationshipOfAField,
+  isSameFieldOrAncestor,
+} from './utils';
+
+describe('isSameFieldOrAncestor', function () {
+  it('should return true for the same field', function () {
+    expect(isSameFieldOrAncestor(['a', 'b'], ['a', 'b'])).to.be.true;
+  });
+
+  it('should return true for a child field', function () {
+    expect(isSameFieldOrAncestor(['a', 'b'], ['a', 'b', 'c'])).to.be.true;
+  });
+
+  it('should return false for a parent field', function () {
+    expect(isSameFieldOrAncestor(['a', 'b', 'c'], ['a', 'b'])).to.be.false;
+  });
+
+  it('should return false for another field', function () {
+    expect(isSameFieldOrAncestor(['a', 'b'], ['a', 'c'])).to.be.false;
+  });
+});
+
+describe('isRelationshipOfAField', function () {
+  const relationship = [
+    { ns: 'db.coll1', fields: ['a', 'b'] },
+    { ns: 'db.coll2', fields: ['c', 'd'] },
+  ];
+
+  it('should return true for exact match', function () {
+    expect(isRelationshipOfAField(relationship, 'db.coll1', ['a', 'b'])).to.be
+      .true;
+    expect(isRelationshipOfAField(relationship, 'db.coll2', ['c', 'd'])).to.be
+      .true;
+  });
+
+  it('should return false for other fields', function () {
+    expect(isRelationshipOfAField(relationship, 'db.coll1', ['a'])).to.be.false;
+    expect(isRelationshipOfAField(relationship, 'db.coll1', ['a', 'c'])).to.be
+      .false;
+  });
+
+  it('should handle incomplete relationships', function () {
+    expect(
+      isRelationshipOfAField([{}, relationship[1]], 'db.coll2', ['c', 'd'])
+    ).to.be.true;
+    expect(
+      isRelationshipOfAField(
+        [{ ns: 'db.coll2', fields: null }, relationship[1]],
+        'db.coll2',
+        ['c', 'd']
+      )
+    ).to.be.true;
+  });
+});
+
+describe('isRelationshipInvolvingAField', function () {
+  const relationship = [
+    { ns: 'db.coll1', fields: ['a', 'b'] },
+    { ns: 'db.coll2', fields: ['c', 'd', 'e'] },
+  ];
+
+  it('should return true for exact match', function () {
+    expect(isRelationshipInvolvingField(relationship, 'db.coll1', ['a', 'b']))
+      .to.be.true;
+    expect(
+      isRelationshipInvolvingField(relationship, 'db.coll2', ['c', 'd', 'e'])
+    ).to.be.true;
+  });
+
+  it('should return true for fields that are on the path (ancestors)', function () {
+    expect(isRelationshipInvolvingField(relationship, 'db.coll1', ['a'])).to.be
+      .true;
+    expect(isRelationshipInvolvingField(relationship, 'db.coll2', ['c', 'd']))
+      .to.be.true;
+    expect(isRelationshipInvolvingField(relationship, 'db.coll2', ['c'])).to.be
+      .true;
+  });
+
+  it('should return false fields that are not on the path', function () {
+    expect(
+      isRelationshipInvolvingField(relationship, 'db.coll1', ['a', 'b', 'c'])
+    ).to.be.false;
+    expect(isRelationshipInvolvingField(relationship, 'db.coll2', ['g'])).to.be
+      .false;
+  });
+
+  it('should handle incomplete relationships', function () {
+    expect(
+      isRelationshipInvolvingField([{}, relationship[1]], 'db.coll2', [
+        'c',
+        'd',
+      ])
+    ).to.be.true;
+    expect(
+      isRelationshipInvolvingField(
+        [{ ns: 'db.coll2', fields: null }, relationship[1]],
+        'db.coll2',
+        ['c', 'd']
+      )
+    ).to.be.true;
+  });
+});
