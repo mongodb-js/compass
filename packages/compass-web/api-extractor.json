@@ -26,7 +26,6 @@
   },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "",
     "publicTrimmedFilePath": "./dist/<unscopedPackageName>.d.ts"
   },
   "apiReport": {
