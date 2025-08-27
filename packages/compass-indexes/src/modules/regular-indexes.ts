@@ -239,32 +239,15 @@ export default function reducer(
           })
         )
     );
-
     return {
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
+      // Remove in progress stubs when we got the "real" indexes from one of the
+      // backends. Keep the error ones around even if the name matches (should
+      // only be possible in cases of "index with the same name already exists")
       inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
-        // Always keep indexes with explicit errors
-        if (inProgress.error) {
-          return true;
-        }
-
-        // Remove failed indexes (they're done and should be cleaned up)
-        if (inProgress.status === 'failed') {
-          return false;
-        }
-
-        // If real index doesn't exist, keep the in-progress one
-        if (!allIndexNames.has(inProgress.name)) {
-          return true;
-        }
-
-        // Real index exists - only keep in-progress if it's still actively building
-        // (status: 'inprogress'). Progress is now tracked through the regular index data
-        const isActivelyBuilding = inProgress.status === 'inprogress';
-
-        return isActivelyBuilding;
+        return !!inProgress.error || !allIndexNames.has(inProgress.name);
       }),
       status: FetchStatuses.READY,
     };
@@ -335,21 +318,6 @@ export default function reducer(
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
-    };
-  }
-
-  if (
-    isAction<IndexCreationSucceededAction>(
-      action,
-      ActionTypes.IndexCreationSucceeded
-    )
-  ) {
-    // Remove the completed index from in-progress list
-    return {
-      ...state,
-      inProgressIndexes: state.inProgressIndexes.filter(
-        (x) => x.id !== action.inProgressIndexId
-      ),
     };
   }
 
