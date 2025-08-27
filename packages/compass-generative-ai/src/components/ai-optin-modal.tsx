@@ -7,9 +7,9 @@ import {
   css,
   spacing,
   palette,
-  MarketingModal,
   Theme,
   useDarkMode,
+  MarketingModal,
 } from '@mongodb-js/compass-components';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
