@@ -26,13 +26,15 @@ jobs:
     name: Configure matrix
     runs-on: ubuntu-latest
     outputs:
-      group_name: ${{ steps.groups.outputs.group_name }}
+      group_name: ${{ steps.define_groups.outputs.group_name }}
     steps:
-      - id: groups
+      - id: define_groups
         name: Define groups to update
+        env:
+          SHOULD_INCLUDE_ALL_GROUPS: ${{ inputs.group_name == '' ||  inputs.group_name == 'all' }}
         run: |
           echo "Configuring matrix (inputs.group_name=${{ inputs.group_name }})"
-          if [[ ${{ inputs.group_name == '' ||  inputs.group_name == 'all' }} ]]; then
+          if [[ "$SHOULD_INCLUDE_ALL_GROUPS" = "true" ]]; then
             # When adding new group, don't forget to update the `workflow_dispatch`
             echo 'group_name=["electron","eslint","typescript","mongosh"]' >> "$GITHUB_OUTPUT"
           else
