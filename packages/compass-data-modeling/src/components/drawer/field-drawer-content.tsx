@@ -74,7 +74,7 @@ export function getIsFieldNameValid(
     };
   }
 
-  const fieldsNamesWithoutCurrent = existingFields
+  const siblingFields = existingFields
     .filter(
       (fieldPath) =>
         fieldPath.length === currentFieldPath.length &&
@@ -86,7 +86,7 @@ export function getIsFieldNameValid(
     )
     .map((fieldPath) => fieldPath[fieldPath.length - 1]);
 
-  const isDuplicate = fieldsNamesWithoutCurrent.some(
+  const isDuplicate = siblingFields.some(
     (fieldName) => fieldName === trimmedName
   );
 
