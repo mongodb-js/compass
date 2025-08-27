@@ -27,7 +27,10 @@ import {
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
-import { collectionToDiagramNode } from '../utils/nodes-and-edges';
+import {
+  collectionToBaseNodeForLayout,
+  collectionToDiagramNode,
+} from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { traverseSchema } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
@@ -716,9 +719,9 @@ function getPositionForNewCollection(
   newCollection: Omit<DataModelCollection, 'displayPosition'>
 ): [number, number] {
   const existingNodes = existingCollections.map((collection) =>
-    collectionToDiagramNode(collection)
+    collectionToBaseNodeForLayout(collection)
   );
-  const newNode = collectionToDiagramNode({
+  const newNode = collectionToBaseNodeForLayout({
     ns: newCollection.ns,
     jsonSchema: newCollection.jsonSchema,
     displayPosition: [0, 0],

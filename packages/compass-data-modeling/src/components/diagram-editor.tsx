@@ -174,7 +174,8 @@ const DiagramContent: React.FunctionComponent<{
         !!selectedItems &&
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
-      return collectionToDiagramNode(coll, {
+      return collectionToDiagramNode({
+        ...coll,
         highlightedFields,
         selectedField:
           selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
