@@ -52,10 +52,13 @@ const errorBannerWrapperStyles = css({
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
 }) => {
+  const track = useTelemetry();
   const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
+    onError: () => {
+      track('Assistant Response Failed', () => ({}));
+    },
   });
-  const track = useTelemetry();
 
   // Transform AI SDK messages to LeafyGreen chat format
   const lgMessages = messages.map((message) => ({
