@@ -1,9 +1,12 @@
 import React, { useCallback, useContext } from 'react';
 import {
+  Badge,
+  css,
   DrawerSection,
   Icon,
   IconButton,
   showConfirmation,
+  spacing,
 } from '@mongodb-js/compass-components';
 import { AssistantChat } from './assistant-chat';
 import {
@@ -12,6 +15,16 @@ import {
   AssistantContext,
 } from './compass-assistant-provider';
 import { usePreference } from 'compass-preferences-model/provider';
+
+const assistantTitleStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
+const assistantTitleTextStyles = css({
+  marginRight: spacing[200],
+});
 
 /**
  * CompassAssistantDrawer component that wraps AssistantChat in a DrawerSection.
@@ -53,14 +66,11 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
     <DrawerSection
       id={ASSISTANT_DRAWER_ID}
       title={
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span>MongoDB Assistant</span>
+        <div className={assistantTitleStyles}>
+          <div>
+            <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
+            <Badge variant="blue">Preview</Badge>
+          </div>
           <IconButton
             aria-label="Clear chat"
             onClick={() => {
