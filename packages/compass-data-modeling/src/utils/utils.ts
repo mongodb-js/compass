@@ -7,18 +7,20 @@ export function areFieldPathsEqual(
   return JSON.stringify(fieldA) === JSON.stringify(fieldB);
 }
 
-export function isSameFieldOrChild(
-  fieldA: FieldPath,
-  fieldB: FieldPath
+export function isSameFieldOrAncestor(
+  ancestor: FieldPath,
+  child: FieldPath
 ): boolean {
-  if (fieldA.length === fieldB.length)
-    return areFieldPathsEqual(fieldA, fieldB);
-  if (fieldA.length < fieldB.length) return false;
-  // fieldA is shorter than fieldB, check if fieldA is a parent of fieldB
-  const pathA = JSON.stringify(fieldA);
-  const pathB = JSON.stringify(fieldB);
-  // ignore the closing bracket - last character in pathB
-  return pathA.slice(0, pathB.length - 1) === pathB.slice(0, pathB.length - 1);
+  if (ancestor.length === child.length)
+    return areFieldPathsEqual(ancestor, child);
+  if (ancestor.length > child.length) return false;
+  const pathAncestor = JSON.stringify(ancestor);
+  const pathChild = JSON.stringify(child);
+  // ignore the last character - closing bracket
+  return (
+    pathAncestor.slice(0, pathAncestor.length - 1) ===
+    pathChild.slice(0, pathAncestor.length - 1)
+  );
 }
 
 export function isRelationshipOfAField(
@@ -29,10 +31,10 @@ export function isRelationshipOfAField(
   const [local, foreign] = relationship;
   return (
     (local.ns === namespace &&
-      local.fields !== null &&
+      !!local.fields &&
       areFieldPathsEqual(local.fields, fieldPath)) ||
     (foreign.ns === namespace &&
-      foreign.fields !== null &&
+      !!foreign.fields &&
       areFieldPathsEqual(foreign.fields, fieldPath))
   );
 }
@@ -45,10 +47,10 @@ export function isRelationshipInvolvingField(
   const [local, foreign] = relationship;
   return (
     (local.ns === namespace &&
-      local.fields !== null &&
-      isSameFieldOrChild(local.fields, fieldPath)) ||
+      !!local.fields &&
+      isSameFieldOrAncestor(fieldPath, local.fields)) ||
     (foreign.ns === namespace &&
-      foreign.fields !== null &&
-      isSameFieldOrChild(foreign.fields, fieldPath))
+      !!foreign.fields &&
+      isSameFieldOrAncestor(fieldPath, foreign.fields))
   );
 }
