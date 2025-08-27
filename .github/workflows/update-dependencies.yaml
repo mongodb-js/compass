@@ -1,0 +1,99 @@
+name: Update dependencies
+
+# Runs nightly and manually
+on:
+  workflow_dispatch:
+    inputs:
+      group_name:
+        description: 'Package group to update'
+        type: choice
+        default: 'all'
+        options:
+          - electron
+          - eslint
+          - typescript
+          - mongosh
+          - all
+        required: true
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: none # We use the github app token to push the changes
+
+jobs:
+  configure_matrix:
+    name: Configure matrix
+    runs-on: ubuntu-latest
+    outputs:
+      group_name: ${{ steps.define_groups.outputs.group_name }}
+    steps:
+      - id: define_groups
+        name: Define groups to update
+        env:
+          SHOULD_INCLUDE_ALL_GROUPS: ${{ inputs.group_name == '' ||  inputs.group_name == 'all' }}
+        run: |
+          echo "Configuring matrix (inputs.group_name=${{ inputs.group_name }})"
+          if [[ "$SHOULD_INCLUDE_ALL_GROUPS" = "true" ]]; then
+            # When adding new group, don't forget to update the `workflow_dispatch`
+            echo 'group_name=["electron","eslint","typescript","mongosh"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'group_name=["${{ inputs.group_name }}"]' >> "$GITHUB_OUTPUT"
+          fi
+  update_dependencies_group:
+    name: Update ${{ matrix.group_name }} to latest
+    runs-on: ubuntu-latest
+    needs: configure_matrix
+    strategy:
+      matrix:
+        group_name: ${{ fromJSON(needs.configure_matrix.outputs.group_name) }}
+    steps:
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.15.1
+          cache: 'npm'
+
+      - name: Install npm@10.2.4
+        run: |
+          npm install -g npm@10.2.4
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Run "update dependencies" script
+        run: npx compass-scripts update-dependencies preset-${{ matrix.group_name }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: 'chore(deps): update ${{ matrix.group_name }} to latest'
+          branch: ci/update-${{ matrix.group_name }}
+          title: 'chore(deps): update ${{ matrix.group_name }} to latest'
+          labels: no-title-validation
+          author: '${{ steps.app-token.outputs.app-slug}}[bot] <${{ steps.app-token.outputs.app-email }}>'
+          body: |
+            <p>This PR is automatically generated and updates the versions of
+            the dependency group ${{ matrix.group_name }} to latest version.</p>
+
+            <p>If CI is green on this patch you should feel free to merge it at
+            your convenience.</p>
+
+            <p>If CI is red and you think that failures are related to the
+            version updates, you should raise an issue, so that it can be 
+            manually resolved and we can continue to update the package group to
+            latest.</p>

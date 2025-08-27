@@ -242,6 +242,8 @@ export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
 export const ConenctionToastCancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
+export const ConnectionToastErrorDebugButton =
+  '[data-testid="connection-error-debug"]';
 
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
@@ -1511,3 +1513,10 @@ export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
 export const SideDrawerCloseButton = `[data-testid="${
   getDrawerIds().closeButton
 }"]`;
+
+// Assistant
+export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
+export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
+export const ConfirmClearChatModal =
+  '[data-testid="assistant-confirm-clear-chat-modal"]';
+export const ConfirmClearChatModalConfirmButton = `${ConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;

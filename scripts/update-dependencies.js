@@ -69,13 +69,15 @@ async function getVersion(depSpec) {
   return [name, version.trim()];
 }
 
+const DEP_TYPES = [
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'optionalDependencies',
+];
+
 function updateDependencies(packageJson, newVersions) {
-  for (const depType of [
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'optionalDependencies',
-  ]) {
+  for (const depType of DEP_TYPES) {
     if (packageJson[depType]) {
       for (const packageName of Object.keys(packageJson[depType])) {
         if (packageJson[depType][packageName] && newVersions[packageName]) {
@@ -146,6 +148,36 @@ async function main() {
     dependencies = args;
   }
 
+  const monorepoRoot = await findMonorepoRoot();
+  const workspaces = [monorepoRoot].concat(
+    await Array.fromAsync(listAllPackages(), (workspace) => workspace.location)
+  );
+  const allMonorepoDependencies = Array.from(
+    new Set(
+      workspaces.flatMap((location) => {
+        try {
+          const deps = {};
+          const packageJson = require(path.join(location, 'package.json'));
+          for (const depType of DEP_TYPES) {
+            Object.assign(deps, packageJson[depType] ?? {});
+          }
+          return Object.keys(deps);
+        } catch {
+          return [];
+        }
+      })
+    )
+  );
+
+  dependencies = dependencies.flatMap((depToUpdate) => {
+    if (/\*/.test(depToUpdate)) {
+      return allMonorepoDependencies.filter((dep) => {
+        return dep.startsWith(depToUpdate.replace('*', ''));
+      });
+    }
+    return depToUpdate;
+  });
+
   const newVersions = await withProgress(
     `Collection version information for packages...`,
     () => {
@@ -159,7 +191,7 @@ async function main() {
 
   console.log();
   console.log(
-    'Updating following packages:\n\n * %s\n',
+    'Updating following packages:\n\n * %s',
     newVersions
       .map((spec) => {
         return spec.join('@');
@@ -170,11 +202,6 @@ async function main() {
 
   const newVersionsObj = Object.fromEntries(newVersions);
   let hasChanged;
-
-  const monorepoRoot = await findMonorepoRoot();
-  const workspaces = [monorepoRoot].concat(
-    await Array.fromAsync(listAllPackages(), (workspace) => workspace.location)
-  );
 
   await withProgress('Updating package.json in workspaces', async () => {
     for (const workspacePath of workspaces) {

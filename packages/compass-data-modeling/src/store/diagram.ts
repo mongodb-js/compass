@@ -4,6 +4,7 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
+  FieldPath,
   Relationship,
 } from '../services/data-model-storage';
 import {
@@ -28,15 +29,22 @@ import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
 import { collectionToDiagramNode } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
+import { traverseSchema } from '../utils/schema-traversal';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;
 }
 
-export type SelectedItems = {
-  type: 'collection' | 'relationship';
-  id: string;
-};
+export type SelectedItems =
+  | {
+      type: 'collection' | 'relationship';
+      id: string;
+    }
+  | {
+      type: 'field';
+      namespace: string;
+      fieldPath: FieldPath;
+    };
 
 export type DiagramState =
   | (Omit<MongoDBDataModelDescription, 'edits'> & {
@@ -62,6 +70,7 @@ export enum DiagramActionTypes {
   REDO_EDIT = 'data-modeling/diagram/REDO_EDIT',
   COLLECTION_SELECTED = 'data-modeling/diagram/COLLECTION_SELECTED',
   RELATIONSHIP_SELECTED = 'data-modeling/diagram/RELATIONSHIP_SELECTED',
+  FIELD_SELECTED = 'data-modeling/diagram/FIELD_SELECTED',
   DIAGRAM_BACKGROUND_SELECTED = 'data-modeling/diagram/DIAGRAM_BACKGROUND_SELECTED',
 }
 
@@ -109,6 +118,12 @@ export type RelationSelectedAction = {
   relationshipId: string;
 };
 
+export type FieldSelectedAction = {
+  type: DiagramActionTypes.FIELD_SELECTED;
+  namespace: string;
+  fieldPath: FieldPath;
+};
+
 export type DiagramBackgroundSelectedAction = {
   type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED;
 };
@@ -123,6 +138,7 @@ export type DiagramActions =
   | RedoEditAction
   | CollectionSelectedAction
   | RelationSelectedAction
+  | FieldSelectedAction
   | DiagramBackgroundSelectedAction;
 
 const INITIAL_STATE: DiagramState = null;
@@ -280,6 +296,16 @@ export const diagramReducer: Reducer<DiagramState> = (
       },
     };
   }
+  if (isAction(action, DiagramActionTypes.FIELD_SELECTED)) {
+    return {
+      ...state,
+      selectedItems: {
+        type: 'field',
+        namespace: action.namespace,
+        fieldPath: action.fieldPath,
+      },
+    };
+  }
   if (isAction(action, DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED)) {
     return {
       ...state,
@@ -378,16 +404,34 @@ export function selectRelationship(
   };
 }
 
+export function selectField(
+  namespace: string,
+  fieldPath: FieldPath
+): FieldSelectedAction {
+  return {
+    type: DiagramActionTypes.FIELD_SELECTED,
+    namespace,
+    fieldPath,
+  };
+}
+
 export function selectBackground(): DiagramBackgroundSelectedAction {
   return {
     type: DiagramActionTypes.DIAGRAM_BACKGROUND_SELECTED,
   };
 }
 
-export function createNewRelationship(
-  localNamespace: string,
-  foreignNamespace: string | null = null
-): DataModelingThunkAction<void, RelationSelectedAction> {
+export function createNewRelationship({
+  localNamespace,
+  foreignNamespace = null,
+  localFields = null,
+  foreignFields = null,
+}: {
+  localNamespace: string;
+  foreignNamespace?: string | null;
+  localFields?: FieldPath | null;
+  foreignFields?: FieldPath | null;
+}): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
     const currentNumberOfRelationships = getCurrentNumberOfRelationships(
@@ -399,8 +443,8 @@ export function createNewRelationship(
         relationship: {
           id: relationshipId,
           relationship: [
-            { ns: localNamespace, cardinality: 1, fields: null },
-            { ns: foreignNamespace, cardinality: 1, fields: null },
+            { ns: localNamespace, cardinality: 1, fields: localFields },
+            { ns: foreignNamespace, cardinality: 1, fields: foreignFields },
           ],
           isInferred: false,
         },
@@ -876,31 +920,14 @@ export const selectCurrentModelFromState = (state: DataModelingState) => {
   return selectCurrentModel(selectCurrentDiagramFromState(state).edits);
 };
 
-function extractFields(
-  parentSchema: MongoDBJSONSchema,
-  parentKey?: string[],
-  fields: string[][] = []
-) {
-  if ('anyOf' in parentSchema && parentSchema.anyOf) {
-    for (const schema of parentSchema.anyOf) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('items' in parentSchema && parentSchema.items) {
-    const items = Array.isArray(parentSchema.items)
-      ? parentSchema.items
-      : [parentSchema.items];
-    for (const schema of items) {
-      extractFields(schema, parentKey, fields);
-    }
-  }
-  if ('properties' in parentSchema && parentSchema.properties) {
-    for (const [key, value] of Object.entries(parentSchema.properties)) {
-      const fullKey = parentKey ? [...parentKey, key] : [key];
-      fields.push(fullKey);
-      extractFields(value, fullKey, fields);
-    }
-  }
+function extractFieldsFromSchema(parentSchema: MongoDBJSONSchema): FieldPath[] {
+  const fields: FieldPath[] = [];
+  traverseSchema({
+    jsonSchema: parentSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(fieldPath);
+    },
+  });
   return fields;
 }
 
@@ -910,7 +937,7 @@ function getFieldsForCurrentModel(
   const model = selectCurrentModel(edits);
   const fields = Object.fromEntries(
     model.collections.map((collection) => {
-      return [collection.ns, extractFields(collection.jsonSchema)];
+      return [collection.ns, extractFieldsFromSchema(collection.jsonSchema)];
     })
   );
   return fields;
