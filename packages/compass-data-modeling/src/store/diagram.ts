@@ -32,7 +32,7 @@ import toNS from 'mongodb-ns';
 import { traverseSchema, updateSchema } from '../utils/schema-traversal';
 import {
   isRelationshipInvolvingField,
-  isSameFieldOrChild,
+  isSameFieldOrAncestor,
 } from '../utils/utils';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
@@ -391,7 +391,10 @@ const updateSelectedItemsFromAppliedEdit = (
       return {
         type: 'field',
         namespace: edit.ns,
-        fieldPath: [...edit.from.slice(0, edit.from.length - 1), edit.to],
+        fieldPath: [
+          ...edit.field.slice(0, edit.field.length - 1),
+          edit.newName,
+        ],
       };
     }
   }
@@ -681,7 +684,7 @@ export function renameField(
   field: FieldPath,
   newName: string
 ): DataModelingThunkAction<boolean, ApplyEditAction | ApplyEditFailedAction> {
-  return applyEdit({ type: 'RenameField', ns, from: field, to: newName });
+  return applyEdit({ type: 'RenameField', ns, field, newName });
 }
 
 function getPositionForNewCollection(
@@ -765,16 +768,16 @@ function renameFieldInRelationshipSide(
   if (
     side.ns !== edit.ns ||
     !side.fields ||
-    !isSameFieldOrChild(side.fields, edit.from)
+    !isSameFieldOrAncestor(edit.field, side.fields)
   ) {
     return side;
   }
   return {
     ...side,
     fields: [
-      ...side.fields.slice(0, edit.from.length - 1),
-      edit.to,
-      ...side.fields.slice(edit.from.length),
+      ...side.fields.slice(0, edit.field.length - 1),
+      edit.newName,
+      ...side.fields.slice(edit.field.length),
     ],
   };
 }
@@ -927,7 +930,7 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
         // Update any relationships involving the field being renamed.
         relationships: model.relationships.map((r) => {
           if (
-            !isRelationshipInvolvingField(r.relationship, edit.ns, edit.from)
+            !isRelationshipInvolvingField(r.relationship, edit.ns, edit.field)
           ) {
             return r;
           }
@@ -945,9 +948,9 @@ function _applyEdit(edit: Edit, model?: StaticModel): StaticModel {
             ...collection,
             jsonSchema: updateSchema({
               jsonSchema: collection.jsonSchema,
-              fieldPath: edit.from,
+              fieldPath: edit.field,
               update: 'renameField',
-              newFieldName: edit.to,
+              newFieldName: edit.newName,
             }),
           };
         }),

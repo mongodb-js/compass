@@ -204,10 +204,10 @@ describe('DiagramEditorSidePanel', function () {
       });
 
       expect(
-        modifiedCollection.jsonSchema.properties.airline.properties
+        modifiedCollection?.jsonSchema.properties?.airline.properties
       ).to.not.have.property('id'); // deleted field
       expect(
-        modifiedCollection.jsonSchema.properties.airline.properties
+        modifiedCollection?.jsonSchema.properties?.airline.properties
       ).to.have.property('name'); // sibling field remains
     });
 
