@@ -2,13 +2,18 @@ import React, { type PropsWithChildren, useRef } from 'react';
 import { type UIMessage } from './@ai-sdk/react/use-chat';
 import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
-import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import {
+  createServiceLocator,
+  registerCompassPlugin,
+} from '@mongodb-js/compass-app-registry';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import { useDrawerActions } from '@mongodb-js/compass-components';
-import { buildExplainPlanPrompt } from './prompts';
+import { buildConnectionErrorPrompt, buildExplainPlanPrompt } from './prompts';
 import { usePreference } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -33,11 +38,19 @@ type AssistantActionsContextType = {
     namespace: string;
     explainPlan: string;
   }) => void;
+  interpretConnectionError: ({
+    connectionInfo,
+    error,
+  }: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+  }) => void;
   clearChat: () => void;
 };
 export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
+    interpretConnectionError: () => {},
     clearChat: () => {},
   });
 
@@ -51,6 +64,24 @@ export function useAssistantActions(): AssistantActionsContextType & {
     isAssistantEnabled,
   };
 }
+
+export const compassAssistantServiceLocator = createServiceLocator(function () {
+  const { isAssistantEnabled, ...actions } = useAssistantActions();
+
+  const assistantEnabledRef = useRef(isAssistantEnabled);
+  assistantEnabledRef.current = isAssistantEnabled;
+
+  return {
+    ...actions,
+    getIsAssistantEnabled() {
+      return assistantEnabledRef.current;
+    },
+  };
+}, 'compassAssistantLocator');
+
+export type CompassAssistantService = ReturnType<
+  typeof compassAssistantServiceLocator
+>;
 
 export const AssistantProvider: React.FunctionComponent<
   PropsWithChildren<{
@@ -69,6 +100,25 @@ export const AssistantProvider: React.FunctionComponent<
           metadata: {
             displayText,
           },
+        },
+        {}
+      );
+    },
+    interpretConnectionError: ({ connectionInfo, error }) => {
+      openDrawer(ASSISTANT_DRAWER_ID);
+
+      const connectionString = redactConnectionString(
+        connectionInfo.connectionOptions.connectionString
+      );
+      const connectionError = error.toString();
+
+      const { prompt } = buildConnectionErrorPrompt({
+        connectionString,
+        connectionError,
+      });
+      void chat.sendMessage(
+        {
+          text: prompt,
         },
         {}
       );
