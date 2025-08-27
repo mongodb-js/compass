@@ -106,6 +106,13 @@ export const CompassAssistantProvider = registerCompassPlugin(
         transport: new DocsProviderTransport({
           baseUrl: atlasService.assistantApiEndpoint(),
         }),
+        /*
+        onError: () => {
+          // best we can do is assume it was the last message that caused it
+          // because there's nothing on the error object this function receives
+          chat.messages = chat.messages.slice(0, -1);
+        },
+        */
       });
       return {
         store: { state: { chat } },
