@@ -194,6 +194,8 @@ const getMutatedSchema = ({
     case 'renameField': {
       if (!schema.properties || !schema.properties[fieldName])
         throw new Error('Field to rename does not exist');
+      if (!newFieldName)
+        throw new Error('New field name is required for the rename operation');
       return {
         ...schema,
         properties: Object.fromEntries(

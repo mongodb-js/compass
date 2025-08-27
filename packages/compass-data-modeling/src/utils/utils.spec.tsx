@@ -4,6 +4,7 @@ import {
   isRelationshipOfAField,
   isSameFieldOrAncestor,
 } from './utils';
+import type { Relationship } from '../services/data-model-storage';
 
 describe('isSameFieldOrAncestor', function () {
   it('should return true for the same field', function () {
@@ -24,9 +25,9 @@ describe('isSameFieldOrAncestor', function () {
 });
 
 describe('isRelationshipOfAField', function () {
-  const relationship = [
-    { ns: 'db.coll1', fields: ['a', 'b'] },
-    { ns: 'db.coll2', fields: ['c', 'd'] },
+  const relationship: Relationship['relationship'] = [
+    { ns: 'db.coll1', fields: ['a', 'b'], cardinality: 1 },
+    { ns: 'db.coll2', fields: ['c', 'd'], cardinality: 1 },
   ];
 
   it('should return true for exact match', function () {
@@ -44,11 +45,15 @@ describe('isRelationshipOfAField', function () {
 
   it('should handle incomplete relationships', function () {
     expect(
-      isRelationshipOfAField([{}, relationship[1]], 'db.coll2', ['c', 'd'])
+      isRelationshipOfAField(
+        [{ ns: null, fields: null, cardinality: 1 }, relationship[1]],
+        'db.coll2',
+        ['c', 'd']
+      )
     ).to.be.true;
     expect(
       isRelationshipOfAField(
-        [{ ns: 'db.coll2', fields: null }, relationship[1]],
+        [{ ns: 'db.coll2', fields: null, cardinality: 1 }, relationship[1]],
         'db.coll2',
         ['c', 'd']
       )
@@ -57,9 +62,9 @@ describe('isRelationshipOfAField', function () {
 });
 
 describe('isRelationshipInvolvingAField', function () {
-  const relationship = [
-    { ns: 'db.coll1', fields: ['a', 'b'] },
-    { ns: 'db.coll2', fields: ['c', 'd', 'e'] },
+  const relationship: Relationship['relationship'] = [
+    { ns: 'db.coll1', fields: ['a', 'b'], cardinality: 1 },
+    { ns: 'db.coll2', fields: ['c', 'd', 'e'], cardinality: 1 },
   ];
 
   it('should return true for exact match', function () {
@@ -89,14 +94,15 @@ describe('isRelationshipInvolvingAField', function () {
 
   it('should handle incomplete relationships', function () {
     expect(
-      isRelationshipInvolvingField([{}, relationship[1]], 'db.coll2', [
-        'c',
-        'd',
-      ])
+      isRelationshipInvolvingField(
+        [{ ns: null, fields: null, cardinality: 1 }, relationship[1]],
+        'db.coll2',
+        ['c', 'd']
+      )
     ).to.be.true;
     expect(
       isRelationshipInvolvingField(
-        [{ ns: 'db.coll2', fields: null }, relationship[1]],
+        [{ ns: 'db.coll2', fields: null, cardinality: 1 }, relationship[1]],
         'db.coll2',
         ['c', 'd']
       )

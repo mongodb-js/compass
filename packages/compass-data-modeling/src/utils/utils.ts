@@ -16,11 +16,11 @@ export function isSameFieldOrAncestor(
   if (ancestor.length > child.length) return false;
   // ignore the last character - closing bracket
   const ancestorPath = JSON.stringify(ancestor).slice(0, -1);
-  const beginningOfchildPath = JSON.stringify(child).slice(
+  const beginningOfChildPath = JSON.stringify(child).slice(
     0,
     ancestorPath.length
   );
-  return ancestorPath === beginningOfchildPath;
+  return ancestorPath === beginningOfChildPath;
 }
 
 export function isRelationshipOfAField(
