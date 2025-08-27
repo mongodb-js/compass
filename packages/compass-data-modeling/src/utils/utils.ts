@@ -14,13 +14,13 @@ export function isSameFieldOrAncestor(
   if (ancestor.length === child.length)
     return areFieldPathsEqual(ancestor, child);
   if (ancestor.length > child.length) return false;
-  const pathAncestor = JSON.stringify(ancestor);
-  const pathChild = JSON.stringify(child);
   // ignore the last character - closing bracket
-  return (
-    pathAncestor.slice(0, pathAncestor.length - 1) ===
-    pathChild.slice(0, pathAncestor.length - 1)
+  const ancestorPath = JSON.stringify(ancestor).slice(0, -1);
+  const beginningOfchildPath = JSON.stringify(child).slice(
+    0,
+    ancestorPath.length
   );
+  return ancestorPath === beginningOfchildPath;
 }
 
 export function isRelationshipOfAField(
