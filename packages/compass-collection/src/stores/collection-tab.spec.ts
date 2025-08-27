@@ -18,8 +18,8 @@ import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
 } from '../schema-analysis-types';
 import {
-  MOCK_DATA_GENERATOR_STATE_GENERATING,
-  MOCK_DATA_GENERATOR_STATE_IDLE,
+  MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+  MOCK_DATA_GENERATOR_REQUEST_IDLE,
 } from '../components/mock-data-generator-modal/types';
 import { CollectionActions } from '../modules/collection-tab';
 import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
@@ -316,7 +316,7 @@ describe('Collection Tab Content store', function () {
             validationRules: null,
           },
         },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_STATE_IDLE },
+        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -390,7 +390,7 @@ describe('Collection Tab Content store', function () {
           status: SCHEMA_ANALYSIS_STATE_COMPLETE,
           processedSchema: undefined,
         },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_STATE_IDLE },
+        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -431,7 +431,7 @@ describe('Collection Tab Content store', function () {
       const dispatch = sandbox.spy();
       const getState = sandbox.stub().returns({
         schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_INITIAL },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_STATE_IDLE },
+        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_REQUEST_IDLE },
       });
       const logger = {
         log: { error: sandbox.spy() },
@@ -455,7 +455,9 @@ describe('Collection Tab Content store', function () {
       const dispatch = sandbox.spy();
       const getState = sandbox.stub().returns({
         schemaAnalysis: { status: SCHEMA_ANALYSIS_STATE_COMPLETE },
-        fakerSchemaGeneration: { status: MOCK_DATA_GENERATOR_STATE_GENERATING },
+        fakerSchemaGeneration: {
+          status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+        },
       });
       const logger = {
         log: { error: sandbox.spy() },

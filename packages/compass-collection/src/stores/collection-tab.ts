@@ -9,7 +9,7 @@ import reducer, {
   analyzeCollectionSchema,
 } from '../modules/collection-tab';
 import { MockDataGeneratorStep } from '../components/mock-data-generator-modal/types';
-import { MOCK_DATA_GENERATOR_STATE_IDLE } from '../components/mock-data-generator-modal/types';
+import { MOCK_DATA_GENERATOR_REQUEST_IDLE } from '../components/mock-data-generator-modal/types';
 
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -94,7 +94,7 @@ export function activatePlugin(
         currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
       },
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_STATE_IDLE,
+        status: MOCK_DATA_GENERATOR_REQUEST_IDLE,
       },
     },
     applyMiddleware(

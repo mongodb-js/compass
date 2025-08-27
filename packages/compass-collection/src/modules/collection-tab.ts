@@ -32,10 +32,10 @@ import { processSchema } from '../transform-schema-to-field-info';
 import type { Document, MongoError } from 'mongodb';
 import {
   MockDataGeneratorStep,
-  MOCK_DATA_GENERATOR_STATE_IDLE,
-  MOCK_DATA_GENERATOR_STATE_GENERATING,
-  MOCK_DATA_GENERATOR_STATE_COMPLETED,
-  MOCK_DATA_GENERATOR_STATE_ERROR,
+  MOCK_DATA_GENERATOR_REQUEST_IDLE,
+  MOCK_DATA_GENERATOR_REQUEST_GENERATING,
+  MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
+  MOCK_DATA_GENERATOR_REQUEST_ERROR,
 } from '../components/mock-data-generator-modal/types';
 import type { MockDataGeneratorState } from '../components/mock-data-generator-modal/types';
 
@@ -186,7 +186,7 @@ const reducer: Reducer<CollectionState, Action> = (
       currentStep: MockDataGeneratorStep.AI_DISCLAIMER,
     },
     fakerSchemaGeneration: {
-      status: MOCK_DATA_GENERATOR_STATE_IDLE,
+      status: MOCK_DATA_GENERATOR_REQUEST_IDLE,
     },
   },
   action
@@ -379,7 +379,7 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_STATE_GENERATING,
+        status: MOCK_DATA_GENERATOR_REQUEST_GENERATING,
         requestId: action.requestId,
       },
     };
@@ -394,7 +394,7 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_STATE_COMPLETED,
+        status: MOCK_DATA_GENERATOR_REQUEST_COMPLETED,
         fakerSchema: action.fakerSchema,
         requestId: action.requestId,
       },
@@ -410,7 +410,7 @@ const reducer: Reducer<CollectionState, Action> = (
     return {
       ...state,
       fakerSchemaGeneration: {
-        status: MOCK_DATA_GENERATOR_STATE_ERROR,
+        status: MOCK_DATA_GENERATOR_REQUEST_ERROR,
         error: action.error,
         requestId: action.requestId,
       },
@@ -557,7 +557,9 @@ export const generateFakerMappings = (
       return;
     }
 
-    if (fakerSchemaGeneration.status === MOCK_DATA_GENERATOR_STATE_GENERATING) {
+    if (
+      fakerSchemaGeneration.status === MOCK_DATA_GENERATOR_REQUEST_GENERATING
+    ) {
       logger.debug(
         'Faker mapping generation is already in progress, skipping new generation.'
       );

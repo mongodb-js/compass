@@ -9,28 +9,28 @@ export enum MockDataGeneratorStep {
   GENERATE_DATA = 'GENERATE_DATA',
 }
 
-export const MOCK_DATA_GENERATOR_STATE_IDLE = 'idle';
-export const MOCK_DATA_GENERATOR_STATE_GENERATING = 'generating';
-export const MOCK_DATA_GENERATOR_STATE_COMPLETED = 'completed';
-export const MOCK_DATA_GENERATOR_STATE_ERROR = 'error';
+export const MOCK_DATA_GENERATOR_REQUEST_IDLE = 'idle';
+export const MOCK_DATA_GENERATOR_REQUEST_GENERATING = 'generating';
+export const MOCK_DATA_GENERATOR_REQUEST_COMPLETED = 'completed';
+export const MOCK_DATA_GENERATOR_REQUEST_ERROR = 'error';
 
 type MockDataGeneratorIdleState = {
-  status: typeof MOCK_DATA_GENERATOR_STATE_IDLE;
+  status: typeof MOCK_DATA_GENERATOR_REQUEST_IDLE;
 };
 
 type MockDataGeneratorGeneratingState = {
-  status: typeof MOCK_DATA_GENERATOR_STATE_GENERATING;
+  status: typeof MOCK_DATA_GENERATOR_REQUEST_GENERATING;
   requestId: string;
 };
 
 type MockDataGeneratorCompletedState = {
-  status: typeof MOCK_DATA_GENERATOR_STATE_COMPLETED;
+  status: typeof MOCK_DATA_GENERATOR_REQUEST_COMPLETED;
   fakerSchema: MockDataSchemaResponse;
   requestId: string;
 };
 
 type MockDataGeneratorErrorState = {
-  status: typeof MOCK_DATA_GENERATOR_STATE_ERROR;
+  status: typeof MOCK_DATA_GENERATOR_REQUEST_ERROR;
   error: unknown;
   requestId: string;
 };
