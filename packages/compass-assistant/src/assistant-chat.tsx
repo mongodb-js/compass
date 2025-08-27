@@ -55,8 +55,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
-    onError: () => {
-      track('Assistant Response Failed', () => ({}));
+    onError: (error) => {
+      track('Assistant Response Failed', () => ({
+        error_name: error.name,
+      }));
     },
   });
 

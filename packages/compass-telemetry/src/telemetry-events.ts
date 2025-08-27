@@ -1505,7 +1505,7 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
 type AssistantResponseFailedEvent = CommonEvent<{
   name: 'Assistant Response Failed';
   payload: {
-    error_code?: string;
+    error_name?: string;
   };
 }>;
 
