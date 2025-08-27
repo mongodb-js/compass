@@ -5,9 +5,10 @@ This document was automatically generated on Wed Aug 27 2025.
 
 | Package                                                                                                                     | Version      | License                             |
 | --------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------- |
-| **[@ai-sdk/gateway](#dedde9c57453760ad8fb2d234aa068465cd48d5923379182182214f5e35c38c0)**                                    | 1.0.4        | Apache-2.0                          |
+| **[@ai-sdk/gateway](#09ca86326b5c76b94e8727e8b4f61207bf7d7d94a96531097e55189a4d832160)**                                    | 1.0.15       | Apache-2.0                          |
 | **[@ai-sdk/openai](#62dfccf79363c00232ecc413ce2f140157c65fa5d3dabdb3b28255822e02980d)**                                     | 2.0.10       | Apache-2.0                          |
 | **[@ai-sdk/provider-utils](#fccce1e2baf2ba9c9eeeb15769aa9fc8bdf173331610b40bba38220545e3c2ee)**                             | 3.0.1        | Apache-2.0                          |
+| **[@ai-sdk/provider-utils](#ba1f89553d7b425256aa92d6979eff26ba987e78de7deb4ff7ae4696175d3817)**                             | 3.0.7        | Apache-2.0                          |
 | **[@ai-sdk/provider](#0eb711869119af46815e4033a67147af0ebaf127414e7307b9d309a231404a88)**                                   | 2.0.0        | Apache-2.0                          |
 | **[@ampproject/remapping](#0dc8b6568eb743fd551ce2cf2f54be9d0f94b12167f7c34a997c864bcc7e128d)**                              | 2.2.0        | Apache-2.0                          |
 | **[@aws-sdk/client-cognito-identity](#e53c9e4ae2415f2ef7d8d0c28bea785787b037bfd95121f62d630dec352972a3)**                   | 3.713.0      | Apache-2.0                          |
@@ -180,7 +181,7 @@ This document was automatically generated on Wed Aug 27 2025.
 | **[ag-grid-community](#f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e)**                                  | 20.2.0       | MIT                                 |
 | **[ag-grid-react](#266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5)**                                      | 20.2.0       | MIT                                 |
 | **[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**                                         | 7.1.3        | MIT                                 |
-| **[ai](#3b86edae3c57710eea5b5354b528e9b65d8a43a4c6cd07da19a6e08eb56ff857)**                                                 | 5.0.10       | Apache-2.0                          |
+| **[ai](#20aabe99e81246f5345e1d2641ad8055664783f2695b9d2608fb241c7ed671ec)**                                                 | 5.0.26       | Apache-2.0                          |
 | **[ampersand-class-extend](#e80e071b7daf67567df2ed06a0912550d865bb42f740c56f3ee13e4c9ada947b)**                             | 2.0.0        | MIT                                 |
 | **[ampersand-collection](#7ae90475872c8fb68869e0d81db8e343084b47fd30ab156865b4b22ae3578a37)**                               | 2.0.2        | MIT                                 |
 | **[ampersand-events](#5aa8f29a56511aafd27953d01cb603faa9aa7e2f92847c72f879c42646e7f3fa)**                                   | 2.0.2        | MIT                                 |
@@ -271,7 +272,7 @@ This document was automatically generated on Wed Aug 27 2025.
 | **[etag](#dfcb09916bd8554b4d5ec250d985c02174ddfe92cb0efaa97df51b903ce0adf8)**                                               | 1.8.1        | MIT                                 |
 | **[eventemitter3](#2845c3d706e174e51442028b5aada4c274955de08db3fc13005df746b5d6b3e6)**                                      | 1.2.0        | MIT                                 |
 | **[eventemitter3](#344ac4a1404cf0768bccce4529868ee2081bb2d49637269457647deab073e298)**                                      | 4.0.7        | MIT                                 |
-| **[eventsource-parser](#281375faf4d13389d64912425110ea2f07106aa80b2727f2ef5fe339c8129f79)**                                 | 3.0.3        | MIT                                 |
+| **[eventsource-parser](#95b8ee489ea7fa4281ed9f635744dcbec2d37098fadab80ff9a5cd877d66a40c)**                                 | 3.0.5        | MIT                                 |
 | **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**                                    | 2.0.3        | (MIT OR WTFPL)                      |
 | **[express](#afeb24a0ac769e633044c640647fa8724f0a41d811e1802a0967bcb13c48a423)**                                            | 5.1.0        | MIT                                 |
 | **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**                                           | 2.2.2        | MIT                                 |
@@ -579,9 +580,9 @@ This document was automatically generated on Wed Aug 27 2025.
 
 ## Package details
 
-<a id="dedde9c57453760ad8fb2d234aa068465cd48d5923379182182214f5e35c38c0"></a>
+<a id="09ca86326b5c76b94e8727e8b4f61207bf7d7d94a96531097e55189a4d832160"></a>
 
-### [@ai-sdk/gateway](https://www.npmjs.com/package/@ai-sdk/gateway) (version 1.0.4)
+### [@ai-sdk/gateway](https://www.npmjs.com/package/@ai-sdk/gateway) (version 1.0.15)
 
 License tags: Apache-2.0
 
@@ -630,6 +631,30 @@ License files:
 <a id="fccce1e2baf2ba9c9eeeb15769aa9fc8bdf173331610b40bba38220545e3c2ee"></a>
 
 ### [@ai-sdk/provider-utils](https://www.npmjs.com/package/@ai-sdk/provider-utils) (version 3.0.1)
+
+License tags: Apache-2.0
+
+License files:
+
+- LICENSE:
+
+      Copyright 2023 Vercel, Inc.
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+<a id="ba1f89553d7b425256aa92d6979eff26ba987e78de7deb4ff7ae4696175d3817"></a>
+
+### [@ai-sdk/provider-utils](https://www.npmjs.com/package/@ai-sdk/provider-utils) (version 3.0.7)
 
 License tags: Apache-2.0
 
@@ -19781,9 +19806,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="3b86edae3c57710eea5b5354b528e9b65d8a43a4c6cd07da19a6e08eb56ff857"></a>
+<a id="20aabe99e81246f5345e1d2641ad8055664783f2695b9d2608fb241c7ed671ec"></a>
 
-### [ai](https://www.npmjs.com/package/ai) (version 5.0.10)
+### [ai](https://www.npmjs.com/package/ai) (version 5.0.26)
 
 License tags: Apache-2.0
 
@@ -22902,9 +22927,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="281375faf4d13389d64912425110ea2f07106aa80b2727f2ef5fe339c8129f79"></a>
+<a id="95b8ee489ea7fa4281ed9f635744dcbec2d37098fadab80ff9a5cd877d66a40c"></a>
 
-### [eventsource-parser](https://www.npmjs.com/package/eventsource-parser) (version 3.0.3)
+### [eventsource-parser](https://www.npmjs.com/package/eventsource-parser) (version 3.0.5)
 
 License tags: MIT
 
