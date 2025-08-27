@@ -10,6 +10,7 @@ import {
   LgChatInputBar,
   spacing,
   css,
+  Banner,
 } from '@mongodb-js/compass-components';
 
 const { ChatWindow } = LgChatChatWindow;
@@ -36,10 +37,19 @@ const chatWindowFixesStyles = css({
   height: '100%',
 });
 
+function makeErrorMessage(message: string) {
+  message = message || 'An error occurred';
+  return `${message}. Try clearing the chat if the error persists.`;
+}
+
+const errorBannerWrapperStyles = css({
+  margin: spacing[400],
+});
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
 }) => {
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
   });
 
@@ -94,6 +104,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               />
             )}
           </MessageFeed>
+          {error && (
+            <div className={errorBannerWrapperStyles}>
+              <Banner variant="danger" dismissible onClose={clearError}>
+                {makeErrorMessage(error.message)}
+              </Banner>
+            </div>
+          )}
           <InputBar
             data-testid="assistant-chat-input"
             onMessageSend={handleMessageSend}
