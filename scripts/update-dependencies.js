@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { isEqual, cloneDeep } = require('lodash');
+const prompts = require('prompts');
 const {
   listAllPackages,
   runInDir,
@@ -11,6 +12,8 @@ const {
 } = require('@mongodb-js/monorepo-tools');
 
 const UPDATE_CONFIGS = require('./update-dependencies-config');
+
+const unsafeForce = process.argv.includes('--unsafe-force-install');
 
 async function hoistSharedDependencies(root, newVersions) {
   try {
@@ -22,7 +25,12 @@ async function hoistSharedDependencies(root, newVersions) {
     const packageJsonBkp = await withProgress(
       'Updating package-lock to apply package.json changes',
       async () => {
-        await runInDir('npm i --package-lock-only --ignore-scripts', root);
+        await runInDir(
+          `npm i --package-lock-only --ignore-scripts${
+            unsafeForce ? ' --force' : ''
+          }`,
+          root
+        );
         return await fs.promises.readFile(path.resolve(root, 'package.json'));
       }
     );
@@ -36,7 +44,9 @@ async function hoistSharedDependencies(root, newVersions) {
           })
           .join(' ');
         await runInDir(
-          `npm i ${versionsToInstall} --package-lock-only --ignore-scripts`,
+          `npm i ${versionsToInstall} --package-lock-only --ignore-scripts${
+            unsafeForce ? ' --force' : ''
+          }`,
           root
         );
       }
@@ -53,7 +63,8 @@ async function hoistSharedDependencies(root, newVersions) {
       }
     );
   } catch (error) {
-    console.error(`Error running command: ${error}`);
+    console.error(`\n${error.message}`);
+    process.exit(1);
   }
 }
 
@@ -123,7 +134,23 @@ function updateOverrides(overrides, newVersions, parent) {
 async function main() {
   let dependencies;
 
-  const args = process.argv.slice(3);
+  const args = process.argv.slice(3).filter((arg) => !arg.startsWith('-'));
+
+  if (unsafeForce) {
+    const { confirmed } = await prompts({
+      type: 'confirm',
+      name: 'confirmed',
+      initial: false,
+      message:
+        'Using force install is potentially harmful and should be used only ' +
+        'if you are absolutely sure what you are doing. If in doubt, reach ' +
+        'out to the team for advice.\n\nDo you want to proceed?',
+    });
+    if (!confirmed) {
+      console.log('Exiting...');
+      return;
+    }
+  }
 
   if (args.length === 0) {
     throw new Error(
@@ -179,7 +206,7 @@ async function main() {
   });
 
   const newVersions = await withProgress(
-    `Collection version information for packages...`,
+    `Collecting version information for packages...`,
     () => {
       return Promise.all(
         dependencies.map((depSpec) => {
