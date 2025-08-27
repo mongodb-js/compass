@@ -247,7 +247,6 @@ export const runAIPipelineGeneration = (
     track(
       'AI Prompt Submitted',
       () => ({
-        source: 'natural language query' as const,
         editor_view_type,
         user_input_length: userInput.length,
         request_id: requestId,
