@@ -11,16 +11,6 @@ import { createMockChat } from '../test/utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('AssistantChat', function () {
-  let originalScrollTo: typeof Element.prototype.scrollTo;
-  // Mock scrollTo method for DOM elements to prevent test failures
-  before(function () {
-    originalScrollTo = Element.prototype.scrollTo.bind(Element.prototype);
-    Element.prototype.scrollTo = () => {};
-  });
-  after(function () {
-    Element.prototype.scrollTo = originalScrollTo;
-  });
-
   const mockMessages: AssistantMessage[] = [
     {
       id: 'user',
@@ -41,8 +31,9 @@ describe('AssistantChat', function () {
 
   function renderWithChat(messages: AssistantMessage[]) {
     const chat = createMockChat({ messages });
+    const result = render(<AssistantChat chat={chat} />);
     return {
-      result: render(<AssistantChat chat={chat} />),
+      result,
       chat,
     };
   }
@@ -131,8 +122,9 @@ describe('AssistantChat', function () {
     );
   });
 
-  it('calls sendMessage when form is submitted', function () {
-    const { chat } = renderWithChat([]);
+  it('calls sendMessage when form is submitted', async function () {
+    const { chat, result } = renderWithChat([]);
+    const { track } = result;
     const inputField = screen.getByPlaceholderText(
       'Ask MongoDB Assistant a question'
     );
@@ -143,6 +135,12 @@ describe('AssistantChat', function () {
 
     expect(chat.sendMessage.calledWith({ text: 'What is aggregation?' })).to.be
       .true;
+
+    await waitFor(() => {
+      expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
+        user_input_length: 'What is aggregation?'.length,
+      });
+    });
   });
 
   it('clears input field after successful submission', function () {
@@ -160,8 +158,9 @@ describe('AssistantChat', function () {
     expect(inputField.value).to.equal('');
   });
 
-  it('trims whitespace from input before sending', function () {
-    const { chat } = renderWithChat([]);
+  it('trims whitespace from input before sending', async function () {
+    const { chat, result } = renderWithChat([]);
+    const { track } = result;
 
     const inputField = screen.getByPlaceholderText(
       'Ask MongoDB Assistant a question'
@@ -172,6 +171,12 @@ describe('AssistantChat', function () {
 
     expect(chat.sendMessage.calledWith({ text: 'What is sharding?' })).to.be
       .true;
+
+    await waitFor(() => {
+      expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
+        user_input_length: 'What is sharding?'.length,
+      });
+    });
   });
 
   it('does not call sendMessage when input is empty or whitespace-only', function () {
@@ -271,5 +276,144 @@ describe('AssistantChat', function () {
       .exist;
     expect(screen.queryByText('Another part that should not display.')).to.not
       .exist;
+  });
+
+  describe('feedback buttons', function () {
+    it('shows feedback buttons only for assistant messages', function () {
+      renderWithChat(mockMessages);
+
+      const userMessage = screen.getByTestId('assistant-message-user');
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      // User messages should not have feedback buttons
+      expect(userMessage.querySelector('[aria-label="Thumbs Up Icon"]')).to.not
+        .exist;
+      expect(userMessage.querySelector('[aria-label="Thumbs Down Icon"]')).to
+        .not.exist;
+
+      // Assistant messages should have feedback buttons
+      expect(assistantMessage.querySelector('[aria-label="Thumbs Up Icon"]')).to
+        .exist;
+      expect(assistantMessage.querySelector('[aria-label="Thumbs Down Icon"]'))
+        .to.exist;
+    });
+
+    it('tracks positive feedback when thumbs up is clicked', async function () {
+      const { result } = renderWithChat(mockMessages);
+      const { track } = result;
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      // Find and click the thumbs up button
+      const thumbsUpButton = assistantMessage.querySelector(
+        '[aria-label="Thumbs Up Icon"]'
+      ) as HTMLElement;
+
+      userEvent.click(thumbsUpButton);
+
+      await waitFor(() => {
+        expect(track).to.have.callCount(1);
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'positive',
+          text: undefined,
+          request_id: null,
+        });
+      });
+    });
+
+    it('tracks negative feedback when thumbs down is clicked', async function () {
+      const { result } = renderWithChat(mockMessages);
+      const { track } = result;
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      // Find and click the thumbs down button
+      const thumbsDownButton = assistantMessage.querySelector(
+        '[aria-label="Thumbs Down Icon"]'
+      ) as HTMLElement;
+
+      userEvent.click(thumbsDownButton);
+
+      await waitFor(() => {
+        expect(track).to.have.callCount(1);
+
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: undefined,
+          request_id: null,
+        });
+      });
+    });
+
+    it('tracks detailed feedback when feedback text is submitted', async function () {
+      const { result } = renderWithChat(mockMessages);
+      const { track } = result;
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      // First click thumbs down to potentially open feedback form
+      const thumbsDownButton = assistantMessage.querySelector(
+        '[aria-label="Thumbs Down Icon"]'
+      ) as HTMLElement;
+
+      userEvent.click(thumbsDownButton);
+
+      // Look for feedback text area (the exact implementation depends on LeafyGreen)
+      const feedbackTextArea = screen.getByTestId(
+        'lg-chat-message_actions-feedback_textarea'
+      );
+
+      userEvent.type(feedbackTextArea, 'This response was not helpful');
+
+      // Look for submit button
+      const submitButton = screen.getByText('Submit');
+
+      userEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(track).to.have.callCount(2);
+
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: undefined,
+          request_id: null,
+        });
+
+        expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          feedback: 'negative',
+          text: 'This response was not helpful',
+          request_id: null,
+        });
+      });
+    });
+
+    it('does not show feedback buttons when there are no assistant messages', function () {
+      const userOnlyMessages: AssistantMessage[] = [
+        {
+          id: 'user1',
+          role: 'user',
+          parts: [{ type: 'text', text: 'Hello!' }],
+        },
+        {
+          id: 'user2',
+          role: 'user',
+          parts: [{ type: 'text', text: 'How are you?' }],
+        },
+      ];
+
+      renderWithChat(userOnlyMessages);
+
+      // Should not find any feedback buttons in the entire component
+      expect(screen.queryByLabelText('Thumbs Up Icon')).to.not.exist;
+      expect(screen.queryByLabelText('Thumbs Down Icon')).to.not.exist;
+    });
   });
 });

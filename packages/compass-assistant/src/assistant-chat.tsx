@@ -7,16 +7,19 @@ import {
   LgChatLeafygreenChatProvider,
   LgChatMessage,
   LgChatMessageFeed,
+  LgChatMessageActions,
   LgChatInputBar,
   spacing,
   css,
   Banner,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider, Variant } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { MessageFeed } = LgChatMessageFeed;
+const { MessageActions } = LgChatMessageActions;
 const { InputBar } = LgChatInputBar;
 
 interface AssistantChatProps {
@@ -52,6 +55,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
   });
+  const track = useTelemetry();
 
   // Transform AI SDK messages to LeafyGreen chat format
   const lgMessages = messages.map((message) => ({
@@ -70,10 +74,43 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     (messageBody: string) => {
       const trimmedMessageBody = messageBody.trim();
       if (trimmedMessageBody) {
+        track('Assistant Prompt Submitted', {
+          user_input_length: trimmedMessageBody.length,
+        });
         void sendMessage({ text: trimmedMessageBody });
       }
     },
-    [sendMessage]
+    [sendMessage, track]
+  );
+
+  const handleFeedback = useCallback(
+    (
+      event,
+      state:
+        | {
+            feedback: string;
+            rating: string;
+          }
+        | {
+            rating: string;
+          }
+        | undefined
+    ) => {
+      if (!state) {
+        return;
+      }
+      const { rating } = state;
+      const textFeedback = 'feedback' in state ? state.feedback : undefined;
+      const feedback: 'positive' | 'negative' =
+        rating === 'liked' ? 'positive' : 'negative';
+
+      track('Assistant Feedback Submitted', () => ({
+        feedback,
+        text: textFeedback,
+        request_id: null,
+      }));
+    },
+    [track]
   );
 
   return (
@@ -94,7 +131,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 sourceType="markdown"
                 {...messageFields}
                 data-testid={`assistant-message-${messageFields.id}`}
-              />
+              >
+                {messageFields.isSender === false && (
+                  <MessageActions
+                    onRatingChange={handleFeedback}
+                    onSubmitFeedback={handleFeedback}
+                  />
+                )}
+              </Message>
             ))}
             {status === 'submitted' && (
               <Message

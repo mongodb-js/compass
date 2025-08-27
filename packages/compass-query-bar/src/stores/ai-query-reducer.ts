@@ -178,6 +178,7 @@ export const runAIQuery = (
     track(
       'AI Prompt Submitted',
       () => ({
+        source: 'natural language query' as const,
         editor_view_type: 'find' as const,
         user_input_length: userInput.length,
         has_sample_documents: provideSampleDocuments,
