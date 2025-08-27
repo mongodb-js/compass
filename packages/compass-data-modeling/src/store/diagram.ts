@@ -27,10 +27,7 @@ import {
 } from '../services/open-and-download-diagram';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 import { getCoordinatesForNewNode } from '@mongodb-js/diagramming';
-import {
-  collectionToBaseNodeForLayout,
-  collectionToDiagramNode,
-} from '../utils/nodes-and-edges';
+import { collectionToBaseNodeForLayout } from '../utils/nodes-and-edges';
 import toNS from 'mongodb-ns';
 import { traverseSchema } from '../utils/schema-traversal';
 import { applyEdit as _applyEdit } from './apply-edit';
@@ -396,6 +393,13 @@ const updateSelectedItemsFromAppliedEdit = (
           ...edit.field.slice(0, edit.field.length - 1),
           edit.newName,
         ],
+      };
+    }
+    case 'AddField': {
+      return {
+        type: 'field',
+        namespace: edit.ns,
+        fieldPath: edit.field,
       };
     }
   }
