@@ -22,6 +22,7 @@ import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 interface Node {
   id: string;
@@ -41,6 +42,34 @@ type DiagramInstance = {
   getNodes: () => Array<Node>;
   getEdges: () => Array<Edge>;
 };
+
+/**
+ * Clicks on a specific element at the given coordinates.
+ * element.click({ x: number, y: number }) doesn't work as expected,
+ * so we do this manually using the actions API.
+ * @param browser The Compass browser instance.
+ * @param element The WebdriverIO element to click on.
+ * @param coordinates The coordinates to click at.
+ */
+async function clickElementAtCoordinates(
+  browser: CompassBrowser,
+  element: ChainablePromiseElement,
+  coordinates: {
+    x: number;
+    y: number;
+  }
+) {
+  await element.waitForClickable();
+  const location = await element.getLocation();
+  await browser
+    .action('pointer')
+    .move({
+      x: location.x + coordinates.x,
+      y: location.y + coordinates.y,
+    })
+    .down({ button: 0 }) // Left mouse button
+    .perform();
+}
 
 async function setupDiagram(
   browser: CompassBrowser,
@@ -107,7 +136,12 @@ async function selectCollectionOnTheDiagram(
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
   await collectionNode.waitForClickable();
 
-  await collectionNode.click();
+  await clickElementAtCoordinates(browser, collectionNode, {
+    // we're aiming for the header (top of the node)
+    // the default click is in the middle, most likely on a field
+    x: 100,
+    y: 15,
+  });
 
   await drawer.waitForDisplayed();
 
@@ -178,7 +212,7 @@ async function dragNode(
     .action('pointer')
     .move({
       x: Math.round(startPosition.x + nodeSize.width / 2),
-      y: Math.round(startPosition.y + nodeSize.height / 2),
+      y: Math.round(startPosition.y + 15), // we're aiming for the header area (top of the node)
     })
     .down({ button: 0 }) // Left mouse button
     .move({ duration: 1000, origin: 'pointer', ...pointerActionMoveParams })

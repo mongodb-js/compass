@@ -15,6 +15,7 @@ import {
   selectCollection,
   selectCurrentModelFromState,
   selectRelationship,
+  selectField,
 } from '../../store/diagram';
 import dataModel from '../../../test/fixtures/data-model-with-relationships.json';
 import type {
@@ -51,6 +52,14 @@ async function comboboxSelectItem(
       value
     );
   });
+}
+
+function getMultiComboboxValues(testId: string) {
+  const combobox = screen.getByTestId(testId);
+  expect(combobox).to.be.visible;
+  return within(combobox)
+    .getAllByRole('option')
+    .map((option) => option.textContent);
 }
 
 describe('DiagramEditorSidePanel', function () {
@@ -127,6 +136,43 @@ describe('DiagramEditorSidePanel', function () {
     ).to.be.visible;
   });
 
+  describe('Field context drawer', function () {
+    it('should render a field context drawer when field is clicked', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectField('flights.airlines', ['alias']));
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('airlines.alias')).to.be.visible;
+
+      const nameInput = screen.getByLabelText('Field name');
+      expect(nameInput).to.be.visible;
+      expect(nameInput).to.have.value('alias');
+
+      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      expect(selectedTypes).to.have.lengthOf(2);
+      expect(selectedTypes).to.include('string');
+      expect(selectedTypes).to.include('int');
+    });
+
+    it('should render a nested field context drawer when field is clicked', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(
+        selectField('flights.routes', ['airline', 'id'])
+      );
+
+      await waitForDrawerToOpen();
+      expect(screen.getByTitle('routes.airline.id')).to.be.visible;
+
+      const nameInput = screen.getByLabelText('Field name');
+      expect(nameInput).to.be.visible;
+      expect(nameInput).to.have.value('id');
+
+      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      expect(selectedTypes).to.have.lengthOf(1);
+      expect(selectedTypes).to.include('string');
+    });
+  });
+
   it('should change the content of the drawer when selecting different items', async function () {
     const result = renderDrawer();
 
@@ -165,93 +211,183 @@ describe('DiagramEditorSidePanel', function () {
     expect(screen.getByLabelText('Name')).to.have.value('planes');
   });
 
-  it('should open and edit relationship starting from collection', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
+  describe('Collection -> Relationships', function () {
+    it('should add a relationship starting from a collection', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    await waitForDrawerToOpen();
+      await waitForDrawerToOpen();
+      expect(screen.getByLabelText('Name')).to.have.value('countries');
 
-    expect(screen.getByLabelText('Name')).to.have.value('countries');
+      // Click on add relationship button
+      userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
-    // Open relationshipt editing form
-    const relationshipItem = screen
-      .getByText('countries.name → airports.Country')
-      .closest('li');
-    expect(relationshipItem).to.be.visible;
-    userEvent.click(
-      within(relationshipItem!).getByRole('button', {
-        name: 'Edit relationship',
-      })
-    );
-    expect(screen.getByLabelText('Local field')).to.be.visible;
-
-    // Select new values
-    await comboboxSelectItem('Local collection', 'planes');
-    await comboboxSelectItem('Local field', 'name');
-    await comboboxSelectItem('Foreign collection', 'countries');
-    await comboboxSelectItem('Foreign field', 'iso_code');
-
-    userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
-    userEvent.type(
-      screen.getByRole('textbox', { name: 'Notes' }),
-      'Note about the relationship'
-    );
-    userEvent.tab();
-
-    // We should be testing through rendered UI but as it's really hard to make
-    // diagram rendering in tests property, we are just validating the final
-    // model here
-    const modifiedRelationship = selectCurrentModelFromState(
-      result.plugin.store.getState()
-    ).relationships.find((r: Relationship) => {
-      return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
+      // Collection is pre-selected
+      expect(screen.getByLabelText('Local collection')).to.be.visible;
+      expect(screen.getByLabelText('Local collection')).to.have.value(
+        'countries'
+      );
     });
 
-    expect(modifiedRelationship)
-      .to.have.property('relationship')
-      .deep.eq([
-        {
-          ns: 'flights.planes',
-          fields: ['name'],
-          cardinality: 1,
-        },
-        {
-          ns: 'flights.countries',
-          fields: ['iso_code'],
-          cardinality: 100,
-        },
-      ]);
+    it('should open and edit relationship starting from a collection', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
 
-    expect(modifiedRelationship).to.have.property(
-      'note',
-      'Note about the relationship'
-    );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Name')).to.have.value('countries');
+      });
+
+      // Open relationshipt editing form
+      const relationshipItem = screen
+        .getByText('countries.name → airports.Country')
+        .closest('li');
+      expect(relationshipItem).to.be.visible;
+      userEvent.click(
+        within(relationshipItem!).getByRole('button', {
+          name: 'Edit relationship',
+        })
+      );
+      expect(screen.getByLabelText('Local field')).to.be.visible;
+
+      // Select new values
+      await comboboxSelectItem('Local collection', 'planes');
+      await comboboxSelectItem('Local field', 'name');
+      await comboboxSelectItem('Foreign collection', 'countries');
+      await comboboxSelectItem('Foreign field', 'iso_code');
+
+      userEvent.click(screen.getByRole('textbox', { name: 'Notes' }));
+      userEvent.type(
+        screen.getByRole('textbox', { name: 'Notes' }),
+        'Note about the relationship'
+      );
+      userEvent.tab();
+
+      // We should be testing through rendered UI but as it's really hard to make
+      // diagram rendering in tests property, we are just validating the final
+      // model here
+      const modifiedRelationship = selectCurrentModelFromState(
+        result.plugin.store.getState()
+      ).relationships.find((r: Relationship) => {
+        return r.id === '204b1fc0-601f-4d62-bba3-38fade71e049';
+      });
+
+      expect(modifiedRelationship)
+        .to.have.property('relationship')
+        .deep.eq([
+          {
+            ns: 'flights.planes',
+            fields: ['name'],
+            cardinality: 1,
+          },
+          {
+            ns: 'flights.countries',
+            fields: ['iso_code'],
+            cardinality: 100,
+          },
+        ]);
+
+      expect(modifiedRelationship).to.have.property(
+        'note',
+        'Note about the relationship'
+      );
+    });
+
+    it('should delete a relationship from a collection', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectCollection('flights.countries'));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Name')).to.have.value('countries');
+      });
+
+      // Find the relationhip item
+      const relationshipItem = screen
+        .getByText('countries.name → airports.Country')
+        .closest('li');
+      expect(relationshipItem).to.be.visible;
+
+      // Delete relationship
+      userEvent.click(
+        within(relationshipItem!).getByRole('button', {
+          name: 'Delete relationship',
+        })
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('countries.name → airports.Country')).not.to
+          .exist;
+      });
+    });
   });
 
-  it('should delete a relationship from collection', async function () {
-    const result = renderDrawer();
-    result.plugin.store.dispatch(selectCollection('flights.countries'));
+  describe('Field -> Relationships', function () {
+    it('should add a relationship starting from a field', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectField('flights.countries', ['name']));
 
-    await waitForDrawerToOpen();
+      await waitForDrawerToOpen();
+      expect(screen.getByLabelText('Field name')).to.have.value('name');
 
-    expect(screen.getByLabelText('Name')).to.have.value('countries');
+      // Click on add relationship button
+      userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
-    // Find the relationhip item
-    const relationshipItem = screen
-      .getByText('countries.name → airports.Country')
-      .closest('li');
-    expect(relationshipItem).to.be.visible;
+      // Collection and field are pre-selected
+      expect(screen.getByLabelText('Local collection')).to.be.visible;
+      expect(screen.getByLabelText('Local collection')).to.have.value(
+        'countries'
+      );
+      expect(screen.getByLabelText('Local field')).to.be.visible;
+      expect(screen.getByLabelText('Local field')).to.have.value('name');
+    });
 
-    // Delete relationship
-    userEvent.click(
-      within(relationshipItem!).getByRole('button', {
-        name: 'Delete relationship',
-      })
-    );
+    it('should open a relationship starting from a field', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectField('flights.countries', ['name']));
 
-    await waitFor(() => {
-      expect(screen.queryByText('countries.name → airports.Country')).not.to
-        .exist;
+      await waitFor(() => {
+        expect(screen.getByLabelText('Field name')).to.have.value('name');
+      });
+
+      // Open relationshipt editing form
+      const relationshipItem = screen
+        .getByText('countries.name → airports.Country')
+        .closest('li');
+      expect(relationshipItem).to.be.visible;
+      userEvent.click(
+        within(relationshipItem!).getByRole('button', {
+          name: 'Edit relationship',
+        })
+      );
+      expect(screen.getByLabelText('Local field')).to.be.visible;
+      expect(screen.getByLabelText('Local field')).to.have.value('name');
+      expect(screen.getByLabelText('Foreign field')).to.be.visible;
+      expect(screen.getByLabelText('Foreign field')).to.have.value('Country');
+    });
+
+    it('should delete a relationship from a field', async function () {
+      const result = renderDrawer();
+      result.plugin.store.dispatch(selectField('flights.countries', ['name']));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Field name')).to.have.value('name');
+      });
+
+      // Find the relationhip item
+      const relationshipItem = screen
+        .getByText('countries.name → airports.Country')
+        .closest('li');
+      expect(relationshipItem).to.be.visible;
+
+      // Delete relationship
+      userEvent.click(
+        within(relationshipItem!).getByRole('button', {
+          name: 'Delete relationship',
+        })
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('airports.Country')).not.to.exist;
+      });
     });
   });
 
@@ -262,7 +398,7 @@ describe('DiagramEditorSidePanel', function () {
 
       await waitForDrawerToOpen();
 
-      expect(screen.getByTitle('flights.airlines')).to.be.visible;
+      expect(screen.getByTitle('airlines')).to.be.visible;
 
       const nameInput = screen.getByLabelText('Name');
       expect(nameInput).to.be.visible;
@@ -365,7 +501,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(newCollection).to.exist;
 
       // See the name in the input
-      expect(screen.getByText('flights.pineapple')).to.be.visible;
+      expect(screen.getByText('pineapple')).to.be.visible;
     });
 
     it('should prevent editing to an empty collection name', async function () {

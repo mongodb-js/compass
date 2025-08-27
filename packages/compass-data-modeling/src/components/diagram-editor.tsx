@@ -16,6 +16,7 @@ import {
   selectCurrentModelFromState,
   createNewRelationship,
   addCollection,
+  selectField,
 } from '../store/diagram';
 import {
   Banner,
@@ -36,13 +37,13 @@ import {
   type EdgeProps,
   useDiagram,
 } from '@mongodb-js/diagramming';
-import type { StaticModel } from '../services/data-model-storage';
+import type { FieldPath, StaticModel } from '../services/data-model-storage';
 import DiagramEditorToolbar from './diagram-editor-toolbar';
 import ExportDiagramModal from './export-diagram-modal';
 import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import {
   collectionToDiagramNode,
-  getSelectedFields,
+  getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
 
@@ -113,9 +114,16 @@ const DiagramContent: React.FunctionComponent<{
   onMoveCollection: (ns: string, newPosition: [number, number]) => void;
   onCollectionSelect: (namespace: string) => void;
   onRelationshipSelect: (rId: string) => void;
+  onFieldSelect: (namespace: string, fieldPath: FieldPath) => void;
   onDiagramBackgroundClicked: () => void;
   selectedItems: SelectedItems;
-  onCreateNewRelationship: (source: string, target: string) => void;
+  onCreateNewRelationship: ({
+    localNamespace,
+    foreignNamespace,
+  }: {
+    localNamespace: string;
+    foreignNamespace: string;
+  }) => void;
   onRelationshipDrawn: () => void;
 }> = ({
   diagramLabel,
@@ -125,6 +133,7 @@ const DiagramContent: React.FunctionComponent<{
   onMoveCollection,
   onCollectionSelect,
   onRelationshipSelect,
+  onFieldSelect,
   onDiagramBackgroundClicked,
   onCreateNewRelationship,
   onRelationshipDrawn,
@@ -153,7 +162,7 @@ const DiagramContent: React.FunctionComponent<{
   }, [model?.relationships, selectedItems]);
 
   const nodes = useMemo<NodeProps[]>(() => {
-    const selectedFields = getSelectedFields(
+    const highlightedFields = getHighlightedFields(
       selectedItems,
       model?.relationships
     );
@@ -163,7 +172,11 @@ const DiagramContent: React.FunctionComponent<{
         selectedItems.type === 'collection' &&
         selectedItems.id === coll.ns;
       return collectionToDiagramNode(coll, {
-        selectedFields,
+        highlightedFields,
+        selectedField:
+          selectedItems?.type === 'field' && selectedItems.namespace === coll.ns
+            ? selectedItems.fieldPath
+            : undefined,
         selected,
         isInRelationshipDrawingMode,
       });
@@ -219,7 +232,10 @@ const DiagramContent: React.FunctionComponent<{
 
   const handleNodesConnect = useCallback(
     (source: string, target: string) => {
-      onCreateNewRelationship(source, target);
+      onCreateNewRelationship({
+        localNamespace: source,
+        foreignNamespace: target,
+      });
       onRelationshipDrawn();
     },
     [onRelationshipDrawn, onCreateNewRelationship]
@@ -252,6 +268,12 @@ const DiagramContent: React.FunctionComponent<{
             onRelationshipSelect(edge.id);
             openDrawer(DATA_MODELING_DRAWER_ID);
           }}
+          onFieldClick={(_evt, { id: fieldPath, nodeId: namespace }) => {
+            _evt.stopPropagation(); // TODO(COMPASS-9659): should this be handled by the diagramming package?
+            if (!Array.isArray(fieldPath)) return; // TODO(COMPASS-9659): could be avoided with generics in the diagramming package
+            onFieldSelect(namespace, fieldPath);
+            openDrawer(DATA_MODELING_DRAWER_ID);
+          }}
           fitViewOptions={{
             maxZoom: 1,
             minZoom: 0.25,
@@ -282,6 +304,7 @@ const ConnectedDiagramContent = connect(
     onMoveCollection: moveCollection,
     onCollectionSelect: selectCollection,
     onRelationshipSelect: selectRelationship,
+    onFieldSelect: selectField,
     onDiagramBackgroundClicked: selectBackground,
     onCreateNewRelationship: createNewRelationship,
   }
