@@ -334,22 +334,24 @@ describe('Connection string', function () {
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
 
-    await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
-    // TODO(COMPASS-9759) we might have to opt-in via the modal once that's a thing
-    const messagesElement = browser.$(Selectors.AssistantChatMessages);
-    await messagesElement.waitForDisplayed();
-    // TODO(COMPASS-9748) check the response from the chatbot too
+    if (!TEST_COMPASS_WEB) {
+      await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
+      // TODO(COMPASS-9759) we might have to opt-in via the modal once that's a thing
+      const messagesElement = browser.$(Selectors.AssistantChatMessages);
+      await messagesElement.waitForDisplayed();
+      // TODO(COMPASS-9748) check the response from the chatbot too
 
-    await browser.waitUntil(async () => {
-      return (await messagesElement.getText()).includes(
-        'Given the error message below,'
-      );
-    });
+      await browser.waitUntil(async () => {
+        return (await messagesElement.getText()).includes(
+          'Given the error message below,'
+        );
+      });
 
-    // clear the chat so that a broken message doesn't break every future message
-    await browser.clickVisible(Selectors.AssistantClearChatButton);
-    await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
-    await browser.clickVisible(Selectors.SideDrawerCloseButton);
+      // clear the chat so that a broken message doesn't break every future message
+      await browser.clickVisible(Selectors.AssistantClearChatButton);
+      await browser.clickVisible(Selectors.ConfirmClearChatModalConfirmButton);
+      await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    }
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
