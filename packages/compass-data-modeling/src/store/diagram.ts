@@ -703,7 +703,7 @@ export function changeFieldType(
       fieldPath: fieldPath,
     });
     if (!field) throw new Error('Field not found in schema');
-    const to = getSchemaForNewTypes(field, newTypes);
+    const to = getSchemaForNewTypes(field.jsonSchema, newTypes);
     dispatch(
       applyEdit({
         type: 'ChangeFieldType',
