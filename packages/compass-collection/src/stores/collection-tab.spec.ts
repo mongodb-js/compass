@@ -747,5 +747,31 @@ describe('Collection Tab Content store', function () {
         expect(newState.metadata).to.deep.equal(state.metadata);
       });
     });
+
+    describe('on MockDataGeneratorModalClosed', function () {
+      it('should reset fakerSchemaGeneration to idle', function () {
+        const state: CollectionState = {
+          ...baseState,
+          schemaAnalysis: completeSchemaState,
+          mockDataGenerator: {
+            isModalOpen: false,
+            currentStep: MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+          },
+          fakerSchemaGeneration: {
+            status: 'error',
+            error: 'Some error',
+            requestId: 'some_request_id',
+          },
+        };
+
+        const action = {
+          type: CollectionActions.MockDataGeneratorModalClosed,
+        };
+        const newState = collectionTabReducer(state, action);
+        expect(newState.fakerSchemaGeneration).to.deep.equal({
+          status: 'idle',
+        });
+      });
+    });
   });
 });

@@ -286,6 +286,9 @@ const reducer: Reducer<CollectionState, Action> = (
         ...state.mockDataGenerator,
         isModalOpen: false,
       },
+      fakerSchemaGeneration: {
+        status: 'idle',
+      },
     };
   }
 
@@ -364,8 +367,6 @@ const reducer: Reducer<CollectionState, Action> = (
       },
     };
   }
-
-  // todo: reset `fakerSchemaGeneration` state when modal flow restarts
 
   if (
     isAction<FakerMappingGenerationStartedAction>(
