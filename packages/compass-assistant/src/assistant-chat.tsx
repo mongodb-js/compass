@@ -12,6 +12,9 @@ import {
   css,
   Banner,
   cx,
+  fontFamilies,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const { ChatWindow } = LgChatChatWindow;
@@ -34,6 +37,18 @@ const assistantChatStyles = css({
   },
 });
 
+const headerStyleDarkModeFixes = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.gray.light2,
+  },
+});
+
+const headerStyleLightModeFixes = css({
+  'h1, h2, h3, h4, h5, h6': {
+    color: palette.black,
+  },
+});
+
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
@@ -49,9 +64,7 @@ const assistantChatFixesStyles = css({
   /** TODO(COMPASS-9751): We're adjusting styling of all the headers to a lower level than the default for chat, this should be updated in Leafygreen as well and removed from our end. */
   'h1, h2, h3, h4, h5, h6': {
     margin: 'unset',
-    color: '#001E2B',
-    fontFamily:
-      "'Euclid Circular A','Helvetica Neue',Helvetica,Arial, sans-serif",
+    fontFamily: fontFamilies.default,
   },
   /** h4, h5, h6 -> body 1 styling */
   'h4, h5, h6': {
@@ -92,6 +105,7 @@ const errorBannerWrapperStyles = css({
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
 }) => {
+  const darkMode = useDarkMode();
   const { messages, sendMessage, status, error, clearError } = useChat({
     chat,
   });
@@ -122,7 +136,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   return (
     <div
       data-testid="assistant-chat"
-      className={cx(assistantChatFixesStyles, assistantChatStyles)}
+      className={cx(
+        assistantChatFixesStyles,
+        assistantChatStyles,
+        darkMode ? headerStyleDarkModeFixes : headerStyleLightModeFixes
+      )}
       style={{ height: '100%', width: '100%' }}
     >
       <LeafyGreenChatProvider variant={Variant.Compact}>
