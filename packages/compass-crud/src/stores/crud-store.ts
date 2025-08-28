@@ -269,6 +269,7 @@ export type CrudStoreOptions = Pick<
   | 'namespace'
   | 'isTimeSeries'
   | 'isSearchIndexesSupported'
+  | 'sourceName'
 > & {
   noRefreshOnConfigure?: boolean;
 };
@@ -1646,12 +1647,19 @@ class CrudStoreImpl
       countOptions.hint = '_id_';
     }
 
+    const isView = this.options.isReadonly && this.options.sourceName;
+    // Default sort options that we allow to choose from in settings will have a
+    // massive negative effect on the query performance for views and view-like
+    // collections in all cases. To avoid that, we're not applying default sort
+    // for those
+    const allowDefaultSort = !isView && !this.options.isTimeSeries;
+
+    const { defaultSortOrder } = this.preferences.getPreferences();
+
     let sort = query.sort;
-    if (!sort && this.preferences.getPreferences().defaultSortOrder) {
-      sort = validate(
-        'sort',
-        this.preferences.getPreferences().defaultSortOrder
-      );
+
+    if (!sort && allowDefaultSort && defaultSortOrder) {
+      sort = validate('sort', defaultSortOrder);
     }
 
     const findOptions = {
