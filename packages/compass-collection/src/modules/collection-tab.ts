@@ -12,9 +12,10 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
-import {
-  type MockDataSchemaRequest,
-  type MockDataSchemaResponse,
+import type {
+  MockDataSchemaRequest,
+  MockDataSchemaResponse,
+  MockDataSchemaRawField,
 } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';
@@ -595,27 +596,12 @@ export const generateFakerMappings = (
         requestId: requestId,
       });
 
-      // Convert FieldInfo objects to MockDataSchemaRawField format
-      const schema: Record<
-        string,
-        { type: string; sampleValues?: unknown[]; probability?: number }
-      > = {};
-      for (const [fieldName, fieldInfo] of Object.entries(
-        schemaAnalysis.processedSchema
-      )) {
-        schema[fieldName] = {
-          type: fieldInfo.type,
-          sampleValues: fieldInfo.sample_values,
-          probability: fieldInfo.probability,
-        };
-      }
-
       const mockDataSchemaRequest: MockDataSchemaRequest = {
         databaseName: database,
         collectionName: collection,
-        schema: schema,
+        schema: schemaAnalysis.processedSchema,
         validationRules: schemaAnalysis.schemaMetadata.validationRules,
-        // todo
+        // todo: set T/F depending on user setting for "Sending Sample Field Values in DE Gen AI Features"
         includeSampleValues: true,
       };
 
