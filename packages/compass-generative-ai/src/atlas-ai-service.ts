@@ -215,19 +215,16 @@ const aiURLConfig = {
   },
 } as const;
 
-export const MockDataSchemaRawFieldMappingShape = z.record(
-  z.string(),
-  z.object({
-    type: z.string(),
-    sampleValues: z.array(z.unknown()).optional(),
-    probability: z.number().min(0).max(1).optional(),
-  })
-);
+export interface MockDataSchemaRawField {
+  type: string;
+  sampleValues?: unknown[];
+  probability?: number;
+}
 
 export interface MockDataSchemaRequest {
   collectionName: string;
   databaseName: string;
-  schema: MockDataSchemaRawFieldMapping;
+  schema: Record<string, MockDataSchemaRawField>;
   validationRules?: Record<string, unknown> | null;
   includeSampleValues?: boolean;
 }
@@ -256,10 +253,6 @@ export const MockDataSchemaResponseShape = z.object({
   }),
 });
 
-export type MockDataSchemaRawFieldMapping = z.infer<
-  typeof MockDataSchemaRawFieldMappingShape
->;
-export type MockDataSchemaRawField = MockDataSchemaRawFieldMapping[string];
 export type MockDataSchemaResponse = z.infer<
   typeof MockDataSchemaResponseShape
 >;
