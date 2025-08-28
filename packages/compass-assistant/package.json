@@ -49,7 +49,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.4",
+    "@ai-sdk/openai": "^2.0.22",
     "@mongodb-js/atlas-service": "^0.56.0",
     "@mongodb-js/compass-app-registry": "^9.4.20",
     "@mongodb-js/compass-components": "^1.49.0",
