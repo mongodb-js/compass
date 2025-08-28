@@ -96,6 +96,23 @@ function searchItemsForChild(
   return undefined;
 }
 
+function getFieldTypes(jsonSchema: MongoDBJSONSchema): string[] {
+  const types: string[] = [];
+  if (jsonSchema.bsonType) {
+    if (Array.isArray(jsonSchema.bsonType)) {
+      types.push(...jsonSchema.bsonType);
+    } else {
+      types.push(jsonSchema.bsonType);
+    }
+  }
+  if (jsonSchema.anyOf) {
+    types.push(
+      ...jsonSchema.anyOf.flatMap((variant) => variant.bsonType || [])
+    );
+  }
+  return types;
+}
+
 /**
  * Finds a single field in a MongoDB JSON schema.
  */
@@ -140,21 +157,8 @@ export const getFieldFromSchema = ({
 
   // Reached the end of path, return the field information
   if (fieldPath.length === 1) {
-    const types: string[] = [];
-    if (nextStep.bsonType) {
-      if (Array.isArray(nextStep.bsonType)) {
-        types.push(...nextStep.bsonType);
-      } else {
-        types.push(nextStep.bsonType);
-      }
-    }
-    if (nextStep.anyOf) {
-      types.push(
-        ...nextStep.anyOf.flatMap((variant) => variant.bsonType || [])
-      );
-    }
     return {
-      fieldTypes: types,
+      fieldTypes: getFieldTypes(nextStep),
       jsonSchema: nextStep,
     };
   }
@@ -304,7 +308,7 @@ const getMin1ArrayVariants = (oldSchema: JSONSchema) => {
   return [
     {
       bsonType: 'array',
-      items: oldSchema.items || [],
+      items: oldSchema.items || {},
     },
   ];
 };
@@ -321,7 +325,7 @@ const getMin1ObjectVariants = (
   return [
     {
       bsonType: 'object',
-      items: oldSchema.properties || {},
+      properties: oldSchema.properties || {},
       required: oldSchema.required || [],
     },
   ];
@@ -361,20 +365,17 @@ const getOtherVariants = (
 };
 
 export function getSchemaForNewTypes(
-  field: {
-    fieldTypes: string[];
-    jsonSchema: MongoDBJSONSchema;
-  },
+  oldSchema: MongoDBJSONSchema,
   newTypes: string[]
 ): MongoDBJSONSchema {
-  const { fieldTypes: oldTypes, jsonSchema: oldSchema } = field;
+  const oldTypes = getFieldTypes(oldSchema);
   if (oldTypes.join(',') === newTypes.join(',')) return oldSchema;
   const newSchema: MongoDBJSONSchema = { ...oldSchema };
+  delete newSchema.anyOf;
 
   // Simple schema - new type does includes neither object nor array
   if (!newTypes.some((t) => t === 'object' || t === 'array')) {
     newSchema.bsonType = newTypes;
-    delete newSchema.anyOf;
     delete newSchema.properties;
     delete newSchema.items;
     delete newSchema.required;
@@ -382,25 +383,23 @@ export function getSchemaForNewTypes(
   }
 
   // Complex schema
-
-  // We collect array sub-schemas we need to keep
-  // Then we add new sub-schemas if needed
-  const arraySchemas: MongoDBJSONSchema[] = newTypes.includes('array')
+  const arrayVariants: MongoDBJSONSchema[] = newTypes.includes('array')
     ? getMin1ArrayVariants(oldSchema)
     : [];
-
-  // We collect object sub-schemas we need to keep
-  const objectSchemas: MongoDBJSONSchema[] = newTypes.includes('object')
+  const objectVariants: MongoDBJSONSchema[] = newTypes.includes('object')
     ? getMin1ObjectVariants(oldSchema)
     : [];
-
-  const otherSchemas: MongoDBJSONSchema[] = getOtherVariants(
+  const otherVariants: MongoDBJSONSchema[] = getOtherVariants(
     oldSchema,
     newTypes
   );
 
-  // Finally we set the anyOf to the collected sub-schemas
-  newSchema.anyOf = [...arraySchemas, ...objectSchemas, ...otherSchemas];
+  const newVariants = [...arrayVariants, ...objectVariants, ...otherVariants];
+  if (newVariants.length === 1) {
+    return newVariants[0];
+  }
+  newSchema.anyOf = newVariants;
+  delete newSchema.bsonType;
 
   return newSchema;
 }
