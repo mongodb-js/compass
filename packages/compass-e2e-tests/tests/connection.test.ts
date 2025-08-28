@@ -334,6 +334,7 @@ describe('Connection string', function () {
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
 
+    // TODO(COMPASS-9768) this should work on compass web
     if (!TEST_COMPASS_WEB) {
       await browser.clickVisible(Selectors.ConnectionToastErrorDebugButton);
       // TODO(COMPASS-9759) we might have to opt-in via the modal once that's a thing
