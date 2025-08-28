@@ -60,7 +60,7 @@
     "bson": "^6.10.4",
     "compass-preferences-model": "^2.51.0",
     "debug": "^4.3.4",
-    "electron": "^37.2.6",
+    "electron": "^37.4.0",
     "hadron-document": "^8.9.6",
     "hadron-ipc": "^3.5.11",
     "lodash": "^4.17.21",
@@ -104,7 +104,7 @@
     "sinon": "^9.2.3",
     "sinon-chai": "^3.7.0",
     "temp": "^0.9.4",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true
