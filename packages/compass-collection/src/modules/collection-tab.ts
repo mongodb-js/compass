@@ -566,7 +566,11 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
 export const generateFakerMappings = (
   connectionInfo: ConnectionInfo
 ): CollectionThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger, atlasAiService }) => {
+  return async (
+    dispatch,
+    getState,
+    { logger, atlasAiService, preferences }
+  ) => {
     const { schemaAnalysis, fakerSchemaGeneration, namespace } = getState();
     if (schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_COMPLETE) {
       logger.log.error(
@@ -583,6 +587,10 @@ export const generateFakerMappings = (
       );
       return;
     }
+
+    const includeSampleValues = (
+      await preferences.getConfigurableUserPreferences()
+    ).enableGenAISampleDocumentPassing;
 
     // todo: dedup/abort requests using requestId (CLOUDP-333850)
     const requestId = new UUID().toString();
@@ -602,8 +610,7 @@ export const generateFakerMappings = (
         collectionName: collection,
         schema: schemaAnalysis.processedSchema,
         validationRules: schemaAnalysis.schemaMetadata.validationRules,
-        // todo: set T/F depending on user setting for "Sending Sample Field Values in DE Gen AI Features"
-        includeSampleValues: true,
+        includeSampleValues,
       };
 
       const response = await atlasAiService.getMockDataSchema(
